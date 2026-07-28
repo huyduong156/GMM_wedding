@@ -1,0 +1,28 @@
+{
+  "style": "chibi",
+  "purpose": "Wedding invitation and wedding website decorative assets",
+  "version": 1,
+  "assetCount": 18,
+  "format": "png",
+  "transparent": true,
+  "items": [
+    { "id": "chibi_wedding-rings_v1", "file": "items/chibi_wedding-rings_v1.png", "tags": ["wedding", "rings", "proposal"], "motion": ["rotate", "shimmer"] },
+    { "id": "chibi_wedding-cake_v1", "file": "items/chibi_wedding-cake_v1.png", "tags": ["wedding", "cake", "party"], "motion": ["float", "bounce"] },
+    { "id": "chibi_love-doves_v1", "file": "items/chibi_love-doves_v1.png", "tags": ["wedding", "doves", "love"], "motion": ["fly", "float"] },
+    { "id": "chibi_love-letter_v1", "file": "items/chibi_love-letter_v1.png", "tags": ["invitation", "letter", "love"], "motion": ["tilt", "open"] },
+    { "id": "chibi_champagne-glasses_v1", "file": "items/chibi_champagne-glasses_v1.png", "tags": ["wedding", "toast", "party"], "motion": ["clink", "bubble"] },
+    { "id": "chibi_wedding-bells_v1", "file": "items/chibi_wedding-bells_v1.png", "tags": ["wedding", "bells", "ceremony"], "motion": ["swing", "pulse"] },
+    { "id": "chibi_heart-balloons_v1", "file": "items/chibi_heart-balloons_v1.png", "tags": ["wedding", "balloons", "love"], "motion": ["float", "sway"] },
+    { "id": "chibi_bridal-bouquet_v1", "file": "items/chibi_bridal-bouquet_v1.png", "tags": ["wedding", "bouquet", "bride"], "motion": ["sway", "parallax"] },
+    { "id": "chibi_wedding-car_v1", "file": "items/chibi_wedding-car_v1.png", "tags": ["wedding", "car", "journey"], "motion": ["drive", "bounce"] },
+    { "id": "chibi_cupid-arrow_v1", "file": "items/chibi_cupid-arrow_v1.png", "tags": ["wedding", "cupid", "love"], "motion": ["fly", "rotate"] },
+    { "id": "chibi_ring-box_v1", "file": "items/chibi_ring-box_v1.png", "tags": ["wedding", "ring-box", "proposal"], "motion": ["open", "shimmer"] },
+    { "id": "chibi_honeymoon-suitcase_v1", "file": "items/chibi_honeymoon-suitcase_v1.png", "tags": ["wedding", "honeymoon", "travel"], "motion": ["float", "tilt"] },
+    { "id": "chibi_polaroid-camera_v1", "file": "items/chibi_polaroid-camera_v1.png", "tags": ["wedding", "camera", "album"], "motion": ["flash", "photo-eject"] },
+    { "id": "chibi_music-box_v1", "file": "items/chibi_music-box_v1.png", "tags": ["wedding", "music-box", "doves"], "motion": ["rotate", "sparkle"] },
+    { "id": "chibi_cupcake-pair_v1", "file": "items/chibi_cupcake-pair_v1.png", "tags": ["wedding", "cupcake", "couple"], "motion": ["bounce", "float"] },
+    { "id": "chibi_flower-arch_v1", "file": "items/chibi_flower-arch_v1.png", "tags": ["wedding", "flower-arch", "ceremony"], "motion": ["reveal", "parallax"] },
+    { "id": "chibi_love-calendar_v1", "file": "items/chibi_love-calendar_v1.png", "tags": ["wedding", "calendar", "save-the-date"], "motion": ["flip", "pulse"] },
+    { "id": "chibi_guestbook_v1", "file": "items/chibi_guestbook_v1.png", "tags": ["wedding", "guestbook", "wishes"], "motion": ["open", "write"] }
+  ]
+}
