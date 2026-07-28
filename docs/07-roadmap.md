@@ -6,6 +6,11 @@ Chốt persona/MVP/wireframe/design tokens; scaffold FE/BE; auth, PostgreSQL/Pri
 
 **Exit:** login local, health check, migration đầu, CI xanh; toàn bộ stack chạy được bằng Docker Compose và hai production image build thành công.
 
+### Tiến độ hiện tại
+
+- Owner Workspace frontend foundation: app shell, responsive navigation, dashboard mock, route skeleton và frontend Docker image đã triển khai và kiểm tra ở desktop/mobile.
+- Các module guests, RSVP, wishes, editor, templates, analytics và settings hiện mới có route/placeholder.
+
 ## Phase 1 - Wedding/template core (2-3 tuần)
 
 CRUD/authorization/slug, template registry/version, content schema, editor/autosave/media/preview, publish snapshot.

@@ -17,7 +17,7 @@ Hai ứng dụng deploy độc lập và có Docker image riêng. Không dùng m
 
 ## Frontend (`frontend/`)
 
-- React, Vite, TypeScript strict, React Router.
+- React, Vite, TypeScript strict. Navigation hiện qua typed History API adapter theo ADR 0001; đánh giá lại router library khi route complexity tăng.
 - TanStack Query cho server state; Zustand chỉ cho editor/UI state phức tạp.
 - React Hook Form + Zod; Tailwind CSS + accessible primitives.
 - i18next; Vitest + React Testing Library; Playwright E2E.

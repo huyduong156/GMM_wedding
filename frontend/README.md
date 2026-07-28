@@ -1,9 +1,31 @@
 # GMM Wedding Frontend
 
-React + Vite + TypeScript cho marketing, dashboard, editor và public wedding renderer.
+React + Vite + TypeScript cho Owner Workspace, editor và public wedding renderer.
 
-Source chưa được scaffold ở bước tài liệu. Stack/cấu trúc dự kiến: [kiến trúc hệ thống](../docs/03-system-architecture.md).
+## Chạy local
 
-Admin/editor phải tuân theo [design system](../design-system/MASTER.md) và [đặc tả admin UI/UX](../docs/09-admin-ui-ux.md): dark-first, compact, accessible; owner workspace và platform admin tách permission/navigation.
+Yêu cầu Node.js 20 trở lên. Docker build hiện pin Node 20.
 
-Khi scaffold phải có multi-stage `Dockerfile` và `.dockerignore`. Production image phục vụ static build bằng Nginx/Caddy, chạy non-root và không chứa secret. Development được hỗ trợ qua root `compose.yaml`, nhưng vẫn có thể chạy trực tiếp bằng package manager.
+Yêu cầu Node.js 20 trở lên. Docker build hiện pin Node 20.
+
+```bash
+npm install
+npm run dev
+```
+
+Ứng dụng mặc định tại `http://localhost:5173`.
+
+## Lệnh kiểm tra
+
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+Admin/editor tuân theo [design system](../design-system/MASTER.md) và [đặc tả Admin UI/UX](../docs/09-admin-ui-ux.md). Docker production build static assets và phục vụ bằng Nginx non-root.
+
+Navigation hiện dùng một lớp History API nhỏ trong `src/app/navigation.tsx` thay cho React Router để tránh các advisory chưa có dải phiên bản an toàn phù hợp. Quyết định được ghi tại [ADR 0001](../docs/adr/0001-frontend-navigation-history-api.md).
+
+Navigation hiện dùng một lớp History API nhỏ trong `src/app/navigation.tsx` thay cho React Router để tránh các advisory chưa có dải phiên bản an toàn phù hợp. Quyết định được ghi tại [ADR 0001](../docs/adr/0001-frontend-navigation-history-api.md).

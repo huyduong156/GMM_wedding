@@ -158,7 +158,7 @@ Kiểm tra tối thiểu 375, 768, 1024 và 1440px; landscape và browser zoom 2
 
 ## 10. Implementation mapping
 
-- React Router route layouts cho owner/platform admin.
+- Typed navigation adapter/route composition cho owner workspace; mọi navigation đi qua abstraction để có thể thay router mà không sửa component UI.
 - TanStack Query cho server tables/cache/invalidation; URL là nguồn filter/sort/pagination.
 - React Hook Form + Zod cho form; Zustand chỉ cho transient editor state.
 - TanStack Table cho data tables; Recharts/Chart.js chỉ khi chart thực sự cần.

@@ -28,6 +28,11 @@
 
 - Đọc `docs/README.md` và tài liệu liên quan trước thay đổi lớn.
 - Khi build admin page, đọc `design-system/MASTER.md` rồi kiểm tra override trong `design-system/pages/`.
+- Owner Workspace foundation đã triển khai trong `frontend/`: React 18, Vite 6, app shell, dashboard mock, responsive navigation và module placeholders.
+- Frontend yêu cầu Node >=20; Docker pin Node 20 và dùng Nginx unprivileged runtime.
+- Navigation dùng internal History API adapter theo `docs/adr/0001-frontend-navigation-history-api.md`; không thêm React Router lại nếu chưa rà security advisory.
+- Production `npm audit --omit=dev` hiện sạch. Dev audit còn advisory DoS transitive trong ESLint/minimatch; không dùng `npm audit fix --force` vì đề xuất downgrade sai.
+- Dashboard dùng mock data; guests/RSVP/wishes/editor/templates/analytics/settings hiện mới là route placeholder.
 - Giữ FE/BE tách riêng nếu chưa có quyết định mới.
 - API/data/architecture change cập nhật docs/ADR cùng thay đổi.
 - Không commit secret, `.env`, PII, DB dump hoặc asset không rõ quyền.

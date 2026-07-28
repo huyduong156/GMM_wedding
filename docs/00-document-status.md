@@ -18,9 +18,9 @@ Chưa được xem là **Implementation-ready specification** cho đến khi cá
 | Data model | Conceptual | Prisma schema + migration + ERD vật lý |
 | API | Endpoint outline | OpenAPI 3.x + example/error/auth contract |
 | Security | Baseline | Threat model workshop + security test cases |
-| Admin UI/UX | Specification | Wireframe/prototype + component implementation |
+| Admin UI/UX | Foundation implemented | Hoàn thiện từng module + visual regression/component coverage |
 | Design system | Foundation | Tokens/components trong code + Storybook/visual tests |
-| Docker/deploy | Design | Dockerfiles, Compose, CI image scan/smoke test |
+| Docker/deploy | Frontend image implemented | Backend image, root Compose, CI image scan/smoke test |
 | Testing | Strategy | Test plan, fixtures, environments và CI thresholds |
 | Operations | Baseline | SLO/alerts/runbooks/restore drill |
 
