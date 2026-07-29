@@ -15,8 +15,9 @@ import {
   X,
 } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
-import { AppLink } from '../../app/navigation'
-import { useNavigation } from '../../app/navigation-context'
+import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
+import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
 
 const navItems = [
   { to: 'overview', label: 'Tổng quan', icon: House },
@@ -40,6 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={`app-shell ${isCollapsed ? 'is-collapsed' : ''}`}>
+      <WeddingAmbient />
       <a className="skip-link" href="#main-content">Bỏ qua điều hướng</a>
       <button
         className={`sidebar-scrim ${isSidebarOpen ? 'is-visible' : ''}`}
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         tabIndex={isSidebarOpen ? 0 : -1}
       />
 
-      <aside className={`sidebar ${isSidebarOpen ? 'is-open' : ''}`} aria-label="Điều hướng chính">
+      <aside id="primary-sidebar" className={`sidebar ${isSidebarOpen ? 'is-open' : ''}`} aria-label="Điều hướng chính">
         <div className="brand-row">
           <div className="brand-mark" aria-hidden="true">G</div>
           <div className="brand-copy">
@@ -71,7 +73,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="primary-nav">
           {navItems.map(({ to, label, icon: Icon, badge }) => (
-            <AppLink key={to} to={`${basePath}/${to}`} className={`nav-item ${pathname.endsWith(`/${to}`) ? 'is-active' : ''}`}>
+            <AppLink
+              key={to}
+              to={`${basePath}/${to}`}
+              className={`nav-item ${pathname.endsWith(`/${to}`) ? 'is-active' : ''}`}
+              ariaCurrent={pathname.endsWith(`/${to}`) ? 'page' : undefined}
+            >
               <Icon size={19} weight="regular" aria-hidden="true" />
               <span>{label}</span>
               {badge ? <b className="nav-badge" aria-label={`${badge} mục mới`}>{badge}</b> : null}
@@ -85,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="meter-track"><span style={{ width: '42%' }} /></div>
             <small>8 trong 20 khách mời</small>
           </div>
-          <button className="collapse-button" type="button" onClick={() => setCollapsed((value) => !value)}>
+          <button className="collapse-button" type="button" onClick={() => setCollapsed((value) => !value)} aria-pressed={isCollapsed}>
             <SidebarSimple size={18} />
             <span>{isCollapsed ? 'Mở rộng' : 'Thu gọn'}</span>
           </button>
@@ -94,7 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="workspace">
         <header className="topbar">
-          <button className="icon-button mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Mở menu">
+          <button className="icon-button mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Mở menu" aria-expanded={isSidebarOpen} aria-controls="primary-sidebar">
             <List size={21} />
           </button>
           <button className="command-search" type="button">

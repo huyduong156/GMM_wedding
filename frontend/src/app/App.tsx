@@ -1,7 +1,9 @@
-import { AppShell } from '../components/layout/AppShell'
-import { DashboardPage } from '../pages/DashboardPage'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
-import { useNavigation } from './navigation-context'
+import { useEffect } from 'react'
+import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
+import { GuestsPage } from '../pages/guests/ui/GuestsPage'
+import { PlaceholderPage } from '../pages/placeholder/ui/PlaceholderPage'
+import { useNavigation } from '../shared/lib/navigation/navigation-context'
+import { AppShell } from '../widgets/app-shell/ui/AppShell'
 
 const sections = ['editor', 'templates', 'guests', 'rsvps', 'wishes', 'analytics', 'settings'] as const
 
@@ -17,10 +19,11 @@ export function App() {
 
   const content = section === 'overview'
     ? <DashboardPage />
+    : section === 'guests'
+      ? <GuestsPage />
     : sections.includes(section as typeof sections[number])
       ? <PlaceholderPage section={section as typeof sections[number]} />
       : null
 
   return <AppShell>{content}</AppShell>
 }
-import { useEffect } from 'react'

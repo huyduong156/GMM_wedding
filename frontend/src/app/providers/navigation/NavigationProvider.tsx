@@ -1,5 +1,5 @@
-import { type MouseEvent, type ReactNode, useEffect, useMemo, useState } from 'react'
-import { NavigationContext, type NavigationContextValue, useNavigation } from './navigation-context'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
+import { NavigationContext, type NavigationContextValue } from '../../../shared/lib/navigation/navigation-context'
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [pathname, setPathname] = useState(() => window.location.pathname)
@@ -21,20 +21,4 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   }), [pathname])
 
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>
-}
-
-export function AppLink({ to, children, className, ariaLabel }: {
-  to: string
-  children: ReactNode
-  className?: string
-  ariaLabel?: string
-}) {
-  const { navigate } = useNavigation()
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-    event.preventDefault()
-    navigate(to)
-  }
-
-  return <a href={to} onClick={handleClick} className={className} aria-label={ariaLabel}>{children}</a>
 }
