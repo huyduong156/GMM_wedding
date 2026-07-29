@@ -11,8 +11,9 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 
 ## 2. Art direction
 
-- Dark-first, hiện đại, gọn, giảm mỏi mắt và ưu tiên dữ liệu/thao tác.
-- Nền canvas gần đen, surface phân tầng bằng border; rose là accent có kiểm soát.
+- Light-first, hiện đại, gọn, giảm mỏi mắt và ưu tiên dữ liệu/thao tác.
+- Nền canvas trắng ngà, surface trắng phân tầng bằng border và shadow ấm rất nhẹ; copper-amber là accent chủ đạo. Bảng màu phối hợp mệnh Kim (trắng, ivory) và mệnh Thổ (copper, warm stone).
+- Canvas được phép có ambient motion wedding opacity thấp trong gutter: quầng nắng, dải lụa, cánh hoa, hạt sáng và sao băng thưa. Layer luôn nằm sau surface, không bắt pointer event và tắt khi `prefers-reduced-motion`.
 - UI dùng Inter; font cưới chỉ xuất hiện trong preview/template, không dùng cho bảng/form.
 - Mật độ desktop cao nhưng control touch trên mobile vẫn tối thiểu 44px.
 - Glass/blur chỉ ở modal/sheet; không phủ glassmorphism toàn dashboard.
@@ -64,12 +65,14 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 
 ### Khách mời
 
-- Data table: checkbox, tên, nhóm, contact, số người, invite, RSVP, bàn, updated.
-- Toolbar: search deferred, filter chips, saved view, column visibility, import/export và `Thêm khách`.
+- Data table: checkbox, tên/tag, nhóm, số người, invite và xác nhận tham dự. Contact/email, bàn và updated không nằm ở primary table.
+- Toolbar: search deferred; lọc theo xác nhận tham dự, nhóm và tag; saved view, column visibility, import/export và `Thêm khách`. Tag dùng cho phân nhóm chi tiết như công ty hiện tại/cũ, họ nội/ngoại hoặc nhóm bạn.
 - Bulk action bar chỉ hiện khi selection: gán nhóm, tạo link, export, xóa/lưu trữ.
 - Row click mở detail side sheet; action phụ vào overflow menu nhưng vẫn keyboard-accessible.
 - Import CSV là wizard: upload -> map cột -> validate/preview lỗi -> commit -> report.
 - Mobile dùng prioritized columns/card rows, không co bảng desktop đến mức không đọc được.
+
+Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/guests` đã có prototype responsive theo `design-system/pages/admin-guests.md`. Search deferred theo tên, lọc xác nhận tham dự/nhóm, selection và bulk action chạy phía client; desktop dùng semantic table compact với sticky header và mặc định 50 dòng/trang, dưới 768px chuyển sang card. Import wizard, detail side sheet, saved views và kết nối API/pagination thật chưa nằm trong prototype này.
 
 ### RSVP
 
@@ -158,6 +161,8 @@ Kiểm tra tối thiểu 375, 768, 1024 và 1440px; landscape và browser zoom 2
 
 ## 10. Implementation mapping
 
+- Source frontend tuân theo Feature-Sliced Design theo thứ tự phụ thuộc `app → pages/widgets/features/entities/shared`; layer thấp không import layer cao hơn.
+- Mỗi slice chia theo segment cần thiết như `ui`, `model`, `api`, `lib`; không tạo segment rỗng chỉ để đủ cấu trúc.
 - Typed navigation adapter/route composition cho owner workspace; mọi navigation đi qua abstraction để có thể thay router mà không sửa component UI.
 - TanStack Query cho server tables/cache/invalidation; URL là nguồn filter/sort/pagination.
 - React Hook Form + Zod cho form; Zustand chỉ cho transient editor state.
@@ -169,7 +174,7 @@ Kiểm tra tối thiểu 375, 768, 1024 và 1440px; landscape và browser zoom 2
 
 - User thường không thể thấy/truy cập platform admin route và API.
 - Mọi nav/action có label hoặc accessible name; keyboard hoàn thành được core workflows.
-- Dark contrast đạt AA; selected/error/success không phụ thuộc màu đơn thuần.
+- Light-theme contrast đạt AA; selected/error/success không phụ thuộc màu đơn thuần.
 - Loading/empty/error/offline/permission states có thiết kế.
 - Bulk action, import CSV, editor autosave/conflict và destructive confirmation có prototype/test.
 - Mobile không có horizontal page scroll; bảng có chiến lược riêng.

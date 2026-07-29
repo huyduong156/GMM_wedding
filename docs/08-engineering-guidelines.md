@@ -20,6 +20,8 @@
 
 - Mobile-first; mọi trang có loading/error/empty/success; autosave xử lý offline/conflict.
 - Semantic HTML, accessible primitives, responsive/lazy images, reduced motion.
+- Frontend tổ chức theo Feature-Sliced Design với dependency flow `app → pages → widgets → features → entities → shared`. Chỉ tạo layer/slice khi có trách nhiệm thực; không import ngược lên layer cao hơn.
+- Trong mỗi slice, tách `ui`, `model`, `api`, `lib` theo nhu cầu. Mock data của page không đặt trong component UI; primitive dùng chung không chứa business rule.
 - Service backend nhận actor/context rõ; list có pagination; tránh N+1.
 - Job idempotent, retry/backoff; public API có abuse control, cache và public DTO.
 
