@@ -20,6 +20,8 @@ Account takeover, IDOR/cross-tenant, đoán slug/token, spam RSVP/wish, upload �
 ## Quyền riêng tư
 
 - Snapshot public không chứa phone/email/note/group/guest list.
+- Gift ledger là dữ liệu tài chính cá nhân owner-only: không đưa vào public snapshot, analytics, search, notification hoặc application log; export cần re-authentication trước production.
+- Recap snapshot chỉ chứa media/content và lời chúc approved đã được owner chọn; bỏ guestId, contact và moderation metadata.
 - Invite API chỉ trả dữ liệu tối thiểu của đúng lời mời.
 - Data minimization, export/delete và retention policy cho soft-delete/log/backup.
 - Redact token/PII khỏi log; analytics/cookie có consent phù hợp.

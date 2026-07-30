@@ -12,7 +12,7 @@ Owner routes previously used `/app/weddings/:weddingId/*`. The URL exposed an im
 
 - Use `/login` for authentication pages.
 - Use `/studio/*` for the wedding currently selected in the owner workspace.
-- Use `/admin/*` for platform administration.
+- Use `/gmm_admin/*` for platform administration. The non-default path reduces accidental discovery but is not a security control; authentication, role checks and server-side authorization remain mandatory.
 - Keep route constants in `frontend/src/shared/config/routes.ts`.
 - Redirect legacy `/app/weddings/:weddingId/*` paths to their corresponding studio route during migration.
 - Keep wedding identity explicit in authenticated API requests/session context. Shorter presentation URLs do not weaken backend resource authorization.
@@ -20,4 +20,4 @@ Owner routes previously used `/app/weddings/:weddingId/*`. The URL exposed an im
 
 ## Consequences
 
-URLs become shorter and product-facing code is easier to navigate. Deep links refer to the current wedding rather than encoding one wedding ID, so switching wedding context must be deliberate and persisted. Backend authorization remains mandatory for every resource; frontend route separation is not a security boundary.
+URLs become shorter and product-facing code is easier to navigate. Deep links refer to the current wedding rather than encoding one wedding ID, so switching wedding context must be deliberate and persisted. The platform-admin URL is less conventional, but secrecy of the path must never be treated as authorization. Backend authorization remains mandatory for every resource; frontend route separation is not a security boundary.

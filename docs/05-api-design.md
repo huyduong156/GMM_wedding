@@ -25,6 +25,9 @@
 - Template/media: `GET /templates[...]`, upload intent/complete/list/delete.
 - Guest: CRUD, group, import preview/commit, export, invitation create/rotate/revoke.
 - Owner RSVP/wish: list/filter/update/export/moderate và analytics summary.
+- Todo: `GET|POST /weddings/{id}/tasks`, `GET|PATCH|DELETE /weddings/{id}/tasks/{taskId}`, reorder/bulk status; `GET /task-checklist-templates`, `POST /weddings/{id}/tasks/apply-template`.
+- Gift ledger (owner-only): `GET|POST /weddings/{id}/gift-ledger`, `GET|PATCH|DELETE /weddings/{id}/gift-ledger/{entryId}`, summary và export.
+- Recap: `GET|PUT /weddings/{id}/recap`, media/wish selection, slug availability, preview token, publish/unpublish; public `GET /public/recaps/{slug}`.
 - Public: `GET /public/weddings/{slug}`, `GET /public/invitations/{token}`, `PUT .../{token}/rsvp`, `POST .../{slug}/rsvps`, `POST|GET .../{slug}/wishes`.
 
 ## Quyền
@@ -36,8 +39,13 @@
 | Khách/RSVP | Có | Có | Có | Chỉ xem | Không |
 | Xem trang published | Có | Có | Có | Có | Có |
 | Gửi RSVP/lời chúc | Có | Có | Có | Có | Theo cấu hình |
+| Todo list | Có | Có | Giới hạn | Chỉ xem | Không |
+| Sổ tiền mừng | Có | Không | Không | Không | Không |
+| Recap draft/publish | Có | Có/Giới hạn | Không | Chỉ xem draft | Chỉ bản publish |
 
 Backend luôn authorize theo resource/wedding; không tin ID/role từ client.
+
+Gift ledger phải authorize owner ở application service trước mọi read/write/export. Platform admin không có endpoint đọc nội dung ledger trong vận hành thường; support access nếu bổ sung phải là break-glass, có lý do, step-up authentication và audit.
 
 ## Cache và contract
 

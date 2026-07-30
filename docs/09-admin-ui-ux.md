@@ -101,6 +101,13 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/g
 
 Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/wishes` đã có prototype responsive với tabs/count, tìm kiếm, duyệt, ẩn, ghim, khôi phục và live feedback. Dữ liệu vẫn là mock; bulk moderation, undo thật và kết nối API chưa được triển khai.
 
+### Chuẩn bị và sau ngày cưới
+
+- `Todolist`: list/board theo status; deadline, priority và assignee luôn có text. Checklist mẫu là action khởi tạo, không làm thay đổi task user đã sửa.
+- `Sổ tiền mừng`: surface riêng có privacy notice; chỉ owner thấy menu/route nhưng backend owner-only guard mới là lớp bảo vệ chính.
+- `Wedding Recap`: editor tập trung album, lời chúc được chọn và lời cảm ơn; toolbar tách preview/publish/share, hiển thị rõ draft khác bản public.
+- `/studio/todos` và `/studio/gift-ledger` đã có prototype responsive phía client. Sổ tiền mừng mặc định che tổng tiền, có privacy notice, search/filter, bảng/card và form thêm nhanh. Recap editor/gallery vẫn là placeholder; chưa kết nối API.
+
 ### Template gallery
 
 - Filter/search bên trái hoặc filter bar; grid 3-4 cột desktop, 2 tablet, 1 mobile.
@@ -124,12 +131,24 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/t
 - **Moderation:** reports/wishes/media queue, evidence, decision/reason and audit trail.
 - **Plans & entitlements:** feature/quota matrix; payment/webhook khi module billing tồn tại.
 - **Operations:** jobs/webhooks/provider status/feature flags/audit logs; secret value không hiển thị.
-- Platform admin có route namespace `/admin/*`, guard phía server và frontend; menu sinh theo permission nhưng backend vẫn là nguồn phân quyền cuối.
+- Platform admin có route namespace `/gmm_admin/*`, guard phía server và frontend; menu sinh theo permission nhưng backend vẫn là nguồn phân quyền cuối. Tên route không phải một lớp bảo mật.
+
+Trạng thái triển khai frontend (2026-07): `/gmm_admin/users` có prototype mock responsive với summary, tìm theo tên/email, lọc trạng thái, selection/bulk-state, bảng desktop và card mobile. Detail drawer, mutation suspend/restore, permission guard, audit trail và server pagination chưa kết nối backend.
+
+`/gmm_admin/login` là bề mặt đăng nhập quản trị tách khỏi admin shell, có form và thông báo phạm vi truy cập nội bộ. Đây mới là prototype điều hướng; session cookie, rate limit, MFA, server-side guard và audit đăng nhập phải được backend triển khai trước production. Hai kho `/gmm_admin/library/invites` và `/gmm_admin/library/websites` dùng catalog card có visual preview, trạng thái, version, lượt sử dụng, tìm kiếm và bộ lọc client-side; thao tác tạo/xem trước/quản lý chưa kết nối API.
+
+Template thiệp code đầu tiên `modern-luxe` có public preview tại `/templates/invitations/modern-luxe/preview`. Renderer dùng fixture mặc định khi thiếu dữ liệu để admin, user hoặc khách chưa đăng nhập luôn xem được mẫu; prop data được merge đè lên fixture khi render nội dung đã lưu. Template giới hạn ba palette đã duyệt (`champagne`, `midnight`, `sage`) và template config khai báo section/field/validation cơ bản. Nút xem trước của entry `Modern Luxe` trong catalog admin dẫn trực tiếp đến route này.
+
+Modern Luxe dùng interaction mở phong bì trước khi hiển thị nội dung, sau đó giới hạn vào lời mời, ảnh đại diện, thời gian, địa điểm và RSVP. Ảnh minh họa được lưu local và ghi nguồn trong `assets/ASSET_SOURCES.md`; không hotlink và không coi người mẫu là cặp đôi mang tên trong fixture.
+
+`/gmm_admin/login` là bề mặt đăng nhập quản trị tách khỏi admin shell, có form và thông báo phạm vi truy cập nội bộ. Đây mới là prototype điều hướng; session cookie, rate limit, MFA, server-side guard và audit đăng nhập phải được backend triển khai trước production. Hai kho `/gmm_admin/library/invites` và `/gmm_admin/library/websites` dùng catalog card có visual preview, trạng thái, version, lượt sử dụng, tìm kiếm và bộ lọc client-side; thao tác tạo/xem trước/quản lý chưa kết nối API.
 
 ## 6. Route map đề xuất
 
 ```text
 /login                                đăng nhập owner/editor
+/gmm_admin/login                      đăng nhập platform admin
+/gmm_admin/login                      đăng nhập platform admin
 /studio                               tổng quan wedding đang chọn
 /studio/invites                       thiệp của bạn
 /studio/invites/themes                kho giao diện thiệp
@@ -139,14 +158,22 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/t
 /studio/guests/categories
 /studio/rsvps
 /studio/wishes
+/studio/todos
+/studio/gift-ledger
+/studio/recap
+/studio/recap/themes
 /studio/analytics
 /studio/settings
-/admin
-/admin/users
-/admin/weddings
-/admin/themes
-/admin/moderation
-/admin/operations
+/gmm_admin
+/gmm_admin/users
+/gmm_admin/weddings
+/gmm_admin/subscriptions
+/gmm_admin/library/invites
+/gmm_admin/library/websites
+/gmm_admin/styles/invites
+/gmm_admin/styles/websites
+/gmm_admin/moderation
+/gmm_admin/operations
 ```
 
 Owner URL không chứa wedding ID vì wedding hiện hành được chọn trong workspace switcher và lưu trong session/context. API vẫn phải nhận/authorize wedding ID rõ ràng; URL cũ `/app/weddings/:weddingId/*` được frontend chuyển hướng tương thích sang `/studio/*` trong giai đoạn chuyển đổi.

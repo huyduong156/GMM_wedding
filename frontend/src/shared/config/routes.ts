@@ -8,17 +8,26 @@ export const studioRoutes = {
   guestCategories: '/studio/guests/categories',
   rsvps: '/studio/rsvps',
   wishes: '/studio/wishes',
+  todos: '/studio/todos',
+  giftLedger: '/studio/gift-ledger',
+  recap: '/studio/recap',
+  recapThemes: '/studio/recap/themes',
   analytics: '/studio/analytics',
   settings: '/studio/settings',
 } as const
 
 export const adminRoutes = {
-  home: '/admin',
-  users: '/admin/users',
-  weddings: '/admin/weddings',
-  themes: '/admin/themes',
-  moderation: '/admin/moderation',
-  operations: '/admin/operations',
+  home: '/gmm_admin',
+  login: '/gmm_admin/login',
+  users: '/gmm_admin/users',
+  weddings: '/gmm_admin/weddings',
+  subscriptions: '/gmm_admin/subscriptions',
+  inviteLibrary: '/gmm_admin/library/invites',
+  websiteLibrary: '/gmm_admin/library/websites',
+  inviteStyles: '/gmm_admin/styles/invites',
+  websiteStyles: '/gmm_admin/styles/websites',
+  moderation: '/gmm_admin/moderation',
+  operations: '/gmm_admin/operations',
 } as const
 
 export const legacyStudioRoutes: Record<string, string> = {
@@ -31,6 +40,14 @@ export const legacyStudioRoutes: Record<string, string> = {
   'guest-categories': studioRoutes.guestCategories,
   rsvps: studioRoutes.rsvps,
   wishes: studioRoutes.wishes,
+  todos: studioRoutes.todos,
+  'gift-ledger': studioRoutes.giftLedger,
+  recap: studioRoutes.recap,
+  'recap-themes': studioRoutes.recapThemes,
   analytics: studioRoutes.analytics,
   settings: studioRoutes.settings,
 }
+
+export const publicTemplateRoutes = {
+  modernLuxePreview: '/templates/invitations/modern-luxe/preview',
+} as const

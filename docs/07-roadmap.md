@@ -35,7 +35,10 @@ Plan/entitlement/billing, custom domain, premium template, email/SMS/Zalo, QR/ch
 
 ## Backlog
 
-Drag-drop nâng cao, version history, seating/meal/check-in, marketplace, referral, multi-language, photo wall/slideshow/livestream integration.
+- Wedding Todo List sau guest core: checklist mẫu, assignment, deadline và reminder.
+- Sổ tiền mừng sau auth/guest core: owner-only CRUD/export, privacy/cross-role tests và retention.
+- Wedding Recap sau media/wish/template core: editor, preview, immutable snapshot, public slug và social OG.
+- Drag-drop nâng cao, version history, seating/meal/check-in, marketplace, referral, multi-language, photo wall/slideshow/livestream integration.
 
 ## Definition of Done
 

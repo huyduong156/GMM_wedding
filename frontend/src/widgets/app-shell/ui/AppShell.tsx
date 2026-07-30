@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Bell,
+  CalendarCheck,
   CaretDown,
   ChartLineUp,
   GearSix,
@@ -8,6 +9,8 @@ import {
   Heart,
   House,
   FolderSimple,
+  CurrencyCircleDollar,
+  ImagesSquare,
   List,
   MagnifyingGlass,
   Palette,
@@ -40,12 +43,19 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
     { label: 'Website cưới', icon: GlobeHemisphereWest, heading: true },
     { to: studioRoutes.siteThemes, label: 'Kho website', icon: Palette, child: true },
     { to: studioRoutes.site, label: 'Website của bạn', icon: GlobeHemisphereWest, child: true },
+    { label: 'Wedding Recap', icon: ImagesSquare, heading: true },
+    { to: studioRoutes.recapThemes, label: 'Kho giao diện', icon: Palette, child: true },
+    { to: studioRoutes.recap, label: 'Recap của bạn', icon: ImagesSquare, child: true },
   ] },
   { label: 'Khách & phản hồi', items: [
     { to: studioRoutes.guests, label: 'Khách mời', icon: UserList },
     { to: studioRoutes.guestCategories, label: 'Danh mục khách mời', icon: FolderSimple, child: true },
     { to: studioRoutes.rsvps, label: 'Xác nhận tham dự', icon: List, badge: '12' },
     { to: studioRoutes.wishes, label: 'Lời chúc', icon: Heart, badge: '5' },
+  ] },
+  { label: 'Chuẩn bị', items: [
+    { to: studioRoutes.todos, label: 'Todolist', icon: CalendarCheck },
+    { to: studioRoutes.giftLedger, label: 'Sổ tiền mừng', icon: CurrencyCircleDollar },
   ] },
   { label: 'Vận hành', items: [
     { to: studioRoutes.analytics, label: 'Thống kê', icon: ChartLineUp },

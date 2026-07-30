@@ -30,7 +30,7 @@ src/
   features/ entities/ shared/  logic dùng lại theo Feature-Sliced Design
 ```
 
-Frontend có ba route namespace và visual shell độc lập: `/login` cho auth, `/studio/*` cho owner workspace và `/admin/*` cho platform admin. Route constants tập trung trong `shared/config/routes.ts`; không hard-code URL trong page/widget. Việc ẩn menu chỉ là UX, backend vẫn phải guard role và resource ở mọi API.
+Frontend có ba route namespace và visual shell độc lập: `/login` cho auth, `/studio/*` cho owner workspace và `/gmm_admin/*` cho platform admin. Route constants tập trung trong `shared/config/routes.ts`; không hard-code URL trong page/widget. URL quản trị ít phổ biến chỉ giảm dò tình cờ; backend vẫn phải guard role và resource ở mọi API.
 
 ## Backend (`backend/`)
 
@@ -44,7 +44,7 @@ Frontend có ba route namespace và visual shell độc lập: `/login` cho auth
 ```text
 src/
   app/api/v1/
-  modules/{auth,users,weddings,templates,guests,rsvps,wishes,media,notifications}/
+  modules/{auth,users,weddings,templates,guests,rsvps,wishes,tasks,gift-ledger,recaps,media,notifications}/
   infrastructure/ shared/ jobs/ tests/
 ```
 
@@ -59,13 +59,25 @@ CSR có thể yếu hơn SSR về SEO/first-load; đo Core Web Vitals trước b
 ## Template engine
 
 - Template là code được review, không cho user upload script/HTML tùy ý.
-- `TemplateVersion` bất biến chứa manifest, section hỗ trợ và schema version.
-- Wedding lưu canonical content + theme/config độc lập template.
+- `Template` giữ identity/catalog metadata; `TemplateVersion` bất biến chứa renderer, template config hash, section hỗ trợ và các contract version.
+- Template config là contract dùng chung cho editor, backend validator, migration và renderer; `templateConfigVersion`, content schema version và renderer API version được quản lý độc lập với SemVer của template.
+- Wedding lưu canonical semantic content + theme/section config độc lập template. Thiệp online và website cưới chọn template/lifecycle riêng dưới cùng wedding.
 - Wedding cũ giữ version cũ cho đến khi migration chủ động.
+- Sync template là idempotent, chỉ thêm version mới; cùng key/version nhưng khác hash phải thất bại. Version cũ được deprecate thay vì xóa khi còn tham chiếu.
+
+Chi tiết quyết định và hệ quả deploy xem [ADR 0004](./adr/0004-code-template-contract-and-versioning.md).
 
 ## Media
 
 Frontend xin presigned URL -> backend kiểm tra quyền/quota/MIME -> upload trực tiếp -> job xác minh/scan/tối ưu -> chỉ asset `ready` được publish.
+
+## Planning, private ledger và recap
+
+- Tasks là dữ liệu cộng tác thuộc wedding; checklist mẫu chỉ là nguồn seed và được copy thành task độc lập.
+- Gift ledger là privacy boundary owner-only. Application service authorize owner trước repository access; dữ liệu không vào public snapshot, analytics, search hoặc notification.
+- Recap là publication aggregate riêng: draft tham chiếu media/wish hợp lệ, publish tạo immutable `PublishedRecapSnapshot`, public API/cache theo recap slug. Template recap dùng registry hiện có với product type riêng.
+
+Chi tiết xem [ADR 0005](./adr/0005-wedding-planning-ledger-and-recap.md).
 
 ## Deploy
 

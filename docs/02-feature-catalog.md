@@ -66,12 +66,19 @@
 - MVP không giữ tiền hoặc xử lý giao dịch.
 - Payment gateway chỉ sau đánh giá pháp lý/đối soát.
 
+## Chuẩn bị và sau ngày cưới
+
+- Wedding Todo List: task theo wedding với deadline, priority, category, trạng thái và người phụ trách; có checklist mẫu version hóa.
+- Sổ tiền mừng: owner tự ghi tiền hoặc quà theo guest, hình thức/ngày nhận, ghi chú và trạng thái đã mừng lại; dữ liệu riêng tư chỉ owner truy cập trong MVP.
+- Wedding Recap: draft single-page gồm media sẵn sàng, lời chúc đã duyệt được chọn và lời cảm ơn; publish/unpublish bằng slug riêng, có OG metadata để chia sẻ.
+- Sổ tiền mừng chỉ là sổ ghi chép, không giữ tiền hoặc suy diễn giao dịch ngân hàng.
+
 ## Dashboard, admin và billing
 
 - Tổng khách, trạng thái RSVP, party size, lượt xem và nguồn truy cập phù hợp consent.
 - Email/in-app notification và digest.
 - Admin quản lý user, wedding, template/version, moderation, audit log/feature flag.
-- Owner workspace và platform admin là hai navigation/permission scope riêng; platform admin dùng `/admin/*` và server-side guard.
+- Owner workspace và platform admin là hai navigation/permission scope riêng; platform admin dùng `/gmm_admin/*` và server-side guard.
 - Platform admin có system health, moderation queue, template workflow/version/rollback, operations/jobs/webhooks và audit trail.
 - Post-MVP: plan, entitlement, quota, subscription, invoice, coupon, webhook idempotent.
 
