@@ -4,13 +4,15 @@ import {
   CaretDown,
   ChartLineUp,
   GearSix,
+  GlobeHemisphereWest,
   Heart,
   House,
+  FolderSimple,
   List,
   MagnifyingGlass,
   Palette,
+  PaperPlaneTilt,
   SidebarSimple,
-  Sparkle,
   UserList,
   X,
 } from '@phosphor-icons/react'
@@ -18,19 +20,38 @@ import type { ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
+import { studioRoutes } from '../../../shared/config/routes'
 
-const navItems = [
-  { to: 'overview', label: 'Tổng quan', icon: House },
-  { to: 'editor', label: 'Thiết kế thiệp', icon: Palette },
-  { to: 'templates', label: 'Kho giao diện', icon: Sparkle },
-  { to: 'guests', label: 'Khách mời', icon: UserList },
-  { to: 'rsvps', label: 'Xác nhận tham dự', icon: List, badge: '12' },
-  { to: 'wishes', label: 'Lời chúc', icon: Heart, badge: '5' },
-  { to: 'analytics', label: 'Thống kê', icon: ChartLineUp },
-  { to: 'settings', label: 'Cài đặt', icon: GearSix },
+type NavItem = {
+  label: string
+  icon: typeof House
+  to?: string
+  badge?: string
+  child?: boolean
+  heading?: boolean
+}
+
+const navGroups: Array<{ label: string; items: NavItem[] }> = [
+  { label: '', items: [{ to: studioRoutes.home, label: 'Tổng quan', icon: House }] },
+  { label: 'Hiện diện online', items: [
+    { label: 'Thiệp online', icon: PaperPlaneTilt, heading: true },
+    { to: studioRoutes.inviteThemes, label: 'Kho thiệp', icon: Palette, child: true },
+    { to: studioRoutes.invites, label: 'Thiệp của bạn', icon: PaperPlaneTilt, child: true },
+    { label: 'Website cưới', icon: GlobeHemisphereWest, heading: true },
+    { to: studioRoutes.siteThemes, label: 'Kho website', icon: Palette, child: true },
+    { to: studioRoutes.site, label: 'Website của bạn', icon: GlobeHemisphereWest, child: true },
+  ] },
+  { label: 'Khách & phản hồi', items: [
+    { to: studioRoutes.guests, label: 'Khách mời', icon: UserList },
+    { to: studioRoutes.guestCategories, label: 'Danh mục khách mời', icon: FolderSimple, child: true },
+    { to: studioRoutes.rsvps, label: 'Xác nhận tham dự', icon: List, badge: '12' },
+    { to: studioRoutes.wishes, label: 'Lời chúc', icon: Heart, badge: '5' },
+  ] },
+  { label: 'Vận hành', items: [
+    { to: studioRoutes.analytics, label: 'Thống kê', icon: ChartLineUp },
+    { to: studioRoutes.settings, label: 'Cài đặt', icon: GearSix },
+  ] },
 ]
-
-const basePath = '/app/weddings/wed_mai_duc'
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
@@ -52,7 +73,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <aside id="primary-sidebar" className={`sidebar ${isSidebarOpen ? 'is-open' : ''}`} aria-label="Điều hướng chính">
         <div className="brand-row">
-          <div className="brand-mark" aria-hidden="true">G</div>
+          <div className="brand-mark">
+            <img src="/assets/logo/wedding_logo.png" alt="" aria-hidden="true" />
+          </div>
           <div className="brand-copy">
             <strong>GMM Wedding</strong>
             <span>Không gian quản lý</span>
@@ -72,17 +95,27 @@ export function AppShell({ children }: { children: ReactNode }) {
         </button>
 
         <nav className="primary-nav">
-          {navItems.map(({ to, label, icon: Icon, badge }) => (
-            <AppLink
-              key={to}
-              to={`${basePath}/${to}`}
-              className={`nav-item ${pathname.endsWith(`/${to}`) ? 'is-active' : ''}`}
-              ariaCurrent={pathname.endsWith(`/${to}`) ? 'page' : undefined}
-            >
-              <Icon size={19} weight="regular" aria-hidden="true" />
-              <span>{label}</span>
-              {badge ? <b className="nav-badge" aria-label={`${badge} mục mới`}>{badge}</b> : null}
-            </AppLink>
+          {navGroups.map((group) => (
+            <div className="nav-group" key={group.label || 'main'}>
+              {group.label ? <p className="nav-group-label">{group.label}</p> : null}
+              {group.items.map(({ to, label, icon: Icon, badge, child, heading }) => heading ? (
+                <div className="nav-section-heading" key={label}>
+                  <Icon size={19} weight="regular" aria-hidden="true" />
+                  <span>{label}</span>
+                </div>
+              ) : (
+                <AppLink
+                  key={to!}
+                  to={to!}
+                  className={`nav-item ${child ? 'is-child' : ''} ${pathname === to ? 'is-active' : ''}`}
+                  ariaCurrent={pathname === to ? 'page' : undefined}
+                >
+                  <Icon size={19} weight="regular" aria-hidden="true" />
+                  <span>{label}</span>
+                  {badge ? <b className="nav-badge" aria-label={`${badge} mục mới`}>{badge}</b> : null}
+                </AppLink>
+              ))}
+            </div>
           ))}
         </nav>
 

@@ -13,7 +13,7 @@
 - `Wedding`, `WeddingMember(role)`, `WeddingEvent`, `WeddingContent`, `WeddingTheme`.
 - `Template`, immutable `TemplateVersion`, `PublishedWeddingSnapshot`.
 - `MediaAsset`, `MediaVariant`.
-- `GuestGroup`, `Guest`, `Invitation`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
+- `GuestCategory`, `GuestGroup`, `Guest`, `Invitation`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
 - `Wish`, `Notification`, `NotificationPreference`, `AuditLog`.
 - Post-MVP: `Plan`, `Subscription`, `Entitlement`, `Payment`, `WebhookEvent`, `Coupon`.
 
@@ -22,6 +22,9 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
                                |-- Content/Theme
                                |--< PublishedSnapshot >-- TemplateVersion
                                |--< MediaAsset
+                               |--< GuestCategory --< Guest
+                               |--< GuestCategory --< Guest
+                               |--< GuestCategory --< Guest
                                |--< GuestGroup --< Guest --< Invitation -- RsvpResponse
                                `--< Wish
 ```
@@ -32,6 +35,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 - Unique `(weddingId, userId)` cho member.
 - `Invitation.tokenHash` unique; tuyệt đối không lưu token raw.
 - Index guest theo `(weddingId, groupId)`; RSVP theo `(weddingId, attendance, submittedAt)`; wish theo moderation status.
+- `GuestCategory` self-reference qua `parentId`, thuộc đúng một wedding và có `depth` từ 1 đến 3. Parent phải cùng wedding, depth của child bằng parent + 1; không cho tạo chu kỳ hoặc cấp 4. Guest có thể gắn một category chính trong MVP.
 - Unique `(weddingId, version)` cho published snapshot.
 - Slug 3-64 ký tự, lowercase chữ/số/gạch nối, chặn reserved words.
 - `partySize >= 0` và không vượt `maxPartySize` trừ owner override.

@@ -33,9 +33,20 @@ const ambientObjects = [
   { id: 'balloon-two', kind: 'balloon', Icon: Balloon, size: 22, duration: 46, delay: -7, x: 87 },
 ]
 
-export function WeddingAmbient() {
+type WeddingAmbientProps = {
+  variant?: 'workspace' | 'login'
+}
+
+const loginArtwork = [
+  { id: 'envelope', src: '/assets/images/ambient/luxury-envelope.png' },
+  { id: 'floral-ribbon', src: '/assets/images/ambient/champagne-floral-ribbon.png' },
+]
+
+export function WeddingAmbient({ variant = 'workspace' }: WeddingAmbientProps) {
+  const isLogin = variant === 'login'
+
   return (
-    <div className="wedding-ambient" aria-hidden="true">
+    <div className={`wedding-ambient wedding-ambient-${variant}`} aria-hidden="true">
       <span className="ambient-glow ambient-glow-one" />
       <span className="ambient-glow ambient-glow-two" />
       <div className="silk-ribbons">
@@ -60,8 +71,15 @@ export function WeddingAmbient() {
           </span>
         ))}
       </div>
+      {isLogin && (
+        <div className="ambient-art-field">
+          {loginArtwork.map(({ id, src }) => (
+            <img className={`ambient-art ambient-art-${id}`} key={id} src={src} alt="" decoding="async" />
+          ))}
+        </div>
+      )}
       <div className="petal-field">
-        {petals.map((petal) => <i key={petal.id} style={petal.style} />)}
+        {petals.slice(0, isLogin ? 7 : petals.length).map((petal) => <i key={petal.id} style={petal.style} />)}
       </div>
     </div>
   )

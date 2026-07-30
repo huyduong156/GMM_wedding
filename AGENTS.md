@@ -4,6 +4,8 @@ Before planning or implementing project work, read `.agents/PROJECT_CONTEXT.md` 
 
 Before implementing an admin/editor UI, read `design-system/MASTER.md`, `docs/09-admin-ui-ux.md`, and any matching file in `design-system/pages/`.
 
+Before any Google/web search or external source lookup, use `.agents/skills/web-research-agent/SKILL.md`. Delegate research to a dedicated sub-agent and keep raw search results out of the main task context. Use local repository documents directly without delegation.
+
 - Treat `docs/` as the product and engineering source of truth.
 - Keep `frontend/` (React + Vite) and `backend/` (Next.js API) separate unless a documented decision changes this.
 - Preserve Docker portability: independent multi-stage images, stateless/non-root runtime, root Compose for local integration, and one-off database migrations.

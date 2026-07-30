@@ -30,6 +30,10 @@
 
 ## Publish và chia sẻ
 
+- Tách hai bề mặt sản phẩm trong owner workspace:
+  - **Thiệp online:** nhiều đường dẫn/slug hoặc invite token theo khách và nhóm khách, nội dung ngắn gọn, ưu tiên gửi nhanh và theo dõi phản hồi.
+  - **Website cưới:** một website cho mỗi wedding, phục vụ câu chuyện tình yêu, album, lịch trình, địa điểm, lời chúc và thông tin chung.
+
 - URL theo slug, publish/unpublish, QR code, copy/share Zalo/Facebook.
 - Tùy chỉnh OG title/image/description.
 - Scheduled publish, custom domain, bỏ branding (Post-MVP).
@@ -37,6 +41,7 @@
 ## Khách mời
 
 - CRUD khách/nhóm/tag/ghi chú/bàn; số người dự kiến.
+- Danh mục khách mời dạng cây tối đa 3 cấp; tạo danh mục gốc/danh mục con, đổi tên, di chuyển và dùng làm bộ lọc. Không cho tạo chu kỳ hoặc cấp thứ 4.
 - Import CSV có mapping/validate/preview; export CSV/XLSX.
 - Link cá nhân với opaque token; rotate/revoke token.
 - Email/SMS/Zalo provider, tracking và check-in QR (Post-MVP).

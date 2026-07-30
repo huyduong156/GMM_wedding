@@ -12,8 +12,7 @@ import {
 } from '@phosphor-icons/react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { activity, metrics, trend } from '../model/dashboard-data'
-
-const basePath = '/app/weddings/wed_mai_duc'
+import { studioRoutes } from '../../../shared/config/routes'
 
 export function DashboardPage() {
   return (
@@ -76,7 +75,7 @@ export function DashboardPage() {
           <section className="panel guest-status-panel">
             <header className="panel-header">
               <div><h2>Tình trạng khách mời</h2><p>Tổng cộng 128 lời mời</p></div>
-              <AppLink className="inline-link" to={`${basePath}/guests`}>Quản lý <ArrowRight size={15} /></AppLink>
+              <AppLink className="inline-link" to={studioRoutes.guests}>Quản lý <ArrowRight size={15} /></AppLink>
             </header>
             <div className="attendance-layout">
               <div className="donut" aria-label="67 phần trăm khách đã phản hồi"><div><strong>67%</strong><span>đã phản hồi</span></div></div>
@@ -93,13 +92,13 @@ export function DashboardPage() {
           <section className="panel next-event-panel">
             <div className="event-date"><span>18</span><small>THÁNG 10</small></div>
             <div className="event-copy"><span>Sự kiện sắp tới</span><h2>Lễ thành hôn</h2><p><Clock size={15} /> 17:30, Thứ Bảy</p><p><LinkSimple size={15} /> White Palace, TP. Hồ Chí Minh</p></div>
-            <AppLink className="button button-secondary compact" to={`${basePath}/settings`}>Chi tiết <ArrowRight size={16} /></AppLink>
+            <AppLink className="button button-secondary compact" to={studioRoutes.settings}>Chi tiết <ArrowRight size={16} /></AppLink>
           </section>
 
           <section className="panel activity-panel">
           <header className="panel-header">
             <div><h2>Hoạt động gần đây</h2><p>Cập nhật theo thời gian thực</p></div>
-            <AppLink className="inline-link" to={`${basePath}/rsvps`}>Xem tất cả <ArrowRight size={15} /></AppLink>
+            <AppLink className="inline-link" to={studioRoutes.rsvps}>Xem tất cả <ArrowRight size={15} /></AppLink>
           </header>
           <div className="activity-list">
             {activity.map((item) => (
@@ -114,9 +113,9 @@ export function DashboardPage() {
       </div>
 
       <section className="quick-links" aria-label="Thao tác nhanh">
-        <AppLink to={`${basePath}/guests`}><span><Users size={19} /></span><div><strong>Thêm khách mời</strong><small>Tạo lời mời và link riêng</small></div><ArrowRight size={17} /></AppLink>
-        <AppLink to={`${basePath}/editor`}><span><Heart size={19} /></span><div><strong>Chỉnh sửa nội dung</strong><small>Cập nhật câu chuyện và hình ảnh</small></div><ArrowRight size={17} /></AppLink>
-        <AppLink to={`${basePath}/templates`}><span><PaperPlaneTilt size={19} /></span><div><strong>Đổi giao diện</strong><small>Khám phá các mẫu thiệp mới</small></div><ArrowRight size={17} /></AppLink>
+        <AppLink to={studioRoutes.guests}><span><Users size={19} /></span><div><strong>Thêm khách mời</strong><small>Tạo lời mời và link riêng</small></div><ArrowRight size={17} /></AppLink>
+        <AppLink to={studioRoutes.invites}><span><Heart size={19} /></span><div><strong>Chỉnh sửa nội dung</strong><small>Cập nhật câu chuyện và hình ảnh</small></div><ArrowRight size={17} /></AppLink>
+        <AppLink to={studioRoutes.inviteThemes}><span><PaperPlaneTilt size={19} /></span><div><strong>Đổi giao diện</strong><small>Khám phá các mẫu thiệp mới</small></div><ArrowRight size={17} /></AppLink>
       </section>
     </div>
   )

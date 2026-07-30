@@ -14,6 +14,7 @@
 7. [Roadmap](./07-roadmap.md)
 8. [Quy ước phát triển](./08-engineering-guidelines.md)
 9. [Giao diện quản trị và editor](./09-admin-ui-ux.md)
+10. [Quy trình web research](./10-web-research-workflow.md)
 
 Design system dùng khi triển khai UI: [`../design-system/MASTER.md`](../design-system/MASTER.md).
 

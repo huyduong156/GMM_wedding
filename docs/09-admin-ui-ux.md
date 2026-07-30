@@ -28,8 +28,14 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 │ switcher     │ Breadcrumb + page title              Primary action │
 │              │                                                      │
 │ Overview     │ Page content                                         │
-│ Editor       │                                                      │
+│ Online invites│                                                     │
+│   Gallery     │                                                      │
+│   Your invites│                                                     │
+│ Wedding site │                                                      │
+│   Gallery     │                                                      │
+│   Your website│                                                     │
 │ Guests       │                                                      │
+│   Categories │                                                      │
 │ RSVP         │                                                      │
 │ Wishes       │                                                      │
 │ Analytics    │                                                      │
@@ -56,6 +62,11 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 
 ### Thiết kế thiệp
 
+- Navigation tách hai khái niệm: **Thiệp online** quản lý nhiều lời mời/slug cá nhân hóa; **Website cưới** là một website chung cho mỗi wedding để kể chuyện, album, lịch trình và thông tin công khai.
+- Thiệp online có thể tạo nhiều biến thể theo khách/nhóm khách nhưng dùng chung nội dung và nhận diện cốt lõi; dữ liệu khách không được đưa vào published snapshot công khai.
+- Website cưới có tối đa một cấu hình đang hoạt động cho mỗi wedding trong MVP; slug công khai và trạng thái publish được quản lý độc lập với invite token.
+- Cả `Thiệp online` và `Website cưới` là navigation heading, mỗi heading có hai child-nav: `Kho giao diện` và tài sản của user (`Thiệp của bạn` hoặc `Website của bạn`). Hai gallery dùng route riêng để sau này có thể tách loại template và entitlement.
+
 - Ba vùng desktop: section navigator 240px, canvas preview co giãn, property panel 320-360px.
 - Toolbar: device preview, undo/redo, save state, preview, publish.
 - Section editor theo schema/form; drag reorder có nút move keyboard-accessible thay thế.
@@ -71,6 +82,7 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Row click mở detail side sheet; action phụ vào overflow menu nhưng vẫn keyboard-accessible.
 - Import CSV là wizard: upload -> map cột -> validate/preview lỗi -> commit -> report.
 - Mobile dùng prioritized columns/card rows, không co bảng desktop đến mức không đọc được.
+- `Danh mục khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây tối đa 3 cấp. Mỗi row hiển thị tên, cấp, tổng khách và thao tác thêm cấp con; cấp 3 hiển thị rõ là cấp cuối.
 
 Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/guests` đã có prototype responsive theo `design-system/pages/admin-guests.md`. Search deferred theo tên, lọc xác nhận tham dự/nhóm, selection và bulk action chạy phía client; desktop dùng semantic table compact với sticky header và mặc định 50 dòng/trang, dưới 768px chuyển sang card. Import wizard, detail side sheet, saved views và kết nối API/pagination thật chưa nằm trong prototype này.
 
@@ -87,11 +99,15 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/g
 - List/card compact với full text expansion; approve/reject/pin và bulk moderation.
 - Focus vào item kế tiếp sau thao tác keyboard; hỗ trợ undo cho hide/reject.
 
+Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/wishes` đã có prototype responsive với tabs/count, tìm kiếm, duyệt, ẩn, ghim, khôi phục và live feedback. Dữ liệu vẫn là mock; bulk moderation, undo thật và kết nối API chưa được triển khai.
+
 ### Template gallery
 
 - Filter/search bên trái hoặc filter bar; grid 3-4 cột desktop, 2 tablet, 1 mobile.
 - Card có thumbnail tỷ lệ cố định, tên/style/tags/premium; preview và `Dùng mẫu này` rõ ràng.
 - Trước đổi template phải báo phần nào tương thích/không tương thích và cho preview trước khi commit.
+
+Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/templates` đã có gallery responsive với 6 theme mock, tìm kiếm, lọc phong cách, preview lớn, chọn theme và đánh dấu theme đang dùng. Renderer/editor chi tiết, kiểm tra schema compatibility và kết nối API chưa được triển khai.
 
 ### Settings
 
@@ -113,24 +129,27 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/g
 ## 6. Route map đề xuất
 
 ```text
-/app                                  wedding list / account overview
-/app/weddings/:weddingId/overview
-/app/weddings/:weddingId/editor
-/app/weddings/:weddingId/templates
-/app/weddings/:weddingId/guests
-/app/weddings/:weddingId/rsvps
-/app/weddings/:weddingId/wishes
-/app/weddings/:weddingId/analytics
-/app/weddings/:weddingId/settings/*
+/login                                đăng nhập owner/editor
+/studio                               tổng quan wedding đang chọn
+/studio/invites                       thiệp của bạn
+/studio/invites/themes                kho giao diện thiệp
+/studio/site                          website của bạn
+/studio/site/themes                   kho giao diện website
+/studio/guests
+/studio/guests/categories
+/studio/rsvps
+/studio/wishes
+/studio/analytics
+/studio/settings
 /admin
 /admin/users
 /admin/weddings
-/admin/templates/*
+/admin/themes
 /admin/moderation
-/admin/plans
-/admin/operations/*
-/admin/audit-logs
+/admin/operations
 ```
+
+Owner URL không chứa wedding ID vì wedding hiện hành được chọn trong workspace switcher và lưu trong session/context. API vẫn phải nhận/authorize wedding ID rõ ràng; URL cũ `/app/weddings/:weddingId/*` được frontend chuyển hướng tương thích sang `/studio/*` trong giai đoạn chuyển đổi.
 
 ## 7. Interaction standards
 

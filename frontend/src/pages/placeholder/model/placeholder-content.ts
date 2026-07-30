@@ -1,7 +1,8 @@
-import { ChartLineUp, GearSix, Heart, Palette, Sparkle, UserList } from '@phosphor-icons/react'
+import { ChartLineUp, GearSix, GlobeHemisphereWest, Heart, PaperPlaneTilt, Sparkle, UserList } from '@phosphor-icons/react'
 
 export const content = {
-  editor: { title: 'Thiết kế thiệp', description: 'Chỉnh nội dung, bố cục và xem trước thiệp trên nhiều kích thước màn hình.', icon: Palette, action: 'Bắt đầu chỉnh sửa' },
+  editor: { title: 'Thiệp của bạn', description: 'Tạo nhiều đường dẫn thiệp riêng cho từng khách hoặc nhóm khách, sau đó theo dõi trạng thái gửi.', icon: PaperPlaneTilt, action: 'Tạo thiệp mới' },
+  'wedding-site': { title: 'Website của bạn', description: 'Xây dựng một website chung để kể câu chuyện tình yêu, giới thiệu lịch trình, album và thông tin ngày cưới.', icon: GlobeHemisphereWest, action: 'Thiết lập website' },
   templates: { title: 'Kho giao diện', description: 'Khám phá và xem thử các giao diện phù hợp với phong cách của bạn.', icon: Sparkle, action: 'Khám phá giao diện' },
   guests: { title: 'Khách mời', description: 'Quản lý danh sách khách, nhóm khách và các đường dẫn mời riêng.', icon: UserList, action: 'Thêm khách mời' },
   rsvps: { title: 'Xác nhận tham dự', description: 'Theo dõi phản hồi và số người tham dự cho từng sự kiện.', icon: UserList, action: 'Xem phản hồi' },

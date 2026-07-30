@@ -24,9 +24,13 @@ Hai ứng dụng deploy độc lập và có Docker image riêng. Không dùng m
 
 ```text
 src/
-  app/ pages/ features/ entities/
-  components/ templates/ lib/ styles/ tests/
+  app/                         composition, providers, route dispatch
+  pages/{auth,admin,...}/      route-level UI theo bề mặt sản phẩm
+  widgets/{app-shell,admin-shell}/
+  features/ entities/ shared/  logic dùng lại theo Feature-Sliced Design
 ```
+
+Frontend có ba route namespace và visual shell độc lập: `/login` cho auth, `/studio/*` cho owner workspace và `/admin/*` cho platform admin. Route constants tập trung trong `shared/config/routes.ts`; không hard-code URL trong page/widget. Việc ẩn menu chỉ là UX, backend vẫn phải guard role và resource ở mọi API.
 
 ## Backend (`backend/`)
 
