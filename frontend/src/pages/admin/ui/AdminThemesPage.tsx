@@ -7,8 +7,9 @@ type ThemeStatus = 'published' | 'review' | 'draft'
 type Theme = { key: string; name: string; kind: 'invitation' | 'website'; status: ThemeStatus; version: string; updated: string; uses: number; style: string; preview: string }
 
 const themes: Theme[] = [
-  { key: 'modern-luxe', name: 'Modern Luxe', kind: 'invitation', status: 'published', version: 'v1.0', updated: '30/07/2026', uses: 0, style: 'Hiện đại · Sang trọng', preview: 'amber' },
-  { key: 'quiet-garden', name: 'Quiet Garden', kind: 'invitation', status: 'draft', version: 'v0.8', updated: '30/07/2026', uses: 0, style: 'Botanical · Dịu nhẹ', preview: 'garden' },
+  { key: 'modern-luxe', name: 'Élan d’Amour', kind: 'invitation', status: 'published', version: 'v1.1', updated: '31/07/2026', uses: 0, style: 'Thiệp mời · Hiện đại', preview: 'amber' },
+  { key: 'verdant-promise', name: 'Verdant Promise', kind: 'invitation', status: 'published', version: 'v1.0', updated: '31/07/2026', uses: 0, style: 'Botanical · Vườn kính', preview: 'garden' },
+  { key: 'chibi-daydream', name: 'Mây Hồng Có Đôi', kind: 'invitation', status: 'published', version: 'v1.0', updated: '31/07/2026', uses: 0, style: 'Chibi · Storybook', preview: 'rose' },
   { key: 'modern-noir', name: 'Modern Noir', kind: 'invitation', status: 'review', version: 'v1.0', updated: '29/07/2026', uses: 18, style: 'Hiện đại · Tương phản', preview: 'noir' },
   { key: 'editorial-bloom', name: 'Editorial Bloom', kind: 'website', status: 'review', version: 'v1.1', updated: '29/07/2026', uses: 42, style: 'Editorial · Lãng mạn', preview: 'bloom' },
   { key: 'timeless-story', name: 'Timeless Story', kind: 'website', status: 'published', version: 'v2.2', updated: '26/07/2026', uses: 214, style: 'Cổ điển · Kể chuyện', preview: 'timeless' },
@@ -46,7 +47,7 @@ export function AdminThemesPage({ kind }: { kind: 'invitation' | 'website' }) {
           <span className={`admin-status ${theme.status}`}>{labels[theme.status]}</span>
         </div>
         <div className="admin-theme-card-body"><header><div><h2>{theme.name}</h2><code>{theme.key}</code></div><span>{theme.version}</span></header><p>{theme.style}</p><dl><div><dt>Lượt sử dụng</dt><dd>{theme.uses}</dd></div><div><dt>Cập nhật</dt><dd>{theme.updated}</dd></div></dl></div>
-        <footer>{theme.key === 'modern-luxe' && kind === 'invitation' ? <AppLink to={publicTemplateRoutes.modernLuxePreview} ariaLabel={`Xem trước ${theme.name}`}><Eye size={16} /> Xem trước</AppLink> : <button><Eye size={16} /> Xem trước</button>}<button><GearSix size={16} /> Quản lý</button></footer>
+        <footer>{kind === 'invitation' && (theme.key === 'modern-luxe' || theme.key === 'verdant-promise' || theme.key === 'chibi-daydream') ? <AppLink to={theme.key === 'verdant-promise' ? publicTemplateRoutes.verdantPromisePreview : theme.key === 'chibi-daydream' ? publicTemplateRoutes.chibiDaydreamPreview : publicTemplateRoutes.modernLuxePreview} ariaLabel={`Xem trước ${theme.name}`}><Eye size={16} /> Xem trước</AppLink> : <button><Eye size={16} /> Xem trước</button>}<button><GearSix size={16} /> Quản lý</button></footer>
       </article>)}</div> : <div className="admin-library-empty"><Browser size={34} weight="duotone" /><h2>Không tìm thấy template</h2><p>Thử thay đổi từ khóa hoặc bộ lọc trạng thái.</p><button onClick={() => { setQuery(''); setFilter('all') }}>Xóa bộ lọc</button></div>}
     </section>
   </div>

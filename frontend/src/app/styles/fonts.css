@@ -1,0 +1,70 @@
+@font-face {
+  font-family: 'Cormorant Garamond GMM';
+  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond GMM';
+  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Italic-Variable.ttf') format('truetype-variations');
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Dancing Script GMM';
+  src: url('/assets/fonts/dancing-script/DancingScript-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro GMM';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face { font-family: 'Playfair Display GMM'; src: url('/assets/fonts/playfair-display/PlayfairDisplay-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'Lora GMM'; src: url('/assets/fonts/lora/Lora-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'Fraunces GMM'; src: url('/assets/fonts/fraunces/Fraunces-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Phudu GMM'; src: url('/assets/fonts/phudu/Phudu-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 300 900; font-display: swap; }
+@font-face { font-family: 'Montserrat GMM'; src: url('/assets/fonts/montserrat/Montserrat-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Nunito Sans GMM'; src: url('/assets/fonts/nunito-sans/NunitoSans-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 200 1000; font-display: swap; }
+@font-face { font-family: 'Patrick Hand GMM'; src: url('/assets/fonts/patrick-hand/PatrickHand-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Tapestry GMM'; src: url('/assets/fonts/tapestry/Tapestry-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+
+@font-face {
+  font-family: 'Be Vietnam Pro GMM';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-Medium.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro GMM';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-SemiBold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --font-wedding-display: 'Cormorant Garamond GMM', Georgia, serif;
+  --font-wedding-script: 'Dancing Script GMM', cursive;
+  --font-wedding-body: 'Be Vietnam Pro GMM', Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-wedding-editorial: 'Playfair Display GMM', Georgia, serif;
+  --font-wedding-warm-serif: 'Lora GMM', Georgia, serif;
+  --font-wedding-expressive: 'Fraunces GMM', Georgia, serif;
+  --font-wedding-vietnamese-display: 'Phudu GMM', sans-serif;
+  --font-wedding-geometric: 'Montserrat GMM', sans-serif;
+  --font-wedding-soft-sans: 'Nunito Sans GMM', sans-serif;
+  --font-wedding-handwritten: 'Patrick Hand GMM', cursive;
+  --font-wedding-ornamental: 'Tapestry GMM', serif;
+}

@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Check,
   Eye,
@@ -8,6 +8,8 @@ import {
   Sparkle,
   X,
 } from '@phosphor-icons/react'
+import { publicTemplateRoutes } from '../../../shared/config/routes'
+import { AppLink } from '../../../shared/lib/navigation/AppLink'
 
 type ThemeStyle = 'Lãng mạn' | 'Tối giản' | 'Hiện đại' | 'Truyền thống'
 
@@ -18,12 +20,14 @@ type Theme = {
   palette: string
   description: string
   badge?: string
+  previewPath?: string
 }
 
 const themes: Theme[] = [
-  { id: 'amber-vow', name: 'Amber Vow', style: 'Lãng mạn', palette: 'Hổ phách & kem', description: 'Ánh nắng ấm, serif mềm và những khoảng thở dành cho câu chuyện tình yêu.', badge: 'Phổ biến' },
+  { id: 'amber-vow', name: 'Élan d’Amour', style: 'Hiện đại', palette: 'Champagne & nâu', description: 'Thiệp mời editorial hiện đại với nghi thức chạm mở thiệp, thông tin hôn lễ cô đọng và RSVP rõ ràng.', badge: 'Mới', previewPath: publicTemplateRoutes.modernLuxePreview },
   { id: 'paper-promise', name: 'Paper Promise', style: 'Tối giản', palette: 'Giấy trắng & mực', description: 'Tinh giản như một tấm thiệp in, tập trung vào tên cặp đôi và thông tin ngày cưới.' },
-  { id: 'garden-letter', name: 'Garden Letter', style: 'Lãng mạn', palette: 'Xanh lá & hồng phấn', description: 'Không khí khu vườn dịu nhẹ, phù hợp tiệc ngoài trời và câu chuyện nhiều hình ảnh.', badge: 'Mới' },
+  { id: 'garden-letter', name: 'Verdant Promise', style: 'Lãng mạn', palette: 'Vườn xanh & ivory', description: 'Thiệp vườn kính có nghi thức chạm mở, lá rơi, lịch trình, bản đồ, slideshow, RSVP và sổ lưu bút.', badge: 'Mới', previewPath: publicTemplateRoutes.verdantPromisePreview },
+  { id: 'chibi-daydream', name: 'Mây Hồng Có Đôi', style: 'Lãng mạn', palette: 'Coral & powder blue', description: 'Thiệp chibi storybook với popup phong bì, ảnh cặp đôi nguyên bản, lịch trực quan, album, RSVP, bản đồ và sổ lưu bút.', badge: 'Mới', previewPath: publicTemplateRoutes.chibiDaydreamPreview },
   { id: 'modern-union', name: 'Modern Union', style: 'Hiện đại', palette: 'Than chì & cobalt', description: 'Bố cục editorial mạnh, chữ lớn và nhịp chuyển động gọn cho cặp đôi cá tính.' },
   { id: 'song-hy', name: 'Song Hỷ', style: 'Truyền thống', palette: 'Đỏ son & vàng', description: 'Tinh thần lễ cưới Việt với sắc son tiết chế và họa tiết song hỷ hiện đại.' },
   { id: 'moonlit', name: 'Moonlit', style: 'Hiện đại', palette: 'Đêm xanh & bạc', description: 'Không gian tiệc tối sang trọng, tương phản cao và điểm sáng như ánh trăng.' },
@@ -50,8 +54,22 @@ export function TemplatesPage({ kind }: { kind: 'invitation' | 'website' }) {
   const [activeTheme, setActiveTheme] = useState('amber-vow')
   const [previewTheme, setPreviewTheme] = useState<Theme | null>(null)
   const [feedback, setFeedback] = useState('')
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const deferredQuery = useDeferredValue(query)
   const isWebsite = kind === 'website'
+
+  useEffect(() => {
+    if (!previewTheme) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setPreviewTheme(null) }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [previewTheme])
 
   const visibleThemes = useMemo(() => {
     const normalized = deferredQuery.trim().toLocaleLowerCase('vi')
@@ -86,9 +104,9 @@ export function TemplatesPage({ kind }: { kind: 'invitation' | 'website' }) {
       })}</div> : <div className="templates-empty"><MagnifyingGlass size={28} /><h2>Không tìm thấy giao diện</h2><p>Thử đổi từ khóa hoặc chọn phong cách khác.</p><button className="button button-secondary" type="button" onClick={() => { setQuery(''); setFilter('Tất cả') }}>Xóa bộ lọc</button></div>}
 
       {previewTheme ? <div className="theme-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPreviewTheme(null) }}>
-        <section className="theme-modal" role="dialog" aria-modal="true" aria-labelledby="theme-preview-title">
-          <header><div><p>Xem trước giao diện</p><h2 id="theme-preview-title">{previewTheme.name}</h2></div><button type="button" onClick={() => setPreviewTheme(null)} aria-label="Đóng xem trước"><X size={19} /></button></header>
-          <div className="theme-modal-body"><ThemeArtwork theme={previewTheme} large /><aside><span>{previewTheme.style}</span><h3>{previewTheme.palette}</h3><p>{previewTheme.description}</p><dl><div><dt>Áp dụng cho</dt><dd>{isWebsite ? 'Website cưới của bạn' : 'Thiệp online của bạn'}</dd></div><div><dt>Nội dung</dt><dd>Giữ nguyên khi đổi giao diện</dd></div></dl><button className="button button-primary" type="button" onClick={() => chooseTheme(previewTheme)}>Dùng giao diện này</button></aside></div>
+        <section className="theme-modal" role="dialog" aria-modal="true" aria-labelledby="theme-preview-title" aria-describedby="theme-preview-description">
+          <header><div><p>Xem trước giao diện</p><h2 id="theme-preview-title">{previewTheme.name}</h2></div><button ref={closeButtonRef} type="button" onClick={() => setPreviewTheme(null)} aria-label="Đóng xem trước"><X size={19} /></button></header>
+          <div className="theme-modal-body"><div className="theme-modal-preview">{!isWebsite && previewTheme.previewPath ? <AppLink to={previewTheme.previewPath} ariaLabel={`Mở bản xem trước đầy đủ ${previewTheme.name}`}><ThemeArtwork theme={previewTheme} large /><span><Eye size={15} /> Chạm vào thiệp để mở bản xem trước</span></AppLink> : <ThemeArtwork theme={previewTheme} large />}</div><aside><span>{previewTheme.style}</span><h3>{previewTheme.palette}</h3><p id="theme-preview-description">{previewTheme.description}</p><dl><div><dt>Áp dụng cho</dt><dd>{isWebsite ? 'Website cưới của bạn' : 'Thiệp online của bạn'}</dd></div><div><dt>Nội dung</dt><dd>Giữ nguyên khi đổi giao diện</dd></div></dl>{!isWebsite && previewTheme.previewPath ? <AppLink to={previewTheme.previewPath} className="button button-secondary">Mở preview đầy đủ</AppLink> : null}<button className="button button-primary" type="button" onClick={() => chooseTheme(previewTheme)}>Dùng giao diện này</button></aside></div>
         </section>
       </div> : null}
 

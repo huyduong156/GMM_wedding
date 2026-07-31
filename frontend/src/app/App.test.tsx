@@ -3,6 +3,20 @@ import { App } from './App'
 import { NavigationProvider } from './providers/navigation/NavigationProvider'
 
 describe('Owner Workspace', () => {
+  it('renders the public home page with working product links', () => {
+    window.history.replaceState(null, '', '/')
+    render(<NavigationProvider><App /></NavigationProvider>)
+    expect(screen.getByRole('status', { name: 'Đang mở không gian GMM Wedding' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ngày trọng đại bắt đầu từ một lời mời đẹp.' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Bắt đầu khám phá/i })).toHaveAttribute('href', '#home-overview')
+    expect(screen.getByRole('heading', { name: 'Chuẩn bị ngày cưới, nhẹ nhàng hơn.' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Bắt đầu tạo/i })).toHaveAttribute('href', '/studio/invites/themes')
+    expect(screen.getByRole('link', { name: 'Xem thiệp mẫu' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
+    expect(screen.getByRole('heading', { name: 'Chọn một lời mở đầu thật đẹp' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dễ dàng cho cả hai bạn và khách mời' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Mẫu thiệp tiếp theo' })).toBeInTheDocument()
+  })
+
   it('renders the dashboard and primary navigation', () => {
     window.history.replaceState(null, '', '/studio')
     render(<NavigationProvider><App /></NavigationProvider>)
@@ -50,8 +64,10 @@ describe('Owner Workspace', () => {
     window.history.replaceState(null, '', '/studio/invites/themes')
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Chọn giao diện thiệp' })).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Xem trước' })).toHaveLength(6)
-    expect(screen.getAllByText('Amber Vow')).not.toHaveLength(0)
+    expect(screen.getAllByRole('button', { name: 'Xem trước' })).toHaveLength(7)
+    expect(screen.getAllByText('Élan d’Amour')).not.toHaveLength(0)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Xem trước' })[0])
+    expect(screen.getByRole('link', { name: 'Mở bản xem trước đầy đủ Élan d’Amour' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
   })
 
   it('renders a separate website theme gallery', () => {
@@ -115,16 +131,44 @@ describe('Owner Workspace', () => {
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Kho thiệp online' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Thêm template/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Xem trước Modern Luxe' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
+    expect(screen.getByRole('link', { name: 'Xem trước Élan d’Amour' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
   })
 
   it('renders the public modern luxe invitation with default content', () => {
     window.history.replaceState(null, '', '/templates/invitations/modern-luxe/preview')
     render(<NavigationProvider><App /></NavigationProvider>)
     fireEvent.click(screen.getByRole('button', { name: /Mở thiệp/i }))
-    expect(screen.getByRole('heading', { name: /Trần Minh Anh.*Nguyễn Hoàng Nam/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Minh Anh.*Hoàng Nam/i })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Chọn bảng màu' })).toBeInTheDocument()
     expect(screen.getByText('The Grand Ballroom')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Thông tin hai bên gia đình' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Một ngày, những khoảnh khắc đáng nhớ' })).toBeInTheDocument()
+    expect(screen.getByTitle('Bản đồ The Grand Ballroom')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ảnh tiếp theo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Gửi một lời chúc đến chúng mình' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Thông tin hai bên gia đình' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Một ngày, những khoảnh khắc đáng nhớ' })).toBeInTheDocument()
+    expect(screen.getByTitle('Bản đồ The Grand Ballroom')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ảnh tiếp theo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Gửi một lời chúc đến chúng mình' })).toBeInTheDocument()
+  })
+
+  it('renders the Verdant Promise invitation with botanical interactions', () => {
+    window.history.replaceState(null, '', '/templates/invitations/verdant-promise/preview')
+    render(<NavigationProvider><App /></NavigationProvider>)
+    fireEvent.click(screen.getByRole('button', { name: /Mở thiệp cưới của An Nhiên và Minh Khang/i }))
+    expect(screen.getByRole('heading', { name: /An Nhiên.*Minh Khang/i })).toBeInTheDocument()
+    expect(screen.getByTitle('Bản đồ Glass Garden Ballroom')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ảnh tiếp theo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Gửi một lời chúc thật xanh' })).toBeInTheDocument()
+  })
+
+  it('renders the Mây Hồng Có Đôi invitation opening experience', () => {
+    window.history.replaceState(null, '', '/templates/invitations/chibi-daydream/preview')
+    render(<NavigationProvider><App /></NavigationProvider>)
+    expect(screen.getByText('Mây Hồng Có Đôi')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Khánh An.*Đức Minh/i })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Mở thiệp Mây Hồng Có Đôi' })).toBeInTheDocument()
   })
 
   it('renders the admin user management prototype', () => {

@@ -19,7 +19,10 @@ import { adminRoutes, legacyStudioRoutes, studioRoutes } from '../shared/config/
 import { AppShell } from '../widgets/app-shell/ui/AppShell'
 import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
+import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
+import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
 import { publicTemplateRoutes } from '../shared/config/routes'
+import { HomePage } from '../pages/home/ui/HomePage'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
@@ -58,11 +61,13 @@ export function App() {
       navigate(legacyStudioRoutes[legacyMatch[1]], true)
       return
     }
-    if (pathname === '/') navigate('/login', true)
   }, [navigate, pathname])
 
+  if (pathname === '/') return <HomePage />
   if (pathname === '/login') return <LoginPage />
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
+  if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
+  if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
   if (pathname === adminRoutes.login) return <AdminLoginPage />
 
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {

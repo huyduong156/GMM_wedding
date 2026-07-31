@@ -50,4 +50,11 @@ export const legacyStudioRoutes: Record<string, string> = {
 
 export const publicTemplateRoutes = {
   modernLuxePreview: '/templates/invitations/modern-luxe/preview',
+  verdantPromisePreview: '/templates/invitations/verdant-promise/preview',
+  chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
+} as const
+
+export const marketingRoutes = {
+  home: '/',
+  login: '/login',
 } as const

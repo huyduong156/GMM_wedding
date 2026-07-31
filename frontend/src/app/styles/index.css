@@ -494,7 +494,10 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .theme-modal > header button { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--fg-muted); cursor: pointer; }
 .theme-modal > header button:hover { background: var(--raised); color: var(--fg); }
 .theme-modal-body { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(230px, .6fr); gap: 18px; padding: 18px; overflow: auto; overscroll-behavior: contain; }
-.theme-artwork.is-large { width: min(100%, 500px); height: 100%; min-height: 0; max-height: 100%; aspect-ratio: auto; justify-self: center; }
+.theme-modal-preview { min-width: 0; min-height: 0; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: #eee7df; }
+.theme-modal-preview > a { position: relative; width: min(100%, 410px); height: min(100%, 570px); display: grid; place-items: center; padding: 14px; color: inherit; }
+.theme-modal-preview > a > span { position: absolute; z-index: 3; right: 24px; bottom: 24px; display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; color: #fff; background: rgb(45 34 26 / .78); box-shadow: 0 8px 22px rgb(45 34 26 / .18); font-size: 9px; backdrop-filter: blur(10px); }
+.theme-artwork.is-large { width: min(100%, 360px); height: auto; max-height: 100%; aspect-ratio: 5 / 7; justify-self: center; box-shadow: 0 24px 55px rgb(57 40 26 / .2); }
 .theme-modal-body aside { padding: 8px 4px; }
 .theme-modal-body aside > span { color: var(--brand-hover); font-size: 9px; font-weight: 700; }
 .theme-modal-body aside h3 { margin: 6px 0 12px; font-size: 17px; }
@@ -503,7 +506,7 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .theme-modal-body dl > div + div { margin-top: 12px; }
 .theme-modal-body dt { color: var(--fg-muted); font-size: 9px; }
 .theme-modal-body dd { margin: 4px 0 0; color: var(--fg-secondary); font-size: 10px; }
-.theme-modal-body aside .button { width: 100%; }
+.theme-modal-body aside .button { width: 100%; }.theme-modal-body aside .button + .button { margin-top: 8px; }
 .templates-feedback { position: fixed; right: 22px; bottom: 22px; z-index: 120; min-height: 44px; display: flex; align-items: center; gap: 9px; max-width: min(420px, calc(100vw - 32px)); padding: 8px 9px 8px 13px; border: 1px solid #b9dbc8; border-radius: 10px; background: #f4fbf7; box-shadow: 0 14px 38px rgb(54 77 60 / .16); color: #256744; font-size: 10px; }
 .templates-feedback span { flex: 1; }
 .templates-feedback button { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: inherit; cursor: pointer; }
