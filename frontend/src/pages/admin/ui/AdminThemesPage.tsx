@@ -7,9 +7,9 @@ type ThemeStatus = 'published' | 'review' | 'draft'
 type Theme = { key: string; name: string; kind: 'invitation' | 'website'; status: ThemeStatus; version: string; updated: string; uses: number; style: string; preview: string }
 
 const themes: Theme[] = [
-  { key: 'modern-luxe', name: 'Élan d’Amour', kind: 'invitation', status: 'published', version: 'v1.1', updated: '31/07/2026', uses: 0, style: 'Thiệp mời · Hiện đại', preview: 'amber' },
-  { key: 'verdant-promise', name: 'Verdant Promise', kind: 'invitation', status: 'published', version: 'v1.0', updated: '31/07/2026', uses: 0, style: 'Botanical · Vườn kính', preview: 'garden' },
-  { key: 'chibi-daydream', name: 'Mây Hồng Có Đôi', kind: 'invitation', status: 'published', version: 'v1.0', updated: '31/07/2026', uses: 0, style: 'Chibi · Storybook', preview: 'rose' },
+  { key: 'modern-luxe', name: 'Élan d’Amour', kind: 'invitation', status: 'published', version: 'v2.3', updated: '02/08/2026', uses: 0, style: 'Couture · 2.5D', preview: 'amber' },
+  { key: 'verdant-promise', name: 'Verdant Promise', kind: 'invitation', status: 'published', version: 'v1.3', updated: '02/08/2026', uses: 0, style: 'Botanical · Vườn kính', preview: 'garden' },
+  { key: 'chibi-daydream', name: 'Mây Hồng Có Đôi', kind: 'invitation', status: 'published', version: 'v1.1', updated: '02/08/2026', uses: 0, style: 'Chibi · Storybook', preview: 'rose' },
   { key: 'modern-noir', name: 'Modern Noir', kind: 'invitation', status: 'review', version: 'v1.0', updated: '29/07/2026', uses: 18, style: 'Hiện đại · Tương phản', preview: 'noir' },
   { key: 'editorial-bloom', name: 'Editorial Bloom', kind: 'website', status: 'review', version: 'v1.1', updated: '29/07/2026', uses: 42, style: 'Editorial · Lãng mạn', preview: 'bloom' },
   { key: 'timeless-story', name: 'Timeless Story', kind: 'website', status: 'published', version: 'v2.2', updated: '26/07/2026', uses: 214, style: 'Cổ điển · Kể chuyện', preview: 'timeless' },

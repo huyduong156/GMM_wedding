@@ -53,6 +53,13 @@
 
 ## Modern Luxe invitation template
 
+### `couture-invitation-frame-v1.png`
+
+- Source: Generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-02.
+- Prompt direction: Original portrait 2.5D couture frame with champagne silk ribbons, brushed-copper orbital lines, ivory paper magnolias, sparse pearls and a blank burgundy wax seal; asymmetrical decoration keeps a large empty center for invitation typography.
+- Usage: Decorative layered frame for the main invitation card, especially the mobile near-full-screen composition.
+- Treatment: Generated on a solid chroma background, converted locally to transparent PNG, empty alternative text and static fallback under reduced motion.
+
 ### `couple-portrait.jpg`
 
 - Title: Elegant Wedding Couple Portrait Indoors

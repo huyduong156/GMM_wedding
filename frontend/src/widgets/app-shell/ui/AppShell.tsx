@@ -20,8 +20,10 @@ import {
   X,
 } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
+import { activeWedding } from '../../../entities/wedding/model/active-wedding'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
+import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
 import { studioRoutes } from '../../../shared/config/routes'
 
@@ -67,6 +69,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setCollapsed] = useState(false)
   const { pathname } = useNavigation()
+  const weddingCountdown = useWeddingCountdown(activeWedding.weddingDate ?? '')
+  const weddingCountdownLabel = !activeWedding.weddingDate
+    ? 'Vui lòng nhập ngày cưới của bạn'
+    : weddingCountdown.complete
+      ? 'Ngày cưới đã diễn ra'
+      : `Còn ${weddingCountdown.days} ngày đến lễ cưới`
 
   useEffect(() => setSidebarOpen(false), [pathname])
 
@@ -98,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <button className="wedding-switcher" type="button" aria-label="Chọn đám cưới">
           <span className="couple-avatar">MĐ</span>
           <span className="wedding-switcher-copy">
-            <strong>Mai & Đức</strong>
+            <strong>{activeWedding.coupleName}</strong>
             <span><i className="status-dot" /> Đã xuất bản</span>
           </span>
           <CaretDown size={16} />
@@ -152,6 +160,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span>Tìm khách mời, trang hoặc thao tác</span>
             <kbd>⌘ K</kbd>
           </button>
+          <div className={`mobile-wedding-countdown ${activeWedding.weddingDate ? '' : 'is-empty'}`} role="status" aria-label={weddingCountdownLabel}>
+            <CalendarCheck size={16} aria-hidden="true" />
+            <span>{activeWedding.weddingDate && !weddingCountdown.complete ? `${weddingCountdown.days} ngày` : activeWedding.weddingDate ? 'Đã diễn ra' : 'Nhập ngày cưới'}</span>
+          </div>
           <div className="topbar-actions">
             <button className="icon-button notification-button" aria-label="Thông báo, có 3 thông báo mới">
               <Bell size={19} />
@@ -159,7 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
             <button className="account-button" type="button" aria-label="Mở menu tài khoản">
               <span className="user-avatar">LM</span>
-              <span className="account-copy"><strong>Linh Mai</strong><small>Chủ thiệp</small></span>
+              <span className="account-copy"><strong>Linh Mai</strong><small className={activeWedding.weddingDate ? '' : 'is-empty'}><CalendarCheck size={12} aria-hidden="true" />{weddingCountdownLabel}</small></span>
               <CaretDown size={14} />
             </button>
           </div>

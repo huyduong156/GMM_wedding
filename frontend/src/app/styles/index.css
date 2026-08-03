@@ -126,7 +126,10 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .user-avatar { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; background: #ece8e0; color: var(--fg-secondary); font-size: 10px; font-weight: 700; }
 .account-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 .account-copy strong { font-size: 12px; }
-.account-copy small { color: var(--fg-muted); font-size: 10px; }
+.account-copy small { max-width: 190px; display: flex; align-items: center; gap: 4px; overflow: hidden; color: var(--fg-muted); font-size: 10px; font-variant-numeric: tabular-nums; text-overflow: ellipsis; white-space: nowrap; }
+.account-copy small svg { flex: 0 0 auto; color: var(--brand); }
+.account-copy small.is-empty { color: var(--warning); }
+.mobile-wedding-countdown { display: none; }
 .mobile-menu { display: none; }
 .main-content { min-height: calc(100dvh - 58px); padding: 24px 28px 42px; }
 .dashboard-page { width: min(100%, 1380px); margin: 0 auto; }
@@ -543,6 +546,7 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
   .icon-button { width: 44px; height: 44px; }
   .command-search { width: 34px; padding: 0; justify-content: center; }
   .command-search span, .command-search kbd, .account-copy, .account-button > svg { display: none; }
+  .mobile-wedding-countdown { min-width: 0; max-width: 96px; height: 36px; display: flex; align-items: center; justify-content: center; gap: 5px; margin-left: auto; padding: 0 8px; border: 1px solid var(--border); border-radius: 9px; color: var(--brand-hover); background: var(--brand-subtle); font-size: 10px; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }.mobile-wedding-countdown svg { flex: 0 0 auto; }.mobile-wedding-countdown span { overflow: hidden; text-overflow: ellipsis; }.mobile-wedding-countdown.is-empty { color: var(--warning); background: var(--raised); }
   .main-content { padding: 24px 16px 40px; }
   .rsvp-heading { align-items: flex-start; flex-direction: column; gap: 17px; }
   .wishes-heading { align-items: flex-start; flex-direction: column; gap: 17px; }

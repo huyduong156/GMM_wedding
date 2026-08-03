@@ -44,7 +44,7 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 ```
 
 - Sidebar 248px expanded, 72px collapsed; collapse preference persisted.
-- Top bar 56px sticky. Sidebar sticky independently nhưng tránh nested content scrolling.
+- Top bar 56px sticky. Sidebar sticky independently nhưng tránh nested content scrolling. Owner account hiển thị countdown số ngày đến lễ cưới ngay dưới tên khi wedding context đã có `weddingDate`; nếu chưa có thì hiển thị “Vui lòng nhập ngày cưới của bạn”. Mobile dùng pill ngày cưới rút gọn trong top bar vì account copy được ẩn.
 - Wedding switcher nằm đầu sidebar; trạng thái `Draft/Published` hiển thị kèm text, không chỉ màu.
 - Global command menu `Ctrl/Cmd + K`: chuyển wedding, tìm khách, mở page/action.
 - Breadcrumb dùng khi sâu từ ba cấp; mọi trang có URL/deep link và giữ filter khi back.

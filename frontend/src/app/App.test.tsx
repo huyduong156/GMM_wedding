@@ -23,6 +23,7 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('heading', { name: /Chào buổi tối, Huy/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Khách mời' })).toBeInTheDocument()
     expect(screen.getByText('Thiệp đã xuất bản')).toBeInTheDocument()
+    expect(screen.getAllByText(/Còn \d+ ngày đến lễ cưới/i)).not.toHaveLength(0)
   })
 
   it('renders the guest management workspace', () => {

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { CalendarBlank, CaretLeft, CaretRight, Check, Gift, Heart, MapPin, NavigationArrow, PaperPlaneTilt, UsersThree } from '@phosphor-icons/react'
+import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './chibi-daydream.css'
 
 const asset = (name: string) => `/assets/images/templates/chibi-daydream/${name}`
 const gallery = [asset('chibi-couple-hero.png'), asset('album-wedding-car.png'), asset('album-cake-evening.png')]
-const days = Array.from({ length: 30 }, (_, index) => index + 1)
+const days = Array.from({ length: 31 }, (_, index) => index + 1)
 
 export function ChibiDaydreamInvitation() {
   const [opening, setOpening] = useState(false)
@@ -16,6 +17,7 @@ export function ChibiDaydreamInvitation() {
   const [wish, setWish] = useState('')
   const [wishes, setWishes] = useState([{ name: 'Gia đình cô Mai', message: 'Chúc hai con mãi đáng yêu và hạnh phúc như hôm nay nhé!' }, { name: 'Nhóm bạn Đại học', message: 'Một hành trình mới thật nhiều tiếng cười đang chờ hai bạn.' }])
   const mainRef = useRef<HTMLElement>(null)
+  const weddingCountdown = useWeddingCountdown('2026-12-20T09:00:00+07:00')
 
   const openInvitation = () => {
     if (opening) return
@@ -58,7 +60,7 @@ export function ChibiDaydreamInvitation() {
       <section className="cd-paper cd-announcement">
         <img src={asset('chibi_flower-arch_v2.png')} alt="" />
         <span>Song hỷ lâm môn</span><h2>Trân trọng báo tin lễ thành hôn của con chúng tôi</h2>
-        <div className="cd-families"><article><small>Nhà gái</small><strong>Ông Nguyễn Văn Thành</strong><strong>Bà Trần Thu Mai</strong><p>Hải Châu, Đà Nẵng</p></article><article><small>Nhà trai</small><strong>Ông Lê Quốc Hùng</strong><strong>Bà Phạm Ngọc Lan</strong><p>Sơn Trà, Đà Nẵng</p></article></div>
+        <div className="cd-family-heading"><span>Thông tin hai gia đình</span><p>Hai bên gia đình trân trọng giới thiệu</p></div><div className="cd-families"><article><small>Nhà gái</small><b>Đại diện gia đình</b><div className="cd-family-person"><span>Ông</span><strong>Nguyễn Văn Thành</strong></div><div className="cd-family-person"><span>Bà</span><strong>Trần Thu Mai</strong></div><p>Tư gia · Hải Châu, Đà Nẵng</p></article><i className="cd-family-heart" aria-hidden="true"><Heart weight="fill" /></i><article><small>Nhà trai</small><b>Đại diện gia đình</b><div className="cd-family-person"><span>Ông</span><strong>Lê Quốc Hùng</strong></div><div className="cd-family-person"><span>Bà</span><strong>Phạm Ngọc Lan</strong></div><p>Tư gia · Sơn Trà, Đà Nẵng</p></article></div>
         <div className="cd-couple-names"><div><small>Trưởng nữ</small><strong>Khánh An</strong></div><i>&amp;</i><div><small>Trưởng nam</small><strong>Đức Minh</strong></div></div>
       </section>
 
@@ -74,8 +76,8 @@ export function ChibiDaydreamInvitation() {
       </section>
 
       <section className="cd-calendar" aria-labelledby="cd-calendar-title">
-        <div className="cd-calendar-copy"><img src={asset('chibi_love-calendar_v2.png')} alt="" /><span>Save the date</span><h2 id="cd-calendar-title">Hẹn nhau vào một ngày thật xinh</h2><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Khanh%20An%20va%20Duc%20Minh" target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch</a></div>
-        <div className="cd-month"><header><span>Tháng 12</span><strong>2026</strong></header><div className="cd-week"><b>T2</b><b>T3</b><b>T4</b><b>T5</b><b>T6</b><b>T7</b><b>CN</b></div><div className="cd-days"><i /><i />{days.map((day) => <span key={day} className={day === 20 ? 'is-wedding' : ''}>{day}{day === 20 && <Heart weight="fill" />}</span>)}</div></div>
+        <div className="cd-calendar-copy"><img src={asset('chibi_love-calendar_v2.png')} alt="" /><span>Save the date</span><h2 id="cd-calendar-title">Hẹn nhau vào một ngày thật xinh</h2><div className="cd-calendar-countdown" role="timer" aria-live="off" aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}><div><strong>{weddingCountdown.days}</strong><small>Ngày</small></div><div><strong>{formatCountdownUnit(weddingCountdown.hours)}</strong><small>Giờ</small></div><div><strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong><small>Phút</small></div><div><strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong><small>Giây</small></div></div><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Khanh%20An%20va%20Duc%20Minh" target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch</a></div>
+        <div className="cd-month"><header><span>Tháng 12</span><strong>2026</strong></header><div className="cd-week"><b>T2</b><b>T3</b><b>T4</b><b>T5</b><b>T6</b><b>T7</b><b>CN</b></div><div className="cd-days"><i />{days.map((day) => <span key={day} className={day === 20 ? 'is-wedding' : ''}>{day}{day === 20 && <Heart weight="fill" />}</span>)}</div></div>
       </section>
 
       <section className="cd-gallery"><span>Album ngày vui</span><h2>Ba khung hình, một câu chuyện có đôi</h2><div className="cd-gallery-stage">{gallery.map((src, index) => <img key={src} src={src} alt={`Khoảnh khắc chibi của cặp đôi ${index + 1}`} className={index === slide ? 'is-active' : ''} />)}<button type="button" className="is-prev" onClick={() => setSlide((slide - 1 + gallery.length) % gallery.length)} aria-label="Ảnh trước"><CaretLeft /></button><button type="button" className="is-next" onClick={() => setSlide((slide + 1) % gallery.length)} aria-label="Ảnh tiếp theo"><CaretRight /></button></div><div className="cd-dots">{gallery.map((_, index) => <button key={index} type="button" className={index === slide ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={`Xem ảnh ${index + 1}`} />)}</div></section>

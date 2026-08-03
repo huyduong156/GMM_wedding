@@ -17,6 +17,8 @@
 10. [Quy trình web research](./10-web-research-workflow.md)
 11. [Format chuẩn cho thiệp cưới online](./11-online-invitation-template-format.md)
 12. [Font chữ cho thiệp cưới](./12-wedding-fonts.md)
+13. [Wedding motion design catalog](./wedding-motion-design/README.md)
+14. [Wedding visual style catalog](./wedding-design-styles/README.md)
 
 Design system dùng khi triển khai UI: [`../design-system/MASTER.md`](../design-system/MASTER.md).
 
