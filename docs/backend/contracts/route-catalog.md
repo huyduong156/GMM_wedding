@@ -53,16 +53,18 @@ Secret, password, cookie và token thật chỉ lưu trong local/private Postman
 
 ## Authentication và account
 
+Core slice và security boundary được thiết kế tại [authentication implementation design](./authentication-implementation-design.md). Các route dưới đây chỉ đổi sang `Implemented` khi persistence, OpenAPI, integration/security test và image smoke cùng hoàn tất.
+
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| POST | `/auth/register` | Public | Planned | Đăng ký |
-| POST | `/auth/verify-email` | Verification token | Planned | Xác minh email một lần |
+| POST | `/auth/register` | Public | Implemented | Đăng ký |
+| POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần |
 | POST | `/auth/resend-verification` | Public | Planned | Gửi lại verification không lộ account |
-| POST | `/auth/login` | Public | Planned | Tạo session |
-| POST | `/auth/logout` | Session | Planned | Thu hồi session hiện tại |
+| POST | `/auth/login` | Public | Implemented | Tạo session |
+| POST | `/auth/logout` | Session | Implemented | Thu hồi session hiện tại |
 | POST | `/auth/forgot-password` | Public | Planned | Gửi reset flow |
 | POST | `/auth/reset-password` | Reset token | Planned | Đặt mật khẩu mới |
-| GET | `/me` | Session | Planned | Lấy profile/actor hiện tại |
+| GET | `/me` | Session | Implemented | Lấy profile/actor hiện tại |
 | PATCH | `/me` | Session | Planned | Cập nhật profile |
 | GET | `/me/sessions` | Session | Planned | Liệt kê session của tài khoản |
 | DELETE | `/me/sessions/{sessionId}` | Session | Planned | Thu hồi một session |
