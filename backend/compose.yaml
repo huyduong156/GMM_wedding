@@ -1,0 +1,90 @@
+name: gmm_wedding_BE
+
+services:
+  backend:
+    container_name: gmm_wedding_BE
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: gmm-wedding-backend:local
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gmm_wedding}:${POSTGRES_PASSWORD:-gmm_wedding_local}@postgres:5432/${POSTGRES_DB:-gmm_wedding}?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:-local-development-secret-change-me-1234567890}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health/live').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+
+  backend-migrate:
+    container_name: gmm_wedding_BE_migrate
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migration
+    image: gmm-wedding-backend-migration:local
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gmm_wedding}:${POSTGRES_PASSWORD:-gmm_wedding_local}@postgres:5432/${POSTGRES_DB:-gmm_wedding}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["tools"]
+
+  postgres:
+    container_name: gmm_wedding_BE_postgres
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gmm_wedding}
+      POSTGRES_USER: ${POSTGRES_USER:-gmm_wedding}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gmm_wedding_local}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - backend-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  db-admin:
+    container_name: gmm_wedding_BE_db_admin
+    image: adminer:5.4.2-standalone
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "127.0.0.1:${DB_ADMIN_PORT:-8081}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["tools"]
+    restart: unless-stopped
+
+  redis:
+    container_name: gmm_wedding_BE_redis
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    profiles: ["queue"]
+    volumes:
+      - backend-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  backend-postgres-data:
+  backend-redis-data:

@@ -1,4 +1,6 @@
-# Bảo mật và vận hành
+# Security và privacy
+
+Tài liệu này tập trung threat/control/privacy. Logging, metrics, SLO, backup và incident runbook xem [observability and recovery](./observability-and-recovery.md); runtime/container hardening xem [deployment and runtime](./deployment-and-runtime.md).
 
 ## Rủi ro ưu tiên
 
@@ -27,15 +29,6 @@ Account takeover, IDOR/cross-tenant, đoán slug/token, spam RSVP/wish, upload �
 - Redact token/PII khỏi log; analytics/cookie có consent phù hợp.
 - Trước production rà quy định pháp lý tại Việt Nam và thị trường phục vụ.
 
-## Observability và recovery
-
-- JSON log: requestId, route, status, duration; error tracking/tracing có release.
-- Metrics: error rate, p95 latency, auth failure, reject/spam, queue lag, DB/storage.
-- PostgreSQL backup + point-in-time recovery; object versioning; diễn tập restore.
-- MVP mục tiêu ban đầu RPO <= 24h, RTO <= 8h; siết trước paid launch.
-- Runbook: restore DB, compromised account, leaked secret, bad deploy, provider outage.
-- Registry áp dụng immutable tags/retention; production deploy theo image digest để rollback đúng artifact.
-
-## Production checklist
+## Security production checklist
 
 Threat model, auth/IDOR/token tests, abuse controls, privacy/terms, delete/export, restore/rollback drill, load test burst RSVP, accessibility và Core Web Vitals.

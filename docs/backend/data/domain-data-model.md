@@ -1,4 +1,8 @@
-# Mô hình dữ liệu
+# Domain data model
+
+Tài liệu này mô tả entity và invariant nghiệp vụ. Quy tắc vật lý PostgreSQL, index review, expand-contract migration, seed và recovery xem [database and migrations](./database-and-migrations.md).
+
+Danh sách trường, kiểu dữ liệu và quan hệ đã triển khai xem [database schema reference](./database-schema-reference.md).
 
 ## Nguyên tắc
 

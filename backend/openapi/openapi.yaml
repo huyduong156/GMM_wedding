@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: GMM Wedding Backend API
+  version: 0.1.0
+  description: Backend API contract. Only operations marked here are part of the scaffolded HTTP surface.
+servers:
+  - url: http://localhost:3000/api
+    description: Local development
+paths:
+  /health/live:
+    get:
+      operationId: getLiveness
+      summary: Check whether the backend process is alive
+      responses:
+        '200':
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LivenessResponse'
+  /health/ready:
+    get:
+      operationId: getReadiness
+      summary: Check whether required backend dependencies are ready
+      responses:
+        '200':
+          description: Service is ready
+        '503':
+          description: A required dependency is unavailable
+  /version:
+    get:
+      operationId: getVersion
+      summary: Return minimal build metadata
+      responses:
+        '200':
+          description: Build metadata
+components:
+  schemas:
+    LivenessResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service, requestId]
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          const: gmm-wedding-backend
+        requestId:
+          type: string
