@@ -1,4 +1,4 @@
-# Format chuẩn cho thiệp cưới online
+# Catalog section và layout cho thiệp cưới online
 
 ## 1. Mục đích và ranh giới sản phẩm
 
@@ -8,6 +8,55 @@ Website cưới là sản phẩm riêng, có thể ưu tiên câu chuyện tình
 
 Tài liệu này là contract thiết kế cho mọi template thiệp sau này. Template được phép thay đổi art direction, typography, motion và cách sắp xếp; không được làm mất dữ liệu cốt lõi. Các section tùy chọn phải bật/tắt độc lập theo lựa chọn user mà không phá bố cục hoặc validation của section khác.
 
+### Cách dùng tài liệu này khi tạo template mới
+
+Đây là **blueprint gốc bắt buộc** cho mọi loại thiệp online mới. Trước khi thiết kế hoặc code, người thực hiện phải:
+
+1. Chốt art direction, palette, typography và motion language của template.
+2. Đi qua toàn bộ catalog bên dưới; với mỗi section, chọn **một layout chính** phù hợp concept và dữ liệu thực tế.
+3. Ghi lựa chọn vào specification của template theo dạng `section key -> layout option -> lý do chọn -> mobile/reduced-motion fallback`.
+4. Giữ nguyên semantic data contract; layout chỉ quyết định cách trình bày, không tạo một schema nội dung riêng tùy tiện.
+5. Kiểm tra thứ tự đọc, khả năng bật/tắt section và acceptance checklist trước khi xem template là hoàn tất.
+
+Không ghép tất cả hiệu ứng nổi bật vào cùng một mẫu. Mỗi template nên có một section tiêu điểm, các section còn lại hỗ trợ nhịp đọc và cùng một ngôn ngữ thị giác.
+
+### Catalog layout theo section
+
+Tên option là vocabulary chung giữa designer, developer và template config. Có thể tạo biến thể mới khi concept cần, nhưng phải bổ sung lại catalog nếu biến thể đó có khả năng tái sử dụng.
+
+| Section | Layout option có thể chọn | Gợi ý lựa chọn |
+|---|---|---|
+| Popup / opening | `envelope-reveal`, `gate-fold`, `book-cover`, `curtain-reveal`, `floral-bloom`, `minimal-monogram` | Chọn một opening thể hiện rõ chất liệu và key visual của theme; luôn có CTA và fallback mở ngay. |
+| Banner sau khi mở | `full-bleed-photo`, `editorial-split`, `centered-portrait`, `layered-paper-theatre`, `botanical-frame`, `minimal-typographic` | Ưu tiên tên cặp đôi và ngày cưới; chỉ dùng depth/parallax khi banner là focal point. |
+| Lời báo hỷ | `formal-centered`, `ornamental-plaque`, `editorial-lead`, `seal-and-ribbon` | Đoạn ngắn, trang trọng, không biến thành hero thứ hai. |
+| Hai bên gia đình | `dual-cards`, `split-columns`, `ceremonial-scroll`, `family-tree-lite`, `stacked-mobile-cards` | Phải phân biệt hai bên và đọc tốt với tên dài; front chữ trên mobile không quá to để tránh tên bị tràn dòng; mobile mặc định xếp dọc. |
+| Cô dâu và chú rể | `portrait-pair`, `name-monogram`, `split-profile`, `overlapping-polaroids`, `editorial-introduction` | Dùng ảnh khi asset đủ tốt; nếu không có ảnh, chuyển sang typography/monogram hoàn chỉnh. |
+| Ngày và giờ | `date-diptych`, `oversized-date`, `calendar-card`, `ticket-stub`, `clock-and-date`, `minimal-rule` | Thông tin thời gian phải quét nhanh; không đặt chữ quan trọng trên ảnh thiếu tương phản. |
+| Countdown | `four-unit-grid`, `flip-clock`, `circular-dials`, `inline-minimal`, `floating-counters` | Luôn đủ ngày–giờ–phút–giây khi bật; reduced motion giữ số cập nhật nhưng bỏ animation. |
+| Nghi lễ thành hôn | `ceremony-card`, `vertical-program`, `temple-arch`, `editorial-columns`, `photo-overlay` | Hợp với dữ liệu một hoặc nhiều nghi lễ; địa điểm và giờ không được phụ thuộc icon. |
+| Thông tin tiệc cưới | `invitation-card`, `banquet-ticket`, `venue-poster`, `split-details`, `personalized-letter` | Làm nổi lời kính mời cá nhân hóa, giờ đón khách, giờ khai tiệc và địa chỉ. |
+| Lịch trực quan | `month-grid`, `tear-off-calendar`, `date-circle`, `calendar-diptych`, `illustrated-almanac` | Ngày được chọn phải nhận biết được bằng cả shape/text, không chỉ màu. |
+| Lịch trình | `vertical-timeline`, `horizontal-timeline`, `marquee-journey`, `step-cards`, `route-map`, `accordion-program` | Ít mốc dùng step cards; nhiều mốc dùng timeline; marquee chỉ là presentation và phải có scroll-snap/list fallback. |
+| Hành trình tình yêu | `vertical-timeline`, `alternating-timeline`, `horizontal-marquee`, `story-cards-grid`, `photo-slide`, `chapter-scroll`, `map-route` | Đây là section tùy chọn. Chọn timeline cho mốc thời gian, marquee cho nhịp kể liên tục, grid cho nội dung quét nhanh, slide cho câu chuyện thiên về ảnh. |
+| Địa điểm và Google Maps | `map-split`, `venue-card-over-map`, `full-map-panel`, `illustrated-map`, `multi-venue-tabs` | Luôn có địa chỉ text và nút chỉ đường; nhiều địa điểm mới dùng tabs/list. |
+| Thêm vào lịch | `primary-action-row`, `calendar-card-actions`, `sticky-action-chip`, `event-ticket-actions` | Thường ghép với ngày giờ hoặc địa điểm, tránh tạo section lớn riêng nếu chỉ có một CTA. |
+| Album / slideshow | `masonry-grid`, `editorial-grid`, `coverflow`, `film-strip`, `stacked-polaroids`, `fade-slider`, `horizontal-snap`, `lightbox-gallery` | Grid cho xem nhanh, slider/coverflow cho ít ảnh chủ đạo, film strip/polaroid cho concept hoài niệm. Luôn có điều khiển thủ công. |
+| RSVP | `single-card-form`, `step-form`, `split-form-and-photo`, `bottom-sheet-cta`, `compact-attendance-card` | Form dài dùng step form; thiệp mobile ngắn dùng single card. Trạng thái gửi và lỗi phải nằm trong cùng ngữ cảnh. |
+| Sổ lưu bút / lời chúc | `message-cards-grid`, `horizontal-marquee`, `stacked-notes`, `carousel`, `guestbook-pages`, `featured-plus-list` | Marquee/carousel phải dừng khi focus/reduced motion; chỉ render lời chúc đã duyệt. |
+| Quà mừng | `dual-qr-cards`, `single-qr-card`, `accordion-private`, `modal-reveal`, `minimal-bank-card` | Mặc định tắt; tránh làm QR thành điểm nhấn thị giác lớn hơn lời mời. |
+| Lời cảm ơn / footer | `closing-letter`, `signature-photo`, `monogram-footer`, `full-bleed-farewell`, `minimal-credits` | Kết thúc nhẹ, giữ tên cặp đôi và không thêm CTA cạnh tranh. |
+| Điều hướng nhanh (tùy chọn) | `sticky-bottom-actions`, `floating-action-dock`, `section-dots`, `compact-top-index` | Chỉ dùng khi thiệp dài; không che nội dung và phải hỗ trợ safe area trên mobile. |
+
+### Quy tắc phối layout
+
+- Chọn tối đa một pattern chuyển động mạnh cho mỗi viewport; thường dành cho opening, banner, hành trình hoặc album.
+- Không đặt liên tiếp quá hai section dùng carousel/marquee/horizontal scroll.
+- Xen kẽ section giàu hình ảnh với section typography/card để tạo nhịp nghỉ.
+- Hai section kề nhau không nên dùng cùng một composition nếu không có chủ ý tạo cặp.
+- Mỗi layout phải có trạng thái `desktop`, `mobile`, `missing media`, `long content` và `reduced motion`.
+- Layout key nên ổn định trong template config; đổi cấu trúc dữ liệu phải đi qua migration/versioning, không chỉ đổi CSS.
+- Phải có ấn tượng thị giác mạnh với khách khi xem thiệp, nghiêng về hướng animation tự chuyển động nhiều hơn vì sử dụng trên mobile sẽ là chủ yếu nhưng không hẳn bỏ hoàn toàn các hiệu ứng như hover, mouse move...
+- Có thể sử dụng các hoạt ảnh 3d để tăng độ nhận diện, tăng sự ấn tượng với người xem tùy theo layout
 ## 2. Luồng trải nghiệm chuẩn
 
 1. **Opening popup:** khi vừa tải trang, phủ một lớp mở đầu có vật thể thiệp hoặc phong bì, tên cặp đôi, ngày cưới, tên khách nếu được cá nhân hóa và CTA “Mở thiệp”. Popup phải mang đúng chất liệu, màu sắc, typography và họa tiết của template, không dùng một modal đại trà cho mọi mẫu.
@@ -26,7 +75,7 @@ Mọi motion phải dùng transform/opacity khi có thể và có `prefers-reduc
 | Popup / opening | Bật | Có | Không | Tên cặp đôi, ngày cưới, khách/nhóm khách nếu cá nhân hóa, CTA mở thiệp và motion riêng theo concept |
 | Banner sau khi mở | Bật | Có | Không | Tên cô dâu chú rể, ngày cưới, key visual và composition riêng của template |
 | Lời báo hỷ | Bật | Có | Không | “Trân trọng báo tin lễ thành hôn của con chúng tôi” hoặc nội dung tùy chỉnh tương đương |
-| Hai bên gia đình | Bật | Có khả năng hiển thị | Có | Nhà trai/nhà gái, ông bà hoặc người đại diện, địa chỉ/quê quán; cho phép ẩn từng trường thiếu dữ liệu |
+| Hai bên gia đình | Bật | Có | Có | Nhà trai/nhà gái, ông bà hoặc người đại diện, địa chỉ/quê quán; cho phép ẩn từng trường thiếu dữ liệu |
 | Cô dâu và chú rể | Bật | Có | Không | Họ tên, vai vế như trưởng nam/thứ nam/trưởng nữ/thứ nữ/con út hoặc nhãn tùy chỉnh |
 | Ngày và giờ | Bật | Có | Không | Ngày dương lịch, thứ, giờ đón khách, giờ nghi lễ/khai tiệc |
 | Countdown | Bật | Không | Có | Số ngày/giờ còn lại; hết hạn chuyển sang trạng thái “Hôm nay” hoặc “Đã diễn ra” |
@@ -118,7 +167,7 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 - Mọi section optional được thử cả trạng thái bật và tắt.
 - Fixture không chứa dữ liệu thật; asset có nguồn/license; không hotlink asset của website tham khảo.
 
-### 9.8. Family focal và thời gian thực
+### Family focal và thời gian thực
 
 `families` là section bắt buộc, không được tắt ở mọi thiệp online. Đây là khối thông tin trọng yếu theo tập quán thiệp cưới Việt Nam nên phải có hierarchy rõ hơn section nội dung thường: phân biệt nhà gái/nhà trai, đại diện cha mẹ, vai vế và họ tên cô dâu/chú rể, tư gia/địa chỉ và lời kính mời. Danh xưng như `Ông`, `Bà`, `Trưởng nam`, `Trưởng nữ` phải nằm trên dòng nhãn riêng, không ghép cùng dòng họ tên. Trên mobile, hai gia đình xếp dọc, dấu kết duyên nằm giữa nhưng không che chữ; typography ưu tiên khả năng đọc thay vì phóng đại trang trí. Dấu kết duyên có thể dùng ripple chậm, giới hạn hai vòng lan và phản hồi hover/tap; reduced motion phải giữ dấu ở trạng thái tĩnh.
 

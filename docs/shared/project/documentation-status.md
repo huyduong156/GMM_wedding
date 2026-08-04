@@ -1,6 +1,6 @@
 # Trạng thái bộ tài liệu
 
-Last reviewed: 2026-07-28
+Last reviewed: 2026-08-04
 
 ## Đánh giá
 
@@ -20,6 +20,7 @@ Chưa được xem là **Implementation-ready specification** cho đến khi cá
 | Security | Baseline | Threat model workshop + security test cases |
 | Admin UI/UX | Foundation implemented | Hoàn thiện từng module + visual regression/component coverage |
 | Design system | Foundation | Tokens/components trong code + Storybook/visual tests |
+| Thiệp online | Section/layout blueprint | Mỗi template mới ghi rõ layout option, mobile fallback và reduced-motion fallback cho từng section |
 | Docker/deploy | Frontend image implemented | Backend image, root Compose, CI image scan/smoke test |
 | Testing | Strategy | Test plan, fixtures, environments và CI thresholds |
 | Operations | Baseline | SLO/alerts/runbooks/restore drill |

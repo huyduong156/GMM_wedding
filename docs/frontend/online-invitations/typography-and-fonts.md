@@ -1,4 +1,4 @@
-# Font chữ cho thiệp cưới
+# Typography và font chữ cho thiệp cưới
 
 ## Mục tiêu
 

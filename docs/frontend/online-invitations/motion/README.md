@@ -2,6 +2,8 @@
 
 Catalog này là bộ pattern motion dùng lại cho thiệp cưới online. Mỗi pattern ghi rõ mood, trigger, ngân sách chuyển động, mobile fallback và những điều cần tránh để hiệu ứng hỗ trợ câu chuyện thay vì che lấp nội dung.
 
+Tham khảo pattern xuyên sản phẩm cho thiệp online, website cưới và Wedding Recap tại [Thư viện hiệu ứng trải nghiệm cưới](../../experience-effects-reference.md).
+
 ## Nhóm pattern
 
 - [Ambient motion](./ambient-motion.md)

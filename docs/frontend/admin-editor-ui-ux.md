@@ -17,7 +17,7 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - UI dùng Inter; font cưới chỉ xuất hiện trong preview/template, không dùng cho bảng/form.
 - Mật độ desktop cao nhưng control touch trên mobile vẫn tối thiểu 44px.
 - Glass/blur chỉ ở modal/sheet; không phủ glassmorphism toàn dashboard.
-- Xem token và component contract tại [`../design-system/MASTER.md`](../design-system/MASTER.md).
+- Xem token và component contract tại [`../../design-system/MASTER.md`](../../design-system/MASTER.md).
 
 ## 3. App shell
 

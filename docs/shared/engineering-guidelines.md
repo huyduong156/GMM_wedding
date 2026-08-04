@@ -29,7 +29,7 @@
 
 - Có `.env.example`, validate env lúc start, không đưa server secret vào `VITE_*`.
 - Môi trường dùng credentials/database/bucket riêng.
-- Quyết định dài hạn tạo `docs/adr/NNNN-short-title.md`: Status, Context, Decision, Alternatives, Consequences. Không xóa ADR; quyết định mới supersede quyết định cũ.
+- Quyết định dài hạn tạo `docs/shared/architecture/adr/NNNN-short-title.md`: Status, Context, Decision, Alternatives, Consequences. Không xóa ADR; quyết định mới supersede quyết định cũ.
 
 ## Docker và tính di động
 
