@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+
+# Build outputs and framework caches
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vite/
+.turbo/
+.cache/
+coverage/
+
+# TypeScript and test artifacts
+*.tsbuildinfo
+.nyc_output/
+playwright-report/
+test-results/
+
+# Environment files and local overrides
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs and runtime files
+*.log
+logs/
+*.pid
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python caches used by repository tools
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Editor and OS metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+

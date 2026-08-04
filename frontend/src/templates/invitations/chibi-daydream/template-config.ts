@@ -1,0 +1,20 @@
+export const chibiDaydreamTemplateConfig = {
+  templateKey: 'chibi-daydream', displayName: 'Mây Hồng Có Đôi', templateVersion: '1.1.0', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'development', type: 'invitation',
+  palettes: [{ key: 'storybook', label: 'Mây hồng', default: true }],
+  sections: [
+    { sectionKey: 'cover', label: 'Popup mở thiệp', required: true, canToggle: false, canReorder: false },
+    { sectionKey: 'banner', label: 'Banner cặp đôi', required: true, canToggle: false, canReorder: false },
+    { sectionKey: 'invitation', label: 'Lời báo hỷ', required: true, canToggle: false, canReorder: false },
+    { sectionKey: 'families', label: 'Hai bên gia đình', required: true, canToggle: false, canReorder: true },
+    { sectionKey: 'ceremony', label: 'Lễ thành hôn', required: true, canToggle: false, canReorder: true },
+    { sectionKey: 'reception', label: 'Tiệc cưới', required: true, canToggle: false, canReorder: true },
+    { sectionKey: 'calendar', label: 'Lịch ngày cưới', canToggle: true, canReorder: true },
+    { sectionKey: 'gallery', label: 'Album ảnh', canToggle: true, canReorder: true },
+    { sectionKey: 'timeline', label: 'Lịch trình', canToggle: true, canReorder: true },
+    { sectionKey: 'rsvp', label: 'Xác nhận tham dự', canToggle: true, canReorder: true },
+    { sectionKey: 'map', label: 'Bản đồ', canToggle: true, canReorder: true },
+    { sectionKey: 'guestbook', label: 'Sổ lưu bút', canToggle: true, canReorder: true },
+    { sectionKey: 'gift', label: 'Quà mừng', canToggle: true, canReorder: true },
+    { sectionKey: 'thanks', label: 'Lời cảm ơn', required: true, canToggle: false, canReorder: false },
+  ],
+} as const
