@@ -1,8 +1,10 @@
-# Thiết kế API
+# API contract và quy ước HTTP
+
+Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết authentication/authorization xem [authentication and authorization](./authentication-and-authorization.md); error, pagination, idempotency và concurrency xem [error and concurrency contract](./errors-pagination-and-concurrency.md).
 
 ## Quy ước
 
-- Base `/api/v1`, JSON `camelCase`, ISO 8601 UTC.
+- Base `/api`, JSON `camelCase`, ISO 8601 UTC.
 - Private API dùng secure cookie; mutation có CSRF/origin protection.
 - Cursor pagination có limit trần; DTO riêng, không trả Prisma model.
 - Editor dùng version/ETag để chống lost update; conflict trả `409`.
@@ -53,3 +55,11 @@ Gift ledger phải authorize owner ở application service trước mọi read/w
 - Private dashboard: `no-store` hoặc private cache có chủ đích.
 - Publish transaction: validate -> tăng version -> snapshot -> cập nhật trạng thái.
 - Trước khi implement rộng, tạo `backend/openapi.yaml` hoặc sinh OpenAPI để tạo typed client và kiểm tra breaking change trong CI.
+
+## OpenAPI ownership
+
+- OpenAPI là machine-readable source cho HTTP contract đã implement; docs này giữ rationale và capability map.
+- Operation ID ổn định và theo business action.
+- CI lint schema, validate example và phát hiện breaking change so với base branch.
+- DTO public/private tách rõ; schema không tham chiếu Prisma model.
+- Security scheme, error response và pagination component tái sử dụng nhưng không che operation-specific permission.
