@@ -23,6 +23,7 @@ import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/Verdant
 import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
+import { AuthGate } from '../features/auth/ui/AuthGate'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
@@ -80,11 +81,11 @@ export function App() {
         : pathname === adminRoutes.websiteLibrary
           ? <AdminThemesPage kind="website" />
         : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
-    return <AdminShell>{content}</AdminShell>
+    return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
   }
 
   const content = studioPages[pathname]
-  if (content) return <AppShell>{content}</AppShell>
+  if (content) return <AuthGate surface="studio"><AppShell>{content}</AppShell></AuthGate>
 
   return null
 }

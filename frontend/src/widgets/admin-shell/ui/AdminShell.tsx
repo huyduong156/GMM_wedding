@@ -1,8 +1,9 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, Heart, MagnifyingGlass, Palette, Tag, UsersThree } from '@phosphor-icons/react'
+import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, Heart, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { adminRoutes, studioRoutes } from '../../../shared/config/routes'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 
 const adminNav = [
   { label: 'Tổng quan', items: [
@@ -30,7 +31,8 @@ const adminNav = [
 ]
 
 export function AdminShell({ children }: { children: ReactNode }) {
-  const { pathname } = useNavigation()
+  const { pathname, navigate } = useNavigation()
+  const auth = useOptionalAuth()
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar" aria-label="Điều hướng quản trị hệ thống">
@@ -54,7 +56,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="admin-sidebar-footer"><AppLink to={studioRoutes.home}>Về giao diện người dùng</AppLink><span>v0.1 prototype</span></div>
       </aside>
       <div className="admin-workspace">
-        <header className="admin-topbar"><button className="admin-search"><MagnifyingGlass size={18} /><span>Tìm user, wedding hoặc template</span><kbd>⌘ K</kbd></button><div><button className="icon-button" aria-label="Thông báo quản trị"><Bell size={19} /></button><button className="account-button"><span className="user-avatar admin-avatar">AD</span><span className="account-copy"><strong>Admin</strong><small>Super admin</small></span><CaretDown size={14} /></button></div></header>
+        <header className="admin-topbar"><button className="admin-search"><MagnifyingGlass size={18} /><span>Tìm user, wedding hoặc template</span><kbd>⌘ K</kbd></button><div><button className="icon-button" aria-label="Thông báo quản trị"><Bell size={19} /></button><button className="account-button"><span className="user-avatar admin-avatar">AD</span><span className="account-copy"><strong>{auth?.user?.displayName ?? 'Admin'}</strong><small>Platform admin</small></span><CaretDown size={14} /></button><button className="icon-button" aria-label="Đăng xuất quản trị" onClick={() => void auth?.logout().then(() => navigate(adminRoutes.login, true))}><SignOut size={19} /></button></div></header>
         <main className="admin-main">{children}</main>
       </div>
     </div>

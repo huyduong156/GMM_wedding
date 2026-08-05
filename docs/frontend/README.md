@@ -10,6 +10,8 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 
 ## Danh mục
 
+- [Frontend authentication integration](./authentication-integration.md): API login, opaque session, route guard và logout cho owner/admin.
+
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)

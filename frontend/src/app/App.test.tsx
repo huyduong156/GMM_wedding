@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { App } from './App'
 import { NavigationProvider } from './providers/navigation/NavigationProvider'
+import { AuthProvider } from '../features/auth/model/AuthProvider'
 
 describe('Owner Workspace', () => {
   it('renders the public home page with working product links', () => {
@@ -83,9 +84,9 @@ describe('Owner Workspace', () => {
 
   it('renders the login page as a separate surface', () => {
     window.history.replaceState(null, '', '/login')
-    render(<NavigationProvider><App /></NavigationProvider>)
+    render(<NavigationProvider><AuthProvider><App /></AuthProvider></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Đăng nhập' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Đăng nhập/i })).toHaveAttribute('href', '/studio')
+    expect(screen.getByRole('button', { name: 'Đăng nhập' })).toHaveAttribute('type', 'submit')
   })
 
   it('renders the platform admin dashboard with its own navigation', () => {
@@ -100,9 +101,9 @@ describe('Owner Workspace', () => {
 
   it('renders admin login outside the admin shell', () => {
     window.history.replaceState(null, '', '/gmm_admin/login')
-    render(<NavigationProvider><App /></NavigationProvider>)
+    render(<NavigationProvider><AuthProvider><App /></AuthProvider></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Đăng nhập quản trị' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Đăng nhập quản trị' })).toHaveAttribute('href', '/gmm_admin')
+    expect(screen.getByRole('button', { name: 'Đăng nhập' })).toHaveAttribute('type', 'submit')
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 

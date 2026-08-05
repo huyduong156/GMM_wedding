@@ -16,6 +16,7 @@ import {
   Palette,
   PaperPlaneTilt,
   SidebarSimple,
+  SignOut,
   UserList,
   X,
 } from '@phosphor-icons/react'
@@ -26,6 +27,8 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
 import { studioRoutes } from '../../../shared/config/routes'
+import { marketingRoutes } from '../../../shared/config/routes'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 
 type NavItem = {
   label: string
@@ -68,7 +71,8 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
 export function AppShell({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setCollapsed] = useState(false)
-  const { pathname } = useNavigation()
+  const { pathname, navigate } = useNavigation()
+  const auth = useOptionalAuth()
   const weddingCountdown = useWeddingCountdown(activeWedding.weddingDate ?? '')
   const weddingCountdownLabel = !activeWedding.weddingDate
     ? 'Vui lòng nhập ngày cưới của bạn'
@@ -169,11 +173,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Bell size={19} />
               <span />
             </button>
-            <button className="account-button" type="button" aria-label="Mở menu tài khoản">
+            <button className="account-button" type="button" aria-label="Thông tin tài khoản">
               <span className="user-avatar">LM</span>
-              <span className="account-copy"><strong>Linh Mai</strong><small className={activeWedding.weddingDate ? '' : 'is-empty'}><CalendarCheck size={12} aria-hidden="true" />{weddingCountdownLabel}</small></span>
+              <span className="account-copy"><strong>{auth?.user?.displayName ?? 'Tài khoản'}</strong><small className={activeWedding.weddingDate ? '' : 'is-empty'}><CalendarCheck size={12} aria-hidden="true" />{weddingCountdownLabel}</small></span>
               <CaretDown size={14} />
             </button>
+            <button className="icon-button" type="button" aria-label="Đăng xuất" onClick={() => void auth?.logout().then(() => navigate(marketingRoutes.login, true))}><SignOut size={19} /></button>
           </div>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
