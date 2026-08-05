@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { PrismaClient } from '@prisma/client'
 
 const apiBase = process.env.AUTH_INTEGRATION_BASE_URL ?? 'http://localhost:3000/api'
 const mailpitBase = process.env.MAILPIT_BASE_URL ?? 'http://localhost:8025'
@@ -108,5 +109,50 @@ describe.sequential('authentication journey', () => {
 
     const afterLogout = await fetch(`${apiBase}/me`, { headers: { cookie: cookie as string } })
     expect(afterLogout.status).toBe(401)
+  })
+
+  it('separates the owner and platform-admin login surfaces', async () => {
+    const prisma = new PrismaClient()
+    const email = `admin-integration-${Date.now()}@example.test`
+    const password = 'Correct-Horse-Admin-42'
+    const credentials = JSON.stringify({ email, password })
+    try {
+      expect((await fetch(`${apiBase}/auth/register`, {
+        method: 'POST', headers: mutationHeaders, body: credentials,
+      })).status).toBe(202)
+      const message = await capturedMessageFor(email)
+      const token = /token=([A-Za-z0-9_-]+)/.exec(message.Text)?.[1]
+      expect((await fetch(`${apiBase}/auth/verify-email`, {
+        method: 'POST', headers: mutationHeaders, body: JSON.stringify({ token }),
+      })).status).toBe(204)
+
+      const denied = await fetch(`${apiBase}/auth/admin/login`, {
+        method: 'POST', headers: mutationHeaders, body: credentials,
+      })
+      expect(denied.status).toBe(403)
+      expect((await denied.json() as { error: { code: string } }).error.code).toBe('ADMIN_ACCESS_REQUIRED')
+
+      const user = await prisma.user.findUniqueOrThrow({ where: { email }, select: { id: true } })
+      await prisma.userRole.create({
+        data: { userId: user.id, role: 'ADMIN', reason: 'Auth integration test' },
+      })
+
+      const ownerLogin = await fetch(`${apiBase}/auth/login`, {
+        method: 'POST', headers: mutationHeaders, body: credentials,
+      })
+      expect(ownerLogin.status).toBe(200)
+
+      const adminLogin = await fetch(`${apiBase}/auth/admin/login`, {
+        method: 'POST', headers: mutationHeaders, body: credentials,
+      })
+      expect(adminLogin.status).toBe(200)
+      const cookie = adminLogin.headers.get('set-cookie')?.split(';', 1)[0]
+      const adminMe = await fetch(`${apiBase}/admin/me`, { headers: { cookie: cookie as string } })
+      expect(adminMe.status).toBe(200)
+      const body = await adminMe.json() as { actor: { kind: string; assurance: string } }
+      expect(body.actor).toMatchObject({ kind: 'platformAdmin', assurance: 'base' })
+    } finally {
+      await prisma.$disconnect()
+    }
   })
 })

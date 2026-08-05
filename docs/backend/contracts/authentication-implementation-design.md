@@ -35,10 +35,16 @@ User 1 ── * Subscription
 | `POST` | `/api/auth/register` | `202` generic acknowledgment | Không lộ email mới/trùng |
 | `POST` | `/api/auth/verify-email` | `204` | Token một lần, không auto-login |
 | `POST` | `/api/auth/login` | `200` user DTO + `Set-Cookie` | Rotate bằng session mới |
+| `POST` | `/api/auth/admin/login` | `200` user DTO + `Set-Cookie` | Credential chung; bắt buộc active `ADMIN` assignment |
 | `GET` | `/api/me` | `200` user DTO | `Cache-Control: no-store` |
+| `GET` | `/api/admin/me` | `200` user DTO + platform actor | Guard mẫu cho admin API |
 | `POST` | `/api/auth/logout` | `204` + clear cookie | Idempotent |
 
 Ngoài slice: resend verification, forgot/reset password, list/revoke sessions, OAuth, MFA UI và wedding authorization. Các extension này không được làm thay đổi session/actor contract của slice đầu.
+
+Owner và admin login dùng chung credential verifier và session store nhưng có policy HTTP riêng. Login owner chấp nhận mọi `User ACTIVE`, kể cả người đồng thời có platform role; login admin chỉ tạo session sau khi kiểm tra active `UserRole.ADMIN`. Mọi API admin tiếp tục gọi `requirePlatformAdmin()`; URL login riêng không phải authorization boundary.
+
+Local/test có thể đặt `AUTH_RATE_LIMIT_DRIVER=disabled` để test thủ công không bị giữ counter. Cấu hình này bị từ chối khi `APP_ENV` là `staging` hoặc `production`; production vẫn bắt buộc Redis.
 
 ## HTTP DTO
 

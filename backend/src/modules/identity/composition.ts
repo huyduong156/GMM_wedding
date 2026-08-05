@@ -2,7 +2,7 @@ import { AuthService } from './application/auth-service'
 import { PrismaIdentityRepository } from './infrastructure/prisma-identity-repository'
 import { SmtpVerificationEmailSender } from './infrastructure/smtp-verification-email-sender'
 import { ArgonPasswordHasher } from '@/platform/auth/password-hasher'
-import { MemoryRateLimiter, RedisRateLimiter } from '@/platform/auth/rate-limiter'
+import { DisabledRateLimiter, MemoryRateLimiter, RedisRateLimiter } from '@/platform/auth/rate-limiter'
 import { TokenProtector } from '@/platform/auth/token-protector'
 import { getServerEnv } from '@/platform/config/env'
 import { prisma } from '@/platform/database/prisma'
@@ -14,7 +14,9 @@ export function getAuthService(): AuthService {
   const env = getServerEnv()
   const limiter = env.AUTH_RATE_LIMIT_DRIVER === 'redis'
     ? new RedisRateLimiter(env.REDIS_URL as string)
-    : new MemoryRateLimiter()
+    : env.AUTH_RATE_LIMIT_DRIVER === 'disabled'
+      ? new DisabledRateLimiter()
+      : new MemoryRateLimiter()
 
   authService = new AuthService(
     new PrismaIdentityRepository(prisma),

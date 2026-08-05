@@ -61,10 +61,12 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần |
 | POST | `/auth/resend-verification` | Public | Planned | Gửi lại verification không lộ account |
 | POST | `/auth/login` | Public | Implemented | Tạo session |
+| POST | `/auth/admin/login` | Public + active `ADMIN` role | Implemented | Tạo session cho bề mặt platform admin |
 | POST | `/auth/logout` | Session | Implemented | Thu hồi session hiện tại |
 | POST | `/auth/forgot-password` | Public | Planned | Gửi reset flow |
 | POST | `/auth/reset-password` | Reset token | Planned | Đặt mật khẩu mới |
 | GET | `/me` | Session | Implemented | Lấy profile/actor hiện tại |
+| GET | `/admin/me` | Platform admin session | Implemented | Xác nhận actor và assurance cho admin shell |
 | PATCH | `/me` | Session | Planned | Cập nhật profile |
 | GET | `/me/sessions` | Session | Planned | Liệt kê session của tài khoản |
 | DELETE | `/me/sessions/{sessionId}` | Session | Planned | Thu hồi một session |

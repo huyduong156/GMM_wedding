@@ -10,6 +10,7 @@ const optionalNonEmpty = z.preprocess(
 )
 
 const serverEnvSchema = z.object({
+  APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().max(65_535).default(3000),
   APP_ORIGIN: z.string().url(),
@@ -17,7 +18,7 @@ const serverEnvSchema = z.object({
   AUTH_SECRET: z.string().min(32),
   AUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32),
   AUTH_RATE_LIMIT_SECRET: z.string().min(32),
-  AUTH_RATE_LIMIT_DRIVER: z.enum(['memory', 'redis']).default('memory'),
+  AUTH_RATE_LIMIT_DRIVER: z.enum(['disabled', 'memory', 'redis']).default('memory'),
   REDIS_URL: z.string().url().optional(),
   SMTP_HOST: z.string().min(1).default('localhost'),
   SMTP_PORT: z.coerce.number().int().positive().max(65_535).default(1025),
@@ -35,11 +36,18 @@ const serverEnvSchema = z.object({
       message: 'REDIS_URL is required when AUTH_RATE_LIMIT_DRIVER=redis',
     })
   }
-  if (env.NODE_ENV === 'production' && env.AUTH_RATE_LIMIT_DRIVER !== 'redis') {
+  if (env.APP_ENV === 'production' && env.AUTH_RATE_LIMIT_DRIVER !== 'redis') {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['AUTH_RATE_LIMIT_DRIVER'],
       message: 'Production authentication requires the distributed Redis rate limiter',
+    })
+  }
+  if (!['local', 'test'].includes(env.APP_ENV) && env.AUTH_RATE_LIMIT_DRIVER === 'disabled') {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['AUTH_RATE_LIMIT_DRIVER'],
+      message: 'Rate limiting may only be disabled in local or test environments',
     })
   }
   if (Boolean(env.SMTP_USER) !== Boolean(env.SMTP_PASSWORD)) {

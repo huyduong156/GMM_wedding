@@ -7,6 +7,7 @@ import type {
   RateLimiter,
   VerificationEmailSender,
 } from './ports'
+import type { SystemRole } from '@prisma/client'
 import { AuthError } from '../domain/auth-error'
 import { normalizeEmail } from '../domain/normalize-email'
 import { createOpaqueToken, hashOpaqueToken } from '@/platform/auth/opaque-token'
@@ -96,6 +97,7 @@ export class AuthService {
   async login(
     input: { email: string; password: string },
     context: { ip: string; userAgent?: string },
+    requiredRole?: SystemRole,
   ) {
     const email = normalizeEmail(input.email)
     await Promise.all([
@@ -116,20 +118,23 @@ export class AuthService {
     if (user.status !== 'ACTIVE') {
       throw new AuthError('ACCOUNT_SUSPENDED', 403, 'Account is not active')
     }
+    if (requiredRole && !user.roles.includes(requiredRole)) {
+      throw new AuthError('ADMIN_ACCESS_REQUIRED', 403, 'This account cannot access the administration portal')
+    }
     if (this.passwordHasher.needsRehash(user.passwordHash)) {
       await this.repository.updatePasswordHash(user.id, await this.passwordHasher.hash(input.password))
     }
 
     const token = createOpaqueToken()
     const expiresAt = new Date(Date.now() + SESSION_ABSOLUTE_TTL_SECONDS * 1_000)
-    await this.repository.createSession({
+    const sessionId = await this.repository.createSession({
       userId: user.id,
       sessionHash: hashOpaqueToken(token),
       expiresAt,
       ipHash: createHmac('sha256', this.rateLimitSecret).update(context.ip).digest('hex'),
       ...(context.userAgent ? { userAgent: context.userAgent } : {}),
     })
-    return { token, expiresAt, user: publicUser(user) }
+    return { token, expiresAt, sessionId, user: publicUser(user) }
   }
 
   async authenticate(token: string | undefined) {
@@ -150,7 +155,7 @@ export class AuthService {
       new Date(now.getTime() - SESSION_TOUCH_INTERVAL_MS),
       now,
     )
-    return publicUser(session.user)
+    return { sessionId: session.id, user: publicUser(session.user) }
   }
 
   async logout(token: string | undefined) {

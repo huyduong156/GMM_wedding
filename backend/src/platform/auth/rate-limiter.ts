@@ -11,6 +11,12 @@ export function rateLimitKey(secret: string, scope: string, value: string): stri
   return `auth:${scope}:${digest}`
 }
 
+export class DisabledRateLimiter implements RateLimiter {
+  async consume() {
+    return { allowed: true, retryAfter: 0 }
+  }
+}
+
 export class MemoryRateLimiter implements RateLimiter {
   private readonly buckets = new Map<string, Bucket>()
 
