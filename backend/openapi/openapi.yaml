@@ -2,11 +2,209 @@ openapi: 3.1.0
 info:
   title: GMM Wedding Backend API
   version: 0.1.0
-  description: Backend API contract. Only operations marked here are part of the scaffolded HTTP surface.
+  description: Backend API contract for health, version, and server-managed session authentication.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
 servers:
   - url: http://localhost:3000/api
     description: Local development
+security: []
 paths:
+  /auth/register:
+    post:
+      operationId: registerUser
+      summary: Register an account and request email verification
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '202':
+          description: Generic acknowledgment, whether or not the email already exists
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/verify-email:
+    post:
+      operationId: verifyEmail
+      summary: Consume a one-time email verification token
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '204':
+          description: Email verified
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/login:
+    post:
+      operationId: login
+      summary: Create a server-managed session
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login succeeded and the session cookie is set
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/admin/login:
+    post:
+      operationId: loginPlatformAdmin
+      summary: Create a session for the platform administration surface
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Admin login succeeded and the session cookie is set
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current session and clear its cookie
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      responses:
+        '204':
+          description: Logout completed idempotently
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Request password recovery for an eligible non-admin user account
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '202':
+          description: Generic acknowledgment whether or not an eligible account exists
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Consume a one-time user password reset token and revoke existing sessions
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '204':
+          description: Password reset and existing sessions revoked
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /me:
+    get:
+      operationId: getCurrentUser
+      summary: Return the user associated with the current session
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /admin/me:
+    get:
+      operationId: getCurrentPlatformAdmin
+      summary: Return the current platform administrator actor
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Current platform administrator
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminIdentityEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /health/live:
     get:
       operationId: getLiveness
@@ -35,7 +233,198 @@ paths:
         '200':
           description: Build metadata
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: gmm_session
+  parameters:
+    Origin:
+      name: Origin
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uri
+    CsrfProtection:
+      name: X-CSRF-Protection
+      in: header
+      required: true
+      schema:
+        type: string
+        const: '1'
+  responses:
+    BadRequest:
+      description: Invalid request or verification token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Credentials or session are invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Origin rejected, verification required, or account unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+    VerifyEmailRequest:
+      type: object
+      additionalProperties: false
+      required: [token]
+      properties:
+        token:
+          type: string
+          minLength: 20
+          maxLength: 512
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+    ResetPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [token, password]
+      properties:
+        token:
+          type: string
+          minLength: 20
+          maxLength: 512
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, email, displayName, emailVerifiedAt, locale, timezone, status, roles]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: [string, 'null']
+        emailVerifiedAt:
+          type: [string, 'null']
+          format: date-time
+        locale:
+          type: string
+        timezone:
+          type: string
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED, DELETED]
+        roles:
+          type: array
+          items:
+            type: string
+            enum: [ADMIN, SUPPORT, MODERATOR]
+    UserEnvelope:
+      type: object
+      additionalProperties: false
+      required: [user]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+    PlatformAdminActor:
+      type: object
+      additionalProperties: false
+      required: [kind, userId, sessionId, assurance]
+      properties:
+        kind:
+          type: string
+          const: platformAdmin
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+        assurance:
+          type: string
+          enum: [base, stepUp]
+    AdminIdentityEnvelope:
+      type: object
+      additionalProperties: false
+      required: [user, actor]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        actor:
+          $ref: '#/components/schemas/PlatformAdminActor'
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            requestId:
+              type: string
+            fieldErrors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
     LivenessResponse:
       type: object
       additionalProperties: false

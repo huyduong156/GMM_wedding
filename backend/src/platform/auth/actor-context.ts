@@ -6,7 +6,7 @@ export type AuthenticatedUserActor = {
 
 export type PlatformAdminActor = {
   kind: 'platformAdmin'
-  adminId: string
+  userId: string
   sessionId: string
   assurance: 'base' | 'stepUp'
 }
