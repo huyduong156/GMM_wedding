@@ -28,6 +28,7 @@ const serverEnvSchema = z.object({
   SMTP_PASSWORD: optionalNonEmpty,
   TRUST_PROXY: booleanEnv.default(false),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  API_DOCS_ENABLED: booleanEnv.default(false),
 }).superRefine((env, context) => {
   if (env.AUTH_RATE_LIMIT_DRIVER === 'redis' && !env.REDIS_URL) {
     context.addIssue({

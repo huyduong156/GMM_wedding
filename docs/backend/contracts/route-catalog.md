@@ -50,6 +50,9 @@ Secret, password, cookie và token thật chỉ lưu trong local/private Postman
 | GET | `/health/live` | Không | Implemented | Process liveness |
 | GET | `/health/ready` | Không | Implemented | Database readiness |
 | GET | `/version` | Không | Implemented | Release/build metadata tối thiểu |
+| GET | `/openapi` | `API_DOCS_ENABLED` | Implemented | OpenAPI YAML dùng bởi Swagger UI; trả 404 khi tắt |
+
+Swagger UI nằm tại `/api-docs` (không nằm dưới API base `/api`). Compose local bật mặc định; môi trường khác phải chủ động đặt `API_DOCS_ENABLED=true`. UI self-host asset, tắt external validator và thao tác “Try it out” để tránh mutation ngoài ý muốn.
 
 ## Authentication và account
 
@@ -59,7 +62,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 |---|---|---|---|---|
 | POST | `/auth/register` | Public | Implemented | Đăng ký |
 | POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần |
-| POST | `/auth/resend-verification` | Public | Planned | Gửi lại verification không lộ account |
+| POST | `/auth/resend-verification` | Public pending account | Implemented | Gửi lại verification không lộ account; token cũ bị vô hiệu |
 | POST | `/auth/login` | Public | Implemented | Tạo session |
 | POST | `/auth/admin/login` | Public + active `ADMIN` role | Implemented | Tạo session cho bề mặt platform admin |
 | POST | `/auth/logout` | Session | Implemented | Thu hồi session hiện tại |

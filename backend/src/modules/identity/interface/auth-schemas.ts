@@ -13,6 +13,8 @@ export const verifyEmailRequestSchema = z.object({
   token: z.string().min(20).max(512),
 }).strict()
 
+export const resendVerificationRequestSchema = z.object({ email: emailSchema }).strict()
+
 export const loginRequestSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
@@ -26,6 +28,7 @@ export const resetPasswordRequestSchema = z.object({
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>
 export type VerifyEmailRequest = z.infer<typeof verifyEmailRequestSchema>
+export type ResendVerificationRequest = z.infer<typeof resendVerificationRequestSchema>
 export type LoginRequest = z.infer<typeof loginRequestSchema>
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>

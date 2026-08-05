@@ -40,7 +40,7 @@ User 1 ── * Subscription
 | `GET` | `/api/admin/me` | `200` user DTO + platform actor | Guard mẫu cho admin API |
 | `POST` | `/api/auth/logout` | `204` + clear cookie | Idempotent |
 
-Ngoài slice: resend verification, list/revoke sessions, OAuth, MFA UI và wedding authorization. Forgot/reset password cho user đã được bổ sung: response forgot luôn trung tính, token tồn tại 30 phút/dùng một lần, reset revoke toàn bộ session; active `ADMIN` assignment không được recovery qua flow public này.
+Ngoài slice: list/revoke sessions, OAuth, MFA UI và wedding authorization. Resend verification và forgot/reset password cho user đã được bổ sung; các request email đều có response trung tính. Active `ADMIN` assignment không được recovery qua public forgot-password flow.
 
 Owner và admin login dùng chung credential verifier và session store nhưng có policy HTTP riêng. Login owner chấp nhận mọi `User ACTIVE`, kể cả người đồng thời có platform role; login admin chỉ tạo session sau khi kiểm tra active `UserRole.ADMIN`. Mọi API admin tiếp tục gọi `requirePlatformAdmin()`; URL login riêng không phải authorization boundary.
 
@@ -130,6 +130,13 @@ Verification link mở frontend route chuyên dụng với `Referrer-Policy: no-
 1. Rate-limit, hash token và lookup đúng purpose.
 2. Trong transaction dùng conditional update để token chỉ consume một lần; set `emailVerifiedAt`, `status=ACTIVE`, `usedAt` và audit.
 3. Concurrent/replayed request chỉ một request thắng; các request còn lại nhận generic token error.
+
+### Resend verification
+
+1. Normalize email, rate-limit 5/IP/giờ và 3/email/giờ, rồi trả acknowledgment trung tính cho mọi trạng thái account.
+2. Chỉ `PENDING_VERIFICATION` với password credential và email chưa verify được tạo token mới TTL 24 giờ.
+3. Trong một transaction, kiểm tra lại trạng thái user, consume token verification cũ, tạo token/outbox mới và audit `identity.verification_resent`.
+4. Email gửi qua cùng adapter/outbox với register; lỗi SMTP giữ outbox pending để retry.
 
 ### Login
 
@@ -242,4 +249,4 @@ Unexpected/Prisma/provider error chỉ map thành stable internal error cùng re
 6. Implement login + request authenticator + `/me` + logout.
 7. Implement Redis limiter, origin/CORS guard và negative security tests.
 8. Cập nhật OpenAPI/route catalog sang Implemented chỉ sau full journey và image smoke xanh.
-9. Slice kế tiếp: resend verification, reset password, session management, MFA/step-up và cleanup worker.
+9. Slice kế tiếp: session management, MFA/step-up và cleanup worker.

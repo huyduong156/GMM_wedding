@@ -6,7 +6,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "predev": "node scripts/copy-swagger-assets.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-swagger-assets.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -29,6 +31,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "redis": "^6.2.0",
+    "swagger-ui-dist": "5.30.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
