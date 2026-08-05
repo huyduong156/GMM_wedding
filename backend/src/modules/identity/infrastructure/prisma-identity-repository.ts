@@ -139,6 +139,62 @@ export class PrismaIdentityRepository implements IdentityRepository {
     })
   }
 
+  async createPasswordReset(input: {
+    userId: string
+    email: string
+    tokenHash: string
+    tokenExpiresAt: Date
+    encryptedToken: string
+  }) {
+    return this.db.$transaction(async (tx) => {
+      const now = new Date()
+      await tx.verificationToken.updateMany({
+        where: { identifier: input.email, purpose: 'PASSWORD_RESET', usedAt: null },
+        data: { usedAt: now },
+      })
+      await tx.verificationToken.create({
+        data: { identifier: input.email, purpose: 'PASSWORD_RESET', tokenHash: input.tokenHash, expiresAt: input.tokenExpiresAt },
+      })
+      const outbox = await tx.outboxEvent.create({
+        data: {
+          aggregateType: 'User', aggregateId: input.userId,
+          eventType: 'IdentityPasswordResetEmailRequestedV1',
+          payload: { userId: input.userId, encryptedToken: input.encryptedToken, expiresAt: input.tokenExpiresAt.toISOString() },
+        },
+        select: { id: true },
+      })
+      await tx.auditLog.create({
+        data: { actorUserId: input.userId, action: 'identity.password_reset_requested', resourceType: 'User', resourceId: input.userId },
+      })
+      return { outboxId: outbox.id }
+    })
+  }
+
+  async resetPassword(tokenHash: string, passwordHash: string, now: Date) {
+    return this.db.$transaction(async (tx) => {
+      const token = await tx.verificationToken.findUnique({ where: { tokenHash } })
+      if (!token || token.purpose !== 'PASSWORD_RESET' || token.usedAt || token.expiresAt <= now) return false
+      const user = await tx.user.findUnique({
+        where: { email: token.identifier },
+        select: { id: true, status: true, roles: { where: { role: 'ADMIN', revokedAt: null }, select: { expiresAt: true } } },
+      })
+      if (!user || user.status !== 'ACTIVE' || user.roles.some((role) => !role.expiresAt || role.expiresAt > now)) return false
+      const claimed = await tx.verificationToken.updateMany({
+        where: { id: token.id, usedAt: null, expiresAt: { gt: now } }, data: { usedAt: now },
+      })
+      if (claimed.count !== 1) return false
+      await tx.user.update({ where: { id: user.id }, data: { passwordHash } })
+      await tx.session.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: now } })
+      await tx.verificationToken.updateMany({
+        where: { identifier: token.identifier, purpose: 'PASSWORD_RESET', usedAt: null }, data: { usedAt: now },
+      })
+      await tx.auditLog.create({
+        data: { actorUserId: user.id, action: 'identity.password_reset_completed', resourceType: 'User', resourceId: user.id },
+      })
+      return true
+    })
+  }
+
   async createSession(input: {
     userId: string
     sessionHash: string

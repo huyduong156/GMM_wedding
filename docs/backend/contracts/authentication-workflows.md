@@ -101,7 +101,7 @@ Endpoint dự kiến: `POST /api/auth/logout`.
 
 ## Quên và đặt lại password
 
-Endpoint dự kiến: `POST /api/auth/forgot-password` và `POST /api/auth/reset-password`.
+Endpoint đã triển khai: `POST /api/auth/forgot-password` và `POST /api/auth/reset-password` cho user account không có active `ADMIN` assignment. Admin recovery không dùng public forgot-password flow.
 
 Forgot password luôn trả response trung tính. Nếu user hợp lệ, tạo token purpose `passwordReset` có TTL ngắn và gửi qua outbox/email.
 

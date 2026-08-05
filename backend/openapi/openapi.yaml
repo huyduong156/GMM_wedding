@@ -129,6 +129,50 @@ paths:
           description: Logout completed idempotently
         '403':
           $ref: '#/components/responses/Forbidden'
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Request password recovery for an eligible non-admin user account
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '202':
+          description: Generic acknowledgment whether or not an eligible account exists
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Consume a one-time user password reset token and revoke existing sessions
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '204':
+          description: Password reset and existing sessions revoked
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
   /me:
     get:
       operationId: getCurrentUser
@@ -273,6 +317,28 @@ components:
         email:
           type: string
           format: email
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+    ResetPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [token, password]
+      properties:
+        token:
+          type: string
+          minLength: 20
+          maxLength: 512
         password:
           type: string
           minLength: 12

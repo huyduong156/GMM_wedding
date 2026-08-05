@@ -34,8 +34,9 @@ export interface RateLimiter {
   }>
 }
 
-export interface VerificationEmailSender {
+export interface IdentityEmailSender {
   sendVerificationEmail(input: { email: string; token: string; expiresAt: Date }): Promise<void>
+  sendPasswordResetEmail(input: { email: string; token: string; expiresAt: Date }): Promise<void>
 }
 
 export interface IdentityRepository {
@@ -50,6 +51,14 @@ export interface IdentityRepository {
     encryptedToken: string
   }): Promise<{ created: boolean; userId?: string; outboxId?: string }>
   verifyEmail(tokenHash: string, now: Date): Promise<boolean>
+  createPasswordReset(input: {
+    userId: string
+    email: string
+    tokenHash: string
+    tokenExpiresAt: Date
+    encryptedToken: string
+  }): Promise<{ outboxId: string }>
+  resetPassword(tokenHash: string, passwordHash: string, now: Date): Promise<boolean>
   createSession(input: {
     userId: string
     sessionHash: string

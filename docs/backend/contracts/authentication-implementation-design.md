@@ -40,7 +40,7 @@ User 1 ── * Subscription
 | `GET` | `/api/admin/me` | `200` user DTO + platform actor | Guard mẫu cho admin API |
 | `POST` | `/api/auth/logout` | `204` + clear cookie | Idempotent |
 
-Ngoài slice: resend verification, forgot/reset password, list/revoke sessions, OAuth, MFA UI và wedding authorization. Các extension này không được làm thay đổi session/actor contract của slice đầu.
+Ngoài slice: resend verification, list/revoke sessions, OAuth, MFA UI và wedding authorization. Forgot/reset password cho user đã được bổ sung: response forgot luôn trung tính, token tồn tại 30 phút/dùng một lần, reset revoke toàn bộ session; active `ADMIN` assignment không được recovery qua flow public này.
 
 Owner và admin login dùng chung credential verifier và session store nhưng có policy HTTP riêng. Login owner chấp nhận mọi `User ACTIVE`, kể cả người đồng thời có platform role; login admin chỉ tạo session sau khi kiểm tra active `UserRole.ADMIN`. Mọi API admin tiếp tục gọi `requirePlatformAdmin()`; URL login riêng không phải authorization boundary.
 
