@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { LoginPage } from '../pages/auth/ui/LoginPage'
 import { ForgotPasswordPage } from '../pages/auth/ui/ForgotPasswordPage'
 import { ResetPasswordPage } from '../pages/auth/ui/ResetPasswordPage'
+import { RegisterPage } from '../pages/auth/ui/RegisterPage'
+import { VerifyEmailPage } from '../pages/auth/ui/VerifyEmailPage'
 import { AdminDashboardPage } from '../pages/admin/ui/AdminDashboardPage'
 import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
 import { AdminThemesPage } from '../pages/admin/ui/AdminThemesPage'
@@ -68,6 +70,8 @@ export function App() {
 
   if (pathname === '/') return <HomePage />
   if (pathname === marketingRoutes.login) return <LoginPage />
+  if (pathname === marketingRoutes.register) return <RegisterPage />
+  if (pathname === marketingRoutes.verifyEmail) return <VerifyEmailPage />
   if (pathname === marketingRoutes.forgotPassword) return <ForgotPasswordPage />
   if (pathname === marketingRoutes.resetPassword) return <ResetPasswordPage />
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />

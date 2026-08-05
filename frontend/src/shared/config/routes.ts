@@ -57,6 +57,8 @@ export const publicTemplateRoutes = {
 export const marketingRoutes = {
   home: '/',
   login: '/login',
+  register: '/register',
+  verifyEmail: '/verify-email',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
 } as const

@@ -58,6 +58,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const authApi = {
+  register(email: string, password: string, displayName?: string) {
+    return request<{ message: string }>('/auth/register', {
+      method: 'POST', body: JSON.stringify({ email, password, ...(displayName ? { displayName } : {}) }),
+    })
+  },
+  verifyEmail(token: string) {
+    return request<void>('/auth/verify-email', {
+      method: 'POST', body: JSON.stringify({ token }),
+    })
+  },
+  resendVerification(email: string) {
+    return request<{ message: string }>('/auth/resend-verification', {
+      method: 'POST', body: JSON.stringify({ email }),
+    })
+  },
   login(email: string, password: string) {
     return request<{ user: AuthUser }>('/auth/login', {
       method: 'POST', body: JSON.stringify({ email, password }),

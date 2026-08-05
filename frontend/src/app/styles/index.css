@@ -700,7 +700,7 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .login-card > input, .login-password { width: 100%; min-height: 48px; border: 1px solid var(--border-strong); border-radius: 10px; background: #fff; }
 .login-card > input { padding: 0 13px; color: var(--fg); font: inherit; }
 .login-password-row { display: flex; align-items: end; justify-content: space-between; }
-.login-password-row button, .login-password-row a, .login-register button { padding: 0; border: 0; background: transparent; color: var(--brand-hover); cursor: pointer; font-size: 11px; font-weight: 650; text-decoration: none; }
+.login-password-row button, .login-password-row a, .login-register button, .login-register a { padding: 0; border: 0; background: transparent; color: var(--brand-hover); cursor: pointer; font-size: 11px; font-weight: 650; text-decoration: none; }
 .login-password { display: flex; align-items: center; padding-left: 13px; color: var(--fg-muted); }
 .login-password input { min-width: 0; flex: 1; align-self: stretch; border: 0; outline: 0; padding: 0 10px; font: inherit; }
 .login-password button { width: 46px; align-self: stretch; display: grid; place-items: center; border: 0; background: transparent; color: var(--fg-muted); cursor: pointer; }
@@ -715,6 +715,27 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .auth-back-link { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; color: var(--fg-secondary); font-size: 12px; font-weight: 650; text-decoration: none; }
 .auth-back-link:hover { color: var(--accent-strong); }
 .auth-recovery-card .login-password + label { margin-top: 17px; }
+.auth-optional { color: var(--fg-muted); font-weight: 500; }
+.auth-field-hint { display: block; margin-top: 6px; color: var(--fg-muted); font-size: 10px; }
+.auth-primary-link { display: flex; align-items: center; justify-content: center; gap: 7px; color: #fff; text-decoration: none; }
+.auth-verification-state { display: flex; gap: 12px; align-items: flex-start; margin: 24px 0; padding: 14px; border: 1px solid var(--border); border-radius: 10px; color: var(--fg-secondary); background: rgb(255 255 255 / .72); }
+.auth-verification-state > svg, .auth-inline-spinner { flex: 0 0 auto; margin-top: 1px; }
+.auth-verification-state strong, .auth-verification-state span { display: block; }
+.auth-verification-state strong { margin-bottom: 4px; color: var(--fg); font-size: 13px; }
+.auth-verification-state div span { color: var(--fg-muted); font-size: 12px; line-height: 1.55; }
+.auth-verification-state.is-error { border-color: #e7c2bb; background: #fff7f5; }
+.auth-verification-state.is-error, .auth-verification-state.is-error strong { color: #8f3528; }
+.auth-inline-spinner { width: 20px; height: 20px; border: 2px solid rgb(169 86 24 / .18); border-top-color: var(--brand); border-radius: 50%; animation: auth-route-spin .8s linear infinite; }
+.auth-resend { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+.auth-resend > div strong, .auth-resend > div span { display: block; }
+.auth-resend > div strong { color: var(--fg-secondary); font-size: 12px; }
+.auth-resend > div span { margin-top: 4px; color: var(--fg-muted); font-size: 11px; line-height: 1.5; }
+.auth-resend label { margin-top: 14px; }
+.auth-resend > input { width: 100%; min-height: 44px; padding: 0 13px; border: 1px solid var(--border-strong); border-radius: 10px; color: var(--fg); background: #fff; font: inherit; }
+.auth-resend-button { width: 100%; min-height: 42px; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.auth-resend-button:disabled { cursor: not-allowed; opacity: .58; }
+.auth-resend > small { display: block; margin-top: 8px; color: var(--fg-muted); font-size: 10px; line-height: 1.5; text-align: center; }
+.auth-resend-message { margin: 10px 0 0 !important; color: #285c42 !important; font-size: 11px !important; line-height: 1.5; }
 .auth-route-loading { min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 13px; color: var(--fg-muted); background: var(--canvas); }
 .auth-route-loading span { width: 34px; height: 34px; border: 3px solid rgb(169 86 24 / .16); border-top-color: var(--brand); border-radius: 50%; animation: auth-route-spin .8s linear infinite; }
 .auth-route-loading p { margin: 0; font-size: 12px; font-weight: 650; }
