@@ -31,4 +31,33 @@ describe('frontend authentication', () => {
     expect(screen.getByRole('status', { name: 'Đang kiểm tra phiên đăng nhập' })).toBeInTheDocument()
     await waitFor(() => expect(window.location.pathname).toBe('/gmm_admin/login'))
   })
+
+  it('checks an owner session only once when auth state is populated', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ user }), { status: 200, headers: { 'content-type': 'application/json' } }))
+    renderApp('/studio')
+    await screen.findByRole('heading', { name: /Chào buổi tối/ })
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/me'), expect.anything())
+  })
+
+  it('requests a password reset without revealing account existence', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'Accepted' }), { status: 202, headers: { 'content-type': 'application/json' } }))
+    renderApp('/forgot-password')
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi hướng dẫn' }))
+    await screen.findByText('Kiểm tra hộp thư của bạn')
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/auth/forgot-password'), expect.objectContaining({ method: 'POST', credentials: 'include' }))
+  })
+
+  it('resets the password from the email token', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+    window.history.replaceState(null, '', '/reset-password?token=reset-token')
+    render(<NavigationProvider><AuthProvider><App /></AuthProvider></NavigationProvider>)
+    fireEvent.change(screen.getByLabelText('Mật khẩu mới'), { target: { value: 'New-Correct-Horse-42' } })
+    fireEvent.change(screen.getByLabelText('Xác nhận mật khẩu mới'), { target: { value: 'New-Correct-Horse-42' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Đặt lại mật khẩu' }))
+    await screen.findByText('Đổi mật khẩu thành công')
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/auth/reset-password'), expect.objectContaining({ method: 'POST', credentials: 'include' }))
+  })
 })

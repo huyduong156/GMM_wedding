@@ -7,17 +7,19 @@ export function AuthGate({ surface, children }: { surface: 'studio' | 'admin'; c
   const auth = useOptionalAuth()
   const { navigate } = useNavigation()
   const [checking, setChecking] = useState(Boolean(auth))
+  const checkUserSession = auth?.checkUserSession
+  const checkAdminSession = auth?.checkAdminSession
   useEffect(() => {
-    if (!auth) return
+    if (!checkUserSession || !checkAdminSession) return
     let active = true
-    const check = surface === 'admin' ? auth.checkAdminSession : auth.checkUserSession
+    const check = surface === 'admin' ? checkAdminSession : checkUserSession
     void check().then((allowed) => {
       if (!active) return
       if (!allowed) navigate(surface === 'admin' ? adminRoutes.login : marketingRoutes.login, true)
       else setChecking(false)
     })
     return () => { active = false }
-  }, [auth, navigate, surface])
+  }, [checkAdminSession, checkUserSession, navigate, surface])
   if (!auth) return children
   if (checking) return <main className="auth-route-loading" role="status" aria-label="Đang kiểm tra phiên đăng nhập"><span /><p>Đang xác thực phiên đăng nhập…</p></main>
   return children

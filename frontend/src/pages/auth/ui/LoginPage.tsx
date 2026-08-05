@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight, Eye, EyeSlash, LockKey, ShieldCheck } from '@phosphor-icons/react'
-import { studioRoutes } from '../../../shared/config/routes'
+import { marketingRoutes, studioRoutes } from '../../../shared/config/routes'
 import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
 import { useAuth } from '../../../features/auth/model/auth-context'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { AuthApiError } from '../../../shared/api/auth'
+import { AppLink } from '../../../shared/lib/navigation/AppLink'
 
 function loginError(error: unknown) {
   if (!(error instanceof AuthApiError)) return 'Không thể đăng nhập lúc này. Vui lòng thử lại.'
@@ -52,7 +53,7 @@ export function LoginPage() {
           <p>Tiếp tục chuẩn bị cho ngày cưới của bạn.</p>
           <label htmlFor="login-email">Email</label>
           <input id="login-email" type="email" autoComplete="email" placeholder="ban@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required disabled={submitting} />
-          <div className="login-password-row"><label htmlFor="login-password">Mật khẩu</label><button type="button">Quên mật khẩu?</button></div>
+          <div className="login-password-row"><label htmlFor="login-password">Mật khẩu</label><AppLink to={marketingRoutes.forgotPassword}>Quên mật khẩu?</AppLink></div>
           <div className="login-password"><LockKey size={18} /><input id="login-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Nhập mật khẩu" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={12} disabled={submitting} /><button type="button" aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}</button></div>
           {error ? <p className="auth-form-error" role="alert">{error}</p> : null}
           <button className="button button-primary login-submit" type="submit" disabled={submitting}>{submitting ? 'Đang đăng nhập…' : 'Đăng nhập'} {!submitting ? <ArrowRight size={17} /> : null}</button>

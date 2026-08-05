@@ -19,7 +19,9 @@ All requests use `credentials: include`. Unsafe requests send JSON and `X-CSRF-P
 - Owner login does not reject a user merely because that identity also has an admin role.
 - Admin login maps `ADMIN_ACCESS_REQUIRED` to a permission-specific message without exposing private data.
 - Logout revokes the backend session, clears frontend auth state and returns to the matching login surface.
-- Password reset and registration UI remain unavailable until their complete backend contracts are implemented.
+- Owner password recovery uses `/forgot-password` and `/reset-password?token=...`, backed by `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
+- The forgot-password confirmation remains generic and does not reveal whether an account exists. Public password recovery is not exposed on the platform-admin login surface.
+- Registration UI remains unavailable until its complete product flow is implemented.
 
 ## Configuration
 

@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { LoginPage } from '../pages/auth/ui/LoginPage'
+import { ForgotPasswordPage } from '../pages/auth/ui/ForgotPasswordPage'
+import { ResetPasswordPage } from '../pages/auth/ui/ResetPasswordPage'
 import { AdminDashboardPage } from '../pages/admin/ui/AdminDashboardPage'
 import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
 import { AdminThemesPage } from '../pages/admin/ui/AdminThemesPage'
@@ -15,7 +17,7 @@ import { RsvpsPage } from '../pages/rsvps/ui/RsvpsPage'
 import { WishesPage } from '../pages/wishes/ui/WishesPage'
 import { PlaceholderPage } from '../pages/placeholder/ui/PlaceholderPage'
 import { useNavigation } from '../shared/lib/navigation/navigation-context'
-import { adminRoutes, legacyStudioRoutes, studioRoutes } from '../shared/config/routes'
+import { adminRoutes, legacyStudioRoutes, marketingRoutes, studioRoutes } from '../shared/config/routes'
 import { AppShell } from '../widgets/app-shell/ui/AppShell'
 import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
@@ -65,7 +67,9 @@ export function App() {
   }, [navigate, pathname])
 
   if (pathname === '/') return <HomePage />
-  if (pathname === '/login') return <LoginPage />
+  if (pathname === marketingRoutes.login) return <LoginPage />
+  if (pathname === marketingRoutes.forgotPassword) return <ForgotPasswordPage />
+  if (pathname === marketingRoutes.resetPassword) return <ResetPasswordPage />
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />

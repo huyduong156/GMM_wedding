@@ -68,6 +68,16 @@ export const authApi = {
       method: 'POST', body: JSON.stringify({ email, password }),
     })
   },
+  forgotPassword(email: string) {
+    return request<{ message: string }>('/auth/forgot-password', {
+      method: 'POST', body: JSON.stringify({ email }),
+    })
+  },
+  resetPassword(token: string, password: string) {
+    return request<void>('/auth/reset-password', {
+      method: 'POST', body: JSON.stringify({ token, password }),
+    })
+  },
   me() { return request<{ user: AuthUser }>('/me') },
   adminMe() { return request<{ user: AuthUser; actor: PlatformAdminActor }>('/admin/me') },
   logout() { return request<void>('/auth/logout', { method: 'POST', body: '{}' }) },
