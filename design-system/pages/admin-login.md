@@ -14,4 +14,4 @@
 
 ## Trạng thái triển khai
 
-Frontend hiện là prototype điều hướng. Trước production cần secure session cookie, server-side guard, rate limit, MFA/recovery, audit login và thông báo lỗi không làm lộ sự tồn tại của tài khoản.
+Frontend đã gọi `POST /api/auth/admin/login`, bootstrap guard bằng `GET /api/admin/me`, hiển thị lỗi permission ổn định và logout qua session backend. Secure cookie, role guard và rate limit do backend thực thi; MFA/recovery và audit login vẫn là production gate.

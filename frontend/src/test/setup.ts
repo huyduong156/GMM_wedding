@@ -30,3 +30,4 @@ class IntersectionObserverMock implements IntersectionObserver {
 }
 
 globalThis.IntersectionObserver = IntersectionObserverMock
+window.scrollTo = vi.fn()
