@@ -11,20 +11,23 @@
 - Đăng ký/login/logout, xác minh email, quên/reset mật khẩu.
 - Hồ sơ, locale/timezone, quản lý session, xóa/xuất dữ liệu.
 - OAuth Google (Post-MVP).
-- Vai trò: `owner`, `editor`, `guest_manager`, `viewer`.
+- MVP dùng một owner cho mỗi wedding trong luồng sản phẩm. Cộng tác và các vai trò `editor`, `guest_manager`, `viewer` là Post-MVP; model dữ liệu hiện có chỉ được coi là điểm mở rộng, chưa yêu cầu UI/API quản trị thành viên.
 
 ## Wedding
 
-- Tạo, nhân bản, lưu trữ, xóa mềm; một user sở hữu nhiều wedding.
-- `draft`, `published`, `archived`; slug duy nhất.
-- Public, mật khẩu chung hoặc invite-only.
-- Nhiều sự kiện, địa điểm/bản đồ, timezone, thông tin cặp đôi/gia đình.
+- Wedding là hồ sơ gốc tối giản để liên kết thiệp online, website cưới, recap, khách, RSVP, lời chúc và media; không phải wedding planner.
+- Tạo, xem danh sách, sửa, lưu trữ và xóa mềm; một user có thể sở hữu nhiều wedding.
+- Thông tin MVP: tên wedding/cặp đôi, tên cô dâu/chú rể, ngày cưới chính, ảnh đại diện tùy chọn, locale, timezone và một số setting hiển thị cơ bản.
+- `draft`, `published`, `archived`; slug/publication lifecycle thuộc từng surface công khai thay vì buộc Wedding phải là một trang public duy nhất.
+- Wedding có thể có nhiều lễ/tiệc với tên/loại, ngày giờ, địa điểm/map, ghi chú ngắn, trạng thái hiển thị và thứ tự. Event chỉ là dữ liệu dùng lại bởi thiệp, website và RSVP; không có planning workflow riêng trong MVP.
 
 ## Editor và template
 
 - Template version bất biến; đổi template không làm mất nội dung tương thích.
 - Section: hero, couple, story, events, gallery, countdown, map, RSVP, wishes, gift, footer.
-- Bật/tắt/sắp xếp section; màu, font, nền và hiệu ứng được cho phép.
+- Template cung cấp bố cục, section, theme và thứ tự mặc định ngay khi được chọn; user không phải cấu hình section trước bước chọn template.
+- Sau khi chọn template, editor hiển thị trực tiếp preview để user bật/tắt và sắp xếp section, sửa nội dung, ảnh, màu/font/nền/hiệu ứng trong giới hạn template.
+- Khi đổi template trong MVP, áp dụng cấu hình mặc định của template mới và giữ canonical content tương thích; không cố giữ bố cục tùy chỉnh của template cũ.
 - Upload/crop/tối ưu ảnh, autosave, preview responsive, preview draft bằng token.
 - Version history/custom CSS (Post-MVP). Không chạy HTML/JavaScript tùy ý từ user.
 
@@ -66,12 +69,13 @@
 - MVP không giữ tiền hoặc xử lý giao dịch.
 - Payment gateway chỉ sau đánh giá pháp lý/đối soát.
 
-## Chuẩn bị và sau ngày cưới
+## Chuẩn bị, tài chính cá nhân và sau ngày cưới
 
-- Wedding Todo List: task theo wedding với deadline, priority, category, trạng thái và người phụ trách; có checklist mẫu version hóa.
-- Sổ tiền mừng: owner tự ghi tiền hoặc quà theo guest, hình thức/ngày nhận, ghi chú và trạng thái đã mừng lại; dữ liệu riêng tư chỉ owner truy cập trong MVP.
-- Wedding Recap: draft single-page gồm media sẵn sàng, lời chúc đã duyệt được chọn và lời cảm ơn; publish/unpublish bằng slug riêng, có OG metadata để chia sẻ.
-- Sổ tiền mừng chỉ là sổ ghi chép, không giữ tiền hoặc suy diễn giao dịch ngân hàng.
+- Wedding Recap là publication surface ưu tiên sau thiệp/website: draft single-page gồm media sẵn sàng, lời chúc đã duyệt được chọn và lời cảm ơn; publish/unpublish bằng slug riêng, có OG metadata để chia sẻ và phục vụ SEO.
+- Wedding Todo List là module trọng tâm: checklist cá nhân theo wedding, deadline, priority, category, trạng thái và reminder; template checklist giúp bắt đầu nhanh. Module được mở theo nhu cầu và không chặn onboarding/publish.
+- Ngân sách cưới là module trọng tâm: hạng mục dự kiến/thực chi, số tiền theo minor unit + currency, trạng thái thanh toán và tổng hợp chênh lệch. Đây là sổ kế hoạch cá nhân, không phải kế toán hay quản lý hợp đồng nhà cung cấp.
+- Sổ tiền mừng là module trọng tâm sau ngày cưới: owner ghi tiền/vàng/quà theo khách, ngày/hình thức nhận, ghi chú và trạng thái mừng lại. Đây là dữ liệu owner-only, không giữ tiền, không kết nối/suy diễn giao dịch ngân hàng và không đưa vào public surface.
+- Todo, ngân sách và sổ tiền mừng có navigation riêng nhưng dùng progressive disclosure: dashboard không bắt user cấu hình chúng trước khi tạo/chọn/publish thiệp.
 
 ## Dashboard, admin và billing
 
