@@ -18,8 +18,9 @@ export type SessionCookiePolicy = {
 
 export function getSessionCookiePolicy(
   nodeEnv: 'development' | 'test' | 'production',
+  secureOverride?: boolean,
 ): SessionCookiePolicy {
-  const secure = nodeEnv === 'production'
+  const secure = secureOverride ?? nodeEnv === 'production'
 
   return {
     name: secure ? SECURE_SESSION_COOKIE_NAME : LOCAL_SESSION_COOKIE_NAME,

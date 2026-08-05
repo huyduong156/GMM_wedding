@@ -29,7 +29,7 @@ Tài khoản owner/cộng tác viên/platform admin.
 | `locale` | varchar(16) | Locale, mặc định `vi-VN` |
 | `timezone` | varchar(64) | IANA timezone |
 | `status` | `UserStatus` | Pending, active, suspended hoặc deleted |
-| `platformRole` | `PlatformRole` | User thường hoặc platform admin |
+| `platformRole` | `PlatformRole` | Compatibility field hiện tại; ADR 0007 chuyển platform authorization sang `UserRole` bằng migration expand-contract |
 | `lastLoginAt` | timestamp? | Lần đăng nhập cuối |
 | `createdAt`, `updatedAt`, `deletedAt` | timestamp | Lifecycle và soft-delete |
 

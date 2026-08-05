@@ -2,13 +2,16 @@
 
 Tài liệu này mô tả luồng xử lý auth từ HTTP request đến database và cách kiểm chứng khi implementation bắt đầu. Security contract và permission policy xem [authentication and authorization](./authentication-and-authorization.md); schema field xem [database schema reference](../data/database-schema-reference.md).
 
+Thiết kế triển khai của vertical slice đầu tiên nằm tại [authentication implementation design](./authentication-implementation-design.md); quyết định runtime/session/security dài hạn nằm tại [ADR 0006](../../shared/architecture/adr/0006-server-managed-session-authentication.md).
+
 ## Trạng thái và phạm vi base branch
 
 | Thành phần | Trạng thái |
 |---|---|
 | User/Account/Session/VerificationToken schema | Implemented |
 | Actor context, opaque token và cookie policy primitives | Implemented |
-| Register/login/logout/verify/reset route | Planned |
+| Register/login/logout/verify route | Implemented |
+| Password reset route | Planned |
 | Password hashing adapter | Planned; phải chọn/thử nghiệm thư viện trước implementation |
 | Email delivery adapter | Planned |
 | CSRF/origin middleware | Planned |
@@ -118,7 +121,7 @@ Reset password:
 - `user`: user/session hợp lệ.
 - `platformAdmin`: admin hợp lệ cùng mức assurance.
 
-Use case nhận actor từ composition layer, không nhận `userId`, `adminId` hoặc trusted role từ request body. Trình tự authorize:
+Use case nhận actor từ composition layer, không nhận `userId` hoặc trusted role từ request body. Trình tự authorize:
 
 1. Xác thực actor.
 2. Load resource tối thiểu.
@@ -128,6 +131,8 @@ Use case nhận actor từ composition layer, không nhận `userId`, `adminId` 
 6. Mutation trong transaction; audit khi nhạy cảm.
 
 Platform admin không mặc định đọc gift ledger hoặc guest PII. Break-glass cần reason, step-up, expiry và audit riêng.
+
+Owner/admin không phải hai credential store. Cả hai dùng canonical `User` identity; active `UserRole` nâng actor thành `platformAdmin` theo [ADR 0007](../../shared/architecture/adr/0007-single-identity-and-platform-role-assignments.md). Wedding permission vẫn được resolve riêng từ `WeddingMember`; rank/plan không cấp admin permission.
 
 ## CSRF, CORS và origin
 
@@ -209,12 +214,13 @@ Không lấy verification token/password thật từ log. Test environment dùng
 
 ## Quyết định còn phải khóa trước auth implementation
 
-Một PR/ADR auth riêng phải chọn và benchmark:
+ADR 0006 đã chọn hướng, nhưng vẫn giữ `Proposed` cho đến khi các gate sau được kiểm chứng:
 
-- Password hashing package và parameters trên production runtime.
-- Email provider/dev email adapter.
-- CSRF implementation cụ thể.
-- Session cleanup/retention job.
-- MFA/step-up provider cho platform admin.
+- nâng runner khỏi Node 20 đã EOL lên Node 24 LTS;
+- build và benchmark Argon2id trong đúng Alpine runner image;
+- exact-origin/Fetch Metadata/custom-header CSRF integration test;
+- Redis production rate limiter fail-closed;
+- email adapter/outbox không lưu raw token;
+- session cleanup/retention và MFA/step-up production gate.
 
-Những quyết định này không ngăn base structure hoàn tất, nhưng là gate trước khi gọi auth là production-ready.
+Những gate này không ngăn viết core use case theo ports, nhưng phải hoàn tất trước khi gọi auth là production-ready hoặc đổi ADR sang `Accepted`.

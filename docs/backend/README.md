@@ -37,9 +37,10 @@
 3. [API contracts](./contracts/api-contracts.md)
 4. [Authentication và authorization](./contracts/authentication-and-authorization.md)
 5. [Authentication workflows and implementation runbook](./contracts/authentication-workflows.md)
-6. [Error, pagination, idempotency và concurrency](./contracts/errors-pagination-and-concurrency.md)
-7. [Request và event flows](./architecture/request-and-event-flows.md)
-8. Domain/data document tương ứng.
+6. [Authentication implementation design](./contracts/authentication-implementation-design.md)
+7. [Error, pagination, idempotency và concurrency](./contracts/errors-pagination-and-concurrency.md)
+8. [Request và event flows](./architecture/request-and-event-flows.md)
+9. Domain/data document tương ứng.
 
 ### Làm database hoặc migration
 
@@ -82,6 +83,7 @@ docs/backend/
     api-contracts.md
     authentication-and-authorization.md
     authentication-workflows.md
+    authentication-implementation-design.md
     errors-pagination-and-concurrency.md
   data/
     domain-data-model.md

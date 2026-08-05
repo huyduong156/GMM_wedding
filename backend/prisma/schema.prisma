@@ -12,6 +12,17 @@ enum PlatformRole {
   ADMIN
 }
 
+enum SystemRole {
+  ADMIN
+  SUPPORT
+  MODERATOR
+}
+
+enum VerificationPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 enum UserStatus {
   PENDING_VERIFICATION
   ACTIVE
@@ -161,134 +172,153 @@ enum IdempotencyStatus {
 }
 
 model User {
-  id                 String         @id @default(uuid()) @db.Uuid
-  email              String         @unique @db.VarChar(320)
-  emailVerifiedAt    DateTime?      @db.Timestamptz(3)
-  passwordHash       String?        @db.VarChar(255)
-  displayName        String?        @db.VarChar(120)
-  avatarUrl          String?        @db.VarChar(2048)
-  locale             String         @default("vi-VN") @db.VarChar(16)
-  timezone           String         @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
-  status             UserStatus     @default(PENDING_VERIFICATION)
-  platformRole       PlatformRole   @default(USER)
-  lastLoginAt        DateTime?      @db.Timestamptz(3)
-  createdAt          DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt          DateTime       @updatedAt @db.Timestamptz(3)
-  deletedAt          DateTime?      @db.Timestamptz(3)
-  accounts           Account[]
-  sessions           Session[]
-  memberships        WeddingMember[]
-  createdWeddings    Wedding[]      @relation("WeddingCreator")
-  completedTasks     WeddingTask[]  @relation("TaskCompletedBy")
-  notifications      Notification[]
-  notificationPrefs  NotificationPreference[]
-  auditLogs          AuditLog[]
+  id                String                   @id @default(uuid()) @db.Uuid
+  email             String                   @unique @db.VarChar(320)
+  emailVerifiedAt   DateTime?                @db.Timestamptz(3)
+  passwordHash      String?                  @db.VarChar(255)
+  displayName       String?                  @db.VarChar(120)
+  avatarUrl         String?                  @db.VarChar(2048)
+  locale            String                   @default("vi-VN") @db.VarChar(16)
+  timezone          String                   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  status            UserStatus               @default(PENDING_VERIFICATION)
+  platformRole      PlatformRole             @default(USER)
+  lastLoginAt       DateTime?                @db.Timestamptz(3)
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime?                @db.Timestamptz(3)
+  accounts          Account[]
+  sessions          Session[]
+  memberships       WeddingMember[]
+  createdWeddings   Wedding[]                @relation("WeddingCreator")
+  completedTasks    WeddingTask[]            @relation("TaskCompletedBy")
+  notifications     Notification[]
+  notificationPrefs NotificationPreference[]
+  auditLogs         AuditLog[]
+  roles             UserRole[]               @relation("UserRoles")
+  grantedRoles      UserRole[]               @relation("GrantedUserRoles")
 
   @@index([status, createdAt])
 }
 
+model UserRole {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @db.Uuid
+  role        SystemRole
+  grantedById String?    @db.Uuid
+  grantedAt   DateTime   @default(now()) @db.Timestamptz(3)
+  expiresAt   DateTime?  @db.Timestamptz(3)
+  revokedAt   DateTime?  @db.Timestamptz(3)
+  reason      String?    @db.VarChar(500)
+  user        User       @relation("UserRoles", fields: [userId], references: [id], onDelete: Cascade)
+  grantedBy   User?      @relation("GrantedUserRoles", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, role, revokedAt])
+  @@index([role, expiresAt, revokedAt])
+  @@index([grantedById])
+}
+
 model Account {
-  id                String  @id @default(uuid()) @db.Uuid
-  userId            String  @db.Uuid
-  provider          String  @db.VarChar(64)
-  providerAccountId String  @db.VarChar(255)
-  type              String  @db.VarChar(32)
-  accessToken       String? @db.Text
-  refreshToken      String? @db.Text
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  provider          String   @db.VarChar(64)
+  providerAccountId String   @db.VarChar(255)
+  type              String   @db.VarChar(32)
+  accessToken       String?  @db.Text
+  refreshToken      String?  @db.Text
   expiresAt         Int?
-  tokenType         String? @db.VarChar(32)
-  scope             String? @db.Text
-  idToken           String? @db.Text
+  tokenType         String?  @db.VarChar(32)
+  scope             String?  @db.Text
+  idToken           String?  @db.Text
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt @db.Timestamptz(3)
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
 model Session {
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @db.Uuid
-  sessionHash  String   @unique @db.VarChar(255)
-  expiresAt    DateTime @db.Timestamptz(3)
-  lastSeenAt   DateTime @default(now()) @db.Timestamptz(3)
-  ipHash       String?  @db.VarChar(128)
-  userAgent    String?  @db.VarChar(512)
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  revokedAt    DateTime? @db.Timestamptz(3)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  sessionHash String    @unique @db.VarChar(255)
+  expiresAt   DateTime  @db.Timestamptz(3)
+  lastSeenAt  DateTime  @default(now()) @db.Timestamptz(3)
+  ipHash      String?   @db.VarChar(128)
+  userAgent   String?   @db.VarChar(512)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  revokedAt   DateTime? @db.Timestamptz(3)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
 }
 
 model VerificationToken {
-  id         String   @id @default(uuid()) @db.Uuid
-  identifier String   @db.VarChar(320)
-  purpose    String   @db.VarChar(32)
-  tokenHash  String   @unique @db.VarChar(255)
-  expiresAt  DateTime @db.Timestamptz(3)
-  usedAt     DateTime? @db.Timestamptz(3)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  id         String              @id @default(uuid()) @db.Uuid
+  identifier String              @db.VarChar(320)
+  purpose    VerificationPurpose
+  tokenHash  String              @unique @db.VarChar(255)
+  expiresAt  DateTime            @db.Timestamptz(3)
+  usedAt     DateTime?           @db.Timestamptz(3)
+  createdAt  DateTime            @default(now()) @db.Timestamptz(3)
 
   @@index([identifier, purpose, expiresAt])
 }
 
 model Wedding {
-  id                    String             @id @default(uuid()) @db.Uuid
-  createdById           String             @db.Uuid
-  name                  String             @db.VarChar(160)
-  slug                  String?            @db.VarChar(64)
-  status                WeddingStatus      @default(DRAFT)
-  visibility            WeddingVisibility  @default(PUBLIC)
-  accessPasswordHash    String?            @db.VarChar(255)
-  timezone              String             @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
-  locale                String             @default("vi-VN") @db.VarChar(16)
-  primaryDate           DateTime?          @db.Timestamptz(3)
-  revision              Int                @default(1)
-  publishedAt           DateTime?          @db.Timestamptz(3)
-  archivedAt            DateTime?          @db.Timestamptz(3)
-  createdAt             DateTime           @default(now()) @db.Timestamptz(3)
-  updatedAt             DateTime           @updatedAt @db.Timestamptz(3)
-  deletedAt             DateTime?          @db.Timestamptz(3)
-  createdBy             User               @relation("WeddingCreator", fields: [createdById], references: [id], onDelete: Restrict)
-  members               WeddingMember[]
-  events                WeddingEvent[]
-  content               WeddingContent?
-  themes                WeddingTheme[]
-  website               WeddingWebsite?
-  invitationDesign      InvitationDesign?
-  snapshots             PublishedWeddingSnapshot[]
-  mediaAssets           MediaAsset[]
-  guestCategories       GuestCategory[]
-  guestGroups           GuestGroup[]
-  guests                Guest[]
-  invitations           Invitation[]
-  rsvpResponses         RsvpResponse[]
-  wishes                Wish[]
-  tasks                 WeddingTask[]
-  giftLedgerEntries     GiftLedgerEntry[]
-  recap                 WeddingRecap?
-  auditLogs             AuditLog[]
+  id                 String                     @id @default(uuid()) @db.Uuid
+  createdById        String                     @db.Uuid
+  name               String                     @db.VarChar(160)
+  slug               String?                    @db.VarChar(64)
+  status             WeddingStatus              @default(DRAFT)
+  visibility         WeddingVisibility          @default(PUBLIC)
+  accessPasswordHash String?                    @db.VarChar(255)
+  timezone           String                     @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  locale             String                     @default("vi-VN") @db.VarChar(16)
+  primaryDate        DateTime?                  @db.Timestamptz(3)
+  revision           Int                        @default(1)
+  publishedAt        DateTime?                  @db.Timestamptz(3)
+  archivedAt         DateTime?                  @db.Timestamptz(3)
+  createdAt          DateTime                   @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime                   @updatedAt @db.Timestamptz(3)
+  deletedAt          DateTime?                  @db.Timestamptz(3)
+  createdBy          User                       @relation("WeddingCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  members            WeddingMember[]
+  events             WeddingEvent[]
+  content            WeddingContent?
+  themes             WeddingTheme[]
+  website            WeddingWebsite?
+  invitationDesign   InvitationDesign?
+  snapshots          PublishedWeddingSnapshot[]
+  mediaAssets        MediaAsset[]
+  guestCategories    GuestCategory[]
+  guestGroups        GuestGroup[]
+  guests             Guest[]
+  invitations        Invitation[]
+  rsvpResponses      RsvpResponse[]
+  wishes             Wish[]
+  tasks              WeddingTask[]
+  giftLedgerEntries  GiftLedgerEntry[]
+  recap              WeddingRecap?
+  auditLogs          AuditLog[]
 
   @@index([createdById, status])
   @@index([status, primaryDate])
 }
 
 model WeddingMember {
-  id         String           @id @default(uuid()) @db.Uuid
-  weddingId  String           @db.Uuid
-  userId     String           @db.Uuid
-  role       WeddingMemberRole
-  status     MembershipStatus @default(ACTIVE)
-  invitedAt  DateTime?        @db.Timestamptz(3)
-  joinedAt   DateTime?        @db.Timestamptz(3)
-  revokedAt  DateTime?        @db.Timestamptz(3)
-  createdAt  DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime         @updatedAt @db.Timestamptz(3)
-  wedding    Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  user       User             @relation(fields: [userId], references: [id], onDelete: Restrict)
-  assignedTasks WeddingTask[] @relation("TaskAssignee")
+  id            String            @id @default(uuid()) @db.Uuid
+  weddingId     String            @db.Uuid
+  userId        String            @db.Uuid
+  role          WeddingMemberRole
+  status        MembershipStatus  @default(ACTIVE)
+  invitedAt     DateTime?         @db.Timestamptz(3)
+  joinedAt      DateTime?         @db.Timestamptz(3)
+  revokedAt     DateTime?         @db.Timestamptz(3)
+  createdAt     DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime          @updatedAt @db.Timestamptz(3)
+  wedding       Wedding           @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  assignedTasks WeddingTask[]     @relation("TaskAssignee")
 
   @@unique([weddingId, userId])
   @@index([userId, status])
@@ -296,225 +326,225 @@ model WeddingMember {
 }
 
 model WeddingEvent {
-  id            String    @id @default(uuid()) @db.Uuid
-  weddingId     String    @db.Uuid
-  name          String    @db.VarChar(160)
-  eventType     String    @db.VarChar(48)
-  startsAt      DateTime  @db.Timestamptz(3)
-  endsAt        DateTime? @db.Timestamptz(3)
-  timezone      String    @db.VarChar(64)
-  venueName     String?   @db.VarChar(200)
-  addressLine   String?   @db.VarChar(500)
-  mapUrl        String?   @db.VarChar(2048)
-  latitude      Decimal?  @db.Decimal(9, 6)
-  longitude     Decimal?  @db.Decimal(9, 6)
-  sortOrder     Int       @default(0)
-  isPublic      Boolean   @default(true)
-  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
-  deletedAt     DateTime? @db.Timestamptz(3)
-  wedding       Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  id             String               @id @default(uuid()) @db.Uuid
+  weddingId      String               @db.Uuid
+  name           String               @db.VarChar(160)
+  eventType      String               @db.VarChar(48)
+  startsAt       DateTime             @db.Timestamptz(3)
+  endsAt         DateTime?            @db.Timestamptz(3)
+  timezone       String               @db.VarChar(64)
+  venueName      String?              @db.VarChar(200)
+  addressLine    String?              @db.VarChar(500)
+  mapUrl         String?              @db.VarChar(2048)
+  latitude       Decimal?             @db.Decimal(9, 6)
+  longitude      Decimal?             @db.Decimal(9, 6)
+  sortOrder      Int                  @default(0)
+  isPublic       Boolean              @default(true)
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+  deletedAt      DateTime?            @db.Timestamptz(3)
+  wedding        Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   rsvpSelections RsvpEventSelection[]
 
   @@index([weddingId, startsAt])
 }
 
 model WeddingContent {
-  id              String   @id @default(uuid()) @db.Uuid
-  weddingId       String   @unique @db.Uuid
-  schemaVersion   Int      @default(1)
-  content         Json
-  revision        Int      @default(1)
-  createdAt       DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
-  wedding         Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid()) @db.Uuid
+  weddingId     String   @unique @db.Uuid
+  schemaVersion Int      @default(1)
+  content       Json
+  revision      Int      @default(1)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  wedding       Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 }
 
 model WeddingTheme {
-  id                String         @id @default(uuid()) @db.Uuid
-  weddingId         String         @db.Uuid
-  surface           WeddingSurface
-  configVersion     Int            @default(1)
-  themeConfig       Json
-  sectionConfig     Json
-  revision          Int            @default(1)
-  createdAt         DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime       @updatedAt @db.Timestamptz(3)
-  wedding           Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  id            String         @id @default(uuid()) @db.Uuid
+  weddingId     String         @db.Uuid
+  surface       WeddingSurface
+  configVersion Int            @default(1)
+  themeConfig   Json
+  sectionConfig Json
+  revision      Int            @default(1)
+  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
+  wedding       Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 
   @@unique([weddingId, surface])
 }
 
 model WeddingWebsite {
-  id                  String           @id @default(uuid()) @db.Uuid
-  weddingId           String           @unique @db.Uuid
-  templateVersionId   String?          @db.Uuid
-  slug                String?          @db.VarChar(64)
-  isPublished         Boolean          @default(false)
-  revision            Int              @default(1)
-  createdAt           DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime         @updatedAt @db.Timestamptz(3)
-  wedding             Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion     TemplateVersion? @relation("WebsiteTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
+  id                String           @id @default(uuid()) @db.Uuid
+  weddingId         String           @unique @db.Uuid
+  templateVersionId String?          @db.Uuid
+  slug              String?          @db.VarChar(64)
+  isPublished       Boolean          @default(false)
+  revision          Int              @default(1)
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  templateVersion   TemplateVersion? @relation("WebsiteTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
 }
 
 model InvitationDesign {
-  id                  String           @id @default(uuid()) @db.Uuid
-  weddingId           String           @unique @db.Uuid
-  templateVersionId   String?          @db.Uuid
-  revision            Int              @default(1)
-  createdAt           DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime         @updatedAt @db.Timestamptz(3)
-  wedding             Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion     TemplateVersion? @relation("InvitationTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
+  id                String           @id @default(uuid()) @db.Uuid
+  weddingId         String           @unique @db.Uuid
+  templateVersionId String?          @db.Uuid
+  revision          Int              @default(1)
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  templateVersion   TemplateVersion? @relation("InvitationTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
 }
 
 model Template {
-  id           String              @id @default(uuid()) @db.Uuid
-  key          String              @unique @db.VarChar(80)
-  name         String              @db.VarChar(160)
-  productType  TemplateProductType
-  status       TemplateStatus      @default(DRAFT)
-  description  String?             @db.Text
-  createdAt    DateTime            @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime            @updatedAt @db.Timestamptz(3)
-  versions     TemplateVersion[]
+  id          String              @id @default(uuid()) @db.Uuid
+  key         String              @unique @db.VarChar(80)
+  name        String              @db.VarChar(160)
+  productType TemplateProductType
+  status      TemplateStatus      @default(DRAFT)
+  description String?             @db.Text
+  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
+  versions    TemplateVersion[]
 }
 
 model TemplateVersion {
-  id                    String         @id @default(uuid()) @db.Uuid
-  templateId            String         @db.Uuid
-  version               String         @db.VarChar(32)
-  configHash            String         @db.VarChar(128)
+  id                    String                     @id @default(uuid()) @db.Uuid
+  templateId            String                     @db.Uuid
+  version               String                     @db.VarChar(32)
+  configHash            String                     @db.VarChar(128)
   templateConfigVersion Int
   contentSchemaVersion  Int
   rendererApiVersion    Int
-  codeRevision          String         @db.VarChar(128)
+  codeRevision          String                     @db.VarChar(128)
   config                Json
-  releasedAt            DateTime?      @db.Timestamptz(3)
-  deprecatedAt          DateTime?      @db.Timestamptz(3)
-  createdAt             DateTime       @default(now()) @db.Timestamptz(3)
-  template              Template       @relation(fields: [templateId], references: [id], onDelete: Restrict)
-  websiteSelections     WeddingWebsite[] @relation("WebsiteTemplateVersion")
-  invitationSelections  InvitationDesign[] @relation("InvitationTemplateVersion")
+  releasedAt            DateTime?                  @db.Timestamptz(3)
+  deprecatedAt          DateTime?                  @db.Timestamptz(3)
+  createdAt             DateTime                   @default(now()) @db.Timestamptz(3)
+  template              Template                   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  websiteSelections     WeddingWebsite[]           @relation("WebsiteTemplateVersion")
+  invitationSelections  InvitationDesign[]         @relation("InvitationTemplateVersion")
   weddingSnapshots      PublishedWeddingSnapshot[]
-  recaps                 WeddingRecap[]
-  recapSnapshots         PublishedRecapSnapshot[]
+  recaps                WeddingRecap[]
+  recapSnapshots        PublishedRecapSnapshot[]
 
   @@unique([templateId, version])
   @@unique([templateId, configHash])
 }
 
 model PublishedWeddingSnapshot {
-  id                    String          @id @default(uuid()) @db.Uuid
-  weddingId             String          @db.Uuid
-  templateVersionId     String          @db.Uuid
-  version               Int
-  surface               WeddingSurface
-  slug                  String          @db.VarChar(64)
-  payload               Json
-  payloadHash           String          @db.VarChar(128)
-  contentSchemaVersion  Int
-  rendererApiVersion    Int
-  publishedAt           DateTime        @default(now()) @db.Timestamptz(3)
-  unpublishedAt         DateTime?       @db.Timestamptz(3)
-  wedding               Wedding         @relation(fields: [weddingId], references: [id], onDelete: Restrict)
-  templateVersion       TemplateVersion @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  id                   String          @id @default(uuid()) @db.Uuid
+  weddingId            String          @db.Uuid
+  templateVersionId    String          @db.Uuid
+  version              Int
+  surface              WeddingSurface
+  slug                 String          @db.VarChar(64)
+  payload              Json
+  payloadHash          String          @db.VarChar(128)
+  contentSchemaVersion Int
+  rendererApiVersion   Int
+  publishedAt          DateTime        @default(now()) @db.Timestamptz(3)
+  unpublishedAt        DateTime?       @db.Timestamptz(3)
+  wedding              Wedding         @relation(fields: [weddingId], references: [id], onDelete: Restrict)
+  templateVersion      TemplateVersion @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
 
   @@unique([weddingId, surface, version])
   @@index([slug, surface, unpublishedAt])
 }
 
 model MediaAsset {
-  id            String      @id @default(uuid()) @db.Uuid
-  weddingId     String      @db.Uuid
-  uploadedById  String?     @db.Uuid
-  storageKey    String      @unique @db.VarChar(512)
-  originalName  String?     @db.VarChar(255)
-  mimeType      String      @db.VarChar(128)
-  sizeBytes     BigInt
-  width         Int?
-  height        Int?
-  status        MediaStatus @default(PENDING_UPLOAD)
-  checksum      String?     @db.VarChar(128)
-  altText       String?     @db.VarChar(500)
-  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime    @updatedAt @db.Timestamptz(3)
-  deletedAt     DateTime?   @db.Timestamptz(3)
-  wedding       Wedding     @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  variants      MediaVariant[]
-  recapItems    RecapMediaItem[]
+  id           String           @id @default(uuid()) @db.Uuid
+  weddingId    String           @db.Uuid
+  uploadedById String?          @db.Uuid
+  storageKey   String           @unique @db.VarChar(512)
+  originalName String?          @db.VarChar(255)
+  mimeType     String           @db.VarChar(128)
+  sizeBytes    BigInt
+  width        Int?
+  height       Int?
+  status       MediaStatus      @default(PENDING_UPLOAD)
+  checksum     String?          @db.VarChar(128)
+  altText      String?          @db.VarChar(500)
+  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime         @updatedAt @db.Timestamptz(3)
+  deletedAt    DateTime?        @db.Timestamptz(3)
+  wedding      Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  variants     MediaVariant[]
+  recapItems   RecapMediaItem[]
 
   @@index([weddingId, status, createdAt])
 }
 
 model MediaVariant {
-  id          String     @id @default(uuid()) @db.Uuid
-  mediaAssetId String    @db.Uuid
-  variantKey  String     @db.VarChar(48)
-  storageKey  String     @unique @db.VarChar(512)
-  mimeType    String     @db.VarChar(128)
-  sizeBytes   BigInt
-  width       Int?
-  height      Int?
-  createdAt   DateTime   @default(now()) @db.Timestamptz(3)
-  mediaAsset  MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  id           String     @id @default(uuid()) @db.Uuid
+  mediaAssetId String     @db.Uuid
+  variantKey   String     @db.VarChar(48)
+  storageKey   String     @unique @db.VarChar(512)
+  mimeType     String     @db.VarChar(128)
+  sizeBytes    BigInt
+  width        Int?
+  height       Int?
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
 
   @@unique([mediaAssetId, variantKey])
 }
 
 model GuestCategory {
-  id         String          @id @default(uuid()) @db.Uuid
-  weddingId  String          @db.Uuid
-  parentId   String?         @db.Uuid
-  name       String          @db.VarChar(120)
-  depth      Int
-  sortOrder  Int             @default(0)
-  createdAt  DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime        @updatedAt @db.Timestamptz(3)
-  deletedAt  DateTime?       @db.Timestamptz(3)
-  wedding    Wedding         @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  parent     GuestCategory?  @relation("GuestCategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children   GuestCategory[] @relation("GuestCategoryTree")
-  guests     Guest[]
+  id        String          @id @default(uuid()) @db.Uuid
+  weddingId String          @db.Uuid
+  parentId  String?         @db.Uuid
+  name      String          @db.VarChar(120)
+  depth     Int
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime        @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime?       @db.Timestamptz(3)
+  wedding   Wedding         @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  parent    GuestCategory?  @relation("GuestCategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children  GuestCategory[] @relation("GuestCategoryTree")
+  guests    Guest[]
 
   @@index([weddingId, parentId, sortOrder])
 }
 
 model GuestGroup {
-  id           String    @id @default(uuid()) @db.Uuid
-  weddingId    String    @db.Uuid
-  name         String    @db.VarChar(120)
-  note         String?   @db.Text
-  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
-  deletedAt    DateTime? @db.Timestamptz(3)
-  wedding      Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  guests       Guest[]
+  id        String    @id @default(uuid()) @db.Uuid
+  weddingId String    @db.Uuid
+  name      String    @db.VarChar(120)
+  note      String?   @db.Text
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+  deletedAt DateTime? @db.Timestamptz(3)
+  wedding   Wedding   @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guests    Guest[]
 
   @@index([weddingId, name])
 }
 
 model Guest {
-  id               String         @id @default(uuid()) @db.Uuid
-  weddingId        String         @db.Uuid
-  categoryId       String?        @db.Uuid
-  groupId          String?        @db.Uuid
-  displayName      String         @db.VarChar(160)
-  phone            String?        @db.VarChar(32)
-  email            String?        @db.VarChar(320)
-  note             String?        @db.Text
-  tableName        String?        @db.VarChar(120)
-  maxPartySize     Int            @default(1)
-  tags             String[]       @default([])
-  createdAt        DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime       @updatedAt @db.Timestamptz(3)
-  deletedAt        DateTime?      @db.Timestamptz(3)
-  wedding          Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  category         GuestCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  group            GuestGroup?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  invitations      Invitation[]
-  wishes           Wish[]
+  id                String            @id @default(uuid()) @db.Uuid
+  weddingId         String            @db.Uuid
+  categoryId        String?           @db.Uuid
+  groupId           String?           @db.Uuid
+  displayName       String            @db.VarChar(160)
+  phone             String?           @db.VarChar(32)
+  email             String?           @db.VarChar(320)
+  note              String?           @db.Text
+  tableName         String?           @db.VarChar(120)
+  maxPartySize      Int               @default(1)
+  tags              String[]          @default([])
+  createdAt         DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime          @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime?         @db.Timestamptz(3)
+  wedding           Wedding           @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  category          GuestCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  group             GuestGroup?       @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  invitations       Invitation[]
+  wishes            Wish[]
   giftLedgerEntries GiftLedgerEntry[]
 
   @@index([weddingId, groupId])
@@ -523,54 +553,54 @@ model Guest {
 }
 
 model Invitation {
-  id             String           @id @default(uuid()) @db.Uuid
-  weddingId      String           @db.Uuid
-  guestId        String?          @db.Uuid
-  label          String?          @db.VarChar(160)
-  tokenHash      String           @unique @db.VarChar(255)
-  status         InvitationStatus @default(ACTIVE)
-  maxPartySize   Int              @default(1)
-  expiresAt      DateTime?        @db.Timestamptz(3)
-  revokedAt      DateTime?        @db.Timestamptz(3)
-  lastViewedAt   DateTime?        @db.Timestamptz(3)
-  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
-  wedding        Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  guest          Guest?           @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  rsvpResponse   RsvpResponse?
-  wishes         Wish[]
+  id           String           @id @default(uuid()) @db.Uuid
+  weddingId    String           @db.Uuid
+  guestId      String?          @db.Uuid
+  label        String?          @db.VarChar(160)
+  tokenHash    String           @unique @db.VarChar(255)
+  status       InvitationStatus @default(ACTIVE)
+  maxPartySize Int              @default(1)
+  expiresAt    DateTime?        @db.Timestamptz(3)
+  revokedAt    DateTime?        @db.Timestamptz(3)
+  lastViewedAt DateTime?        @db.Timestamptz(3)
+  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime         @updatedAt @db.Timestamptz(3)
+  wedding      Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guest        Guest?           @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  rsvpResponse RsvpResponse?
+  wishes       Wish[]
 
   @@index([weddingId, status])
   @@index([guestId])
 }
 
 model RsvpResponse {
-  id             String           @id @default(uuid()) @db.Uuid
-  weddingId      String           @db.Uuid
-  invitationId   String           @unique @db.Uuid
-  attendance     AttendanceStatus
-  partySize      Int
-  mealPreference String?          @db.VarChar(160)
-  specialRequest String?          @db.Text
-  message        String?          @db.Text
-  submittedAt    DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime         @updatedAt @db.Timestamptz(3)
-  revision       Int              @default(1)
-  wedding        Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  invitation     Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  id              String               @id @default(uuid()) @db.Uuid
+  weddingId       String               @db.Uuid
+  invitationId    String               @unique @db.Uuid
+  attendance      AttendanceStatus
+  partySize       Int
+  mealPreference  String?              @db.VarChar(160)
+  specialRequest  String?              @db.Text
+  message         String?              @db.Text
+  submittedAt     DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime             @updatedAt @db.Timestamptz(3)
+  revision        Int                  @default(1)
+  wedding         Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  invitation      Invitation           @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   eventSelections RsvpEventSelection[]
-  companions     RsvpCompanion[]
+  companions      RsvpCompanion[]
 
   @@index([weddingId, attendance, submittedAt])
 }
 
 model RsvpEventSelection {
-  id             String        @id @default(uuid()) @db.Uuid
-  rsvpResponseId String        @db.Uuid
-  weddingEventId String        @db.Uuid
-  attending      Boolean       @default(true)
-  rsvpResponse   RsvpResponse  @relation(fields: [rsvpResponseId], references: [id], onDelete: Cascade)
-  weddingEvent   WeddingEvent  @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
+  id             String       @id @default(uuid()) @db.Uuid
+  rsvpResponseId String       @db.Uuid
+  weddingEventId String       @db.Uuid
+  attending      Boolean      @default(true)
+  rsvpResponse   RsvpResponse @relation(fields: [rsvpResponseId], references: [id], onDelete: Cascade)
+  weddingEvent   WeddingEvent @relation(fields: [weddingEventId], references: [id], onDelete: Cascade)
 
   @@unique([rsvpResponseId, weddingEventId])
   @@index([weddingEventId])
@@ -588,34 +618,34 @@ model RsvpCompanion {
 }
 
 model Wish {
-  id           String      @id @default(uuid()) @db.Uuid
-  weddingId    String      @db.Uuid
-  invitationId String?     @db.Uuid
-  guestId      String?     @db.Uuid
-  authorName   String      @db.VarChar(160)
-  content      String      @db.Text
-  status       WishStatus  @default(PENDING)
-  isPinned     Boolean     @default(false)
-  submittedAt  DateTime    @default(now()) @db.Timestamptz(3)
-  moderatedAt  DateTime?   @db.Timestamptz(3)
-  deletedAt    DateTime?   @db.Timestamptz(3)
-  wedding      Wedding     @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  invitation   Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
-  guest        Guest?      @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  id              String               @id @default(uuid()) @db.Uuid
+  weddingId       String               @db.Uuid
+  invitationId    String?              @db.Uuid
+  guestId         String?              @db.Uuid
+  authorName      String               @db.VarChar(160)
+  content         String               @db.Text
+  status          WishStatus           @default(PENDING)
+  isPinned        Boolean              @default(false)
+  submittedAt     DateTime             @default(now()) @db.Timestamptz(3)
+  moderatedAt     DateTime?            @db.Timestamptz(3)
+  deletedAt       DateTime?            @db.Timestamptz(3)
+  wedding         Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  invitation      Invitation?          @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+  guest           Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
   recapSelections RecapWishSelection[]
 
   @@index([weddingId, status, submittedAt])
 }
 
 model TaskChecklistTemplate {
-  id          String          @id @default(uuid()) @db.Uuid
-  key         String          @db.VarChar(80)
-  version     Int
-  name        String          @db.VarChar(160)
-  status      ChecklistStatus @default(DRAFT)
-  locale      String          @default("vi-VN") @db.VarChar(16)
-  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
-  items       TaskChecklistItem[]
+  id        String              @id @default(uuid()) @db.Uuid
+  key       String              @db.VarChar(80)
+  version   Int
+  name      String              @db.VarChar(160)
+  status    ChecklistStatus     @default(DRAFT)
+  locale    String              @default("vi-VN") @db.VarChar(16)
+  createdAt DateTime            @default(now()) @db.Timestamptz(3)
+  items     TaskChecklistItem[]
 
   @@unique([key, version])
 }
@@ -635,76 +665,76 @@ model TaskChecklistItem {
 }
 
 model WeddingTask {
-  id                 String          @id @default(uuid()) @db.Uuid
-  weddingId          String          @db.Uuid
-  assigneeMemberId   String?         @db.Uuid
-  completedById      String?         @db.Uuid
-  sourceTemplateKey  String?         @db.VarChar(80)
+  id                    String         @id @default(uuid()) @db.Uuid
+  weddingId             String         @db.Uuid
+  assigneeMemberId      String?        @db.Uuid
+  completedById         String?        @db.Uuid
+  sourceTemplateKey     String?        @db.VarChar(80)
   sourceTemplateVersion Int?
-  title              String          @db.VarChar(200)
-  description        String?         @db.Text
-  dueAt              DateTime?       @db.Timestamptz(3)
-  priority           TaskPriority    @default(MEDIUM)
-  status             TaskStatus      @default(TODO)
-  category           String?         @db.VarChar(80)
-  sortOrder          Int             @default(0)
-  completedAt        DateTime?       @db.Timestamptz(3)
-  revision           Int             @default(1)
-  createdAt          DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt          DateTime        @updatedAt @db.Timestamptz(3)
-  deletedAt          DateTime?       @db.Timestamptz(3)
-  wedding            Wedding         @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  assigneeMember     WeddingMember?  @relation("TaskAssignee", fields: [assigneeMemberId], references: [id], onDelete: SetNull)
-  completedBy        User?           @relation("TaskCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
+  title                 String         @db.VarChar(200)
+  description           String?        @db.Text
+  dueAt                 DateTime?      @db.Timestamptz(3)
+  priority              TaskPriority   @default(MEDIUM)
+  status                TaskStatus     @default(TODO)
+  category              String?        @db.VarChar(80)
+  sortOrder             Int            @default(0)
+  completedAt           DateTime?      @db.Timestamptz(3)
+  revision              Int            @default(1)
+  createdAt             DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime       @updatedAt @db.Timestamptz(3)
+  deletedAt             DateTime?      @db.Timestamptz(3)
+  wedding               Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  assigneeMember        WeddingMember? @relation("TaskAssignee", fields: [assigneeMemberId], references: [id], onDelete: SetNull)
+  completedBy           User?          @relation("TaskCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
 
   @@index([weddingId, status, dueAt])
   @@index([weddingId, assigneeMemberId, status])
 }
 
 model GiftLedgerEntry {
-  id                       String              @id @default(uuid()) @db.Uuid
-  weddingId                String              @db.Uuid
-  guestId                  String?             @db.Uuid
-  guestDisplayNameSnapshot String              @db.VarChar(160)
+  id                       String            @id @default(uuid()) @db.Uuid
+  weddingId                String            @db.Uuid
+  guestId                  String?           @db.Uuid
+  guestDisplayNameSnapshot String            @db.VarChar(160)
   giftType                 GiftType
   amountMinor              BigInt?
-  currency                 String?             @db.Char(3)
-  goldWeight               Decimal?            @db.Decimal(12, 4)
-  goldUnit                 String?             @db.VarChar(32)
-  goldType                 String?             @db.VarChar(64)
-  giftDescription          String?             @db.Text
+  currency                 String?           @db.Char(3)
+  goldWeight               Decimal?          @db.Decimal(12, 4)
+  goldUnit                 String?           @db.VarChar(32)
+  goldType                 String?           @db.VarChar(64)
+  giftDescription          String?           @db.Text
   receiveMethod            GiftReceiveMethod
-  receivedAt               DateTime            @db.Timestamptz(3)
-  note                     String?             @db.Text
-  reciprocityStatus        ReciprocityStatus   @default(PENDING)
-  returnedAt               DateTime?           @db.Timestamptz(3)
-  createdAt                DateTime             @default(now()) @db.Timestamptz(3)
-  updatedAt                DateTime             @updatedAt @db.Timestamptz(3)
-  deletedAt                DateTime?            @db.Timestamptz(3)
-  wedding                  Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  guest                    Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  receivedAt               DateTime          @db.Timestamptz(3)
+  note                     String?           @db.Text
+  reciprocityStatus        ReciprocityStatus @default(PENDING)
+  returnedAt               DateTime?         @db.Timestamptz(3)
+  createdAt                DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime          @updatedAt @db.Timestamptz(3)
+  deletedAt                DateTime?         @db.Timestamptz(3)
+  wedding                  Wedding           @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guest                    Guest?            @relation(fields: [guestId], references: [id], onDelete: SetNull)
 
   @@index([weddingId, guestId])
   @@index([weddingId, reciprocityStatus, receivedAt])
 }
 
 model WeddingRecap {
-  id                String           @id @default(uuid()) @db.Uuid
-  weddingId         String           @unique @db.Uuid
-  templateVersionId String           @db.Uuid
-  slug              String?          @db.VarChar(64)
-  status            RecapStatus      @default(DRAFT)
-  title             String           @db.VarChar(200)
-  thankYouMessage   String?          @db.Text
-  ogTitle           String?          @db.VarChar(200)
-  ogDescription     String?          @db.VarChar(500)
-  ogImageUrl        String?          @db.VarChar(2048)
-  revision          Int              @default(1)
-  publishedAt       DateTime?        @db.Timestamptz(3)
-  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
-  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion   TemplateVersion  @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  id                String                   @id @default(uuid()) @db.Uuid
+  weddingId         String                   @unique @db.Uuid
+  templateVersionId String                   @db.Uuid
+  slug              String?                  @db.VarChar(64)
+  status            RecapStatus              @default(DRAFT)
+  title             String                   @db.VarChar(200)
+  thankYouMessage   String?                  @db.Text
+  ogTitle           String?                  @db.VarChar(200)
+  ogDescription     String?                  @db.VarChar(500)
+  ogImageUrl        String?                  @db.VarChar(2048)
+  revision          Int                      @default(1)
+  publishedAt       DateTime?                @db.Timestamptz(3)
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
+  wedding           Wedding                  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  templateVersion   TemplateVersion          @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
   mediaItems        RecapMediaItem[]
   wishSelections    RecapWishSelection[]
   snapshots         PublishedRecapSnapshot[]
@@ -736,64 +766,64 @@ model RecapWishSelection {
 }
 
 model PublishedRecapSnapshot {
-  id                String           @id @default(uuid()) @db.Uuid
-  recapId           String           @db.Uuid
-  templateVersionId String           @db.Uuid
+  id                String          @id @default(uuid()) @db.Uuid
+  recapId           String          @db.Uuid
+  templateVersionId String          @db.Uuid
   version           Int
-  slug              String           @db.VarChar(64)
+  slug              String          @db.VarChar(64)
   payload           Json
-  payloadHash       String           @db.VarChar(128)
-  publishedAt       DateTime         @default(now()) @db.Timestamptz(3)
-  unpublishedAt     DateTime?        @db.Timestamptz(3)
-  recap             WeddingRecap     @relation(fields: [recapId], references: [id], onDelete: Restrict)
-  templateVersion   TemplateVersion  @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  payloadHash       String          @db.VarChar(128)
+  publishedAt       DateTime        @default(now()) @db.Timestamptz(3)
+  unpublishedAt     DateTime?       @db.Timestamptz(3)
+  recap             WeddingRecap    @relation(fields: [recapId], references: [id], onDelete: Restrict)
+  templateVersion   TemplateVersion @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
 
   @@unique([recapId, version])
   @@index([slug, unpublishedAt])
 }
 
 model NotificationPreference {
-  id         String              @id @default(uuid()) @db.Uuid
-  userId     String              @db.Uuid
-  eventKey   String              @db.VarChar(100)
-  channel    NotificationChannel
-  enabled    Boolean             @default(true)
-  createdAt  DateTime            @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime            @updatedAt @db.Timestamptz(3)
-  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String              @id @default(uuid()) @db.Uuid
+  userId    String              @db.Uuid
+  eventKey  String              @db.VarChar(100)
+  channel   NotificationChannel
+  enabled   Boolean             @default(true)
+  createdAt DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime            @updatedAt @db.Timestamptz(3)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventKey, channel])
 }
 
 model Notification {
-  id          String             @id @default(uuid()) @db.Uuid
-  userId      String             @db.Uuid
-  eventKey    String             @db.VarChar(100)
-  channel     NotificationChannel
-  status      NotificationStatus @default(PENDING)
-  payload     Json
-  sentAt      DateTime?          @db.Timestamptz(3)
-  readAt      DateTime?          @db.Timestamptz(3)
-  failedAt    DateTime?          @db.Timestamptz(3)
-  createdAt   DateTime           @default(now()) @db.Timestamptz(3)
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String              @id @default(uuid()) @db.Uuid
+  userId    String              @db.Uuid
+  eventKey  String              @db.VarChar(100)
+  channel   NotificationChannel
+  status    NotificationStatus  @default(PENDING)
+  payload   Json
+  sentAt    DateTime?           @db.Timestamptz(3)
+  readAt    DateTime?           @db.Timestamptz(3)
+  failedAt  DateTime?           @db.Timestamptz(3)
+  createdAt DateTime            @default(now()) @db.Timestamptz(3)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, status, createdAt])
 }
 
 model AuditLog {
-  id            String    @id @default(uuid()) @db.Uuid
-  actorUserId   String?   @db.Uuid
-  weddingId     String?   @db.Uuid
-  action        String    @db.VarChar(100)
-  resourceType  String    @db.VarChar(80)
-  resourceId    String?   @db.VarChar(128)
-  requestId     String?   @db.VarChar(128)
-  reason        String?   @db.VarChar(500)
-  metadata      Json?
-  occurredAt    DateTime  @default(now()) @db.Timestamptz(3)
-  actorUser     User?     @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
-  wedding       Wedding?  @relation(fields: [weddingId], references: [id], onDelete: SetNull)
+  id           String   @id @default(uuid()) @db.Uuid
+  actorUserId  String?  @db.Uuid
+  weddingId    String?  @db.Uuid
+  action       String   @db.VarChar(100)
+  resourceType String   @db.VarChar(80)
+  resourceId   String?  @db.VarChar(128)
+  requestId    String?  @db.VarChar(128)
+  reason       String?  @db.VarChar(500)
+  metadata     Json?
+  occurredAt   DateTime @default(now()) @db.Timestamptz(3)
+  actorUser    User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  wedding      Wedding? @relation(fields: [weddingId], references: [id], onDelete: SetNull)
 
   @@index([weddingId, occurredAt])
   @@index([actorUserId, occurredAt])
@@ -801,20 +831,20 @@ model AuditLog {
 }
 
 model OutboxEvent {
-  id             String       @id @default(uuid()) @db.Uuid
-  aggregateType  String       @db.VarChar(80)
-  aggregateId    String       @db.VarChar(128)
-  eventType      String       @db.VarChar(120)
-  eventVersion   Int          @default(1)
-  payload        Json
-  status         OutboxStatus @default(PENDING)
-  attempts       Int          @default(0)
-  availableAt    DateTime     @default(now()) @db.Timestamptz(3)
-  lockedAt       DateTime?    @db.Timestamptz(3)
-  lockedBy       String?      @db.VarChar(128)
-  processedAt    DateTime?    @db.Timestamptz(3)
-  lastError      String?      @db.Text
-  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  id            String       @id @default(uuid()) @db.Uuid
+  aggregateType String       @db.VarChar(80)
+  aggregateId   String       @db.VarChar(128)
+  eventType     String       @db.VarChar(120)
+  eventVersion  Int          @default(1)
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  availableAt   DateTime     @default(now()) @db.Timestamptz(3)
+  lockedAt      DateTime?    @db.Timestamptz(3)
+  lockedBy      String?      @db.VarChar(128)
+  processedAt   DateTime?    @db.Timestamptz(3)
+  lastError     String?      @db.Text
+  createdAt     DateTime     @default(now()) @db.Timestamptz(3)
 
   @@index([status, availableAt])
   @@index([aggregateType, aggregateId, createdAt])

@@ -17,12 +17,14 @@ Application use case nhận context typed:
 ```ts
 type ActorContext =
   | { kind: 'user'; userId: string; sessionId: string }
-  | { kind: 'platformAdmin'; adminId: string; sessionId: string; assurance: 'base' | 'stepUp' }
+  | { kind: 'platformAdmin'; userId: string; sessionId: string; assurance: 'base' | 'stepUp' }
   | { kind: 'invite'; invitationId: string; weddingId: string }
   | { kind: 'anonymous'; fingerprint?: string };
 ```
 
 Đây là contract minh họa; schema thực phải được test và không serialize nguyên context vào log.
+
+Owner và platform admin dùng chung canonical `User` identity theo [ADR 0007](../../shared/architecture/adr/0007-single-identity-and-platform-role-assignments.md). Platform admin được derive từ active `UserRole`, không phải bảng credential riêng hoặc role lấy từ cookie. Rank/plan không tham gia authorization.
 
 ## Authorization order
 
