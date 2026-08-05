@@ -57,7 +57,7 @@ export function LoginPage() {
           <div className="login-password"><LockKey size={18} /><input id="login-password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Nhập mật khẩu" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={12} disabled={submitting} /><button type="button" aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}</button></div>
           {error ? <p className="auth-form-error" role="alert">{error}</p> : null}
           <button className="button button-primary login-submit" type="submit" disabled={submitting}>{submitting ? 'Đang đăng nhập…' : 'Đăng nhập'} {!submitting ? <ArrowRight size={17} /> : null}</button>
-          <p className="login-register">Chưa có tài khoản? <button type="button">Tạo tài khoản miễn phí</button></p>
+          <p className="login-register">Chưa có tài khoản? <AppLink to={marketingRoutes.register}>Tạo tài khoản miễn phí</AppLink></p>
           <small>Bằng việc tiếp tục, bạn đồng ý với Điều khoản và Chính sách riêng tư.</small>
         </form>
       </section>

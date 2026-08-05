@@ -8,7 +8,7 @@ info:
     identifier: LicenseRef-Proprietary
 servers:
   - url: http://localhost:3000/api
-    description: Local development
+    description: Local developmenta
 security: []
 paths:
   /auth/register:

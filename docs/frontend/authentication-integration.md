@@ -20,8 +20,9 @@ All requests use `credentials: include`. Unsafe requests send JSON and `X-CSRF-P
 - Admin login maps `ADMIN_ACCESS_REQUIRED` to a permission-specific message without exposing private data.
 - Logout revokes the backend session, clears frontend auth state and returns to the matching login surface.
 - Owner password recovery uses `/forgot-password` and `/reset-password?token=...`, backed by `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
+- Owner onboarding uses `/register` and `/verify-email?token=...`, backed by `POST /api/auth/register` and `POST /api/auth/verify-email`. Registration acknowledgment remains generic.
 - The forgot-password confirmation remains generic and does not reveal whether an account exists. Public password recovery is not exposed on the platform-admin login surface.
-- Registration UI remains unavailable until its complete product flow is implemented.
+- Resend-verification UI and `POST /api/auth/resend-verification` client integration are prepared behind `VITE_AUTH_RESEND_ENABLED=false`. Enable it only after the backend exposes the planned generic-acknowledgment contract; the UI includes a 60-second cooldown.
 
 ## Configuration
 

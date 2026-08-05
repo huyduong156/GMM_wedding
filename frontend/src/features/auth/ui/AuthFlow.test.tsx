@@ -14,7 +14,7 @@ const user = {
 }
 
 describe('frontend authentication', () => {
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs() })
 
   it('submits owner credentials and enters studio', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ user }), { status: 200, headers: { 'content-type': 'application/json' } }))
@@ -23,6 +23,46 @@ describe('frontend authentication', () => {
     fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: 'Correct-Horse-Battery-42' } })
     fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }))
     await waitFor(() => expect(window.location.pathname).toBe('/studio'))
+  })
+
+  it('registers an owner and shows the generic verification notice', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ message: 'Accepted' }), { status: 202, headers: { 'content-type': 'application/json' } }))
+    renderApp('/register')
+    fireEvent.change(screen.getByLabelText(/Tên hiển thị/), { target: { value: 'Mai & Đức' } })
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
+    fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: 'Correct-Horse-Battery-42' } })
+    fireEvent.change(screen.getByLabelText('Xác nhận mật khẩu'), { target: { value: 'Correct-Horse-Battery-42' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo tài khoản' }))
+    await screen.findByText('Kiểm tra email của bạn')
+    expect(screen.getByRole('button', { name: /Gửi lại email xác minh/ })).toBeDisabled()
+    expect(screen.getByText(/backend hỗ trợ gửi lại email xác minh/)).toBeInTheDocument()
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/auth/register'), expect.objectContaining({ method: 'POST', credentials: 'include' }))
+  })
+
+  it('resends verification when the backend feature is enabled', async () => {
+    vi.stubEnv('VITE_AUTH_RESEND_ENABLED', 'true')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Accepted' }), { status: 202, headers: { 'content-type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Accepted' }), { status: 202, headers: { 'content-type': 'application/json' } }))
+    renderApp('/register')
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
+    fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: 'Correct-Horse-Battery-42' } })
+    fireEvent.change(screen.getByLabelText('Xác nhận mật khẩu'), { target: { value: 'Correct-Horse-Battery-42' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tạo tài khoản' }))
+    const resendButton = await screen.findByRole('button', { name: /Gửi lại email xác minh/ })
+    fireEvent.click(resendButton)
+    await screen.findByText('Nếu tài khoản đang chờ xác minh, một email mới đã được gửi.')
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(fetchSpy).toHaveBeenLastCalledWith(expect.stringContaining('/auth/resend-verification'), expect.objectContaining({ method: 'POST', credentials: 'include' }))
+  })
+
+  it('verifies an email token once and offers login', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+    renderApp('/verify-email?token=verification-token-value')
+    await screen.findByText('Email đã được xác minh')
+    expect(screen.getByRole('link', { name: /Đăng nhập ngay/ })).toHaveAttribute('href', '/login')
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/auth/verify-email'), expect.objectContaining({ method: 'POST', credentials: 'include' }))
   })
 
   it('redirects a missing admin session to admin login', async () => {
