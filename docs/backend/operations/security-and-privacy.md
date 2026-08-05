@@ -32,3 +32,7 @@ Account takeover, IDOR/cross-tenant, đoán slug/token, spam RSVP/wish, upload �
 ## Security production checklist
 
 Threat model, auth/IDOR/token tests, abuse controls, privacy/terms, delete/export, restore/rollback drill, load test burst RSVP, accessibility và Core Web Vitals.
+
+## API documentation exposure
+
+Swagger UI `/api-docs` và raw contract `/api/openapi` cùng được khóa bằng server-side `API_DOCS_ENABLED`; khi tắt đều trả 404. Local Compose bật để phát triển, còn production mặc định không bật. Nếu cần mở ngoài local/internal network, phải đặt sau admin authentication hoặc network access control; feature flag không thay thế authorization. Swagger asset được self-host, external validator và “Try it out” bị tắt mặc định.

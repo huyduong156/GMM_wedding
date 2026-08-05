@@ -182,3 +182,5 @@ Database reset là destructive. Chỉ thực hiện với database local/test đ
 - Chạy health, auth và một test cross-tenant denial.
 - Import OpenAPI vào Postman.
 - Không sửa frontend/docs frontend trên branch backend-only.
+
+Swagger UI local: `http://localhost:3000/api-docs`. OpenAPI YAML dùng bởi UI nằm tại `http://localhost:3000/api/openapi`. Cả hai chỉ hoạt động khi `API_DOCS_ENABLED=true`; Compose local bật mặc định. “Try it out” bị tắt để tài liệu ở chế độ chỉ đọc.

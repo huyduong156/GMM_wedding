@@ -9,6 +9,7 @@ Backend có image độc lập tại `backend/Dockerfile`. Image không phụ th
 - Multi-stage Dockerfile, standalone non-root runner, migration target và backend-owned Compose đã được triển khai.
 - Compose project local có tên `gmm_wedding_BE`; các container dùng cùng prefix để dễ nhận diện. Quy ước tên cố định này chỉ dành cho local development; môi trường có nhiều replica không dùng `container_name` cố định.
 - Runner image đã build qua quality gate và liveness smoke-test.
+- Runner copy Swagger UI assets và OpenAPI contract cần thiết cho `/api-docs`; Compose local bật bằng `API_DOCS_ENABLED=true`.
 - PostgreSQL migration/readiness integration vẫn cần kiểm chứng khi có migration model đầu tiên.
 
 ## Dockerfile target

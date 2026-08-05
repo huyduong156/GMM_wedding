@@ -11,11 +11,11 @@ Thiết kế triển khai của vertical slice đầu tiên nằm tại [authent
 | User/Account/Session/VerificationToken schema | Implemented |
 | Actor context, opaque token và cookie policy primitives | Implemented |
 | Register/login/logout/verify route | Implemented |
-| Password reset route | Planned |
-| Password hashing adapter | Planned; phải chọn/thử nghiệm thư viện trước implementation |
-| Email delivery adapter | Planned |
-| CSRF/origin middleware | Planned |
-| Auth integration/security tests | Planned |
+| Resend verification/password reset route | Implemented |
+| Password hashing adapter | Implemented |
+| Email delivery adapter | Implemented |
+| CSRF/origin middleware | Implemented |
+| Auth integration/security tests | Implemented |
 
 Base branch không tạo endpoint auth giả. Route catalog giữ `Planned` cho đến khi handler, OpenAPI, policy, persistence và test cùng tồn tại.
 
@@ -64,6 +64,12 @@ Endpoint dự kiến: `POST /api/auth/register`.
 7. Email link chứa raw token một lần; backend hash token để lookup.
 
 Duplicate email trả response không tiết lộ tài khoản tồn tại nếu threat model yêu cầu. Nếu resend verification, revoke/expire token cũ theo policy.
+
+## Gửi lại email xác minh
+
+Endpoint đã triển khai: `POST /api/auth/resend-verification`.
+
+Endpoint luôn trả `202` trung tính. Chỉ tài khoản `PENDING_VERIFICATION`, có password credential và chưa xác minh email mới được phát token TTL 24 giờ. Transaction kiểm tra lại trạng thái user, consume mọi verification token cũ chưa dùng, tạo token/outbox mới và ghi audit. Rate limit là 5/IP/giờ và 3/email/giờ.
 
 ## Xác minh email
 

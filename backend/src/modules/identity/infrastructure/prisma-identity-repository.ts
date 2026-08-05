@@ -139,6 +139,63 @@ export class PrismaIdentityRepository implements IdentityRepository {
     })
   }
 
+  async createVerificationResend(input: {
+    userId: string
+    email: string
+    tokenHash: string
+    tokenExpiresAt: Date
+    encryptedToken: string
+  }) {
+    return this.db.$transaction(async (tx) => {
+      const now = new Date()
+      const pendingUser = await tx.user.findFirst({
+        where: {
+          id: input.userId,
+          email: input.email,
+          status: 'PENDING_VERIFICATION',
+          emailVerifiedAt: null,
+          passwordHash: { not: null },
+        },
+        select: { id: true },
+      })
+      if (!pendingUser) return { created: false }
+      await tx.verificationToken.updateMany({
+        where: { identifier: input.email, purpose: 'EMAIL_VERIFICATION', usedAt: null },
+        data: { usedAt: now },
+      })
+      await tx.verificationToken.create({
+        data: {
+          identifier: input.email,
+          purpose: 'EMAIL_VERIFICATION',
+          tokenHash: input.tokenHash,
+          expiresAt: input.tokenExpiresAt,
+        },
+      })
+      const outbox = await tx.outboxEvent.create({
+        data: {
+          aggregateType: 'User',
+          aggregateId: input.userId,
+          eventType: 'IdentityVerificationEmailRequestedV1',
+          payload: {
+            userId: input.userId,
+            encryptedToken: input.encryptedToken,
+            expiresAt: input.tokenExpiresAt.toISOString(),
+          },
+        },
+        select: { id: true },
+      })
+      await tx.auditLog.create({
+        data: {
+          actorUserId: input.userId,
+          action: 'identity.verification_resent',
+          resourceType: 'User',
+          resourceId: input.userId,
+        },
+      })
+      return { created: true, outboxId: outbox.id }
+    })
+  }
+
   async createPasswordReset(input: {
     userId: string
     email: string

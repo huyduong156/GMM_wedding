@@ -12,18 +12,19 @@ const mutationHeaders = {
 
 type MailpitMessage = { ID: string; Subject: string; To: Array<{ Address: string }> }
 
-async function capturedMessageFor(email: string, subject?: string) {
+async function capturedMessageFor(email: string, subject?: string, excludedToken?: string) {
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const response = await fetch(`${mailpitBase}/api/v1/messages`)
     expect(response.ok).toBe(true)
     const inbox = await response.json() as { messages: MailpitMessage[] }
-    const summary = inbox.messages.find((message) =>
+    const summaries = inbox.messages.filter((message) =>
       message.To.some((recipient) => recipient.Address === email) && (!subject || message.Subject === subject),
     )
-    if (summary) {
+    for (const summary of summaries) {
       const messageResponse = await fetch(`${mailpitBase}/api/v1/message/${summary.ID}`)
       expect(messageResponse.ok).toBe(true)
-      return messageResponse.json() as Promise<{ Text: string }>
+      const message = await messageResponse.json() as { Text: string }
+      if (!excludedToken || !message.Text.includes(excludedToken)) return message
     }
     await new Promise((resolve) => setTimeout(resolve, 250))
   }
@@ -68,19 +69,36 @@ describe.sequential('authentication journey', () => {
     const token = /token=([A-Za-z0-9_-]+)/.exec(message.Text)?.[1]
     expect(token).toBeTruthy()
 
-    const verify = await fetch(`${apiBase}/auth/verify-email`, {
+    const resend = await fetch(`${apiBase}/auth/resend-verification`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email }),
+    })
+    expect(resend.status).toBe(202)
+    const resentMessage = await capturedMessageFor(email, 'Xác minh email GMM Wedding', token)
+    const resentToken = /token=([A-Za-z0-9_-]+)/.exec(resentMessage.Text)?.[1]
+    expect(resentToken).toBeTruthy()
+
+    const superseded = await fetch(`${apiBase}/auth/verify-email`, {
       method: 'POST',
       headers: mutationHeaders,
       body: JSON.stringify({ token }),
+    })
+    expect(superseded.status).toBe(400)
+
+    const verify = await fetch(`${apiBase}/auth/verify-email`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ token: resentToken }),
     })
     expect(verify.status).toBe(204)
 
     const replay = await fetch(`${apiBase}/auth/verify-email`, {
       method: 'POST',
       headers: mutationHeaders,
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ token: resentToken }),
     })
     expect(replay.status).toBe(400)
+
+    expect((await fetch(`${apiBase}/auth/resend-verification`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email: `missing-${email}` }),
+    })).status).toBe(202)
 
     const login = await fetch(`${apiBase}/auth/login`, {
       method: 'POST',
@@ -149,6 +167,13 @@ describe.sequential('authentication journey', () => {
       expect((await fetch(`${apiBase}/auth/verify-email`, {
         method: 'POST', headers: mutationHeaders, body: JSON.stringify({ token }),
       })).status).toBe(204)
+
+      expect((await fetch(`${apiBase}/auth/resend-verification`, {
+        method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email }),
+      })).status).toBe(202)
+      expect(await prisma.verificationToken.count({
+        where: { identifier: email, purpose: 'EMAIL_VERIFICATION', usedAt: null },
+      })).toBe(0)
 
       const denied = await fetch(`${apiBase}/auth/admin/login`, {
         method: 'POST', headers: mutationHeaders, body: credentials,

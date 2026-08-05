@@ -95,6 +95,33 @@ export class AuthService {
     }
   }
 
+  async resendVerification(emailInput: string, ip: string) {
+    const email = normalizeEmail(emailInput)
+    await Promise.all([
+      this.limit('resend-verification-ip', ip, 5, 60 * 60),
+      this.limit('resend-verification-email', email, 3, 60 * 60),
+    ])
+    const user = await this.repository.findUserByEmail(email)
+    if (!user?.passwordHash || user.status !== 'PENDING_VERIFICATION' || user.emailVerifiedAt) return
+
+    const token = createOpaqueToken()
+    const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS)
+    const result = await this.repository.createVerificationResend({
+      userId: user.id,
+      email,
+      tokenHash: hashOpaqueToken(token),
+      tokenExpiresAt: expiresAt,
+      encryptedToken: this.tokenProtector.encrypt(token),
+    })
+    if (!result.created || !result.outboxId) return
+    try {
+      await this.emailSender.sendVerificationEmail({ email, token, expiresAt })
+      await this.repository.markOutboxCompleted(result.outboxId, new Date())
+    } catch {
+      // The durable outbox event remains pending for a retry worker.
+    }
+  }
+
   async forgotPassword(emailInput: string, ip: string) {
     const email = normalizeEmail(emailInput)
     await Promise.all([

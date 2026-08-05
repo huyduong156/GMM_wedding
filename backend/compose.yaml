@@ -27,6 +27,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       TRUST_PROXY: ${TRUST_PROXY:-false}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      API_DOCS_ENABLED: ${API_DOCS_ENABLED:-true}
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     depends_on:

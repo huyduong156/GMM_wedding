@@ -51,6 +51,13 @@ export interface IdentityRepository {
     encryptedToken: string
   }): Promise<{ created: boolean; userId?: string; outboxId?: string }>
   verifyEmail(tokenHash: string, now: Date): Promise<boolean>
+  createVerificationResend(input: {
+    userId: string
+    email: string
+    tokenHash: string
+    tokenExpiresAt: Date
+    encryptedToken: string
+  }): Promise<{ created: boolean; outboxId?: string }>
   createPasswordReset(input: {
     userId: string
     email: string

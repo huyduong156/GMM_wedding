@@ -55,6 +55,28 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '429':
           $ref: '#/components/responses/RateLimited'
+  /auth/resend-verification:
+    post:
+      operationId: resendVerificationEmail
+      summary: Request a fresh verification email for a pending account
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        '202':
+          description: Generic acknowledgment whether or not an eligible pending account exists
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
   /auth/login:
     post:
       operationId: login
@@ -309,6 +331,15 @@ components:
           type: string
           minLength: 20
           maxLength: 512
+    ResendVerificationRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
     LoginRequest:
       type: object
       additionalProperties: false
