@@ -10,15 +10,15 @@ const mutationHeaders = {
   'x-csrf-protection': '1',
 }
 
-type MailpitMessage = { ID: string; To: Array<{ Address: string }> }
+type MailpitMessage = { ID: string; Subject: string; To: Array<{ Address: string }> }
 
-async function capturedMessageFor(email: string) {
+async function capturedMessageFor(email: string, subject?: string) {
   for (let attempt = 0; attempt < 40; attempt += 1) {
     const response = await fetch(`${mailpitBase}/api/v1/messages`)
     expect(response.ok).toBe(true)
     const inbox = await response.json() as { messages: MailpitMessage[] }
     const summary = inbox.messages.find((message) =>
-      message.To.some((recipient) => recipient.Address === email),
+      message.To.some((recipient) => recipient.Address === email) && (!subject || message.Subject === subject),
     )
     if (summary) {
       const messageResponse = await fetch(`${mailpitBase}/api/v1/message/${summary.ID}`)
@@ -100,14 +100,38 @@ describe.sequential('authentication journey', () => {
     expect(meBody.user.email).toBe(email)
     expect(meBody.user.passwordHash).toBeUndefined()
 
+    const forgot = await fetch(`${apiBase}/auth/forgot-password`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email }),
+    })
+    expect(forgot.status).toBe(202)
+    const resetMessage = await capturedMessageFor(email, 'Đặt lại mật khẩu GMM Wedding')
+    const resetToken = /token=([A-Za-z0-9_-]+)/.exec(resetMessage.Text)?.[1]
+    const newPassword = 'New-Correct-Horse-Battery-84'
+    const reset = await fetch(`${apiBase}/auth/reset-password`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ token: resetToken, password: newPassword }),
+    })
+    expect(reset.status).toBe(204)
+    expect((await fetch(`${apiBase}/me`, { headers: { cookie: cookie as string } })).status).toBe(401)
+    expect((await fetch(`${apiBase}/auth/reset-password`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ token: resetToken, password: newPassword }),
+    })).status).toBe(400)
+    expect((await fetch(`${apiBase}/auth/login`, {
+      method: 'POST', headers: mutationHeaders, body: credentials,
+    })).status).toBe(401)
+    const relogin = await fetch(`${apiBase}/auth/login`, {
+      method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email, password: newPassword }),
+    })
+    expect(relogin.status).toBe(200)
+    const resetCookie = relogin.headers.get('set-cookie')?.split(';', 1)[0]
+
     const logout = await fetch(`${apiBase}/auth/logout`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: cookie as string },
+      headers: { ...mutationHeaders, cookie: resetCookie as string },
       body: '{}',
     })
     expect(logout.status).toBe(204)
 
-    const afterLogout = await fetch(`${apiBase}/me`, { headers: { cookie: cookie as string } })
+    const afterLogout = await fetch(`${apiBase}/me`, { headers: { cookie: resetCookie as string } })
     expect(afterLogout.status).toBe(401)
   })
 
@@ -136,6 +160,14 @@ describe.sequential('authentication journey', () => {
       await prisma.userRole.create({
         data: { userId: user.id, role: 'ADMIN', reason: 'Auth integration test' },
       })
+
+      const adminForgot = await fetch(`${apiBase}/auth/forgot-password`, {
+        method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email }),
+      })
+      expect(adminForgot.status).toBe(202)
+      expect(await prisma.verificationToken.count({
+        where: { identifier: email, purpose: 'PASSWORD_RESET' },
+      })).toBe(0)
 
       const ownerLogin = await fetch(`${apiBase}/auth/login`, {
         method: 'POST', headers: mutationHeaders, body: credentials,

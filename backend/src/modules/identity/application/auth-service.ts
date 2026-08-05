@@ -5,7 +5,7 @@ import type {
   IdentityUser,
   PasswordHasher,
   RateLimiter,
-  VerificationEmailSender,
+  IdentityEmailSender,
 } from './ports'
 import type { SystemRole } from '@prisma/client'
 import { AuthError } from '../domain/auth-error'
@@ -19,6 +19,7 @@ import type { TokenProtector } from '@/platform/auth/token-protector'
 import { rateLimitKey } from '@/platform/auth/rate-limiter'
 
 const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1_000
+const PASSWORD_RESET_TTL_MS = 30 * 60 * 1_000
 const SESSION_TOUCH_INTERVAL_MS = 5 * 60 * 1_000
 
 export type PublicUser = Omit<IdentityUser, 'passwordHash'>
@@ -41,7 +42,7 @@ export class AuthService {
     private readonly repository: IdentityRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly rateLimiter: RateLimiter,
-    private readonly emailSender: VerificationEmailSender,
+    private readonly emailSender: IdentityEmailSender,
     private readonly tokenProtector: TokenProtector,
     private readonly rateLimitSecret: string,
   ) {}
@@ -91,6 +92,41 @@ export class AuthService {
     const verified = await this.repository.verifyEmail(hashOpaqueToken(token), new Date())
     if (!verified) {
       throw new AuthError('INVALID_VERIFICATION_TOKEN', 400, 'Verification token is invalid or expired')
+    }
+  }
+
+  async forgotPassword(emailInput: string, ip: string) {
+    const email = normalizeEmail(emailInput)
+    await Promise.all([
+      this.limit('forgot-password-ip', ip, 10, 60 * 60),
+      this.limit('forgot-password-email', email, 3, 60 * 60),
+    ])
+    const user = await this.repository.findUserByEmail(email)
+    if (!user?.passwordHash || user.status !== 'ACTIVE' || user.roles.includes('ADMIN')) return
+
+    const token = createOpaqueToken()
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS)
+    const result = await this.repository.createPasswordReset({
+      userId: user.id,
+      email,
+      tokenHash: hashOpaqueToken(token),
+      tokenExpiresAt: expiresAt,
+      encryptedToken: this.tokenProtector.encrypt(token),
+    })
+    try {
+      await this.emailSender.sendPasswordResetEmail({ email, token, expiresAt })
+      await this.repository.markOutboxCompleted(result.outboxId, new Date())
+    } catch {
+      // The durable outbox event remains pending for a retry worker.
+    }
+  }
+
+  async resetPassword(token: string, password: string, ip: string) {
+    await this.limit('reset-password-ip', ip, 10, 60 * 60)
+    const passwordHash = await this.passwordHasher.hash(password)
+    const reset = await this.repository.resetPassword(hashOpaqueToken(token), passwordHash, new Date())
+    if (!reset) {
+      throw new AuthError('INVALID_PASSWORD_RESET_TOKEN', 400, 'Password reset token is invalid or expired')
     }
   }
 
