@@ -1,5 +1,4 @@
 # API contract và quy ước HTTP
-
 Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết authentication/authorization xem [authentication and authorization](./authentication-and-authorization.md); error, pagination, idempotency và concurrency xem [error and concurrency contract](./errors-pagination-and-concurrency.md).
 
 ## Quy ước
@@ -30,7 +29,7 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 - Todo: `GET|POST /weddings/{id}/tasks`, `GET|PATCH|DELETE /weddings/{id}/tasks/{taskId}`, reorder/bulk status; `GET /task-checklist-templates`, `POST /weddings/{id}/tasks/apply-template`.
 - Gift ledger (owner-only): `GET|POST /weddings/{id}/gift-ledger`, `GET|PATCH|DELETE /weddings/{id}/gift-ledger/{entryId}`, summary và export.
 - Recap: `GET|PUT /weddings/{id}/recap`, media/wish selection, slug availability, preview token, publish/unpublish; public `GET /public/recaps/{slug}`.
-- Public: `GET /public/weddings/{slug}`, `GET /public/invitations/{token}`, `PUT .../{token}/rsvp`, `POST .../{slug}/rsvps`, `POST|GET .../{slug}/wishes`.
+- Public: `GET /public/weddings/{slug}`, `GET /public/invitations/{token}`, `GET /public/invitations/{weddingSlug}/{guestSlug}`, `PUT .../{token}/rsvp`, `PUT .../{weddingSlug}/{guestSlug}/rsvp`, `POST .../{slug}/rsvps`, `POST|GET .../{slug}/wishes`. URL chung nhận `authorName`/tên khách; URL cá nhân lấy identity từ invitation slug và không yêu cầu nhập tên.
 
 ## Quyền
 

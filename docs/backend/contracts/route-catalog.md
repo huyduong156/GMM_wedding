@@ -111,17 +111,22 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/weddings/{weddingId}/guests` | Guest access policy | Planned | List/filter guest |
-| POST | `/weddings/{weddingId}/guests` | Guest write policy | Planned | Tạo guest |
-| GET | `/weddings/{weddingId}/guests/{guestId}` | Guest access policy | Planned | Chi tiết guest |
-| PATCH | `/weddings/{weddingId}/guests/{guestId}` | Guest write policy | Planned | Cập nhật guest |
-| DELETE | `/weddings/{weddingId}/guests/{guestId}` | Guest write policy | Planned | Soft delete guest |
-| POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Planned | Validate/map import |
-| POST | `/weddings/{weddingId}/guests/import/commit` | Guest write policy | Planned | Commit import idempotent |
-| GET | `/weddings/{weddingId}/guests/export` | Guest access policy | Planned | Export sync/async theo size |
-| POST | `/weddings/{weddingId}/invitations` | Guest write policy | Planned | Tạo invitation/token |
-| POST | `/weddings/{weddingId}/invitations/{invitationId}/rotate` | Guest write policy | Planned | Rotate token |
-| POST | `/weddings/{weddingId}/invitations/{invitationId}/revoke` | Guest write policy | Planned | Revoke token |
+| GET | `/weddings/{weddingId}/guests` | Owner | Implemented | List/filter guest với cursor |
+| POST | `/weddings/{weddingId}/guests` | Owner | Implemented | Tạo guest |
+| GET | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Chi tiết guest |
+| PATCH | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Cập nhật guest |
+| DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Soft delete guest |
+| GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách tối đa 3 cấp |
+| PATCH | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Đổi tên, di chuyển danh mục; chặn vòng lặp và cấp > 3 |
+| DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Soft delete danh mục |
+| GET/POST | `/weddings/{weddingId}/guest-groups` | Owner | Implemented | Nhóm khách |
+| DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Soft delete nhóm |
+| POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Implemented | Nhận `{ rows }` sau khi FE parse CSV; validate và trả lỗi theo dòng |
+| POST | `/weddings/{weddingId}/guests/import/commit` | Guest write policy | Implemented | Commit các dòng hợp lệ; tự tạo category path/group còn thiếu |
+| GET | `/weddings/{weddingId}/guests/export` | Guest access policy | Implemented | CSV UTF-8 BOM, sort và chèn dòng section theo danh mục/nhóm |
+| POST | `/weddings/{weddingId}/invitations` | Owner | Implemented | Tạo invitation/token; raw token chỉ trả một lần |
+| POST | `/weddings/{weddingId}/invitations/{invitationId}/rotate` | Owner | Implemented | Rotate token |
+| POST | `/weddings/{weddingId}/invitations/{invitationId}/revoke` | Owner | Implemented | Revoke token |
 
 ## RSVP và wishes
 
@@ -151,10 +156,12 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 |---|---|---|---|---|
 | GET | `/public/weddings/{slug}` | Public policy | Planned | Published wedding snapshot |
 | GET | `/public/invitations/{invitationToken}` | Invite token | Planned | Minimal personalized invitation |
+| GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public invitation slug | Implemented | Resolve personalized invitation without entering name |
 | PUT | `/public/invitations/{invitationToken}/rsvp` | Invite token | Planned | Submit/update RSVP |
-| POST | `/public/weddings/{slug}/rsvps` | Public + abuse controls | Planned | Public RSVP nếu bật |
-| GET | `/public/weddings/{slug}/wishes` | Public | Planned | Approved wishes |
-| POST | `/public/weddings/{slug}/wishes` | Public + abuse controls | Planned | Submit wish |
+| POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | Common URL RSVP, bắt buộc guestName |
+| POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Common URL wish, bắt buộc guestName |
+| PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public invitation slug | Implemented | Personalized RSVP, tự lấy tên/guestId |
+| POST | `/public/invitations/{weddingSlug}/{guestSlug}/wishes` | Public invitation slug | Implemented | Personalized wish, không nhập tên |
 | GET | `/public/recaps/{recapSlug}` | Public | Planned | Published recap snapshot |
 
 ## Postman workflow

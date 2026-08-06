@@ -3,7 +3,12 @@ import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
 import { getServerEnv } from '@/platform/config/env'
-import { apiError, type ApiErrorBody } from '@/shared/http/api-response'
+import { apiError, takeRequestOrigin, type ApiErrorBody } from '@/shared/http/api-response'
+
+function allowedOrigins() {
+  const env = getServerEnv()
+  return new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+}
 
 export function clientIp(request: Request): string {
   const env = getServerEnv()
@@ -20,7 +25,7 @@ export function assertSafeMutation(request: Request) {
   const fetchSite = request.headers.get('sec-fetch-site')
   const contentType = request.headers.get('content-type')?.split(';')[0]?.trim()
   if (
-    origin !== env.APP_ORIGIN
+    !allowedOrigins().has(origin ?? '')
     || fetchSite === 'cross-site'
     || request.headers.get('x-csrf-protection') !== '1'
     || contentType !== 'application/json'
@@ -52,12 +57,14 @@ export function authErrorResponse(error: unknown, requestId: string): NextRespon
   return apiError(requestId, 'INTERNAL_ERROR', 'An unexpected error occurred', 500)
 }
 
-export function optionsResponse() {
+export function optionsResponse(request?: Request) {
   const env = getServerEnv()
+  const requestOrigin = request?.headers.get('origin')
+  const origin = requestOrigin && allowedOrigins().has(requestOrigin) ? requestOrigin : env.APP_ORIGIN
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'access-control-allow-origin': env.APP_ORIGIN,
+      'access-control-allow-origin': origin,
       'access-control-allow-credentials': 'true',
       'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'access-control-allow-headers': 'content-type,x-csrf-protection,x-request-id',
@@ -68,8 +75,9 @@ export function optionsResponse() {
 
 export function withAuthHeaders<T extends Response>(response: T, requestId: string): T {
   const env = getServerEnv()
+  const origin = takeRequestOrigin(requestId)
   response.headers.set('x-request-id', requestId)
-  response.headers.set('access-control-allow-origin', env.APP_ORIGIN)
+  response.headers.set('access-control-allow-origin', origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN)
   response.headers.set('access-control-allow-credentials', 'true')
   response.headers.append('vary', 'Origin')
   return response

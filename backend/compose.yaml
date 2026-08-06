@@ -13,6 +13,7 @@ services:
       APP_ENV: ${APP_ENV:-local}
       PORT: 3000
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+      APP_ORIGINS: ${APP_ORIGINS:-http://localhost:8080,http://localhost:5173}
       DATABASE_URL: postgresql://${POSTGRES_USER:-gmm_wedding}:${POSTGRES_PASSWORD:-gmm_wedding_local}@postgres:5432/${POSTGRES_DB:-gmm_wedding}?schema=public
       AUTH_SECRET: ${AUTH_SECRET:-local-development-secret-change-me-1234567890}
       AUTH_TOKEN_ENCRYPTION_KEY: ${AUTH_TOKEN_ENCRYPTION_KEY:-local-token-encryption-key-change-me-1234567890}

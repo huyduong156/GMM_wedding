@@ -10,8 +10,14 @@ export interface ApiErrorBody {
   }
 }
 
+const requestOrigins = new Map<string, string | undefined>()
+export function rememberRequestOrigin(requestId: string, origin: string | null) { requestOrigins.set(requestId, origin ?? undefined) }
+export function takeRequestOrigin(requestId: string) { const origin = requestOrigins.get(requestId); requestOrigins.delete(requestId); return origin }
+
 export function getRequestId(request: Request): string {
-  return request.headers.get('x-request-id') ?? randomUUID()
+  const requestId = request.headers.get('x-request-id') ?? randomUUID()
+  rememberRequestOrigin(requestId, request.headers.get('origin'))
+  return requestId
 }
 
 export function jsonResponse<T>(body: T, init?: ResponseInit): NextResponse<T> {

@@ -45,8 +45,9 @@
 
 - CRUD khách/nhóm/tag/ghi chú/bàn; số người dự kiến.
 - Danh mục khách mời dạng cây tối đa 3 cấp; tạo danh mục gốc/danh mục con, đổi tên, di chuyển và dùng làm bộ lọc. Không cho tạo chu kỳ hoặc cấp thứ 4.
-- Import CSV có mapping/validate/preview; export CSV/XLSX.
+- Import CSV có mapping/validate/preview theo `categoryPath` tối đa 3 cấp; export CSV UTF-8 có section theo danh mục/nhóm (XLSX là bước mở rộng sau).
 - Link cá nhân với opaque token; rotate/revoke token.
+- Khách có hai cách định danh ở public surface: (1) URL chung của thiệp, người gửi RSVP/lời chúc tự nhập tên; (2) URL cá nhân dạng `/invitation/{weddingSlug}/{guestSlug}`, trong đó `guestSlug` được cấp khi tạo invitation và hệ thống tự gắn `guestId`/tên khách, không yêu cầu nhập lại tên. Hai mode dùng chung validation, rate limit và moderation; URL cá nhân không thay thế quyền truy cập owner.
 - Email/SMS/Zalo provider, tracking và check-in QR (Post-MVP).
 
 ## RSVP không cần login
