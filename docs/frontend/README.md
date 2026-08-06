@@ -11,6 +11,8 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 ## Danh mục
 
 - [Frontend authentication integration](./authentication-integration.md): API login, opaque session, route guard và logout cho owner/admin.
+- Owner Wedding workspace đã nối Wedding base API: danh sách/chuyển wedding, onboarding tạo wedding đầu tiên, dashboard read model, CRUD lễ-tiệc tại `/studio/events` và cài đặt metadata/lifecycle tại `/studio/settings`. Wedding và event mutation gửi `revision`; conflict `409` yêu cầu tải lại dữ liệu thay vì ghi đè.
+- Ngày hiển thị trong Wedding workspace dùng formatter chung `DD/MM/YYYY`; ngày-giờ dùng `DD/MM/YYYY · HH:mm`. Form tạo event bỏ các field optional để trống khỏi payload; chỉ gửi `null` khi update nhằm xóa giá trị đã tồn tại.
 
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)

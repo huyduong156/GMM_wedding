@@ -13,6 +13,8 @@ npm run dev
 
 Ứng dụng mặc định tại `http://localhost:5173`.
 
+Ở chế độ Vite development, API client mặc định gọi `/api`; Vite proxy chuyển request sang `http://localhost:3000` và dùng origin `http://localhost:8080` đã được backend local cho phép. Nhờ đó cả FE dev `5173` và FE Docker `8080` dùng được cùng backend mà không cần mở rộng CORS trên nhánh frontend. Nếu đặt `VITE_API_BASE_URL`, giá trị đó sẽ ghi đè proxy mặc định.
+
 ## Chạy bằng Docker
 
 Từ thư mục gốc của repository:

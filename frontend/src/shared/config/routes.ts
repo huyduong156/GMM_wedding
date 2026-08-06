@@ -13,6 +13,7 @@ export const studioRoutes = {
   recap: '/studio/recap',
   recapThemes: '/studio/recap/themes',
   analytics: '/studio/analytics',
+  events: '/studio/events',
   settings: '/studio/settings',
 } as const
 
@@ -45,6 +46,7 @@ export const legacyStudioRoutes: Record<string, string> = {
   recap: studioRoutes.recap,
   'recap-themes': studioRoutes.recapThemes,
   analytics: studioRoutes.analytics,
+  events: studioRoutes.events,
   settings: studioRoutes.settings,
 }
 

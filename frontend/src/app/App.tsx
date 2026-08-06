@@ -10,6 +10,9 @@ import { AdminThemesPage } from '../pages/admin/ui/AdminThemesPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
 import { AdminPlaceholderPage } from '../pages/admin/ui/AdminPlaceholderPage'
 import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
+import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage'
+import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
+import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSettingsPage'
 import { GuestsPage } from '../pages/guests/ui/GuestsPage'
 import { GuestCategoriesPage } from '../pages/guest-categories/ui/GuestCategoriesPage'
 import { TemplatesPage } from '../pages/templates/ui/TemplatesPage'
@@ -20,7 +23,7 @@ import { WishesPage } from '../pages/wishes/ui/WishesPage'
 import { PlaceholderPage } from '../pages/placeholder/ui/PlaceholderPage'
 import { useNavigation } from '../shared/lib/navigation/navigation-context'
 import { adminRoutes, legacyStudioRoutes, marketingRoutes, studioRoutes } from '../shared/config/routes'
-import { AppShell } from '../widgets/app-shell/ui/AppShell'
+import { WeddingWorkspace } from '../widgets/app-shell/ui/WeddingWorkspace'
 import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
 import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
@@ -28,6 +31,7 @@ import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDay
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
+import { useOptionalAuth } from '../features/auth/model/auth-context'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
@@ -44,7 +48,8 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.recap]: <PlaceholderPage section="recap" />,
   [studioRoutes.recapThemes]: <PlaceholderPage section="recap-themes" />,
   [studioRoutes.analytics]: <PlaceholderPage section="analytics" />,
-  [studioRoutes.settings]: <PlaceholderPage section="settings" />,
+  [studioRoutes.events]: <WeddingEventsPage />,
+  [studioRoutes.settings]: <WeddingSettingsPage />,
 }
 
 const adminPageNames: Record<string, string> = {
@@ -59,6 +64,7 @@ const adminPageNames: Record<string, string> = {
 
 export function App() {
   const { pathname, navigate } = useNavigation()
+  const auth = useOptionalAuth()
 
   useEffect(() => {
     const legacyMatch = pathname.match(/^\/app\/weddings\/[^/]+\/([^/]+)\/?$/)
@@ -93,7 +99,10 @@ export function App() {
   }
 
   const content = studioPages[pathname]
-  if (content) return <AuthGate surface="studio"><AppShell>{content}</AppShell></AuthGate>
+  if (content) {
+    const connectedContent = pathname === studioRoutes.home && auth ? <WeddingDashboardPage /> : content
+    return <AuthGate surface="studio"><WeddingWorkspace>{connectedContent}</WeddingWorkspace></AuthGate>
+  }
 
   return null
 }

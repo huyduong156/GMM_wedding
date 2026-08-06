@@ -21,7 +21,8 @@ import {
   X,
 } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
-import { activeWedding } from '../../../entities/wedding/model/active-wedding'
+import { activeWedding as fallbackWedding } from '../../../entities/wedding/model/active-wedding'
+import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
@@ -59,6 +60,7 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
     { to: studioRoutes.wishes, label: 'Lời chúc', icon: Heart, badge: '5' },
   ] },
   { label: 'Chuẩn bị', items: [
+    { to: studioRoutes.events, label: 'Lễ & tiệc', icon: CalendarCheck },
     { to: studioRoutes.todos, label: 'Todolist', icon: CalendarCheck },
     { to: studioRoutes.giftLedger, label: 'Sổ tiền mừng', icon: CurrencyCircleDollar },
   ] },
@@ -73,6 +75,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isCollapsed, setCollapsed] = useState(false)
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
+  const weddingWorkspace = useOptionalWeddingWorkspace()
+  const currentWedding = weddingWorkspace?.activeWedding
+  const activeWedding = currentWedding ? { id: currentWedding.id, coupleName: currentWedding.name, weddingDate: currentWedding.primaryDate ?? undefined } : fallbackWedding
   const weddingCountdown = useWeddingCountdown(activeWedding.weddingDate ?? '')
   const weddingCountdownLabel = !activeWedding.weddingDate
     ? 'Vui lòng nhập ngày cưới của bạn'
@@ -107,14 +112,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <button className="wedding-switcher" type="button" aria-label="Chọn đám cưới">
+        <div className="wedding-switcher">
           <span className="couple-avatar">MĐ</span>
           <span className="wedding-switcher-copy">
             <strong>{activeWedding.coupleName}</strong>
-            <span><i className="status-dot" /> Đã xuất bản</span>
+            <span><i className={`status-dot ${currentWedding?.status === 'ARCHIVED' ? 'is-archived' : currentWedding?.status === 'PUBLISHED' ? '' : 'is-draft'}`} /> {currentWedding?.status === 'ARCHIVED' ? 'Đã lưu trữ' : currentWedding?.status === 'PUBLISHED' ? 'Đã xuất bản' : 'Bản nháp'}</span>
           </span>
-          <CaretDown size={16} />
-        </button>
+          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? <select aria-label="Chọn đám cưới" value={activeWedding.id} onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}>{weddingWorkspace.weddings.map((wedding) => <option key={wedding.id} value={wedding.id}>{wedding.name}</option>)}</select> : <CaretDown size={16} aria-hidden="true" />}
+        </div>
 
         <nav className="primary-nav">
           {navGroups.map((group) => (
