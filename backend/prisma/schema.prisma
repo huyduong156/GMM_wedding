@@ -177,6 +177,7 @@ model User {
   emailVerifiedAt   DateTime?                @db.Timestamptz(3)
   passwordHash      String?                  @db.VarChar(255)
   displayName       String?                  @db.VarChar(120)
+  phone             String?                  @db.VarChar(32)
   avatarUrl         String?                  @db.VarChar(2048)
   locale            String                   @default("vi-VN") @db.VarChar(16)
   timezone          String                   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)

@@ -11,6 +11,8 @@ const userSelection = {
   email: true,
   passwordHash: true,
   displayName: true,
+  phone: true,
+  avatarUrl: true,
   emailVerifiedAt: true,
   locale: true,
   timezone: true,
@@ -28,6 +30,8 @@ function toIdentityUser(user: SelectedUser, now = new Date()): IdentityUser {
     email: user.email,
     passwordHash: user.passwordHash,
     displayName: user.displayName,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
     emailVerifiedAt: user.emailVerifiedAt,
     locale: user.locale,
     timezone: user.timezone,
@@ -48,6 +52,20 @@ export class PrismaIdentityRepository implements IdentityRepository {
 
   async updatePasswordHash(userId: string, passwordHash: string) {
     await this.db.user.update({ where: { id: userId }, data: { passwordHash } })
+  }
+
+  async updateProfile(userId: string, data: { displayName?: string | null | undefined; phone?: string | null | undefined; avatarUrl?: string | null | undefined; locale?: string | undefined; timezone?: string | undefined }) {
+    const cleanData = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined))
+    const result = await this.db.user.updateMany({
+      where: { id: userId, deletedAt: null, status: 'ACTIVE' },
+      data: cleanData,
+    })
+    if (!result.count) return null
+    await this.db.auditLog.create({
+      data: { actorUserId: userId, action: 'identity.profile_updated', resourceType: 'User', resourceId: userId },
+    })
+    const user = await this.db.user.findUnique({ where: { id: userId }, select: userSelection })
+    return user ? toIdentityUser(user) : null
   }
 
   async registerUser(input: {

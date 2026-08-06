@@ -63,11 +63,15 @@ type CurrentUserResponse = {
     id: string
     email: string
     displayName: string | null
+    phone: string | null
+    avatarUrl: string | null
     emailVerified: boolean
     locale: string
     timezone: string
   }
 }
+
+`PATCH /api/me` nhận các trường tùy chọn `displayName`, `phone`, `avatarUrl`, `locale`, `timezone`; `displayName`, `phone` và `avatarUrl` nhận `null` để xoá. Request phải có session và CSRF/origin headers như các mutation auth khác. Thay đổi được ghi audit với action `identity.profile_updated`.
 ```
 
 Register luôn trả cùng public body/status cho email mới, email pending và email đã tồn tại. Login chỉ trả `INVALID_CREDENTIALS` cho unknown email/wrong password; trạng thái pending/suspended chỉ được trả sau khi credential đúng. Verification token missing/expired/used trả cùng public error.

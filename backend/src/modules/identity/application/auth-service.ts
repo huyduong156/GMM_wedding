@@ -29,6 +29,8 @@ function publicUser(user: IdentityUser): PublicUser {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
     emailVerifiedAt: user.emailVerifiedAt,
     locale: user.locale,
     timezone: user.timezone,
@@ -219,6 +221,12 @@ export class AuthService {
       now,
     )
     return { sessionId: session.id, user: publicUser(session.user) }
+  }
+
+  async updateProfile(userId: string, data: { displayName?: string | null | undefined; phone?: string | null | undefined; avatarUrl?: string | null | undefined; locale?: string | undefined; timezone?: string | undefined }) {
+    const user = await this.repository.updateProfile(userId, data)
+    if (!user) throw new AuthError('AUTHENTICATION_REQUIRED', 401, 'Authentication is required')
+    return publicUser(user)
   }
 
   async logout(token: string | undefined) {

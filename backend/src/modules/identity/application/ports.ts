@@ -5,6 +5,8 @@ export type IdentityUser = {
   email: string
   passwordHash: string | null
   displayName: string | null
+  phone: string | null
+  avatarUrl: string | null
   emailVerifiedAt: Date | null
   locale: string
   timezone: string
@@ -42,6 +44,7 @@ export interface IdentityEmailSender {
 export interface IdentityRepository {
   findUserByEmail(email: string): Promise<IdentityUser | null>
   updatePasswordHash(userId: string, passwordHash: string): Promise<void>
+  updateProfile(userId: string, data: { displayName?: string | null | undefined; phone?: string | null | undefined; avatarUrl?: string | null | undefined; locale?: string | undefined; timezone?: string | undefined }): Promise<IdentityUser | null>
   registerUser(input: {
     email: string
     passwordHash: string
