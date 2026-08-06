@@ -1,0 +1,1 @@
+export { getWeddingService } from './composition'

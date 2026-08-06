@@ -2,13 +2,13 @@
 
 ## Tầm nhìn
 
-GMM Wedding là nền tảng SaaS giúp cặp đôi tự tạo, xuất bản và quản lý thiệp cưới/web cưới online. Mỗi wedding có URL riêng theo slug, template tùy biến, danh sách khách, RSVP và lời chúc tập trung trong dashboard.
+GMM Wedding là nền tảng SaaS wedding companion dành trực tiếp cho cô dâu/chú rể, lấy thiệp cưới online, website cưới và Wedding Recap làm trục xuất bản/chia sẻ/SEO. Sản phẩm đồng thời cung cấp các công cụ trọng tâm như Todo, ngân sách và sổ tiền mừng, nhưng áp dụng progressive disclosure để người không chuyên chỉ thấy tính năng khi cần. `Wedding` là hồ sơ gốc liên kết toàn bộ dữ liệu, không biến onboarding thành một quy trình wedding planner phức tạp.
 
 ## Người dùng
 
 - Khách vãng lai: xem landing, template và bảng giá.
 - Chủ thiệp/cặp đôi: tạo wedding, chỉnh nội dung, publish và quản lý phản hồi.
-- Cộng tác viên: editor, quản lý khách hoặc chỉ xem.
+- Cộng tác viên: khả năng mở rộng sau MVP, không xuất hiện trong onboarding và luồng chính hiện tại.
 - Khách mời: xem thiệp, RSVP, gửi lời chúc không cần tài khoản.
 - Admin: quản lý user, template, nội dung và vận hành.
 
@@ -20,9 +20,9 @@ GMM Wedding là nền tảng SaaS giúp cặp đôi tự tạo, xuất bản và
 
 ## MVP
 
-Luồng bắt buộc: đăng ký -> tạo wedding -> chọn template -> điền nội dung -> preview -> publish slug -> chia sẻ -> khách RSVP/gửi lời chúc -> chủ thiệp quản lý phản hồi.
+Luồng bắt buộc: đăng ký -> tạo hồ sơ wedding tối thiểu -> chọn template -> nhập/chỉnh nội dung trực tiếp trên template -> preview -> publish slug -> chia sẻ -> khách RSVP/gửi lời chúc -> chủ thiệp quản lý phản hồi.
 
-MVP gồm xác thực, nhiều wedding/user, editor theo section/form, slug duy nhất, draft/published, nhiều sự kiện, upload ảnh, khách/nhóm khách, import/export CSV, invite token cá nhân, RSVP public, moderation lời chúc, dashboard cơ bản và admin tối thiểu.
+MVP nền tảng gồm xác thực, nhiều wedding/user, thông tin cặp đôi và ngày cưới cơ bản, danh sách lễ/tiệc gọn nhẹ, template/editor trực quan, slug duy nhất, draft/published, upload ảnh, khách/nhóm khách, invite token cá nhân, RSVP public, moderation lời chúc, dashboard cơ bản và admin tối thiểu. Thiệp online và website cưới là hai publication surface chính; Wedding Recap là surface ưu tiên tiếp theo. Todo, ngân sách và sổ tiền mừng vẫn thuộc bộ tính năng trọng tâm nhưng được triển khai thành module độc lập theo phase, không chặn luồng publish đầu tiên.
 
 ## Chưa làm trong MVP
 
@@ -30,6 +30,8 @@ MVP gồm xác thực, nhiều wedding/user, editor theo section/form, slug duy 
 - Marketplace designer, ứng dụng native, livestream.
 - Custom domain, billing và gửi SMS/Zalo tự động.
 - Hệ thống quản trị nhà hàng/tiệc cưới kiểu ERP.
+- Wedding planner chuyên nghiệp/ERP: quản lý nhà cung cấp, hợp đồng, nhân sự vận hành và timeline điều phối phức tạp. Todo cá nhân, ngân sách và sổ tiền mừng cơ bản vẫn thuộc phạm vi sản phẩm.
+- Cộng tác viên và phân quyền wedding nhiều cấp trên UI/API.
 
 ## Chỉ số thành công
 
@@ -42,6 +44,6 @@ MVP gồm xác thực, nhiều wedding/user, editor theo section/form, slug duy 
 ## Giả định cần xác thực
 
 - Thị trường đầu tiên là Việt Nam, mobile-first, tiếng Việt.
-- Một wedding có thể gồm nhiều sự kiện (vu quy, thành hôn, tiệc).
+- Một wedding có thể gồm nhiều lễ/tiệc (vu quy, thành hôn, tiệc), nhưng chúng chỉ là dữ liệu ngày giờ/địa điểm để các publication surface hiển thị và RSVP tham chiếu; không phải workspace vận hành riêng.
 - Khách mời không muốn đăng ký tài khoản.
 - Editor theo schema đủ linh hoạt và an toàn cho giai đoạn đầu.

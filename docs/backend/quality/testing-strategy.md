@@ -4,6 +4,8 @@
 
 Test bảo vệ invariant, authorization, transaction và contract; không chạy theo coverage số học. Ưu tiên lỗi có thể làm lộ dữ liệu, mất dữ liệu hoặc tạo publication/RSVP sai.
 
+Mỗi chức năng hoặc endpoint mới phải được tạo test đầy đủ trong cùng change. Tối thiểu phải có happy path, validation, authorization/tenant isolation, business invariant, error contract và persistence/concurrency phù hợp với rủi ro; không đánh dấu route là `Implemented` nếu test bắt buộc của nó chưa tồn tại và chưa chạy qua CI.
+
 ## Test layers
 
 ### Unit

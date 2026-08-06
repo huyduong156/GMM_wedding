@@ -79,17 +79,22 @@ Core slice và security boundary được thiết kế tại [authentication imp
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/weddings` | Session | Planned | Danh sách wedding của actor |
-| POST | `/weddings` | Session | Planned | Tạo wedding |
-| GET | `/weddings/{weddingId}` | Member | Planned | Chi tiết wedding |
-| PATCH | `/weddings/{weddingId}` | Owner/editor policy | Planned | Cập nhật metadata |
-| DELETE | `/weddings/{weddingId}` | Owner | Planned | Soft delete/thu hồi public access |
+| GET | `/weddings` | Session owner | Implemented | Danh sách wedding chưa xóa của actor, dùng cho workspace switcher |
+| POST | `/weddings` | Session owner | Implemented | Tạo wedding tối giản và owner membership nội bộ |
+| GET | `/weddings/{weddingId}` | Owner | Implemented | Chi tiết wedding; cross-owner trả 404 |
+| PATCH | `/weddings/{weddingId}` | Owner | Implemented | Cập nhật metadata theo `revision`; conflict trả 409 |
+| DELETE | `/weddings/{weddingId}` | Owner | Implemented | Soft delete, archive và thu hồi wedding slug |
+| GET/POST | `/weddings/{weddingId}/events` | Owner | Implemented | List/tạo lễ hoặc tiệc dùng cho publication/RSVP |
+| PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
+| GET | `/weddings/{weddingId}/dashboard` | Owner | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
 | GET | `/weddings/{weddingId}/content` | Member | Planned | Lấy canonical content/theme |
 | PUT | `/weddings/{weddingId}/content` | Owner/editor | Planned | Lưu content theo revision |
 | POST | `/weddings/{weddingId}/publish` | Publish policy | Planned | Tạo immutable snapshot |
 | POST | `/weddings/{weddingId}/unpublish` | Publish policy | Planned | Thu hồi public pointer |
 | POST | `/weddings/{weddingId}/preview-token` | Owner/editor | Planned | Tạo draft preview token |
 | GET | `/slugs/weddings/{slug}/availability` | Session | Planned | Kiểm tra slug |
+
+Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được tạo để giữ invariant dữ liệu nhưng chưa có API quản trị thành viên. Dashboard trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai; không dùng số giả.
 
 ## Templates và media
 

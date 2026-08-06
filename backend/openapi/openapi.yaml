@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: GMM Wedding Backend API
-  version: 0.1.0
-  description: Backend API contract for health, version, and server-managed session authentication.
+  version: 0.2.0
+  description: Backend API contract for platform foundation, server-managed authentication, Wedding core, display events, and the owner dashboard read model.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -227,6 +227,235 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /weddings:
+    get:
+      operationId: listOwnedWeddings
+      summary: List non-deleted weddings owned by the current user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Owned weddings ordered by recent update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingListEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: createWedding
+      summary: Create a minimal wedding and its internal owner membership
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWeddingRequest'
+      responses:
+        '201':
+          description: Wedding created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /weddings/{weddingId}:
+    parameters:
+      - $ref: '#/components/parameters/WeddingId'
+    get:
+      operationId: getOwnedWedding
+      summary: Get one owned wedding
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Wedding detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: updateOwnedWedding
+      summary: Update basic wedding settings with optimistic concurrency
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWeddingRequest'
+      responses:
+        '200':
+          description: Wedding updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      operationId: deleteOwnedWedding
+      summary: Soft-delete an owned wedding and revoke its public wedding slug
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      responses:
+        '204':
+          description: Wedding deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /weddings/{weddingId}/events:
+    parameters:
+      - $ref: '#/components/parameters/WeddingId'
+    get:
+      operationId: listWeddingEvents
+      summary: List display events for an owned wedding
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Ordered event list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEventListEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createWeddingEvent
+      summary: Add a ceremony or reception used by publications and RSVP
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWeddingEventRequest'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEventEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /weddings/{weddingId}/events/{eventId}:
+    parameters:
+      - $ref: '#/components/parameters/WeddingId'
+      - $ref: '#/components/parameters/EventId'
+    patch:
+      operationId: updateWeddingEvent
+      summary: Update a display event
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWeddingEventRequest'
+      responses:
+        '200':
+          description: Event updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingEventEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      operationId: deleteWeddingEvent
+      summary: Soft-delete a display event
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      responses:
+        '204':
+          description: Event deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /weddings/{weddingId}/dashboard:
+    parameters:
+      - $ref: '#/components/parameters/WeddingId'
+    get:
+      operationId: getWeddingDashboard
+      summary: Return the owner dashboard read model for one wedding
+      description: Aggregates publication state, guest/invitation/RSVP/wish metrics, upcoming event, 30-day response trend and recent activity. View counts remain null until analytics tracking exists.
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Dashboard read model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeddingDashboardEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /health/live:
     get:
       operationId: getLiveness
@@ -275,6 +504,20 @@ components:
       schema:
         type: string
         const: '1'
+    WeddingId:
+      name: weddingId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EventId:
+      name: eventId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   responses:
     BadRequest:
       description: Invalid request or verification token
@@ -300,6 +543,18 @@ components:
         Retry-After:
           schema:
             type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found or not owned by the current user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Optimistic concurrency conflict
       content:
         application/json:
           schema:
@@ -435,6 +690,209 @@ components:
           $ref: '#/components/schemas/User'
         actor:
           $ref: '#/components/schemas/PlatformAdminActor'
+    Wedding:
+      type: object
+      additionalProperties: false
+      required: [id, name, status, visibility, timezone, locale, primaryDate, revision, publishedAt, archivedAt, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, maxLength: 160 }
+        status: { type: string, enum: [DRAFT, PUBLISHED, ARCHIVED] }
+        visibility: { type: string, enum: [PUBLIC, PASSWORD_PROTECTED, INVITE_ONLY] }
+        timezone: { type: string, maxLength: 64 }
+        locale: { type: string, maxLength: 16 }
+        primaryDate: { type: [string, 'null'], format: date-time }
+        revision: { type: integer, minimum: 1 }
+        publishedAt: { type: [string, 'null'], format: date-time }
+        archivedAt: { type: [string, 'null'], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateWeddingRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        primaryDate: { type: string, format: date-time }
+        timezone: { type: string, default: Asia/Ho_Chi_Minh, maxLength: 64 }
+        locale: { type: string, default: vi-VN, maxLength: 16 }
+        visibility: { type: string, enum: [PUBLIC, PASSWORD_PROTECTED, INVITE_ONLY], default: PUBLIC }
+    UpdateWeddingRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 2
+      required: [revision]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        primaryDate: { type: [string, 'null'], format: date-time }
+        timezone: { type: string, maxLength: 64 }
+        locale: { type: string, maxLength: 16 }
+        visibility: { type: string, enum: [PUBLIC, PASSWORD_PROTECTED, INVITE_ONLY] }
+        status: { type: string, enum: [DRAFT, ARCHIVED] }
+        revision: { type: integer, minimum: 1 }
+    WeddingEnvelope:
+      type: object
+      additionalProperties: false
+      required: [wedding]
+      properties:
+        wedding: { $ref: '#/components/schemas/Wedding' }
+    WeddingListEnvelope:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Wedding' }
+    WeddingEvent:
+      type: object
+      additionalProperties: false
+      required: [id, weddingId, name, eventType, startsAt, endsAt, timezone, venueName, addressLine, mapUrl, latitude, longitude, sortOrder, isPublic, revision, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        name: { type: string, maxLength: 160 }
+        eventType: { type: string, maxLength: 48 }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: [string, 'null'], format: date-time }
+        timezone: { type: string, maxLength: 64 }
+        venueName: { type: [string, 'null'] }
+        addressLine: { type: [string, 'null'] }
+        mapUrl: { type: [string, 'null'], format: uri }
+        latitude: { type: [string, 'null'] }
+        longitude: { type: [string, 'null'] }
+        sortOrder: { type: integer, minimum: 0 }
+        isPublic: { type: boolean }
+        revision: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateWeddingEventRequest:
+      type: object
+      additionalProperties: false
+      required: [name, eventType, startsAt, timezone]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        eventType: { type: string, minLength: 1, maxLength: 48 }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        timezone: { type: string, maxLength: 64 }
+        venueName: { type: string, maxLength: 200 }
+        addressLine: { type: string, maxLength: 500 }
+        mapUrl: { type: string, format: uri, maxLength: 2048 }
+        latitude: { type: number, minimum: -90, maximum: 90 }
+        longitude: { type: number, minimum: -180, maximum: 180 }
+        sortOrder: { type: integer, minimum: 0, default: 0 }
+        isPublic: { type: boolean, default: true }
+    UpdateWeddingEventRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 2
+      required: [revision]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        eventType: { type: string, minLength: 1, maxLength: 48 }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: [string, 'null'], format: date-time }
+        timezone: { type: string, maxLength: 64 }
+        venueName: { type: [string, 'null'], maxLength: 200 }
+        addressLine: { type: [string, 'null'], maxLength: 500 }
+        mapUrl: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        latitude: { type: [number, 'null'], minimum: -90, maximum: 90 }
+        longitude: { type: [number, 'null'], minimum: -180, maximum: 180 }
+        sortOrder: { type: integer, minimum: 0 }
+        isPublic: { type: boolean }
+        revision: { type: integer, minimum: 1 }
+    WeddingEventEnvelope:
+      type: object
+      additionalProperties: false
+      required: [event]
+      properties:
+        event: { $ref: '#/components/schemas/WeddingEvent' }
+    WeddingEventListEnvelope:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/WeddingEvent' }
+    WeddingDashboardEnvelope:
+      type: object
+      additionalProperties: false
+      required: [dashboard]
+      properties:
+        dashboard:
+          type: object
+          required: [wedding, publication, metrics, nextEvent, responseTrend, recentActivity]
+          properties:
+            wedding: { $ref: '#/components/schemas/Wedding' }
+            publication:
+              type: object
+              additionalProperties: false
+              required: [invitation, website, recap]
+              properties:
+                invitation: { $ref: '#/components/schemas/PublicationSurfaceStatus' }
+                website: { $ref: '#/components/schemas/PublicationSurfaceStatus' }
+                recap: { $ref: '#/components/schemas/RecapPublicationStatus' }
+            metrics:
+              type: object
+              required: [guests, invitations, activeInvitations, responses, attending, declined, maybe, pendingResponses, attendingPartySize, companions, pendingWishes, approvedWishes]
+              properties:
+                guests: { type: integer, minimum: 0 }
+                invitations: { type: integer, minimum: 0 }
+                activeInvitations: { type: integer, minimum: 0 }
+                responses: { type: integer, minimum: 0 }
+                attending: { type: integer, minimum: 0 }
+                declined: { type: integer, minimum: 0 }
+                maybe: { type: integer, minimum: 0 }
+                pendingResponses: { type: integer, minimum: 0 }
+                attendingPartySize: { type: integer, minimum: 0 }
+                companions: { type: integer, minimum: 0 }
+                pendingWishes: { type: integer, minimum: 0 }
+                approvedWishes: { type: integer, minimum: 0 }
+            nextEvent: { anyOf: [{ $ref: '#/components/schemas/WeddingEvent' }, { type: 'null' }] }
+            responseTrend:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [date, count]
+                properties:
+                  date: { type: string, format: date }
+                  count: { type: integer, minimum: 0 }
+            recentActivity:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [id, type, displayName, attendance, partySize, occurredAt]
+                properties:
+                  id: { type: string, format: uuid }
+                  type: { type: string, enum: [RSVP_SUBMITTED, WISH_SUBMITTED] }
+                  displayName: { type: string }
+                  attendance: { type: [string, 'null'], enum: [ATTENDING, DECLINED, MAYBE, null] }
+                  partySize: { type: [integer, 'null'] }
+                  occurredAt: { type: string, format: date-time }
+    PublicationSurfaceStatus:
+      type: object
+      additionalProperties: false
+      required: [configured, published, slug, templateName, templateVersion, views]
+      properties:
+        configured: { type: boolean }
+        published: { type: boolean }
+        slug: { type: [string, 'null'] }
+        templateName: { type: [string, 'null'] }
+        templateVersion: { type: [string, 'null'] }
+        views: { type: 'null', description: Analytics tracking is not implemented yet. }
+    RecapPublicationStatus:
+      type: object
+      additionalProperties: false
+      required: [configured, published, slug, views]
+      properties:
+        configured: { type: boolean }
+        published: { type: boolean }
+        slug: { type: [string, 'null'] }
+        views: { type: 'null', description: Analytics tracking is not implemented yet. }
     ErrorResponse:
       type: object
       additionalProperties: false

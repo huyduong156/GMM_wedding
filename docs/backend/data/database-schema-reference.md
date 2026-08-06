@@ -51,13 +51,15 @@ Token một lần cho verify/reset/invite account. Trường: `id`, `identifier`
 
 Tenant aggregate root. Trường: `id`, `createdById`, `name`, `slug?`, `status`, `visibility`, `accessPasswordHash?`, `timezone`, `locale`, `primaryDate?`, `revision`, `publishedAt?`, `archivedAt?`, `createdAt`, `updatedAt`, `deletedAt?`. Active slug unique không phân biệt hoa thường; soft-delete thu hồi public access.
 
+Wedding base service hiện dùng `name` làm couple/workspace name và chỉ expose owner-only CRUD cho `createdById`. Tạo Wedding đồng thời tạo active owner membership trong transaction. Tên cô dâu/chú rể có cấu trúc và cover media sẽ được thêm cùng canonical content/onboarding contract thay vì vội lưu URL hoặc JSON không kiểm soát trong aggregate root.
+
 ### `WeddingMember`
 
 Quan hệ user–wedding và quyền. Trường: `id`, `weddingId`, `userId`, `role` (`OWNER|EDITOR|GUEST_MANAGER|VIEWER`), `status`, `invitedAt?`, `joinedAt?`, `revokedAt?`, `createdAt`, `updatedAt`. Cặp `(weddingId, userId)` unique. Role không thay thế resource authorization.
 
 ### `WeddingEvent`
 
-Lễ/tiệc thuộc wedding. Trường: `id`, `weddingId`, `name`, `eventType`, `startsAt`, `endsAt?`, `timezone`, `venueName?`, `addressLine?`, `mapUrl?`, `latitude?`, `longitude?`, `sortOrder`, `isPublic`, timestamps và `deletedAt?`. `endsAt >= startsAt`; latitude/longitude nằm trong miền hợp lệ.
+Lễ/tiệc thuộc wedding. Trường: `id`, `weddingId`, `name`, `eventType`, `startsAt`, `endsAt?`, `timezone`, `venueName?`, `addressLine?`, `mapUrl?`, `latitude?`, `longitude?`, `sortOrder`, `isPublic`, `revision`, timestamps và `deletedAt?`. `endsAt >= startsAt`; latitude/longitude nằm trong miền hợp lệ. `revision` tăng trên update/delete để chống lost update.
 
 ### `WeddingContent`
 

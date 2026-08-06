@@ -23,7 +23,7 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 ## Endpoint MVP
 
 - Auth: `POST /auth/{register,login,logout,forgot-password,reset-password}`, `GET|PATCH /me`.
-- Wedding: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, slug availability, content/theme/events, publish/unpublish, preview token.
+- Wedding base đã implement: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, CRUD `/weddings/{id}/events` và `GET /weddings/{id}/dashboard`; slug availability, content/theme, publish/unpublish và preview token vẫn planned.
 - Template/media: `GET /templates[...]`, upload intent/complete/list/delete.
 - Guest: CRUD, group, import preview/commit, export, invitation create/rotate/revoke.
 - Owner RSVP/wish: list/filter/update/export/moderate và analytics summary.

@@ -11,6 +11,7 @@ const mutationHeaders = {
 }
 
 type MailpitMessage = { ID: string; Subject: string; To: Array<{ Address: string }> }
+let firstOwnerWeddingId: string | undefined
 
 async function capturedMessageFor(email: string, subject?: string, excludedToken?: string) {
   for (let attempt = 0; attempt < 40; attempt += 1) {
@@ -118,6 +119,41 @@ describe.sequential('authentication journey', () => {
     expect(meBody.user.email).toBe(email)
     expect(meBody.user.passwordHash).toBeUndefined()
 
+    const createWedding = await fetch(`${apiBase}/weddings`, {
+      method: 'POST', headers: { ...mutationHeaders, cookie: cookie as string },
+      body: JSON.stringify({ name: 'Mai & Đức', primaryDate: '2099-12-12T09:00:00+07:00' }),
+    })
+    expect(createWedding.status).toBe(201)
+    const createdWedding = await createWedding.json() as { wedding: { id: string; revision: number } }
+    firstOwnerWeddingId = createdWedding.wedding.id
+
+    const listWeddings = await fetch(`${apiBase}/weddings`, { headers: { cookie: cookie as string } })
+    expect(listWeddings.status).toBe(200)
+    expect((await listWeddings.json() as { items: Array<{ id: string }> }).items.some((item) => item.id === firstOwnerWeddingId)).toBe(true)
+
+    const staleUpdate = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}`, {
+      method: 'PATCH', headers: { ...mutationHeaders, cookie: cookie as string },
+      body: JSON.stringify({ name: 'Tên stale', revision: createdWedding.wedding.revision + 1 }),
+    })
+    expect(staleUpdate.status).toBe(409)
+    expect((await staleUpdate.json() as { error: { code: string } }).error.code).toBe('WEDDING_REVISION_CONFLICT')
+
+    const createEvent = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}/events`, {
+      method: 'POST', headers: { ...mutationHeaders, cookie: cookie as string },
+      body: JSON.stringify({
+        name: 'Lễ thành hôn', eventType: 'CEREMONY', startsAt: '2099-12-12T09:00:00+07:00',
+        timezone: 'Asia/Ho_Chi_Minh', venueName: 'White Palace', isPublic: true,
+      }),
+    })
+    expect(createEvent.status).toBe(201)
+
+    const dashboard = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}/dashboard`, { headers: { cookie: cookie as string } })
+    expect(dashboard.status).toBe(200)
+    const dashboardBody = await dashboard.json() as { dashboard: { metrics: { guests: number; responses: number }; nextEvent: { name: string }; publication: { invitation: { views: null } } } }
+    expect(dashboardBody.dashboard.metrics).toMatchObject({ guests: 0, responses: 0 })
+    expect(dashboardBody.dashboard.nextEvent.name).toBe('Lễ thành hôn')
+    expect(dashboardBody.dashboard.publication.invitation.views).toBeNull()
+
     const forgot = await fetch(`${apiBase}/auth/forgot-password`, {
       method: 'POST', headers: mutationHeaders, body: JSON.stringify({ email }),
     })
@@ -198,6 +234,11 @@ describe.sequential('authentication journey', () => {
         method: 'POST', headers: mutationHeaders, body: credentials,
       })
       expect(ownerLogin.status).toBe(200)
+      const ownerCookie = ownerLogin.headers.get('set-cookie')?.split(';', 1)[0]
+      expect(firstOwnerWeddingId).toBeTruthy()
+      expect((await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}`, {
+        headers: { cookie: ownerCookie as string },
+      })).status).toBe(404)
 
       const adminLogin = await fetch(`${apiBase}/auth/admin/login`, {
         method: 'POST', headers: mutationHeaders, body: credentials,

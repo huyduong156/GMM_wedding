@@ -3,6 +3,8 @@
 Status: Accepted
 Date: 2026-07-30
 
+> ADR 0008 bổ sung nguyên tắc progressive disclosure và triển khai theo phase: Todo và sổ tiền mừng vẫn là tính năng trọng tâm nhưng không chặn onboarding/publish; Wedding Recap là publication surface trọng tâm.
+
 ## Context
 
 Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận tiền/quà mừng riêng tư sau sự kiện và xuất bản một trang recap để chia sẻ. Ba nhu cầu cùng thuộc wedding nhưng có lifecycle, quyền và mức độ công khai khác nhau.

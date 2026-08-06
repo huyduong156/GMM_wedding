@@ -340,6 +340,7 @@ model WeddingEvent {
   longitude      Decimal?             @db.Decimal(9, 6)
   sortOrder      Int                  @default(0)
   isPublic       Boolean              @default(true)
+  revision       Int                  @default(1)
   createdAt      DateTime             @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
   deletedAt      DateTime?            @db.Timestamptz(3)

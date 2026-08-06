@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ZodError, type ZodType } from 'zod'
+import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
 import { getServerEnv } from '@/platform/config/env'
@@ -29,7 +29,7 @@ export function assertSafeMutation(request: Request) {
   }
 }
 
-export async function parseJson<T>(request: Request, schema: ZodType<T>): Promise<T> {
+export async function parseJson<T>(request: Request, schema: ZodType<T, ZodTypeDef, unknown>): Promise<T> {
   let body: unknown
   try {
     body = await request.json()
@@ -59,7 +59,7 @@ export function optionsResponse() {
     headers: {
       'access-control-allow-origin': env.APP_ORIGIN,
       'access-control-allow-credentials': 'true',
-      'access-control-allow-methods': 'GET,POST,OPTIONS',
+      'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'access-control-allow-headers': 'content-type,x-csrf-protection,x-request-id',
       vary: 'Origin',
     },
