@@ -13,6 +13,7 @@ import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
 import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage'
 import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
 import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSettingsPage'
+import { ProfilePage } from '../pages/profile/ui/ProfilePage'
 import { GuestsPage } from '../pages/guests/ui/GuestsPage'
 import { GuestCategoriesPage } from '../pages/guest-categories/ui/GuestCategoriesPage'
 import { TemplatesPage } from '../pages/templates/ui/TemplatesPage'
@@ -50,6 +51,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.analytics]: <PlaceholderPage section="analytics" />,
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
+  [studioRoutes.profile]: <ProfilePage />,
 }
 
 const adminPageNames: Record<string, string> = {

@@ -178,8 +178,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Bell size={19} />
               <span />
             </button>
-            <button className="account-button" type="button" aria-label="Thông tin tài khoản">
-              <span className="user-avatar">LM</span>
+            <button className="account-button" type="button" aria-label="Chỉnh sửa thông tin tài khoản" onClick={() => navigate(studioRoutes.profile)}>
+              <span className="user-avatar">{auth?.user?.displayName?.trim().split(/\s+/).slice(-2).map((part) => part[0]).join('').toUpperCase().slice(0, 2) || 'TK'}</span>
               <span className="account-copy"><strong>{auth?.user?.displayName ?? 'Tài khoản'}</strong><small className={activeWedding.weddingDate ? '' : 'is-empty'}><CalendarCheck size={12} aria-hidden="true" />{weddingCountdownLabel}</small></span>
               <CaretDown size={14} />
             </button>

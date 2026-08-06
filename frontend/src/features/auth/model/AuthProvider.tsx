@@ -36,6 +36,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try { await authApi.logout() } finally { setUser(null); setAdminActor(null) }
   }, [])
-  const value = useMemo<AuthContextValue>(() => ({ user, adminActor, login, loginAdmin, checkUserSession, checkAdminSession, logout }), [adminActor, checkAdminSession, checkUserSession, login, loginAdmin, logout, user])
+  const updateProfile = useCallback(async (input: { displayName?: string | null; phone?: string | null; avatarUrl?: string | null; locale?: string; timezone?: string }) => {
+    const result = await authApi.updateProfile(input)
+    setUser(result.user)
+  }, [])
+  const value = useMemo<AuthContextValue>(() => ({ user, adminActor, login, loginAdmin, checkUserSession, checkAdminSession, logout, updateProfile }), [adminActor, checkAdminSession, checkUserSession, login, loginAdmin, logout, updateProfile, user])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

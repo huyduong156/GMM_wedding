@@ -9,6 +9,7 @@ export type AuthContextValue = {
   checkUserSession: () => Promise<boolean>
   checkAdminSession: () => Promise<boolean>
   logout: () => Promise<void>
+  updateProfile: (input: { displayName?: string | null; phone?: string | null; avatarUrl?: string | null; locale?: string; timezone?: string }) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
