@@ -72,13 +72,14 @@ describe('frontend authentication', () => {
     await waitFor(() => expect(window.location.pathname).toBe('/gmm_admin/login'))
   })
 
-  it('checks an owner session only once when auth state is populated', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ user }), { status: 200, headers: { 'content-type': 'application/json' } }))
+  it('checks the owner session once before loading the Wedding workspace', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => Promise.resolve(new Response(JSON.stringify(String(input).endsWith('/me') ? { user } : { items: [] }), { status: 200, headers: { 'content-type': 'application/json' } })))
     renderApp('/studio')
-    await screen.findByRole('heading', { name: /Chào buổi tối/ })
+    await screen.findByRole('heading', { name: 'Tạo đám cưới của bạn' })
     await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
     expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/me'), expect.anything())
+    expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/weddings'), expect.anything())
   })
 
   it('requests a password reset without revealing account existence', async () => {
