@@ -2,7 +2,7 @@
 
 Đây là entrypoint cho mọi công việc thuộc backend Next.js API. Tài liệu được tổ chức theo concern, không theo thứ tự số hoặc framework folder.
 
-> Trạng thái hiện tại: backend foundation đã được scaffold và kiểm chứng bằng Docker build/smoke test. Health/version, Prisma/OpenAPI baseline và test infrastructure đã có; auth, business module và migration nghiệp vụ chưa được triển khai.
+> Trạng thái hiện tại: backend foundation, auth, Wedding base và Guest core đã được scaffold/triển khai. Guest core gồm CRUD owner-scoped, category/group, invitation token lifecycle, personalized invitation slug và public RSVP/wish hai mode; import/export, rate limit/idempotency nâng cao và các publication API vẫn theo phase kế tiếp.
 
 ## Nguyên tắc kiến trúc đã xác định
 
@@ -10,6 +10,7 @@
 - Modular monolith stateless, deploy độc lập với frontend.
 - PostgreSQL là source of truth; Prisma 6 đã được chọn cho baseline và sẽ tiếp tục được kiểm chứng với schema/query/migration thật.
 - HTTP JSON API `/api`, OpenAPI 3.1, runtime validation tại boundary.
+- Local CORS dùng `APP_ORIGINS` dạng danh sách phân tách bằng dấu phẩy; mặc định cho phép frontend host `8080` và Vite dev host `5173`, trong khi mutation vẫn yêu cầu exact origin nằm trong allowlist.
 - Business rule và authorization ở application/domain, không nằm trong route hoặc ORM.
 - Immutable public snapshot cho wedding/recap; canonical draft không được public đọc trực tiếp.
 - Redis, BullMQ, read replica và service separation chỉ thêm khi metric/failure mode chứng minh nhu cầu.

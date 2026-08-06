@@ -22,11 +22,11 @@ Client
 ## Public invitation và RSVP
 
 ```text
-opaque invite token
-  -> hash token
-  -> lookup active invitation
+public mode (wedding slug + entered name) OR personalized mode (wedding slug + guest slug, or opaque invite token)
+  -> resolve published wedding / active invitation
+  -> hash token when token mode is used
   -> rate limit + abuse checks
-  -> minimal public invitation DTO
+  -> minimal public invitation DTO (never contact/note)
   -> RSVP validation
   -> idempotent upsert/append policy
   -> audit-safe event

@@ -558,6 +558,7 @@ model Invitation {
   weddingId    String           @db.Uuid
   guestId      String?          @db.Uuid
   label        String?          @db.VarChar(160)
+  publicSlug   String?          @db.VarChar(160)
   tokenHash    String           @unique @db.VarChar(255)
   status       InvitationStatus @default(ACTIVE)
   maxPartySize Int              @default(1)
@@ -573,6 +574,7 @@ model Invitation {
 
   @@index([weddingId, status])
   @@index([guestId])
+  @@unique([weddingId, publicSlug])
 }
 
 model RsvpResponse {

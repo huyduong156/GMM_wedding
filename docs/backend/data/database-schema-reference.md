@@ -117,7 +117,7 @@ Hồ sơ khách riêng tư. Trường: `id`, `weddingId`, `categoryId?`, `groupI
 
 ### `Invitation`
 
-Danh tính lời mời public. Trường: `id`, `weddingId`, `guestId?`, `label?`, `tokenHash` unique, `status`, `maxPartySize`, `expiresAt?`, `revokedAt?`, `lastViewedAt?`, timestamps. Token raw chỉ trả một lần khi tạo và không log.
+Danh tính lời mời public. Trường: `id`, `weddingId`, `guestId?`, `label?`, `publicSlug?`, `tokenHash` unique, `status`, `maxPartySize`, `expiresAt?`, `revokedAt?`, `lastViewedAt?`, timestamps. `publicSlug` ổn định trong wedding và unique theo `(weddingId, publicSlug)`, được sinh từ tên khách với hậu tố khi trùng; token raw chỉ trả một lần khi tạo và không log.
 
 ### `RsvpResponse`
 

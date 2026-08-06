@@ -14,6 +14,7 @@ const serverEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().max(65_535).default(3000),
   APP_ORIGIN: z.string().url(),
+  APP_ORIGINS: optionalNonEmpty,
   DATABASE_URL: z.string().min(1),
   AUTH_SECRET: z.string().min(32),
   AUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32),
