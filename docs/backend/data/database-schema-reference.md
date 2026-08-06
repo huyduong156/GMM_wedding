@@ -59,7 +59,7 @@ Quan hệ user–wedding và quyền. Trường: `id`, `weddingId`, `userId`, `r
 
 ### `WeddingEvent`
 
-Lễ/tiệc thuộc wedding. Trường: `id`, `weddingId`, `name`, `eventType`, `startsAt`, `endsAt?`, `timezone`, `venueName?`, `addressLine?`, `mapUrl?`, `latitude?`, `longitude?`, `sortOrder`, `isPublic`, timestamps và `deletedAt?`. `endsAt >= startsAt`; latitude/longitude nằm trong miền hợp lệ.
+Lễ/tiệc thuộc wedding. Trường: `id`, `weddingId`, `name`, `eventType`, `startsAt`, `endsAt?`, `timezone`, `venueName?`, `addressLine?`, `mapUrl?`, `latitude?`, `longitude?`, `sortOrder`, `isPublic`, `revision`, timestamps và `deletedAt?`. `endsAt >= startsAt`; latitude/longitude nằm trong miền hợp lệ. `revision` tăng trên update/delete để chống lost update.
 
 ### `WeddingContent`
 

@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
+import { randomUUID } from 'node:crypto'
 
 import type {
   CreateWeddingData, CreateWeddingEventData, DashboardActivityView, UpdateWeddingData,
@@ -13,7 +14,7 @@ const weddingSelect = {
 const eventSelect = {
   id: true, weddingId: true, name: true, eventType: true, startsAt: true, endsAt: true, timezone: true,
   venueName: true, addressLine: true, mapUrl: true, latitude: true, longitude: true, sortOrder: true,
-  isPublic: true, createdAt: true, updatedAt: true,
+  isPublic: true, revision: true, createdAt: true, updatedAt: true,
 } satisfies Prisma.WeddingEventSelect
 
 type WeddingRow = Prisma.WeddingGetPayload<{ select: typeof weddingSelect }>
@@ -92,17 +93,24 @@ export class PrismaWeddingRepository implements WeddingRepository {
   }
 
   async createEventOwned(userId: string, weddingId: string, data: CreateWeddingEventData): Promise<WeddingEventView | null> {
-    if (!await this.isOwned(userId, weddingId)) return null
-    const row = await this.prisma.weddingEvent.create({
-      data: {
-        weddingId, name: data.name, eventType: data.eventType, startsAt: data.startsAt, timezone: data.timezone,
-        sortOrder: data.sortOrder, isPublic: data.isPublic,
-        ...(data.endsAt ? { endsAt: data.endsAt } : {}), ...(data.venueName ? { venueName: data.venueName } : {}),
-        ...(data.addressLine ? { addressLine: data.addressLine } : {}), ...(data.mapUrl ? { mapUrl: data.mapUrl } : {}),
-        ...(data.latitude !== undefined ? { latitude: data.latitude } : {}), ...(data.longitude !== undefined ? { longitude: data.longitude } : {}),
-      }, select: eventSelect,
-    })
-    return eventView(row)
+    const eventId = randomUUID()
+    try {
+      const wedding = await this.prisma.wedding.update({
+        where: this.ownedWhere(userId, weddingId),
+        data: { events: { create: {
+          id: eventId, name: data.name, eventType: data.eventType, startsAt: data.startsAt, timezone: data.timezone,
+          sortOrder: data.sortOrder, isPublic: data.isPublic,
+          ...(data.endsAt ? { endsAt: data.endsAt } : {}), ...(data.venueName ? { venueName: data.venueName } : {}),
+          ...(data.addressLine ? { addressLine: data.addressLine } : {}), ...(data.mapUrl ? { mapUrl: data.mapUrl } : {}),
+          ...(data.latitude !== undefined ? { latitude: data.latitude } : {}), ...(data.longitude !== undefined ? { longitude: data.longitude } : {}),
+        } } },
+        select: { events: { where: { id: eventId }, take: 1, select: eventSelect } },
+      })
+      return wedding.events[0] ? eventView(wedding.events[0]) : null
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null
+      throw error
+    }
   }
 
   async findEventOwned(userId: string, weddingId: string, eventId: string): Promise<WeddingEventView | null> {
@@ -111,10 +119,9 @@ export class PrismaWeddingRepository implements WeddingRepository {
     return row ? eventView(row) : null
   }
 
-  async updateEventOwned(userId: string, weddingId: string, eventId: string, data: UpdateWeddingEventData): Promise<WeddingEventView | null> {
-    if (!await this.isOwned(userId, weddingId)) return null
+  async updateEventOwned(userId: string, weddingId: string, eventId: string, data: UpdateWeddingEventData): Promise<WeddingEventView | 'conflict' | null> {
     const result = await this.prisma.weddingEvent.updateMany({
-      where: { id: eventId, weddingId, deletedAt: null },
+      where: { id: eventId, weddingId, deletedAt: null, revision: data.revision, wedding: { createdById: userId, deletedAt: null } },
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}), ...(data.eventType !== undefined ? { eventType: data.eventType } : {}),
         ...(data.startsAt !== undefined ? { startsAt: data.startsAt } : {}), ...(data.endsAt !== undefined ? { endsAt: data.endsAt } : {}),
@@ -122,15 +129,22 @@ export class PrismaWeddingRepository implements WeddingRepository {
         ...(data.addressLine !== undefined ? { addressLine: data.addressLine } : {}), ...(data.mapUrl !== undefined ? { mapUrl: data.mapUrl } : {}),
         ...(data.latitude !== undefined ? { latitude: data.latitude } : {}), ...(data.longitude !== undefined ? { longitude: data.longitude } : {}),
         ...(data.sortOrder !== undefined ? { sortOrder: data.sortOrder } : {}), ...(data.isPublic !== undefined ? { isPublic: data.isPublic } : {}),
+        revision: { increment: 1 },
       },
     })
-    if (result.count === 0) return null
+    if (result.count === 0) {
+      const current = await this.findEventOwned(userId, weddingId, eventId)
+      return current ? 'conflict' : null
+    }
     return this.findEventOwned(userId, weddingId, eventId)
   }
 
   async deleteEventOwned(userId: string, weddingId: string, eventId: string): Promise<boolean | null> {
     if (!await this.isOwned(userId, weddingId)) return null
-    const result = await this.prisma.weddingEvent.updateMany({ where: { id: eventId, weddingId, deletedAt: null }, data: { deletedAt: new Date() } })
+    const result = await this.prisma.weddingEvent.updateMany({
+      where: { id: eventId, weddingId, deletedAt: null, wedding: { createdById: userId, deletedAt: null } },
+      data: { deletedAt: new Date(), revision: { increment: 1 } },
+    })
     return result.count === 1
   }
 
@@ -145,9 +159,9 @@ export class PrismaWeddingRepository implements WeddingRepository {
       this.prisma.invitation.count({ where: { weddingId } }),
       this.prisma.invitation.count({ where: { weddingId, status: 'ACTIVE' } }),
       this.prisma.rsvpResponse.count({ where: { weddingId, invitation: { status: 'ACTIVE' } } }),
-      this.prisma.rsvpResponse.groupBy({ by: ['attendance'], where: { weddingId }, _count: { _all: true } }),
-      this.prisma.rsvpResponse.aggregate({ where: { weddingId, attendance: 'ATTENDING' }, _sum: { partySize: true } }),
-      this.prisma.rsvpCompanion.count({ where: { rsvpResponse: { weddingId } } }),
+      this.prisma.rsvpResponse.groupBy({ by: ['attendance'], where: { weddingId, invitation: { status: 'ACTIVE' } }, _count: { _all: true } }),
+      this.prisma.rsvpResponse.aggregate({ where: { weddingId, attendance: 'ATTENDING', invitation: { status: 'ACTIVE' } }, _sum: { partySize: true } }),
+      this.prisma.rsvpCompanion.count({ where: { rsvpResponse: { weddingId, invitation: { status: 'ACTIVE' } } } }),
       this.prisma.wish.groupBy({ by: ['status'], where: { weddingId, deletedAt: null }, _count: { _all: true } }),
       this.prisma.weddingEvent.findFirst({ where: { weddingId, deletedAt: null, startsAt: { gte: now } }, select: eventSelect, orderBy: [{ startsAt: 'asc' }, { sortOrder: 'asc' }] }),
       this.prisma.invitationDesign.findUnique({ where: { weddingId }, include: { templateVersion: { include: { template: true } } } }),
@@ -155,9 +169,9 @@ export class PrismaWeddingRepository implements WeddingRepository {
       this.prisma.weddingRecap.findUnique({ where: { weddingId } }),
       this.prisma.publishedWeddingSnapshot.findFirst({ where: { weddingId, surface: 'ONLINE_INVITATION', unpublishedAt: null }, orderBy: { version: 'desc' } }),
       this.prisma.publishedWeddingSnapshot.findFirst({ where: { weddingId, surface: 'WEDDING_WEBSITE', unpublishedAt: null }, orderBy: { version: 'desc' } }),
-      this.prisma.rsvpResponse.findMany({ where: { weddingId }, take: 10, orderBy: { submittedAt: 'desc' }, include: { invitation: { include: { guest: true } } } }),
+      this.prisma.rsvpResponse.findMany({ where: { weddingId, invitation: { status: 'ACTIVE' } }, take: 10, orderBy: { submittedAt: 'desc' }, include: { invitation: { include: { guest: true } } } }),
       this.prisma.wish.findMany({ where: { weddingId, deletedAt: null }, take: 10, orderBy: { submittedAt: 'desc' } }),
-      this.prisma.rsvpResponse.findMany({ where: { weddingId, submittedAt: { gte: since } }, select: { submittedAt: true } }),
+      this.prisma.rsvpResponse.findMany({ where: { weddingId, submittedAt: { gte: since }, invitation: { status: 'ACTIVE' } }, select: { submittedAt: true } }),
     ])
     const responseCounts = Object.fromEntries(attendanceGroups.map((group) => [group.attendance, group._count._all]))
     const wishCounts = Object.fromEntries(wishGroups.map((group) => [group.status, group._count._all]))

@@ -32,4 +32,5 @@ export const updateWeddingEventSchema = z.object({
   addressLine: z.union([z.string().trim().min(1).max(500), z.null()]).optional(),
   mapUrl: z.union([z.string().url().max(2048), z.null()]).optional(), latitude: z.union([z.number().min(-90).max(90), z.null()]).optional(),
   longitude: z.union([z.number().min(-180).max(180), z.null()]).optional(), sortOrder: eventFields.sortOrder.optional(), isPublic: eventFields.isPublic.optional(),
-}).strict().refine((value) => Object.keys(value).length > 0, 'At least one field is required')
+  revision: z.number().int().positive(),
+}).strict().refine((value) => Object.keys(value).some((key) => key !== 'revision'), 'At least one editable field is required')

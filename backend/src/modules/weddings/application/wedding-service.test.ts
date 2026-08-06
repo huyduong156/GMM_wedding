@@ -1,13 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { AuthenticatedUserActor } from '@/platform/auth/actor-context'
-import type { WeddingRepository, WeddingView } from './ports'
+import type { WeddingEventView, WeddingRepository, WeddingView } from './ports'
 import { WeddingService } from './wedding-service'
 
 const actor: AuthenticatedUserActor = { kind: 'user', userId: 'user-1', sessionId: 'session-1' }
 const wedding: WeddingView = {
   id: 'wedding-1', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN',
   primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: new Date('2026-08-01T00:00:00Z'), updatedAt: new Date('2026-08-01T00:00:00Z'),
+}
+const event: WeddingEventView = {
+  id: 'event-1', weddingId: wedding.id, name: 'Lễ thành hôn', eventType: 'CEREMONY', startsAt: new Date('2026-12-12T10:00:00Z'),
+  endsAt: null, timezone: 'Asia/Ho_Chi_Minh', venueName: null, addressLine: null, mapUrl: null, latitude: null, longitude: null,
+  sortOrder: 0, isPublic: true, revision: 1, createdAt: new Date('2026-08-01T00:00:00Z'), updatedAt: new Date('2026-08-01T00:00:00Z'),
 }
 
 function repository(): WeddingRepository {
@@ -45,5 +50,13 @@ describe('WeddingService', () => {
     const repo = repository()
     vi.mocked(repo.findOwned).mockResolvedValue(null)
     await expect(new WeddingService(repo).get(actor, wedding.id)).rejects.toMatchObject({ code: 'WEDDING_NOT_FOUND', status: 404 })
+  })
+
+  it('maps stale event updates to a stable conflict', async () => {
+    const repo = repository()
+    vi.mocked(repo.findEventOwned).mockResolvedValue(event)
+    vi.mocked(repo.updateEventOwned).mockResolvedValue('conflict')
+    await expect(new WeddingService(repo).updateEvent(actor, wedding.id, event.id, { revision: 1, name: 'Tiệc cưới' }))
+      .rejects.toMatchObject({ code: 'WEDDING_EVENT_REVISION_CONFLICT', status: 409 })
   })
 })

@@ -18,9 +18,11 @@ DTO hiện có `name`, `primaryDate?`, `timezone`, `locale`, `visibility`, lifec
 
 Update gửi `revision` hiện hành. Repository update có compare-and-swap và tăng revision; mismatch trả `409 WEDDING_REVISION_CONFLICT`. Delete là soft delete, đặt archived và thu hồi `Wedding.slug`; publication snapshot cleanup/unpublish đầy đủ thuộc publication slice.
 
+`ARCHIVED` là trạng thái nghiệp vụ có thể mở lại về `DRAFT`. Soft delete là terminal trong MVP: resource bị ẩn khỏi mọi owner query và chưa có restore API.
+
 ## Wedding event
 
-Event là dữ liệu dùng lại bởi thiệp online, website cưới, countdown/map và RSVP, không phải planning workspace riêng. Dữ liệu gồm tên/loại, thời gian, timezone, địa điểm/map/toạ độ, thứ tự và `isPublic`. `endsAt` không được trước `startsAt`; latitude/longitude phải đúng miền. Delete là soft delete.
+Event là dữ liệu dùng lại bởi thiệp online, website cưới, countdown/map và RSVP, không phải planning workspace riêng. Dữ liệu gồm tên/loại, thời gian, timezone, địa điểm/map/toạ độ, thứ tự, `isPublic` và `revision`. `endsAt` không được trước `startsAt`; latitude/longitude phải đúng miền. Update dùng compare-and-swap theo `revision`; delete là soft delete.
 
 ## Dashboard read model
 
@@ -47,4 +49,5 @@ Dashboard là private `no-store` read model. Nó không trả contact/note của
 | `WEDDING_NOT_FOUND` | 404 | Wedding thiếu, đã xóa hoặc không thuộc actor |
 | `WEDDING_EVENT_NOT_FOUND` | 404 | Event thiếu/đã xóa/không thuộc wedding đã authorize |
 | `WEDDING_EVENT_TIME_INVALID` | 400 | Thời gian kết thúc trước bắt đầu |
+| `WEDDING_EVENT_REVISION_CONFLICT` | 409 | Client update event từ revision cũ |
 | `WEDDING_REVISION_CONFLICT` | 409 | Client update từ revision cũ |

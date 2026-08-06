@@ -25,6 +25,7 @@ export class WeddingService {
     if (!current) throw new WeddingError('WEDDING_EVENT_NOT_FOUND', 404, 'Wedding event not found')
     this.assertEventTime(data.startsAt ?? current.startsAt, data.endsAt === undefined ? current.endsAt : data.endsAt)
     const event = await this.repository.updateEventOwned(actor.userId, weddingId, eventId, data)
+    if (event === 'conflict') throw new WeddingError('WEDDING_EVENT_REVISION_CONFLICT', 409, 'Wedding event was changed by another request')
     if (!event) throw new WeddingError('WEDDING_EVENT_NOT_FOUND', 404, 'Wedding event not found')
     return event
   }

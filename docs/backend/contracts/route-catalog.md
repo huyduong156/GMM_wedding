@@ -85,7 +85,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | PATCH | `/weddings/{weddingId}` | Owner | Implemented | Cập nhật metadata theo `revision`; conflict trả 409 |
 | DELETE | `/weddings/{weddingId}` | Owner | Implemented | Soft delete, archive và thu hồi wedding slug |
 | GET/POST | `/weddings/{weddingId}/events` | Owner | Implemented | List/tạo lễ hoặc tiệc dùng cho publication/RSVP |
-| PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa/xóa mềm lễ hoặc tiệc cùng wedding |
+| PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
 | GET | `/weddings/{weddingId}/dashboard` | Owner | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
 | GET | `/weddings/{weddingId}/content` | Member | Planned | Lấy canonical content/theme |
 | PUT | `/weddings/{weddingId}/content` | Owner/editor | Planned | Lưu content theo revision |

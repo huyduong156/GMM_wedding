@@ -11,6 +11,7 @@ export interface WeddingEventView {
   id: string; weddingId: string; name: string; eventType: string; startsAt: Date; endsAt: Date | null
   timezone: string; venueName: string | null; addressLine: string | null; mapUrl: string | null
   latitude: string | null; longitude: string | null; sortOrder: number; isPublic: boolean
+  revision: number
   createdAt: Date; updatedAt: Date
 }
 
@@ -28,6 +29,7 @@ export interface UpdateWeddingEventData {
   name?: string | undefined; eventType?: string | undefined; startsAt?: Date | undefined; endsAt?: Date | null | undefined; timezone?: string | undefined
   venueName?: string | null | undefined; addressLine?: string | null | undefined; mapUrl?: string | null | undefined
   latitude?: number | null | undefined; longitude?: number | null | undefined; sortOrder?: number | undefined; isPublic?: boolean | undefined
+  revision: number
 }
 
 export interface DashboardActivityView {
@@ -61,7 +63,7 @@ export interface WeddingRepository {
   listEventsOwned(userId: string, weddingId: string): Promise<WeddingEventView[] | null>
   createEventOwned(userId: string, weddingId: string, data: CreateWeddingEventData): Promise<WeddingEventView | null>
   findEventOwned(userId: string, weddingId: string, eventId: string): Promise<WeddingEventView | null>
-  updateEventOwned(userId: string, weddingId: string, eventId: string, data: UpdateWeddingEventData): Promise<WeddingEventView | null>
+  updateEventOwned(userId: string, weddingId: string, eventId: string, data: UpdateWeddingEventData): Promise<WeddingEventView | 'conflict' | null>
   deleteEventOwned(userId: string, weddingId: string, eventId: string): Promise<boolean | null>
   dashboardOwned(userId: string, weddingId: string, now: Date): Promise<WeddingDashboardView | null>
 }
