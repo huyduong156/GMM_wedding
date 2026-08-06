@@ -23,6 +23,17 @@
   --danger: #c73b45;
   --focus: #b76016;
 }
+.profile-layout { display: grid; gap: 14px; max-width: 920px; }
+.profile-identity-content { display: grid; grid-template-columns: 132px 1fr; gap: 22px; padding: 20px; }
+.profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.profile-avatar { width: 96px; height: 96px; display: grid; place-items: center; border-radius: 24px; object-fit: cover; color: #854716; background: linear-gradient(145deg, #fff0e2, #efd2b2); font-size: 25px; font-weight: 750; }
+.profile-avatar-note, .field-readonly-note, .profile-help { color: var(--fg-muted); font-size: 10px; font-weight: 400; }
+.profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-content: start; }
+.profile-fields label:first-child, .profile-help { grid-column: 1 / -1; }
+.profile-fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.profile-feedback { display: flex; align-items: center; gap: 7px; }
+.profile-feedback.error { border-color: #e7c8c3; color: #9e382f; background: #fff8f7; }
+@media (max-width: 800px) { .profile-identity-content, .profile-fields, .profile-fields-grid { grid-template-columns: 1fr; }.profile-fields label:first-child, .profile-help { grid-column: auto; }.profile-avatar-wrap { align-items: flex-start; } }
 
 /* Wedding domain workspace */
 .workspace-boot { min-height: 100dvh; display: grid; place-items: center; align-content: center; gap: 12px; padding: 24px; text-align: center; background: var(--canvas); }.workspace-boot > span { width: 42px; height: 42px; border: 3px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: workspace-spin .8s linear infinite; }.workspace-boot h1 { margin: 0; font-size: 24px; }.workspace-boot p { margin: 0; color: var(--fg-muted); font-size: 13px; }@keyframes workspace-spin { to { transform: rotate(360deg); } }

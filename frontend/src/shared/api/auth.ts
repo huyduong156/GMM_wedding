@@ -4,6 +4,8 @@ export type AuthUser = {
   id: string
   email: string
   displayName: string | null
+  phone: string | null
+  avatarUrl: string | null
   emailVerifiedAt: string | null
   locale: string
   timezone: string
@@ -94,6 +96,9 @@ export const authApi = {
     })
   },
   me() { return request<{ user: AuthUser }>('/me') },
+  updateProfile(input: { displayName?: string | null; phone?: string | null; avatarUrl?: string | null; locale?: string; timezone?: string }) {
+    return request<{ user: AuthUser }>('/me', { method: 'PATCH', body: JSON.stringify(input) })
+  },
   adminMe() { return request<{ user: AuthUser; actor: PlatformAdminActor }>('/admin/me') },
   logout() { return request<void>('/auth/logout', { method: 'POST', body: '{}' }) },
 }
