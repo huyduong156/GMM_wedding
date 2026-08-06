@@ -70,7 +70,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | POST | `/auth/reset-password` | Reset token | Implemented | Đặt mật khẩu mới, revoke toàn bộ session |
 | GET | `/me` | Session | Implemented | Lấy profile/actor hiện tại |
 | GET | `/admin/me` | Platform admin session | Implemented | Xác nhận actor và assurance cho admin shell |
-| PATCH | `/me` | Session | Planned | Cập nhật profile |
+| PATCH | `/me` | Session | Implemented | Cập nhật displayName, phone, avatarUrl, locale, timezone; cho phép xoá giá trị nullable |
 | GET | `/me/sessions` | Session | Planned | Liệt kê session của tài khoản |
 | DELETE | `/me/sessions/{sessionId}` | Session | Planned | Thu hồi một session |
 | POST | `/me/sessions/revoke-all` | Session | Planned | Thu hồi mọi session, trừ/bao gồm hiện tại theo request |
