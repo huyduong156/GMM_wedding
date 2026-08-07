@@ -304,6 +304,7 @@ model Wedding {
 
   @@index([createdById, status])
   @@index([status, primaryDate])
+  @@unique([slug])
 }
 
 model WeddingMember {
