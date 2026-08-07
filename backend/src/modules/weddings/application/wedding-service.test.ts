@@ -20,6 +20,7 @@ function repository(): WeddingRepository {
     create: vi.fn().mockResolvedValue(wedding), listOwned: vi.fn().mockResolvedValue([wedding]), findOwned: vi.fn().mockResolvedValue(wedding),
     updateOwned: vi.fn().mockResolvedValue(wedding), softDeleteOwned: vi.fn().mockResolvedValue(true), listEventsOwned: vi.fn().mockResolvedValue([]),
     createEventOwned: vi.fn(), findEventOwned: vi.fn(), updateEventOwned: vi.fn(), deleteEventOwned: vi.fn(), dashboardOwned: vi.fn(),
+    listTemplates: vi.fn().mockResolvedValue([]), getTemplateVersion: vi.fn().mockResolvedValue(null), getContentOwned: vi.fn(), saveContentOwned: vi.fn(), publishOwned: vi.fn(), unpublishOwned: vi.fn(), slugAvailable: vi.fn(), getPublicSnapshot: vi.fn(), listWishesOwned: vi.fn(), moderateWishOwned: vi.fn(),
   }
 }
 
@@ -58,5 +59,17 @@ describe('WeddingService', () => {
     vi.mocked(repo.updateEventOwned).mockResolvedValue('conflict')
     await expect(new WeddingService(repo).updateEvent(actor, wedding.id, event.id, { revision: 1, name: 'Tiệc cưới' }))
       .rejects.toMatchObject({ code: 'WEDDING_EVENT_REVISION_CONFLICT', status: 409 })
+  })
+
+  it('maps content revision conflicts and template validation errors', async () => {
+    const repo = repository()
+    vi.mocked(repo.saveContentOwned).mockResolvedValue('conflict')
+    await expect(new WeddingService(repo).saveContent(actor, wedding.id, {
+      surface: 'ONLINE_INVITATION', templateVersionId: 'template-version', content: {}, themeConfig: {}, sectionConfig: { enabled: ['cover'], order: ['cover'] }, revision: 1,
+    })).rejects.toMatchObject({ code: 'WEDDING_CONTENT_REVISION_CONFLICT', status: 409 })
+    vi.mocked(repo.saveContentOwned).mockResolvedValue('section-invalid')
+    await expect(new WeddingService(repo).saveContent(actor, wedding.id, {
+      surface: 'ONLINE_INVITATION', templateVersionId: 'template-version', content: {}, themeConfig: {}, sectionConfig: { enabled: ['qr'], order: ['qr'] }, revision: 1,
+    })).rejects.toMatchObject({ code: 'WEDDING_SECTION_INVALID', status: 400 })
   })
 })

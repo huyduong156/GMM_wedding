@@ -5,6 +5,8 @@ coverage/
 test-results/
 *.tsbuildinfo
 *.log
+s3_upload_fake/*
+!s3_upload_fake/.gitkeep
 .env
 .env.*
 !.env.example

@@ -1,0 +1,12 @@
+import type { NextRequest } from 'next/server'
+import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
+import { getMediaManager } from '@/modules/media'
+import { mediaErrorResponse } from '@/modules/media/interface/media-http'
+import { mediaIntentSchema, weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
+import { getRequestId, jsonResponse } from '@/shared/http/api-response'
+export const dynamic = 'force-dynamic'
+export const OPTIONS = optionsResponse
+type Context = { params: Promise<{ weddingId: string }> }
+export async function GET(request: NextRequest, context: Context) { const requestId = getRequestId(request); try { const { actor } = await requireAuthenticatedUser(request); return withAuthHeaders(jsonResponse({ items: await getMediaManager().list(actor.userId, weddingIdSchema.parse((await context.params).weddingId)) }), requestId) } catch (error) { return mediaErrorResponse(error, requestId) } }
+export async function POST(request: NextRequest, context: Context) { const requestId = getRequestId(request); try { assertSafeMutation(request); const { actor } = await requireAuthenticatedUser(request); const input = await parseJson(request, mediaIntentSchema); return withAuthHeaders(jsonResponse(await getMediaManager().createIntent(actor.userId, weddingIdSchema.parse((await context.params).weddingId), input), { status: 201 }), requestId) } catch (error) { return mediaErrorResponse(error, requestId) } }

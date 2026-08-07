@@ -87,12 +87,12 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | GET/POST | `/weddings/{weddingId}/events` | Owner | Implemented | List/tạo lễ hoặc tiệc dùng cho publication/RSVP |
 | PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
 | GET | `/weddings/{weddingId}/dashboard` | Owner | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
-| GET | `/weddings/{weddingId}/content` | Member | Planned | Lấy canonical content/theme |
-| PUT | `/weddings/{weddingId}/content` | Owner/editor | Planned | Lưu content theo revision |
-| POST | `/weddings/{weddingId}/publish` | Publish policy | Planned | Tạo immutable snapshot |
-| POST | `/weddings/{weddingId}/unpublish` | Publish policy | Planned | Thu hồi public pointer |
+| GET | `/weddings/{weddingId}/content` | Member | Planned | Lấy canonical content/theme theo surface; handler đã scaffold, chờ integration/OpenAPI test |
+| PUT | `/weddings/{weddingId}/content` | Owner/editor | Planned | Lưu content, template selection và section/theme config theo revision; handler đã scaffold, chờ integration/OpenAPI test |
+| POST | `/weddings/{weddingId}/publish` | Publish policy | Planned | Tạo immutable snapshot; handler đã scaffold, chờ integration/OpenAPI test |
+| POST | `/weddings/{weddingId}/unpublish` | Publish policy | Planned | Thu hồi public pointer; handler đã scaffold, chờ integration/OpenAPI test |
 | POST | `/weddings/{weddingId}/preview-token` | Owner/editor | Planned | Tạo draft preview token |
-| GET | `/slugs/weddings/{slug}/availability` | Session | Planned | Kiểm tra slug |
+| GET | `/slugs/weddings/{slug}/availability` | Session | Planned | Kiểm tra slug; handler đã scaffold, chờ integration/OpenAPI test |
 
 Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được tạo để giữ invariant dữ liệu nhưng chưa có API quản trị thành viên. Dashboard trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai; không dùng số giả.
 
@@ -100,12 +100,12 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/templates` | Session/public catalog policy | Planned | Danh sách template/version khả dụng |
-| GET | `/templates/{templateKey}/versions/{version}` | Session | Planned | Metadata/config version |
-| POST | `/weddings/{weddingId}/media/upload-intents` | Member policy | Planned | Presigned upload intent |
-| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Member policy | Planned | Xác nhận upload và enqueue verify |
-| GET | `/weddings/{weddingId}/media` | Member | Planned | Danh sách media |
-| DELETE | `/weddings/{weddingId}/media/{mediaId}` | Member policy | Planned | Xóa/retire media |
+| GET | `/templates` | Session/public catalog policy | Planned | Danh sách template/version khả dụng; handler đã scaffold, chờ integration/OpenAPI test |
+| GET | `/templates/{templateKey}/versions/{version}` | Session | Planned | Metadata/config version; handler đã scaffold, chờ integration/OpenAPI test |
+| POST | `/weddings/{weddingId}/media/upload-intents` | Member policy | Planned | Presigned/fake upload intent; handler đã scaffold, chờ integration/OpenAPI test |
+| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Member policy | Planned | Xác nhận upload và chuyển asset READY; handler đã scaffold, chờ integration/OpenAPI test |
+| GET | `/weddings/{weddingId}/media` | Member | Planned | Danh sách media; handler đã scaffold, chờ integration/OpenAPI test |
+| DELETE | `/weddings/{weddingId}/media/{mediaId}` | Member policy | Planned | Xóa/retire media; handler đã scaffold, chờ integration/OpenAPI test |
 
 ## Guests và invitations
 
@@ -134,8 +134,8 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 |---|---|---|---|---|
 | GET | `/weddings/{weddingId}/rsvps` | RSVP access policy | Planned | Owner list/filter RSVP |
 | PATCH | `/weddings/{weddingId}/rsvps/{rsvpId}` | RSVP write policy | Planned | Owner correction |
-| GET | `/weddings/{weddingId}/wishes` | Wish moderation policy | Planned | List moderation |
-| PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Wish moderation policy | Planned | Approve/reject/pin/hide |
+| GET | `/weddings/{weddingId}/wishes` | Wish moderation policy | Planned | List moderation; handler đã scaffold, chờ integration/OpenAPI test |
+| PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Wish moderation policy | Planned | Approve/reject/pin/hide; handler đã scaffold, chờ integration/OpenAPI test |
 
 ## Planning, gift ledger và recap
 
@@ -154,10 +154,10 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/public/weddings/{slug}` | Public policy | Planned | Published wedding snapshot |
-| GET | `/public/invitations/{invitationToken}` | Invite token | Planned | Minimal personalized invitation |
+| GET | `/public/weddings/{slug}` | Public policy | Planned | Published wedding snapshot; handler đã scaffold, chờ integration/OpenAPI test |
+| GET | `/public/invitations/{invitationToken}` | Invite token | Planned | Minimal personalized invitation; handler đã scaffold, chờ integration/OpenAPI test |
 | GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public invitation slug | Implemented | Resolve personalized invitation without entering name |
-| PUT | `/public/invitations/{invitationToken}/rsvp` | Invite token | Planned | Submit/update RSVP |
+| PUT | `/public/invitations/{invitationToken}/rsvp` | Invite token | Planned | Submit/update RSVP; handler đã scaffold, chờ integration/OpenAPI test |
 | POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | Common URL RSVP, bắt buộc guestName |
 | POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Common URL wish, bắt buộc guestName |
 | PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public invitation slug | Implemented | Personalized RSVP, tự lấy tên/guestId |

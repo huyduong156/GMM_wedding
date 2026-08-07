@@ -30,6 +30,14 @@ const serverEnvSchema = z.object({
   TRUST_PROXY: booleanEnv.default(false),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   API_DOCS_ENABLED: booleanEnv.default(false),
+  MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3']).default('fake'),
+  MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
+  MEDIA_PUBLIC_BASE_URL: z.string().url().optional(),
+  S3_ENDPOINT: z.string().url().optional(),
+  S3_BUCKET: optionalNonEmpty,
+  S3_REGION: z.string().min(1).default('auto'),
+  S3_ACCESS_KEY_ID: optionalNonEmpty,
+  S3_SECRET_ACCESS_KEY: optionalNonEmpty,
 }).superRefine((env, context) => {
   if (env.AUTH_RATE_LIMIT_DRIVER === 'redis' && !env.REDIS_URL) {
     context.addIssue({

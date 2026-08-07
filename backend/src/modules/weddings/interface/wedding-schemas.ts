@@ -6,6 +6,18 @@ const timezone = z.string().trim().min(1).max(64).refine((value) => {
 }, 'Timezone must be a valid IANA timezone')
 const locale = z.string().trim().min(2).max(16)
 export const weddingIdSchema = z.string().uuid()
+export const weddingSurfaceSchema = z.enum(['ONLINE_INVITATION', 'WEDDING_WEBSITE'])
+const jsonValue = z.record(z.unknown())
+export const contentQuerySchema = z.object({ surface: weddingSurfaceSchema.default('ONLINE_INVITATION') })
+export const saveWeddingContentSchema = z.object({
+  surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), templateVersionId: z.string().uuid(), content: jsonValue,
+  themeConfig: z.record(jsonValue).default({}),
+  sectionConfig: z.object({ enabled: z.array(z.string().min(1)).min(1), order: z.array(z.string().min(1)).min(1) }).strict(),
+  revision: z.number().int().positive(),
+}).strict()
+export const publishWeddingSchema = z.object({ surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), slug: z.string().trim().min(3).max(64), revision: z.number().int().positive() }).strict()
+export const wishModerationSchema = z.object({ status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'SPAM', 'HIDDEN']).optional(), isPinned: z.boolean().optional() }).strict().refine((value) => value.status !== undefined || value.isPinned !== undefined, 'At least one moderation field is required')
+export const mediaIntentSchema = z.object({ mimeType: z.string().trim().min(1).max(128), sizeBytes: z.number().int().positive().max(10 * 1024 * 1024), originalName: z.string().trim().max(255).optional(), altText: z.string().trim().max(500).optional() }).strict()
 export const createWeddingSchema = z.object({
   name: z.string().trim().min(1).max(160), primaryDate: dateTime.optional(),
   timezone: timezone.default('Asia/Ho_Chi_Minh'), locale: locale.default('vi-VN'),
