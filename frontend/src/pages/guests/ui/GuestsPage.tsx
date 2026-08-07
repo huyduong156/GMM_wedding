@@ -17,6 +17,7 @@ import {
 } from '@phosphor-icons/react'
 import type { Guest, RsvpStatus } from '../../../entities/guest/model/guest'
 import { guestTags, guests, rsvpLabels } from '../model/guest-data'
+export { GuestsPageLive as GuestsPage } from './GuestsPageLive'
 
 type Filter = 'all' | RsvpStatus
 
@@ -42,7 +43,7 @@ function GuestCheckbox({ guest, selected, onChange }: { guest: Guest; selected: 
   return <input className="guest-checkbox" type="checkbox" checked={selected} onChange={onChange} aria-label={`Chọn ${guest.name}`} />
 }
 
-export function GuestsPage() {
+export function GuestsPageMock() {
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query)
   const [filter, setFilter] = useState<Filter>('all')

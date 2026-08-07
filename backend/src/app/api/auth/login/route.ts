@@ -6,7 +6,9 @@ import { getServerEnv } from '@/platform/config/env'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
-export const OPTIONS = optionsResponse
+export function OPTIONS(request: Request) {
+  return optionsResponse(request)
+}
 
 export async function POST(request: Request) {
   const requestId = getRequestId(request)
