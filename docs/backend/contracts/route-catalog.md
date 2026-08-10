@@ -16,7 +16,7 @@ OpenAPI 3.1 tại `backend/openapi/openapi.yaml` là **machine-readable source o
 | Environment | Base URL đề xuất |
 |---|---|
 | Local | `http://localhost:3000/api` |
-| Docker local | `http://localhost:${BACKEND_PORT:-3000}/api` |
+| Docker local | `http://localhost:3000/api` |
 | Staging | Cấu hình trong Postman environment, không hard-code vào collection |
 | Production | Chỉ dùng environment được phê duyệt; không chạy destructive collection tùy tiện |
 
