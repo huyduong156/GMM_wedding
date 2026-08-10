@@ -23,4 +23,4 @@ Preview trong card là hình mô phỏng nhẹ, không tải iframe/template run
 
 ## Trạng thái triển khai
 
-Search/filter dùng mock data phía client. Create flow, config validation, sync/publish, version detail, usage metrics và preview sandbox chưa kết nối API.
+Catalog, search/filter, đồng bộ gói phát hành thiệp, phát hành và ngừng phân phối đã nối API admin thật. Mỗi card đại diện một immutable template version; trạng thái gồm chờ duyệt, đã xuất bản và ngừng phân phối. Usage metrics và preview sandbox tổng quát chưa có contract nên chưa hiển thị dữ liệu giả.

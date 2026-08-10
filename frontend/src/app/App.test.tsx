@@ -128,12 +128,15 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('button', { name: 'Hiện tổng tiền mừng' })).toBeInTheDocument()
   })
 
-  it('renders the separate admin invitation library', () => {
+  it('renders the separate admin invitation library from the API', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ pendingReviewCount: 1, items: [{ key: 'modern-luxe', name: 'Élan d’Amour', productType: 'ONLINE_INVITATION', status: 'DRAFT', description: null, versions: [{ id: 'version-1', version: '2.3.0', configHash: 'hash', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, codeRevision: 'test', config: {}, releasedAt: null, deprecatedAt: null, createdAt: '2026-08-10T00:00:00.000Z', reviewStatus: 'PENDING_REVIEW' }] }] }), { status: 200, headers: { 'content-type': 'application/json' } }))
     window.history.replaceState(null, '', '/gmm_admin/library/invites')
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Kho thiệp online' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Thêm template/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Xem trước Élan d’Amour' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
+    expect(screen.getByRole('button', { name: /Đồng bộ template/i })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Xem trước Élan d’Amour' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
+    expect(screen.getByRole('button', { name: 'Phát hành' })).toBeInTheDocument()
+    fetchSpy.mockRestore()
   })
 
   it('renders the public modern luxe invitation with default content', () => {
