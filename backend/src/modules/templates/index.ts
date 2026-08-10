@@ -1,0 +1,1 @@
+export { getTemplateAdminService } from './composition'
