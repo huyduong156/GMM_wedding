@@ -85,6 +85,7 @@ Mọi motion phải dùng transform/opacity khi có thể và có `prefers-reduc
 | Lịch trình | Bật | Có khả năng hiển thị | Có | Các mốc đón khách, nghi lễ, khai tiệc và hoạt động tùy chỉnh |
 | Địa điểm và Google Maps | Bật | Có khả năng hiển thị | Có | Địa chỉ dạng text, embed map, nút mở Google Maps và fallback khi iframe lỗi |
 | Thêm vào lịch | Bật | Có khả năng hiển thị | Đi cùng ngày giờ | Google Calendar và file ICS ở giai đoạn backend |
+| Hoạt động trong tiệc | Tắt | Có khả năng hiển thị | Có | Section optional độc lập với timeline; mỗi hoạt động gồm tiêu đề và ảnh, ví dụ photobooth, góc bong bóng, chú hề hoặc chụp hình cùng cô dâu chú rể |
 | Album/slideshow | Bật | Có khả năng hiển thị | Có | 3-12 ảnh; layout có thể là coverflow, film strip, fade, stack hoặc Ken Burns theo concept |
 | RSVP | Bật | Có khả năng hiển thị | Có | Tên khách, tham dự/không tham dự, số người, sự kiện, ghi chú, hạn phản hồi và trạng thái gửi |
 | Sổ lưu bút | Bật | Có khả năng hiển thị | Có | Một số lời chúc đã duyệt, form hoặc CTA gửi lời chúc bên dưới; moderation/rate limit ở backend |
@@ -102,6 +103,8 @@ Mọi motion phải dùng transform/opacity khi có thể và có `prefers-reduc
 - Sự kiện: loại sự kiện, ngày, múi giờ, giờ bắt đầu/kết thúc, địa điểm và lịch trình. Một thiệp có thể có lễ gia tiên, lễ thành hôn và tiệc ở các thời điểm/địa điểm khác nhau.
 - Người nhận: tên hiển thị/nhóm khách chỉ lấy qua invite token; không đưa PII vào published snapshot.
 - Media: ảnh có alt text, focal point, kích thước dự kiến và attribution/license nội bộ. Mỗi template định nghĩa kiểu slideshow riêng nhưng nhận cùng một danh sách media.
+- Hoạt động trong tiệc: danh sách optional `title + image`, không có thời gian và không dùng chung model với timeline. Template config khai báo các kiểu hiển thị được thiết kế sẵn; editor chỉ cho user chọn trong tập đó.
+- Kiểu hiển thị album/hoạt động là presentation config của từng template, không phải danh sách hiệu ứng toàn hệ thống. Mỗi option phải có renderer thật, mobile fallback và reduced-motion fallback; không hiển thị option chỉ có tên nhưng chưa được theme triển khai.
 - RSVP/lời chúc: gửi qua API public có token, validation, rate limit, moderation và trạng thái phản hồi rõ ràng.
 - Quà mừng: section opt-in; QR là media riêng cho từng bên hoặc từng tài khoản, có alt text, nhãn người nhận và trạng thái ẩn/hiện. Không đưa dữ liệu ngân hàng vào fixture hoặc log.
 
@@ -156,7 +159,7 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 - Cover mở được bằng click, Enter và Space; không double-open.
 - Popup và banner có art direction/motion riêng, banner hiện đúng tên cô dâu chú rể sau khi mở.
 - Nội dung đọc theo cấu trúc thiệp giấy: người báo tin, hai gia đình, vai vế, cặp đôi, nghi lễ, tiệc, ngày giờ và địa điểm.
-- Template triển khai đủ album, calendar, RSVP, map, lịch trình, lời chúc, quà mừng và cảm ơn; kiểm thử trạng thái bật/tắt độc lập.
+- Template triển khai đủ album, calendar, RSVP, map, lịch trình, hoạt động trong tiệc, lời chúc, quà mừng và cảm ơn; kiểm thử trạng thái bật/tắt độc lập.
 - Mobile 375px, tablet 768px và desktop không có horizontal overflow.
 - Tên dài, thiếu tên phụ huynh, nhiều sự kiện và địa chỉ dài không phá layout.
 - Palette đạt tương phản đọc được; focus visible và touch target đạt 44px.
@@ -169,7 +172,7 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 
 ### Family focal và thời gian thực
 
-`families` là section bắt buộc, không được tắt ở mọi thiệp online. Đây là khối thông tin trọng yếu theo tập quán thiệp cưới Việt Nam nên phải có hierarchy rõ hơn section nội dung thường: phân biệt nhà gái/nhà trai, đại diện cha mẹ, vai vế và họ tên cô dâu/chú rể, tư gia/địa chỉ và lời kính mời. Danh xưng như `Ông`, `Bà`, `Trưởng nam`, `Trưởng nữ` phải nằm trên dòng nhãn riêng, không ghép cùng dòng họ tên. Trên mobile, hai gia đình xếp dọc, dấu kết duyên nằm giữa nhưng không che chữ; typography ưu tiên khả năng đọc thay vì phóng đại trang trí. Dấu kết duyên có thể dùng ripple chậm, giới hạn hai vòng lan và phản hồi hover/tap; reduced motion phải giữ dấu ở trạng thái tĩnh.
+`families` là section bắt buộc, không được tắt ở mọi thiệp online. Đây là khối thông tin trọng yếu theo tập quán thiệp cưới Việt Nam nên phải có hierarchy rõ hơn section nội dung thường: phân biệt nhà gái/nhà trai, đại diện cha mẹ, vai vế và họ tên cô dâu/chú rể, tư gia/địa chỉ và lời kính mời. Danh xưng như `Ông`, `Bà`, `Trưởng nam`, `Trưởng nữ` phải nằm trên dòng nhãn riêng, không ghép cùng dòng họ tên. Danh xưng và họ tên cũng phải là các field content riêng; renderer không suy luận danh xưng bằng cách parse chuỗi họ tên, ngoại trừ fallback tạm thời cho dữ liệu legacy. Trên mobile, hai gia đình xếp dọc, dấu kết duyên nằm giữa nhưng không che chữ; typography ưu tiên khả năng đọc thay vì phóng đại trang trí. Dấu kết duyên có thể dùng ripple chậm, giới hạn hai vòng lan và phản hồi hover/tap; reduced motion phải giữ dấu ở trạng thái tĩnh.
 
 Theme có countdown phải tính lại từ timestamp sự kiện mỗi giây và hiển thị đủ ngày, giờ, phút, giây bằng tabular numerals. Calendar theo đúng art direction nên được giữ hoặc bổ sung cạnh countdown; timer dùng `aria-live="off"` để tránh screen reader đọc lại mỗi giây, tự dừng ở 0 và không phụ thuộc animation nên vẫn chính xác dưới reduced motion.
 

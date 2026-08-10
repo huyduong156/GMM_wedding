@@ -2,6 +2,46 @@ const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 
 
 export type WeddingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibility = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
+export type WeddingSurface = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'
+
+export type TemplateSectionConfig = string | {
+  sectionKey: string
+  label?: string
+  required?: boolean
+  canToggle?: boolean
+  canReorder?: boolean
+}
+
+export type TemplateVersion = {
+  id: string
+  version: string
+  configHash: string
+  templateConfigVersion: number
+  contentSchemaVersion: number
+  rendererApiVersion: number
+  config: { sections?: TemplateSectionConfig[]; style?: string; palette?: string; badge?: string } & Record<string, unknown>
+  releasedAt: string | null
+  deprecatedAt: string | null
+}
+
+export type WeddingTemplate = {
+  key: string
+  name: string
+  productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
+  status: string
+  description: string | null
+  versions: TemplateVersion[]
+}
+
+export type WeddingContent = {
+  content: Record<string, unknown>
+  schemaVersion: number
+  revision: number
+  surface: WeddingSurface
+  themeConfig: Record<string, unknown>
+  sectionConfig: { enabled: string[]; order: string[] }
+  templateVersion: { id: string; key: string; version: string; config: Record<string, unknown> } | null
+}
 
 export type Wedding = {
   id: string
@@ -102,4 +142,14 @@ export const weddingApi = {
   createEvent: (id: string, input: EventInput) => request<{ event: WeddingEvent }>(`/weddings/${id}/events`, { method: 'POST', body: JSON.stringify(input) }),
   updateEvent: (weddingId: string, eventId: string, input: Partial<EventInput> & { revision: number }) => request<{ event: WeddingEvent }>(`/weddings/${weddingId}/events/${eventId}`, { method: 'PATCH', body: JSON.stringify(input) }),
   removeEvent: (weddingId: string, eventId: string) => request<void>(`/weddings/${weddingId}/events/${eventId}`, { method: 'DELETE', body: '{}' }),
+  templates: (productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE') => request<{ items: WeddingTemplate[] }>(`/templates?productType=${productType}`),
+  content: (weddingId: string, surface: WeddingSurface) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content?surface=${surface}`),
+  saveContent: (weddingId: string, input: {
+    surface: WeddingSurface
+    templateVersionId: string
+    content: Record<string, unknown>
+    themeConfig: Record<string, unknown>
+    sectionConfig: { enabled: string[]; order: string[] }
+    revision: number
+  }) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content`, { method: 'PUT', body: JSON.stringify(input) }),
 }

@@ -67,12 +67,12 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Website cưới có tối đa một cấu hình đang hoạt động cho mỗi wedding trong MVP; slug công khai và trạng thái publish được quản lý độc lập với invite token.
 - Cả `Thiệp online` và `Website cưới` là navigation heading, mỗi heading có hai child-nav: `Kho giao diện` và tài sản của user (`Thiệp của bạn` hoặc `Website của bạn`). Hai gallery dùng route riêng để sau này có thể tách loại template và entitlement.
 
-- Ba vùng desktop: section navigator 240px, canvas preview co giãn, property panel 320-360px.
+- Hai vùng desktop cho template editor: accordion section có form/input/upload trực tiếp bên trái `45%`, canvas preview bên phải `55%`. Không tách property panel thứ ba vì làm user phải nhìn và di chuyển giữa quá nhiều vùng.
 - Toolbar: device preview, undo/redo, save state, preview, publish.
 - Section editor theo schema/form; drag reorder có nút move keyboard-accessible thay thế.
 - Autosave debounce, trạng thái `Đang lưu/Đã lưu/Mất kết nối/Xung đột`; không dùng toast cho mỗi autosave.
 - Unsaved/conflict flow có recover/compare/reload rõ ràng.
-- Tablet/mobile chuyển property panel thành sheet; editor không cố nhồi cả ba cột.
+- Tablet/mobile dùng accordion section toàn màn hình; preview thu thành cửa sổ nổi nhỏ có nút mở rộng/thu nhỏ. Lần đầu mở trên mobile có modal khuyên dùng máy tính nhưng không chặn user tiếp tục.
 
 ### Khách mời
 

@@ -12,10 +12,13 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 
 - [Frontend authentication integration](./authentication-integration.md): API login, opaque session, route guard và logout cho owner/admin.
 - Owner Wedding workspace đã nối Wedding base API: danh sách/chuyển wedding, onboarding tạo wedding đầu tiên, dashboard read model, CRUD lễ-tiệc tại `/studio/events` và cài đặt metadata/lifecycle tại `/studio/settings`. Wedding và event mutation gửi `revision`; conflict `409` yêu cầu tải lại dữ liệu thay vì ghi đè.
+- Kho giao diện owner tại `/studio/invites/themes` và `/studio/site/themes` đã nối template catalog/content API theo wedding hiện hành: tải template theo product type, hiển thị version đang dùng và áp dụng template bằng optimistic revision. Loading, empty, error/retry và refresh khi revision conflict đã có.
+- Editor thiệp demo tại `/studio/invites` có điều hướng trực tiếp từ nút `Chỉnh sửa` trên theme đang dùng. Editor nhúng chính renderer template qua iframe một lần; thay đổi content, palette và section config được đồng bộ tại chỗ bằng `postMessage` cùng origin, không reload iframe và chưa gọi API. Editor có form nội dung, upload ảnh demo, sắp xếp/bật tắt section; nút lưu vẫn khóa để không tạo kỳ vọng sai về persistence.
 - Hồ sơ tài khoản owner tại `/studio/profile` dùng `GET/PATCH /api/me`, cho phép cập nhật tên hiển thị, số điện thoại, ảnh đại diện, ngôn ngữ và múi giờ; email chỉ đọc.
 - Ngày hiển thị trong Wedding workspace dùng formatter chung `DD/MM/YYYY`; ngày-giờ dùng `DD/MM/YYYY · HH:mm`. Form tạo event bỏ các field optional để trống khỏi payload; chỉ gửi `null` khi update nhằm xóa giá trị đã tồn tại.
 
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
+- [Nền live template editor dùng chung](./live-template-editor.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)
 - [Typography và font cưới](./online-invitations/typography-and-fonts.md)

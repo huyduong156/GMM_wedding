@@ -16,7 +16,8 @@ import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSetting
 import { ProfilePage } from '../pages/profile/ui/ProfilePage'
 import { GuestsPage } from '../pages/guests/ui/GuestsPage'
 import { GuestCategoriesPage } from '../pages/guest-categories/ui/GuestCategoriesPage'
-import { TemplatesPage } from '../pages/templates/ui/TemplatesPage'
+import { TemplatesApiPage } from '../pages/templates/ui/TemplatesApiPage'
+import { InvitationEditorLivePage } from '../pages/invitation-editor/ui/InvitationEditorLivePage'
 import { TodosPage } from '../pages/todos/ui/TodosPage'
 import { GiftLedgerPage } from '../pages/gift-ledger/ui/GiftLedgerPage'
 import { RsvpsPage } from '../pages/rsvps/ui/RsvpsPage'
@@ -36,9 +37,9 @@ import { useOptionalAuth } from '../features/auth/model/auth-context'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
-  [studioRoutes.inviteThemes]: <TemplatesPage kind="invitation" />,
-  [studioRoutes.invites]: <PlaceholderPage section="editor" />,
-  [studioRoutes.siteThemes]: <TemplatesPage kind="website" />,
+  [studioRoutes.inviteThemes]: <TemplatesApiPage kind="invitation" />,
+  [studioRoutes.invites]: <InvitationEditorLivePage />,
+  [studioRoutes.siteThemes]: <TemplatesApiPage kind="website" />,
   [studioRoutes.site]: <PlaceholderPage section="wedding-site" />,
   [studioRoutes.guests]: <GuestsPage />,
   [studioRoutes.guestCategories]: <GuestCategoriesPage />,
