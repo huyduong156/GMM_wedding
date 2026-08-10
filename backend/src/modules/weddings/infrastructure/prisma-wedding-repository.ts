@@ -219,7 +219,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
   }
 
   async getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null> {
-    const row = await this.prisma.template.findFirst({ where: { key: templateKey, status: 'ACTIVE' }, include: { versions: { where: { version, deprecatedAt: null } } } })
+    const row = await this.prisma.template.findFirst({ where: { key: templateKey, status: 'ACTIVE' }, include: { versions: { where: { version, releasedAt: { not: null }, deprecatedAt: null } } } })
     if (!row || row.versions.length === 0) return null
     return { key: row.key, name: row.name, productType: row.productType, status: row.status, description: row.description, versions: row.versions }
   }
