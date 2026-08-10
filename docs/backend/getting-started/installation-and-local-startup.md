@@ -166,7 +166,7 @@ Database reset là destructive. Chỉ thực hiện với database local/test đ
 
 | Triệu chứng | Kiểm tra |
 |---|---|
-| Backend không start | Node version, env validation, port conflict |
+| Backend không start | Chạy `docker inspect gmm_wedding_BE --format '{{json .State}}'`; nếu port conflict, dùng `docker ps --filter publish=3000`. Backend local chuẩn dùng port `3000` |
 | Readiness fail | `DATABASE_URL`, container health, migration status |
 | Migration fail | Schema drift, database permission, migration log |
 | Cookie login không giữ | `APP_ORIGIN`, Secure/SameSite và Postman cookie jar |

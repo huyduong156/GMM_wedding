@@ -82,6 +82,7 @@ services:
 ```
 
 - Chỉ publish port cần thiết ra host.
+- Backend local dùng cố định host port `3000`. Nếu container ở trạng thái `Created` với lỗi `port is already allocated`, dùng `docker ps --filter publish=3000` để xác định process/container khác trước khi start; không đổi tạm sang port khác vì frontend và contract local cùng dùng `http://localhost:3000/api`.
 - PostgreSQL/Redis nằm trên internal network; production không dùng credential local.
 - `depends_on` không thay readiness/retry trong application.
 - Không bind-mount source trong production compose.

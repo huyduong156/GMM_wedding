@@ -30,7 +30,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-true}
     ports:
-      - "${BACKEND_PORT:-3000}:3000"
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
