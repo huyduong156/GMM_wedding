@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest'
-import { GuestError } from '../domain/guest-error'
 import { GuestService } from './guest-service'
 import type { GuestRepository } from './ports'
 

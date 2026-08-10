@@ -71,11 +71,11 @@ Presentation và thứ tự section tách theo surface. Trường: `id`, `weddin
 
 ### `WeddingWebsite`
 
-Lifecycle website cưới. Trường: `id`, `weddingId` unique, `templateVersionId?`, `slug?`, `isPublished`, `revision`, timestamps. Slug unique và template version được pin.
+Lifecycle website cưới. Trường: `id`, `weddingId` unique, `templateVersionId?`, `slug?`, `isPublished`, `revision`, timestamps. Slug là public pointer riêng của surface và template version được pin.
 
 ### `InvitationDesign`
 
-Template selection riêng cho thiệp online. Trường: `id`, `weddingId` unique, `templateVersionId?`, `revision`, timestamps.
+Template selection và lifecycle riêng cho thiệp online. Trường: `id`, `weddingId` unique, `templateVersionId?`, `slug?`, `isPublished`, `revision`, timestamps.
 
 ## Template và publication
 
@@ -89,7 +89,7 @@ Version renderer bất biến. Trường: `id`, `templateId`, `version`, `config
 
 ### `PublishedWeddingSnapshot`
 
-Payload public bất biến của website/thiệp. Trường: `id`, `weddingId`, `templateVersionId`, `version`, `surface`, `slug`, `payload` JSON, `payloadHash`, `contentSchemaVersion`, `rendererApiVersion`, `publishedAt`, `unpublishedAt?`. `(weddingId, surface, version)` unique; chỉ một live slug/surface; payload không chứa PII khách.
+Payload public bất biến của website/thiệp. Trường: `id`, `weddingId`, `templateVersionId`, `version`, `surface`, `slug`, `payload` JSON, `payloadHash`, `contentSchemaVersion`, `rendererApiVersion`, `publishedAt`, `unpublishedAt?`. `(weddingId, surface, version)` unique; partial unique index bảo đảm một slug chỉ trỏ tới một snapshot live; payload không chứa PII khách.
 
 ## Media
 

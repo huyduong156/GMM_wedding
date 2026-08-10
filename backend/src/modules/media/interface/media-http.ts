@@ -1,5 +1,5 @@
 import { ZodError } from 'zod'
-import { apiError, getRequestId, type ApiErrorBody } from '@/shared/http/api-response'
+import { apiError } from '@/shared/http/api-response'
 import { MediaError } from '../application/media-manager'
 export function mediaErrorResponse(error: unknown, requestId: string) {
   if (error instanceof MediaError) return apiError(requestId, error.code, error.message, error.status)

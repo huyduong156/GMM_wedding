@@ -389,17 +389,23 @@ model WeddingWebsite {
   updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
   wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   templateVersion   TemplateVersion? @relation("WebsiteTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
+
+  @@unique([slug])
 }
 
 model InvitationDesign {
   id                String           @id @default(uuid()) @db.Uuid
   weddingId         String           @unique @db.Uuid
   templateVersionId String?          @db.Uuid
+  slug              String?          @db.VarChar(64)
+  isPublished       Boolean          @default(false)
   revision          Int              @default(1)
   createdAt         DateTime         @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
   wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   templateVersion   TemplateVersion? @relation("InvitationTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
+
+  @@unique([slug])
 }
 
 model Template {
