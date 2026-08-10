@@ -20,7 +20,6 @@ export function clientIp(request: Request): string {
 }
 
 export function assertSafeMutation(request: Request) {
-  const env = getServerEnv()
   const origin = request.headers.get('origin')
   const fetchSite = request.headers.get('sec-fetch-site')
   const contentType = request.headers.get('content-type')?.split(';')[0]?.trim()

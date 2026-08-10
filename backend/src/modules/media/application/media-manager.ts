@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
 import type { ObjectStorage } from '@/platform/storage/object-storage'
 import type { FakeObjectStorage } from '@/platform/storage/fake-object-storage'
@@ -21,7 +21,7 @@ export class MediaManager {
     if (!await this.owner(userId, weddingId)) throw new MediaError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
     const asset = await this.prisma.mediaAsset.findFirst({ where: { id: mediaId, weddingId, deletedAt: null, status: 'PENDING_UPLOAD' } })
     if (!asset) throw new MediaError('MEDIA_NOT_FOUND', 404, 'Media asset not found')
-    if (body.byteLength > MAX_IMAGE_BYTES || asset.mimeType !== mimeType) throw new MediaError('MEDIA_INVALID', 400, 'Uploaded object does not match the requested image')
+    if (body.byteLength !== Number(asset.sizeBytes) || body.byteLength > MAX_IMAGE_BYTES || asset.mimeType !== mimeType) throw new MediaError('MEDIA_INVALID', 400, 'Uploaded object does not match the requested image')
     const fake = this.storage as FakeObjectStorage
     if (typeof fake.put !== 'function') throw new MediaError('MEDIA_STORAGE_UNAVAILABLE', 503, 'Fake upload endpoint is only available with fake storage')
     await fake.put(asset.storageKey, body, mimeType)
@@ -33,7 +33,7 @@ export class MediaManager {
     if (!asset) throw new MediaError('MEDIA_NOT_FOUND', 404, 'Media asset not found')
     const stored = await this.storage.head(asset.storageKey)
     if (!stored) throw new MediaError('MEDIA_UPLOAD_INCOMPLETE', 409, 'Upload has not completed')
-    if (stored.sizeBytes > MAX_IMAGE_BYTES) throw new MediaError('MEDIA_INVALID', 400, 'Image exceeds maximum size')
+    if (stored.sizeBytes !== Number(asset.sizeBytes) || stored.sizeBytes > MAX_IMAGE_BYTES || (stored.mimeType !== 'application/octet-stream' && stored.mimeType !== asset.mimeType)) throw new MediaError('MEDIA_INVALID', 400, 'Uploaded object does not match the requested image')
     const updated = await this.prisma.mediaAsset.update({ where: { id: mediaId }, data: { status: 'READY', sizeBytes: stored.sizeBytes }, select: { id: true, storageKey: true, mimeType: true, sizeBytes: true, status: true, originalName: true, altText: true, width: true, height: true } })
     return { media: { ...updated, sizeBytes: Number(updated.sizeBytes), publicUrl: this.storage.publicUrl(updated.storageKey) } }
   }

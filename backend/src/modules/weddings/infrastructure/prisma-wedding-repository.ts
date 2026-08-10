@@ -19,10 +19,25 @@ const eventSelect = {
 
 type WeddingRow = Prisma.WeddingGetPayload<{ select: typeof weddingSelect }>
 type EventRow = Prisma.WeddingEventGetPayload<{ select: typeof eventSelect }>
+class WeddingPublishConflictError extends Error {}
+class WeddingContentConflictError extends Error {}
 
 function weddingView(row: WeddingRow): WeddingView { return row }
 function eventView(row: EventRow): WeddingEventView {
   return { ...row, latitude: row.latitude?.toString() ?? null, longitude: row.longitude?.toString() ?? null }
+}
+
+function collectMediaIds(value: unknown, key = '', result = new Set<string>()): Set<string> {
+  if (Array.isArray(value)) {
+    for (const item of value) collectMediaIds(item, key, result)
+    return result
+  }
+  if (!value || typeof value !== 'object') {
+    if (typeof value === 'string' && /(?:media|asset)id$/i.test(key)) result.add(value)
+    return result
+  }
+  for (const [childKey, childValue] of Object.entries(value)) collectMediaIds(childValue, childKey, result)
+  return result
 }
 
 export class PrismaWeddingRepository implements WeddingRepository {
@@ -236,29 +251,33 @@ export class PrismaWeddingRepository implements WeddingRepository {
     const required = new Set(rawSections.filter((item) => typeof item === 'object' && item !== null && (item as { required?: unknown }).required === true).map((item) => String((item as { sectionKey: unknown }).sectionKey)))
     const enabled = new Set(data.sectionConfig.enabled)
     const order = data.sectionConfig.order
-    if (order.length !== enabled.size || order.some((key) => !enabled.has(key)) || [...enabled].some((key) => !supported.has(key)) || [...required].some((key) => !enabled.has(key))) return 'section-invalid'
-    const [currentContent, currentTheme] = await Promise.all([
-      this.prisma.weddingContent.findUnique({ where: { weddingId }, select: { revision: true } }),
-      this.prisma.weddingTheme.findUnique({ where: { weddingId_surface: { weddingId, surface: data.surface } }, select: { revision: true } }),
-    ])
-    if ((currentContent?.revision ?? 1) !== data.revision || (currentTheme?.revision ?? 1) !== data.revision) return 'conflict'
-    await this.prisma.$transaction(async (tx) => {
-      const nextRevision = data.revision + 1
-      await tx.weddingContent.upsert({ where: { weddingId }, create: { weddingId, schemaVersion: template.contentSchemaVersion, content: data.content as Prisma.InputJsonValue, revision: nextRevision }, update: { schemaVersion: template.contentSchemaVersion, content: data.content as Prisma.InputJsonValue, revision: nextRevision } })
-      await tx.weddingTheme.upsert({ where: { weddingId_surface: { weddingId, surface: data.surface } }, create: { weddingId, surface: data.surface, configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision }, update: { configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision } })
-      if (data.surface === 'ONLINE_INVITATION') await tx.invitationDesign.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
-      else await tx.weddingWebsite.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
-    })
+    if (data.sectionConfig.enabled.length !== enabled.size || order.length !== enabled.size || new Set(order).size !== order.length || order.some((key) => !enabled.has(key)) || [...enabled].some((key) => !supported.has(key) || !order.includes(key)) || [...required].some((key) => !enabled.has(key))) return 'section-invalid'
+    const currentContent = await this.prisma.weddingContent.findUnique({ where: { weddingId }, select: { revision: true } })
+    if ((currentContent?.revision ?? 1) !== data.revision) return 'conflict'
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const nextRevision = data.revision + 1
+        if (currentContent) {
+          const claimed = await tx.weddingContent.updateMany({ where: { weddingId, revision: data.revision }, data: { schemaVersion: template.contentSchemaVersion, content: data.content as Prisma.InputJsonValue, revision: nextRevision } })
+          if (claimed.count !== 1) throw new WeddingContentConflictError()
+        } else {
+          await tx.weddingContent.create({ data: { weddingId, schemaVersion: template.contentSchemaVersion, content: data.content as Prisma.InputJsonValue, revision: nextRevision } })
+        }
+        await tx.weddingTheme.upsert({ where: { weddingId_surface: { weddingId, surface: data.surface } }, create: { weddingId, surface: data.surface, configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision }, update: { configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision } })
+        if (data.surface === 'ONLINE_INVITATION') await tx.invitationDesign.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
+        else await tx.weddingWebsite.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
+      })
+    } catch (error) {
+      if (error instanceof WeddingContentConflictError || (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')) return 'conflict'
+      throw error
+    }
     return this.getContentOwned(userId, weddingId, data.surface) as Promise<WeddingContentView>
   }
 
   async publishOwned(userId: string, weddingId: string, data: PublishWeddingData): Promise<PublishedSnapshotView | 'not-ready' | 'slug-taken' | 'conflict' | null> {
     const wedding = await this.prisma.wedding.findFirst({ where: this.ownedWhere(userId, weddingId), select: { id: true, revision: true } })
     if (!wedding) return null
-    if (wedding.revision !== data.revision) return 'conflict'
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug) || data.slug.length > 64) return 'slug-taken'
-    const slugOwner = await this.prisma.wedding.findFirst({ where: { slug: data.slug, deletedAt: null, NOT: { id: weddingId } }, select: { id: true } })
-    if (slugOwner) return 'slug-taken'
     const [content, theme, selection, events, wishes] = await Promise.all([
       this.prisma.weddingContent.findUnique({ where: { weddingId } }),
       this.prisma.weddingTheme.findUnique({ where: { weddingId_surface: { weddingId, surface: data.surface } } }),
@@ -267,16 +286,39 @@ export class PrismaWeddingRepository implements WeddingRepository {
       this.prisma.wish.findMany({ where: { weddingId, status: 'APPROVED', deletedAt: null }, select: { id: true, authorName: true, content: true, submittedAt: true, isPinned: true }, orderBy: [{ isPinned: 'desc' }, { submittedAt: 'desc' }], take: 100 }),
     ])
     if (!content || !theme || !selection?.templateVersion || selection.templateVersion.deprecatedAt) return 'not-ready'
+    const config = selection.templateVersion.config as { sections?: unknown }
+    const supportedSections = new Set((Array.isArray(config.sections) ? config.sections : []).map((item) => typeof item === 'string' ? item : typeof item === 'object' && item !== null && 'sectionKey' in item ? String((item as { sectionKey: unknown }).sectionKey) : ''))
+    const sectionConfig = theme.sectionConfig as { enabled?: unknown; order?: unknown }
+    const enabled = Array.isArray(sectionConfig.enabled) ? sectionConfig.enabled.filter((item): item is string => typeof item === 'string') : []
+    const order = Array.isArray(sectionConfig.order) ? sectionConfig.order.filter((item): item is string => typeof item === 'string') : []
+    if (enabled.length === 0 || order.length !== enabled.length || new Set(enabled).size !== enabled.length || new Set(order).size !== order.length || enabled.some((key) => !supportedSections.has(key)) || order.some((key) => !enabled.includes(key))) return 'not-ready'
+    const mediaIds = [...collectMediaIds(content.content), ...collectMediaIds(theme.themeConfig)]
+    if (mediaIds.length > 0) {
+      const readyCount = await this.prisma.mediaAsset.count({ where: { id: { in: [...new Set(mediaIds)] }, weddingId, status: 'READY', deletedAt: null } })
+      if (readyCount !== new Set(mediaIds).size) return 'not-ready'
+    }
     const payload = { surface: data.surface, template: { key: selection.templateVersion.template.key, version: selection.templateVersion.version, config: selection.templateVersion.config }, content: content.content, theme: { themeConfig: theme.themeConfig, sectionConfig: theme.sectionConfig }, events: events.map((event) => ({ ...event, latitude: event.latitude?.toString() ?? null, longitude: event.longitude?.toString() ?? null })), wishes }
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
-    const snapshot = await this.prisma.$transaction(async (tx) => {
-      await tx.publishedWeddingSnapshot.updateMany({ where: { weddingId, surface: data.surface, unpublishedAt: null }, data: { unpublishedAt: new Date() } })
-      const previous = await tx.publishedWeddingSnapshot.aggregate({ where: { weddingId, surface: data.surface }, _max: { version: true } })
-      const created = await tx.publishedWeddingSnapshot.create({ data: { weddingId, templateVersionId: selection.templateVersion!.id, version: (previous._max.version ?? 0) + 1, surface: data.surface, slug: data.slug, payload: payload as Prisma.InputJsonValue, payloadHash, contentSchemaVersion: selection.templateVersion!.contentSchemaVersion, rendererApiVersion: selection.templateVersion!.rendererApiVersion }, include: { templateVersion: { include: { template: true } } } })
-      await tx.wedding.update({ where: { id: weddingId }, data: { slug: data.slug, status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 } } })
-      return created
-    })
-    return this.snapshotView(snapshot)
+    const live = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { weddingId, surface: data.surface, unpublishedAt: null }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
+    if (live?.slug === data.slug && live.payloadHash === payloadHash) return this.snapshotView(live)
+    if (wedding.revision !== data.revision) return 'conflict'
+    try {
+      const snapshot = await this.prisma.$transaction(async (tx) => {
+        const claimed = await tx.wedding.updateMany({ where: { ...this.ownedWhere(userId, weddingId), revision: data.revision }, data: { status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 } } })
+        if (claimed.count !== 1) throw new WeddingPublishConflictError()
+        await tx.publishedWeddingSnapshot.updateMany({ where: { weddingId, surface: data.surface, unpublishedAt: null }, data: { unpublishedAt: new Date() } })
+        const previous = await tx.publishedWeddingSnapshot.aggregate({ where: { weddingId, surface: data.surface }, _max: { version: true } })
+        const created = await tx.publishedWeddingSnapshot.create({ data: { weddingId, templateVersionId: selection.templateVersion!.id, version: (previous._max.version ?? 0) + 1, surface: data.surface, slug: data.slug, payload: payload as Prisma.InputJsonValue, payloadHash, contentSchemaVersion: selection.templateVersion!.contentSchemaVersion, rendererApiVersion: selection.templateVersion!.rendererApiVersion }, include: { templateVersion: { include: { template: true } } } })
+        if (data.surface === 'ONLINE_INVITATION') await tx.invitationDesign.update({ where: { weddingId }, data: { slug: data.slug, isPublished: true, revision: { increment: 1 } } })
+        else await tx.weddingWebsite.update({ where: { weddingId }, data: { slug: data.slug, isPublished: true, revision: { increment: 1 } } })
+        return created
+      })
+      return this.snapshotView(snapshot)
+    } catch (error) {
+      if (error instanceof WeddingPublishConflictError) return 'conflict'
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return 'slug-taken'
+      throw error
+    }
   }
 
   async unpublishOwned(userId: string, weddingId: string, surface: WeddingSurfaceValue): Promise<boolean | null> {
@@ -284,6 +326,8 @@ export class PrismaWeddingRepository implements WeddingRepository {
     if (!wedding) return null
     await this.prisma.$transaction(async (tx) => {
       await tx.publishedWeddingSnapshot.updateMany({ where: { weddingId, surface, unpublishedAt: null }, data: { unpublishedAt: new Date() } })
+      if (surface === 'ONLINE_INVITATION') await tx.invitationDesign.updateMany({ where: { weddingId }, data: { slug: null, isPublished: false, revision: { increment: 1 } } })
+      else await tx.weddingWebsite.updateMany({ where: { weddingId }, data: { slug: null, isPublished: false, revision: { increment: 1 } } })
       const otherLive = await tx.publishedWeddingSnapshot.count({ where: { weddingId, surface: { not: surface }, unpublishedAt: null } })
       if (otherLive === 0) await tx.wedding.update({ where: { id: weddingId }, data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } } })
     })
@@ -292,12 +336,12 @@ export class PrismaWeddingRepository implements WeddingRepository {
 
   async slugAvailable(userId: string, slug: string, weddingId?: string): Promise<boolean> {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 64) return false
-    const row = await this.prisma.wedding.findFirst({ where: { slug, deletedAt: null, ...(weddingId ? { NOT: { id: weddingId } } : {}) }, select: { id: true } })
+    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { slug, unpublishedAt: null, ...(weddingId ? { NOT: { weddingId } } : {}) }, select: { id: true } })
     return !row
   }
 
   async getPublicSnapshot(slug: string, surface: WeddingSurfaceValue): Promise<PublishedSnapshotView | null> {
-    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { slug, surface, unpublishedAt: null, wedding: { status: 'PUBLISHED', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
+    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { slug, surface, unpublishedAt: null, wedding: { status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
     return row ? this.snapshotView(row) : null
   }
 

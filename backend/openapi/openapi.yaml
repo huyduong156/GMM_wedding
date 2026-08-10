@@ -456,6 +456,212 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+  /templates:
+    get:
+      operationId: listTemplates
+      summary: List active publication templates
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: productType
+          in: query
+          schema: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE] }
+      responses:
+        '200': { description: Template catalog }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /templates/{templateKey}/versions/{version}:
+    get:
+      operationId: getTemplateVersion
+      summary: Get immutable template version metadata and config
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: templateKey, in: path, required: true, schema: { type: string } }
+        - { name: version, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Template version }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/content:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: getWeddingContent
+      summary: Get canonical content and surface presentation config
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/SurfaceQuery' }]
+      responses:
+        '200': { description: Wedding content }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: saveWeddingContent
+      summary: Save canonical content and one surface presentation config
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveWeddingContentRequest' }
+      responses:
+        '200': { description: Saved content }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/publish:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    post:
+      operationId: publishWeddingSurface
+      summary: Publish an immutable wedding surface snapshot
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublishWeddingRequest' }
+      responses:
+        '201': { description: Published snapshot }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/unpublish:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    post:
+      operationId: unpublishWeddingSurface
+      summary: Revoke public access to one wedding surface
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: false, required: [surface], properties: { surface: { $ref: '#/components/schemas/WeddingSurface' } } }
+      responses:
+        '204': { description: Surface unpublished }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /slugs/weddings/{slug}/availability:
+    get:
+      operationId: checkWeddingSlugAvailability
+      summary: Check global live publication slug availability
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string, minLength: 3, maxLength: 64 } }
+        - { name: weddingId, in: query, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Availability result }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /public/weddings/{slug}:
+    get:
+      operationId: getPublishedOnlineInvitation
+      summary: Get the current public online invitation snapshot
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: If-None-Match, in: header, schema: { type: string } }
+      responses:
+        '200': { description: Published snapshot }
+        '304': { description: Snapshot has not changed }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /public/invitations/{invitationToken}:
+    get:
+      operationId: getInvitationByToken
+      summary: Resolve a personalized invitation and current snapshot
+      parameters: [{ $ref: '#/components/parameters/InvitationToken' }]
+      responses:
+        '200': { description: Personalized invitation }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /public/invitations/{invitationToken}/rsvp:
+    put:
+      operationId: submitInvitationTokenRsvp
+      summary: Create or update RSVP for a personalized invitation token
+      parameters:
+        - $ref: '#/components/parameters/InvitationToken'
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicRsvpRequest' }
+      responses:
+        '200': { description: RSVP saved }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/media/upload-intents:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    post:
+      operationId: createMediaUploadIntent
+      summary: Create an image upload intent
+      security: [{ cookieAuth: [] }]
+      responses:
+        '201': { description: Upload intent created }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/media:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: listWeddingMedia
+      summary: List wedding media assets
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Media list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /weddings/{weddingId}/media/{mediaId}/upload:
+    put:
+      operationId: uploadLocalFakeMedia
+      summary: Upload bytes to the local fake-storage adapter
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/WeddingId'
+        - $ref: '#/components/parameters/MediaId'
+        - $ref: '#/components/parameters/Origin'
+      requestBody:
+        required: true
+        content:
+          image/jpeg: { schema: { type: string, contentEncoding: binary } }
+          image/png: { schema: { type: string, contentEncoding: binary } }
+          image/webp: { schema: { type: string, contentEncoding: binary } }
+          image/gif: { schema: { type: string, contentEncoding: binary } }
+      responses:
+        '200': { description: Bytes accepted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/media/{mediaId}/complete:
+    post:
+      operationId: completeMediaUpload
+      summary: Verify an uploaded object and mark the asset ready
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/WeddingId'
+        - $ref: '#/components/parameters/MediaId'
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      responses:
+        '200': { description: Ready media asset }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/media/{mediaId}:
+    delete:
+      operationId: deleteWeddingMedia
+      summary: Soft-delete a wedding media asset and remove its object
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/WeddingId'
+        - $ref: '#/components/parameters/MediaId'
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      responses:
+        '204': { description: Media removed }
+        '404': { $ref: '#/components/responses/NotFound' }
   /health/live:
     get:
       operationId: getLiveness
@@ -518,6 +724,20 @@ components:
       schema:
         type: string
         format: uuid
+    SurfaceQuery:
+      name: surface
+      in: query
+      schema: { $ref: '#/components/schemas/WeddingSurface' }
+    InvitationToken:
+      name: invitationToken
+      in: path
+      required: true
+      schema: { type: string, minLength: 20, maxLength: 512 }
+    MediaId:
+      name: mediaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
   responses:
     BadRequest:
       description: Invalid request or verification token
@@ -560,6 +780,44 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    WeddingSurface:
+      type: string
+      enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+    SaveWeddingContentRequest:
+      type: object
+      additionalProperties: false
+      required: [surface, templateVersionId, content, themeConfig, sectionConfig, revision]
+      properties:
+        surface: { $ref: '#/components/schemas/WeddingSurface' }
+        templateVersionId: { type: string, format: uuid }
+        content: { type: object, additionalProperties: true }
+        themeConfig: { type: object, additionalProperties: true }
+        sectionConfig:
+          type: object
+          additionalProperties: false
+          required: [enabled, order]
+          properties:
+            enabled: { type: array, minItems: 1, uniqueItems: true, items: { type: string } }
+            order: { type: array, minItems: 1, uniqueItems: true, items: { type: string } }
+        revision: { type: integer, minimum: 1 }
+    PublishWeddingRequest:
+      type: object
+      additionalProperties: false
+      required: [surface, slug, revision]
+      properties:
+        surface: { $ref: '#/components/schemas/WeddingSurface' }
+        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 }
+        revision: { type: integer, minimum: 1 }
+    PublicRsvpRequest:
+      type: object
+      additionalProperties: false
+      required: [attendance, partySize]
+      properties:
+        attendance: { type: string, enum: [ATTENDING, DECLINED, MAYBE] }
+        partySize: { type: integer, minimum: 1, maximum: 50 }
+        mealPreference: { type: string, maxLength: 160 }
+        specialRequest: { type: string, maxLength: 2000 }
+        message: { type: string, maxLength: 2000 }
     RegisterRequest:
       type: object
       additionalProperties: false
