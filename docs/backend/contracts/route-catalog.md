@@ -102,10 +102,10 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 |---|---|---|---|---|
 | GET | `/templates` | Session | Implemented | Danh sách template/version khả dụng |
 | GET | `/templates/{templateKey}/versions/{version}` | Session | Implemented | Metadata/config immutable của một version |
-| GET | `/admin/templates` | Platform admin | Implemented | Danh sách template/version và `pendingReviewCount` làm notice chờ duyệt |
+| GET | `/admin/templates` | Platform admin | Implemented | Danh sách template/version, `pendingReviewCount`, usage theo selection, compatibility và tối đa 10 audit event/version |
 | POST | `/admin/templates/sync` | Platform admin + CSRF | Implemented | Đồng bộ gói phát hành template; tạo version chờ duyệt, idempotent theo hash |
 | GET | `/admin/templates/{templateKey}/versions/{version}` | Platform admin | Implemented | Chi tiết config và trạng thái duyệt của version |
-| POST | `/admin/templates/{templateKey}/versions/{version}/release` | Platform admin + CSRF | Implemented | Phát hành version cho catalog user |
+| POST | `/admin/templates/{templateKey}/versions/{version}/release` | Platform admin + CSRF | Implemented | Phát hành version cho catalog user; từ chối `TEMPLATE_VERSION_INCOMPATIBLE` khi contract version/config không được runtime hỗ trợ |
 | POST | `/admin/templates/{templateKey}/versions/{version}/deprecate` | Platform admin + CSRF | Implemented | Ngừng phân phối version, không xóa tham chiếu cũ |
 | POST | `/weddings/{weddingId}/media/upload-intents` | Owner | Implemented | Tạo presigned/fake upload intent có giới hạn MIME/size |
 | PUT | `/weddings/{weddingId}/media/{mediaId}/upload` | Owner, local fake storage | Implemented | Upload bytes cho fake storage local |

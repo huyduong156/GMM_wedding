@@ -23,4 +23,8 @@ Preview trong card là hình mô phỏng nhẹ, không tải iframe/template run
 
 ## Trạng thái triển khai
 
-Search/filter dùng mock data phía client. Create flow, config validation, sync/publish, version detail, usage metrics và preview sandbox chưa kết nối API.
+Search/filter, version detail, đồng bộ release bundle, phát hành và ngừng phân phối đã kết nối Admin Template API. Mỗi version hiển thị số đám cưới đang dùng, compatibility của ba contract và tối đa 10 audit event gần nhất. Version không tương thích bị khóa phát hành ở UI và bị backend từ chối.
+
+Preview thật chỉ mount trong iframe sandbox khi admin chủ động mở. Template mới khai báo `config.previewPath` là route nội bộ tương đối; ba template cũ được giữ fallback route để tương thích dữ liệu đã sync. Nếu thiếu route, UI hiển thị rõ `Thiếu previewPath` thay vì dựng preview giả.
+
+Restore version đã deprecated và rollback version cũ chưa có API nên nằm ngoài trạng thái hoàn tất hiện tại.

@@ -7,13 +7,13 @@ import { rsvpSchema } from '@/modules/public-interactions/public-schemas'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const OPTIONS = optionsResponse
-type Context = { params: Promise<{ invitationToken: string; guestSlug: string }> }
+type Context = { params: Promise<{ weddingSlug: string; guestSlug: string }> }
 
 export async function PUT(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     assertSafeMutation(request)
-    const { invitationToken: weddingSlug, guestSlug } = await context.params
+    const { weddingSlug, guestSlug } = await context.params
     return withAuthHeaders(jsonResponse(await getPublicInteractionService().submitPersonalRsvp(weddingSlug, guestSlug, await parseJson(request, rsvpSchema))), requestId)
   } catch (error) { return guestErrorResponse(error, requestId) }
 }

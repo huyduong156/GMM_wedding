@@ -7,13 +7,13 @@ import { wishSchema } from '@/modules/public-interactions/public-schemas'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const OPTIONS = optionsResponse
-type Context = { params: Promise<{ invitationToken: string; guestSlug: string }> }
+type Context = { params: Promise<{ weddingSlug: string; guestSlug: string }> }
 
 export async function POST(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     assertSafeMutation(request)
-    const { invitationToken: weddingSlug, guestSlug } = await context.params
+    const { weddingSlug, guestSlug } = await context.params
     return withAuthHeaders(jsonResponse(await getPublicInteractionService().submitPersonalWish(weddingSlug, guestSlug, await parseJson(request, wishSchema)), { status: 201 }), requestId)
   } catch (error) { return guestErrorResponse(error, requestId) }
 }

@@ -6,7 +6,7 @@ import { RegisterPage } from '../pages/auth/ui/RegisterPage'
 import { VerifyEmailPage } from '../pages/auth/ui/VerifyEmailPage'
 import { AdminDashboardPage } from '../pages/admin/ui/AdminDashboardPage'
 import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
-import { AdminThemesPage } from '../pages/admin/ui/AdminThemesPage'
+import { AdminTemplatesApiPage } from '../pages/admin/ui/AdminTemplatesApiPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
 import { AdminPlaceholderPage } from '../pages/admin/ui/AdminPlaceholderPage'
 import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
@@ -94,9 +94,9 @@ export function App() {
       : pathname === adminRoutes.users
         ? <AdminUsersPage />
       : pathname === adminRoutes.inviteLibrary
-        ? <AdminThemesPage kind="invitation" />
+        ? <AdminTemplatesApiPage kind="invitation" />
         : pathname === adminRoutes.websiteLibrary
-          ? <AdminThemesPage kind="website" />
+          ? <AdminTemplatesApiPage kind="website" />
         : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
     return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
   }

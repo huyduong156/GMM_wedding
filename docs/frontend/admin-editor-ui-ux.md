@@ -135,13 +135,11 @@ Trạng thái triển khai frontend (2026-08): kho giao diện user đã respons
 
 Trạng thái triển khai frontend (2026-07): `/gmm_admin/users` có prototype mock responsive với summary, tìm theo tên/email, lọc trạng thái, selection/bulk-state, bảng desktop và card mobile. Detail drawer, mutation suspend/restore, permission guard, audit trail và server pagination chưa kết nối backend.
 
-`/gmm_admin/login` là bề mặt đăng nhập quản trị tách khỏi admin shell, gọi `/api/auth/admin/login`; namespace admin bootstrap qua `/api/admin/me`, thiếu quyền/session quay lại login và logout revoke session backend. MFA/step-up và audit đăng nhập vẫn là production gate. Hai kho `/gmm_admin/library/invites` và `/gmm_admin/library/websites` dùng catalog card có visual preview, trạng thái, version, lượt sử dụng, tìm kiếm và bộ lọc client-side; thao tác tạo/xem trước/quản lý chưa kết nối API.
+`/gmm_admin/login` là bề mặt đăng nhập quản trị tách khỏi admin shell, gọi `/api/auth/admin/login`; namespace admin bootstrap qua `/api/admin/me`, thiếu quyền/session quay lại login và logout revoke session backend. MFA/step-up và audit đăng nhập vẫn là production gate. Hai kho `/gmm_admin/library/invites` và `/gmm_admin/library/websites` đã đọc catalog/version từ Admin Template API, hỗ trợ tìm kiếm/lọc, xem config/version, đồng bộ release bundle, phát hành và ngừng phân phối. Mỗi version hiển thị usage theo selection, compatibility và audit gần nhất; release không tương thích bị khóa ở UI và backend. Preview chỉ tải khi admin mở, chạy trong iframe sandbox từ `config.previewPath` hoặc fallback route của ba template cũ.
 
 Template thiệp code đầu tiên có key kỹ thuật `modern-luxe`, tên hiển thị `Élan d’Amour` và public preview tại `/templates/invitations/modern-luxe/preview`. Renderer dùng fixture mặc định khi thiếu dữ liệu; prop data được merge đè lên fixture khi render nội dung đã lưu. Template giới hạn ba palette đã duyệt (`champagne`, `midnight`, `sage`). Modal catalog phải hiển thị đúng tấm thiệp tỷ lệ 5:7, toàn bộ thiệp là vùng bấm mở preview; Escape/backdrop đóng modal và scroll nền bị khóa.
 
 `Élan d’Amour` định nghĩa đúng bề mặt thiệp online: trạng thái bìa thiệp/chạm mở là nghi thức nhận lời mời, sau đó là một canvas thiệp dọc cô đọng gồm lời mời, thời gian, địa điểm và RSVP. Thiệp online không dùng cấu trúc landing dài gồm câu chuyện, gallery và nhiều section như website cưới. Thanh palette thuộc preview shell và nằm ngoài canvas thiệp.
-
-`/gmm_admin/login` là bề mặt đăng nhập quản trị tách khỏi admin shell, có form và thông báo phạm vi truy cập nội bộ. Đây mới là prototype điều hướng; session cookie, rate limit, MFA, server-side guard và audit đăng nhập phải được backend triển khai trước production. Hai kho `/gmm_admin/library/invites` và `/gmm_admin/library/websites` dùng catalog card có visual preview, trạng thái, version, lượt sử dụng, tìm kiếm và bộ lọc client-side; thao tác tạo/xem trước/quản lý chưa kết nối API.
 
 ## 6. Route map đề xuất
 
