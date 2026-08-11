@@ -19,14 +19,29 @@ function reviewStatus(version: { releasedAt: Date | null; deprecatedAt: Date | n
   return 'PENDING_REVIEW' as const
 }
 
+const SUPPORTED_CONTRACT = { templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1 } as const
+
+export function templateCompatibility(version: { templateConfigVersion: number; contentSchemaVersion: number; rendererApiVersion: number; config: unknown }) {
+  const issues: string[] = []
+  if (version.templateConfigVersion !== SUPPORTED_CONTRACT.templateConfigVersion) issues.push(`Template config v${version.templateConfigVersion} chưa được hỗ trợ`)
+  if (version.contentSchemaVersion !== SUPPORTED_CONTRACT.contentSchemaVersion) issues.push(`Content schema v${version.contentSchemaVersion} chưa được hỗ trợ`)
+  if (version.rendererApiVersion !== SUPPORTED_CONTRACT.rendererApiVersion) issues.push(`Renderer API v${version.rendererApiVersion} chưa được hỗ trợ`)
+  if (!version.config || typeof version.config !== 'object' || Array.isArray(version.config)) issues.push('Config phải là một object JSON')
+  return { compatible: issues.length === 0, issues, supported: SUPPORTED_CONTRACT }
+}
+
 export class TemplateAdminService {
   constructor(private readonly db: PrismaClient) {}
 
   async list(query: AdminTemplateListQuery) {
-    const rows = await this.db.template.findMany({ ...(query.productType ? { where: { productType: query.productType } } : {}), include: { versions: { orderBy: { createdAt: 'desc' } } }, orderBy: { name: 'asc' } })
+    const rows = await this.db.template.findMany({ ...(query.productType ? { where: { productType: query.productType } } : {}), include: { versions: { orderBy: { createdAt: 'desc' }, include: { _count: { select: { invitationSelections: true, websiteSelections: true, recaps: true } } } } }, orderBy: { name: 'asc' } })
+    const versionIds = rows.flatMap((template) => template.versions.map((version) => version.id))
+    const auditRows = versionIds.length ? await this.db.auditLog.findMany({ where: { resourceType: 'TemplateVersion', resourceId: { in: versionIds } }, select: { id: true, resourceId: true, action: true, occurredAt: true, actorUser: { select: { displayName: true, email: true } } }, orderBy: { occurredAt: 'desc' } }) : []
+    const auditByVersion = new Map<string, typeof auditRows>()
+    for (const audit of auditRows) { if (!audit.resourceId) continue; const entries = auditByVersion.get(audit.resourceId) ?? []; if (entries.length < 10) entries.push(audit); auditByVersion.set(audit.resourceId, entries) }
     const items = rows.map((template) => ({
       key: template.key, name: template.name, productType: template.productType, status: template.status, description: template.description,
-      versions: template.versions.map((version) => ({ ...version, reviewStatus: reviewStatus(version) })).filter((version) => !query.reviewStatus || version.reviewStatus === query.reviewStatus),
+      versions: template.versions.map((version) => ({ ...version, reviewStatus: reviewStatus(version), compatibility: templateCompatibility(version), usageCount: template.productType === 'ONLINE_INVITATION' ? version._count.invitationSelections : template.productType === 'WEDDING_WEBSITE' ? version._count.websiteSelections : version._count.recaps, recentAudit: auditByVersion.get(version.id) ?? [] })).filter((version) => !query.reviewStatus || version.reviewStatus === query.reviewStatus),
     })).filter((template) => !query.reviewStatus || template.versions.length > 0)
     const pendingReviewCount = rows.reduce((count, template) => count + template.versions.filter((version) => reviewStatus(version) === 'PENDING_REVIEW').length, 0)
     return { pendingReviewCount, items }
@@ -69,6 +84,8 @@ export class TemplateAdminService {
       const selected = template?.versions[0]
       if (!template || !selected) throw new TemplateAdminError('TEMPLATE_VERSION_NOT_FOUND', 404, 'Template version not found')
       if (action === 'release' && selected.deprecatedAt) throw new TemplateAdminError('TEMPLATE_VERSION_DEPRECATED', 409, 'A deprecated template version cannot be released')
+      const compatibilityResult = templateCompatibility(selected)
+      if (action === 'release' && !compatibilityResult.compatible) throw new TemplateAdminError('TEMPLATE_VERSION_INCOMPATIBLE', 409, compatibilityResult.issues.join('; '))
       const now = new Date()
       const updated = action === 'release' ? await tx.templateVersion.update({ where: { id: selected.id }, data: { releasedAt: selected.releasedAt ?? now } }) : await tx.templateVersion.update({ where: { id: selected.id }, data: { deprecatedAt: selected.deprecatedAt ?? now } })
       if (action === 'release') await tx.template.update({ where: { id: template.id }, data: { status: 'ACTIVE' } })

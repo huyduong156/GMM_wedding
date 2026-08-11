@@ -29,4 +29,13 @@ describe('TemplatesApiPage', () => {
     expect(await screen.findByText('Đã chọn giao diện Élan d’Amour.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Chỉnh sửa' })).toHaveAttribute('href', '/studio/invites')
   })
+
+  it('keeps the selected deprecated version visible with a warning', async () => {
+    vi.spyOn(weddingApi, 'templates').mockResolvedValue({ items: [] })
+    vi.spyOn(weddingApi, 'content').mockResolvedValue({ content: { content: {}, schemaVersion: 1, revision: 3, surface: 'ONLINE_INVITATION', themeConfig: { palette: 'storybook' }, sectionConfig: { enabled: ['cover'], order: ['cover'] }, templateVersion: { id: '33333333-3333-4333-8333-333333333333', key: 'chibi-daydream', version: '1.1.0', config: { sections: ['cover'] } } } })
+    render(<NavigationProvider><WeddingContext.Provider value={{ weddings: [wedding], activeWedding: wedding, loading: false, error: null, selectWedding: vi.fn(), refresh: vi.fn(), addWedding: vi.fn(), replaceWedding: vi.fn(), removeWedding: vi.fn() }}><TemplatesApiPage kind="invitation" /></WeddingContext.Provider></NavigationProvider>)
+    expect(await screen.findByText('Giao diện bạn đang dùng đã ngừng phân phối')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Mây Hồng Có Đôi' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Chỉnh sửa' })).toHaveAttribute('href', '/studio/invites')
+  })
 })

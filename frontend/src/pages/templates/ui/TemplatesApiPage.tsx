@@ -9,7 +9,7 @@ import { TemplatesPage } from './TemplatesPage'
 
 type Theme = {
   key: string; versionId: string; version: string; name: string; description: string
-  style: string; palette: string; sections: TemplateSectionConfig[]; previewPath?: string
+  style: string; palette: string; sections: TemplateSectionConfig[]; previewPath?: string; unavailable?: boolean
 }
 
 const previewPaths: Record<string, string> = {
@@ -22,6 +22,7 @@ const localMeta: Record<string, { style: string; palette: string }> = {
   'verdant-promise': { style: 'Lãng mạn', palette: 'Vườn xanh & ivory' },
   'chibi-daydream': { style: 'Lãng mạn', palette: 'Coral & powder blue' },
 }
+const localNames: Record<string, string> = { 'modern-luxe': 'Élan d’Amour', 'verdant-promise': 'Verdant Promise', 'chibi-daydream': 'Mây Hồng Có Đôi' }
 const filters = ['Tất cả', 'Lãng mạn', 'Tối giản', 'Hiện đại', 'Truyền thống'] as const
 
 function toTheme(template: WeddingTemplate): Theme | null {
@@ -84,12 +85,20 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   }, [notice])
 
   const activeKey = content?.templateVersion?.key
+  const activeVersionId = content?.templateVersion?.id
+  const unavailableActiveTheme = useMemo<Theme | null>(() => {
+    const selected = content?.templateVersion
+    if (!selected || themes.some((theme) => theme.versionId === selected.id)) return null
+    const meta = localMeta[selected.key]
+    const sections = Array.isArray(selected.config.sections) ? selected.config.sections as TemplateSectionConfig[] : []
+    return { key: selected.key, versionId: selected.id, version: selected.version, name: localNames[selected.key] ?? selected.key, description: 'Version này đã ngừng phân phối. Bạn vẫn có thể tiếp tục chỉnh sửa thiệp hiện tại.', style: meta?.style ?? 'Theo cấu hình mẫu', palette: meta?.palette ?? 'Theo cấu hình mẫu', sections, previewPath: previewPaths[selected.key], unavailable: true }
+  }, [content, themes])
   const visible = useMemo(() => {
     const value = deferredQuery.trim().toLocaleLowerCase('vi')
     const matches = themes.filter((theme) => (filter === 'Tất cả' || theme.style === filter) && (!value || `${theme.name} ${theme.style} ${theme.palette}`.toLocaleLowerCase('vi').includes(value)))
-    const active = themes.find((theme) => theme.key === activeKey)
-    return active ? [active, ...matches.filter((theme) => theme.key !== active.key)] : matches
-  }, [activeKey, deferredQuery, filter, themes])
+    const active = themes.find((theme) => theme.versionId === activeVersionId) ?? unavailableActiveTheme
+    return active ? [active, ...matches.filter((theme) => theme.versionId !== active.versionId)] : matches
+  }, [activeVersionId, deferredQuery, filter, themes, unavailableActiveTheme])
 
   const selectTheme = async (theme: Theme) => {
     if (!activeWedding || !content) { setNotice('Hãy chọn một đám cưới trước khi áp dụng giao diện.'); return }
@@ -109,11 +118,12 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   const isWebsite = kind === 'website'
   if (!workspace) return <TemplatesPage kind={kind} />
   return <section className="templates-page" aria-labelledby="templates-heading">
-    <header className="templates-heading"><div><p className="breadcrumb">{activeWedding?.name ?? 'Đám cưới của bạn'} <span>/</span> {isWebsite ? 'Website cưới' : 'Thiệp online'} <span>/</span> Kho giao diện</p><h1 id="templates-heading">Chọn giao diện {isWebsite ? 'website' : 'thiệp'}</h1><p>Kho giao diện được đồng bộ từ hệ thống. Nội dung hiện tại được giữ nguyên khi đổi mẫu.</p></div>{activeKey ? <div className="current-theme"><PaintBrush size={18} /><span>Đang dùng<strong>{themes.find((item) => item.key === activeKey)?.name ?? activeKey}</strong></span></div> : null}</header>
+    <header className="templates-heading"><div><p className="breadcrumb">{activeWedding?.name ?? 'Đám cưới của bạn'} <span>/</span> {isWebsite ? 'Website cưới' : 'Thiệp online'} <span>/</span> Kho giao diện</p><h1 id="templates-heading">Chọn giao diện {isWebsite ? 'website' : 'thiệp'}</h1><p>Kho giao diện được đồng bộ từ hệ thống. Nội dung hiện tại được giữ nguyên khi đổi mẫu.</p></div>{activeKey ? <div className="current-theme"><PaintBrush size={18} /><span>Đang dùng<strong>{themes.find((item) => item.versionId === activeVersionId)?.name ?? unavailableActiveTheme?.name ?? activeKey}</strong></span></div> : null}</header>
+    {unavailableActiveTheme ? <div className="templates-retired-warning" role="status"><WarningCircle size={20} weight="fill" /><div><strong>Giao diện bạn đang dùng đã ngừng phân phối</strong><p>Bạn vẫn có thể tiếp tục chỉnh sửa thiệp hiện tại. Nếu đổi sang giao diện khác, bạn sẽ không thể chọn lại version này.</p></div></div> : null}
     <div className="templates-controls"><label className="template-search"><span className="sr-only">Tìm giao diện</span><MagnifyingGlass size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên hoặc phong cách" /></label><div className="template-filters" aria-label="Lọc phong cách"><SlidersHorizontal size={16} />{filters.map((item) => <button key={item} type="button" className={filter === item ? 'is-active' : ''} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div></div>
     {loading ? <div className="theme-grid" aria-label="Đang tải kho giao diện">{[1, 2, 3].map((item) => <div className="theme-card theme-card-skeleton" key={item}><span /><div><i /><i /></div></div>)}</div> : error ? <div className="templates-empty templates-error"><WarningCircle size={30} /><h2>Chưa tải được kho giao diện</h2><p>{error}</p><button className="button button-secondary" type="button" onClick={() => void load()}>Thử lại</button></div> : visible.length ? <div className="theme-grid">{visible.map((theme) => {
-      const active = activeKey === theme.key
-      return <article className={`theme-card ${active ? 'is-active' : ''}`} key={theme.key}><div className="theme-preview-wrap"><Artwork theme={theme} />{active ? <span className="theme-selected"><Check size={13} weight="bold" /> Đang dùng</span> : null}</div><div className="theme-card-copy"><div><h2>{theme.name}</h2><p>{theme.style} · {theme.palette} · v{theme.version}</p></div><p>{theme.description}</p></div><footer>{theme.previewPath ? <AppLink className="button button-secondary" to={theme.previewPath}><Eye size={16} /> Xem trước</AppLink> : <button className="button button-secondary" type="button" disabled><Eye size={16} /> Chưa có preview</button>}{active && !isWebsite ? <AppLink className="button button-primary" to={studioRoutes.invites}><PencilSimple size={16} /> Chỉnh sửa</AppLink> : <button className={`button ${active ? 'button-secondary' : 'button-primary'}`} type="button" disabled={active || saving !== null || !activeWedding} onClick={() => void selectTheme(theme)}>{saving === theme.key ? 'Đang áp dụng…' : active ? 'Đang dùng' : 'Dùng giao diện'}</button>}</footer></article>
+      const active = activeVersionId === theme.versionId
+      return <article className={`theme-card ${active ? 'is-active' : ''} ${theme.unavailable ? 'is-unavailable' : ''}`} key={theme.versionId}><div className="theme-preview-wrap"><Artwork theme={theme} />{active ? <span className="theme-selected"><Check size={13} weight="bold" /> Đang dùng</span> : null}{theme.unavailable ? <span className="theme-retired-badge">Ngừng phân phối</span> : null}</div><div className="theme-card-copy"><div><h2>{theme.name}</h2><p>{theme.style} · {theme.palette} · v{theme.version}</p></div><p>{theme.description}</p></div><footer>{theme.previewPath ? <AppLink className="button button-secondary" to={theme.previewPath}><Eye size={16} /> Xem trước</AppLink> : <button className="button button-secondary" type="button" disabled><Eye size={16} /> Chưa có preview</button>}{active && !isWebsite ? <AppLink className="button button-primary" to={studioRoutes.invites}><PencilSimple size={16} /> Chỉnh sửa</AppLink> : <button className={`button ${active ? 'button-secondary' : 'button-primary'}`} type="button" disabled={theme.unavailable || active || saving !== null || !activeWedding} onClick={() => void selectTheme(theme)}>{theme.unavailable ? 'Không thể chọn lại' : saving === theme.key ? 'Đang áp dụng…' : active ? 'Đang dùng' : 'Dùng giao diện'}</button>}</footer></article>
     })}</div> : <div className="templates-empty"><MagnifyingGlass size={28} /><h2>{themes.length ? 'Không tìm thấy giao diện' : 'Chưa có giao diện khả dụng'}</h2><p>{themes.length ? 'Thử đổi từ khóa hoặc bộ lọc.' : 'Template sẽ xuất hiện sau khi được phát hành từ hệ thống.'}</p>{themes.length ? <button className="button button-secondary" type="button" onClick={() => { setQuery(''); setFilter('Tất cả') }}>Xóa bộ lọc</button> : null}</div>}
     {notice ? <div className="templates-feedback" role="status"><Check className="templates-success-check" size={34} weight="bold" /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div> : null}
   </section>
