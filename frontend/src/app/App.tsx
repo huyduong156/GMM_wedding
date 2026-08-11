@@ -30,6 +30,7 @@ import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
 import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
 import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
+import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVowsPreviewPage'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
@@ -86,6 +87,7 @@ export function App() {
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
+  if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
   if (pathname === adminRoutes.login) return <AdminLoginPage />
 
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {

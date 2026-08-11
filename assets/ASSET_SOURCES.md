@@ -32,6 +32,12 @@
 - Usage: Low-contrast floating decoration in the reusable wedding ambient layer.
 - Treatment: Generated on a solid chroma background, converted to transparent PNG, and rendered as non-interactive decorative content.
 
+### `frontend/public/assets/images/templates/editorial-vows/botanical-ribbon.png`
+
+- Source: Generated for GMM Wedding with OpenAI image generation on 2026-08-11.
+- Usage: Original porcelain/cobalt botanical side decoration for the Editorial Vows website template.
+- Treatment: Generated on a solid magenta chroma background, converted locally to transparent PNG, and rendered as non-interactive ambient decoration with reduced-motion fallback.
+
 ## Home landing decoration
 
 ### `frontend/public/assets/images/home-decor/*.png`

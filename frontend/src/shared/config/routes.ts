@@ -56,6 +56,7 @@ export const publicTemplateRoutes = {
   modernLuxePreview: '/templates/invitations/modern-luxe/preview',
   verdantPromisePreview: '/templates/invitations/verdant-promise/preview',
   chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
+  editorialVowsPreview: '/templates/websites/editorial-vows/preview',
 } as const
 
 export const marketingRoutes = {
