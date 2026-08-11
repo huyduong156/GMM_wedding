@@ -37,9 +37,14 @@ function toTheme(template: WeddingTemplate): Theme | null {
   }
 }
 
-function sectionDefaults(sections: TemplateSectionConfig[]) {
+function sectionDefaults(sections: TemplateSectionConfig[], previous?: WeddingContent['sectionConfig']) {
   const order = sections.map((item) => typeof item === 'string' ? item : item.sectionKey).filter(Boolean)
-  return { enabled: order, order }
+  if (!previous) return { enabled: order, order }
+  const keptOrder = previous.order.filter((key) => order.includes(key))
+  const added = order.filter((key) => !keptOrder.includes(key))
+  const required = sections.filter((item) => typeof item !== 'string' && item.required).map((item) => typeof item === 'string' ? item : item.sectionKey)
+  const enabled = [...new Set([...previous.enabled.filter((key) => order.includes(key)), ...added, ...required])]
+  return { enabled, order: [...keptOrder, ...added] }
 }
 
 function Artwork({ theme }: { theme: Theme }) {
@@ -72,19 +77,27 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   }, [activeWedding, surface, workspace])
 
   useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    if (!notice) return
+    const timeout = window.setTimeout(() => setNotice(''), 1800)
+    return () => window.clearTimeout(timeout)
+  }, [notice])
 
+  const activeKey = content?.templateVersion?.key
   const visible = useMemo(() => {
     const value = deferredQuery.trim().toLocaleLowerCase('vi')
-    return themes.filter((theme) => (filter === 'Tất cả' || theme.style === filter) && (!value || `${theme.name} ${theme.style} ${theme.palette}`.toLocaleLowerCase('vi').includes(value)))
-  }, [deferredQuery, filter, themes])
+    const matches = themes.filter((theme) => (filter === 'Tất cả' || theme.style === filter) && (!value || `${theme.name} ${theme.style} ${theme.palette}`.toLocaleLowerCase('vi').includes(value)))
+    const active = themes.find((theme) => theme.key === activeKey)
+    return active ? [active, ...matches.filter((theme) => theme.key !== active.key)] : matches
+  }, [activeKey, deferredQuery, filter, themes])
 
   const selectTheme = async (theme: Theme) => {
     if (!activeWedding || !content) { setNotice('Hãy chọn một đám cưới trước khi áp dụng giao diện.'); return }
     setSaving(theme.key); setError(null)
     try {
       const saved = await weddingApi.saveContent(activeWedding.id, {
-        surface, templateVersionId: theme.versionId, content: content.content, themeConfig: {},
-        sectionConfig: sectionDefaults(theme.sections), revision: content.revision,
+        surface, templateVersionId: theme.versionId, content: content.content, themeConfig: content.themeConfig,
+        sectionConfig: sectionDefaults(theme.sections, content.sectionConfig), revision: content.revision,
       })
       setContent(saved.content); setNotice(`Đã chọn giao diện ${theme.name}.`)
     } catch (cause) {
@@ -93,7 +106,6 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     } finally { setSaving(null) }
   }
 
-  const activeKey = content?.templateVersion?.key
   const isWebsite = kind === 'website'
   if (!workspace) return <TemplatesPage kind={kind} />
   return <section className="templates-page" aria-labelledby="templates-heading">
@@ -103,6 +115,6 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       const active = activeKey === theme.key
       return <article className={`theme-card ${active ? 'is-active' : ''}`} key={theme.key}><div className="theme-preview-wrap"><Artwork theme={theme} />{active ? <span className="theme-selected"><Check size={13} weight="bold" /> Đang dùng</span> : null}</div><div className="theme-card-copy"><div><h2>{theme.name}</h2><p>{theme.style} · {theme.palette} · v{theme.version}</p></div><p>{theme.description}</p></div><footer>{theme.previewPath ? <AppLink className="button button-secondary" to={theme.previewPath}><Eye size={16} /> Xem trước</AppLink> : <button className="button button-secondary" type="button" disabled><Eye size={16} /> Chưa có preview</button>}{active && !isWebsite ? <AppLink className="button button-primary" to={studioRoutes.invites}><PencilSimple size={16} /> Chỉnh sửa</AppLink> : <button className={`button ${active ? 'button-secondary' : 'button-primary'}`} type="button" disabled={active || saving !== null || !activeWedding} onClick={() => void selectTheme(theme)}>{saving === theme.key ? 'Đang áp dụng…' : active ? 'Đang dùng' : 'Dùng giao diện'}</button>}</footer></article>
     })}</div> : <div className="templates-empty"><MagnifyingGlass size={28} /><h2>{themes.length ? 'Không tìm thấy giao diện' : 'Chưa có giao diện khả dụng'}</h2><p>{themes.length ? 'Thử đổi từ khóa hoặc bộ lọc.' : 'Template sẽ xuất hiện sau khi được phát hành từ hệ thống.'}</p>{themes.length ? <button className="button button-secondary" type="button" onClick={() => { setQuery(''); setFilter('Tất cả') }}>Xóa bộ lọc</button> : null}</div>}
-    {notice ? <div className="templates-feedback" role="status"><Check size={16} /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div> : null}
+    {notice ? <div className="templates-feedback" role="status"><Check className="templates-success-check" size={34} weight="bold" /><span>{notice}</span><button type="button" onClick={() => setNotice('')} aria-label="Đóng thông báo">×</button></div> : null}
   </section>
 }

@@ -6,10 +6,14 @@ import './chibi-daydream.css'
 const asset = (name: string) => `/assets/images/templates/chibi-daydream/${name}`
 const gallery = [asset('chibi-couple-hero.png'), asset('album-wedding-car.png'), asset('album-cake-evening.png')]
 const days = Array.from({ length: 31 }, (_, index) => index + 1)
+export type ChibiDaydreamData = Record<string, unknown> & { brideName?: string; groomName?: string; weddingDate?: string; invitationTitle?: string; invitationMessage?: string; ceremonyTime?: string; receptionTime?: string; venueName?: string; venueAddress?: string; mapUrl?: string; thanksMessage?: string; timelineItems?: Array<{ time: string; title: string; detail?: string }> }
 
-export function ChibiDaydreamInvitation() {
+export function ChibiDaydreamInvitation({ data, sectionConfig, editorMode = false }: { data?: ChibiDaydreamData; sectionConfig?: { enabled: string[]; order: string[] }; editorMode?: boolean }) {
+  const content = { brideName: 'Khánh An', groomName: 'Đức Minh', weddingDate: '20 · 12 · 2026', invitationTitle: 'Trân trọng báo tin lễ thành hôn của con chúng tôi', invitationMessage: 'Đến dự bữa tiệc chung vui cùng gia đình chúng tôi', ceremonyTime: '09:00', receptionTime: '18:30', venueName: 'Coral Garden Hall', venueAddress: '28 Bạch Đằng, Hải Châu, Đà Nẵng', mapUrl: 'https://maps.google.com/?q=28+Bach+Dang+Da+Nang', thanksMessage: 'Cảm ơn bạn đã dành thời gian đến chung vui', timelineItems: [{ time: '17:30', title: 'Đón khách', detail: 'Chụp ảnh và nhận một chiếc sticker nhỏ.' }, { time: '18:15', title: 'Lễ thành hôn', detail: 'Cùng chứng kiến lời hẹn trăm năm.' }, { time: '18:30', title: 'Tiệc chung vui', detail: 'Dùng tiệc và nâng ly cùng hai gia đình.' }], ...data }
+  const visible = (key: string) => !sectionConfig || sectionConfig.enabled.includes(key)
+  const sectionStyle = (key: string) => sectionConfig ? { order: sectionConfig.order.indexOf(key) } : undefined
   const [opening, setOpening] = useState(false)
-  const [opened, setOpened] = useState(false)
+  const [opened, setOpened] = useState(editorMode)
   const [slide, setSlide] = useState(0)
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)
@@ -43,7 +47,7 @@ export function ChibiDaydreamInvitation() {
       <img className="cd-float cd-float-letter" src={asset('chibi_love-letter_v2.png')} alt="" />
       <img className="cd-float cd-float-doves" src={asset('chibi_love-doves_v2.png')} alt="" />
       <button className="cd-envelope" type="button" onClick={openInvitation} disabled={opening}>
-        <span>Thiệp mời ngày vui</span><strong>Khánh An <i>&amp;</i> Đức Minh</strong><small>20 · 12 · 2026</small>
+        <span>Thiệp mời ngày vui</span><strong>{content.brideName} <i>&amp;</i> {content.groomName}</strong><small>{content.weddingDate}</small>
         <img src={asset('chibi_wedding-rings_v2.png')} alt="" />
         <b>{opening ? 'Thiệp đang mở...' : 'Chạm để mở thiệp'}</b>
       </button>
@@ -52,30 +56,30 @@ export function ChibiDaydreamInvitation() {
 
     <main ref={mainRef} className="cd-main" tabIndex={-1} aria-hidden={!opened}>
       <div className="cd-sky-decor" aria-hidden="true"><img src={asset('chibi_heart-balloons_v2.png')} alt="" /><img src={asset('chibi_love-doves_v2.png')} alt="" /></div>
-      <section className="cd-hero">
-        <img className="cd-hero-image" src={asset('chibi-couple-hero.png')} alt="Khánh An và Đức Minh dưới cổng hoa ngày cưới" />
-        <div className="cd-hero-copy"><span>Save our happy day</span><h1>Khánh An <i>&amp;</i> Đức Minh</h1><time>20.12.2026</time></div>
+      <section className="cd-hero" data-editor-section="banner" hidden={!visible('banner')} style={sectionStyle('banner')}>
+        <img className="cd-hero-image" src={asset('chibi-couple-hero.png')} alt={`${content.brideName} và ${content.groomName} dưới cổng hoa ngày cưới`} />
+        <div className="cd-hero-copy"><span>Save our happy day</span><h1>{content.brideName} <i>&amp;</i> {content.groomName}</h1><time>{content.weddingDate}</time></div>
       </section>
 
-      <section className="cd-paper cd-announcement">
+      <section className="cd-paper cd-announcement" data-editor-section="invitation" hidden={!visible('invitation')} style={sectionStyle('invitation')}>
         <img src={asset('chibi_flower-arch_v2.png')} alt="" />
-        <span>Song hỷ lâm môn</span><h2>Trân trọng báo tin lễ thành hôn của con chúng tôi</h2>
+        <span>Song hỷ lâm môn</span><h2>{content.invitationTitle}</h2>
         <div className="cd-family-heading"><span>Thông tin hai gia đình</span><p>Hai bên gia đình trân trọng giới thiệu</p></div><div className="cd-families"><article><small>Nhà gái</small><b>Đại diện gia đình</b><div className="cd-family-person"><span>Ông</span><strong>Nguyễn Văn Thành</strong></div><div className="cd-family-person"><span>Bà</span><strong>Trần Thu Mai</strong></div><p>Tư gia · Hải Châu, Đà Nẵng</p></article><i className="cd-family-heart" aria-hidden="true"><Heart weight="fill" /></i><article><small>Nhà trai</small><b>Đại diện gia đình</b><div className="cd-family-person"><span>Ông</span><strong>Lê Quốc Hùng</strong></div><div className="cd-family-person"><span>Bà</span><strong>Phạm Ngọc Lan</strong></div><p>Tư gia · Sơn Trà, Đà Nẵng</p></article></div>
         <div className="cd-couple-names"><div><small>Trưởng nữ</small><strong>Khánh An</strong></div><i>&amp;</i><div><small>Trưởng nam</small><strong>Đức Minh</strong></div></div>
       </section>
 
-      <section className="cd-ceremony">
+      <section className="cd-ceremony" data-editor-section="ceremony" hidden={!visible('ceremony')} style={sectionStyle('ceremony')}>
         <div><span>Lễ thành hôn</span><h2>Được cử hành tại tư gia nhà gái</h2><p>Vào lúc <strong>09:00</strong>, Chủ nhật<br />ngày 20 tháng 12 năm 2026</p><small>Nhằm ngày 12 tháng 11 năm Bính Ngọ</small></div>
         <img src={asset('chibi_wedding-bells_v2.png')} alt="Chuông cưới chibi" />
       </section>
 
-      <section className="cd-reception">
+      <section className="cd-reception" data-editor-section="reception" hidden={!visible('reception')} style={sectionStyle('reception')}>
         <img src={asset('chibi_cupcake-pair_v2.png')} alt="Cặp bánh cưới chibi" />
-        <span>Tiệc cưới</span><h2>Kính mời Quý khách</h2><p>Đến dự bữa tiệc chung vui cùng gia đình chúng tôi</p>
-        <div><strong>Đón khách 17:30</strong><strong>Khai tiệc 18:30</strong></div><h3>Coral Garden Hall</h3><p>28 Bạch Đằng, Hải Châu, Đà Nẵng</p>
+        <span>Tiệc cưới</span><h2>{content.invitationTitle}</h2><p>{content.invitationMessage}</p>
+        <div><strong>Đón khách {content.ceremonyTime}</strong><strong>Khai tiệc {content.receptionTime}</strong></div><h3>{content.venueName}</h3><p>{content.venueAddress}</p>
       </section>
 
-      <section className="cd-calendar" aria-labelledby="cd-calendar-title">
+      <section className="cd-calendar" aria-labelledby="cd-calendar-title" data-editor-section="calendar" hidden={!visible('calendar')} style={sectionStyle('calendar')}>
         <div className="cd-calendar-copy"><img src={asset('chibi_love-calendar_v2.png')} alt="" /><span>Save the date</span><h2 id="cd-calendar-title">Hẹn nhau vào một ngày thật xinh</h2><div className="cd-calendar-countdown" role="timer" aria-live="off" aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}><div><strong>{weddingCountdown.days}</strong><small>Ngày</small></div><div><strong>{formatCountdownUnit(weddingCountdown.hours)}</strong><small>Giờ</small></div><div><strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong><small>Phút</small></div><div><strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong><small>Giây</small></div></div><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Khanh%20An%20va%20Duc%20Minh" target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch</a></div>
         <div className="cd-month"><header><span>Tháng 12</span><strong>2026</strong></header><div className="cd-week"><b>T2</b><b>T3</b><b>T4</b><b>T5</b><b>T6</b><b>T7</b><b>CN</b></div><div className="cd-days"><i />{days.map((day) => <span key={day} className={day === 20 ? 'is-wedding' : ''}>{day}{day === 20 && <Heart weight="fill" />}</span>)}</div></div>
       </section>

@@ -17,6 +17,7 @@ Danh sách trường, kiểu dữ liệu và quan hệ đã triển khai xem [da
 - `Wedding`, `WeddingMember(role)`, `WeddingEvent`, `WeddingContent`, `WeddingTheme`, `WeddingWebsite`, `InvitationDesign`.
 - `Template`, immutable `TemplateVersion`, `PublishedWeddingSnapshot`.
 - `MediaAsset`, `MediaVariant`.
+- `MusicTrack` catalog dùng chung, tham chiếu audio asset và metadata quyền sử dụng.
 - `GuestCategory`, `GuestGroup`, `Guest`, `Invitation`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
 - `Wish`, `Notification`, `NotificationPreference`, `AuditLog`.
 - `WeddingTask`, `TaskChecklistTemplate`, `TaskChecklistItem`.
@@ -51,6 +52,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 - Publish chỉ khi slug/template/schema/media đều hợp lệ.
 - Unique `(templateId, version)` cho `TemplateVersion`; version đã phát hành không được ghi đè. Lưu `configHash`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion` và code revision để sync/audit.
 - `WeddingContent` lưu canonical content; `WeddingTheme`/design entity lưu section order, enabled state và presentation config. Thiệp online và website cưới không dùng chung một template selection duy nhất.
+- Cấu hình nhạc theo surface lưu `musicTrackId | null`, `enabled`, `autoplayRequested`; `MusicTrack` phải `ACTIVE` và audio asset `READY` tại lần publish. Bytes/URL ký không nằm trong JSON canonical.
 - Revoke/rotate invitation làm token cũ vô hiệu ngay.
 - Xóa wedding thu hồi public access ngay; hard delete theo retention job.
 

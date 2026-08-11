@@ -44,6 +44,7 @@ export function useLiveEditorBridge<T, S extends string>(state: T) {
 }
 
 export function useEditorSections<S extends string>(initial: S[], required: S[], canReorder: (section: S) => boolean = () => true) {
+  const initialSectionRef = useRef(initial[0])
   const [selected, setSelected] = useState(initial[0])
   const [order, setOrder] = useState(initial)
   const [enabled, setEnabled] = useState(initial)
@@ -57,7 +58,10 @@ export function useEditorSections<S extends string>(initial: S[], required: S[],
     if (required.includes(key)) return
     setEnabled((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key])
   }
-  return { selected, setSelected, order, enabled, move, toggle }
+  const reset = useCallback((nextOrder: S[], nextEnabled: S[]) => {
+    setOrder(nextOrder); setEnabled(nextEnabled); setSelected(nextOrder[0] ?? initialSectionRef.current)
+  }, [])
+  return { selected, setSelected, order, enabled, move, toggle, reset }
 }
 
 export async function readEditorImages(files: FileList | null, currentCount: number, maxItems = 12, maxBytes = 5 * 1024 * 1024) {

@@ -11,3 +11,5 @@ Fake flow dùng:
 3. `POST /weddings/{weddingId}/media/{mediaId}/complete` kiểm tra object tồn tại và chuyển sang `READY`.
 
 Không publish asset nếu chưa `READY`. S3 adapter hiện là boundary chưa gắn SDK/provider cụ thể; không được dùng `MEDIA_STORAGE_DRIVER=s3` cho tới khi adapter được cấu hình.
+
+Audio của catalog nhạc nền cũng dùng `ObjectStorage`; PostgreSQL chỉ lưu `MediaAsset`/`MusicTrack` metadata và reference. Audio có allowlist MIME, giới hạn size, scan/metadata verification riêng và có thể cần derivative streaming. Platform admin upload qua contract module `music`; không tái sử dụng route media owner-scoped. Xem [backend nhạc nền cưới](../modules/background-music.md).

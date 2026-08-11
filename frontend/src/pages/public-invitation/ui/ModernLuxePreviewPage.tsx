@@ -7,9 +7,10 @@ const palettes: Array<{ key: ModernLuxePalette; label: string }> = [{ key: 'cham
 
 export function ModernLuxePreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
-  const [palette, setPalette] = useState<ModernLuxePalette>('champagne')
-  const [data, setData] = useState<ModernLuxeData>()
-  const [sectionConfig, setSectionConfig] = useState<ModernLuxeSectionConfig>()
+  const stored = readPreviewState<{ data?: ModernLuxeData; palette?: ModernLuxePalette; sectionConfig?: ModernLuxeSectionConfig }>('modern-luxe')
+  const [palette, setPalette] = useState<ModernLuxePalette>(stored?.palette ?? 'champagne')
+  const [data, setData] = useState<ModernLuxeData | undefined>(stored?.data)
+  const [sectionConfig, setSectionConfig] = useState<ModernLuxeSectionConfig | undefined>(stored?.sectionConfig)
   useEffect(() => {
     if (!editorMode) return
     const receive = (event: MessageEvent) => {
@@ -27,3 +28,5 @@ export function ModernLuxePreviewPage() {
   }, [editorMode])
   return <>{!editorMode ? <aside className="template-preview-toolbar" aria-label="Tùy chọn xem trước"><div><strong>Élan d’Amour</strong><span>Couture 2.5D invitation · v2.3</span></div><div role="group" aria-label="Chọn bảng màu">{palettes.map((item) => <button key={item.key} className={palette === item.key ? 'is-active' : ''} aria-pressed={palette === item.key} onClick={() => setPalette(item.key)}><i className={`palette-dot ${item.key}`} />{item.label}</button>)}</div><a href="/studio/invites/themes">Đóng xem trước</a></aside> : null}<ModernLuxeInvitation data={data} palette={palette} preview={!editorMode} editorMode={editorMode} sectionConfig={sectionConfig} /></>
 }
+
+function readPreviewState<T>(key: string): T | null { try { return JSON.parse(sessionStorage.getItem(`gmm-invitation-preview:${key}`) ?? 'null') as T | null } catch { return null } }

@@ -45,3 +45,25 @@ Section key trong template config, card accordion và `data-editor-section` ph�
 ## Hướng mở rộng
 
 Website cưới và recap tái sử dụng protocol/hook trên, nhưng giữ payload và renderer riêng. Nếu cần thêm event, thêm tên event cụ thể và tăng version khi thay đổi không tương thích; không dùng event chung chung hoặc truyền script thực thi vào iframe.
+
+## Checklist rà soát invitation editor (2026-08-11)
+
+| Hạng mục | Trạng thái |
+|---|---|
+| Renderer production trong iframe cùng origin, handshake/update không reload | Đã làm |
+| Mobile mặc định; desktop/mobile viewport logic và preview nổi trên mobile | Đã làm |
+| Accordion form cho content, gia đình, timeline, venue, RSVP và quà | Đã làm |
+| Palette và display style lấy theo template config | Đã làm |
+| Upload ảnh/ảnh hoạt động cục bộ, giới hạn count/size | Đã làm ở mức demo |
+| Bật/tắt, reorder và khóa anchor theo `canReorder` | Đã làm |
+| Section nhạc, autoplay fallback và play/pause trong renderer | Đã làm ở mức demo; chưa nối API nhạc |
+| Test hiện có cho iframe, viewport, mobile advice, album và reorder anchor | Đã làm một phần |
+| Load draft thật từ `GET /weddings/{id}/content` | Đã làm cho invitation editor |
+| Upload ảnh qua media API và thay data URL bằng asset reference | Đã làm cho gallery/activities |
+| Chọn nhạc từ catalog admin và lưu `musicTrackId` | Còn thiếu |
+| Manual save, dirty-state baseline, cảnh báo rời trang và revision conflict | Đã làm; chỉ gửi PUT khi user xác nhận lưu, không autosave theo từng input |
+| Full preview, publish/unpublish và kiểm tra slug | Đã làm cho thiệp online |
+| Preview/publish validation với media/music `READY` | Chờ hoàn thiện upload ảnh và catalog nhạc theo phạm vi riêng |
+| Test API integration, schema editor, autosave/conflict và error states | Đang được duy trì cùng test suite frontend |
+
+Chi tiết UX nhạc cho admin, owner và khách xem [Nhạc nền cưới trên frontend](./wedding-background-music.md).

@@ -10,6 +10,19 @@ export type TemplateSectionConfig = string | {
   required?: boolean
   canToggle?: boolean
   canReorder?: boolean
+  fields?: Record<string, TemplateFieldConfig>
+}
+
+export type TemplateFieldConfig = {
+  type: 'string' | 'text' | 'date' | 'time' | 'url' | 'boolean' | 'select' | 'items' | 'image' | 'images' | 'audio'
+  label?: string
+  required?: boolean
+  maxLength?: number
+  maxItems?: number
+  default?: unknown
+  options?: Array<{ key: string; label: string }>
+  itemFields?: Record<string, TemplateFieldConfig>
+  contentKey?: string
 }
 
 export type TemplateVersion = {
@@ -19,7 +32,7 @@ export type TemplateVersion = {
   templateConfigVersion: number
   contentSchemaVersion: number
   rendererApiVersion: number
-  config: { sections?: TemplateSectionConfig[]; style?: string; palette?: string; badge?: string } & Record<string, unknown>
+  config: { sections?: TemplateSectionConfig[]; palettes?: Array<{ key: string; label: string; default?: boolean }>; style?: string; palette?: string; badge?: string } & Record<string, unknown>
   releasedAt: string | null
   deprecatedAt: string | null
 }
@@ -41,6 +54,31 @@ export type WeddingContent = {
   themeConfig: Record<string, unknown>
   sectionConfig: { enabled: string[]; order: string[] }
   templateVersion: { id: string; key: string; version: string; config: Record<string, unknown> } | null
+}
+
+export type MediaAsset = {
+  id: string
+  status: string
+  mimeType: string
+  sizeBytes: number
+  publicUrl: string
+  originalName?: string | null
+}
+
+export type PublishedWeddingSnapshot = {
+  id: string
+  weddingId: string
+  surface: WeddingSurface
+  slug: string
+  version: number
+  payload: Record<string, unknown>
+  publishedAt: string
+  templateVersion: { key: string; version: string }
+}
+
+type MediaUploadIntent = {
+  media: MediaAsset
+  upload: { uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string }
 }
 
 export type Wedding = {
@@ -125,6 +163,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
+async function uploadMediaFile(weddingId: string, file: File): Promise<MediaAsset> {
+  const intent = await request<MediaUploadIntent>(`/weddings/${weddingId}/media/upload-intents`, {
+    method: 'POST', body: JSON.stringify({ mimeType: file.type, sizeBytes: file.size, originalName: file.name }),
+  })
+  const isBackendUpload = intent.upload.uploadUrl === 'backend-upload'
+  const uploadUrl = isBackendUpload ? `${apiBaseUrl}/weddings/${weddingId}/media/${intent.media.id}/upload` : intent.upload.uploadUrl
+  const uploaded = await fetch(uploadUrl, {
+    method: intent.upload.method, body: file, credentials: isBackendUpload ? 'include' : 'omit',
+    headers: { ...intent.upload.headers, ...(isBackendUpload ? { 'x-csrf-protection': '1' } : {}) },
+  })
+  if (!uploaded.ok) throw new WeddingApiError(uploaded.status, 'MEDIA_UPLOAD_FAILED', 'Không thể tải ảnh lên kho media.')
+  const completed = await request<{ media: MediaAsset }>(`/weddings/${weddingId}/media/${intent.media.id}/complete`, { method: 'POST', body: '{}' })
+  const apiOrigin = new URL(apiBaseUrl, window.location.origin).origin
+  return { ...completed.media, publicUrl: completed.media.publicUrl.startsWith('/') ? new URL(completed.media.publicUrl, apiOrigin).toString() : completed.media.publicUrl }
+}
+
 export type WeddingInput = { name: string; primaryDate?: string | null; timezone?: string; locale?: string; visibility?: WeddingVisibility }
 export type EventInput = {
   name: string; eventType: string; startsAt: string; endsAt?: string | null; timezone: string
@@ -151,5 +205,9 @@ export const weddingApi = {
     themeConfig: Record<string, unknown>
     sectionConfig: { enabled: string[]; order: string[] }
     revision: number
-  }) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content`, { method: 'PUT', body: JSON.stringify(input) }),
+  }) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content`, { method: 'PUT', body: JSON.stringify({ ...input, content: typeof input.content === 'object' && !Array.isArray(input.content) ? input.content : {}, themeConfig: typeof input.themeConfig === 'object' && !Array.isArray(input.themeConfig) ? input.themeConfig : {}, sectionConfig: typeof input.sectionConfig === 'object' && !Array.isArray(input.sectionConfig) ? input.sectionConfig : { enabled: [], order: [] } }) }),
+  slugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/weddings/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),
+  publish: (weddingId: string, input: { surface: WeddingSurface; slug: string; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
+  unpublish: (weddingId: string, surface: WeddingSurface) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify({ surface }) }),
+  uploadMedia: uploadMediaFile,
 }

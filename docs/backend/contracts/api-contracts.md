@@ -24,6 +24,7 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 - Auth: `POST /auth/{register,login,logout,forgot-password,reset-password}`, `GET|PATCH /me`.
 - Wedding base đã implement: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, CRUD `/weddings/{id}/events` và `GET /weddings/{id}/dashboard`; slug availability, content/theme, publish/unpublish và preview token vẫn planned.
 - Template/media: `GET /templates[...]`, upload intent/complete/list/delete.
+- Nhạc nền: owner/editor đọc `GET /music-tracks`; platform admin quản lý upload/metadata/activate/retire qua `/admin/music-tracks[...]`; chọn track được lưu atomically trong wedding content theo revision.
 - Guest: CRUD, group, import preview/commit, export, invitation create/rotate/revoke.
 - Owner RSVP/wish: list/filter/update/export/moderate và analytics summary.
 - Todo: `GET|POST /weddings/{id}/tasks`, `GET|PATCH|DELETE /weddings/{id}/tasks/{taskId}`, reorder/bulk status; `GET /task-checklist-templates`, `POST /weddings/{id}/tasks/apply-template`.

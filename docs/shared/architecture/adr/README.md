@@ -14,3 +14,5 @@ Date: YYYY-MM-DD
 ```
 
 Đánh số tăng dần từ `0001`, không tái sử dụng số.
+
+Quyết định mới nhất: [0009 - Catalog nhạc nền cưới dùng chung](./0009-shared-wedding-music-catalog.md).

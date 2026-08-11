@@ -114,7 +114,7 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/w
 - Card có thumbnail tỷ lệ cố định, tên/style/tags/premium; preview và `Dùng mẫu này` rõ ràng.
 - Trước đổi template phải báo phần nào tương thích/không tương thích và cho preview trước khi commit.
 
-Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/templates` đã có gallery responsive với 6 theme mock, tìm kiếm, lọc phong cách, preview lớn, chọn theme và đánh dấu theme đang dùng. Renderer/editor chi tiết, kiểm tra schema compatibility và kết nối API chưa được triển khai.
+Trạng thái triển khai frontend (2026-08): kho giao diện user đã responsive, ghim theme đang dùng, preview/chọn theme và điều hướng vào editor. Editor thiệp online đọc template config để sinh section/form, dùng renderer thật cho các template đã đăng ký, kết nối API tải/lưu/autosave/publish/unpublish và xử lý validation/revision conflict. Upload ảnh hoàn chỉnh và catalog nhạc thuộc phạm vi tiếp theo.
 
 ### Settings
 
