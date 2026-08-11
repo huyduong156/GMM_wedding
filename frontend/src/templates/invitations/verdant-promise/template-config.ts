@@ -4,7 +4,7 @@ export const verdantPromiseTemplateConfig = {
   sections: [
     { sectionKey: 'cover', label: 'Bìa thiệp', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'invitation', label: 'Lời mời', required: true, canToggle: false, canReorder: false },
-    { sectionKey: 'families', label: 'Thông tin hai gia đình', required: true, canToggle: false, canReorder: true },
+    { sectionKey: 'families', label: 'Thông tin hai gia đình', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'eventDetails', label: 'Ngày và giờ', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'countdown', label: 'Đếm ngược', canToggle: true, canReorder: true },
     { sectionKey: 'timeline', label: 'Lịch trình', canToggle: true, canReorder: true },

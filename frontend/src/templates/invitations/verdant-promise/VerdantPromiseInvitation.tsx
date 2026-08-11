@@ -14,6 +14,7 @@ import {
 } from '@phosphor-icons/react'
 import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import type { ModernLuxeData, ModernLuxeSectionConfig } from '../modern-luxe/ModernLuxeInvitation'
 import './verdant-promise.css'
 
 const VerdantParticles = lazy(async () => {
@@ -21,13 +22,13 @@ const VerdantParticles = lazy(async () => {
   return { default: module.VerdantParticles }
 })
 
-const gallery = [
+const defaultGallery = [
   '/assets/images/templates/modern-luxe/couple-portrait.jpg',
   '/assets/images/templates/verdant-promise/greenhouse-background.png',
   '/assets/images/templates/modern-luxe/wedding-detail.jpg',
 ]
 
-const families = [
+const defaultFamilies = [
   {
     side: 'Nhà gái',
     father: 'Nguyễn Văn Lâm',
@@ -48,7 +49,7 @@ const families = [
   },
 ]
 
-const timeline = [
+const defaultTimeline = [
   { time: '10:30', title: 'Đón khách', detail: 'Chụp ảnh và lưu lại những lời chúc đầu tiên.', Icon: Clock },
   { time: '11:00', title: 'Lễ thành hôn', detail: 'Chứng kiến lời hẹn trăm năm trước hai gia đình.', Icon: Heart },
   { time: '11:30', title: 'Tiệc chung vui', detail: 'Khai tiệc trong không gian nhà kính ngập nắng.', Icon: Gift },
@@ -78,6 +79,7 @@ function SectionReveal({ children, className }: { children: ReactNode; className
   return (
     <motion.section
       className={className}
+      data-editor-section={className.replace(/^vp-/, '')}
       initial={reduceMotion ? false : { opacity: 0, y: 72 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ amount: 0.12, once: true }}
@@ -88,7 +90,14 @@ function SectionReveal({ children, className }: { children: ReactNode; className
   )
 }
 
-export function VerdantPromiseInvitation({ preview = false }: { preview?: boolean }) {
+export function VerdantPromiseInvitation({ preview = false, data, sectionConfig }: { preview?: boolean; data?: ModernLuxeData; sectionConfig?: ModernLuxeSectionConfig }) {
+  const brideName = data?.brideName || 'An Nhiên'
+  const groomName = data?.groomName || 'Minh Khang'
+  const weddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const gallery = data?.galleryImages?.length ? data.galleryImages : defaultGallery
+  const families = data ? [{ ...defaultFamilies[0], father: data.brideFather || defaultFamilies[0].father, mother: data.brideMother || defaultFamilies[0].mother, child: brideName }, { ...defaultFamilies[1], father: data.groomFather || defaultFamilies[1].father, mother: data.groomMother || defaultFamilies[1].mother, child: groomName }] : defaultFamilies
+  const timeline = data?.timelineItems?.length ? data.timelineItems.map((item, index) => ({ ...item, Icon: index === 1 ? Heart : index === 2 ? Gift : Clock })) : defaultTimeline
+  const enabledSectionKeys = sectionConfig?.enabled.join(' ') ?? 'cover invitation families eventDetails countdown timeline venue gallery rsvp guestbook gift'
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(false)
   const [slide, setSlide] = useState(0)
@@ -132,7 +141,7 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
     if (!opened || galleryPaused || reduceMotion) return
     const timer = window.setInterval(() => setSlide((current) => (current + 1) % gallery.length), 5200)
     return () => window.clearInterval(timer)
-  }, [galleryPaused, opened, reduceMotion])
+  }, [gallery.length, galleryPaused, opened, reduceMotion])
 
   useEffect(() => {
     const onVisibilityChange = () => setGalleryPaused(document.hidden)
@@ -162,7 +171,7 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className={`vp-wrap ${opened ? 'is-opened' : ''}`}>
+    <div className={`vp-wrap ${opened ? 'is-opened' : ''}`} data-enabled-sections={enabledSectionKeys}>
       <AnimatePresence>
         {!opened || opening ? (
           <motion.section
@@ -194,7 +203,7 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
               type="button"
               onClick={openInvitation}
               disabled={opening}
-              aria-label="Mở thiệp cưới của An Nhiên và Minh Khang"
+              aria-label={`Mở thiệp cưới của ${brideName} và ${groomName}`}
               initial={reduceMotion ? false : { opacity: 0, rotateX: 8, y: 34 }}
               animate={opening && !reduceMotion
                 ? { opacity: 0, rotateY: -16, scale: 0.9, y: -24 }
@@ -206,8 +215,8 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
               <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
               <span className="vp-cover-kicker">Wedding invitation</span>
               <span className="vp-cover-monogram" aria-hidden="true">A · K</span>
-              <h1>An Nhiên <i>&amp;</i> Minh Khang</h1>
-              <time dateTime="2026-10-18">18 · 10 · 2026</time>
+              <h1>{brideName} <i>&amp;</i> {groomName}</h1>
+              <time>{weddingDate}</time>
               <strong><Leaf weight="fill" /> {opening ? 'Khu vườn đang mở' : 'Chạm để mở thiệp'}</strong>
             </motion.button>
             <p className="vp-opening-note">Một lời mời được ươm bằng yêu thương</p>
@@ -241,15 +250,15 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12, duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="vp-eyebrow vp-eyebrow-light">Trân trọng báo tin lễ thành hôn</span>
+              <span className="vp-eyebrow vp-eyebrow-light">{data?.eyebrow || 'Trân trọng báo tin lễ thành hôn'}</span>
               <p className="vp-hero-script">Our verdant promise</p>
               <h1>
-                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>An Nhiên</motion.span></span>
+                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{brideName}</motion.span></span>
                 <motion.i initial={reduceMotion ? false : { opacity: 0, rotate: -18, scale: 0.7 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: 0.62, duration: 0.72 }}>&amp;</motion.i>
-                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.38, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>Minh Khang</motion.span></span>
+                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.38, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{groomName}</motion.span></span>
               </h1>
-              <div className="vp-hero-date"><span>Chủ nhật</span><time dateTime="2026-10-18">18 · 10 · 2026</time><span>Hà Nội</span></div>
-              <p className="vp-hero-copy">Thân mời bạn bước vào khu vườn của chúng mình, cùng chứng kiến khoảnh khắc hai hành trình nở thành một lời hẹn trăm năm.</p>
+              <div className="vp-hero-date"><span>Ngày cưới</span><time>{weddingDate}</time><span>{data?.venueAddress || 'Hà Nội'}</span></div>
+              <p className="vp-hero-copy">{data?.invitationMessage || 'Thân mời bạn bước vào khu vườn của chúng mình, cùng chứng kiến khoảnh khắc hai hành trình nở thành một lời hẹn trăm năm.'}</p>
             </motion.div>
             <div className="vp-scroll-cue" aria-hidden="true"><span>Cuộn để bước vào vườn</span><i /></div>
           </section>
@@ -292,17 +301,17 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
           <SectionReveal className="vp-date">
             <div className="vp-date-card">
               <div className="vp-date-calendar">
-                <span>Chủ nhật</span>
-                <strong>18</strong>
-                <span>Tháng 10 · 2026</span>
+                <span>Ngày thành hôn</span>
+                <strong>{weddingDate}</strong>
+                <span>{data?.venueAddress || 'Hà Nội'}</span>
               </div>
               <div className="vp-ceremony-copy">
                 <span className="vp-eyebrow">Hôn lễ &amp; tiệc cưới</span>
                 <h2>Một ngày thu dành cho lời hẹn trăm năm</h2>
                 <dl>
-                  <div><dt>Đón khách</dt><dd>10:30</dd></div>
-                  <div><dt>Cử hành hôn lễ</dt><dd>11:00</dd></div>
-                  <div><dt>Khai tiệc</dt><dd>11:30</dd></div>
+                  <div><dt>Đón khách</dt><dd>{data?.ceremonyTime || '10:30'}</dd></div>
+                  <div><dt>Cử hành hôn lễ</dt><dd>{data?.receptionTime || '11:00'}</dd></div>
+                  <div><dt>Khai tiệc</dt><dd>{data?.timelineItems?.at(-1)?.time || data?.receptionTime || '11:30'}</dd></div>
                 </dl>
                 <p>Nhằm ngày 08 tháng 09 năm Bính Ngọ</p>
                 <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20An%20Nhien%20va%20Minh%20Khang" target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch</a>
@@ -343,13 +352,13 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
             <div className="vp-map-copy">
               <MapPin weight="fill" />
               <span className="vp-eyebrow">Địa điểm</span>
-              <h2>Glass Garden Ballroom</h2>
-              <p>25 Tràng Tiền, Quận Hoàn Kiếm, Hà Nội</p>
+              <h2>{data?.venueName || 'Glass Garden Ballroom'}</h2>
+              <p>{data?.venueAddress || 'Hà Nội'}</p>
               <small>Sảnh kính tầng 2 · Trang phục: thanh lịch, tông màu tự nhiên</small>
-              <a href="https://maps.google.com/?q=25+Trang+Tien+Ha+Noi" target="_blank" rel="noreferrer"><NavigationArrow /> Xem đường đi</a>
+              <a href={data?.mapUrl || 'https://maps.google.com'} target="_blank" rel="noreferrer"><NavigationArrow /> Xem đường đi</a>
             </div>
             <div className="vp-map-frame">
-              <iframe title="Bản đồ Glass Garden Ballroom" src="https://www.google.com/maps?q=25%20Trang%20Tien%20Ha%20Noi&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+              <iframe title={`Bản đồ ${data?.venueName || 'địa điểm cưới'}`} src={`https://www.google.com/maps?q=${encodeURIComponent(data?.venueAddress || data?.venueName || 'Ha Noi')}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
             </div>
           </SectionReveal>
 
@@ -390,10 +399,10 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
 
           <SectionReveal className="vp-rsvp">
             <div className="vp-rsvp-glow" aria-hidden="true" />
-            <span className="vp-eyebrow vp-eyebrow-light">RSVP · Trước 10.10.2026</span>
+            <span className="vp-eyebrow vp-eyebrow-light">RSVP{data?.rsvpDeadline ? ` · Trước ${data.rsvpDeadline}` : ''}</span>
             <Sparkle weight="fill" />
             <h2>Bạn sẽ đến chung vui cùng chúng mình chứ?</h2>
-            <p>Sự hiện diện của bạn sẽ làm khu vườn ngày ấy thêm trọn vẹn.</p>
+            <p>{data?.rsvpMessage || 'Sự hiện diện của bạn sẽ làm khu vườn ngày ấy thêm trọn vẹn.'}</p>
             <div className="vp-rsvp-actions">
               <button type="button" className={rsvp === 'attending' ? 'is-selected' : ''} onClick={() => setRsvp('attending')}>Mình sẽ tham dự</button>
               <button type="button" className={rsvp === 'declined' ? 'is-selected' : ''} onClick={() => setRsvp('declined')}>Mình chưa thể tham dự</button>
@@ -436,7 +445,7 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
           <SectionReveal className="vp-gift">
             <Gift weight="fill" />
             <span className="vp-eyebrow">Quà mừng</span>
-            <p>Sự hiện diện và lời chúc của bạn đã là món quà quý giá nhất.</p>
+            <p>{data?.giftMessage || 'Sự hiện diện và lời chúc của bạn đã là món quà quý giá nhất.'}</p>
             <button type="button" onClick={() => setGiftOpen((current) => !current)} aria-expanded={giftOpen}>{giftOpen ? 'Khép lại' : 'Xem lời nhắn mừng cưới'}</button>
             <AnimatePresence>
               {giftOpen ? (
@@ -451,9 +460,9 @@ export function VerdantPromiseInvitation({ preview = false }: { preview?: boolea
           <motion.footer className="vp-footer" initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}>
             <div className="vp-footer-photo" aria-hidden="true" />
             <span>With love</span>
-            <strong>An Nhiên &amp; Minh Khang</strong>
+            <strong>{brideName} &amp; {groomName}</strong>
             <p>Cảm ơn bạn đã dành thời gian bước vào khu vườn và trở thành một phần trong ngày thật đẹp của chúng mình.</p>
-            <small>18 · 10 · 2026</small>
+            <small>{weddingDate}</small>
           </motion.footer>
         </main>
       ) : null}

@@ -11,7 +11,7 @@ const jsonValue = z.record(z.unknown())
 export const contentQuerySchema = z.object({ surface: weddingSurfaceSchema.default('ONLINE_INVITATION') })
 export const saveWeddingContentSchema = z.object({
   surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), templateVersionId: z.string().uuid(), content: jsonValue,
-  themeConfig: z.record(jsonValue).default({}),
+  themeConfig: jsonValue.default({}),
   sectionConfig: z.object({ enabled: z.array(z.string().min(1)).min(1), order: z.array(z.string().min(1)).min(1) }).strict(),
   revision: z.number().int().positive(),
 }).strict()

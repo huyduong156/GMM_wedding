@@ -67,12 +67,12 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Website cưới có tối đa một cấu hình đang hoạt động cho mỗi wedding trong MVP; slug công khai và trạng thái publish được quản lý độc lập với invite token.
 - Cả `Thiệp online` và `Website cưới` là navigation heading, mỗi heading có hai child-nav: `Kho giao diện` và tài sản của user (`Thiệp của bạn` hoặc `Website của bạn`). Hai gallery dùng route riêng để sau này có thể tách loại template và entitlement.
 
-- Ba vùng desktop: section navigator 240px, canvas preview co giãn, property panel 320-360px.
+- Hai vùng desktop cho template editor: accordion section có form/input/upload trực tiếp bên trái `45%`, canvas preview bên phải `55%`. Không tách property panel thứ ba vì làm user phải nhìn và di chuyển giữa quá nhiều vùng.
 - Toolbar: device preview, undo/redo, save state, preview, publish.
 - Section editor theo schema/form; drag reorder có nút move keyboard-accessible thay thế.
 - Autosave debounce, trạng thái `Đang lưu/Đã lưu/Mất kết nối/Xung đột`; không dùng toast cho mỗi autosave.
 - Unsaved/conflict flow có recover/compare/reload rõ ràng.
-- Tablet/mobile chuyển property panel thành sheet; editor không cố nhồi cả ba cột.
+- Tablet/mobile dùng accordion section toàn màn hình; preview thu thành cửa sổ nổi nhỏ có nút mở rộng/thu nhỏ. Lần đầu mở trên mobile có modal khuyên dùng máy tính nhưng không chặn user tiếp tục.
 
 ### Khách mời
 
@@ -114,7 +114,7 @@ Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/w
 - Card có thumbnail tỷ lệ cố định, tên/style/tags/premium; preview và `Dùng mẫu này` rõ ràng.
 - Trước đổi template phải báo phần nào tương thích/không tương thích và cho preview trước khi commit.
 
-Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/templates` đã có gallery responsive với 6 theme mock, tìm kiếm, lọc phong cách, preview lớn, chọn theme và đánh dấu theme đang dùng. Renderer/editor chi tiết, kiểm tra schema compatibility và kết nối API chưa được triển khai.
+Trạng thái triển khai frontend (2026-08): kho giao diện user đã responsive, ghim theme đang dùng, preview/chọn theme và điều hướng vào editor. Editor thiệp online đọc template config để sinh section/form, dùng renderer thật cho các template đã đăng ký, kết nối API tải/lưu/autosave/publish/unpublish và xử lý validation/revision conflict. Upload ảnh hoàn chỉnh và catalog nhạc thuộc phạm vi tiếp theo.
 
 ### Settings
 

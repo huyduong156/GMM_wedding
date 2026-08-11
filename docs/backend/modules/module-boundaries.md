@@ -17,6 +17,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 | `rsvps` | Attendance response và event selection | RsvpResponse/Selection/Companion | invitations, wedding events |
 | `wishes` | Submission, moderation, public selection | Wish | weddings/invitations |
 | `media` | Upload lifecycle, variants, readiness | MediaAsset/Variant | weddings ownership policy |
+| `music` | Catalog nhạc nền dùng chung, license và lifecycle | MusicTrack | media, platform-admin policy, publications contract |
 | `tasks` | Wedding planning task/checklist | WeddingTask/ChecklistTemplate | weddings membership |
 | `gift-ledger` | Private owner-only gift record | GiftLedgerEntry | weddings, optional guest reference |
 | `recaps` | Recap draft/selection/publish lifecycle | WeddingRecap/selection/snapshot | weddings, media, wishes, templates |
@@ -29,6 +30,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 - `weddings` là tenant aggregate root nhưng không được trở thành god module.
 - `gift-ledger` không export read model cho analytics, search, notification hoặc platform admin.
 - `publications` đọc canonical content qua contract và sinh DTO public; không expose draft ORM object.
+- `music` sở hữu catalog/permission phân phối; bytes thuộc storage qua `media`, còn `publications` chỉ resolve track hợp lệ khi tạo snapshot.
 - `recaps` tham chiếu media/wish hợp lệ nhưng sở hữu lifecycle publish riêng.
 - `notifications` nhận event sau commit; failure không rollback transaction nghiệp vụ.
 - Circular dependency phải được giải bằng event, shared value contract hoặc điều chỉnh ownership—không dùng dynamic import để che cycle.

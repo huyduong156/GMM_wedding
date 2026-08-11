@@ -43,6 +43,8 @@
 8. [Request và event flows](./architecture/request-and-event-flows.md)
 9. Domain/data document tương ứng.
 
+Module nhạc nền dùng chung: [backend nhạc nền cưới](./modules/background-music.md).
+
 ### Làm database hoặc migration
 
 1. [Domain data model](./data/domain-data-model.md)

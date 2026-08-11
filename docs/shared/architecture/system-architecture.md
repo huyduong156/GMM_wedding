@@ -71,6 +71,8 @@ Chi tiết quyết định và hệ quả deploy xem [ADR 0004](./adr/0004-code-
 
 Frontend xin presigned URL -> backend kiểm tra quyền/quota/MIME -> upload trực tiếp -> job xác minh/scan/tối ưu -> chỉ asset `ready` được publish.
 
+Nhạc nền dùng catalog chung do platform admin quản lý. PostgreSQL lưu metadata/lifecycle/license và reference `MusicTrack`; bytes audio nằm trong object storage. Owner chọn track theo publication surface, publish pin reference hợp lệ vào snapshot bất biến; retire không phá snapshot live cũ. Xem [ADR 0009](./adr/0009-shared-wedding-music-catalog.md).
+
 ## Publication-first và Wedding companion core
 
 - Wedding aggregate ở MVP là hồ sơ gốc tối giản và owner-only trong luồng sản phẩm: thông tin cặp đôi/ngày cưới, các lễ/tiệc dạng dữ liệu và liên kết tới publication/guest/RSVP. Không xây workflow wedding planner quanh từng event.

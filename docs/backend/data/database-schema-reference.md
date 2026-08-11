@@ -101,6 +101,10 @@ Object upload gốc. Trường: `id`, `weddingId`, `uploadedById?`, `storageKey`
 
 Biến thể tối ưu. Trường: `id`, `mediaAssetId`, `variantKey`, `storageKey` unique, `mimeType`, `sizeBytes`, `width?`, `height?`, `createdAt`. `(mediaAssetId, variantKey)` unique.
 
+### `MusicTrack` (planned)
+
+Catalog nhạc nền dùng chung do platform admin quản lý. Trường dự kiến: `id`, `mediaAssetId` unique, `displayName`, `artistName?`, `durationSeconds`, `mimeType`, `sizeBytes`, `status`, `licenseType`, `licenseReference`, `creditText?`, `sortOrder`, `revision`, `createdById`, `createdAt`, `updatedAt`, `retiredAt?`. Database lưu metadata/reference, không lưu binary/base64 audio. Track chỉ `ACTIVE` khi asset `READY` và license metadata hợp lệ; retire không cascade xóa snapshot đang tham chiếu.
+
 ## Guest, invitation, RSVP và wish
 
 ### `GuestCategory`

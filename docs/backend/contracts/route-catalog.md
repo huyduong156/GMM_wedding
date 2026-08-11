@@ -113,6 +113,21 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 | GET | `/weddings/{weddingId}/media` | Owner | Implemented | Danh sách media |
 | DELETE | `/weddings/{weddingId}/media/{mediaId}` | Owner | Implemented | Xóa/retire media |
 
+## Nhạc nền dùng chung
+
+| Method | Path | Auth | Trạng thái | Mục đích |
+|---|---|---|---|---|
+| GET | `/music-tracks` | Session + content permission | Planned | Catalog track `ACTIVE` cho editor |
+| GET | `/music-tracks/{trackId}` | Session + content permission | Planned | Metadata/preview track khả dụng |
+| GET | `/admin/music-tracks` | Platform admin | Planned | Quản lý mọi trạng thái và usage summary |
+| POST | `/admin/music-tracks/upload-intents` | Platform admin | Planned | Tạo audio upload intent và draft track |
+| POST | `/admin/music-tracks/{trackId}/complete` | Platform admin | Planned | Xác minh object/metadata, hoàn tất xử lý |
+| PATCH | `/admin/music-tracks/{trackId}` | Platform admin | Planned | Sửa metadata/license theo revision |
+| POST | `/admin/music-tracks/{trackId}/activate` | Platform admin | Planned | Phân phối track đã READY và đủ license |
+| POST | `/admin/music-tracks/{trackId}/retire` | Platform admin | Planned | Ngừng phân phối nhưng giữ snapshot live |
+
+Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](../modules/background-music.md).
+
 ## Guests và invitations
 
 | Method | Path | Auth | Trạng thái | Mục đích |

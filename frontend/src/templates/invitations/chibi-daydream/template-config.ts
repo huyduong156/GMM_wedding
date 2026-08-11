@@ -5,7 +5,7 @@ export const chibiDaydreamTemplateConfig = {
     { sectionKey: 'cover', label: 'Popup mở thiệp', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'banner', label: 'Banner cặp đôi', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'invitation', label: 'Lời báo hỷ', required: true, canToggle: false, canReorder: false },
-    { sectionKey: 'families', label: 'Hai bên gia đình', required: true, canToggle: false, canReorder: true },
+    { sectionKey: 'families', label: 'Hai bên gia đình', required: true, canToggle: false, canReorder: false },
     { sectionKey: 'ceremony', label: 'Lễ thành hôn', required: true, canToggle: false, canReorder: true },
     { sectionKey: 'reception', label: 'Tiệc cưới', required: true, canToggle: false, canReorder: true },
     { sectionKey: 'calendar', label: 'Lịch ngày cưới', canToggle: true, canReorder: true },
