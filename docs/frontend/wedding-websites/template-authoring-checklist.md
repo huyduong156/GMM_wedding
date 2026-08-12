@@ -6,6 +6,8 @@
 - Chọn layout, mobile/reduced-motion fallback cho mọi section.
 - Chọn đúng một focal interaction; ghi performance budget và missing-media composition.
 - Xác nhận asset/license và font có Vietnamese subset.
+- Nếu template có chủ đề hình ảnh cụ thể, biến chủ đề đó thành nhận diện cấu trúc qua palette, typography, frame, ornament, divider hoặc texture. Theme phải vẫn được nhận ra rõ ràng khi chưa có media người dùng hoặc khi toàn bộ ảnh mẫu đã bị thay bằng ảnh upload không cùng art direction; không dùng nội dung ảnh của cô dâu/chú rể làm điểm nhận diện chủ đề duy nhất.
+- Mỗi theme có chủ đề phải có ít nhất 3 artwork nhận diện khác vai trò (ví dụ hero frame/scene, corner ornament, wreath/garland/divider), không lặp một artwork ở mọi section. Bổ sung một nhóm prop artwork dùng chung hoặc tạo riêng như ly champagne, vows, nhẫn, nến, phong bì, signage hoặc vật phẩm phù hợp art direction để section có nhịp hình ảnh đa dạng; mọi asset phải có nguồn/license rõ và không được lấn át nội dung.
 
 ## Cấu trúc file
 
@@ -51,4 +53,3 @@ Preview route là `/templates/websites/<template-key>/preview`. Preview/editor/p
 - Breaking schema/config tăng version và có migration deterministic.
 
 Template chỉ hoàn thành khi config, fixture, renderer, preview route, editor schema, tests và release bundle cùng tồn tại. Demo hard-code dữ liệu hoặc thiếu fallback/publication flow chưa được xem là template hoàn chỉnh.
-

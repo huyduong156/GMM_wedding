@@ -1,0 +1,4 @@
+import { render,screen } from '@testing-library/react'
+import { EnchantedForestWebsite } from './EnchantedForestWebsite'
+import { enchantedForestSections } from './fixture'
+describe('EnchantedForestWebsite',()=>{it('renders the forest contract and signature artwork',()=>{const{container}=render(<EnchantedForestWebsite/>);expect(screen.getByRole('heading',{level:1})).toHaveTextContent('Linh Chi');expect(container.querySelector('.ef-tree')).toBeInTheDocument();expect(container.querySelector('[data-editor-section="rsvp"]')).toBeInTheDocument()});it('removes disabled sections',()=>{const sectionConfig={...enchantedForestSections,enabled:enchantedForestSections.enabled.filter(key=>key!=='gallery')};const{container}=render(<EnchantedForestWebsite sectionConfig={sectionConfig}/>);expect(container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()})})
