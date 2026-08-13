@@ -2,6 +2,8 @@
 
 ## Trước khi code
 
+- Kiểm thử nhận diện theme độc lập với media: thay toàn bộ hero, couple, story và gallery fixture bằng ảnh cưới trung tính hoặc ảnh không cùng art direction. Ảnh upload chỉ là nội dung ký ức, không được gánh nhận diện chính. Theme phải tiếp tục được nhận ra qua palette, typography, renderer-owned photo frame, ornament, divider, texture và ambient scene; framing không được che chủ thể trong ảnh người dùng.
+
 - Chốt key kebab-case, display name, SemVer và art direction.
 - Chọn layout, mobile/reduced-motion fallback cho mọi section.
 - Chọn đúng một focal interaction; ghi performance budget và missing-media composition.
@@ -35,6 +37,8 @@ Preview route là `/templates/websites/<template-key>/preview`. Preview/editor/p
 - Có dirty state, manual save, leave warning, revision conflict và tự mở card/tab validate lỗi đầu tiên.
 
 ## Accessibility/performance
+
+- Kiểm tra riêng mọi điểm giao giữa hai section liên tiếp ở desktop và mobile. Màu nền, đường chân ảnh, texture, botanical foreground, ánh sáng và hướng chuyển động phải có continuity hợp lý; tránh hai background cùng chủ đề nhưng crop/đường biên tạo thành một đường cắt ngang rõ rệt. Ưu tiên shared foreground, gradient bridge, overlap có kiểm soát, mask/clip-path mềm hoặc một transition chapter có chủ đích. Fallback reduced-motion vẫn phải giữ seam tĩnh tự nhiên và không tạo khoảng trống.
 
 - Keyboard dùng được navigation, gallery/lightbox, accordion, RSVP, audio.
 - Focus visible, dialog trap/restore, Escape hợp lý, contrast AA.

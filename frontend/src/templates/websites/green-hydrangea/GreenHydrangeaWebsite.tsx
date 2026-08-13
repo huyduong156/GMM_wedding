@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'motion/react'
 import { ArrowRight, CalendarBlank, Check, Heart, MapPin, PaperPlaneTilt } from '@phosphor-icons/react'
 import type { GreenHydrangeaData, GreenHydrangeaSectionConfig, GreenHydrangeaSectionKey } from './content'
@@ -11,7 +11,8 @@ function Title({ label, children }: { label: string; children: React.ReactNode }
 
 export function GreenHydrangeaWebsite({ data = greenHydrangeaFixture, sectionConfig = greenHydrangeaSections }: Props) {
   const enabled = new Set(sectionConfig.enabled), reduced = useReducedMotion(), [sent, setSent] = useState(false)
-  const eventDate = useMemo(() => new Date('2027-04-18T16:30:00+07:00'), []), remaining = Math.max(0, eventDate.getTime() - Date.now())
+  const eventDate = useMemo(() => new Date('2027-04-18T16:30:00+07:00'), []), [remaining, setRemaining] = useState(() => Math.max(0, eventDate.getTime() - Date.now()))
+  useEffect(() => { const timer = window.setInterval(() => setRemaining(Math.max(0, eventDate.getTime() - Date.now())), 1000); return () => window.clearInterval(timer) }, [eventDate])
   const time = [Math.floor(remaining / 86400000), Math.floor(remaining / 3600000) % 24, Math.floor(remaining / 60000) % 60, Math.floor(remaining / 1000) % 60]
   const labels = ['ngày', 'giờ', 'phút', 'giây']
   const sections: Partial<Record<GreenHydrangeaSectionKey, React.ReactNode>> = {

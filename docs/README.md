@@ -2,6 +2,8 @@
 
 `docs/` là source of truth của dự án và được chia theo **ownership** để tránh nhầm lẫn khi triển khai hai ứng dụng độc lập.
 
+Workflow điều phối UI, React, motion, 3D, mobile và SEO qua các sub-agent chuyên môn nằm tại [Design specialist agents](./shared/workflows/design-specialist-agents.md). Các skill bổ sung của workflow chỉ được cài trong `.agents/skills/` của repository này.
+
 ## Chọn đúng vùng tài liệu
 
 | Vùng | Dùng khi | Không đặt ở đây |

@@ -1,5 +1,13 @@
 # GMM Wedding - Persistent Project Context
 
+- Design workflow dùng specialist sub-agent theo domain để giữ context chính gọn; roster và routing nằm tại `docs/shared/workflows/design-specialist-agents.md`. Skill bổ sung chỉ cài repo-local trong `.agents/skills`, không cài global. Các nhóm chính: visual direction, React quality, motion, spatial 3D, mobile, SEO và design review.
+
+- Public theme phải vượt qua media-independence check: thay toàn bộ ảnh mẫu bằng ảnh cưới trung tính/khác art direction mà theme vẫn nhận diện rõ qua renderer-owned palette, type, frame, ornament, divider, texture và ambient scene. Media upload chỉ là content, không gánh theme identity.
+
+- Khi thiết kế public theme, phải audit điểm giao giữa mọi cặp section liên tiếp như một composition chung. Tránh đường biên background/crop ảnh cắt ngang rõ rệt; dùng shared foreground, gradient bridge, overlap, mask hoặc chapter transition phù hợp, đồng thời giữ reduced-motion fallback liền mạch.
+
+- `Cherry Blossom Garden Wedding` v1.0.0 nằm tại `frontend/src/templates/websites/cherry-blossom-garden/`, preview `/templates/websites/cherry-blossom-garden/preview`; dùng generated key visual riêng, layered garden, branch opening, petal field, mist/light và parallax, có mobile/reduced-motion fallback. Public theme (thiệp, website, recap) phối hợp nhiều design skill theo art direction riêng thay vì ép đồng nhất giữa theme; tính nhất quán xuyên sản phẩm ưu tiên cho admin/owner management UI.
+
 Đây là bối cảnh lâu dài cho agent. Khi quyết định quan trọng đổi, cập nhật tài liệu trong `docs/` và tệp này nếu phiên sau cần biết.
 
 ## Product
@@ -44,7 +52,8 @@
 - `Green Hydrangea Wedding` v1.0.0 là website template botanical thứ hai tại `frontend/src/templates/websites/green-hydrangea/`, preview `/templates/websites/green-hydrangea/preview`; dùng ảnh cặp đôi và watercolor hydrangea tạo riêng, palette sage/olive/kem, motion nhẹ và reduced-motion fallback.
 - Quy tắc authoring theme có chủ đề: nhận diện phải nằm trong renderer độc lập với media user qua palette/type/frame/ornament/divider/texture; thay hoặc thiếu toàn bộ ảnh upload vẫn phải nhận ra đúng chủ đề.
 - Mỗi theme chủ đề cần tối thiểu 3 artwork nhận diện khác vai trò và thêm nhóm prop artwork dùng chung/tạo riêng (ly, vows, nhẫn, stationery hoặc vật phẩm cùng art direction) để tránh lặp một hình xuyên trang; provenance/license vẫn bắt buộc.
-- `Enchanted Forest Wedding` v1.0.0 nằm tại `frontend/src/templates/websites/enchanted-forest/`, preview `/templates/websites/enchanted-forest/preview`; forest diorama 2.5D dùng scene/cổ thụ/garland/wreath/leaves độc lập với media user, thêm champagne/vows props, light/mist/dust/parallax và reduced-motion fallback.
+- `Enchanted Forest Wedding` v1.0.0 nằm tại `frontend/src/templates/websites/enchanted-forest/`, preview `/templates/websites/enchanted-forest/preview`; forest diorama 2.5D dùng memory portal dạng vòm, ảnh xếp nhiều trục Z, scene/cổ thụ/garland/wreath/leaves độc lập với media user, thêm champagne/vows props, light/mist/dust/parallax và carousel album 3D có pause/prev/next cùng reduced-motion fallback.
+- Các website demo dùng section metadata contract thống nhất; countdown Green Hydrangea và Enchanted Forest chạy realtime, asset trang trí phải tồn tại trong bundle.
 - Tài liệu template thiệp được gom tại `docs/frontend/online-invitations/`; visual style catalog ở `visual-styles/`, motion catalog ở `motion/`, typography ở `typography-and-fonts.md`. 2.5D là lựa chọn theo art direction với mức none/light/medium/high, không bắt buộc cho mọi theme. Mỗi viewport chỉ có một depth focal point và mọi composition phải có mobile/reduced-motion fallback tĩnh hoàn chỉnh.
 - Thư viện tham khảo hiệu ứng xuyên suốt thiệp online, website cưới và Wedding Recap nằm tại `docs/frontend/experience-effects-reference.md`. Art direction mặc định là ảnh editorial + typography tiết chế + một signature moment; mọi pattern phải có UX purpose, mobile/reduced-motion fallback và performance budget, không sao chép asset/source/visual identity từ website showcase.
 - Studio shell đã dùng Wedding API context thật để tải/chuyển wedding và lưu wedding đang chọn trong local storage; fixture `active-wedding.ts` chỉ còn fallback cho test/legacy render không có AuthProvider. Top bar hiển thị số ngày còn lại đến lễ cưới dưới tên owner và pill rút gọn trên mobile; khi chưa có ngày dùng fallback “Vui lòng nhập ngày cưới của bạn”. Tài khoản chưa có wedding vào onboarding tạo thật; `/studio/events` CRUD lễ-tiệc, `/studio/settings` sửa metadata/lifecycle và dashboard `/studio` dùng read model thật, với xử lý revision conflict.
