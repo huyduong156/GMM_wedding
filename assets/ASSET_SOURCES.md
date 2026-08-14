@@ -1,5 +1,12 @@
 # Asset sources
 
+## Winter Wedding Recap template
+
+- `frontend/public/assets/images/templates/winter-wedding-recap/winter-opening.png`, `ring-ceremony.png`, `champagne-finale.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-14.
+- Prompt direction: original cinematic Vietnamese winter wedding story progressing from a snowy blue-hour walk, to a warm candlelit ring exchange, to a glasshouse champagne finale; snow white, navy, icy blue, silver and champagne palette. No text, logo, watermark or external template identity.
+- Usage: opening key visual, scroll-scrub film-strip chapters and full-bleed recap finale.
+- Treatment: locally hosted PNG, semantic alt text where the image carries content, decorative hero duplicate uses empty alt text, and static vertical fallback under reduced motion.
+
 ## Enchanted Forest Wedding website template
 
 - `frontend/public/assets/images/templates/enchanted-forest/forest-hero.png`, `ancient-tree.png`, `forest-garland.png`, `vine-wreath.png`, `forest-leaves.png`, `champagne-coupes.png`, `vows-book.png`: generated specifically for GMM Wedding with OpenAI image generation on 2026-08-12.

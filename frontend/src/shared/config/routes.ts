@@ -60,6 +60,7 @@ export const publicTemplateRoutes = {
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
   cherryBlossomGardenPreview: '/templates/websites/cherry-blossom-garden/preview',
+  winterWeddingRecapPreview: '/templates/recaps/winter-wedding/preview',
 } as const
 
 export const marketingRoutes = {

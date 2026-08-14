@@ -7,6 +7,7 @@
 - Khi thiết kế public theme, phải audit điểm giao giữa mọi cặp section liên tiếp như một composition chung. Tránh đường biên background/crop ảnh cắt ngang rõ rệt; dùng shared foreground, gradient bridge, overlap, mask hoặc chapter transition phù hợp, đồng thời giữ reduced-motion fallback liền mạch.
 
 - `Cherry Blossom Garden Wedding` v1.0.0 nằm tại `frontend/src/templates/websites/cherry-blossom-garden/`, preview `/templates/websites/cherry-blossom-garden/preview`; dùng generated key visual riêng, layered garden, branch opening, petal field, mist/light và parallax, có mobile/reduced-motion fallback. Public theme (thiệp, website, recap) phối hợp nhiều design skill theo art direction riêng thay vì ép đồng nhất giữa theme; tính nhất quán xuyên sản phẩm ưu tiên cho admin/owner management UI.
+- `Winter Wedding Recap` v1.0.0 nằm tại `frontend/src/templates/recaps/winter-wedding/`, preview `/templates/recaps/winter-wedding/preview`; dùng ba generated cinematic key visual, signature scroll-scrub contact sheet, snow/light-leak/aurora hỗ trợ và vertical static fallback cho mobile/reduced motion. Đây là renderer recap đầu tiên với `productType=WEDDING_RECAP`.
 
 Đây là bối cảnh lâu dài cho agent. Khi quyết định quan trọng đổi, cập nhật tài liệu trong `docs/` và tệp này nếu phiên sau cần biết.
 
