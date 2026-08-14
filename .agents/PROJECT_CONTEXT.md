@@ -1,5 +1,7 @@
 # GMM Wedding - Persistent Project Context
 
+- Wedding Recap có blueprint riêng tại `docs/frontend/wedding-recaps/`: README, section/layout catalog, style/composition catalog, content/config contract và authoring checklist. Mọi recap theme mới phải đọc bộ docs này ở preflight/postflight; không dùng cấu trúc invitation/website thay thế.
+
 - Design workflow dùng specialist sub-agent theo domain để giữ context chính gọn; roster và routing nằm tại `docs/shared/workflows/design-specialist-agents.md`. Skill bổ sung chỉ cài repo-local trong `.agents/skills`, không cài global. Các nhóm chính: visual direction, React quality, motion, spatial 3D, mobile, SEO và design review.
 - Tạo ảnh decor theme dùng `decor_image_agent` với skill repo-local `generate-wedding-decor`. Mặc định sinh hoa/lá/prop/ornament thành cutout độc lập, silhouette hoàn chỉnh, nền trong suốt, sắc nét và dễ phối ở nhiều section/body; không sinh sẵn webpage/card/scene/cành/khung phụ thuộc layout trừ khi chính vai trò asset yêu cầu. Mọi asset phải qua QA alpha, nền sáng/tối, mobile/desktop và ghi provenance trước release.
 - Decor nằm giữa viewport/section không được có border, frame, mép giấy, rectangle crop, vignette biên hoặc background patch; chỉ giữ biên tự nhiên của chủ thể và alpha sạch. Theme public dài mặc định cần ít nhất 6 artwork decor khác nhau ở ít nhất 4 vai trò, không lặp nổi bật cùng file ở section kề nhau hoặc quá 2 lần toàn trang; scale/mirror/tint không tính là artwork mới.

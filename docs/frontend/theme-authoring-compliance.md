@@ -16,7 +16,7 @@ Agent chính phải đọc đầy đủ các tài liệu phù hợp và ghi mani
 | docs/frontend/README.md | yes | yes | ... |
 | docs/shared/architecture/system-architecture.md | yes | if contract changed | ... |
 | docs/shared/engineering-guidelines.md | yes | yes | ... |
-| surface README/catalog/config/checklist | yes | yes | ... |
+| surface README/catalog/config/checklist | yes | yes | recap: `wedding-recaps/README.md`, `section-layout-catalog.md`, `style-and-composition-catalog.md`, `content-and-template-config-contract.md`, `template-authoring-checklist.md` |
 | experience-effects-reference.md | yes | yes | ... |
 | public-theme-runtime-behaviors.md | yes | yes | ... |
 | 2-5d-spatial-composition.md | yes | yes | ... |
@@ -24,7 +24,7 @@ Agent chính phải đọc đầy đủ các tài liệu phù hợp và ghi mani
 | assets/ASSET_SOURCES.md | yes | yes | ... |
 ```
 
-`surface README/catalog/config/checklist` gồm toàn bộ tài liệu được link trực tiếp từ README của loại sản phẩm đang làm: online invitation, wedding website hoặc recap. Đọc thêm design-system/admin docs chỉ khi thay đổi editor/admin. Không nạp backend docs không liên quan tới task frontend; nếu thay đổi cross-system contract thì đọc và cập nhật shared/backend contract theo repository instructions.
+`surface README/catalog/config/checklist` gồm toàn bộ tài liệu được link trực tiếp từ README của loại sản phẩm đang làm: online invitation, wedding website hoặc wedding recap. Với recap, required surface docs là [Wedding Recap blueprint](./wedding-recaps/README.md), [section/layout catalog](./wedding-recaps/section-layout-catalog.md), [style/composition catalog](./wedding-recaps/style-and-composition-catalog.md), [content/config contract](./wedding-recaps/content-and-template-config-contract.md) và [authoring checklist](./wedding-recaps/template-authoring-checklist.md). Đọc thêm design-system/admin docs chỉ khi thay đổi editor/admin. Không nạp backend docs không liên quan tới task frontend; nếu thay đổi cross-system contract thì đọc và cập nhật shared/backend contract theo repository instructions.
 
 Không đánh dấu `yes` nếu chỉ grep, đọc summary hoặc nhớ từ lần trước. Cột evidence phải trỏ tới artifact cụ thể như theme thesis, story spine, section-theme matrix, section composition map, seam/adjacency matrix, motion/living-state map, decor family bible, runtime config, fixture contact sheet, test hoặc source manifest.
 
