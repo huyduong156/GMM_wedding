@@ -32,7 +32,7 @@ type WeddingWebsiteContentV1 = {
   guestbook: { title?: string; message?: string }
   gift: { title?: string; message?: string; accounts: GiftAccount[] }
   footer: { message: string; signature?: string }
-  music: { musicTrackId: string | null; autoplay: boolean }
+  music: { musicTrackId: string | null; enabled: boolean; autoplayRequested: boolean; initialVolume: number }
 }
 
 type PersonProfile = { displayName: string; biography?: string; portraitMediaId: string | null; socialLinks?: Array<{ label: string; url: string }> }
@@ -121,7 +121,7 @@ Implementation thật bổ sung field definitions/max item. `previewPath` phải
 
 ## 6. Fixture và release
 
-Mỗi template có `fixture.ts` gồm content v1, event/media projection, theme và section config. Dùng dữ liệu hư cấu, asset có nguồn/license và biến thể thiếu ảnh/tên dài/nhiều event/section tắt; không dùng fixture làm wedding thật.
+Mỗi template có `fixture.ts` gồm content v1, event/media projection, theme và section config. Dùng dữ liệu hư cấu, asset có nguồn/license và biến thể thiếu ảnh/tên dài/nhiều event/section tắt; không dùng fixture làm wedding thật. Media đại diện cho slot user upload phải dùng ảnh cưới/cặp đôi hợp lý: một fixture giữ cùng một cặp đôi hư cấu xuyên các chapter, còn toàn catalog đa dạng cặp đôi, dáng chụp, trang phục, bối cảnh và ánh sáng. Không dùng decor, phong cảnh/vật thể ngẫu nhiên hoặc ảnh không liên quan để lấp hero/couple/story/gallery.
 
 Release bundle dùng `productType: 'WEDDING_WEBSITE'` và integer contract versions. Config JSON chứa `previewPath`, sections, theme options, capabilities. Cùng key/version nhưng đổi config phải thất bại; breaking change tăng version và có migration.
 

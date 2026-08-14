@@ -25,6 +25,8 @@ Tài liệu này mô tả ba bề mặt frontend dùng chung catalog nhạc nề
 
 - Renderer chỉ tạo audio control khi snapshot có track hợp lệ và section nhạc đang bật.
 - Browser có thể chặn autoplay có âm thanh. `autoplayRequested` chỉ là yêu cầu thử phát sau tương tác mở thiệp; luôn có nút phát/tạm dừng với accessible name và không hiển thị lỗi kỹ thuật cho khách.
+- Khi có track hợp lệ, public theme mặc định `enabled=true`, `autoplayRequested=true`, loop và volume khởi tạo `0.22` (không quá `0.30`). Nếu browser chặn audible autoplay, UI chuyển sang `blocked`/“Chạm để phát nhạc” và thử lại trực tiếp sau gesture hợp lệ; không báo sai là đang phát. Chi tiết controller dùng chung xem [Shared runtime cho public theme](./public-theme-runtime-behaviors.md).
+- Control nhạc dùng viewport overlay cố định; nút được đặt absolute tại góc trái dưới, có safe-area offset, touch target tối thiểu 44px và luôn nằm trên decor/canvas nhưng không che CTA quan trọng.
 - Audio lặp lại khi phát, preload tối đa metadata trước tương tác và không chặn first render/LCP. Tắt nhạc không làm mất vị trí đọc thiệp.
 - Tôn trọng data-saver/network error: trang vẫn dùng được hoàn toàn khi audio không tải. `prefers-reduced-motion` không tự tắt âm thanh, nhưng renderer không được tự suy luận consent từ setting này.
 - Public payload chỉ chứa DTO phát tối thiểu (`trackId`, `displayName`, `durationSeconds`, playback URL/asset reference đã được backend cho phép và credit nếu bắt buộc), không chứa storage key nội bộ hay metadata quyền riêng tư.

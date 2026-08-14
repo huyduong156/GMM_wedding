@@ -12,13 +12,20 @@ Tài liệu này là contract thiết kế cho mọi template thiệp sau này. 
 
 Đây là **blueprint gốc bắt buộc** cho mọi loại thiệp online mới. Trước khi thiết kế hoặc code, người thực hiện phải:
 
-1. Chốt art direction, palette, typography và motion language của template.
-2. Đi qua toàn bộ catalog bên dưới; với mỗi section, chọn **một layout chính** phù hợp concept và dữ liệu thực tế.
-3. Ghi lựa chọn vào specification của template theo dạng `section key -> layout option -> lý do chọn -> mobile/reduced-motion fallback`.
-4. Giữ nguyên semantic data contract; layout chỉ quyết định cách trình bày, không tạo một schema nội dung riêng tùy tiện.
-5. Kiểm tra thứ tự đọc, khả năng bật/tắt section và acceptance checklist trước khi xem template là hoàn tất.
+1. Hoàn thành preflight `Docs compliance manifest` theo [Theme authoring compliance](../theme-authoring-compliance.md), đọc đầy đủ required docs cho lần tạo theme hiện tại.
+2. Chốt art direction, palette, typography và motion language của template.
+3. Đi qua toàn bộ catalog bên dưới; với mỗi section, chọn **một layout chính** phù hợp concept và dữ liệu thực tế.
+4. Ghi lựa chọn vào specification của template theo dạng `section key -> layout option -> lý do chọn -> mobile/reduced-motion fallback`.
+5. Giữ nguyên semantic data contract; layout chỉ quyết định cách trình bày, không tạo một schema nội dung riêng tùy tiện.
+6. Kiểm tra thứ tự đọc, khả năng bật/tắt section và acceptance checklist trước khi xem template là hoàn tất.
+
+Strong-subject theme như Winter, Sakura/Cherry Blossom, Forest hoặc Hydrangea bắt buộc gọi `decor_image_agent`, tạo decor family renderer-owned trước khi khóa composition và tuân thủ toàn bộ rule trong `generate-wedding-decor`. Không dùng media user, gradient hoặc một vài asset lặp lại để thay thế family này.
 
 Không ghép tất cả hiệu ứng nổi bật vào cùng một mẫu. Mỗi template nên có một section tiêu điểm, các section còn lại hỗ trợ nhịp đọc và cùng một ngôn ngữ thị giác.
+
+Không đồng nghĩa “section hỗ trợ” với `background + text`. Mỗi section phải có một primary composition và ít nhất một supporting layer thuộc decor, material/texture, ambient motion, transition, microinteraction hoặc secondary information plane. Section tối giản chỉ dùng như nhịp nghỉ, không đặt hai section tối giản liên tiếp và vẫn phải có typography/material/ornament đặc thù của theme.
+
+Ưu tiên các cấu trúc giàu trải nghiệm khi phù hợp dữ liệu: background carousel có control, sticky split với một cột ổn định và một cột scroll, layered editorial collage, foreground-framed content, scroll-synced media, perspective slide hoặc interactive detail panel. Mobile/reduced-motion phải giữ composition hoàn chỉnh, không collapse thành vùng text trống.
 
 ### Catalog layout theo section
 
@@ -53,6 +60,7 @@ Tên option là vocabulary chung giữa designer, developer và template config.
 - Không đặt liên tiếp quá hai section dùng carousel/marquee/horizontal scroll.
 - Xen kẽ section giàu hình ảnh với section typography/card để tạo nhịp nghỉ.
 - Hai section kề nhau không nên dùng cùng một composition nếu không có chủ ý tạo cặp.
+- Không quá một phần ba section trong theme dài dùng composition tối giản; không có hai section `background + text` hoặc typography-only đứng liền nhau.
 - Mỗi layout phải có trạng thái `desktop`, `mobile`, `missing media`, `long content` và `reduced motion`.
 - Layout key nên ổn định trong template config; đổi cấu trúc dữ liệu phải đi qua migration/versioning, không chỉ đổi CSS.
 - Phải có ấn tượng thị giác mạnh với khách khi xem thiệp, nghiêng về hướng animation tự chuyển động nhiều hơn vì sử dụng trên mobile sẽ là chủ yếu nhưng không hẳn bỏ hoàn toàn các hiệu ứng như hover, mouse move...
@@ -119,6 +127,12 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 - **Decoration:** hoa, lá, giấy, lụa, hạt sáng, con dấu, khung và vật phẩm phải là asset rõ nguồn hoặc do GMM tạo. Dùng nhiều lớp foreground/midground/background, ưu tiên transform/opacity và không chặn pointer event.
 - **Background:** không dùng một màu phẳng cho toàn trang nếu concept cần chiều sâu. Có thể dùng texture giấy, botanical shadow, grain nhẹ, gradient ánh sáng, ảnh nền hoặc canvas/WebGL được lazy-load; phải giữ độ tương phản nội dung và không gây CLS.
 - **3D:** ưu tiên CSS 3D hoặc Motion cho tilt/card/depth đơn giản. Three.js chỉ dùng khi canvas thật sự là key visual, phải lazy-load, có ảnh fallback và tắt vòng lặp khi tab ẩn hoặc reduced motion.
+- **Motion coverage:** một theme dài cần một signature interaction và 2–4 motion hỗ trợ khác vai trò; ít nhất một section phải được đánh giá cho 3D slide/carousel, layered parallax hoặc scroll-driven storytelling. Không đạt gate nếu toàn trang chỉ dùng cùng một reveal opacity/translate cho mọi section.
+- **Section continuity:** lập seam map theo thứ tự mặc định và các cặp có thể kề nhau khi section optional bị tắt/reorder. Màu kết thúc/mở đầu phải nối nhau hoặc có gradient bridge, shared decor, overlap hay mask chủ đích; không để lộ hairline, hard band hoặc mép crop khi dừng scroll đúng giao tuyến.
+- **Dynamic adjacency:** mỗi section khai báo entry/exit visual state; transition được resolve theo hai section đang kề nhau thay vì index/thứ tự mặc định. Test allowed-adjacency matrix với reorder và từng trạng thái section off; mọi cặp phải có bridge/fallback tĩnh hợp lệ.
+- **Decor diversity:** theme dài dùng tối thiểu 6 artwork decor khác nhau ở ít nhất 4 vai trò; cùng một artwork nổi bật không xuất hiện ở hai section kề nhau hoặc quá 2 lần toàn trang. Scale/mirror/tint không tạo thành asset mới. Decor giữa viewport không được có border/frame/rectangle crop hay nền bao quanh.
+- **Decor cohesion:** mọi decor renderer-owned thuộc một family bible chung về medium, palette, ánh sáng, perspective, shadow, edge finish và detail density. Asset không được duyệt riêng lẻ; phải review bằng contact sheet và composition test để phát hiện hình “đúng vật thể nhưng sai phong cách”.
+- **Living-state:** sau entrance reveal, section đang visible phải giữ ambient motion rất nhẹ để theme không đứng yên khi user đọc. Theme dài chọn 2–3 motif đúng concept và phân bố theo chapter; một viewport tối đa 2 ambient system đồng thời, chỉ một system có vật thể di chuyển rõ, giữ quiet zone cho nội dung và pause toàn bộ work khi section/tab ẩn.
 - **Âm thanh:** mặc định tắt. Chỉ phát sau thao tác rõ ràng của khách, có nút tắt/mở và ghi nhớ lựa chọn trong phiên.
 - **Ngân sách:** animation liên tục chỉ áp dụng cho ít lớp trang trí; target 60 fps trên mobile phổ thông, không animate layout property, không để hiệu ứng làm trì hoãn thông tin chính.
 
@@ -166,9 +180,15 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 - Map/link lịch/RSVP/lời chúc có accessible name và fallback.
 - Slideshow không gây CLS, không autoplay khi reduced motion và có điều khiển thủ công.
 - Motion có mục đích, chỉ animate transform/opacity khi có thể, không chặn đọc nội dung và có reduced-motion fallback.
+- Mobile public renderer dùng shared first-load auto-scroll mặc định: chỉ chạy một lần sau layout ổn định, tốc độ khoảng 22px/s và dừng vĩnh viễn ngay khi có touch/drag/wheel/key/focus/control intent. Không chạy editor/desktop/reduced-motion/deep-link/restored-scroll và không resume trong cùng mount.
+- Khi có track hợp lệ, preference nhạc mặc định `enabled`, volume khởi tạo `0.22` và không quá `0.30`. Nếu browser chặn autoplay, nút góc trái dưới hiển thị “Chạm để phát nhạc” và retry sau gesture; không giả vờ đang phát. Dùng shared controller tại [public theme runtime](../public-theme-runtime-behaviors.md), không tạo player riêng theo template.
+- Khi dừng 8–12 giây ở section chính, vẫn thấy living-state motion phù hợp chủ đề nhưng text/form/CTA ổn định; mobile giảm mật độ, reduced motion là composition tĩnh và không còn RAF/timer trang trí chạy ngầm.
+- Reorder theo ít nhất ba thứ tự hợp lệ và tắt lần lượt section optional; mọi adjacency mới vẫn có seam mượt, story/motif không bị cụt và reduced-motion fallback không lộ hard cut.
 - Background và decoration đúng concept, không che chữ, không chặn pointer và asset có nguồn/license.
 - Mọi section optional được thử cả trạng thái bật và tắt.
 - Fixture không chứa dữ liệu thật; asset có nguồn/license; không hotlink asset của website tham khảo.
+- Fixture của slot user upload chỉ dùng ảnh cô dâu/chú rể/đám cưới đúng vai trò. Một theme giữ cùng cặp đôi hư cấu xuyên các section; giữa các theme phải đa dạng cặp đôi, pose, trang phục, bối cảnh và ánh sáng. Không dùng decor, phong cảnh/vật thể ngẫu nhiên hoặc ảnh không liên quan để lấp slot.
+- Trước release, thực hiện postflight: đọc lại toàn bộ required docs trong compliance manifest, gắn evidence thực tế và không release khi thiếu recheck, asset family/provenance hoặc implementation lệch spec.
 
 ### Family focal và thời gian thực
 

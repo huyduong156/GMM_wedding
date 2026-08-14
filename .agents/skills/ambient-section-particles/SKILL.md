@@ -7,6 +7,19 @@ description: Add a restrained particle atmosphere inside one section with config
 
 Build particles as a bounded atmosphere layer, not as a page-wide screensaver. Keep the content primary and stop work when the effect cannot be seen.
 
+## Design the reading state
+
+Do not stop the theme's motion language when the entrance reveal completes. Give the visible section a subtle living state for the time a reader pauses on its content.
+
+- Select two or three theme-native ambient motifs for a long page, such as cherry-blossom fall plus light drift, star fall plus twinkle, leaves plus dappled light, or dust plus slow ribbon breathing.
+- Distribute motifs by chapter instead of running every motif across the whole page.
+- Run no more than two ambient systems in one viewport by default. Let only one system contain clearly travelling objects; make the other a low-amplitude light, texture, glow or breathing layer.
+- Keep long text, forms and calls to action inside a quiet zone. Prefer sparse motion at section edges and behind non-interactive decoration.
+- Start the living state after the entrance choreography settles. Do not replay the entrance on minor scroll changes.
+- Use long periods, phase offsets and restrained velocity so the loop does not expose a mechanical reset during an 8–12 second reading pause.
+
+Reject a living state that becomes visually static after reveal, competes with reading, or runs invisible work outside the active section.
+
 ## Choose the renderer
 
 - Use canvas for roughly 40 or more small particles, frequent motion, pointer forces, or simple procedural shapes.
@@ -63,6 +76,8 @@ Support explicit end modes:
 
 Use IntersectionObserver to start only when the section is visible. Cancel animation frames when it exits or `document.hidden` becomes true. Resume from the current simulation state instead of spawning a second loop.
 
+Also pause while a modal or critical task owns attention. When multiple section observers overlap at a seam, enforce the page-level concurrent-system budget instead of letting both sections start every layer.
+
 On teardown, disconnect observers, remove resize and pointer listeners, cancel the frame, and release renderer resources.
 
 ## Respect the reader
@@ -76,5 +91,7 @@ On teardown, disconnect observers, remove resize and pointer listeners, cancel t
 ## Verify
 
 Test entry and exit pausing, background-tab recovery, fast resize, 390/768/1440 widths, device pixel ratio, pointer and touch input, reduced motion, section overflow, content focus, long text, route cleanup, and console errors. Confirm only one animation loop survives repeated mounts.
+
+Pause for 8–12 seconds in each primary chapter during review. Confirm the theme remains subtly alive, the loop boundary is not visible, the quiet zone stays readable, and all decorative work stops after leaving the section or hiding the tab.
 
 Use [demo/index.html](demo/index.html) as the working reference and [demo/PROMPT.md](demo/PROMPT.md) to recreate or remix it. Keep [REFERENCES.md](REFERENCES.md) as the links-only implementation source list.

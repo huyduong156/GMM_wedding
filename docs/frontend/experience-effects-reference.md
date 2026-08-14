@@ -10,7 +10,7 @@ Tài liệu này tổng hợp pattern UI/motion có thể tham khảo khi thiế
 - **Website cưới:** câu chuyện dài hơn, hành trình tình yêu, album, lịch trình và thông tin chung.
 - **Wedding Recap:** trải nghiệm sau ngày cưới thiên về ảnh/video, ký ức, lời chúc và lời cảm ơn.
 
-Đây là tài liệu tham khảo nguyên lý, không phải thư viện để sao chép website đoạt giải. Khi làm template thiệp mới, vẫn phải bắt đầu từ [catalog section và layout](./online-invitations/section-layout-catalog.md), sau đó dùng tài liệu này để chọn tối đa một signature effect và các lớp hỗ trợ phù hợp.
+Đây là tài liệu tham khảo nguyên lý, không phải thư viện để sao chép website đoạt giải. Khi làm template thiệp mới, vẫn phải bắt đầu từ [catalog section và layout](./online-invitations/section-layout-catalog.md), sau đó chọn một signature effect và 3–5 lớp motion hỗ trợ có cùng ngôn ngữ chuyển động. “Một signature” giới hạn số điểm tranh vai chính, không có nghĩa phần còn lại của theme chỉ được fade-in giống nhau.
 
 ## Nguyên tắc art direction
 
@@ -18,7 +18,22 @@ Khuyến nghị mặc định cho GMM Wedding là:
 
 > Ảnh editorial + typography tiết chế + một signature moment + micro-motion hỗ trợ.
 
-- Một trang chỉ có **một signature effect**; không biến mọi section thành một demo animation khác nhau.
+- Một trang chỉ có **một signature effect**, nhưng theme dài phải có motion phân bố xuyên hành trình: section reveal có choreography, một lớp depth/parallax có kiểm soát, transition giữa chapter và phản hồi tương tác phù hợp. Không biến mọi section thành một demo khác nhau, cũng không xem fade/slide đồng loạt là một motion system đủ hoàn chỉnh.
+- Theme dài phải đánh giá ít nhất một pattern spatial hoặc scroll-driven như 3D carousel/slide, layered parallax, pinned story, scroll scrub hoặc horizontal chapter. Chỉ bỏ khi art direction, nội dung, thiết bị mục tiêu hoặc performance budget không phù hợp và specification ghi rõ lý do.
+- Smooth scrolling là progressive enhancement, không phải hiệu ứng bắt buộc: chỉ bật ở desktop/fine-pointer, tắt dưới reduced motion/touch, giữ anchor, focus, keyboard, history và native-scroll fallback.
+- Chuyển động phải giúp che/nối seam section khi phù hợp, nhưng reduced-motion fallback vẫn phải có gradient/overlap/foreground tĩnh để người dùng không thấy đường cắt.
+
+### Living-state motion khi người dùng dừng đọc
+
+Entrance reveal chỉ giải quyết thời điểm section xuất hiện. Sau khi reveal hoàn tất, section đang đọc vẫn cần một trạng thái “đang sống” rất nhẹ và đúng chủ đề để website không trở thành bố cục tĩnh.
+
+- Mỗi theme dài chọn 2–3 ambient motif tương thích, ví dụ hoa anh đào rơi + nắng/sương dịch chậm; sao rơi + twinkle field; lá rơi + dappled light; bụi sáng + ribbon breathing. Không ghép motif chỉ vì hiệu ứng có sẵn.
+- Phân bố motif theo chapter; một viewport mặc định chỉ chạy tối đa 2 ambient system đồng thời và chỉ một system có vật thể di chuyển rõ. System thứ hai nên là ánh sáng, glow, texture drift hoặc breathing rất nhẹ.
+- Khi người dùng dừng ở section, duy trì chuyển động chu kỳ dài, lệch pha và mật độ thưa: vật thể nhỏ đi qua vùng rìa, decor thở/float vài pixel, ánh sáng hoặc texture drift chậm. Giữ vùng chữ, form và CTA yên hoặc giảm mật độ mạnh.
+- Không replay entrance reveal khi user cuộn lên xuống nhỏ. Living-state bắt đầu sau reveal, pause khi section rời viewport, tab ẩn, modal/critical task mở hoặc route unmount.
+- Dùng `IntersectionObserver` và tối đa một RAF loop cho mỗi ambient surface; clamp DPR, giới hạn particle theo diện tích và hạ mật độ trên mobile/low-power. Ưu tiên transform/opacity, tránh layout animation và blur lớn liên tục.
+- `prefers-reduced-motion` chuyển mọi ambient system thành composition tĩnh hoặc tắt hẳn. Nội dung và nhận diện theme vẫn phải hoàn chỉnh khi không có chuyển động.
+- Hai hay ba hiệu ứng không có nghĩa chạy chồng cả ba ở mọi section. Motion map phải ghi motif nào thuộc chapter nào, số layer đồng thời, quiet zone, start/pause condition và fallback.
 - Motion phải dẫn thứ tự đọc, giải thích thay đổi trạng thái, tạo cảm xúc hoặc hỗ trợ storytelling.
 - Ngày giờ, địa điểm, RSVP, lời mời và CTA luôn là HTML thật, đọc được khi JavaScript/canvas/video lỗi.
 - Mobile-first không có nghĩa là thu nhỏ desktop effect. Hover, cursor và horizontal narrative phải có interaction khác phù hợp touch.

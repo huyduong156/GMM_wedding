@@ -26,11 +26,31 @@ Website cưới là landing page dài, mobile-first. Nhịp đọc mặc định
 | `guestbook` | Lời chúc | Bật | Optional nhưng phải hỗ trợ | Lời chúc đã duyệt và form public |
 | `gift` | Mừng cưới | Tắt | Optional nhưng phải hỗ trợ | Nội dung/QR do user chủ động công khai |
 | `footer` | Kết trang | Bật | Required, anchor cuối | Lời cảm ơn, monogram, ngày cưới |
-| `music` | Nhạc nền | Tắt | Global, không reorder | `musicTrackId`, autoplay và control toàn cục |
+| `music` | Nhạc nền | Bật khi có track | Global, không reorder | `musicTrackId`, preference enabled, autoplay requested, volume thấp và control toàn cục |
 
 `navigation`, `hero`, `announcement` giữ đầu; `footer` luôn cuối. Section khác không đi xuyên anchor. `music` có card editor nhưng không nằm trong `sectionConfig.order`.
 
 ## 3. Layout vocabulary
+
+### Composition density floor
+
+Không dùng `background + text overlay` làm cấu trúc mặc định cho section. Một section hoàn chỉnh phải có ít nhất:
+
+- một `primary composition` như split/sticky layout, layered media, carousel/slide, timeline, collage, framed content surface, interactive gallery hoặc spatial scene; và
+- một `supporting layer` như decor foreground, texture/material, ambient motion, light/shadow pass, section-specific transition, microinteraction hoặc secondary information plane.
+
+Section tối giản chỉ được dùng như nhịp nghỉ có chủ đích và không được đặt liên tiếp. Nó vẫn phải có typography composition đặc thù, material/texture, divider/ornament hoặc living-state motion gắn với theme. Khoảng trắng có hierarchy là thiết kế; khoảng trống không có vai trò, decor, motion hoặc structure là lỗi.
+
+Các pattern ưu tiên cho section giàu trải nghiệm:
+
+- `background-media-carousel`: slideshow/auto-slide nằm sau content với overlay/contrast ổn định, manual controls, pause khi hover/focus/tab ẩn và static fallback;
+- `sticky-split-story`: một cột sticky/stable, cột kia scroll qua chapter/media; mobile chuyển về document flow xen kẽ;
+- `layered-editorial-collage`: nhiều media plane, caption, decor và occlusion có hierarchy;
+- `foreground-framed-content`: content được nhìn xuyên qua decor/foreground tới background;
+- `scroll-synced-media`: media đổi theo nội dung/mốc đang đọc mà không hijack native scroll;
+- `interactive-detail-panel`: tab/accordion/card stack có state rõ và fallback đầy đủ.
+
+Không dùng auto-slide chỉ để tạo chuyển động. Nội dung nền phải đúng chapter, không làm giảm khả năng đọc; user có control và reduced motion giữ một frame đại diện.
 
 | Section | Option chuẩn |
 |---|---|
@@ -55,6 +75,8 @@ Website cưới là landing page dài, mobile-first. Nhịp đọc mặc định
 
 Mỗi template specification phải chọn một option, lý do chọn và mobile/reduced-motion fallback cho từng section.
 
+Trong theme dài, không quá một phần ba section dùng composition tối giản và không có hai section tối giản liền nhau. Ít nhất một section nội dung phải dùng split/sticky hoặc scroll-synced composition, và ít nhất một section media phải dùng gallery/carousel/collage có tương tác; có thể thay thế khi art direction chứng minh một pattern khác phong phú tương đương.
+
 ## 4. Motion, responsive và lỗi
 
 - Chọn một focal interaction ở hero, story hoặc gallery; không chồng nhiều scroll effect mạnh.
@@ -65,6 +87,7 @@ Mỗi template specification phải chọn một option, lý do chọn và mobil
 - Test 375px, 768px, 1280px và màn rộng; không horizontal overflow.
 - Thiếu ảnh dùng composition typography hoàn chỉnh; video có poster; tối đa một canvas/WebGL lazy-load.
 - Test event đã qua, RSVP hết hạn, media chưa READY, section rỗng/tắt, rate limit/offline và autoplay bị chặn.
+- Mobile public theme dùng shared first-load auto-scroll một lần và dừng vĩnh viễn ở first user intent; music control dùng shared viewport overlay góc trái dưới. Fixture media slot phải là ảnh cưới/cặp đôi đúng vai trò và đa dạng giữa các theme. Xem [shared runtime](../public-theme-runtime-behaviors.md).
 
 ## 5. Privacy và SEO
 

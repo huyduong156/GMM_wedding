@@ -4,6 +4,8 @@ Media người dùng là lớp nội dung và có thể hoàn toàn không chứ
 
 Khi authoring theme, cần thiết kế cả phần chuyển tiếp giữa các section chứ không chỉ từng section riêng lẻ. Hai chapter liên tiếp phải được audit như một composition chung: crop ảnh, nền, ánh sáng, texture và decor tại seam cần nối tự nhiên; không để đường cắt ngang làm mất cảm giác liền mạch của trải nghiệm scroll.
 
+Mỗi website theme phải được viết như một câu chuyện thị giác từ opening tới closing, không phải danh sách section độc lập dùng chung một palette. Trước khi code cần có `theme thesis`, `story spine` và `section-theme matrix`; từng section phải chứng minh được ít nhất ba dấu hiệu renderer-owned liên quan trực tiếp tới theme khi toàn bộ media user bị thay bằng placeholder trung tính. Theme có art direction 3D mạnh phải có ít nhất hai spatial focal section layered khác vai trò; theme editorial/minimal/typography-first không bị ép dùng 3D nhưng vẫn phải đạt experience diversity gate bằng ít nhất ba loại trải nghiệm phù hợp. Xem [2.5D và Spatial Composition](../online-invitations/visual-styles/2-5d-spatial-composition.md).
+
 `Cherry Blossom Garden Wedding` v1.0.0 tại `/templates/websites/cherry-blossom-garden/preview` là theme khu vườn anh đào điện ảnh: hero full-screen nhiều lớp, cành hoa mở màn, petal field, sương, tia nắng và parallax foreground/background. Bảng màu sakura, ivory, kem và xanh non tiếp tục qua couple, story, event, gallery và RSVP; mobile giảm lớp trang trí, còn reduced motion giữ một composition tĩnh hoàn chỉnh.
 
 Website cưới là một website công khai duy nhất cho mỗi wedding, dùng để kể câu chuyện của cặp đôi, giới thiệu lịch trình, địa điểm, album và cung cấp RSVP/lời chúc chung. Đây là publication surface riêng với `productType = WEDDING_WEBSITE`; không dùng template selection, slug hoặc snapshot của thiệp online.
@@ -17,6 +19,7 @@ Website cưới tái sử dụng template versioning, live-editor bridge và pub
 3. [Checklist tạo template](./template-authoring-checklist.md) — authoring, test và release gate.
 4. [Live template editor](../live-template-editor.md) — iframe bridge và preview device.
 5. [Thư viện hiệu ứng](../experience-effects-reference.md) — motion/performance dùng chung.
+6. [Theme authoring compliance](../theme-authoring-compliance.md) — manifest tài liệu bắt buộc, preflight/postflight và strong-subject decor gate.
 
 ## Ranh giới
 

@@ -20,6 +20,8 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
 - [Nền live template editor dùng chung](./live-template-editor.md)
 - [Nhạc nền cưới: admin catalog, owner editor và guest playback](./wedding-background-music.md)
+- [Shared runtime cho public theme: mobile first-load auto-scroll, music control và fixture media](./public-theme-runtime-behaviors.md)
+- [Theme authoring compliance: required-reading manifest, strong-subject decor gate và preflight/postflight](./theme-authoring-compliance.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)
 - [Website cưới: section, content/config contract và authoring checklist](./wedding-websites/README.md)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wedding Decor Image Generator"
+  short_description: "Generate independent web-ready wedding decor cutouts"
+  default_prompt: "Use $generate-wedding-decor to define and generate a cohesive set of independent transparent decorative assets for this wedding web theme."
