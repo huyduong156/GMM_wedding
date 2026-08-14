@@ -240,6 +240,8 @@ Mỗi pattern bên dưới là **design inference của GMM** rút ra từ các 
 - Interaction: then-and-now reveal hoặc draggable filmstrip.
 - Mobile: contact sheet/scroll-snap, poster tĩnh cho finale.
 
+`Winter Wedding Recap` v1.0.0 tại `/templates/recaps/winter-wedding/preview` áp dụng công thức này với scroll-scrub film strip làm signature, snow field thưa, light leak một lớp và finale champagne. Desktop dùng sticky horizontal narrative; mobile và reduced motion chuyển toàn bộ chapter về document flow dọc, không hijack scroll.
+
 ## Performance và accessibility guardrails
 
 - Ưu tiên `transform` và `opacity`; tránh animate width/height/top/left, blur lớn và box-shadow liên tục.

@@ -56,6 +56,11 @@ export const publicTemplateRoutes = {
   modernLuxePreview: '/templates/invitations/modern-luxe/preview',
   verdantPromisePreview: '/templates/invitations/verdant-promise/preview',
   chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
+  editorialVowsPreview: '/templates/websites/editorial-vows/preview',
+  greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
+  enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
+  cherryBlossomGardenPreview: '/templates/websites/cherry-blossom-garden/preview',
+  winterWeddingRecapPreview: '/templates/recaps/winter-wedding/preview',
 } as const
 
 export const marketingRoutes = {

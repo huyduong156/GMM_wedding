@@ -155,6 +155,13 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('heading', { name: 'Gửi một lời chúc đến chúng mình' })).toBeInTheDocument()
   })
 
+  it('renders the Winter Wedding Recap preview', () => {
+    window.history.replaceState(null, '', '/templates/recaps/winter-wedding/preview')
+    render(<NavigationProvider><App /></NavigationProvider>)
+    expect(screen.getByRole('heading', { level: 1, name: /Minh Anh.*Hoàng Nam/i })).toBeInTheDocument()
+    expect(screen.getByText('Chiếc nhẫn và lời nguyện ước')).toBeInTheDocument()
+  })
+
   it('renders the Verdant Promise invitation with botanical interactions', () => {
     window.history.replaceState(null, '', '/templates/invitations/verdant-promise/preview')
     render(<NavigationProvider><App /></NavigationProvider>)
