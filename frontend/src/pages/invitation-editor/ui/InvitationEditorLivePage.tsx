@@ -38,6 +38,7 @@ export function InvitationEditorLivePage() {
   const [mobileAdviceOpen, setMobileAdviceOpen] = useState(isMobileEditor)
   const [contentRevision, setContentRevision] = useState<number | null>(null)
   const [templateVersionId, setTemplateVersionId] = useState<string | null>(null)
+  const [templateMissing, setTemplateMissing] = useState(false)
   const [templateKey, setTemplateKey] = useState<string | null>(null)
   const [loading, setLoading] = useState(Boolean(activeWedding))
   const [saving, setSaving] = useState(false)
@@ -58,10 +59,10 @@ export function InvitationEditorLivePage() {
   const previewDevice = isMobileEditor ? 'mobile' : device
   const loadContent = useCallback(async () => {
     if (!activeWeddingId) return
-    setLoading(true); setApiError(''); setSaveMessage(''); setConflicted(false); setFieldErrors({})
+    setLoading(true); setApiError(''); setSaveMessage(''); setConflicted(false); setFieldErrors({}); setTemplateMissing(false)
     try {
       const loaded = (await weddingApi.content(activeWeddingId, 'ONLINE_INVITATION')).content
-      if (!loaded.templateVersion) throw new Error('Hãy chọn giao diện thiệp trước khi chỉnh sửa.')
+      if (!loaded.templateVersion) { setTemplateMissing(true); setLoading(false); return }
       const stored = loaded.content as EditorData
       const storedPalette = typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
       const definitions = resolveEditorSections(loaded.templateVersion.config, loaded.sectionConfig.order)
@@ -202,6 +203,7 @@ export function InvitationEditorLivePage() {
     document.addEventListener('click', interceptLink, true)
     return () => document.removeEventListener('click', interceptLink, true)
   }, [hasUnsavedChanges])
+  if (templateMissing && !loading) return <section className="invitation-editor-empty" aria-labelledby="invitation-editor-empty-heading"><div className="invitation-editor-empty-card"><CheckCircle size={48} weight="duotone" aria-hidden="true" /><h1 id="invitation-editor-empty-heading">Bạn chưa chọn giao diện thiệp</h1><p>Hãy chọn một template trong kho giao diện trước khi bắt đầu chỉnh sửa thiệp.</p><AppLink className="button button-primary" to={studioRoutes.inviteThemes}>Đi đến kho giao diện</AppLink></div></section>
   return <section className="invitation-editor" aria-labelledby="invitation-editor-heading">
     <header className="editor-toolbar"><div className="editor-toolbar-title"><AppLink to={studioRoutes.inviteThemes} ariaLabel="Quay lại kho giao diện"><ArrowLeft /></AppLink><div><p>Thiệp online · {templateKey ?? 'Đang tải giao diện'}</p><h1 id="invitation-editor-heading">Chỉnh sửa thiệp</h1></div></div><div className="editor-toolbar-actions"><span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>{loading ? 'Đang tải nội dung…' : saving ? 'Đang lưu…' : dirty ? 'Có thay đổi chưa lưu' : saveMessage || (templateVersionId ? 'Nội dung đã sẵn sàng' : ready ? 'Bản xem trước đã sẵn sàng' : 'Đang chuẩn bị…')}</span><div className="editor-history-actions" data-history-version={historyVersion}><button type="button" disabled={!historyRef.current.length} onClick={undo} aria-label="Hoàn tác"><ArrowUUpLeft /></button><button type="button" disabled={!futureRef.current.length} onClick={redo} aria-label="Làm lại"><ArrowUUpRight /></button></div>{activeWedding ? <button className="button button-secondary" type="button" disabled={loading || saving} onClick={() => void loadContent()}><ArrowClockwise /> Tải lại</button> : null}<div className="editor-device-toggle" aria-hidden={isMobileEditor}><button type="button" aria-label="Xem dạng máy tính" aria-pressed={previewDevice === 'desktop'} className={previewDevice === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')}><Desktop /></button><button type="button" aria-label="Xem dạng điện thoại" aria-pressed={previewDevice === 'mobile'} className={previewDevice === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')}><DeviceMobile /></button></div><button className="button button-secondary" type="button" onClick={openFullPreview}><Eye /> Toàn màn hình</button><button className="button button-secondary" type="button" disabled={dirty || saving || !templateVersionId} onClick={() => setPublishOpen(true)}><RocketLaunch /> Xuất bản</button><button className="button button-primary" type="button" disabled={!activeWedding || !templateVersionId || loading || saving} onClick={() => void save()}><FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu thiệp'}</button></div></header>
     {apiError ? <div className="editor-api-feedback is-error" role="alert"><span>{apiError}</span>{Object.keys(fieldErrors).length ? <button type="button" onClick={() => setApiError('')}>Đóng</button> : <button type="button" onClick={() => void loadContent()}>Thử lại</button>}</div> : saveMessage ? <div className={`editor-api-feedback ${conflicted ? 'is-error' : 'is-success'}`} role={conflicted ? 'alert' : 'status'}>{!conflicted ? <CheckCircle className="editor-success-check" size={42} weight="fill" /> : null}<span>{saveMessage}</span>{conflicted ? <button type="button" onClick={() => void loadContent()}>Tải lại bản mới</button> : null}</div> : null}

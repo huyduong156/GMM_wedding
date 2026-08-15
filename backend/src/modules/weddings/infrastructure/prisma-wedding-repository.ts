@@ -6,6 +6,16 @@ import type {
   PublishWeddingData, PublishedSnapshotView, SaveWeddingContentData, TemplateView, UpdateWeddingEventData, WeddingContentView, WeddingDashboardView, WeddingEventView, WeddingRepository, WeddingSurfaceValue, WeddingView, WishView,
 } from '../application/ports'
 
+const legacyTemplateSections: Record<string, string[]> = {
+  'modern-luxe': ['cover', 'invitation', 'loveJourney', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'activities', 'gallery', 'rsvp', 'guestbook', 'gift', 'music'],
+  'verdant-promise': ['cover', 'invitation', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'gallery', 'rsvp', 'guestbook', 'gift'],
+  'chibi-daydream': ['cover', 'banner', 'invitation', 'families', 'ceremony', 'reception', 'calendar', 'gallery', 'timeline', 'rsvp', 'map', 'guestbook', 'gift', 'thanks'],
+  'editorial-vows': ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'weddingParty', 'dressCode', 'travel', 'faq', 'rsvp', 'guestbook', 'gift', 'footer', 'music'],
+  'green-hydrangea': ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'faq', 'rsvp', 'guestbook', 'footer'],
+  'enchanted-forest': ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'faq', 'rsvp', 'guestbook', 'footer'],
+  'cherry-blossom-garden': ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'faq', 'rsvp', 'guestbook', 'footer'],
+}
+
 const weddingSelect = {
   id: true, name: true, status: true, visibility: true, timezone: true, locale: true,
   primaryDate: true, revision: true, publishedAt: true, archivedAt: true, createdAt: true, updatedAt: true,
@@ -246,12 +256,19 @@ export class PrismaWeddingRepository implements WeddingRepository {
     const expectedProduct = data.surface === 'ONLINE_INVITATION' ? 'ONLINE_INVITATION' : 'WEDDING_WEBSITE'
     if (template.template.productType !== expectedProduct) return 'template-incompatible'
     const config = template.config as { sections?: unknown }
-    const rawSections = Array.isArray(config.sections) ? config.sections : []
-    const supported = new Set(rawSections.map((item) => typeof item === 'string' ? item : typeof item === 'object' && item !== null && 'sectionKey' in item ? String((item as { sectionKey: unknown }).sectionKey) : ''))
-    const required = new Set(rawSections.filter((item) => typeof item === 'object' && item !== null && (item as { required?: unknown }).required === true).map((item) => String((item as { sectionKey: unknown }).sectionKey)))
-    const enabled = new Set(data.sectionConfig.enabled)
-    const order = data.sectionConfig.order
-    if (data.sectionConfig.enabled.length !== enabled.size || order.length !== enabled.size || new Set(order).size !== order.length || order.some((key) => !enabled.has(key)) || [...enabled].some((key) => !supported.has(key) || !order.includes(key)) || [...required].some((key) => !enabled.has(key))) return 'section-invalid'
+    const rawSections = Array.isArray(config.sections) && config.sections.length > 0 ? config.sections : (legacyTemplateSections[template.template.key] ?? [])
+    const sectionKey = (item: unknown) => typeof item === 'string' ? item : typeof item === 'object' && item !== null && typeof (item as { sectionKey?: unknown }).sectionKey === 'string' ? (item as { sectionKey: string }).sectionKey : typeof item === 'object' && item !== null && typeof (item as { key?: unknown }).key === 'string' ? (item as { key: string }).key : ''
+    const supported = new Set(rawSections.map(sectionKey).filter(Boolean))
+    const required = new Set(rawSections.filter((item) => typeof item === 'object' && item !== null && (item as { required?: unknown }).required === true).map(sectionKey).filter(Boolean))
+    const configuredSections = [...supported].filter(Boolean)
+    const requestedEnabled = data.sectionConfig.enabled.filter((key) => supported.has(key))
+    const requestedOrder = data.sectionConfig.order.filter((key) => supported.has(key))
+    const enabled = new Set(requestedEnabled.length ? requestedEnabled : configuredSections)
+    const order = requestedOrder.length ? [...new Set(requestedOrder.filter((key) => enabled.has(key)))] : [...enabled]
+    for (const key of required) enabled.add(key)
+    for (const key of enabled) if (!order.includes(key)) order.push(key)
+    const normalizedSectionConfig = { enabled: [...enabled], order }
+    if (!configuredSections.length || order.length !== enabled.size || new Set(order).size !== order.length || order.some((key) => !enabled.has(key)) || [...enabled].some((key) => !supported.has(key)) || [...required].some((key) => !enabled.has(key))) return 'section-invalid'
     const currentContent = await this.prisma.weddingContent.findUnique({ where: { weddingId }, select: { revision: true } })
     if ((currentContent?.revision ?? 1) !== data.revision) return 'conflict'
     try {
@@ -263,7 +280,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         } else {
           await tx.weddingContent.create({ data: { weddingId, schemaVersion: template.contentSchemaVersion, content: data.content as Prisma.InputJsonValue, revision: nextRevision } })
         }
-        await tx.weddingTheme.upsert({ where: { weddingId_surface: { weddingId, surface: data.surface } }, create: { weddingId, surface: data.surface, configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision }, update: { configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: data.sectionConfig as Prisma.InputJsonValue, revision: nextRevision } })
+        await tx.weddingTheme.upsert({ where: { weddingId_surface: { weddingId, surface: data.surface } }, create: { weddingId, surface: data.surface, configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue, revision: nextRevision }, update: { configVersion: template.templateConfigVersion, themeConfig: data.themeConfig as Prisma.InputJsonValue, sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue, revision: nextRevision } })
         if (data.surface === 'ONLINE_INVITATION') await tx.invitationDesign.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
         else await tx.weddingWebsite.upsert({ where: { weddingId }, create: { weddingId, templateVersionId: template.id, revision: nextRevision }, update: { templateVersionId: template.id, revision: nextRevision } })
       })

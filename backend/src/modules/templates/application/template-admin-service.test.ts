@@ -3,7 +3,7 @@ import { templateCompatibility } from './template-admin-service'
 
 describe('templateCompatibility', () => {
   it('accepts the currently supported contracts', () => {
-    expect(templateCompatibility({ templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, config: {} })).toMatchObject({ compatible: true, issues: [] })
+    expect(templateCompatibility({ templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, config: { sections: ['hero'] } })).toMatchObject({ compatible: true, issues: [] })
   })
 
   it('reports every incompatible contract before release', () => {

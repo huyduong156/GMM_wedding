@@ -6,6 +6,8 @@ import { weddingApi, type TemplateSectionConfig, type WeddingContent, type Weddi
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 type Theme = {
   key: string; versionId: string; version: string; name: string; description: string
@@ -38,12 +40,18 @@ function toTheme(template: WeddingTemplate): Theme | null {
   }
 }
 
+function sectionKeyOf(section: TemplateSectionConfig): string {
+  if (typeof section === 'string') return section
+  const legacySection = section as { sectionKey?: unknown; key?: unknown }
+  return typeof legacySection.sectionKey === 'string' ? legacySection.sectionKey : typeof legacySection.key === 'string' ? legacySection.key : ''
+}
+
 function sectionDefaults(sections: TemplateSectionConfig[], previous?: WeddingContent['sectionConfig']) {
-  const order = sections.map((item) => typeof item === 'string' ? item : item.sectionKey).filter(Boolean)
+  const order = sections.map(sectionKeyOf).filter(Boolean)
   if (!previous) return { enabled: order, order }
   const keptOrder = previous.order.filter((key) => order.includes(key))
   const added = order.filter((key) => !keptOrder.includes(key))
-  const required = sections.filter((item) => typeof item !== 'string' && item.required).map((item) => typeof item === 'string' ? item : item.sectionKey)
+  const required = sections.filter((item) => typeof item !== 'string' && item.required).map(sectionKeyOf).filter(Boolean)
   const enabled = [...new Set([...previous.enabled.filter((key) => order.includes(key)), ...added, ...required])]
   return { enabled, order: [...keptOrder, ...added] }
 }
@@ -72,9 +80,12 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     try {
       const catalog = await weddingApi.templates(surface)
       setThemes(catalog.items.map(toTheme).filter((item): item is Theme => item !== null))
-      setContent(activeWedding ? (await weddingApi.content(activeWedding.id, surface)).content : null)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tải kho giao diện.') }
-    finally { setLoading(false) }
+    if (activeWedding) {
+      try { setContent((await weddingApi.content(activeWedding.id, surface)).content) }
+      catch (cause) { await Swal.fire({ icon: 'error', title: 'Không thể tải trạng thái giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' }) }
+    } else setContent(null)
+    setLoading(false)
   }, [activeWedding, surface, workspace])
 
   useEffect(() => { void load() }, [load])
@@ -110,8 +121,12 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       })
       setContent(saved.content); setNotice(`Đã chọn giao diện ${theme.name}.`)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể áp dụng giao diện.')
-      if (cause instanceof Error && 'code' in cause && cause.code === 'WEDDING_CONTENT_REVISION_CONFLICT') await load()
+      if (cause instanceof Error && 'code' in cause && cause.code === 'WEDDING_CONTENT_REVISION_CONFLICT') {
+        await Swal.fire({ icon: 'warning', title: 'Dữ liệu vừa thay đổi', text: 'Giao diện chưa được áp dụng. Danh sách sẽ được tải lại.', confirmButtonText: 'Đã hiểu' })
+        await load()
+      } else {
+        await Swal.fire({ icon: 'error', title: 'Không thể dùng giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' })
+      }
     } finally { setSaving(null) }
   }
 
