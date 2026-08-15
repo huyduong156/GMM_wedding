@@ -27,6 +27,7 @@ export function templateCompatibility(version: { templateConfigVersion: number; 
   if (version.contentSchemaVersion !== SUPPORTED_CONTRACT.contentSchemaVersion) issues.push(`Content schema v${version.contentSchemaVersion} chưa được hỗ trợ`)
   if (version.rendererApiVersion !== SUPPORTED_CONTRACT.rendererApiVersion) issues.push(`Renderer API v${version.rendererApiVersion} chưa được hỗ trợ`)
   if (!version.config || typeof version.config !== 'object' || Array.isArray(version.config)) issues.push('Config phải là một object JSON')
+  else if (!Array.isArray((version.config as { sections?: unknown }).sections) || (version.config as { sections: unknown[] }).sections.length === 0) issues.push('Config phải khai báo ít nhất một section')
   return { compatible: issues.length === 0, issues, supported: SUPPORTED_CONTRACT }
 }
 

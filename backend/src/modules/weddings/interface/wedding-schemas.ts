@@ -12,7 +12,7 @@ export const contentQuerySchema = z.object({ surface: weddingSurfaceSchema.defau
 export const saveWeddingContentSchema = z.object({
   surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), templateVersionId: z.string().uuid(), content: jsonValue,
   themeConfig: jsonValue.default({}),
-  sectionConfig: z.object({ enabled: z.array(z.string().min(1)).min(1), order: z.array(z.string().min(1)).min(1) }).strict(),
+  sectionConfig: z.object({ enabled: z.array(z.string().min(1)), order: z.array(z.string().min(1)) }).strict(),
   revision: z.number().int().positive(),
 }).strict()
 export const publishWeddingSchema = z.object({ surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), slug: z.string().trim().min(3).max(64), revision: z.number().int().positive() }).strict()
