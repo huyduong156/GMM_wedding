@@ -1,4 +1,4 @@
-name: gmm_wedding_BE
+﻿name: gmm_wedding_BE
 
 services:
   backend:
@@ -29,6 +29,7 @@ services:
       TRUST_PROXY: ${TRUST_PROXY:-false}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-true}
+      TEMPLATE_SOURCE_ROOT: /workspace/frontend/src/templates
     ports:
       - "3000:3000"
     depends_on:
@@ -39,6 +40,8 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    volumes:
+      - ../frontend:/workspace/frontend:ro
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health/live').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s

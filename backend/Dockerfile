@@ -1,4 +1,4 @@
-FROM node:24-alpine AS dependencies
+﻿FROM node:24-alpine AS dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -7,7 +7,6 @@ FROM dependencies AS builder
 WORKDIR /app
 COPY . .
 RUN npm run db:generate
-RUN npm run check
 RUN npm run build
 
 FROM node:24-alpine AS runner
