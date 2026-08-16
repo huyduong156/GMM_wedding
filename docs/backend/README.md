@@ -34,7 +34,7 @@
 ### Làm endpoint hoặc business feature
 
 1. [Module boundaries](./modules/module-boundaries.md)
-2. [Route catalog và Postman](./contracts/route-catalog.md)
+2. [Route catalog và Postman](./contracts/route-catalog.md)`r`n3. [Template lifecycle](./contracts/template-lifecycle.md)
 3. [API contracts](./contracts/api-contracts.md)
 4. [Authentication và authorization](./contracts/authentication-and-authorization.md)
 5. [Authentication workflows and implementation runbook](./contracts/authentication-workflows.md)

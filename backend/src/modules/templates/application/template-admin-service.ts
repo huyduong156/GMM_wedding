@@ -42,9 +42,9 @@ export class TemplateAdminService {
     for (const audit of auditRows) { if (!audit.resourceId) continue; const entries = auditByVersion.get(audit.resourceId) ?? []; if (entries.length < 10) entries.push(audit); auditByVersion.set(audit.resourceId, entries) }
     const items = rows.map((template) => ({
       key: template.key, name: template.name, productType: template.productType, status: template.status, description: template.description,
-      versions: template.versions.map((version) => ({ ...version, reviewStatus: reviewStatus(version), compatibility: templateCompatibility(version), usageCount: template.productType === 'ONLINE_INVITATION' ? version._count.invitationSelections : template.productType === 'WEDDING_WEBSITE' ? version._count.websiteSelections : version._count.recaps, recentAudit: auditByVersion.get(version.id) ?? [] })).filter((version) => !query.reviewStatus || version.reviewStatus === query.reviewStatus),
+      versions: template.versions.map((version) => ({ ...version, reviewStatus: reviewStatus(version), compatibility: templateCompatibility(version), usageCount: template.productType === 'ONLINE_INVITATION' ? version._count.invitationSelections : template.productType === 'WEDDING_WEBSITE' ? version._count.websiteSelections : version._count.recaps, recentAudit: auditByVersion.get(version.id) ?? [] })).filter((version) => version.sourceStatus !== 'DEVELOPMENT' && (!query.reviewStatus || version.reviewStatus === query.reviewStatus)),
     })).filter((template) => !query.reviewStatus || template.versions.length > 0)
-    const pendingReviewCount = rows.reduce((count, template) => count + template.versions.filter((version) => reviewStatus(version) === 'PENDING_REVIEW').length, 0)
+    const pendingReviewCount = rows.reduce((count, template) => count + template.versions.filter((version) => version.sourceStatus !== 'DEVELOPMENT' && reviewStatus(version) === 'PENDING_REVIEW').length, 0)
     return { pendingReviewCount, items }
   }
 
@@ -64,11 +64,36 @@ export class TemplateAdminService {
         const template = await tx.template.upsert({ where: { key: entry.templateKey }, create: { key: entry.templateKey, name: entry.displayName, productType: entry.productType, description: entry.description ?? null }, update: { name: entry.displayName, description: entry.description ?? null } })
         if (template.productType !== entry.productType) throw new TemplateAdminError('TEMPLATE_PRODUCT_TYPE_CONFLICT', 409, `Product type cannot change for ${entry.templateKey}`)
         const existing = await tx.templateVersion.findUnique({ where: { templateId_version: { templateId: template.id, version: entry.templateVersion } } })
+        if (entry.sourceStatus === 'DEVELOPMENT') {
+          if (existing?.releasedAt) throw new TemplateAdminError('TEMPLATE_VERSION_IMMUTABLE', 409, 'Released template cannot move back to development')
+          if (existing && existing.sourceStatus !== 'DEVELOPMENT') await tx.templateVersion.update({ where: { id: existing.id }, data: { sourceStatus: 'DEVELOPMENT' } })
+          unchanged += existing ? 1 : 0
+          if (existing) results.push({ templateKey: entry.templateKey, version: entry.templateVersion, result: 'UNCHANGED' })
+          continue
+        }
         if (existing) {
-          if (existing.configHash !== hash) throw new TemplateAdminError('TEMPLATE_VERSION_HASH_CONFLICT', 409, `Template ${entry.templateKey}@${entry.templateVersion} already exists with different config`)
+          if (existing.releasedAt && existing.configHash !== hash) {
+            throw new TemplateAdminError('TEMPLATE_VERSION_IMMUTABLE', 409, `Released template ${entry.templateKey}@${entry.templateVersion} cannot be changed; create a new version`)
+          }
+          if (!existing.releasedAt) {
+            await tx.templateVersion.update({
+              where: { id: existing.id },
+              data: {
+                configHash: hash,
+                templateConfigVersion: entry.templateConfigVersion,
+                contentSchemaVersion: entry.contentSchemaVersion,
+                rendererApiVersion: entry.rendererApiVersion,
+                codeRevision: bundle.sourceRevision,
+                sourceStatus: entry.sourceStatus,
+                ...(entry.sourceStatus === 'DEPRECATED' ? { deprecatedAt: existing.deprecatedAt ?? new Date() } : { deprecatedAt: null }),
+                config: entry.config as Prisma.InputJsonValue,
+              },
+            })
+          }
+          if (entry.sourceStatus === 'DEPRECATED') await tx.template.update({ where: { id: template.id }, data: { status: 'DEPRECATED' } })
           unchanged += 1; results.push({ templateKey: entry.templateKey, version: entry.templateVersion, result: 'UNCHANGED' }); continue
         }
-        const createdVersion = await tx.templateVersion.create({ data: { templateId: template.id, version: entry.templateVersion, configHash: hash, templateConfigVersion: entry.templateConfigVersion, contentSchemaVersion: entry.contentSchemaVersion, rendererApiVersion: entry.rendererApiVersion, codeRevision: bundle.sourceRevision, config: entry.config as Prisma.InputJsonValue } })
+        const createdVersion = await tx.templateVersion.create({ data: { templateId: template.id, version: entry.templateVersion, configHash: hash, templateConfigVersion: entry.templateConfigVersion, contentSchemaVersion: entry.contentSchemaVersion, rendererApiVersion: entry.rendererApiVersion, codeRevision: bundle.sourceRevision, sourceStatus: entry.sourceStatus, ...(entry.sourceStatus === 'DEPRECATED' ? { deprecatedAt: new Date() } : {}), config: entry.config as Prisma.InputJsonValue } })
         await tx.auditLog.create({ data: { actorUserId: actor.userId, action: 'template.version_synced', resourceType: 'TemplateVersion', resourceId: createdVersion.id, requestId, metadata: { templateKey: entry.templateKey, version: entry.templateVersion, sourceRevision: bundle.sourceRevision } } })
         created += 1; results.push({ templateKey: entry.templateKey, version: entry.templateVersion, result: 'CREATED' })
       }
@@ -84,6 +109,7 @@ export class TemplateAdminService {
       const template = await tx.template.findUnique({ where: { key: templateKey }, include: { versions: { where: { version } } } })
       const selected = template?.versions[0]
       if (!template || !selected) throw new TemplateAdminError('TEMPLATE_VERSION_NOT_FOUND', 404, 'Template version not found')
+      if (action === 'release' && selected.sourceStatus !== 'READY') throw new TemplateAdminError('TEMPLATE_SOURCE_NOT_READY', 409, 'Template source must be READY before release')
       if (action === 'release' && selected.deprecatedAt) throw new TemplateAdminError('TEMPLATE_VERSION_DEPRECATED', 409, 'A deprecated template version cannot be released')
       const compatibilityResult = templateCompatibility(selected)
       if (action === 'release' && !compatibilityResult.compatible) throw new TemplateAdminError('TEMPLATE_VERSION_INCOMPATIBLE', 409, compatibilityResult.issues.join('; '))

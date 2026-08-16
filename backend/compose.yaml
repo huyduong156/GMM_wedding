@@ -1,4 +1,4 @@
-﻿name: gmm_wedding_BE
+name: gmm_wedding_BE
 
 services:
   backend:
@@ -62,6 +62,21 @@ services:
       postgres:
         condition: service_healthy
     profiles: ["tools"]
+
+  backend-reset:
+    container_name: gmm_wedding_BE_reset
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migration
+    image: gmm-wedding-backend-migration:local
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gmm_wedding}:${POSTGRES_PASSWORD:-gmm_wedding_local}@postgres:5432/${POSTGRES_DB:-gmm_wedding}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["tools"]
+    command: ["sh", "-lc", "npx prisma migrate reset --force --skip-seed && npm run db:seed"]
 
   postgres:
     container_name: gmm_wedding_BE_postgres
