@@ -26,6 +26,7 @@ export const adminRoutes = {
   subscriptions: '/gmm_admin/subscriptions',
   inviteLibrary: '/gmm_admin/library/invites',
   websiteLibrary: '/gmm_admin/library/websites',
+  recapLibrary: '/gmm_admin/library/recaps',
   inviteStyles: '/gmm_admin/styles/invites',
   websiteStyles: '/gmm_admin/styles/websites',
   moderation: '/gmm_admin/moderation',
