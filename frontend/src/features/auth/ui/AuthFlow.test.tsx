@@ -14,6 +14,7 @@ const user = {
 }
 
 describe('frontend authentication', () => {
+  beforeEach(() => vi.stubEnv('VITE_AUTH_RESEND_ENABLED', 'false'))
   afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs() })
 
   it('submits owner credentials and enters studio', async () => {

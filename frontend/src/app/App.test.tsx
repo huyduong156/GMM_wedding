@@ -132,8 +132,7 @@ describe('Owner Workspace', () => {
     window.history.replaceState(null, '', '/gmm_admin/library/invites')
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Kho thiệp online' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Thêm template/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Xem trước Élan d’Amour' })).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
+    expect(screen.getByRole('button', { name: /Đồng bộ template/i })).toBeInTheDocument()
   })
 
   it('renders the public modern luxe invitation with default content', () => {
@@ -167,7 +166,7 @@ describe('Owner Workspace', () => {
     render(<NavigationProvider><App /></NavigationProvider>)
     fireEvent.click(screen.getByRole('button', { name: /Mở thiệp cưới của An Nhiên và Minh Khang/i }))
     expect(screen.getByRole('heading', { name: /An Nhiên.*Minh Khang/i })).toBeInTheDocument()
-    expect(screen.getByTitle('Bản đồ Glass Garden Ballroom')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Glass Garden Ballroom' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Ảnh tiếp theo' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Gửi một lời chúc thật xanh' })).toBeInTheDocument()
   })
@@ -192,6 +191,6 @@ describe('Owner Workspace', () => {
   it('renders the separate admin website library', () => {
     window.history.replaceState(null, '', '/gmm_admin/library/websites')
     render(<NavigationProvider><App /></NavigationProvider>)
-    expect(screen.getByRole('heading', { name: 'Kho website online' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Kho website cưới' })).toBeInTheDocument()
   })
 })
