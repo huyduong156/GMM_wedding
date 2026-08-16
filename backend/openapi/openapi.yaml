@@ -210,7 +210,39 @@ paths:
                 $ref: '#/components/schemas/UserEnvelope'
         '401':
           $ref: '#/components/responses/Unauthorized'
-  /admin/me:
+  /me/password:
+    post:
+      operationId: changeCurrentPassword
+      summary: Change current password and revoke other sessions
+      security:
+        - cookieAuth: []
+      responses:
+        '204': { description: Password changed }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /me/sessions:
+    get:
+      operationId: listCurrentUserSessions
+      summary: List active sessions for current user
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Active sessions }
+    post:
+      operationId: revokeCurrentUserSessions
+      summary: Revoke all other sessions for current user
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Sessions revoked }
+  /me/sessions/{sessionId}:
+    delete:
+      operationId: revokeCurrentUserSession
+      summary: Revoke one current-user session
+      security:
+        - cookieAuth: []
+      responses:
+        '204': { description: Session revoked }
+        '404': { $ref: '#/components/responses/NotFound' }  /admin/me:
     get:
       operationId: getCurrentPlatformAdmin
       summary: Return the current platform administrator actor
@@ -227,7 +259,74 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
-  /weddings:
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      summary: List users for platform administration
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: User list and status summary }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/users/invite:
+    post:
+      operationId: inviteAdminUser
+      summary: Invite a user and send a password setup link
+      security:
+        - cookieAuth: []
+      responses:
+        '202': { description: Invitation accepted }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/users/bulk-status:
+    post:
+      operationId: bulkUpdateAdminUserStatus
+      summary: Update status for multiple users
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Number of updated users }
+  /admin/users/{userId}:
+    get:
+      operationId: getAdminUser
+      summary: Get one user for platform administration
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: User detail }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateAdminUser
+      summary: Update user status or system roles
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Updated user }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/users/{userId}/resend-verification:
+    post:
+      operationId: resendAdminUserVerification
+      summary: Resend verification email for a pending user
+      security:
+        - cookieAuth: []
+      responses:
+        '202': { description: Verification request processed }
+  /admin/users/{userId}/audit-logs:
+    get:
+      operationId: listAdminUserAuditLogs
+      summary: List audit records for a user
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: User audit records }
+  /admin/users/{userId}/sessions/revoke-all:
+    post:
+      operationId: revokeAdminUserSessions
+      summary: Revoke all sessions for a user
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Number of revoked sessions }  /weddings:
     get:
       operationId: listOwnedWeddings
       summary: List non-deleted weddings owned by the current user
