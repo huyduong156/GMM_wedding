@@ -1,5 +1,5 @@
 export const editorialVowsTemplateConfig = {
-  templateKey: 'editorial-vows', displayName: 'Editorial Vows', productType: 'WEDDING_WEBSITE', templateVersion: '1.0.0', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1,
+  templateKey: 'editorial-vows', displayName: 'Editorial Vows', productType: 'WEDDING_WEBSITE', templateVersion: '1.0.0', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, status: 'ready', type: 'website',
   previewPath: '/templates/websites/editorial-vows/preview', description: 'Editorial cinematic màu xanh cobalt với love-story chapters.',
   capabilities: { commonRsvp: true, guestbook: true, backgroundMusic: true, seo: true },
   theme: { palettes: ['porcelain-cobalt'], heroStyles: ['full-bleed-editorial'], storyStyles: ['sticky-chapters'], galleryStyles: ['editorial-grid'], default: { palette: 'porcelain-cobalt', heroStyle: 'full-bleed-editorial', storyStyle: 'sticky-chapters', galleryStyle: 'editorial-grid', typographyScale: 'COMPACT', motionLevel: 'EXPRESSIVE' } },

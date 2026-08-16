@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { templateConfigHash } from '../application/template-admin-service'
 import { templateReleaseBundleSchema } from './template-admin-schemas'
 
-const validBundle = { bundleVersion: 1, generatedAt: '2026-08-10T00:00:00.000Z', sourceRevision: 'abc123', templates: [{ templateKey: 'elan-amour', displayName: 'Élan d’Amour', productType: 'ONLINE_INVITATION', templateVersion: '1.0.0', sourceStatus: 'REVIEW', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, config: { sections: [{ key: 'hero' }] } }] } as const
+const validBundle = { bundleVersion: 1, generatedAt: '2026-08-10T00:00:00.000Z', sourceRevision: 'abc123', templates: [{ templateKey: 'elan-amour', displayName: 'Élan d’Amour', productType: 'ONLINE_INVITATION', templateVersion: '1.0.0', sourceStatus: 'READY', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1, config: { sections: [{ key: 'hero' }] } }] } as const
 
 describe('templateReleaseBundleSchema', () => {
   it('accepts a release bundle', () => { expect(templateReleaseBundleSchema.parse(validBundle).templates).toHaveLength(1) })

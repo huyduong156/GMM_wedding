@@ -43,7 +43,7 @@ export class TemplateAdminService {
     const items = rows.map((template) => ({
       key: template.key, name: template.name, productType: template.productType, status: template.status, description: template.description,
       versions: template.versions.map((version) => ({ ...version, reviewStatus: reviewStatus(version), compatibility: templateCompatibility(version), usageCount: template.productType === 'ONLINE_INVITATION' ? version._count.invitationSelections : template.productType === 'WEDDING_WEBSITE' ? version._count.websiteSelections : version._count.recaps, recentAudit: auditByVersion.get(version.id) ?? [] })).filter((version) => version.sourceStatus !== 'DEVELOPMENT' && (!query.reviewStatus || version.reviewStatus === query.reviewStatus)),
-    })).filter((template) => !query.reviewStatus || template.versions.length > 0)
+    })).filter((template) => template.versions.length > 0 && (!query.reviewStatus || template.versions.length > 0))
     const pendingReviewCount = rows.reduce((count, template) => count + template.versions.filter((version) => version.sourceStatus !== 'DEVELOPMENT' && reviewStatus(version) === 'PENDING_REVIEW').length, 0)
     return { pendingReviewCount, items }
   }
@@ -60,6 +60,7 @@ export class TemplateAdminService {
       let created = 0; let unchanged = 0
       const results: Array<{ templateKey: string; version: string; result: 'CREATED' | 'UNCHANGED' }> = []
       for (const entry of bundle.templates) {
+        if (entry.sourceStatus === 'DEVELOPMENT') continue
         const hash = templateConfigHash(entry.config)
         const template = await tx.template.upsert({ where: { key: entry.templateKey }, create: { key: entry.templateKey, name: entry.displayName, productType: entry.productType, description: entry.description ?? null }, update: { name: entry.displayName, description: entry.description ?? null } })
         if (template.productType !== entry.productType) throw new TemplateAdminError('TEMPLATE_PRODUCT_TYPE_CONFLICT', 409, `Product type cannot change for ${entry.templateKey}`)
@@ -125,3 +126,4 @@ export class TemplateAdminService {
     })
   }
 }
+

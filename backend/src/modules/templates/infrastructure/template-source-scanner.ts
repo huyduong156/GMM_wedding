@@ -6,9 +6,8 @@ import type { TemplateReleaseBundle } from '../interface/template-admin-schemas'
 const sourceRoot = () => process.env.TEMPLATE_SOURCE_ROOT ? path.resolve(process.env.TEMPLATE_SOURCE_ROOT) : path.resolve(process.cwd(), '..', 'frontend', 'src', 'templates')
 const readField = (source: string, field: string) => source.match(new RegExp(`${field}\\s*:\\s*['\"]([^'\"]+)['\"]`))?.[1] ?? null
 const readNumberField = (source: string, field: string) => Number(readField(source, field) ?? source.match(new RegExp(`${field}\\s*:\\s*(\\d+)`))?.[1] ?? 0)
-
 const knownSectionKeys = ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'weddingParty', 'dressCode', 'travel', 'faq', 'rsvp', 'guestbook', 'gift', 'footer', 'music'] as const
-const readSectionKeys = (source: string) => knownSectionKeys.filter((sectionKey) => source.includes(sectionKey)).map((sectionKey) => ({ sectionKey }))
+const readSectionKeys = (source: string) => knownSectionKeys.filter((sectionKey) => new RegExp(`["']${sectionKey}["']`).test(source)).map((sectionKey) => ({ sectionKey }))
 async function configFiles(directory: string): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true })
   const nested = await Promise.all(entries.map(async (entry) => { const absolute = path.join(directory, entry.name); if (entry.isDirectory()) return configFiles(absolute); return entry.name === 'template-config.ts' ? [absolute] : [] }))
@@ -28,3 +27,4 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
   const sourceRevision = createHash('sha256').update(scanned.map((item) => item.source).join('\n')).digest('hex').slice(0, 64)
   return { bundleVersion: 1, generatedAt: new Date().toISOString(), sourceRevision, templates: scanned.map(({ source: _source, ...template }) => template) }
 }
+

@@ -1,4 +1,6 @@
 # GMM Wedding - Persistent Project Context
+- TemplateConfig contract dùng chung cho invitation, wedding website và Wedding Recap: metadata/settings (status, type, versions, palettes, preview, capabilities, theme, sections) giữ cùng shape; chỉ productType, content/section schema và renderer khác nhau.
+
 
 - Design workflow dùng specialist sub-agent theo domain để giữ context chính gọn; roster và routing nằm tại `docs/shared/workflows/design-specialist-agents.md`. Skill bổ sung chỉ cài repo-local trong `.agents/skills`, không cài global. Các nhóm chính: visual direction, React quality, motion, spatial 3D, mobile, SEO và design review.
 
