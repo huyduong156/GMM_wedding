@@ -60,7 +60,6 @@ export class TemplateAdminService {
       let created = 0; let unchanged = 0
       const results: Array<{ templateKey: string; version: string; result: 'CREATED' | 'UNCHANGED' }> = []
       for (const entry of bundle.templates) {
-        if (entry.sourceStatus === 'DEVELOPMENT') continue
         const hash = templateConfigHash(entry.config)
         const template = await tx.template.upsert({ where: { key: entry.templateKey }, create: { key: entry.templateKey, name: entry.displayName, productType: entry.productType, description: entry.description ?? null }, update: { name: entry.displayName, description: entry.description ?? null } })
         if (template.productType !== entry.productType) throw new TemplateAdminError('TEMPLATE_PRODUCT_TYPE_CONFLICT', 409, `Product type cannot change for ${entry.templateKey}`)
