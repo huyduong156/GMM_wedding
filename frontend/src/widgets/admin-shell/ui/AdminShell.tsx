@@ -1,4 +1,4 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, Heart, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
+import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, Heart, ImagesSquare, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
@@ -18,6 +18,7 @@ const adminNav = [
     { label: 'Kho giao diện', icon: Palette, children: [
       { to: adminRoutes.inviteLibrary, label: 'Kho thiệp online', icon: EnvelopeSimple },
       { to: adminRoutes.websiteLibrary, label: 'Kho website online', icon: Browser },
+      { to: adminRoutes.recapLibrary, label: 'Kho Wedding Recap', icon: ImagesSquare },
     ] },
     { label: 'Danh mục phong cách', icon: Tag, children: [
       { to: adminRoutes.inviteStyles, label: 'Phong cách thiệp', icon: EnvelopeSimple },

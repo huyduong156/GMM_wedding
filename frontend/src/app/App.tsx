@@ -37,6 +37,8 @@ import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/Cherr
 import { WinterWeddingRecapPreviewPage } from '../pages/public-recap/ui/WinterWeddingRecapPreviewPage'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
+import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
+import { RecapThemesPage } from '../pages/recap/ui/RecapThemesPage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
 import { useOptionalAuth } from '../features/auth/model/auth-context'
 
@@ -52,8 +54,8 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.wishes]: <WishesPage />,
   [studioRoutes.todos]: <TodosPage />,
   [studioRoutes.giftLedger]: <GiftLedgerPage />,
-  [studioRoutes.recap]: <PlaceholderPage section="recap" />,
-  [studioRoutes.recapThemes]: <PlaceholderPage section="recap-themes" />,
+  [studioRoutes.recap]: <RecapEditorPage />,
+  [studioRoutes.recapThemes]: <RecapThemesPage />,
   [studioRoutes.analytics]: <PlaceholderPage section="analytics" />,
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
@@ -107,6 +109,8 @@ export function App() {
         ? <AdminTemplatesApiPage kind="invitation" />
         : pathname === adminRoutes.websiteLibrary
           ? <AdminTemplatesApiPage kind="website" />
+        : pathname === adminRoutes.recapLibrary
+          ? <AdminTemplatesApiPage kind="recap" />
         : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
     return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
   }
