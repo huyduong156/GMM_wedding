@@ -1,5 +1,5 @@
 export const chibiDaydreamTemplateConfig = {
-  templateKey: 'chibi-daydream', displayName: 'Mây Hồng Có Đôi', templateVersion: '1.1.0', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'development', type: 'invitation',
+  templateKey: 'chibi-daydream', displayName: 'Mây Hồng Có Đôi', templateVersion: '1.1.0', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'review', type: 'invitation',
   palettes: [{ key: 'storybook', label: 'Mây hồng', default: true }],
   sections: [
     { sectionKey: 'cover', label: 'Popup mở thiệp', required: true, canToggle: false, canReorder: false },

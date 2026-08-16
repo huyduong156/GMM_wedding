@@ -1,6 +1,13 @@
 # Content và template config contract
 
-## 1. Phân lớp
+## 1. Contract dùng chung cho ba surface
+
+Mỗi template của Thiệp online, Website cưới và Wedding Recap có `template-config.ts` riêng. Các file riêng này tuân theo cùng một cấu trúc/schema `TemplateConfig` cho metadata và settings; không dùng chung một config object/runtime instance. Ba surface chỉ khác nhau ở `productType`, content schema, danh sách/field của `sections` và renderer.
+
+Các field dùng chung gồm `templateKey`, `displayName`, `templateVersion`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion`, `status`, `type`, `palettes`, `previewPath`, `description`, `capabilities`, `theme` và `sections`. Không tạo một shape config riêng cho website hoặc recap chỉ vì content khác nhau.
+
+`productType` vẫn phải giữ đúng surface (`WEDDING_WEBSITE` hoặc `WEDDING_RECAP`); `sections` là nơi duy nhất được phép khác về nội dung và field schema. Editor, catalog, validator và release bundle đọc cùng metadata contract này.
+## 2. Phân lớp
 
 ```text
 content        semantic data/reference Wedding, Event, Media

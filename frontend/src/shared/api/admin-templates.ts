@@ -1,10 +1,11 @@
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '')
 
 export type AdminTemplateReviewStatus = 'PENDING_REVIEW' | 'RELEASED' | 'DEPRECATED'
+export type AdminTemplateSourceStatus = 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED'
 export type AdminTemplateVersion = {
   id: string; version: string; configHash: string; templateConfigVersion: number; contentSchemaVersion: number
   rendererApiVersion: number; codeRevision: string | null; config: Record<string, unknown>; createdAt: string
-  releasedAt: string | null; deprecatedAt: string | null; reviewStatus: AdminTemplateReviewStatus
+  releasedAt: string | null; deprecatedAt: string | null; sourceStatus: AdminTemplateSourceStatus; reviewStatus: AdminTemplateReviewStatus
   usageCount: number
   compatibility: { compatible: boolean; issues: string[]; supported: { templateConfigVersion: number; contentSchemaVersion: number; rendererApiVersion: number } }
   recentAudit: Array<{ id: string; action: string; occurredAt: string; actorUser: { displayName: string | null; email: string } | null }>
@@ -15,7 +16,7 @@ export type AdminTemplate = {
 }
 export type TemplateReleaseBundle = {
   bundleVersion: 1; generatedAt: string; sourceRevision: string
-  templates: Array<{ templateKey: string; displayName: string; productType: AdminTemplate['productType']; templateVersion: string; templateConfigVersion: number; contentSchemaVersion: number; rendererApiVersion: number; description?: string | null; config: Record<string, unknown> }>
+  templates: Array<{ templateKey: string; displayName: string; productType: AdminTemplate['productType']; templateVersion: string; sourceStatus: AdminTemplateSourceStatus; templateConfigVersion: number; contentSchemaVersion: number; rendererApiVersion: number; description?: string | null; config: Record<string, unknown> }>
 }
 type LegacyAdminTemplate = Omit<AdminTemplate, 'versions'> & { versions: Array<Omit<AdminTemplateVersion, 'usageCount' | 'compatibility' | 'recentAudit'> & Partial<Pick<AdminTemplateVersion, 'usageCount' | 'compatibility' | 'recentAudit'>>> }
 

@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const versionSchema = z.string().min(1).max(32).regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, 'Must be a semantic version')
 const templateKeySchema = z.string().min(2).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Must be a lowercase kebab-case key')
+const templateSourceStatusSchema = z.enum(['DEVELOPMENT', 'REVIEW', 'READY', 'DEPRECATED'])
 
 export const templateReleaseBundleSchema = z.object({
   bundleVersion: z.literal(1),
@@ -12,6 +13,7 @@ export const templateReleaseBundleSchema = z.object({
     displayName: z.string().trim().min(1).max(160),
     productType: z.enum(['ONLINE_INVITATION', 'WEDDING_WEBSITE', 'RECAP']),
     templateVersion: versionSchema,
+    sourceStatus: templateSourceStatusSchema,
     templateConfigVersion: z.number().int().positive(),
     contentSchemaVersion: z.number().int().positive(),
     rendererApiVersion: z.number().int().positive(),

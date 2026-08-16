@@ -10,7 +10,7 @@ export const modernLuxeTemplateConfig = {
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',
-  status: 'development',
+  status: 'ready',
   type: 'invitation',
   palettes: [
     { key: 'champagne', label: 'Champagne', default: true },
