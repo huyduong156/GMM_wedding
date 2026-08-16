@@ -70,3 +70,21 @@ npm --prefix .\backend run db:seed
 - Restore drill định kỳ; backup chưa restore thử không được coi là recovery plan.
 - Retention phù hợp privacy/delete policy và môi trường.
 - RPO/RTO ban đầu theo security/operations docs và được siết trước paid launch.
+Refresh database local theo cách không phá dữ liệu:
+
+```powershell
+npm --prefix .\backend run db:refresh
+```
+
+Lệnh này chỉ deploy migration còn thiếu rồi chạy seed idempotent. Không dùng
+`prisma migrate reset` cho database đang có dữ liệu vì lệnh đó sẽ xóa toàn bộ
+user, wedding và template.
+Reset toàn bộ database local từ đầu (destructive):
+
+```powershell
+npm --prefix .\backend run db:reset
+```
+
+Lệnh này xóa toàn bộ schema/data trong database đang trỏ bởi `DATABASE_URL`,
+chạy lại toàn bộ migration và seed dữ liệu mẫu. Chỉ chạy trên local/test; không
+chạy trên production hoặc database có dữ liệu cần giữ.

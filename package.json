@@ -1,4 +1,11 @@
 {
+  "scripts": {
+    "db:migrate": "npm --prefix backend run db:migrate:deploy",
+    "db:seed": "npm --prefix backend run db:seed",
+    "db:refresh": "npm --prefix backend run db:refresh",
+    "db:reset": "npm --prefix backend run db:reset",
+    "db:reset:docker": "docker compose -f backend/compose.yaml --profile tools run --rm backend-reset"
+  },
   "dependencies": {
     "@tsparticles/react": "^4.3.2",
     "@tsparticles/slim": "^4.3.2",
