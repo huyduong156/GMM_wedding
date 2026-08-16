@@ -70,10 +70,19 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | POST | `/auth/reset-password` | Reset token | Implemented | Đặt mật khẩu mới, revoke toàn bộ session |
 | GET | `/me` | Session | Implemented | Lấy profile/actor hiện tại |
 | GET | `/admin/me` | Platform admin session | Implemented | Xác nhận actor và assurance cho admin shell |
+| GET | `/admin/users` | Platform admin session | Implemented | Danh sách user, tìm kiếm/lọc/phân trang và summary trạng thái |
+| GET | `/admin/users/{userId}` | Platform admin session | Implemented | Chi tiết user và system roles đang hiệu lực |
+| PATCH | `/admin/users/{userId}` | Platform admin + CSRF | Implemented | Cập nhật trạng thái user hoặc tập system role; ghi audit và bảo vệ admin cuối cùng |
+| POST | `/admin/users/invite` | Platform admin + CSRF | Implemented | Tạo tài khoản và gửi password setup invite |
+| POST | `/admin/users/bulk-status` | Platform admin + CSRF | Implemented | Cập nhật trạng thái cho nhiều user và ghi audit |
+| POST | `/admin/users/{userId}/resend-verification` | Platform admin + CSRF | Implemented | Gửi lại email xác minh cho user pending |
+| GET | `/admin/users/{userId}/audit-logs` | Platform admin | Implemented | Lịch sử audit của user |
+| POST | `/admin/users/{userId}/sessions/revoke-all` | Platform admin + CSRF | Implemented | Thu hồi toàn bộ session của user |
 | PATCH | `/me` | Session | Implemented | Cập nhật displayName, phone, avatarUrl, locale, timezone; cho phép xoá giá trị nullable |
-| GET | `/me/sessions` | Session | Planned | Liệt kê session của tài khoản |
-| DELETE | `/me/sessions/{sessionId}` | Session | Planned | Thu hồi một session |
-| POST | `/me/sessions/revoke-all` | Session | Planned | Thu hồi mọi session, trừ/bao gồm hiện tại theo request |
+| POST | `/me/password` | Session + CSRF | Implemented | Đổi mật khẩu và thu hồi các session khác |
+| GET | `/me/sessions` | Session | Implemented | Liệt kê session của tài khoản |
+| DELETE | `/me/sessions/{sessionId}` | Session + CSRF | Implemented | Thu hồi một session |
+| POST | `/me/sessions/revoke-all` | Session + CSRF | Implemented | Thu hồi mọi session, trừ/bao gồm hiện tại theo request |
 
 ## Weddings, content và publish
 
