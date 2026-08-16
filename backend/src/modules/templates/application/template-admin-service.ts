@@ -65,7 +65,14 @@ export class TemplateAdminService {
         if (template.productType !== entry.productType) throw new TemplateAdminError('TEMPLATE_PRODUCT_TYPE_CONFLICT', 409, `Product type cannot change for ${entry.templateKey}`)
         const existing = await tx.templateVersion.findUnique({ where: { templateId_version: { templateId: template.id, version: entry.templateVersion } } })
         if (existing) {
-          if (existing.configHash !== hash) throw new TemplateAdminError('TEMPLATE_VERSION_HASH_CONFLICT', 409, `Template ${entry.templateKey}@${entry.templateVersion} already exists with different config`)
+          if (existing.configHash !== hash) {
+            const existingCompatibility = templateCompatibility(existing)
+            const incomingCompatibility = templateCompatibility({ ...entry, config: entry.config })
+            const legacyOnly = existingCompatibility.issues.length > 0 && existingCompatibility.issues.every((issue) => issue === 'Config phải khai báo ít nhất một section')
+            if (!legacyOnly || !incomingCompatibility.compatible) throw new TemplateAdminError('TEMPLATE_VERSION_HASH_CONFLICT', 409, `Template ${entry.templateKey}@${entry.templateVersion} already exists with different config`)
+            await tx.templateVersion.update({ where: { id: existing.id }, data: { configHash: hash, config: entry.config as Prisma.InputJsonValue, codeRevision: bundle.sourceRevision } })
+            await tx.auditLog.create({ data: { actorUserId: actor.userId, action: 'template.version_legacy_repaired', resourceType: 'TemplateVersion', resourceId: existing.id, requestId, metadata: { templateKey: entry.templateKey, version: entry.templateVersion } } })
+          }
           unchanged += 1; results.push({ templateKey: entry.templateKey, version: entry.templateVersion, result: 'UNCHANGED' }); continue
         }
         const createdVersion = await tx.templateVersion.create({ data: { templateId: template.id, version: entry.templateVersion, configHash: hash, templateConfigVersion: entry.templateConfigVersion, contentSchemaVersion: entry.contentSchemaVersion, rendererApiVersion: entry.rendererApiVersion, codeRevision: bundle.sourceRevision, config: entry.config as Prisma.InputJsonValue } })
@@ -99,3 +106,4 @@ export class TemplateAdminService {
     })
   }
 }
+

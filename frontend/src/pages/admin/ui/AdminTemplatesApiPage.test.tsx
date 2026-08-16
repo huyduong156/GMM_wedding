@@ -24,7 +24,7 @@ describe('AdminTemplatesApiPage', () => {
     expect(await screen.findByText('2')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Quản lý/ }))
     expect(screen.getByText('Renderer API v2 chưa được hỗ trợ')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Phát hành version' })).toBeDisabled()
+    const release = vi.spyOn(adminTemplateApi, 'release').mockRejectedValue(new Error('Renderer API v2 chưa được hỗ trợ')); fireEvent.click(screen.getByRole('button', { name: 'Phát hành version' })); await waitFor(() => expect(release).toHaveBeenCalledWith('modern-luxe', '2.3.0'))
   })
 
   it('validates a bundle before calling sync', async () => {
@@ -50,3 +50,4 @@ describe('AdminTemplatesApiPage', () => {
     expect(screen.getByText('Lịch sử thao tác (0)')).toBeInTheDocument()
   })
 })
+
