@@ -20,10 +20,10 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
   const scanned = await Promise.all(files.map(async (file) => {
     const source = await readFile(file, 'utf8'); const templateKey = readField(source, 'templateKey'); const displayName = readField(source, 'displayName'); const templateVersion = readField(source, 'templateVersion')
     if (!templateKey || !displayName || !templateVersion) throw new Error(`Template metadata is incomplete: ${file}`)
-    const sourceStatus = (readField(source, 'status') ?? 'review').toUpperCase() as 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED'
+    const sourceStatus = (readField(source, 'status') ?? 'review').toUpperCase()
     const previewPath = readField(source, 'previewPath'); const type = readField(source, 'type'); const rawProductType = readField(source, 'productType') ?? (type === 'website' ? 'WEDDING_WEBSITE' : type === 'recap' ? 'RECAP' : 'ONLINE_INVITATION'); const productType = rawProductType === 'WEDDING_RECAP' ? 'RECAP' : rawProductType
-    return { sourceStatus, templateKey, displayName, productType: productType as 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', templateVersion, templateConfigVersion: readNumberField(source, 'templateConfigVersion'), contentSchemaVersion: readNumberField(source, 'contentSchemaVersion'), rendererApiVersion: readNumberField(source, 'rendererApiVersion'), description: readField(source, 'description'), config: { sections: readSectionKeys(source), sourceFile: path.relative(root, file).replaceAll(path.sep, '/'), sourceHash: createHash('sha256').update(source).digest('hex'), ...(previewPath ? { previewPath } : {}) }, source }
-  }))
+    return { sourceStatus: sourceStatus as 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED', templateKey, displayName, productType: productType as 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', templateVersion, templateConfigVersion: readNumberField(source, 'templateConfigVersion'), contentSchemaVersion: readNumberField(source, 'contentSchemaVersion'), rendererApiVersion: readNumberField(source, 'rendererApiVersion'), description: readField(source, 'description'), config: { sections: readSectionKeys(source), sourceFile: path.relative(root, file).replaceAll(path.sep, '/'), sourceHash: createHash('sha256').update(source).digest('hex'), ...(previewPath ? { previewPath } : {}) }, source }
+  })).then((items) => items.filter((item): item is NonNullable<typeof item> => item !== null))
   const sourceRevision = createHash('sha256').update(scanned.map((item) => item.source).join('\n')).digest('hex').slice(0, 64)
   return { bundleVersion: 1, generatedAt: new Date().toISOString(), sourceRevision, templates: scanned.map(({ source: _source, ...template }) => template) }
 }

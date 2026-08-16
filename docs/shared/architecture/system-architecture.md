@@ -64,6 +64,7 @@ CSR có thể yếu hơn SSR về SEO/first-load; đo Core Web Vitals trước b
 - Wedding lưu canonical semantic content độc lập presentation. Mỗi thiệp online, website cưới hoặc recap chọn template/lifecycle riêng; template cung cấp section/theme/thứ tự mặc định và editor chỉ tạo section override sau khi user đã chọn template.
 - Wedding cũ giữ version cũ cho đến khi migration chủ động.
 - Sync template là idempotent, chỉ thêm version mới; cùng key/version nhưng khác hash phải thất bại. Version cũ được deprecate thay vì xóa khi còn tham chiếu.
+- Template source lifecycle: development bị bỏ qua khi admin sync; eview chỉ hiển thị để feedback; eady mới được release; sau release version immutable và thay đổi phải tạo version mới. Preview trước release là admin-only, public preview chỉ mở sau release.
 
 Chi tiết quyết định và hệ quả deploy xem [ADR 0004](./adr/0004-code-template-contract-and-versioning.md).
 
