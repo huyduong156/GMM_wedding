@@ -1,14 +1,14 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help doctor install sync outdated update dev lint typecheck test check build docker-build docker-up docker-down docker-logs db-admin-up db-admin-down db-migrate db-migrate-deploy db-seed
+.PHONY: help doctor install sync update reset-templates images build-images outdated dev lint typecheck test check build docker-build docker-up docker-down docker-logs db-admin-up db-admin-down db-migrate db-migrate-deploy db-seed
 
 help:
 	@echo "GMM Wedding backend commands"
 	@echo "  make doctor             Check required local tools"
 	@echo "  make install            Reproduce dependencies from package-lock.json"
-	@echo "  make sync               Alias of install for switching branch/machine"
+	@echo "  make sync               Install dependencies, generate/validate Prisma, apply migrations"
 	@echo "  make outdated           Report available dependency updates"
-	@echo "  make update             Update dependencies within declared semver ranges"
+	@echo "  make update             Alias of sync for pulling new code"
 	@echo "  make dev                Start backend development server"
 	@echo "  make check              Run lint, typecheck, and tests"
 	@echo "  make build              Build production backend"
@@ -21,6 +21,8 @@ help:
 	@echo "  make db-migrate         Apply development migrations"
 	@echo "  make db-migrate-deploy  Apply reviewed production migrations"
 	@echo "  make db-seed            Insert idempotent local demo data"
+	@echo "  make reset-templates    Clear local template registry and template-bound publications"
+	@echo "  make images             Rebuild the backend Docker image"
 
 doctor:
 	node --version
@@ -32,13 +34,23 @@ install:
 	npm ci
 
 sync: install
+	docker compose up -d postgres redis mailpit
+	npm run db:generate
+	npm run db:validate
+	npm run db:migrate:deploy
 
 outdated:
 	npm outdated
 
-update:
-	npm update
-	npm outdated
+update: sync
+
+reset-templates:
+	npm run db:reset-templates
+
+images:
+	docker compose build backend
+
+build-images: images
 
 dev:
 	npm run dev
