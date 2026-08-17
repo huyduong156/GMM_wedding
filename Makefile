@@ -1,4 +1,10 @@
 .DEFAULT_GOAL := help
+
+# Host-side Prisma commands use the local PostgreSQL exposed by Compose.
+# Keep an explicitly exported DATABASE_URL untouched when developers customize it.
+DATABASE_URL ?= postgresql://gmm_wedding:gmm_wedding_local@localhost:5432/gmm_wedding?schema=public
+export DATABASE_URL
+
 .PHONY: help sync update reset-templates images build-images database-migrate database-seed database-refresh database-reset database\:refresh
 
 help:

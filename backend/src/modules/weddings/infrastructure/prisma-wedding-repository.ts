@@ -16,6 +16,50 @@ const legacyTemplateSections: Record<string, string[]> = {
   'cherry-blossom-garden': ['navigation', 'hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'faq', 'rsvp', 'guestbook', 'footer'],
 }
 
+type TemplateSection = { sectionKey?: unknown; key?: unknown; required?: unknown }
+type SectionConfig = { enabled?: unknown; order?: unknown }
+
+function sectionKey(item: unknown) {
+  if (typeof item === 'string') return item
+  if (!item || typeof item !== 'object') return ''
+  const section = item as TemplateSection
+  return typeof section.sectionKey === 'string' ? section.sectionKey : typeof section.key === 'string' ? section.key : ''
+}
+
+function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig) {
+  const sections = rawSections.map(sectionKey).filter(Boolean)
+  const supported = new Set(sections)
+  const required = new Set(rawSections.filter((item) => typeof item === 'object' && item !== null && (item as TemplateSection).required === true).map(sectionKey).filter(Boolean))
+  const requestedEnabled = Array.isArray(rawConfig.enabled) ? rawConfig.enabled.filter((key): key is string => typeof key === 'string' && supported.has(key)) : []
+  const rawOrder = Array.isArray(rawConfig.order) ? rawConfig.order.filter((key): key is string => typeof key === 'string' && supported.has(key)) : []
+  const knownSections = new Set([...requestedEnabled, ...rawOrder])
+  const newlyDiscovered = sections.filter((key) => !knownSections.has(key))
+  const enabled = new Set(requestedEnabled.length ? [...requestedEnabled, ...newlyDiscovered] : sections)
+  for (const key of required) enabled.add(key)
+  const requestedOrder = rawOrder
+  const order = requestedOrder.length ? [...requestedOrder] : [...sections]
+  for (const key of sections) {
+    if (order.includes(key)) continue
+    const nextKnown = sections.slice(sections.indexOf(key) + 1).find((candidate) => order.includes(candidate))
+    const insertionIndex = nextKnown ? order.indexOf(nextKnown) : order.length
+    order.splice(insertionIndex, 0, key)
+  }
+  for (const key of enabled) if (!order.includes(key)) order.push(key)
+  return { enabled: [...enabled], order, supported, required }
+}
+
+function effectiveTemplateConfig(templateKey: string, config: unknown) {
+  const objectConfig = config && typeof config === 'object' && !Array.isArray(config) ? config as Record<string, unknown> : {}
+  const configuredSections = Array.isArray(objectConfig.sections) ? objectConfig.sections : []
+  const fallbackSections = legacyTemplateSections[templateKey] ?? []
+  const configuredByKey = new Map(configuredSections.map((item) => [sectionKey(item), item]))
+  const fallbackKeys = new Set(fallbackSections)
+  const sections = fallbackSections.length
+    ? [...fallbackSections.map((key) => configuredByKey.get(key) ?? key), ...configuredSections.filter((item) => !fallbackKeys.has(sectionKey(item)))]
+    : configuredSections
+  return { ...objectConfig, sections }
+}
+
 const weddingSelect = {
   id: true, name: true, status: true, visibility: true, timezone: true, locale: true,
   primaryDate: true, revision: true, publishedAt: true, archivedAt: true, createdAt: true, updatedAt: true,
@@ -244,8 +288,11 @@ export class PrismaWeddingRepository implements WeddingRepository {
         ? this.prisma.invitationDesign.findUnique({ where: { weddingId }, include: { templateVersion: { include: { template: true } } } })
         : this.prisma.weddingWebsite.findUnique({ where: { weddingId }, include: { templateVersion: { include: { template: true } } } }),
     ])
-    const templateVersion = selection?.templateVersion ? { id: selection.templateVersion.id, key: selection.templateVersion.template.key, version: selection.templateVersion.version, config: selection.templateVersion.config } : null
-    return { content: content?.content ?? {}, schemaVersion: content?.schemaVersion ?? 1, revision: content?.revision ?? 1, surface, themeConfig: theme?.themeConfig ?? {}, sectionConfig: theme?.sectionConfig ?? { enabled: [], order: [] }, templateVersion }
+    const effectiveConfig = selection?.templateVersion ? effectiveTemplateConfig(selection.templateVersion.template.key, selection.templateVersion.config) : null
+    const templateVersion = selection?.templateVersion && effectiveConfig ? { id: selection.templateVersion.id, key: selection.templateVersion.template.key, version: selection.templateVersion.version, config: effectiveConfig } : null
+    const rawSections = effectiveConfig && Array.isArray(effectiveConfig.sections) ? effectiveConfig.sections : []
+    const sectionConfig = rawSections.length ? reconcileSectionConfig(rawSections, (theme?.sectionConfig ?? {}) as SectionConfig) : { enabled: [], order: [] }
+    return { content: content?.content ?? {}, schemaVersion: content?.schemaVersion ?? 1, revision: content?.revision ?? 1, surface, themeConfig: theme?.themeConfig ?? {}, sectionConfig: { enabled: sectionConfig.enabled, order: sectionConfig.order }, templateVersion }
   }
 
   async saveContentOwned(userId: string, weddingId: string, data: SaveWeddingContentData): Promise<WeddingContentView | 'conflict' | 'template-not-found' | 'template-incompatible' | 'section-invalid' | null> {
@@ -255,20 +302,11 @@ export class PrismaWeddingRepository implements WeddingRepository {
     if (!template || template.deprecatedAt) return 'template-not-found'
     const expectedProduct = data.surface === 'ONLINE_INVITATION' ? 'ONLINE_INVITATION' : 'WEDDING_WEBSITE'
     if (template.template.productType !== expectedProduct) return 'template-incompatible'
-    const config = template.config as { sections?: unknown }
-    const rawSections = Array.isArray(config.sections) && config.sections.length > 0 ? config.sections : (legacyTemplateSections[template.template.key] ?? [])
-    const sectionKey = (item: unknown) => typeof item === 'string' ? item : typeof item === 'object' && item !== null && typeof (item as { sectionKey?: unknown }).sectionKey === 'string' ? (item as { sectionKey: string }).sectionKey : typeof item === 'object' && item !== null && typeof (item as { key?: unknown }).key === 'string' ? (item as { key: string }).key : ''
-    const supported = new Set(rawSections.map(sectionKey).filter(Boolean))
-    const required = new Set(rawSections.filter((item) => typeof item === 'object' && item !== null && (item as { required?: unknown }).required === true).map(sectionKey).filter(Boolean))
-    const configuredSections = [...supported].filter(Boolean)
-    const requestedEnabled = data.sectionConfig.enabled.filter((key) => supported.has(key))
-    const requestedOrder = data.sectionConfig.order.filter((key) => supported.has(key))
-    const enabled = new Set(requestedEnabled.length ? requestedEnabled : configuredSections)
-    const order = requestedOrder.length ? [...new Set(requestedOrder.filter((key) => enabled.has(key)))] : [...enabled]
-    for (const key of required) enabled.add(key)
-    for (const key of enabled) if (!order.includes(key)) order.push(key)
-    const normalizedSectionConfig = { enabled: [...enabled], order }
-    if (!configuredSections.length || order.length !== enabled.size || new Set(order).size !== order.length || order.some((key) => !enabled.has(key)) || [...enabled].some((key) => !supported.has(key)) || [...required].some((key) => !enabled.has(key))) return 'section-invalid'
+    const config = effectiveTemplateConfig(template.template.key, template.config)
+    const rawSections = config.sections
+    const normalized = reconcileSectionConfig(rawSections, data.sectionConfig)
+    const normalizedSectionConfig = { enabled: normalized.enabled, order: normalized.order }
+    if (!normalized.supported.size || normalized.order.length !== normalized.supported.size || new Set(normalized.order).size !== normalized.order.length || normalized.order.some((key) => !normalized.supported.has(key)) || normalized.enabled.some((key) => !normalized.supported.has(key)) || [...normalized.required].some((key) => !normalized.enabled.includes(key))) return 'section-invalid'
     const currentContent = await this.prisma.weddingContent.findUnique({ where: { weddingId }, select: { revision: true } })
     if ((currentContent?.revision ?? 1) !== data.revision) return 'conflict'
     try {
@@ -303,18 +341,18 @@ export class PrismaWeddingRepository implements WeddingRepository {
       this.prisma.wish.findMany({ where: { weddingId, status: 'APPROVED', deletedAt: null }, select: { id: true, authorName: true, content: true, submittedAt: true, isPinned: true }, orderBy: [{ isPinned: 'desc' }, { submittedAt: 'desc' }], take: 100 }),
     ])
     if (!content || !theme || !selection?.templateVersion || selection.templateVersion.deprecatedAt) return 'not-ready'
-    const config = selection.templateVersion.config as { sections?: unknown }
-    const supportedSections = new Set((Array.isArray(config.sections) ? config.sections : []).map((item) => typeof item === 'string' ? item : typeof item === 'object' && item !== null && 'sectionKey' in item ? String((item as { sectionKey: unknown }).sectionKey) : ''))
+    const config = effectiveTemplateConfig(selection.templateVersion.template.key, selection.templateVersion.config)
     const sectionConfig = theme.sectionConfig as { enabled?: unknown; order?: unknown }
-    const enabled = Array.isArray(sectionConfig.enabled) ? sectionConfig.enabled.filter((item): item is string => typeof item === 'string') : []
-    const order = Array.isArray(sectionConfig.order) ? sectionConfig.order.filter((item): item is string => typeof item === 'string') : []
-    if (enabled.length === 0 || order.length !== enabled.length || new Set(enabled).size !== enabled.length || new Set(order).size !== order.length || enabled.some((key) => !supportedSections.has(key)) || order.some((key) => !enabled.includes(key))) return 'not-ready'
+    const rawSections = Array.isArray(config.sections) && config.sections.length > 0 ? config.sections : (legacyTemplateSections[selection.templateVersion.template.key] ?? [])
+    const normalizedSectionConfig = reconcileSectionConfig(rawSections, sectionConfig)
+    const { enabled, order, supported, required } = normalizedSectionConfig
+    if (enabled.length === 0 || order.length !== supported.size || new Set(enabled).size !== enabled.length || new Set(order).size !== order.length || enabled.some((key) => !supported.has(key)) || order.some((key) => !supported.has(key)) || [...required].some((key) => !enabled.includes(key))) return 'not-ready'
     const mediaIds = [...collectMediaIds(content.content), ...collectMediaIds(theme.themeConfig)]
     if (mediaIds.length > 0) {
       const readyCount = await this.prisma.mediaAsset.count({ where: { id: { in: [...new Set(mediaIds)] }, weddingId, status: 'READY', deletedAt: null } })
       if (readyCount !== new Set(mediaIds).size) return 'not-ready'
     }
-    const payload = { surface: data.surface, template: { key: selection.templateVersion.template.key, version: selection.templateVersion.version, config: selection.templateVersion.config }, content: content.content, theme: { themeConfig: theme.themeConfig, sectionConfig: theme.sectionConfig }, events: events.map((event) => ({ ...event, latitude: event.latitude?.toString() ?? null, longitude: event.longitude?.toString() ?? null })), wishes }
+    const payload = { surface: data.surface, template: { key: selection.templateVersion.template.key, version: selection.templateVersion.version, config }, content: content.content, theme: { themeConfig: theme.themeConfig, sectionConfig: { enabled, order } }, events: events.map((event) => ({ ...event, latitude: event.latitude?.toString() ?? null, longitude: event.longitude?.toString() ?? null })), wishes }
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
     const live = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { weddingId, surface: data.surface, unpublishedAt: null }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
     if (live?.slug === data.slug && live.payloadHash === payloadHash) return this.snapshotView(live)
@@ -324,6 +362,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         const claimed = await tx.wedding.updateMany({ where: { ...this.ownedWhere(userId, weddingId), revision: data.revision }, data: { status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 } } })
         if (claimed.count !== 1) throw new WeddingPublishConflictError()
         await tx.publishedWeddingSnapshot.updateMany({ where: { weddingId, surface: data.surface, unpublishedAt: null }, data: { unpublishedAt: new Date() } })
+        await tx.weddingTheme.update({ where: { weddingId_surface: { weddingId, surface: data.surface } }, data: { sectionConfig: { enabled, order } as Prisma.InputJsonValue } })
         const previous = await tx.publishedWeddingSnapshot.aggregate({ where: { weddingId, surface: data.surface }, _max: { version: true } })
         const created = await tx.publishedWeddingSnapshot.create({ data: { weddingId, templateVersionId: selection.templateVersion!.id, version: (previous._max.version ?? 0) + 1, surface: data.surface, slug: data.slug, payload: payload as Prisma.InputJsonValue, payloadHash, contentSchemaVersion: selection.templateVersion!.contentSchemaVersion, rendererApiVersion: selection.templateVersion!.rendererApiVersion }, include: { templateVersion: { include: { template: true } } } })
         if (data.surface === 'ONLINE_INVITATION') await tx.invitationDesign.update({ where: { weddingId }, data: { slug: data.slug, isPublished: true, revision: { increment: 1 } } })

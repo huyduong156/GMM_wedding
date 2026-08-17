@@ -1,0 +1,16 @@
+.recap-form-panel.is-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+}
+
+.recap-form-panel.is-collapsed > * {
+  display: none;
+}
+
+.recap-form-panel.is-collapsed::before {
+  content: 'Chọn một phần để bắt đầu chỉnh sửa';
+  color: #83939a;
+  font-size: 13px;
+}

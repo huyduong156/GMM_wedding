@@ -17,7 +17,7 @@ type EditorData = ModernLuxeData & Record<string, unknown>
 type EditorValue = unknown
 type FieldErrors = Record<string, string>
 const labels: Record<string, string> = { cover: 'Bìa & cặp đôi', banner: 'Banner cặp đôi', invitation: 'Lời mời', families: 'Hai gia đình', eventDetails: 'Thời gian hôn lễ', ceremony: 'Lễ thành hôn', reception: 'Tiệc cưới', countdown: 'Lịch & đếm ngược', calendar: 'Lịch ngày cưới', timeline: 'Lịch trình', venue: 'Địa điểm & bản đồ', map: 'Bản đồ', activities: 'Hoạt động trong tiệc', gallery: 'Album ảnh', rsvp: 'Xác nhận tham dự', guestbook: 'Sổ lưu bút', gift: 'Thông tin mừng cưới', thanks: 'Lời cảm ơn', loveJourney: 'Hành trình tình yêu', music: 'Nhạc nền' }
-const allSections = Object.keys(labels).filter((key) => key !== 'music')
+const allSections = Object.keys(labels)
 const initialData: ModernLuxeData = { brideName: 'Mai', groomName: 'Đức', weddingDate: '18 · 10 · 2026', eyebrow: 'Trân trọng kính mời', invitationTitle: 'Đến chung vui trong ngày thành hôn', invitationMessage: 'Sự hiện diện của bạn là niềm vui và món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.', ceremonyTime: '09:00', receptionTime: '11:00', venueName: 'The Garden Hall', venueAddress: 'Hà Nội', brideFatherTitle: 'Ông', brideFather: 'Nguyễn Văn An', brideMotherTitle: 'Bà', brideMother: 'Trần Thu Hà', groomFatherTitle: 'Ông', groomFather: 'Phạm Văn Minh', groomMotherTitle: 'Bà', groomMother: 'Lê Ngọc Lan', timelineItems: [{ time: '09:00', title: 'Đón khách', detail: 'Gặp gỡ và chụp ảnh cùng khách mời.' }, { time: '10:00', title: 'Lễ thành hôn', detail: 'Cùng chứng kiến nghi thức thành hôn.' }, { time: '11:00', title: 'Khai tiệc', detail: 'Khai tiệc và chung vui cùng hai gia đình.' }], activities: [{ title: 'Photobooth kỷ niệm', image: '/assets/images/templates/modern-luxe/wedding-detail.jpg' }, { title: 'Chụp hình cùng cô dâu chú rể', image: '/assets/images/templates/modern-luxe/couple-portrait.jpg' }, { title: 'Góc bong bóng cho bé', image: '/assets/images/login-wedding-luxury.jpg' }], activitiesStyle: 'activity-cards', galleryStyle: 'deck-3d', backgroundMusicAutoplay: true, rsvpDeadline: '10.10.2026', rsvpMessage: 'Vui lòng xác nhận để chúng mình chuẩn bị đón tiếp bạn thật chu đáo.', giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất.', galleryImages: [] }
 
 export function InvitationEditorLivePage() {
@@ -79,8 +79,10 @@ export function InvitationEditorLivePage() {
       const storedPalette = typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
       const definitions = resolveEditorSections(loaded.templateVersion.config, loaded.sectionConfig.order)
       const validKeys = definitions.map((section) => section.sectionKey)
-      const nextOrder = loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
-      const nextEnabled = loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key))
+      const storedOrder = loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
+      const storedEnabled = new Set(loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)))
+      const nextOrder = [...storedOrder, ...validKeys.filter((key) => !storedOrder.includes(key))]
+      const nextEnabled = validKeys.filter((key) => storedEnabled.has(key) || !storedOrder.includes(key) || definitions.find((section) => section.sectionKey === key)?.required)
       setSectionDefinitions(definitions)
       setData({ ...initialData, ...stored })
       const configuredPalettes = ((loaded.templateVersion.config.palettes ?? []) as Array<{ key: string }>).map((item) => item.key)
