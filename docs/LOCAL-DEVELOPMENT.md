@@ -1,5 +1,60 @@
 # Local development quick reference
 
+## Sync after pulling code
+
+Run this from the repository root after `git pull` or switching branches:
+
+```powershell
+# Start local dependencies, install packages, regenerate/validate Prisma, and apply migrations.
+make sync
+```
+
+The command is safe to run repeatedly and does not delete existing data. Without GNU Make, use:
+
+```powershell
+# Same synchronization workflow without Make.
+npm run sync
+```
+
+## Rebuild Docker images
+
+Use this after pulling code that runs inside Docker or changing a Dockerfile:
+
+```powershell
+# Rebuild both frontend and backend images from the current working tree.
+make images
+```
+
+`make build-images` is an equivalent explicit alias. Recreate services afterward so they use the new images:
+
+```powershell
+# Recreate the frontend container.
+docker compose up -d --force-recreate frontend
+
+# Recreate the backend container.
+docker compose -f backend/compose.yaml up -d --force-recreate backend
+```
+
+## Reset template data for local testing
+
+Use this when template test data is inconsistent or a template lifecycle test needs a clean registry:
+
+```powershell
+# Destructive for template-bound local data; does not reset the whole database.
+make reset-templates
+```
+
+This removes `Template` and `TemplateVersion`, detaches website/invitation selections, resets their published state and slugs, and removes template-bound snapshots/recaps. Wedding, guest, content, wish, and media data are preserved. The command is blocked for `APP_ENV=staging` and `APP_ENV=production`; use it only with a local/test database.
+
+Equivalent npm command:
+
+```powershell
+# Same template-only reset without Make.
+npm run db:reset-templates
+```
+
+Run the template sync/release flow after the reset to repopulate the registry.
+
 ## URLs and ports
 
 | Service | URL / host:port | Notes |
@@ -18,37 +73,85 @@
 ## Daily commands
 
 ```powershell
-# Frontend
+# Frontend: enter the frontend project.
 cd frontend
+
+# Install frontend dependencies. After pulling code, prefer `make sync` at the repo root.
 npm install
+
+# Start the Vite development server.
 npm run dev
+
+# Run frontend linting.
 npm run lint
+
+# Check frontend TypeScript.
 npm run typecheck
+
+# Run frontend tests.
 npm run test
+
+# Build the frontend production bundle.
 npm run build
+
+# Preview the built frontend bundle.
 npm run preview
 
-# Backend
-cd backend
+# Backend: enter the backend project.
+cd ..\backend
+
+# Install backend dependencies. After pulling code, prefer `make sync` at the repo root.
 npm install
+
+# Start the Next.js API in development mode.
 npm run dev
+
+# Run backend linting.
 npm run lint
+
+# Check backend TypeScript.
 npm run typecheck
+
+# Run backend unit tests.
 npm run test
+
+# Run backend integration tests.
 npm run test:integration
+
+# Run the standard backend quality gate.
 npm run check
+
+# Generate the Prisma client after schema or dependency changes.
 npm run db:generate
+
+# Validate the Prisma schema without changing the database.
 npm run db:validate
+
+# Create/apply a development migration after intentionally changing schema.prisma.
 npm run db:migrate
+
+# Apply committed migrations without creating a new migration.
 npm run db:migrate:deploy
+
+# Insert/update local idempotent demo data.
 npm run db:seed
 
-# Docker
+# Docker: return to the repository root.
 cd ..
+
+# Build and start the root frontend Compose service.
 docker compose up --build
+
+# Stop root Compose services.
 docker compose down
+
+# Follow frontend container logs.
 docker compose logs -f frontend
+
+# Build/start backend services and local tooling.
 docker compose -f backend/compose.yaml --profile tools up --build
+
+# Follow backend container logs.
 docker compose -f backend/compose.yaml logs -f backend
 ```
 

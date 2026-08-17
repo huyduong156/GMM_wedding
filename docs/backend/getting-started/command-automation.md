@@ -50,9 +50,9 @@ Makefile nằm tại `backend/Makefile` và chỉ gọi npm/Docker command chu�
 |---|---|---:|---|
 | `make doctor` | Kiểm tra Node, npm, Docker, Compose | Không | Onboarding/chẩn đoán máy |
 | `make install` | Chạy `npm ci` | Không | Clone mới hoặc CI |
-| `make sync` | Alias deterministic của install | Không | Đổi branch/máy |
+| `make sync` | Cài dependency frontend/backend, start local dependencies, generate/validate Prisma và apply migration | Không | Đổi branch/máy sau khi pull code |
 | `make outdated` | Báo dependency có bản mới | Không | Maintenance review |
-| `make update` | `npm update` trong semver range rồi báo phần còn cũ | Có thể | PR nâng dependency có chủ đích |
+| `make update` | Alias của `make sync`; không nâng version dependency | Không | Đồng bộ sau khi pull code |
 | `make dev` | Development server | Không | Code local |
 | `make check` | Lint + typecheck + test | Không | Trước commit/PR |
 | `make build` | Production build | Không | Verify release artifact |
@@ -66,10 +66,10 @@ Makefile nằm tại `backend/Makefile` và chỉ gọi npm/Docker command chu�
 
 ## `install`, `sync` và `update` khác nhau
 
-- `install/sync` phải deterministic: dùng lockfile hiện có, không tự nâng version.
+- `install/sync` phải deterministic: dùng lockfile hiện có, không tự nâng version. `sync` còn khởi động service local cần cho migration và chạy `db:generate`, `db:validate`, `db:migrate:deploy`.
 - `outdated` chỉ báo cáo, phù hợp chạy định kỳ.
-- `update` là maintenance change: review changelog/advisory, chạy test/build, kiểm tra diff `package.json`/`package-lock.json` và commit cùng PR.
-- Không cấu hình `make update` tự động nâng major version hoặc chạy trong startup/CI thường ngày.
+- Nâng dependency là maintenance change riêng: review changelog/advisory, chạy test/build, kiểm tra diff `package.json`/`package-lock.json` và commit cùng PR.
+- `make update` là alias an toàn của `make sync`, không tự động nâng version dependency. Không cấu hình nó chạy trong startup/CI thường ngày.
 - Không dùng `npm audit fix --force` tự động vì có thể tạo breaking downgrade/upgrade.
 
 ## Quy tắc thêm package
