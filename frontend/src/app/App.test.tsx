@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 import { App } from './App'
 import { NavigationProvider } from './providers/navigation/NavigationProvider'
 import { AuthProvider } from '../features/auth/model/AuthProvider'
@@ -179,11 +180,12 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('region', { name: 'Mở thiệp Mây Hồng Có Đôi' })).toBeInTheDocument()
   })
 
-  it('renders the admin user management prototype', () => {
+  it('renders the admin user management prototype', async () => {
     window.history.replaceState(null, '', '/gmm_admin/users')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [{ id: '00000000-0000-0000-0000-000000000001', email: 'minhanh@example.vn', displayName: 'Nguyễn Minh Anh', avatarUrl: null, phone: null, status: 'ACTIVE', emailVerifiedAt: '2026-07-18T08:00:00.000Z', lastLoginAt: '2026-07-18T08:00:00.000Z', createdAt: '2026-07-18T08:00:00.000Z', updatedAt: '2026-07-18T08:00:00.000Z', roles: [], weddingCount: 2 }], nextCursor: null, summary: { total: 1, active: 1, pendingVerification: 0, suspended: 0 } }), { status: 200, headers: { 'content-type': 'application/json' } })))
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { name: 'Quản lý người dùng' })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: 'Danh sách người dùng' })).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('table', { name: 'Danh sách người dùng' })).toBeInTheDocument())
     expect(screen.getByRole('textbox', { name: 'Tìm người dùng' })).toBeInTheDocument()
     expect(screen.getAllByText('Nguyễn Minh Anh')).not.toHaveLength(0)
   })
