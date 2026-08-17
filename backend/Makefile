@@ -1,5 +1,10 @@
 .DEFAULT_GOAL := help
 
+# Prisma CLI runs on the host, so provide the same local URL as backend/.env.example.
+# An existing DATABASE_URL from the developer environment takes precedence.
+DATABASE_URL ?= postgresql://gmm_wedding:gmm_wedding_local@localhost:5432/gmm_wedding?schema=public
+export DATABASE_URL
+
 .PHONY: help doctor install sync update reset-templates images build-images outdated dev lint typecheck test check build docker-build docker-up docker-down docker-logs db-admin-up db-admin-down db-migrate db-migrate-deploy db-seed
 
 help:

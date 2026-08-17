@@ -32,7 +32,7 @@ function fields(sectionKey: string, configured?: Record<string, TemplateFieldCon
 
 export function resolveEditorSections(config: Record<string, unknown> | null | undefined, storedOrder: string[]): EditorSectionDefinition[] {
   const raw = Array.isArray(config?.sections) ? config.sections as TemplateSectionConfig[] : storedOrder
-  return raw.map((item) => typeof item === 'string' ? { sectionKey: item } : item).filter((item) => item.sectionKey && item.sectionKey !== 'music').map((item) => { const fallback = canonical[item.sectionKey]; return { sectionKey: item.sectionKey, label: item.label ?? fallback?.label ?? item.sectionKey, required: item.required ?? fallback?.required ?? false, canToggle: item.canToggle ?? fallback?.canToggle ?? true, canReorder: item.canReorder ?? fallback?.canReorder ?? true, fields: fields(item.sectionKey, item.fields) } })
+  return raw.map((item) => typeof item === 'string' ? { sectionKey: item } : item).filter((item) => item.sectionKey).map((item) => { const fallback = canonical[item.sectionKey]; return { sectionKey: item.sectionKey, label: item.label ?? fallback?.label ?? item.sectionKey, required: item.required ?? fallback?.required ?? false, canToggle: item.canToggle ?? fallback?.canToggle ?? true, canReorder: item.canReorder ?? fallback?.canReorder ?? true, fields: fields(item.sectionKey, item.fields) } })
 }
 
 export function validateSchemaContent(content: Record<string, unknown>, sections: EditorSectionDefinition[], enabled: string[]) {

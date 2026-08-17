@@ -21,6 +21,7 @@ async function main() {
       where: { templateVersionId: { not: null } },
       data: { templateVersionId: null, isPublished: false, slug: null },
     })
+    const themes = await tx.weddingTheme.deleteMany()
     const versions = await tx.templateVersion.deleteMany()
     const templates = await tx.template.deleteMany()
 
@@ -29,6 +30,7 @@ async function main() {
       versions: versions.count,
       websites: websites.count,
       invitations: invitations.count,
+      themes: themes.count,
       publishedWeddingSnapshots: publishedWeddingSnapshots.count,
       publishedRecapSnapshots: publishedRecapSnapshots.count,
       recaps: recaps.count,
