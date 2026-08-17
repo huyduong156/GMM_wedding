@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { ArrowClockwise, ArrowDown, ArrowLeft, ArrowUUpLeft, ArrowUUpRight, ArrowUp, ArrowsOut, CaretDown, CheckCircle, Desktop, DeviceMobile, Eye, FloppyDisk, Image, Monitor, MusicNote, Plus, RocketLaunch, Trash, UploadSimple, X } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { WeddingApiError, weddingApi } from '../../../shared/api/weddings'
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { EditorPreviewModal, type EditorPreviewDevice } from '../../../shared/ui/EditorPreviewModal'
+import { useEditorPreviewScrollLock } from '../../../shared/ui/useEditorPreviewScrollLock'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { readEditorImages, useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import type { ModernLuxeActivityItem, ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
@@ -35,6 +37,7 @@ export function InvitationEditorLivePage() {
   const [musicError, setMusicError] = useState('')
   const [expandedSection, setExpandedSection] = useState<Section | null>('cover')
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
+  useEditorPreviewScrollLock(mobilePreviewOpen)
   const [mobileAdviceOpen, setMobileAdviceOpen] = useState(isMobileEditor)
   const [contentRevision, setContentRevision] = useState<number | null>(null)
   const [templateVersionId, setTemplateVersionId] = useState<string | null>(null)
@@ -56,7 +59,16 @@ export function InvitationEditorLivePage() {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
   const baselineRef = useRef('')
   const allowNavigationRef = useRef(false)
-  const previewDevice = isMobileEditor ? 'mobile' : device
+  const previewDevice = device
+  useEffect(() => { if (!mobilePreviewOpen) setDevice('mobile') }, [mobilePreviewOpen])
+  useEffect(() => {
+    const receiveDeviceChange = (event: Event) => {
+      const next = (event as CustomEvent<'desktop' | 'mobile'>).detail
+      if (next === 'desktop' || next === 'mobile') setDevice(next)
+    }
+    window.addEventListener('gmm-editor-preview-device-change', receiveDeviceChange)
+    return () => window.removeEventListener('gmm-editor-preview-device-change', receiveDeviceChange)
+  }, [])
   const loadContent = useCallback(async () => {
     if (!activeWeddingId) return
     setLoading(true); setApiError(''); setSaveMessage(''); setConflicted(false); setFieldErrors({}); setTemplateMissing(false)
@@ -241,7 +253,6 @@ function showFirstInvalidField(errors: FieldErrors, definitions: EditorSectionDe
   })
 }
 
-const previewViewports = { desktop: { width: 1200, height: 800 }, mobile: { width: 550, height: 950 } } as const
 function editorSignature(data: EditorData, palette: string, order: string[], enabled: string[]) { return JSON.stringify({ data, palette, order, enabled }) }
 const previewRoute = (key: string | null) => key === 'verdant-promise' ? publicTemplateRoutes.verdantPromisePreview : key === 'chibi-daydream' ? publicTemplateRoutes.chibiDaydreamPreview : publicTemplateRoutes.modernLuxePreview
 function friendlyEditorError(cause: unknown, fallback: string) {
@@ -253,22 +264,8 @@ function friendlyEditorError(cause: unknown, fallback: string) {
   return fallback
 }
 
-function EditorPreviewFrame({ device, templateKey, frameRef, onLoad, ready }: { device: keyof typeof previewViewports; templateKey: string | null; frameRef: RefObject<HTMLIFrameElement>; onLoad: () => void; ready: boolean }) {
-  const viewportRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-  const dimensions = previewViewports[device]
-  useEffect(() => {
-    const viewport = viewportRef.current
-    if (!viewport || typeof ResizeObserver === 'undefined') return
-    const resize = () => setScale(viewport.clientWidth / dimensions.width)
-    resize()
-    const observer = new ResizeObserver(resize)
-    observer.observe(viewport)
-    return () => observer.disconnect()
-  }, [dimensions.width])
-  const frameStyle = { width: dimensions.width, height: dimensions.height, transform: `scale(${scale})` } as CSSProperties
-  const route = previewRoute(templateKey)
-  return <div className={`editor-iframe-shell is-${device}`}><div className="editor-browser-bar"><i /><i /><i /><span>{device === 'desktop' ? 'Desktop · 1200 × 800' : 'Mobile · 550 × 950'}</span></div><div ref={viewportRef} className="editor-preview-viewport" style={{ aspectRatio: `${dimensions.width} / ${dimensions.height}` }}>{!ready ? <div className="editor-preview-loading" role="status"><span aria-hidden="true" /><strong>Đang tải bản xem trước…</strong><small>Đang chuẩn bị giao diện thiệp</small></div> : null}<iframe ref={frameRef} style={frameStyle} title={`Bản xem trước thiệp ${templateKey ?? 'đang chọn'}`} src={`${route}?editor=1`} onLoad={onLoad} /></div></div>
+function EditorPreviewFrame({ device, templateKey, frameRef, onLoad, ready }: { device: EditorPreviewDevice; templateKey: string | null; frameRef: RefObject<HTMLIFrameElement>; onLoad: () => void; ready: boolean }) {
+  return <EditorPreviewModal frameRef={frameRef} route={`${previewRoute(templateKey)}?editor=1`} device={device} defaultDevice="mobile" ready={ready} templateKey={templateKey} title="Bản xem trước thiệp" open={false} onToggleOpen={() => undefined} onDeviceChange={(next) => window.dispatchEvent(new CustomEvent('gmm-editor-preview-device-change', { detail: next }))} onLoad={onLoad} embedded />
 }
 
 function EditorSectionCard({ sectionKey, definition, index, order, expanded, shown, select, focus, move, toggle, children }: { sectionKey: Section; definition?: EditorSectionDefinition; index: number; order: Section[]; expanded: boolean; shown: boolean; select: () => void; focus: () => void; move: (step: -1 | 1) => void; toggle: () => void; children: React.ReactNode }) {

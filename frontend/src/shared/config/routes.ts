@@ -3,6 +3,7 @@ export const studioRoutes = {
   inviteThemes: '/studio/invites/themes',
   invites: '/studio/invites',
   siteThemes: '/studio/site/themes',
+  siteEditor: '/studio/site/edit',
   site: '/studio/site',
   guests: '/studio/guests',
   guestCategories: '/studio/guests/categories',

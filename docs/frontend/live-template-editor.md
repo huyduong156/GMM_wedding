@@ -46,6 +46,12 @@ Section key trong template config, card accordion và `data-editor-section` ph�
 
 Website cưới và recap tái sử dụng protocol/hook trên, nhưng giữ payload và renderer riêng. Nếu cần thêm event, thêm tên event cụ thể và tăng version khi thay đổi không tương thích; không dùng event chung chung hoặc truyền script thực thi vào iframe.
 
+## Website editor (2026-08-17)
+
+Website editor dùng cùng live bridge và production renderer với invitation editor. Editor hỗ trợ tải draft theo wedding đang chọn, chỉnh nội dung theo section, bật/tắt và sắp xếp section theo template config, undo/redo, preview desktop/mobile, full preview và lưu có revision conflict.
+
+Các preview website (`editorial-vows`, `green-hydrangea`, `enchanted-forest`, `cherry-blossom-garden`) đều nhận update qua `postMessage`; route `/studio/site/themes` có nút đi thẳng tới `/studio/site/edit`. Publish/unpublish website tiếp tục được nối ở phạm vi riêng.
+
 ## Checklist rà soát invitation editor (2026-08-11)
 
 | Hạng mục | Trạng thái |
