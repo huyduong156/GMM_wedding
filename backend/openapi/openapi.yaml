@@ -242,7 +242,8 @@ paths:
         - cookieAuth: []
       responses:
         '204': { description: Session revoked }
-        '404': { $ref: '#/components/responses/NotFound' }  /admin/me:
+        '404': { $ref: '#/components/responses/NotFound' }
+  /admin/me:
     get:
       operationId: getCurrentPlatformAdmin
       summary: Return the current platform administrator actor
@@ -326,7 +327,8 @@ paths:
       security:
         - cookieAuth: []
       responses:
-        '200': { description: Number of revoked sessions }  /weddings:
+        '200': { description: Number of revoked sessions }
+  /weddings:
     get:
       operationId: listOwnedWeddings
       summary: List non-deleted weddings owned by the current user
