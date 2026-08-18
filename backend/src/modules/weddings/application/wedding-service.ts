@@ -1,6 +1,6 @@
 import type { AuthenticatedUserActor } from '@/platform/auth/actor-context'
 import { WeddingError } from '../domain/wedding-error'
-import type { CreateWeddingData, CreateWeddingEventData, PublishWeddingData, SaveWeddingContentData, UpdateWeddingData, UpdateWeddingEventData, WeddingRepository, WeddingSurfaceValue } from './ports'
+import type { CreateWeddingData, CreateWeddingEventData, PublishWeddingData, SaveWeddingContentData, UpdateWeddingData, UpdateWeddingEventData, WeddingRepository, WeddingSurfaceValue, WishListFilter } from './ports'
 
 export class WeddingService {
   constructor(private readonly repository: WeddingRepository) {}
@@ -64,11 +64,23 @@ export class WeddingService {
     if (!snapshot) throw new WeddingError('WEDDING_PUBLIC_NOT_FOUND', 404, 'Published wedding not found')
     return snapshot
   }
-  async listWishes(actor: AuthenticatedUserActor, weddingId: string, status?: string) { return this.requireWedding(await this.repository.listWishesOwned(actor.userId, weddingId, status)) }
+  async listWishes(actor: AuthenticatedUserActor, weddingId: string, filter: WishListFilter) { return this.requireWedding(await this.repository.listWishesOwned(actor.userId, weddingId, filter)) }
   async moderateWish(actor: AuthenticatedUserActor, weddingId: string, wishId: string, status?: string, isPinned?: boolean) {
     const result = await this.repository.moderateWishOwned(actor.userId, weddingId, wishId, status, isPinned)
     if (result === null) throw new WeddingError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
     if (result === 'not-found') throw new WeddingError('WEDDING_WISH_NOT_FOUND', 404, 'Wish not found')
+    return result
+  }
+  async promoteWishToGuest(actor: AuthenticatedUserActor, weddingId: string, wishId: string, data: Parameters<WeddingRepository['promoteWishToGuest']>[3]) {
+    const result = await this.repository.promoteWishToGuest(actor.userId, weddingId, wishId, data)
+    if (result === null) throw new WeddingError('WEDDING_WISH_NOT_FOUND', 404, 'Wish not found')
+    if (result === 'conflict') throw new WeddingError('WEDDING_WISH_ALREADY_LINKED', 409, 'Wish is already linked to another guest')
+    return result
+  }
+  async linkWishGuest(actor: AuthenticatedUserActor, weddingId: string, wishId: string, guestId: string) {
+    const result = await this.repository.linkWishGuest(actor.userId, weddingId, wishId, guestId)
+    if (result === null) throw new WeddingError('WEDDING_WISH_OR_GUEST_NOT_FOUND', 404, 'Wish or guest not found')
+    if (result === 'conflict') throw new WeddingError('WEDDING_WISH_ALREADY_LINKED', 409, 'Wish is already linked to another guest')
     return result
   }
   private requireWedding<T>(value: T | null): T {

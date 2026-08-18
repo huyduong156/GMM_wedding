@@ -617,6 +617,80 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/wishes:
+    get:
+      operationId: listOwnedWishes
+      summary: List and filter wishes for an owned wedding
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: status, in: query, schema: { type: string, enum: [PENDING, APPROVED, REJECTED, SPAM, HIDDEN] } }
+        - { name: q, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses:
+        '200': { description: Owner wish list, content: { application/json: { schema: { $ref: '#/components/schemas/WishListEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/wishes/{wishId}:
+    patch:
+      operationId: moderateOwnedWish
+      summary: Moderate or pin an owner wish
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: wishId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WishModerationRequest' }
+      responses:
+        '200': { description: Moderated wish, content: { application/json: { schema: { $ref: '#/components/schemas/WishEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/wishes/{wishId}/promote-to-guest:
+    post:
+      operationId: promoteWishToGuest
+      summary: Add an anonymous wish author to the guest list
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: wishId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PromoteWishRequest' }
+      responses:
+        '201': { description: Guest created and linked, content: { application/json: { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/wishes/{wishId}/link-guest:
+    post:
+      operationId: linkWishToGuest
+      summary: Link a wish to an existing guest
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: wishId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LinkWishGuestRequest' }
+      responses:
+        '200': { description: Wish linked to guest, content: { application/json: { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /weddings/{weddingId}/guests:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
@@ -1028,6 +1102,49 @@ paths:
         '200': { description: RSVP saved }
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /public/weddings/{slug}/wishes:
+    get:
+      operationId: listApprovedPublicWishes
+      summary: List approved public wishes
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Approved public wishes, content: { application/json: { schema: { $ref: '#/components/schemas/PublicWishListEnvelope' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: submitCommonWish
+      summary: Submit a wish through the common wedding URL
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/Origin' }
+        - { $ref: '#/components/parameters/CsrfProtection' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicWishRequest' }
+      responses:
+        '201': { description: Wish submitted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /public/invitations/{weddingSlug}/{guestSlug}/wishes:
+    post:
+      operationId: submitPersonalWish
+      summary: Submit a wish through a personalized invitation URL
+      parameters:
+        - { name: weddingSlug, in: path, required: true, schema: { type: string } }
+        - { name: guestSlug, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/Origin' }
+        - { $ref: '#/components/parameters/CsrfProtection' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicWishRequest' }
+      responses:
+        '201': { description: Wish submitted }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/media/upload-intents:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     post:
@@ -1261,6 +1378,58 @@ components:
     WeddingSurface:
       type: string
       enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+    Wish:
+      type: object
+      additionalProperties: false
+      required: [id, authorName, guestName, guestId, invitationId, content, status, isPinned, submittedAt, moderatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        authorName: { type: string }
+        guestName: { type: string }
+        guestId: { type: [string, 'null'], format: uuid }
+        invitationId: { type: [string, 'null'], format: uuid }
+        content: { type: string }
+        status: { type: string, enum: [PENDING, APPROVED, REJECTED, SPAM, HIDDEN] }
+        isPinned: { type: boolean }
+        submittedAt: { type: string, format: date-time }
+        moderatedAt: { type: [string, 'null'], format: date-time }
+    WishListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Wish' } }
+        nextCursor: { type: [string, 'null'] }
+    WishEnvelope:
+      type: object
+      required: [wish]
+      properties:
+        wish: { $ref: '#/components/schemas/Wish' }
+    WishModerationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        status: { type: string, enum: [PENDING, APPROVED, REJECTED, SPAM, HIDDEN] }
+        isPinned: { type: boolean }
+    PromoteWishRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 160 }
+        categoryId: { type: string, format: uuid }
+        groupId: { type: string, format: uuid }
+    LinkWishGuestRequest:
+      type: object
+      additionalProperties: false
+      required: [guestId]
+      properties:
+        guestId: { type: string, format: uuid }
+    WishGuestLinkEnvelope:
+      type: object
+      required: [guest, wishId, invitationId]
+      properties:
+        guest: { $ref: '#/components/schemas/Guest' }
+        wishId: { type: string, format: uuid }
+        invitationId: { type: [string, 'null'], format: uuid }
     PromoteRsvpRequest:
       type: object
       additionalProperties: false
@@ -1564,6 +1733,28 @@ components:
         mealPreference: { type: string, maxLength: 160 }
         specialRequest: { type: string, maxLength: 2000 }
         message: { type: string, maxLength: 2000 }
+    PublicWishRequest:
+      type: object
+      additionalProperties: false
+      required: [content]
+      properties:
+        guestName: { type: string, minLength: 1, maxLength: 160 }
+        content: { type: string, minLength: 1, maxLength: 2000 }
+    PublicWishListEnvelope:
+      type: object
+      required: [wishes]
+      properties:
+        wishes:
+          type: array
+          items:
+            type: object
+            required: [id, authorName, content, submittedAt, isPinned]
+            properties:
+              id: { type: string, format: uuid }
+              authorName: { type: string }
+              content: { type: string }
+              submittedAt: { type: string, format: date-time }
+              isPinned: { type: boolean }
     RegisterRequest:
       type: object
       additionalProperties: false

@@ -54,6 +54,13 @@ export interface WeddingDashboardView {
   recentActivity: DashboardActivityView[]
 }
 
+import type { GuestView } from '@/modules/guests/application/ports'
+
+export interface WishListFilter {
+  status?: string | undefined; query?: string | undefined; from?: Date | undefined; to?: Date | undefined
+  limit: number; cursor?: string | undefined
+}
+
 export interface WeddingRepository {
   create(userId: string, data: CreateWeddingData): Promise<WeddingView>
   listOwned(userId: string): Promise<WeddingView[]>
@@ -74,8 +81,10 @@ export interface WeddingRepository {
   unpublishOwned(userId: string, weddingId: string, surface: WeddingSurfaceValue): Promise<boolean | null>
   slugAvailable(userId: string, slug: string, weddingId?: string): Promise<boolean>
   getPublicSnapshot(slug: string, surface: WeddingSurfaceValue): Promise<PublishedSnapshotView | null>
-  listWishesOwned(userId: string, weddingId: string, status?: string): Promise<WishView[] | null>
+  listWishesOwned(userId: string, weddingId: string, filter: WishListFilter): Promise<{ items: WishView[]; nextCursor: string | null } | null>
   moderateWishOwned(userId: string, weddingId: string, wishId: string, status?: string, isPinned?: boolean): Promise<WishView | 'not-found' | null>
+  promoteWishToGuest(userId: string, weddingId: string, wishId: string, data: { displayName?: string | undefined; categoryId?: string | undefined; groupId?: string | undefined }): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null>
+  linkWishGuest(userId: string, weddingId: string, wishId: string, guestId: string): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null>
 }
 
 export type WeddingSurfaceValue = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'
@@ -84,4 +93,4 @@ export interface WeddingContentView { content: unknown; schemaVersion: number; r
 export interface SaveWeddingContentData { surface: WeddingSurfaceValue; templateVersionId: string; content: unknown; themeConfig: unknown; sectionConfig: { enabled: string[]; order: string[] }; revision: number }
 export interface PublishWeddingData { surface: WeddingSurfaceValue; slug: string; revision: number }
 export interface PublishedSnapshotView { id: string; weddingId: string; surface: WeddingSurfaceValue; slug: string; version: number; payload: unknown; publishedAt: Date; templateVersion: { key: string; version: string } }
-export interface WishView { id: string; authorName: string; content: string; status: string; isPinned: boolean; submittedAt: Date; moderatedAt: Date | null }
+export interface WishView { id: string; authorName: string; guestName: string; guestId: string | null; invitationId: string | null; content: string; status: string; isPinned: boolean; submittedAt: Date; moderatedAt: Date | null }

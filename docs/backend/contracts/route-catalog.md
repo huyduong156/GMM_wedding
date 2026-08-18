@@ -171,8 +171,10 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | POST | `/weddings/{weddingId}/rsvps/{rsvpId}/promote-to-guest` | Owner | Implemented | Tạo Guest từ RSVP ẩn danh và liên kết trong transaction |
 | POST | `/weddings/{weddingId}/rsvps/{rsvpId}/link-guest` | Owner | Implemented | Liên kết RSVP với Guest có sẵn |
 | PATCH | `/weddings/{weddingId}/rsvps/{rsvpId}` | RSVP write policy | Planned | Owner correction |
-| GET | `/weddings/{weddingId}/wishes` | Wish moderation policy | Planned | List moderation; handler đã scaffold, chờ integration/OpenAPI test |
-| PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Wish moderation policy | Planned | Approve/reject/pin/hide; handler đã scaffold, chờ integration/OpenAPI test |
+| GET | `/weddings/{weddingId}/wishes` | Owner | Implemented | List/filter lời chúc theo status, nội dung, thời gian và cursor |
+| PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Owner | Implemented | Approve/reject/spam/hide/pin |
+| POST | `/weddings/{weddingId}/wishes/{wishId}/promote-to-guest` | Owner | Implemented | Tạo Guest từ lời chúc anonymous và liên kết trong transaction |
+| POST | `/weddings/{weddingId}/wishes/{wishId}/link-guest` | Owner | Implemented | Liên kết lời chúc với Guest có sẵn |
 
 ## Planning, gift ledger và recap
 

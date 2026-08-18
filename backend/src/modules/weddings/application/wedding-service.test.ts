@@ -20,7 +20,7 @@ function repository(): WeddingRepository {
     create: vi.fn().mockResolvedValue(wedding), listOwned: vi.fn().mockResolvedValue([wedding]), findOwned: vi.fn().mockResolvedValue(wedding),
     updateOwned: vi.fn().mockResolvedValue(wedding), softDeleteOwned: vi.fn().mockResolvedValue(true), listEventsOwned: vi.fn().mockResolvedValue([]),
     createEventOwned: vi.fn(), findEventOwned: vi.fn(), updateEventOwned: vi.fn(), deleteEventOwned: vi.fn(), dashboardOwned: vi.fn(),
-    listTemplates: vi.fn().mockResolvedValue([]), getTemplateVersion: vi.fn().mockResolvedValue(null), getContentOwned: vi.fn(), saveContentOwned: vi.fn(), publishOwned: vi.fn(), unpublishOwned: vi.fn(), slugAvailable: vi.fn(), getPublicSnapshot: vi.fn(), listWishesOwned: vi.fn(), moderateWishOwned: vi.fn(),
+    listTemplates: vi.fn().mockResolvedValue([]), getTemplateVersion: vi.fn().mockResolvedValue(null), getContentOwned: vi.fn(), saveContentOwned: vi.fn(), publishOwned: vi.fn(), unpublishOwned: vi.fn(), slugAvailable: vi.fn(), getPublicSnapshot: vi.fn(), listWishesOwned: vi.fn(), moderateWishOwned: vi.fn(), promoteWishToGuest: vi.fn(), linkWishGuest: vi.fn(),
   }
 }
 
