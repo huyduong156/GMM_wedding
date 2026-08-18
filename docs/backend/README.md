@@ -84,6 +84,7 @@ docs/backend/
   contracts/
     route-catalog.md
     guest-service.md
+    gift-ledger-service.md
     api-contracts.md
     authentication-and-authorization.md
     authentication-workflows.md

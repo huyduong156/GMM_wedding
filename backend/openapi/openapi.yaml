@@ -753,6 +753,131 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger:
+    get:
+      operationId: listGiftLedgerEntries
+      summary: List private gift ledger entries
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: q, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: giftType, in: query, schema: { type: string, enum: [money, gold, physicalGift] } }
+        - { name: receiveMethod, in: query, schema: { type: string, enum: [cash, bankTransfer, physicalGift, other] } }
+        - { name: reciprocityStatus, in: query, schema: { type: string, enum: [pending, returned, notApplicable] } }
+        - { name: guestId, in: query, schema: { type: string, format: uuid } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses:
+        '200': { description: Private ledger entries, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerListEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createGiftLedgerEntry
+      summary: Quickly record a gift, optionally linked to a guest
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateGiftLedgerEntryRequest' } } }
+      responses:
+        '201': { description: Created entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger/{entryId}:
+    get:
+      operationId: getGiftLedgerEntry
+      summary: Get a private gift ledger entry
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        '200': { description: Ledger entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateGiftLedgerEntry
+      summary: Update a private gift ledger entry with revision control
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGiftLedgerEntryRequest' } } }
+      responses:
+        '200': { description: Updated entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      operationId: deleteGiftLedgerEntry
+      summary: Soft-delete a private gift ledger entry
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses:
+        '204': { description: Entry deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger/summary:
+    get:
+      operationId: summarizeGiftLedger
+      summary: Summarize private ledger totals without currency conversion
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }]
+      responses:
+        '200': { description: Ledger summary, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerSummaryEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger/export:
+    get:
+      operationId: exportGiftLedger
+      summary: Export private ledger CSV
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }]
+      responses:
+        '200': { description: UTF-8 CSV export, content: { text/csv: { schema: { type: string } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger/{entryId}/promote-to-guest:
+    post:
+      operationId: promoteGiftLedgerEntryToGuest
+      summary: Create and link a Guest from a manually entered ledger name
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/PromoteGiftGuestRequest' } } }
+      responses:
+        '201': { description: Guest created and entry linked, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/gift-ledger/{entryId}/link-guest:
+    post:
+      operationId: linkGiftLedgerEntryGuest
+      summary: Link a ledger entry to an existing Guest
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/LinkGiftGuestRequest' } } }
+      responses:
+        '200': { description: Linked entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/gift-ledger/{entryId}/unlink-guest:
+    post:
+      operationId: unlinkGiftLedgerEntryGuest
+      summary: Remove a Guest link without deleting ledger data
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses:
+        '200': { description: Unlinked entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/wishes:
     get:
       operationId: listOwnedWishes
@@ -1626,6 +1751,105 @@ components:
       required: [items]
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/TaskChecklistTemplate' } }
+    GiftLedgerEntry:
+      type: object
+      additionalProperties: false
+      required: [id, weddingId, guestId, guestDisplayNameSnapshot, giftType, amountMinor, currency, goldWeight, goldUnit, goldType, giftDescription, receiveMethod, receivedAt, note, reciprocityStatus, returnedAt, revision, createdAt, updatedAt, linkedGuest]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        guestId: { type: [string, 'null'], format: uuid }
+        guestDisplayNameSnapshot: { type: string, maxLength: 160 }
+        giftType: { type: string, enum: [money, gold, physicalGift] }
+        amountMinor: { type: [string, 'null'], pattern: '^\\d+$', description: Non-negative integer minor units; returned as string for BigInt safety }
+        currency: { type: [string, 'null'], minLength: 3, maxLength: 3 }
+        goldWeight: { type: [string, 'null'], description: Decimal weight, not converted to money }
+        goldUnit: { type: [string, 'null'], maxLength: 32 }
+        goldType: { type: [string, 'null'], maxLength: 64 }
+        giftDescription: { type: [string, 'null'], maxLength: 2000 }
+        receiveMethod: { type: string, enum: [cash, bankTransfer, physicalGift, other] }
+        receivedAt: { type: string, format: date-time }
+        note: { type: [string, 'null'], maxLength: 5000 }
+        reciprocityStatus: { type: string, enum: [pending, returned, notApplicable] }
+        returnedAt: { type: [string, 'null'], format: date-time }
+        revision: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        linkedGuest: { anyOf: [{ type: object, required: [id, displayName], properties: { id: { type: string, format: uuid }, displayName: { type: string } } }, { type: 'null' }] }
+    GiftLedgerEntryEnvelope:
+      type: object
+      required: [entry]
+      properties: { entry: { $ref: '#/components/schemas/GiftLedgerEntry' } }
+    GiftLedgerListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/GiftLedgerEntry' } }
+        nextCursor: { type: [string, 'null'] }
+    CreateGiftLedgerEntryRequest:
+      type: object
+      additionalProperties: false
+      required: [guestName, giftType, receiveMethod]
+      properties:
+        guestName: { type: string, minLength: 1, maxLength: 160, description: Manual name used for fast entry; guestId is optional }
+        guestId: { type: string, format: uuid }
+        giftType: { type: string, enum: [money, gold, physicalGift] }
+        amountMinor: { type: [string, number], minimum: 0 }
+        currency: { type: string, minLength: 3, maxLength: 3, default: VND }
+        goldWeight: { type: string, pattern: '^\\d+(\\.\\d{1,4})?$' }
+        goldUnit: { type: string, maxLength: 32 }
+        goldType: { type: string, maxLength: 64 }
+        giftDescription: { type: string, maxLength: 2000 }
+        receiveMethod: { type: string, enum: [cash, bankTransfer, physicalGift, other] }
+        receivedAt: { type: string, format: date-time, description: Defaults to current time }
+        note: { type: string, maxLength: 5000 }
+        reciprocityStatus: { type: string, enum: [pending, returned, notApplicable], default: pending }
+        returnedAt: { type: string, format: date-time }
+    UpdateGiftLedgerEntryRequest:
+      type: object
+      additionalProperties: false
+      required: [revision]
+      minProperties: 2
+      properties:
+        guestName: { type: string, minLength: 1, maxLength: 160 }
+        giftType: { type: string, enum: [money, gold, physicalGift] }
+        amountMinor: { type: [string, number], minimum: 0 }
+        currency: { type: string, minLength: 3, maxLength: 3 }
+        goldWeight: { type: string }
+        goldUnit: { type: string, maxLength: 32 }
+        goldType: { type: string, maxLength: 64 }
+        giftDescription: { type: string, maxLength: 2000 }
+        receiveMethod: { type: string, enum: [cash, bankTransfer, physicalGift, other] }
+        receivedAt: { type: string, format: date-time }
+        note: { type: string, maxLength: 5000 }
+        reciprocityStatus: { type: string, enum: [pending, returned, notApplicable] }
+        returnedAt: { type: string, format: date-time }
+        revision: { type: integer, minimum: 1 }
+    GiftLedgerSummary:
+      type: object
+      required: [entryCount, pendingCount, returnedCount, notApplicableCount, money, gold, physicalGiftCount]
+      properties:
+        entryCount: { type: integer, minimum: 0 }
+        pendingCount: { type: integer, minimum: 0 }
+        returnedCount: { type: integer, minimum: 0 }
+        notApplicableCount: { type: integer, minimum: 0 }
+        money: { type: object, required: [count, totals], properties: { count: { type: integer }, totals: { type: array, items: { type: object, required: [currency, amountMinor], properties: { currency: { type: string }, amountMinor: { type: string } } } } } }
+        gold: { type: object, required: [count, totals], properties: { count: { type: integer }, totals: { type: array, items: { type: object, required: [unit, type, weight], properties: { unit: { type: string }, type: { type: [string, 'null'] }, weight: { type: string } } } } } }
+        physicalGiftCount: { type: integer, minimum: 0 }
+    GiftLedgerSummaryEnvelope:
+      type: object
+      required: [summary]
+      properties: { summary: { $ref: '#/components/schemas/GiftLedgerSummary' } }
+    LinkGiftGuestRequest:
+      type: object
+      additionalProperties: false
+      required: [guestId]
+      properties: { guestId: { type: string, format: uuid } }
+    PromoteGiftGuestRequest:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties: { displayName: { type: string, minLength: 1, maxLength: 160 } }
     Wish:
       type: object
       additionalProperties: false
