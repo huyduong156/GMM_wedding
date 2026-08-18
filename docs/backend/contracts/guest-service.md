@@ -41,6 +41,12 @@ platform admin và public snapshot không được đọc trực tiếp dữ li�
 | POST | `/weddings/{weddingId}/invitations/{invitationId}/rotate` | Đổi token và trả raw token mới một lần |
 | POST | `/weddings/{weddingId}/invitations/{invitationId}/revoke` | Revoke invitation đang active |
 
+RSVP từ invitation chung có thể được owner đưa vào guest list bằng `promote-to-guest`,
+hoặc liên kết thủ công với guest đã tồn tại bằng `link-guest`. Cả hai route đều
+owner-scoped theo wedding; promote tạo Guest và cập nhật `Invitation.guestId` trong
+cùng transaction. Link cùng guest nhiều lần là idempotent, còn link sang guest khác
+khi invitation đã liên kết trả conflict.
+
 ## Guest fields
 
 Guest gồm `displayName`, phone/email, note, table name, `maxPartySize`, tags,
