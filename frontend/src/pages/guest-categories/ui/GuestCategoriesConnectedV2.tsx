@@ -7,7 +7,7 @@ import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wed
 import { GuestCategoriesPage } from './GuestCategoriesPage'
 
 const alertError = (text: string) => Swal.fire({ icon: 'error', title: 'Không thể thực hiện', text, confirmButtonText: 'Đã hiểu' })
-const alertSuccess = (text: string) => Swal.fire({ icon: 'success', title: 'Đã cập nhật', text, timer: 1500, timerProgressBar: true, showConfirmButton: false })
+const alertSuccess = (text: string) => Swal.fire({ icon: 'success', title: 'Đã cập nhật', text, timer: 900, timerProgressBar: true, showConfirmButton: false })
 
 export function GuestCategoriesConnectedV2() {
   const workspace = useOptionalWeddingWorkspace()

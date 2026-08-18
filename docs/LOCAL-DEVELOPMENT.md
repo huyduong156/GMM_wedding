@@ -170,3 +170,32 @@ This permanently deletes all data in the selected database. Do not run it agains
 ```powershell
 docker compose -f backend/compose.yaml --profile tools run --rm backend-migrate
 ```
+
+
+
+## Promote a local user to platform admin
+
+After the database is running and migrations have been applied, grant an active
+`ADMIN` assignment to the user by email. Replace `owner.local@gmm.test` with
+the account email when needed:
+
+```powershell change user to admin
+• INSERT INTO "UserRole" ("id", "userId", "role", "reason")
+  SELECT
+    gen_random_uuid(),
+    u."id",
+    'ADMIN'::"SystemRole",
+    'Granted for local development'
+  FROM "User" u
+  WHERE lower(u."email") = lower('owner.local@gmm.test')
+    AND NOT EXISTS (
+      SELECT 1
+      FROM "UserRole" ur
+      WHERE ur."userId" = u."id"
+        AND ur."role" = 'ADMIN'::"SystemRole"
+        AND ur."revokedAt" IS NULL
+    );
+```
+
+The command is safe to run repeatedly. The account must be `ACTIVE` and have a
+verified email before it can log in at `/gmm_admin/login`.
