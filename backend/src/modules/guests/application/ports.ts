@@ -6,7 +6,7 @@ export interface PublicInvitationView { weddingSlug: string; invitationSlug: str
 export interface CreateGuestData { displayName: string; categoryId?: string | undefined; groupId?: string | undefined; phone?: string | undefined; email?: string | undefined; note?: string | undefined; tableName?: string | undefined; maxPartySize: number; tags: string[] }
 type Optional<T> = { [K in keyof T]?: T[K] | undefined }
 export type UpdateGuestData = Optional<CreateGuestData>
-export interface CreateCategoryData { name: string; parentId?: string | undefined; sortOrder: number }
+export interface CreateCategoryData { name: string; parentId?: string | null | undefined; sortOrder: number }
 export interface UpdateCategoryData { name?: string | undefined; parentId?: string | null | undefined; sortOrder?: number | undefined }
 export interface CreateGroupData { name: string; note?: string | undefined }
 export interface UpdateGroupData { name?: string | undefined; note?: string | null | undefined }
