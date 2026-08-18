@@ -151,7 +151,7 @@ Task đã copy vào wedding. Trường: `id`, `weddingId`, `eventId?`, `parentTa
 
 ### `GiftLedgerEntry`
 
-Sổ quà owner-only. Trường: `id`, `weddingId`, `guestId?`, `guestDisplayNameSnapshot`, `giftType`, `amountMinor?`, `currency?`, `goldWeight?`, `goldUnit?`, `goldType?`, `giftDescription?`, `receiveMethod`, `receivedAt`, `note?`, `reciprocityStatus`, `returnedAt?`, timestamps và `deletedAt?`. Money yêu cầu amount/currency; gold yêu cầu weight/unit/type; physical gift yêu cầu description. Không log, search, analytics hoặc public hóa bảng này.
+Sổ quà owner-only. Trường: `id`, `weddingId`, `guestId?`, `guestDisplayNameSnapshot`, `giftType`, `amountMinor?`, `currency?`, `goldWeight?`, `goldUnit?`, `goldType?`, `giftDescription?`, `receiveMethod`, `receivedAt`, `note?`, `reciprocityStatus`, `returnedAt?`, `revision`, timestamps và `deletedAt?`. Money yêu cầu amount/currency; gold yêu cầu weight/unit/type; physical gift yêu cầu description. `guestId` là liên kết tùy chọn; Guest bị xóa không xóa entry, snapshot vẫn giữ. Không log, search, analytics hoặc public hóa bảng này.
 
 ## Wedding recap
 

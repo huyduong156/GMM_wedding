@@ -64,7 +64,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 
 ### Gift ledger
 
-- `GiftLedgerEntry`: `weddingId`, `guestId?`, `guestDisplayNameSnapshot`, `giftType(money|gold|physicalGift)`, `amountMinor?`, `currency?`, `goldWeight?`, `goldUnit?`, `goldType?`, `giftDescription?`, `receiveMethod(cash|bankTransfer|physicalGift|other)`, `receivedAt`, `note?`, `reciprocityStatus(pending|returned|notApplicable)`, `returnedAt?`, timestamps và soft-delete.
+- `GiftLedgerEntry`: `weddingId`, `guestId?`, `guestDisplayNameSnapshot`, `giftType(money|gold|physicalGift)`, `amountMinor?`, `currency?`, `goldWeight?`, `goldUnit?`, `goldType?`, `giftDescription?`, `receiveMethod(cash|bankTransfer|physicalGift|other)`, `receivedAt`, `note?`, `reciprocityStatus(pending|returned|notApplicable)`, `returnedAt?`, `revision`, timestamps và soft-delete. Có thể nhập bằng tên trước rồi promote/link/unlink Guest sau; Guest không sở hữu vòng đời ledger.
 - Money cần `amountMinor >= 0` và ISO currency; gold cần trọng lượng dương + unit/type; physical gift cần description. Không dùng floating point cho tiền, còn trọng lượng vàng dùng decimal có precision cố định.
 - Index `(weddingId, guestId)` và `(weddingId, reciprocityStatus, receivedAt)`. Guest soft-delete/anonymize không cascade xóa ledger.
 

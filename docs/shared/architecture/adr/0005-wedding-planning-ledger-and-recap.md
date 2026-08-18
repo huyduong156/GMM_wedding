@@ -21,9 +21,9 @@ Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận ti�
 
 ### Sổ tiền mừng
 
-- `GiftLedgerEntry` thuộc wedding và có thể liên kết guest; lưu loại `money|gold|physicalGift`, số tiền theo minor unit + ISO currency, trọng lượng/loại vàng hoặc mô tả quà, cùng phương thức/ngày nhận, ghi chú và trạng thái mừng lại.
+- `GiftLedgerEntry` thuộc wedding và có thể liên kết guest; user được nhập nhanh bằng tên trước rồi promote/link/unlink Guest sau. Entry lưu loại `money|gold|physicalGift`, số tiền theo minor unit + ISO currency, trọng lượng/loại vàng hoặc mô tả quà, cùng phương thức/ngày nhận, ghi chú, revision và trạng thái mừng lại.
 - Quyền đọc/ghi/xuất chỉ dành cho wedding owner trong MVP. Editor, guest manager, viewer, platform admin và public mặc định không có quyền truy cập nội dung.
-- Không đưa ledger vào analytics, notification, search, public snapshot hoặc log. Guest bị xóa mềm không làm mất entry; entry giữ display-name snapshot tối thiểu.
+- Không đưa ledger vào analytics, notification, search, public snapshot hoặc log. Guest bị xóa mềm hoặc hard-delete không làm mất entry; FK chỉ `SET NULL` và entry giữ display-name snapshot tối thiểu.
 - Đây là sổ ghi chép, không phải payment ledger: hệ thống không giữ tiền, đối soát ngân hàng hoặc suy diễn giao dịch từ QR/chuyển khoản.
 
 ### Wedding Recap

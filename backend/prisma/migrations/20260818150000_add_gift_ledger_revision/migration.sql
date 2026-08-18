@@ -1,0 +1,1 @@
+ALTER TABLE "GiftLedgerEntry" ADD COLUMN "revision" INTEGER NOT NULL DEFAULT 1;

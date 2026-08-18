@@ -186,9 +186,13 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | POST | `/weddings/{weddingId}/tasks/bulk-status` | Owner | Implemented | Đổi status tối đa 200 task |
 | POST | `/weddings/{weddingId}/tasks/apply-template` | Owner | Implemented | Copy checklist template thành task độc lập |
 | GET | `/task-checklist-templates` | Authenticated user | Implemented | List checklist template đang active |
-| GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner only | Planned | List/create private entry |
-| PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner only | Planned | Update/delete private entry |
-| GET | `/weddings/{weddingId}/gift-ledger/export` | Owner + step-up target | Planned | Export private ledger |
+| GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner only | Implemented | List/filter hoặc ghi nhanh entry riêng tư; guestId tùy chọn |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner only | Implemented | Đọc/sửa theo revision/xóa mềm entry |
+| GET | `/weddings/{weddingId}/gift-ledger/summary` | Owner only | Implemented | Tổng hợp tiền theo currency, vàng theo unit/type, quà và trạng thái |
+| GET | `/weddings/{weddingId}/gift-ledger/export` | Owner only | Implemented | Export CSV riêng tư |
+| POST | `/weddings/{weddingId}/gift-ledger/{entryId}/promote-to-guest` | Owner only | Implemented | Tạo Guest từ tên nhập nhanh và liên kết entry |
+| POST | `/weddings/{weddingId}/gift-ledger/{entryId}/link-guest` | Owner only | Implemented | Liên kết entry với Guest có sẵn |
+| POST | `/weddings/{weddingId}/gift-ledger/{entryId}/unlink-guest` | Owner only | Implemented | Gỡ liên kết, giữ nguyên entry |
 | GET/PUT | `/weddings/{weddingId}/recap` | Recap policy | Planned | Read/save recap draft |
 | POST | `/weddings/{weddingId}/recap/publish` | Recap publish policy | Planned | Publish immutable recap snapshot |
 | POST | `/weddings/{weddingId}/recap/unpublish` | Recap publish policy | Planned | Unpublish recap |
