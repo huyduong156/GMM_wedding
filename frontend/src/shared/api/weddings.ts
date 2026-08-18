@@ -228,6 +228,30 @@ export type EventInput = {
   latitude?: number | null; longitude?: number | null; sortOrder?: number; isPublic?: boolean
 }
 
+export type RsvpAttendance = 'ATTENDING' | 'DECLINED' | 'MAYBE'
+export type Rsvp = {
+  id: string
+  weddingId: string
+  invitationId: string
+  guestId: string | null
+  guestName: string
+  guestPhone: string | null
+  guestEmail: string | null
+  categoryId: string | null
+  groupId: string | null
+  invitationLabel: string | null
+  invitationStatus: string
+  attendance: RsvpAttendance
+  partySize: number
+  mealPreference: string | null
+  specialRequest: string | null
+  message: string | null
+  submittedAt: string
+  updatedAt: string
+  revision: number
+  eventSelections: Array<{ eventId: string; eventName: string; attending: boolean }>
+  companions: Array<{ id: string; displayName: string; mealPreference: string | null; sortOrder: number }>
+}
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
   create: (input: WeddingInput) => request<{ wedding: Wedding }>('/weddings', { method: 'POST', body: JSON.stringify(input) }),
@@ -277,4 +301,16 @@ export const guestCategoryApi = {
   },
   update: (weddingId: string, categoryId: string, input: Partial<GuestCategoryInput>) => request<{ category: GuestCategory }>(`/weddings/${weddingId}/guest-categories/${categoryId}`, { method: 'PATCH', body: JSON.stringify(input) }),
   removeMany: (weddingId: string, ids: string[]) => request<{ deletedCount: number }>(`/weddings/${weddingId}/guest-categories/bulk-delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
+}
+
+export const rsvpApi = {
+  list: (weddingId: string, params: { q?: string; attendance?: RsvpAttendance; eventId?: string; limit?: number; cursor?: string } = {}) => {
+    const query = new URLSearchParams()
+    if (params.q) query.set('q', params.q)
+    if (params.attendance) query.set('attendance', params.attendance)
+    if (params.eventId) query.set('eventId', params.eventId)
+    query.set('limit', String(params.limit ?? 100))
+    if (params.cursor) query.set('cursor', params.cursor)
+    return request<{ items: Rsvp[]; nextCursor: string | null }>(`/weddings/${weddingId}/rsvps?${query}`)
+  },
 }
