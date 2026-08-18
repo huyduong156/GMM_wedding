@@ -58,8 +58,8 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 
 ### Task
 
-- `WeddingTask`: `weddingId`, `title`, `description?`, `dueAt?`, `priority(low|medium|high|urgent)`, `status(todo|inProgress|done|cancelled)`, `assigneeMemberId?`, `category?`, `sortOrder`, `completedAt?`, `completedBy?`, `revision`.
-- Assignee phải là active `WeddingMember` cùng wedding. Index `(weddingId, status, dueAt)` và `(weddingId, assigneeMemberId, status)`.
+- `WeddingTask`: `weddingId`, `eventId?`, `parentTaskId?`, `title`, `description?`, `dueAt?`, `priority(low|medium|high|urgent)`, `status(todo|inProgress|done|cancelled)`, `assigneeMemberId?`, `sortOrder`, `completedAt?`, `completedBy?`, `revision`.
+- `eventId` tham chiếu `WeddingEvent` cùng wedding và có thể null cho task chung. `parentTaskId` chỉ cho phép một cấp task con; task con không thể làm parent tiếp. Assignee/member giữ trong schema để mở rộng sau nhưng chưa expose ở MVP. Index `(weddingId, status, dueAt)`, `(weddingId, eventId, status)` và `(weddingId, parentTaskId, status)`.
 - `TaskChecklistTemplate` có version/status và item có relative due-day offset. Áp dụng template sẽ tạo task trong một transaction; source template/version chỉ dùng audit.
 
 ### Gift ledger

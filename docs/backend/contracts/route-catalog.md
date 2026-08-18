@@ -180,8 +180,12 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET/POST | `/weddings/{weddingId}/tasks` | Task policy | Planned | List/create task |
-| PATCH/DELETE | `/weddings/{weddingId}/tasks/{taskId}` | Task policy | Planned | Update/delete task |
+| GET/POST | `/weddings/{weddingId}/tasks` | Owner | Implemented | List/filter hoặc tạo task, có thể gắn event và parent task |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/tasks/{taskId}` | Owner | Implemented | Đọc/cập nhật/xóa mềm task với revision |
+| POST | `/weddings/{weddingId}/tasks/reorder` | Owner | Implemented | Reorder tối đa 200 task |
+| POST | `/weddings/{weddingId}/tasks/bulk-status` | Owner | Implemented | Đổi status tối đa 200 task |
+| POST | `/weddings/{weddingId}/tasks/apply-template` | Owner | Implemented | Copy checklist template thành task độc lập |
+| GET | `/task-checklist-templates` | Authenticated user | Implemented | List checklist template đang active |
 | GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner only | Planned | List/create private entry |
 | PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner only | Planned | Update/delete private entry |
 | GET | `/weddings/{weddingId}/gift-ledger/export` | Owner + step-up target | Planned | Export private ledger |

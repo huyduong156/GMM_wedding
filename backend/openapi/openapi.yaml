@@ -617,6 +617,142 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /task-checklist-templates:
+    get:
+      operationId: listTaskChecklistTemplates
+      summary: List active task checklist templates
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: locale, in: query, schema: { type: string, minLength: 2, maxLength: 16 } }
+      responses:
+        '200': { description: Active checklist templates, content: { application/json: { schema: { $ref: '#/components/schemas/TaskChecklistTemplateListEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /weddings/{weddingId}/tasks:
+    get:
+      operationId: listWeddingTasks
+      summary: List and filter tasks for an owned wedding
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: q, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: status, in: query, schema: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] } }
+        - { name: priority, in: query, schema: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT] } }
+        - { name: eventId, in: query, schema: { type: string, format: uuid } }
+        - { name: withoutEvent, in: query, schema: { type: boolean } }
+        - { name: parentTaskId, in: query, schema: { type: string, format: uuid } }
+        - { name: withoutParent, in: query, schema: { type: boolean } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses:
+        '200': { description: Task list, content: { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createWeddingTask
+      summary: Create a task optionally linked to a wedding event and parent task
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTaskRequest' }
+      responses:
+        '201': { description: Created task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/tasks/{taskId}:
+    get:
+      operationId: getWeddingTask
+      summary: Get a task
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: taskId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateWeddingTask
+      summary: Update a task with optimistic revision control
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: taskId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateTaskRequest' }
+      responses:
+        '200': { description: Updated task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      operationId: deleteWeddingTask
+      summary: Soft-delete a task
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: taskId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Task deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/tasks/reorder:
+    post:
+      operationId: reorderWeddingTasks
+      summary: Reorder up to 200 tasks
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReorderTasksRequest' }
+      responses:
+        '200': { description: Reordered tasks }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/tasks/bulk-status:
+    post:
+      operationId: bulkUpdateTaskStatus
+      summary: Update status for up to 200 tasks
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BulkTaskStatusRequest' }
+      responses:
+        '200': { description: Updated task count }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/tasks/apply-template:
+    post:
+      operationId: applyTaskChecklistTemplate
+      summary: Create independent tasks from an active checklist template
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApplyTaskTemplateRequest' }
+      responses:
+        '201': { description: Created tasks, content: { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/wishes:
     get:
       operationId: listOwnedWishes
@@ -1378,6 +1514,118 @@ components:
     WeddingSurface:
       type: string
       enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+    TaskEvent:
+      type: object
+      required: [id, name, eventType, startsAt, endsAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        eventType: { type: string }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: [string, 'null'], format: date-time }
+    Task:
+      type: object
+      additionalProperties: false
+      required: [id, weddingId, eventId, event, parentTaskId, title, description, dueAt, priority, status, sortOrder, completedAt, completedById, sourceTemplateKey, sourceTemplateVersion, revision, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        eventId: { type: [string, 'null'], format: uuid }
+        event: { anyOf: [{ $ref: '#/components/schemas/TaskEvent' }, { type: 'null' }] }
+        parentTaskId: { type: [string, 'null'], format: uuid }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        dueAt: { type: [string, 'null'], format: date-time }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT] }
+        status: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] }
+        sortOrder: { type: integer, minimum: 0 }
+        completedAt: { type: [string, 'null'], format: date-time }
+        completedById: { type: [string, 'null'], format: uuid }
+        sourceTemplateKey: { type: [string, 'null'] }
+        sourceTemplateVersion: { type: [integer, 'null'], minimum: 1 }
+        revision: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TaskEnvelope:
+      type: object
+      required: [task]
+      properties:
+        task: { $ref: '#/components/schemas/Task' }
+    TaskListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Task' } }
+        nextCursor: { type: [string, 'null'] }
+    CreateTaskRequest:
+      type: object
+      additionalProperties: false
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: string, maxLength: 5000 }
+        eventId: { type: [string, 'null'], format: uuid }
+        parentTaskId: { type: [string, 'null'], format: uuid }
+        dueAt: { type: string, format: date-time }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT], default: MEDIUM }
+    UpdateTaskRequest:
+      type: object
+      additionalProperties: false
+      required: [revision]
+      properties:
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: [string, 'null'], maxLength: 5000 }
+        eventId: { type: [string, 'null'], format: uuid }
+        parentTaskId: { type: [string, 'null'], format: uuid }
+        dueAt: { type: [string, 'null'], format: date-time }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT] }
+        status: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] }
+        revision: { type: integer, minimum: 1 }
+    ReorderTasksRequest:
+      type: object
+      required: [taskIds]
+      properties:
+        taskIds: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
+    BulkTaskStatusRequest:
+      type: object
+      required: [taskIds, status]
+      properties:
+        taskIds: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
+        status: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] }
+    ApplyTaskTemplateRequest:
+      type: object
+      required: [templateKey, templateVersion]
+      properties:
+        templateKey: { type: string, minLength: 1, maxLength: 80 }
+        templateVersion: { type: integer, minimum: 1 }
+        eventId: { type: [string, 'null'], format: uuid }
+        baseDate: { type: string, format: date-time }
+    TaskChecklistItem:
+      type: object
+      required: [id, title, description, priority, relativeDueDayOffset, sortOrder]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        priority: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT] }
+        relativeDueDayOffset: { type: [integer, 'null'] }
+        sortOrder: { type: integer }
+    TaskChecklistTemplate:
+      type: object
+      required: [id, key, version, name, status, locale, items]
+      properties:
+        id: { type: string, format: uuid }
+        key: { type: string }
+        version: { type: integer }
+        name: { type: string }
+        status: { type: string, enum: [DRAFT, ACTIVE, RETIRED] }
+        locale: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/TaskChecklistItem' } }
+    TaskChecklistTemplateListEnvelope:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/TaskChecklistTemplate' } }
     Wish:
       type: object
       additionalProperties: false
