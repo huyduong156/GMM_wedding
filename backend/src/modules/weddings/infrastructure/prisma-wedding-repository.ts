@@ -5,6 +5,8 @@ import type {
   CreateWeddingData, CreateWeddingEventData, DashboardActivityView, UpdateWeddingData,
   PublishWeddingData, PublishedSnapshotView, SaveWeddingContentData, TemplateView, UpdateWeddingEventData, WeddingContentView, WeddingDashboardView, WeddingEventView, WeddingRepository, WeddingSurfaceValue, WeddingView, WishView,
 } from '../application/ports'
+import type { GuestView } from '@/modules/guests/application/ports'
+import { WeddingError } from '../domain/wedding-error'
 
 const legacyTemplateSections: Record<string, string[]> = {
   'modern-luxe': ['cover', 'invitation', 'loveJourney', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'activities', 'gallery', 'rsvp', 'guestbook', 'gift', 'music'],
@@ -70,6 +72,12 @@ const eventSelect = {
   venueName: true, addressLine: true, mapUrl: true, latitude: true, longitude: true, sortOrder: true,
   isPublic: true, revision: true, createdAt: true, updatedAt: true,
 } satisfies Prisma.WeddingEventSelect
+const guestSelect = { id: true, weddingId: true, categoryId: true, groupId: true, displayName: true, phone: true, email: true, note: true, tableName: true, maxPartySize: true, tags: true, createdAt: true, updatedAt: true } satisfies Prisma.GuestSelect
+const encodeWishCursor = (value: { submittedAt: Date; id: string }) => Buffer.from(JSON.stringify([value.submittedAt.toISOString(), value.id])).toString('base64url')
+function decodeWishCursor(cursor?: string) {
+  if (!cursor) return undefined
+  try { const [submittedAt, id] = JSON.parse(Buffer.from(cursor, 'base64url').toString()) as [string, string]; const date = new Date(submittedAt); return Number.isNaN(date.getTime()) ? undefined : { submittedAt: date, id } } catch { return undefined }
+}
 
 type WeddingRow = Prisma.WeddingGetPayload<{ select: typeof weddingSelect }>
 type EventRow = Prisma.WeddingEventGetPayload<{ select: typeof eventSelect }>
@@ -405,18 +413,86 @@ export class PrismaWeddingRepository implements WeddingRepository {
     return { id: row.id, weddingId: row.weddingId, surface: row.surface, slug: row.slug, version: row.version, payload: row.payload, publishedAt: row.publishedAt, templateVersion: { key: row.templateVersion.template.key, version: row.templateVersion.version } }
   }
 
-  async listWishesOwned(userId: string, weddingId: string, status?: string): Promise<WishView[] | null> {
+  private wishView(row: { id: string; authorName: string; content: string; status: string; isPinned: boolean; submittedAt: Date; moderatedAt: Date | null; invitationId: string | null; guestId: string | null; guest: { displayName: string } | null }): WishView {
+    return { id: row.id, authorName: row.authorName, guestName: row.guest?.displayName ?? row.authorName, guestId: row.guestId, invitationId: row.invitationId, content: row.content, status: row.status, isPinned: row.isPinned, submittedAt: row.submittedAt, moderatedAt: row.moderatedAt }
+  }
+
+  async listWishesOwned(userId: string, weddingId: string, filter: { status?: string | undefined; query?: string | undefined; from?: Date | undefined; to?: Date | undefined; limit: number; cursor?: string | undefined }): Promise<{ items: WishView[]; nextCursor: string | null } | null> {
     if (!await this.isOwned(userId, weddingId)) return null
-    const rows = await this.prisma.wish.findMany({ where: { weddingId, deletedAt: null, ...(status ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM' | 'HIDDEN' } : {}) }, orderBy: [{ submittedAt: 'desc' }, { id: 'desc' }] })
-    return rows.map((row) => ({ id: row.id, authorName: row.authorName, content: row.content, status: row.status, isPinned: row.isPinned, submittedAt: row.submittedAt, moderatedAt: row.moderatedAt }))
+    const cursor = decodeWishCursor(filter.cursor)
+    const andFilters: Prisma.WishWhereInput[] = []
+    if (filter.query) andFilters.push({ OR: [{ authorName: { contains: filter.query, mode: 'insensitive' } }, { content: { contains: filter.query, mode: 'insensitive' } }, { guest: { displayName: { contains: filter.query, mode: 'insensitive' } } }] })
+    if (filter.from || filter.to) andFilters.push({ submittedAt: { ...(filter.from ? { gte: filter.from } : {}), ...(filter.to ? { lte: filter.to } : {}) } })
+    if (cursor) andFilters.push({ OR: [{ submittedAt: { lt: cursor.submittedAt } }, { submittedAt: cursor.submittedAt, id: { lt: cursor.id } }] })
+    const rows = await this.prisma.wish.findMany({
+      where: {
+        weddingId, deletedAt: null,
+        ...(filter.status ? { status: filter.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM' | 'HIDDEN' } : {}),
+        ...(andFilters.length ? { AND: andFilters } : {}),
+      },
+      select: { id: true, authorName: true, content: true, status: true, isPinned: true, submittedAt: true, moderatedAt: true, invitationId: true, guestId: true, guest: { select: { displayName: true } } },
+      orderBy: [{ submittedAt: 'desc' }, { id: 'desc' }], take: filter.limit + 1,
+    })
+    const hasNextPage = rows.length > filter.limit
+    const items = rows.slice(0, filter.limit).map((row) => this.wishView(row))
+    return { items, nextCursor: hasNextPage && items.length ? encodeWishCursor(items[items.length - 1]!) : null }
   }
 
   async moderateWishOwned(userId: string, weddingId: string, wishId: string, status?: string, isPinned?: boolean): Promise<WishView | 'not-found' | null> {
     if (!await this.isOwned(userId, weddingId)) return null
-    const current = await this.prisma.wish.findFirst({ where: { id: wishId, weddingId, deletedAt: null } })
+    const current = await this.prisma.wish.findFirst({ where: { id: wishId, weddingId, deletedAt: null }, select: { id: true } })
     if (!current) return 'not-found'
-    const row = await this.prisma.wish.update({ where: { id: wishId }, data: { ...(status ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM' | 'HIDDEN', moderatedAt: new Date() } : {}), ...(isPinned !== undefined ? { isPinned } : {}) } })
-    return { id: row.id, authorName: row.authorName, content: row.content, status: row.status, isPinned: row.isPinned, submittedAt: row.submittedAt, moderatedAt: row.moderatedAt }
+    const row = await this.prisma.wish.update({ where: { id: wishId }, data: { ...(status ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM' | 'HIDDEN', moderatedAt: new Date() } : {}), ...(isPinned !== undefined ? { isPinned } : {}) }, select: { id: true, authorName: true, content: true, status: true, isPinned: true, submittedAt: true, moderatedAt: true, invitationId: true, guestId: true, guest: { select: { displayName: true } } } })
+    return this.wishView(row)
+  }
+
+  private async validateWishGuestReferences(tx: Prisma.TransactionClient, weddingId: string, data: { categoryId?: string | undefined; groupId?: string | undefined }) {
+    if (data.categoryId && !await tx.guestCategory.findFirst({ where: { id: data.categoryId, weddingId, deletedAt: null }, select: { id: true } })) throw new WeddingError('WEDDING_GUEST_CATEGORY_NOT_FOUND', 404, 'Guest category not found')
+    if (data.groupId && !await tx.guestGroup.findFirst({ where: { id: data.groupId, weddingId, deletedAt: null }, select: { id: true } })) throw new WeddingError('WEDDING_GUEST_GROUP_NOT_FOUND', 404, 'Guest group not found')
+  }
+
+  async promoteWishToGuest(userId: string, weddingId: string, wishId: string, data: { displayName?: string | undefined; categoryId?: string | undefined; groupId?: string | undefined }) {
+    if (!await this.isOwned(userId, weddingId)) return null
+    return this.prisma.$transaction(async (tx): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null> => {
+      const wish = await tx.wish.findFirst({ where: { id: wishId, weddingId, deletedAt: null }, select: { id: true, authorName: true, guestId: true, invitationId: true, invitation: { select: { id: true, guestId: true, label: true } } } })
+      if (!wish) return null
+      const linkedGuestId = wish.guestId ?? wish.invitation?.guestId ?? null
+      if (linkedGuestId) {
+        const guest = await tx.guest.findFirst({ where: { id: linkedGuestId, weddingId }, select: guestSelect })
+        return guest ? { guest, wishId: wish.id, invitationId: wish.invitationId } : null
+      }
+      const displayName = data.displayName ?? wish.authorName
+      await this.validateWishGuestReferences(tx, weddingId, data)
+      const guest = await tx.guest.create({ data: { weddingId, displayName, maxPartySize: 1, tags: [], ...(data.categoryId ? { categoryId: data.categoryId } : {}), ...(data.groupId ? { groupId: data.groupId } : {}) }, select: guestSelect })
+      const updatedWish = await tx.wish.updateMany({ where: { id: wish.id, weddingId, guestId: null }, data: { guestId: guest.id } })
+      const updatedInvitation = wish.invitationId ? await tx.invitation.updateMany({ where: { id: wish.invitationId, weddingId, guestId: null }, data: { guestId: guest.id } }) : { count: 0 }
+      if (!updatedWish.count || (wish.invitationId && !updatedInvitation.count)) {
+        await tx.guest.delete({ where: { id: guest.id } })
+        const current = await tx.wish.findFirst({ where: { id: wish.id, weddingId }, select: { guestId: true, invitationId: true, invitation: { select: { guestId: true } } } })
+        const currentGuestId = current?.guestId ?? current?.invitation?.guestId
+        if (!currentGuestId) return 'conflict'
+        const currentGuest = await tx.guest.findFirst({ where: { id: currentGuestId, weddingId }, select: guestSelect })
+        return currentGuest ? { guest: currentGuest, wishId: wish.id, invitationId: current?.invitationId ?? null } : 'conflict'
+      }
+      return { guest, wishId: wish.id, invitationId: wish.invitationId }
+    })
+  }
+
+  async linkWishGuest(userId: string, weddingId: string, wishId: string, guestId: string) {
+    if (!await this.isOwned(userId, weddingId)) return null
+    return this.prisma.$transaction(async (tx): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null> => {
+      const guest = await tx.guest.findFirst({ where: { id: guestId, weddingId, deletedAt: null }, select: guestSelect })
+      if (!guest) return null
+      const wish = await tx.wish.findFirst({ where: { id: wishId, weddingId, deletedAt: null }, select: { id: true, guestId: true, invitationId: true, invitation: { select: { id: true, guestId: true } } } })
+      if (!wish) return null
+      const existingGuestId = wish.guestId ?? wish.invitation?.guestId
+      if (existingGuestId === guestId) return { guest, wishId: wish.id, invitationId: wish.invitationId }
+      if (existingGuestId) return 'conflict'
+      const updatedWish = await tx.wish.updateMany({ where: { id: wish.id, weddingId, guestId: null }, data: { guestId } })
+      const updatedInvitation = wish.invitationId ? await tx.invitation.updateMany({ where: { id: wish.invitationId, weddingId, guestId: null }, data: { guestId } }) : { count: 1 }
+      if (!updatedWish.count || !updatedInvitation.count) return 'conflict'
+      return { guest, wishId: wish.id, invitationId: wish.invitationId }
+    })
   }
 
   private ownedWhere(userId: string, weddingId: string) { return { id: weddingId, createdById: userId, deletedAt: null } as const }

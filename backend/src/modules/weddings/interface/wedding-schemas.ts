@@ -17,6 +17,16 @@ export const saveWeddingContentSchema = z.object({
 }).strict()
 export const publishWeddingSchema = z.object({ surface: weddingSurfaceSchema.default('ONLINE_INVITATION'), slug: z.string().trim().min(3).max(64), revision: z.number().int().positive() }).strict()
 export const wishModerationSchema = z.object({ status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'SPAM', 'HIDDEN']).optional(), isPinned: z.boolean().optional() }).strict().refine((value) => value.status !== undefined || value.isPinned !== undefined, 'At least one moderation field is required')
+export const wishQuerySchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'SPAM', 'HIDDEN']).optional(),
+  q: z.string().trim().max(160).optional(),
+  from: z.string().datetime({ offset: true }).transform((value) => new Date(value)).optional(),
+  to: z.string().datetime({ offset: true }).transform((value) => new Date(value)).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  cursor: z.string().max(512).optional(),
+}).strict().refine((value) => !value.from || !value.to || value.from <= value.to, { message: 'from must be before to', path: ['from'] })
+export const promoteWishSchema = z.object({ displayName: z.string().trim().min(1).max(160).optional(), categoryId: z.string().uuid().optional(), groupId: z.string().uuid().optional() }).strict()
+export const linkWishGuestSchema = z.object({ guestId: z.string().uuid() }).strict()
 export const mediaIntentSchema = z.object({ mimeType: z.string().trim().min(1).max(128), sizeBytes: z.number().int().positive().max(10 * 1024 * 1024), originalName: z.string().trim().max(255).optional(), altText: z.string().trim().max(500).optional() }).strict()
 export const createWeddingSchema = z.object({
   name: z.string().trim().min(1).max(160), primaryDate: dateTime.optional(),
