@@ -1,4 +1,4 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, Heart, ImagesSquare, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
+import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
@@ -11,7 +11,6 @@ const adminNav = [
   ] },
   { label: 'Quản lý nền tảng', items: [
     { to: adminRoutes.users, label: 'Người dùng', icon: UsersThree },
-    { to: adminRoutes.weddings, label: 'Đám cưới', icon: Heart },
     { to: adminRoutes.subscriptions, label: 'Gói đăng ký', icon: CreditCard },
   ] },
   { label: 'Nội dung & giao diện', items: [
