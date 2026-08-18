@@ -557,6 +557,66 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+  /weddings/{weddingId}/rsvps:
+    get:
+      operationId: listOwnedRsvps
+      summary: List RSVP responses for an owned wedding
+      description: Supports filtering by attendance, event, guest category/group, guest name and submitted date range. The response includes guest, invitation, companion and event selection data for the owner RSVP table.
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: q, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: attendance, in: query, schema: { type: string, enum: [ATTENDING, DECLINED, MAYBE] } }
+        - { name: eventId, in: query, schema: { type: string, format: uuid } }
+        - { name: categoryId, in: query, schema: { type: string, format: uuid } }
+        - { name: groupId, in: query, schema: { type: string, format: uuid } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses:
+        '200': { description: Owner RSVP list, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpListEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/rsvps/{rsvpId}/promote-to-guest:
+    post:
+      operationId: promoteRsvpToGuest
+      summary: Add an anonymous RSVP respondent to the guest list
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: rsvpId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PromoteRsvpRequest' }
+      responses:
+        '201': { description: Guest created and linked, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /weddings/{weddingId}/rsvps/{rsvpId}/link-guest:
+    post:
+      operationId: linkRsvpToGuest
+      summary: Link an RSVP to an existing guest
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/WeddingId' }
+        - { name: rsvpId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LinkRsvpGuestRequest' }
+      responses:
+        '200': { description: RSVP linked to guest, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /weddings/{weddingId}/guests:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
@@ -1201,6 +1261,74 @@ components:
     WeddingSurface:
       type: string
       enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+    PromoteRsvpRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 160 }
+        categoryId: { type: string, format: uuid }
+        groupId: { type: string, format: uuid }
+    LinkRsvpGuestRequest:
+      type: object
+      additionalProperties: false
+      required: [guestId]
+      properties:
+        guestId: { type: string, format: uuid }
+    RsvpGuestLinkEnvelope:
+      type: object
+      required: [guest, invitationId]
+      properties:
+        guest: { $ref: '#/components/schemas/Guest' }
+        invitationId: { type: string, format: uuid }
+    Rsvp:
+      type: object
+      additionalProperties: false
+      required: [id, weddingId, invitationId, guestId, guestName, guestPhone, guestEmail, categoryId, groupId, invitationLabel, invitationStatus, attendance, partySize, mealPreference, specialRequest, message, submittedAt, updatedAt, revision, eventSelections, companions]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        invitationId: { type: string, format: uuid }
+        guestId: { type: [string, 'null'], format: uuid }
+        guestName: { type: string }
+        guestPhone: { type: [string, 'null'] }
+        guestEmail: { type: [string, 'null'], format: email }
+        categoryId: { type: [string, 'null'], format: uuid }
+        groupId: { type: [string, 'null'], format: uuid }
+        invitationLabel: { type: [string, 'null'] }
+        invitationStatus: { type: string, enum: [ACTIVE, REVOKED, EXPIRED] }
+        attendance: { type: string, enum: [ATTENDING, DECLINED, MAYBE] }
+        partySize: { type: integer, minimum: 1, maximum: 50 }
+        mealPreference: { type: [string, 'null'] }
+        specialRequest: { type: [string, 'null'] }
+        message: { type: [string, 'null'] }
+        submittedAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        revision: { type: integer, minimum: 1 }
+        eventSelections:
+          type: array
+          items:
+            type: object
+            required: [eventId, eventName, attending]
+            properties:
+              eventId: { type: string, format: uuid }
+              eventName: { type: string }
+              attending: { type: boolean }
+        companions:
+          type: array
+          items:
+            type: object
+            required: [id, displayName, mealPreference, sortOrder]
+            properties:
+              id: { type: string, format: uuid }
+              displayName: { type: string }
+              mealPreference: { type: [string, 'null'] }
+              sortOrder: { type: integer, minimum: 0 }
+    RsvpListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Rsvp' } }
+        nextCursor: { type: [string, 'null'] }
     Guest:
       type: object
       additionalProperties: false

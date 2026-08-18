@@ -167,7 +167,9 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/weddings/{weddingId}/rsvps` | RSVP access policy | Planned | Owner list/filter RSVP |
+| GET | `/weddings/{weddingId}/rsvps` | Owner | Implemented | Owner list/filter RSVP với guest, event, companion và cursor |
+| POST | `/weddings/{weddingId}/rsvps/{rsvpId}/promote-to-guest` | Owner | Implemented | Tạo Guest từ RSVP ẩn danh và liên kết trong transaction |
+| POST | `/weddings/{weddingId}/rsvps/{rsvpId}/link-guest` | Owner | Implemented | Liên kết RSVP với Guest có sẵn |
 | PATCH | `/weddings/{weddingId}/rsvps/{rsvpId}` | RSVP write policy | Planned | Owner correction |
 | GET | `/weddings/{weddingId}/wishes` | Wish moderation policy | Planned | List moderation; handler đã scaffold, chờ integration/OpenAPI test |
 | PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Wish moderation policy | Planned | Approve/reject/pin/hide; handler đã scaffold, chờ integration/OpenAPI test |
