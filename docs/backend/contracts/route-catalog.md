@@ -146,15 +146,19 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | GET | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Chi tiết guest |
 | PATCH | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Cập nhật guest |
 | DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Soft delete guest |
+| POST | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft delete nhiều guest trong một request; UI đơn lẻ gửi một ID |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách tối đa 3 cấp |
 | PATCH | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Đổi tên, di chuyển danh mục; chặn vòng lặp và cấp > 3 |
 | DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Soft delete danh mục |
+| POST | `/weddings/{weddingId}/guest-categories/bulk-delete` | Owner | Implemented | Soft delete nhiều danh mục trong một request; UI đơn lẻ gửi một ID |
 | GET/POST | `/weddings/{weddingId}/guest-groups` | Owner | Implemented | Nhóm khách |
-| DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Soft delete nhóm |
+| PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Cập nhật hoặc soft delete nhóm |
 | POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Implemented | Nhận `{ rows }` sau khi FE parse CSV; validate và trả lỗi theo dòng |
 | POST | `/weddings/{weddingId}/guests/import/commit` | Guest write policy | Implemented | Commit các dòng hợp lệ; tự tạo category path/group còn thiếu |
 | GET | `/weddings/{weddingId}/guests/export` | Guest access policy | Implemented | CSV UTF-8 BOM, sort và chèn dòng section theo danh mục/nhóm |
 | POST | `/weddings/{weddingId}/invitations` | Owner | Implemented | Tạo invitation/token; raw token chỉ trả một lần |
+| GET | `/weddings/{weddingId}/invitations` | Owner | Implemented | List invitation theo guest/status với cursor |
+| GET/PATCH | `/weddings/{weddingId}/invitations/{invitationId}` | Owner | Implemented | Đọc/cập nhật metadata invitation; không cập nhật token trực tiếp |
 | POST | `/weddings/{weddingId}/invitations/{invitationId}/rotate` | Owner | Implemented | Rotate token |
 | POST | `/weddings/{weddingId}/invitations/{invitationId}/revoke` | Owner | Implemented | Revoke token |
 

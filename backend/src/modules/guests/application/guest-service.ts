@@ -1,6 +1,6 @@
 import type { AuthenticatedUserActor } from '@/platform/auth/actor-context'
 import { GuestError } from '../domain/guest-error'
-import type { CreateCategoryData, CreateGuestData, CreateGroupData, CreateInvitationData, GuestRepository, UpdateGuestData, UpdateCategoryData, GuestImportIssue, GuestImportRow } from './ports'
+import type { CreateCategoryData, CreateGuestData, CreateGroupData, CreateInvitationData, GuestRepository, UpdateGuestData, UpdateCategoryData, UpdateGroupData, UpdateInvitationData, GuestImportIssue, GuestImportRow } from './ports'
 
 export class GuestService {
   constructor(private readonly repository: GuestRepository) {}
@@ -9,14 +9,20 @@ export class GuestService {
   create(actor: AuthenticatedUserActor, weddingId: string, data: CreateGuestData) { return this.require(this.repository.createOwned(actor.userId, weddingId, data)) }
   update(actor: AuthenticatedUserActor, weddingId: string, guestId: string, data: UpdateGuestData) { return this.requireGuest(this.repository.updateOwned(actor.userId, weddingId, guestId, data)) }
   async remove(actor: AuthenticatedUserActor, weddingId: string, guestId: string) { const result = await this.repository.deleteOwned(actor.userId, weddingId, guestId); if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); if (!result) throw new GuestError('GUEST_NOT_FOUND', 404, 'Guest not found') }
+  async bulkRemove(actor: AuthenticatedUserActor, weddingId: string, guestIds: string[]) { return this.require(await this.repository.bulkDeleteOwned(actor.userId, weddingId, guestIds)) }
   categories(actor: AuthenticatedUserActor, weddingId: string) { return this.require(this.repository.listCategories(actor.userId, weddingId)) }
   createCategory(actor: AuthenticatedUserActor, weddingId: string, data: CreateCategoryData) { return this.require(this.repository.createCategory(actor.userId, weddingId, data)) }
   updateCategory(actor: AuthenticatedUserActor, weddingId: string, id: string, data: UpdateCategoryData) { return this.require(this.repository.updateCategory(actor.userId, weddingId, id, data)) }
   async removeCategory(actor: AuthenticatedUserActor, weddingId: string, id: string) { const result = await this.repository.deleteCategory(actor.userId, weddingId, id); if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); if (!result) throw new GuestError('GUEST_CATEGORY_NOT_FOUND', 404, 'Guest category not found') }
+  async bulkRemoveCategories(actor: AuthenticatedUserActor, weddingId: string, categoryIds: string[]) { return this.require(await this.repository.bulkDeleteCategories(actor.userId, weddingId, categoryIds)) }
   groups(actor: AuthenticatedUserActor, weddingId: string) { return this.require(this.repository.listGroups(actor.userId, weddingId)) }
   createGroup(actor: AuthenticatedUserActor, weddingId: string, data: CreateGroupData) { return this.require(this.repository.createGroup(actor.userId, weddingId, data)) }
+  updateGroup(actor: AuthenticatedUserActor, weddingId: string, id: string, data: UpdateGroupData) { return this.requireResource(this.repository.updateGroup(actor.userId, weddingId, id, data), 'GUEST_GROUP_NOT_FOUND', 'Guest group not found') }
   async removeGroup(actor: AuthenticatedUserActor, weddingId: string, id: string) { const result = await this.repository.deleteGroup(actor.userId, weddingId, id); if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); if (!result) throw new GuestError('GUEST_GROUP_NOT_FOUND', 404, 'Guest group not found') }
+  listInvitations(actor: AuthenticatedUserActor, weddingId: string, filter: { guestId?: string | undefined; status?: 'ACTIVE' | 'REVOKED' | undefined; limit: number; cursor?: string | undefined }) { return this.require(this.repository.listInvitations(actor.userId, weddingId, filter)) }
+  getInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) { return this.requireResource(this.repository.findInvitation(actor.userId, weddingId, id), 'INVITATION_NOT_FOUND', 'Invitation not found') }
   createInvitation(actor: AuthenticatedUserActor, weddingId: string, data: CreateInvitationData) { return this.require(this.repository.createInvitation(actor.userId, weddingId, data)) }
+  updateInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string, data: UpdateInvitationData) { return this.requireResource(this.repository.updateInvitation(actor.userId, weddingId, id, data), 'INVITATION_NOT_FOUND', 'Invitation not found') }
   rotateInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) { return this.require(this.repository.rotateInvitation(actor.userId, weddingId, id)) }
   async revokeInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) { const result = await this.repository.revokeInvitation(actor.userId, weddingId, id); if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); if (!result) throw new GuestError('INVITATION_NOT_FOUND', 404, 'Invitation not found') }
   resolvePublicInvitation(weddingSlug: string, guestSlug: string) { return this.repository.resolvePublicInvitation(weddingSlug, guestSlug) }
@@ -25,4 +31,5 @@ export class GuestService {
   async importRows(actor: AuthenticatedUserActor, weddingId: string, rows: GuestImportRow[]) { const preview = this.previewImport(rows); if (preview.issues.length) throw new GuestError('GUEST_IMPORT_VALIDATION_FAILED', 400, 'Guest import contains invalid rows'); return this.require(await this.repository.importOwned(actor.userId, weddingId, preview.validRows)) }
   private require<T>(value: T | null): T { if (value === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); return value }
   private requireGuest<T>(value: T | null): T { if (value === null) throw new GuestError('GUEST_NOT_FOUND', 404, 'Guest not found'); return value }
+  private requireResource<T>(value: T | null, code: string, message: string): T { if (value === null) throw new GuestError(code, 404, message); return value }
 }

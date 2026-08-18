@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: GMM Wedding Backend API
-  version: 0.2.0
-  description: Backend API contract for platform foundation, server-managed authentication, Wedding core, display events, and the owner dashboard read model.
+  version: 0.3.0
+  description: Backend API contract for platform foundation, server-managed authentication, Wedding core, owner guest management, invitations, display events, and the owner dashboard read model.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -557,6 +557,198 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+  /weddings/{weddingId}/guests:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: listOwnedGuests
+      summary: List guests for an owned wedding
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: categoryId, in: query, schema: { type: string, format: uuid } }
+        - { name: groupId, in: query, schema: { type: string, format: uuid } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses:
+        '200': { description: Guest list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestListEnvelope' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createOwnedGuest
+      summary: Create a guest
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestRequest' } } } }
+      responses:
+        '201': { description: Guest created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/guests/{guestId}:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GuestId' }]
+    get:
+      operationId: getOwnedGuest
+      summary: Get one guest
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Guest detail, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+    patch:
+      operationId: updateOwnedGuest
+      summary: Update one guest
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestRequest' } } } }
+      responses: { '200': { description: Guest updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+    delete:
+      operationId: deleteOwnedGuest
+      summary: Soft-delete one guest
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses: { '204': { description: Guest deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guests/bulk-delete:
+    post:
+      operationId: bulkDeleteOwnedGuests
+      summary: Soft-delete multiple guests in one owner-scoped request
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } } }
+      responses: { '200': { description: Number of deleted guests, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guest-categories:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: listGuestCategories
+      summary: List the guest category tree
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Category list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+    post:
+      operationId: createGuestCategory
+      summary: Create a guest category
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestCategoryRequest' } } } }
+      responses: { '201': { description: Category created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guest-categories/{categoryId}:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/CategoryId' }]
+    patch:
+      operationId: updateGuestCategory
+      summary: Rename or move a guest category
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestCategoryRequest' } } } }
+      responses: { '200': { description: Category updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '404': { $ref: '#/components/responses/NotFound' } }
+    delete:
+      operationId: deleteGuestCategory
+      summary: Soft-delete a guest category
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses: { '204': { description: Category deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guest-categories/bulk-delete:
+    post:
+      operationId: bulkDeleteGuestCategories
+      summary: Soft-delete multiple guest categories in one owner-scoped request
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } } }
+      responses: { '200': { description: Number of deleted categories, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guest-groups:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: listGuestGroups
+      summary: List guest groups
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Group list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+    post:
+      operationId: createGuestGroup
+      summary: Create a guest group
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestGroupRequest' } } } }
+      responses: { '201': { description: Group created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' } }
+  /weddings/{weddingId}/guest-groups/{groupId}:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GroupId' }]
+    patch:
+      operationId: updateGuestGroup
+      summary: Update a guest group
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestGroupRequest' } } } }
+      responses: { '200': { description: Group updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '404': { $ref: '#/components/responses/NotFound' } }
+    delete:
+      operationId: deleteGuestGroup
+      summary: Soft-delete a guest group
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses: { '204': { description: Group deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guests/import/preview:
+    post:
+      operationId: previewGuestImport
+      summary: Validate guest import rows without writing data
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } } }
+      responses: { '200': { description: Import preview }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' } }
+  /weddings/{weddingId}/guests/import/commit:
+    post:
+      operationId: commitGuestImport
+      summary: Commit a validated guest import in one transaction
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } } }
+      responses: { '201': { description: Imported guests }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/guests/export:
+    get:
+      operationId: exportOwnedGuests
+      summary: Export owner guest data as UTF-8 CSV
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+      responses: { '200': { description: UTF-8 BOM CSV export, content: { text/csv: { schema: { type: string } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/invitations:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
+    get:
+      operationId: listOwnedInvitations
+      summary: List invitation metadata without exposing tokens
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: guestId, in: query, schema: { type: string, format: uuid } }
+        - { name: status, in: query, schema: { type: string, enum: [ACTIVE, REVOKED] } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
+      responses: { '200': { description: Invitation list, content: { application/json: { schema: { $ref: '#/components/schemas/InvitationListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+    post:
+      operationId: createOwnedInvitation
+      summary: Create an invitation and return its raw token once
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateInvitationRequest' } } } }
+      responses: { '201': { description: Invitation created with one-time token }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/invitations/{invitationId}:
+    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }]
+    get:
+      operationId: getOwnedInvitation
+      summary: Get invitation metadata without exposing tokens
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Invitation detail }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+    patch:
+      operationId: updateOwnedInvitation
+      summary: Update invitation metadata
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateInvitationRequest' } } } }
+      responses: { '200': { description: Invitation updated }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/invitations/{invitationId}/rotate:
+    post:
+      operationId: rotateOwnedInvitationToken
+      summary: Rotate an invitation token and return the new raw token once
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses: { '200': { description: Invitation metadata and one-time raw token }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+  /weddings/{weddingId}/invitations/{invitationId}/revoke:
+    post:
+      operationId: revokeOwnedInvitation
+      summary: Revoke an active invitation token
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      responses: { '204': { description: Invitation revoked }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
   /templates:
     get:
       operationId: listTemplates
@@ -898,6 +1090,26 @@ components:
       schema:
         type: string
         format: uuid
+    GuestId:
+      name: guestId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    GroupId:
+      name: groupId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    InvitationId:
+      name: invitationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     SurfaceQuery:
       name: surface
       in: query
@@ -981,6 +1193,193 @@ components:
     WeddingSurface:
       type: string
       enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+    Guest:
+      type: object
+      additionalProperties: false
+      required: [id, weddingId, categoryId, groupId, displayName, phone, email, note, tableName, maxPartySize, tags, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        categoryId: { type: [string, 'null'], format: uuid }
+        groupId: { type: [string, 'null'], format: uuid }
+        displayName: { type: string, minLength: 1, maxLength: 160 }
+        phone: { type: [string, 'null'], maxLength: 32 }
+        email: { type: [string, 'null'], format: email, maxLength: 320 }
+        note: { type: [string, 'null'], maxLength: 5000 }
+        tableName: { type: [string, 'null'], maxLength: 120 }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50 }
+        tags: { type: array, maxItems: 30, items: { type: string, minLength: 1, maxLength: 48 } }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateGuestRequest:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 160 }
+        categoryId: { type: string, format: uuid }
+        groupId: { type: string, format: uuid }
+        phone: { type: string, maxLength: 32 }
+        email: { type: string, format: email, maxLength: 320 }
+        note: { type: string, maxLength: 5000 }
+        tableName: { type: string, maxLength: 120 }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50, default: 1 }
+        tags: { type: array, maxItems: 30, items: { type: string, minLength: 1, maxLength: 48 } }
+    UpdateGuestRequest:
+      allOf: [{ $ref: '#/components/schemas/CreateGuestRequest' }]
+      minProperties: 1
+    GuestEnvelope:
+      type: object
+      required: [guest]
+      properties: { guest: { $ref: '#/components/schemas/Guest' } }
+    GuestListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Guest' } }
+        nextCursor: { type: [string, 'null'] }
+    GuestCategory:
+      type: object
+      required: [id, weddingId, parentId, name, depth, sortOrder, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        parentId: { type: [string, 'null'], format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        depth: { type: integer, minimum: 1, maximum: 3 }
+        sortOrder: { type: integer, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateGuestCategoryRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        parentId: { type: string, format: uuid }
+        sortOrder: { type: integer, minimum: 0, default: 0 }
+    UpdateGuestCategoryRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        parentId: { type: [string, 'null'], format: uuid }
+        sortOrder: { type: integer, minimum: 0 }
+    GuestCategoryEnvelope:
+      type: object
+      required: [category]
+      properties: { category: { $ref: '#/components/schemas/GuestCategory' } }
+    GuestCategoryListEnvelope:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/GuestCategory' } } }
+    GuestGroup:
+      type: object
+      required: [id, weddingId, name, note, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        note: { type: [string, 'null'], maxLength: 2000 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateGuestGroupRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        note: { type: string, maxLength: 2000 }
+    UpdateGuestGroupRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        note: { type: [string, 'null'], maxLength: 2000 }
+    GuestGroupEnvelope:
+      type: object
+      required: [group]
+      properties: { group: { $ref: '#/components/schemas/GuestGroup' } }
+    GuestGroupListEnvelope:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/GuestGroup' } } }
+    Invitation:
+      type: object
+      required: [id, weddingId, guestId, label, publicSlug, status, maxPartySize, expiresAt, revokedAt, lastViewedAt, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        weddingId: { type: string, format: uuid }
+        guestId: { type: [string, 'null'], format: uuid }
+        label: { type: [string, 'null'], maxLength: 160 }
+        publicSlug: { type: [string, 'null'], maxLength: 160 }
+        status: { type: string, enum: [ACTIVE, REVOKED] }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50 }
+        expiresAt: { type: [string, 'null'], format: date-time }
+        revokedAt: { type: [string, 'null'], format: date-time }
+        lastViewedAt: { type: [string, 'null'], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CreateInvitationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        guestId: { type: string, format: uuid }
+        label: { type: string, minLength: 1, maxLength: 160 }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50, default: 1 }
+        expiresAt: { type: string, format: date-time }
+    UpdateInvitationRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        label: { type: [string, 'null'], minLength: 1, maxLength: 160 }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50 }
+        expiresAt: { type: [string, 'null'], format: date-time }
+    InvitationEnvelope:
+      type: object
+      required: [invitation]
+      properties: { invitation: { $ref: '#/components/schemas/Invitation' } }
+    InvitationListEnvelope:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/Invitation' } }
+        nextCursor: { type: [string, 'null'] }
+    GuestImportRequest:
+      type: object
+      additionalProperties: false
+      required: [rows]
+      properties:
+        rows: { type: array, minItems: 1, maxItems: 5000, items: { $ref: '#/components/schemas/GuestImportRow' } }
+    GuestImportRow:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 160 }
+        categoryPath: { type: string, maxLength: 400 }
+        groupName: { type: string, maxLength: 120 }
+        phone: { type: string, maxLength: 32 }
+        email: { type: string, format: email, maxLength: 320 }
+        note: { type: string, maxLength: 5000 }
+        tableName: { type: string, maxLength: 120 }
+        maxPartySize: { type: integer, minimum: 1, maximum: 50 }
+        tags: { type: array, maxItems: 30, items: { type: string, minLength: 1, maxLength: 48 } }
+    BulkDeleteRequest:
+      type: object
+      additionalProperties: false
+      required: [ids]
+      properties:
+        ids: { type: array, minItems: 1, maxItems: 500, uniqueItems: true, items: { type: string, format: uuid } }
+    BulkDeleteResponse:
+      type: object
+      additionalProperties: false
+      required: [deletedCount]
+      properties:
+        deletedCount: { type: integer, minimum: 0 }
     SaveWeddingContentRequest:
       type: object
       additionalProperties: false
