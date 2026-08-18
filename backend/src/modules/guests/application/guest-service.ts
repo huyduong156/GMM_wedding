@@ -10,6 +10,7 @@ export class GuestService {
   update(actor: AuthenticatedUserActor, weddingId: string, guestId: string, data: UpdateGuestData) { return this.requireGuest(this.repository.updateOwned(actor.userId, weddingId, guestId, data)) }
   async remove(actor: AuthenticatedUserActor, weddingId: string, guestId: string) { const result = await this.repository.deleteOwned(actor.userId, weddingId, guestId); if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found'); if (!result) throw new GuestError('GUEST_NOT_FOUND', 404, 'Guest not found') }
   async bulkRemove(actor: AuthenticatedUserActor, weddingId: string, guestIds: string[]) { return this.require(await this.repository.bulkDeleteOwned(actor.userId, weddingId, guestIds)) }
+  async bulkAssignCategory(actor: AuthenticatedUserActor, weddingId: string, guestIds: string[], categoryId: string | null) { return this.require(await this.repository.bulkAssignCategory(actor.userId, weddingId, guestIds, categoryId)) }
   categories(actor: AuthenticatedUserActor, weddingId: string) { return this.require(this.repository.listCategories(actor.userId, weddingId)) }
   createCategory(actor: AuthenticatedUserActor, weddingId: string, data: CreateCategoryData) { return this.require(this.repository.createCategory(actor.userId, weddingId, data)) }
   updateCategory(actor: AuthenticatedUserActor, weddingId: string, id: string, data: UpdateCategoryData) { return this.require(this.repository.updateCategory(actor.userId, weddingId, id, data)) }

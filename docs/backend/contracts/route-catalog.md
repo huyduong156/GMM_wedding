@@ -147,6 +147,7 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | PATCH | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Cập nhật guest |
 | DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Soft delete guest |
 | POST | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft delete nhiều guest trong một request; UI đơn lẻ gửi một ID |
+| POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Owner | Implemented | Gắn hoặc gỡ nhiều guest; truyền `categoryId: null` để gỡ |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách tối đa 3 cấp |
 | PATCH | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Đổi tên, di chuyển danh mục; chặn vòng lặp và cấp > 3 |
 | DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Soft delete danh mục |
