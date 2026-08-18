@@ -355,6 +355,7 @@ model WeddingEvent {
   deletedAt      DateTime?            @db.Timestamptz(3)
   wedding        Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   rsvpSelections RsvpEventSelection[]
+  tasks          WeddingTask[]
 
   @@index([weddingId, startsAt])
 }
@@ -674,7 +675,6 @@ model TaskChecklistItem {
   checklistTemplateId  String                @db.Uuid
   title                String                @db.VarChar(200)
   description          String?               @db.Text
-  category             String?               @db.VarChar(80)
   priority             TaskPriority          @default(MEDIUM)
   relativeDueDayOffset Int?
   sortOrder            Int                   @default(0)
@@ -686,6 +686,8 @@ model TaskChecklistItem {
 model WeddingTask {
   id                    String         @id @default(uuid()) @db.Uuid
   weddingId             String         @db.Uuid
+  eventId               String?        @db.Uuid
+  parentTaskId          String?        @db.Uuid
   assigneeMemberId      String?        @db.Uuid
   completedById         String?        @db.Uuid
   sourceTemplateKey     String?        @db.VarChar(80)
@@ -695,7 +697,6 @@ model WeddingTask {
   dueAt                 DateTime?      @db.Timestamptz(3)
   priority              TaskPriority   @default(MEDIUM)
   status                TaskStatus     @default(TODO)
-  category              String?        @db.VarChar(80)
   sortOrder             Int            @default(0)
   completedAt           DateTime?      @db.Timestamptz(3)
   revision              Int            @default(1)
@@ -703,10 +704,15 @@ model WeddingTask {
   updatedAt             DateTime       @updatedAt @db.Timestamptz(3)
   deletedAt             DateTime?      @db.Timestamptz(3)
   wedding               Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  event                 WeddingEvent?  @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  parentTask            WeddingTask?   @relation("TaskHierarchy", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  childTasks            WeddingTask[]  @relation("TaskHierarchy")
   assigneeMember        WeddingMember? @relation("TaskAssignee", fields: [assigneeMemberId], references: [id], onDelete: SetNull)
   completedBy           User?          @relation("TaskCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
 
   @@index([weddingId, status, dueAt])
+  @@index([weddingId, eventId, status])
+  @@index([weddingId, parentTaskId, status])
   @@index([weddingId, assigneeMemberId, status])
 }
 

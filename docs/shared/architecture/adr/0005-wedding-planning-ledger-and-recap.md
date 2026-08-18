@@ -13,7 +13,9 @@ Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận ti�
 
 ### Wedding Todo List
 
-- `WeddingTask` thuộc wedding, có title, description, due date, priority, status, assignee member, category, sort order và completed metadata.
+- `WeddingTask` thuộc wedding, có title, description, due date, priority, status, assignee member, sort order và completed metadata.
+- MVP task có thể gắn `eventId` tới `WeddingEvent` hoặc để trống cho task chung; không có task category riêng.
+- `parentTaskId` cho phép tối đa một cấp task con. Task con không có event riêng và kế thừa event context của task cha; khi root task thành task con, child cũ được promote thành root.
 - Checklist mẫu được version hóa bằng `TaskChecklistTemplate`/`TaskChecklistItem`; khi áp dụng sẽ sao chép thành task của wedding để user sửa độc lập.
 - Owner/editor được quản lý task; member chỉ được gán khi còn active trong đúng wedding. Mutation dùng revision/ETag để chống lost update.
 

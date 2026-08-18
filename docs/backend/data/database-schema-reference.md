@@ -143,11 +143,11 @@ Lời chúc và moderation. Trường: `id`, `weddingId`, `invitationId?`, `gues
 
 ### `TaskChecklistTemplate` / `TaskChecklistItem`
 
-Checklist mẫu bất biến theo `(key, version)`. Template gồm `id`, `key`, `version`, `name`, `status`, `locale`, `createdAt`. Item gồm `id`, `checklistTemplateId`, `title`, `description?`, `category?`, `priority`, `relativeDueDayOffset?`, `sortOrder`.
+Checklist mẫu bất biến theo `(key, version)`. Template gồm `id`, `key`, `version`, `name`, `status`, `locale`, `createdAt`. Item gồm `id`, `checklistTemplateId`, `title`, `description?`, `priority`, `relativeDueDayOffset?`, `sortOrder`.
 
 ### `WeddingTask`
 
-Task đã copy vào wedding. Trường: `id`, `weddingId`, `assigneeMemberId?`, `completedById?`, `sourceTemplateKey?`, `sourceTemplateVersion?`, `title`, `description?`, `dueAt?`, `priority`, `status`, `category?`, `sortOrder`, `completedAt?`, `revision`, timestamps và `deletedAt?`. Assignee phải là active member cùng wedding.
+Task đã copy vào wedding. Trường: `id`, `weddingId`, `eventId?`, `parentTaskId?`, `assigneeMemberId?`, `completedById?`, `sourceTemplateKey?`, `sourceTemplateVersion?`, `title`, `description?`, `dueAt?`, `priority`, `status`, `sortOrder`, `completedAt?`, `revision`, timestamps và `deletedAt?`. `eventId` tham chiếu event cùng wedding và có thể null; `parentTaskId` chỉ cho phép một cấp task con. Assignee chưa được expose ở MVP.
 
 ### `GiftLedgerEntry`
 
