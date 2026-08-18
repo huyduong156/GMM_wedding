@@ -25,10 +25,11 @@ platform admin và public snapshot không được đọc trực tiếp dữ li�
 |---|---|---|
 | GET/POST | `/weddings/{weddingId}/guests` | List/filter bằng cursor hoặc tạo guest |
 | GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}` | Đọc, cập nhật hoặc soft-delete guest |
-| POST | `/weddings/{weddingId}/guests/bulk-delete` | Soft-delete tối đa 500 guest IDs trong một request |
+| POST | `/weddings/{weddingId}/guests/bulk-delete` | Soft-delete tối đa 200 guest IDs trong một request |
+| POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Gắn hoặc gỡ tối đa 200 guest vào một category |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Đọc/tạo cây category tối đa 3 cấp |
 | PATCH/DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Đổi tên, di chuyển hoặc soft-delete category |
-| POST | `/weddings/{weddingId}/guest-categories/bulk-delete` | Soft-delete tối đa 500 category IDs trong một request |
+| POST | `/weddings/{weddingId}/guest-categories/bulk-delete` | Soft-delete tối đa 200 category IDs trong một request |
 | GET/POST | `/weddings/{weddingId}/guest-groups` | Đọc/tạo group |
 | PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Cập nhật hoặc soft-delete group |
 | POST | `/weddings/{weddingId}/guests/import/preview` | Validate batch tối đa 5.000 dòng, chưa ghi database |

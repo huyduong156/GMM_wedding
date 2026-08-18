@@ -22,6 +22,7 @@ export interface GuestRepository {
   updateOwned(userId: string, weddingId: string, guestId: string, data: UpdateGuestData): Promise<GuestView | null>
   deleteOwned(userId: string, weddingId: string, guestId: string): Promise<boolean | null>
   bulkDeleteOwned(userId: string, weddingId: string, guestIds: string[]): Promise<{ deletedCount: number } | null>
+  bulkAssignCategory(userId: string, weddingId: string, guestIds: string[], categoryId: string | null): Promise<{ updatedCount: number } | null>
   listCategories(userId: string, weddingId: string): Promise<GuestCategoryView[] | null>
   createCategory(userId: string, weddingId: string, data: CreateCategoryData): Promise<GuestCategoryView | null>
   updateCategory(userId: string, weddingId: string, categoryId: string, data: UpdateCategoryData): Promise<GuestCategoryView | 'conflict' | null>

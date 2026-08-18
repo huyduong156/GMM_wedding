@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createGuestSchema, guestQuerySchema, invitationSchema } from './guest-schemas'
+import { bulkAssignCategorySchema, createGuestSchema, guestQuerySchema, invitationSchema } from './guest-schemas'
 
 describe('guest API schemas', () => {
   it('applies safe defaults and rejects invalid contact data', () => {
@@ -13,5 +13,9 @@ describe('guest API schemas', () => {
   it('parses invitation expiry into a Date', () => {
     const result = invitationSchema.parse({ maxPartySize: 2, expiresAt: '2030-01-01T00:00:00.000Z' })
     expect(result.expiresAt).toBeInstanceOf(Date)
+  })
+  it('supports assigning and clearing a category for a bounded unique guest set', () => {
+    expect(bulkAssignCategorySchema.parse({ guestIds: ['00000000-0000-0000-0000-000000000001'], categoryId: null }).categoryId).toBeNull()
+    expect(() => bulkAssignCategorySchema.parse({ guestIds: ['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001'], categoryId: null })).toThrow()
   })
 })
