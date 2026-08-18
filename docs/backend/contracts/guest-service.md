@@ -29,7 +29,7 @@ platform admin và public snapshot không được đọc trực tiếp dữ li�
 | POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Gắn hoặc gỡ tối đa 200 guest vào một category |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Đọc/tạo cây category tối đa 3 cấp |
 | PATCH/DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Đổi tên, di chuyển hoặc soft-delete category |
-| POST | `/weddings/{weddingId}/guest-categories/bulk-delete` | Soft-delete tối đa 200 category IDs trong một request |
+| POST/DELETE | `/weddings/{weddingId}/guest-categories/bulk-delete` | Soft-delete tối đa 200 category IDs trong một request |
 | GET/POST | `/weddings/{weddingId}/guest-groups` | Đọc/tạo group |
 | PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Cập nhật hoặc soft-delete group |
 | POST | `/weddings/{weddingId}/guests/import/preview` | Validate batch tối đa 5.000 dòng, chưa ghi database |

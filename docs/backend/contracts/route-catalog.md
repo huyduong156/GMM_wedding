@@ -146,12 +146,12 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | GET | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Chi tiết guest |
 | PATCH | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Cập nhật guest |
 | DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Soft delete guest |
-| POST | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft delete nhiều guest trong một request; UI đơn lẻ gửi một ID |
+| POST/DELETE | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft delete nhiều guest trong một request; UI đơn lẻ gửi một ID |
 | POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Owner | Implemented | Gắn hoặc gỡ nhiều guest; truyền `categoryId: null` để gỡ |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách tối đa 3 cấp |
 | PATCH | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Đổi tên, di chuyển danh mục; chặn vòng lặp và cấp > 3 |
 | DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Soft delete danh mục |
-| POST | `/weddings/{weddingId}/guest-categories/bulk-delete` | Owner | Implemented | Soft delete nhiều danh mục trong một request; UI đơn lẻ gửi một ID |
+| POST/DELETE | `/weddings/{weddingId}/guest-categories/bulk-delete` | Owner | Implemented | Soft delete nhiều danh mục trong một request; UI đơn lẻ gửi một ID |
 | GET/POST | `/weddings/{weddingId}/guest-groups` | Owner | Implemented | Nhóm khách |
 | PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Cập nhật hoặc soft delete nhóm |
 | POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Implemented | Nhận `{ rows }` sau khi FE parse CSV; validate và trả lỗi theo dòng |

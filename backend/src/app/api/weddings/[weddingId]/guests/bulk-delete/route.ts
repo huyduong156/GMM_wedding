@@ -10,7 +10,7 @@ import { weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
 export const OPTIONS = optionsResponse
 type Context = { params: Promise<{ weddingId: string }> }
 
-export async function POST(request: NextRequest, context: Context) {
+async function remove(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     assertSafeMutation(request)
@@ -21,4 +21,12 @@ export async function POST(request: NextRequest, context: Context) {
   } catch (error) {
     return guestErrorResponse(error, requestId)
   }
+}
+
+export async function POST(request: NextRequest, context: Context) {
+  return remove(request, context)
+}
+
+export async function DELETE(request: NextRequest, context: Context) {
+  return remove(request, context)
 }

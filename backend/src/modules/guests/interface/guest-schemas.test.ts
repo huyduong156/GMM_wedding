@@ -6,6 +6,9 @@ describe('guest API schemas', () => {
     expect(createGuestSchema.parse({ displayName: 'Mai', })).toMatchObject({ displayName: 'Mai', maxPartySize: 1, tags: [] })
     expect(() => createGuestSchema.parse({ displayName: 'Mai', email: 'not-an-email' })).toThrow()
   })
+  it('accepts null for optional guest fields', () => {
+    expect(createGuestSchema.parse({ displayName: 'Mai', phone: null, email: null, note: null, tableName: null, categoryId: null })).toMatchObject({ phone: null, email: null, note: null, tableName: null, categoryId: null })
+  })
   it('limits list pagination', () => {
     expect(guestQuerySchema.parse({ limit: '25' }).limit).toBe(25)
     expect(() => guestQuerySchema.parse({ limit: '101' })).toThrow()

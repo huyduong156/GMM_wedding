@@ -116,6 +116,48 @@ export type WeddingEvent = {
   updatedAt: string
 }
 
+export type Guest = {
+  id: string
+  weddingId: string
+  categoryId: string | null
+  groupId: string | null
+  displayName: string
+  phone: string | null
+  email: string | null
+  note: string | null
+  tableName: string | null
+  maxPartySize: number
+  tags: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export type GuestCategory = {
+  id: string
+  weddingId: string
+  parentId: string | null
+  name: string
+  depth: 1 | 2 | 3
+  sortOrder: number
+  guestCount?: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type GuestInput = {
+  displayName: string
+  categoryId?: string | null
+  groupId?: string | null
+  phone?: string | null
+  email?: string | null
+  note?: string | null
+  tableName?: string | null
+  maxPartySize?: number
+  tags?: string[]
+}
+
+export type GuestCategoryInput = { name: string; parentId?: string | null; sortOrder?: number }
+
 export type Dashboard = {
   wedding: Wedding
   publication: {
@@ -210,4 +252,29 @@ export const weddingApi = {
   publish: (weddingId: string, input: { surface: WeddingSurface; slug: string; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
   unpublish: (weddingId: string, surface: WeddingSurface) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify({ surface }) }),
   uploadMedia: uploadMediaFile,
+}
+
+export const guestApi = {
+  list: (weddingId: string, params: { q?: string; categoryId?: string; limit?: number; cursor?: string } = {}) => {
+    const query = new URLSearchParams()
+    if (params.q) query.set('q', params.q)
+    if (params.categoryId) query.set('categoryId', params.categoryId)
+    query.set('limit', String(params.limit ?? 100))
+    if (params.cursor) query.set('cursor', params.cursor)
+    return request<{ items: Guest[]; nextCursor: string | null }>(`/weddings/${weddingId}/guests?${query}`)
+  },
+  create: (weddingId: string, input: GuestInput) => request<{ guest: Guest }>(`/weddings/${weddingId}/guests`, { method: 'POST', body: JSON.stringify(input) }),
+  update: (weddingId: string, guestId: string, input: Partial<GuestInput>) => request<{ guest: Guest }>(`/weddings/${weddingId}/guests/${guestId}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  removeMany: (weddingId: string, ids: string[]) => request<{ deletedCount: number }>(`/weddings/${weddingId}/guests/bulk-delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
+  assignCategory: (weddingId: string, guestIds: string[], categoryId: string | null) => request<{ updatedCount: number }>(`/weddings/${weddingId}/guests/bulk-assign-category`, { method: 'POST', body: JSON.stringify({ guestIds, categoryId }) }),
+}
+
+export const guestCategoryApi = {
+  list: (weddingId: string) => request<{ items: GuestCategory[] }>(`/weddings/${weddingId}/guest-categories`),
+  create: (weddingId: string, input: GuestCategoryInput) => {
+    const payload = input.parentId === null ? { ...input, parentId: undefined } : input
+    return request<{ category: GuestCategory }>(`/weddings/${weddingId}/guest-categories`, { method: 'POST', body: JSON.stringify(payload) })
+  },
+  update: (weddingId: string, categoryId: string, input: Partial<GuestCategoryInput>) => request<{ category: GuestCategory }>(`/weddings/${weddingId}/guest-categories/${categoryId}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  removeMany: (weddingId: string, ids: string[]) => request<{ deletedCount: number }>(`/weddings/${weddingId}/guest-categories/bulk-delete`, { method: 'POST', body: JSON.stringify({ ids }) }),
 }

@@ -14,8 +14,8 @@ import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage
 import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
 import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSettingsPage'
 import { ProfilePage } from '../pages/profile/ui/ProfilePage'
-import { GuestsPage } from '../pages/guests/ui/GuestsPage'
-import { GuestCategoriesPage } from '../pages/guest-categories/ui/GuestCategoriesPage'
+import { GuestsPageConnected } from '../pages/guests/ui/GuestsPageConnected'
+import { GuestCategoriesConnectedV2 } from '../pages/guest-categories/ui/GuestCategoriesConnectedV2'
 import { TemplatesApiPage } from '../pages/templates/ui/TemplatesApiPage'
 import { WebsiteTemplatesApiPage } from '../pages/templates/ui/WebsiteTemplatesApiPage'
 import { InvitationEditorLivePage } from '../pages/invitation-editor/ui/InvitationEditorLivePage'
@@ -51,8 +51,8 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.siteThemes]: <WebsiteTemplatesApiPage />,
   [studioRoutes.siteEditor]: <WebsiteEditorLivePage />,
   [studioRoutes.site]: <WebsiteEditorLivePage />,
-  [studioRoutes.guests]: <GuestsPage />,
-  [studioRoutes.guestCategories]: <GuestCategoriesPage />,
+  [studioRoutes.guests]: <GuestsPageConnected />,
+  [studioRoutes.guestCategories]: <GuestCategoriesConnectedV2 />,
   [studioRoutes.rsvps]: <RsvpsPage />,
   [studioRoutes.wishes]: <WishesPage />,
   [studioRoutes.todos]: <TodosPage />,
