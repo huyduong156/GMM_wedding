@@ -23,7 +23,6 @@ export const adminRoutes = {
   home: '/gmm_admin',
   login: '/gmm_admin/login',
   users: '/gmm_admin/users',
-  weddings: '/gmm_admin/weddings',
   subscriptions: '/gmm_admin/subscriptions',
   inviteLibrary: '/gmm_admin/library/invites',
   websiteLibrary: '/gmm_admin/library/websites',

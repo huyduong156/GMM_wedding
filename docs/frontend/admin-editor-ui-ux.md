@@ -124,13 +124,14 @@ Trạng thái triển khai frontend (2026-08): kho giao diện user đã respons
 
 ## 5. Platform admin IA
 
-- **System overview:** active users/weddings, publish/RSVP/error trends, queue/provider health.
+- **System overview:** active users, publish/error trends, queue/provider health và các aggregate metric không lộ dữ liệu Wedding.
 - **Users:** search/filter/status, detail drawer, suspend/restore, audit. Impersonation nếu có phải có lý do, banner và log.
-- **Weddings:** status/privacy/template/owner, report flags; không lộ PII rộng mặc định.
 - **Templates:** draft/review/published/deprecated, version history, schema compatibility, preview/publish/rollback.
 - **Moderation:** reports/wishes/media queue, evidence, decision/reason and audit trail.
 - **Plans & entitlements:** feature/quota matrix; payment/webhook khi module billing tồn tại.
 - **Operations:** jobs/webhooks/provider status/feature flags/audit logs; secret value không hiển thị.
+- Wedding là dữ liệu owner-private. Admin không có màn hình hoặc navigation quản lý Wedding trong MVP; User detail chỉ nên hiển thị metadata tối thiểu như số lượng Wedding nếu cần cho vận hành.
+- Support/legal/security access tới một Wedding chỉ là exception flow có lý do, scope giới hạn và audit log; không phải quyền xem mặc định.
 - Platform admin có route namespace `/gmm_admin/*`, guard phía server và frontend; menu sinh theo permission nhưng backend vẫn là nguồn phân quyền cuối. Tên route không phải một lớp bảo mật.
 
 Trạng thái triển khai frontend (2026-07): `/gmm_admin/users` có prototype mock responsive với summary, tìm theo tên/email, lọc trạng thái, selection/bulk-state, bảng desktop và card mobile. Detail drawer, mutation suspend/restore, permission guard, audit trail và server pagination chưa kết nối backend.
@@ -165,7 +166,6 @@ Template thiệp code đầu tiên có key kỹ thuật `modern-luxe`, tên hi�
 /studio/settings
 /gmm_admin
 /gmm_admin/users
-/gmm_admin/weddings
 /gmm_admin/subscriptions
 /gmm_admin/library/invites
 /gmm_admin/library/websites

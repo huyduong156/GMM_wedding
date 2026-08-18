@@ -67,7 +67,6 @@ const studioPages: Record<string, React.ReactNode> = {
 
 const adminPageNames: Record<string, string> = {
   [adminRoutes.users]: 'Quản lý người dùng',
-  [adminRoutes.weddings]: 'Quản lý đám cưới',
   [adminRoutes.subscriptions]: 'Quản lý gói đăng ký',
   [adminRoutes.inviteStyles]: 'Danh mục phong cách thiệp',
   [adminRoutes.websiteStyles]: 'Danh mục phong cách website',
