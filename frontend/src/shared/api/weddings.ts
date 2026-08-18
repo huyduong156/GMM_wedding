@@ -252,6 +252,19 @@ export type Rsvp = {
   eventSelections: Array<{ eventId: string; eventName: string; attending: boolean }>
   companions: Array<{ id: string; displayName: string; mealPreference: string | null; sortOrder: number }>
 }
+export type WishStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM' | 'HIDDEN'
+export type Wish = {
+  id: string
+  authorName: string
+  guestName: string
+  guestId: string | null
+  invitationId: string | null
+  content: string
+  status: WishStatus
+  isPinned: boolean
+  submittedAt: string
+  moderatedAt: string | null
+}
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
   create: (input: WeddingInput) => request<{ wedding: Wedding }>('/weddings', { method: 'POST', body: JSON.stringify(input) }),
@@ -313,4 +326,16 @@ export const rsvpApi = {
     if (params.cursor) query.set('cursor', params.cursor)
     return request<{ items: Rsvp[]; nextCursor: string | null }>(`/weddings/${weddingId}/rsvps?${query}`)
   },
+}
+export const wishApi = {
+  list: (weddingId: string, params: { q?: string; status?: WishStatus; limit?: number; cursor?: string } = {}) => {
+    const query = new URLSearchParams()
+    if (params.q) query.set('q', params.q)
+    if (params.status) query.set('status', params.status)
+    query.set('limit', String(params.limit ?? 100))
+    if (params.cursor) query.set('cursor', params.cursor)
+    return request<{ items: Wish[]; nextCursor: string | null }>(`/weddings/${weddingId}/wishes?${query}`)
+  },
+  moderate: (weddingId: string, wishId: string, input: { status?: WishStatus; isPinned?: boolean }) =>
+    request<{ wish: Wish }>(`/weddings/${weddingId}/wishes/${wishId}`, { method: 'PATCH', body: JSON.stringify(input) }),
 }

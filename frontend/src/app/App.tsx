@@ -23,7 +23,7 @@ import { WebsiteEditorLivePage } from '../pages/invitation-editor/ui/WebsiteEdit
 import { TodosPage } from '../pages/todos/ui/TodosPage'
 import { GiftLedgerPage } from '../pages/gift-ledger/ui/GiftLedgerPage'
 import { RsvpsPageConnected } from '../pages/rsvps/ui/RsvpsPageConnected'
-import { WishesPage } from '../pages/wishes/ui/WishesPage'
+import { WishesPageConnected } from '../pages/wishes/ui/WishesPageConnected'
 import { PlaceholderPage } from '../pages/placeholder/ui/PlaceholderPage'
 import { useNavigation } from '../shared/lib/navigation/navigation-context'
 import { adminRoutes, legacyStudioRoutes, marketingRoutes, studioRoutes } from '../shared/config/routes'
@@ -54,7 +54,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.guests]: <GuestsPageConnected />,
   [studioRoutes.guestCategories]: <GuestCategoriesConnectedV2 />,
   [studioRoutes.rsvps]: <RsvpsPageConnected />,
-  [studioRoutes.wishes]: <WishesPage />,
+  [studioRoutes.wishes]: <WishesPageConnected />,
   [studioRoutes.todos]: <TodosPage />,
   [studioRoutes.giftLedger]: <GiftLedgerPage />,
   [studioRoutes.recap]: <RecapEditorPage />,

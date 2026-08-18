@@ -138,6 +138,19 @@ async function main() {
       slug: 'dam-cuoi-mau-local',
     },
   })
+  const wishSeed = [
+    { authorName: 'Nguyễn Hoàng Nam', content: 'Chúc hai bạn luôn giữ được sự dịu dàng và tiếng cười trong hành trình mới.', status: 'PENDING', isPinned: false },
+    { authorName: 'Trần Thu Hà', content: 'Chúc Mai và Đức thật nhiều yêu thương, bình an và những chuyến đi đáng nhớ.', status: 'APPROVED', isPinned: true },
+    { authorName: 'Cô Lan', content: 'Chúc hai con trăm năm hạnh phúc, cùng nhau vun đắp một mái ấm bình yên.', status: 'APPROVED', isPinned: false },
+    { authorName: 'Khách ẩn danh', content: 'Chúc mừng ngày trọng đại của hai bạn.', status: 'HIDDEN', isPinned: false },
+  ]
+  const targetWeddings = await prisma.wedding.findMany({ where: { deletedAt: null }, select: { id: true } })
+  for (const target of targetWeddings) {
+    for (const sample of wishSeed) {
+      const exists = await prisma.wish.findFirst({ where: { weddingId: target.id, authorName: sample.authorName, content: sample.content }, select: { id: true } })
+      if (!exists) await prisma.wish.create({ data: { weddingId: target.id, ...sample, submittedAt: new Date() } })
+    }
+  }
 }
 
 main()

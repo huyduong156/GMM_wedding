@@ -613,7 +613,7 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
   .wishes-search { width: 100%; min-height: 44px; }
   .wishes-tabs { margin-right: -12px; padding-right: 12px; }
   .wishes-tabs button { min-height: 44px; }
-  .wish-card { grid-template-columns: 34px minmax(0, 1fr); padding: 15px 13px; }
+  .wish-card { position: relative; grid-template-columns: 34px minmax(0, 1fr); padding: 15px 13px; }
   .wish-avatar { width: 32px; height: 32px; }
   .wish-content header { align-items: flex-start; flex-direction: column; }
   .wish-action { min-height: 40px; }
@@ -1149,3 +1149,23 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 
 .rsvp-status-cell { min-width: 0; }
 .rsvp-status-cell > small { display: block; margin-top: 5px; overflow: hidden; color: var(--fg-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Wishes moderation cards: compact rhythm with clear mobile actions. */
+.wish-card { position: relative; grid-template-columns: 34px minmax(0, 1fr); gap: 9px; padding: 11px 13px; }
+.wish-content > header { margin-bottom: 5px; }
+.wish-content > p { margin: 4px 0 8px; line-height: 1.48; }
+.wish-actions { gap: 5px; }
+.wish-action { min-height: 30px; padding: 0 9px; font-size: 10px; }
+@media (max-width: 620px) {
+  .wish-card { grid-template-columns: 30px minmax(0, 1fr); gap: 8px; padding: 9px 10px; }
+  .wish-avatar { width: 30px; height: 30px; font-size: 10px; }
+  .wish-content > header { min-height: 30px; padding-right: 92px; }
+  .wish-content > header > div { min-width: 0; }
+  .wish-content > header strong { display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .wish-content > header span { font-size: 8px; }
+  .wish-content > p { margin: 5px 0 7px; font-size: 11px; line-height: 1.42; }
+  .wish-actions { position: absolute; top: 9px; right: 10px; gap: 3px; }
+  .wish-action { min-height: 25px; padding: 0 6px; border-radius: 6px; font-size: 9px; }
+  .wish-action svg { width: 12px; height: 12px; }
+  .wish-card .pinned-label { display: none; }
+}
