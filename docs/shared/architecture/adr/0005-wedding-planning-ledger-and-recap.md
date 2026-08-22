@@ -16,7 +16,7 @@ Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận ti�
 - `WeddingTask` thuộc wedding, có title, description, due date, priority, status, assignee member, sort order và completed metadata.
 - MVP task có thể gắn `eventId` tới `WeddingEvent` hoặc để trống cho task chung; không có task category riêng.
 - `parentTaskId` cho phép tối đa một cấp task con. Task con không có event riêng và kế thừa event context của task cha; khi root task thành task con, child cũ được promote thành root.
-- Checklist mẫu được version hóa bằng `TaskChecklistTemplate`/`TaskChecklistItem`; khi áp dụng sẽ sao chép thành task của wedding để user sửa độc lập.
+- Checklist gợi ý trong MVP là static preset phía frontend, được review cùng source code và có preview trước khi áp dụng. Khi owner áp dụng, frontend gửi danh sách root task lên bulk task API để backend tạo `WeddingTask` trong một transaction. Không có persistence/admin management riêng cho preset ở MVP.
 - Owner/editor được quản lý task; member chỉ được gán khi còn active trong đúng wedding. Mutation dùng revision/ETag để chống lost update.
 
 ### Sổ tiền mừng
@@ -36,5 +36,5 @@ Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận ti�
 
 - Backend thêm boundary `tasks`, `gift-ledger`, `recaps`; dùng chung authorization/media/wishes.
 - Endpoint ledger có owner-only policy và cross-role/cross-tenant test; cân nhắc step-up authentication trước export khi production.
-- Todo template update không đổi task đã tạo. Recap draft không ảnh hưởng trang public cho tới lần publish kế tiếp.
+- Thay đổi checklist preset cần release frontend và không đổi task đã tạo. Bulk task creation phải atomic; không hỗ trợ `parentTaskId` trong payload preset MVP. Recap draft không ảnh hưởng trang public cho tới lần publish kế tiếp.
 - Xóa wedding thu hồi recap và xử lý task/ledger theo retention; export/delete tài khoản bao gồm ledger theo luồng bảo mật.

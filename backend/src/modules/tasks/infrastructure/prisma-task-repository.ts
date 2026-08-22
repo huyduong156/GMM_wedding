@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
-import type { ApplyTemplateData, CreateTaskData, TaskChecklistTemplateView, TaskListFilter, TaskRepository, TaskStatus, TaskView, UpdateTaskData } from '../application/ports'
+import type { ApplyTemplateData, BulkCreateTasksData, CreateTaskData, TaskChecklistTemplateView, TaskListFilter, TaskRepository, TaskStatus, TaskView, UpdateTaskData } from '../application/ports'
 import { TaskError } from '../domain/task-error'
 
 const eventSelect = { id: true, name: true, eventType: true, startsAt: true, endsAt: true } satisfies Prisma.WeddingEventSelect
@@ -67,6 +67,19 @@ export class PrismaTaskRepository implements TaskRepository {
     if (!await this.owns(userId, weddingId)) return null
     const result = await this.prisma.weddingTask.updateMany({ where: { id: { in: taskIds }, weddingId, deletedAt: null }, data: { status, ...(status === 'DONE' ? { completedAt: new Date(), completedById: userId } : { completedAt: null, completedById: null }), revision: { increment: 1 } } })
     return { updatedCount: result.count }
+  }
+  async bulkCreateOwned(userId: string, weddingId: string, data: BulkCreateTasksData) {
+    if (!await this.owns(userId, weddingId)) return null
+    return this.prisma.$transaction(async (tx) => {
+      for (const item of data.tasks) await this.validateReferences(tx, weddingId, item.eventId)
+      const last = await tx.weddingTask.aggregate({ where: { weddingId, deletedAt: null }, _max: { sortOrder: true } })
+      const result: TaskView[] = []
+      for (const [index, item] of data.tasks.entries()) {
+        const row = await tx.weddingTask.create({ data: { weddingId, title: item.title, priority: item.priority, sortOrder: (last._max.sortOrder ?? -1) + index + 1, ...(item.description !== undefined ? { description: item.description } : {}), ...(item.eventId !== undefined ? { eventId: item.eventId } : {}), ...(item.dueAt !== undefined ? { dueAt: item.dueAt } : {}) }, select: taskSelect })
+        result.push(this.map(row))
+      }
+      return result
+    })
   }
   async listTemplates(locale?: string): Promise<TaskChecklistTemplateView[]> {
     const rows = await this.prisma.taskChecklistTemplate.findMany({ where: { status: 'ACTIVE', ...(locale ? { locale } : {}) }, include: { items: { orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }] } }, orderBy: [{ name: 'asc' }, { version: 'desc' }] })

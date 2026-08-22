@@ -12,3 +12,4 @@ export const reorderTaskSchema = z.object({ taskIds: z.array(uuid).min(1).max(20
 export const bulkTaskStatusSchema = z.object({ taskIds: z.array(uuid).min(1).max(200).refine((ids) => new Set(ids).size === ids.length, 'Task IDs must be unique'), status }).strict()
 export const templateQuerySchema = z.object({ locale: z.string().trim().min(2).max(16).optional() }).strict()
 export const applyTemplateSchema = z.object({ templateKey: z.string().trim().min(1).max(80), templateVersion: z.number().int().positive(), eventId: uuid.nullable().optional(), baseDate: dateTime.optional() }).strict()
+export const bulkCreateTaskSchema = z.object({ tasks: z.array(z.object({ title: taskFields.title, description: taskFields.description, eventId: taskFields.eventId, dueAt: taskFields.dueAt, priority: taskFields.priority }).strict()).min(1).max(100) }).strict()

@@ -60,7 +60,7 @@ export function optionsResponse(request?: Request) {
   const env = getServerEnv()
   const requestOrigin = request?.headers.get('origin')
   const origin = requestOrigin && allowedOrigins().has(requestOrigin) ? requestOrigin : env.APP_ORIGIN
-  return new NextResponse(null, {
+  return new Response(null, {
     status: 204,
     headers: {
       'access-control-allow-origin': origin,

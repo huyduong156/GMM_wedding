@@ -184,8 +184,8 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | GET/PATCH/DELETE | `/weddings/{weddingId}/tasks/{taskId}` | Owner | Implemented | Đọc/cập nhật/xóa mềm task với revision |
 | POST | `/weddings/{weddingId}/tasks/reorder` | Owner | Implemented | Reorder tối đa 200 task |
 | POST | `/weddings/{weddingId}/tasks/bulk-status` | Owner | Implemented | Đổi status tối đa 200 task |
-| POST | `/weddings/{weddingId}/tasks/apply-template` | Owner | Implemented | Copy checklist template thành task độc lập |
-| GET | `/task-checklist-templates` | Authenticated user | Implemented | List checklist template đang active |
+| POST | `/weddings/{weddingId}/tasks/bulk` | Owner | Implemented | Tạo atomic nhiều root task từ FE checklist preset |
+| — | Checklist preset | FE source | MVP | Preset static, không có API catalog/admin management |
 | GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner only | Implemented | List/filter hoặc ghi nhanh entry riêng tư; guestId tùy chọn |
 | GET/PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner only | Implemented | Đọc/sửa theo revision/xóa mềm entry |
 | GET | `/weddings/{weddingId}/gift-ledger/summary` | Owner only | Implemented | Tổng hợp tiền theo currency, vàng theo unit/type, quà và trạng thái |

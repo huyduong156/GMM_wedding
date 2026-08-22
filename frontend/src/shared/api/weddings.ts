@@ -339,3 +339,19 @@ export const wishApi = {
   moderate: (weddingId: string, wishId: string, input: { status?: WishStatus; isPinned?: boolean }) =>
     request<{ wish: Wish }>(`/weddings/${weddingId}/wishes/${wishId}`, { method: 'PATCH', body: JSON.stringify(input) }),
 }
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
+export type WeddingTask = { id: string; weddingId: string; eventId: string | null; event: { id: string; name: string; eventType: string; startsAt: string; endsAt: string | null } | null; parentTaskId: string | null; title: string; description: string | null; dueAt: string | null; priority: TaskPriority; status: TaskStatus; sortOrder: number; completedAt: string | null; completedById: string | null; sourceTemplateKey: string | null; sourceTemplateVersion: number | null; revision: number; createdAt: string; updatedAt: string }
+export type TaskChecklistItem = { id: string; title: string; description: string | null; priority: TaskPriority; relativeDueDayOffset: number | null; sortOrder: number }
+export type TaskChecklistTemplate = { id: string; key: string; version: number; name: string; status: string; locale: string; items: TaskChecklistItem[] }
+export const taskApi = {
+  list: (weddingId: string, params: { q?: string; status?: TaskStatus; priority?: TaskPriority; limit?: number; cursor?: string } = {}) => { const query = new URLSearchParams(); if (params.q) query.set('q', params.q); if (params.status) query.set('status', params.status); if (params.priority) query.set('priority', params.priority); query.set('limit', String(params.limit ?? 100)); if (params.cursor) query.set('cursor', params.cursor); return request<{ items: WeddingTask[]; nextCursor: string | null }>(`/weddings/${weddingId}/tasks?${query}`) },
+  create: (weddingId: string, input: { title: string; description?: string; eventId?: string | null; parentTaskId?: string | null; dueAt?: string; priority: TaskPriority }) => request<{ task: WeddingTask }>(`/weddings/${weddingId}/tasks`, { method: 'POST', body: JSON.stringify(input) }),
+  update: (weddingId: string, taskId: string, input: { title?: string; description?: string | null; eventId?: string | null; parentTaskId?: string | null; dueAt?: string | null; priority?: TaskPriority; status?: TaskStatus; revision: number }) => request<{ task: WeddingTask }>(`/weddings/${weddingId}/tasks/${taskId}`, { method: 'PATCH', body: JSON.stringify(input) }),
+  remove: (weddingId: string, taskId: string) => request<void>(`/weddings/${weddingId}/tasks/${taskId}`, { method: 'DELETE', body: '{}' }),
+  reorder: (weddingId: string, taskIds: string[]) => request<{ updatedCount: number }>(`/weddings/${weddingId}/tasks/reorder`, { method: 'POST', body: JSON.stringify({ taskIds }) }),
+  bulkStatus: (weddingId: string, taskIds: string[], status: TaskStatus) => request<{ updatedCount: number }>(`/weddings/${weddingId}/tasks/bulk-status`, { method: 'POST', body: JSON.stringify({ taskIds, status }) }),
+  bulkCreate: (weddingId: string, input: { tasks: Array<{ title: string; description?: string; eventId?: string | null; dueAt?: string; priority: TaskPriority }> }) => request<{ items: WeddingTask[] }>(`/weddings/${weddingId}/tasks/bulk`, { method: 'POST', body: JSON.stringify(input) }),
+  templates: () => request<{ items: TaskChecklistTemplate[] }>('/task-checklist-templates'),
+  applyTemplate: (weddingId: string, input: { templateKey: string; templateVersion: number; eventId?: string | null; baseDate?: string }) => request<{ items: WeddingTask[] }>(`/weddings/${weddingId}/tasks/apply-template`, { method: 'POST', body: JSON.stringify(input) }),
+}

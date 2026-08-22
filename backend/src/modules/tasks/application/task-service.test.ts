@@ -4,7 +4,7 @@ import type { TaskRepository } from './ports'
 import { TaskService } from './task-service'
 
 const actor: AuthenticatedUserActor = { kind: 'user', userId: 'user-1', sessionId: 'session-1' }
-const repository = (overrides: Partial<TaskRepository> = {}): TaskRepository => ({ listOwned: vi.fn().mockResolvedValue({ items: [], nextCursor: null }), findOwned: vi.fn().mockResolvedValue(null), createOwned: vi.fn(), updateOwned: vi.fn(), deleteOwned: vi.fn(), reorderOwned: vi.fn().mockResolvedValue({ updatedCount: 1 }), bulkStatusOwned: vi.fn().mockResolvedValue({ updatedCount: 1 }), listTemplates: vi.fn().mockResolvedValue([]), applyTemplate: vi.fn(), ...overrides })
+const repository = (overrides: Partial<TaskRepository> = {}): TaskRepository => ({ listOwned: vi.fn().mockResolvedValue({ items: [], nextCursor: null }), findOwned: vi.fn().mockResolvedValue(null), createOwned: vi.fn(), bulkCreateOwned: vi.fn(), updateOwned: vi.fn(), deleteOwned: vi.fn(), reorderOwned: vi.fn().mockResolvedValue({ updatedCount: 1 }), bulkStatusOwned: vi.fn().mockResolvedValue({ updatedCount: 1 }), listTemplates: vi.fn().mockResolvedValue([]), applyTemplate: vi.fn(), ...overrides })
 
 describe('TaskService', () => {
   it('maps revision conflicts', async () => {

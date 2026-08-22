@@ -1,0 +1,30 @@
+- main [ref=f3e3]:
+  - region "Giới thiệu GMM Wedding" [ref=f3e4]:
+    - generic [ref=f3e5]: GMM Wedding
+    - generic [ref=f3e7]:
+      - generic [ref=f3e8]: Một nơi cho ngày trọng đại
+      - heading "Thiệp đẹp, khách mời đủ, kỷ niệm còn mãi." [level=1] [ref=f3e9]
+      - paragraph [ref=f3e10]: Quản lý thiệp online và website cưới trong một không gian riêng tư, gọn gàng.
+    - paragraph [ref=f3e11]: Dữ liệu của bạn được bảo vệ và không chia sẻ với bên thứ ba.
+  - region [ref=f3e14]:
+    - generic [ref=f3e15]:
+      - generic [ref=f3e16]: Chào mừng trở lại
+      - heading "Đăng nhập" [level=2] [ref=f3e17]
+      - paragraph [ref=f3e18]: Tiếp tục chuẩn bị cho ngày cưới của bạn.
+      - generic [ref=f3e19]: Email
+      - textbox "Email" [ref=f3e20]:
+        - /placeholder: ban@example.com
+      - generic [ref=f3e21]:
+        - generic [ref=f3e22]: Mật khẩu
+        - link "Quên mật khẩu?" [ref=f3e23] [cursor=pointer]:
+          - /url: /forgot-password
+      - generic [ref=f3e24]:
+        - textbox "Mật khẩu" [ref=f3e27]:
+          - /placeholder: Nhập mật khẩu
+        - button "Hiện mật khẩu" [ref=f3e28] [cursor=pointer]
+      - button "Đăng nhập" [ref=f3e31] [cursor=pointer]
+      - paragraph [ref=f3e34]:
+        - text: Chưa có tài khoản?
+        - link "Tạo tài khoản miễn phí" [ref=f3e35] [cursor=pointer]:
+          - /url: /register
+      - generic [ref=f3e36]: Bằng việc tiếp tục, bạn đồng ý với Điều khoản và Chính sách riêng tư.
