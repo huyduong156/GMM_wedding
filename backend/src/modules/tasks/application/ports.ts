@@ -1,5 +1,3 @@
-import type { GuestView } from '@/modules/guests/application/ports'
-
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
 
@@ -22,6 +20,7 @@ export interface TaskRepository {
   listOwned(userId: string, weddingId: string, filter: TaskListFilter): Promise<{ items: TaskView[]; nextCursor: string | null } | null>
   findOwned(userId: string, weddingId: string, taskId: string): Promise<TaskView | null>
   createOwned(userId: string, weddingId: string, data: CreateTaskData): Promise<TaskView | null>
+  bulkCreateOwned(userId: string, weddingId: string, data: BulkCreateTasksData): Promise<TaskView[] | null>
   updateOwned(userId: string, weddingId: string, taskId: string, data: UpdateTaskData): Promise<TaskView | 'conflict' | null>
   deleteOwned(userId: string, weddingId: string, taskId: string): Promise<boolean | null>
   reorderOwned(userId: string, weddingId: string, taskIds: string[]): Promise<{ updatedCount: number } | null>
@@ -32,3 +31,4 @@ export interface TaskRepository {
 export interface TaskChecklistTemplateView { id: string; key: string; version: number; name: string; status: string; locale: string; items: TaskChecklistItemView[] }
 export interface TaskChecklistItemView { id: string; title: string; description: string | null; priority: TaskPriority; relativeDueDayOffset: number | null; sortOrder: number }
 export interface ApplyTemplateData { templateKey: string; templateVersion: number; eventId?: string | null | undefined; baseDate?: Date | undefined }
+export interface BulkCreateTasksData { tasks: Array<Omit<CreateTaskData, 'parentTaskId'>> }

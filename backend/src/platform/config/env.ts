@@ -9,6 +9,8 @@ const optionalNonEmpty = z.preprocess(
   z.string().min(1).optional(),
 )
 
+const optionalUrl = z.preprocess((value) => value === "" ? undefined : value, z.string().url().optional())
+
 const serverEnvSchema = z.object({
   APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -32,8 +34,8 @@ const serverEnvSchema = z.object({
   API_DOCS_ENABLED: booleanEnv.default(false),
   MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3']).default('fake'),
   MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
-  MEDIA_PUBLIC_BASE_URL: z.string().url().optional(),
-  S3_ENDPOINT: z.string().url().optional(),
+  MEDIA_PUBLIC_BASE_URL: optionalUrl,
+  S3_ENDPOINT: optionalUrl,
   S3_BUCKET: optionalNonEmpty,
   S3_REGION: z.string().min(1).default('auto'),
   S3_ACCESS_KEY_ID: optionalNonEmpty,

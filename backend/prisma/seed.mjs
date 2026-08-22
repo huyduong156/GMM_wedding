@@ -1,9 +1,11 @@
+import argon2 from 'argon2'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 const ids = {
   user: '10000000-0000-4000-8000-000000000001',
+  userRole: '11000000-0000-4000-8000-000000000001',
   wedding: '20000000-0000-4000-8000-000000000001',
   member: '30000000-0000-4000-8000-000000000001',
   event: '40000000-0000-4000-8000-000000000001',
@@ -15,17 +17,26 @@ const ids = {
 }
 
 async function main() {
+  const seedPassword = process.env.SEED_OWNER_PASSWORD ?? 'LocalOwnerPassword123!'
+  const passwordHash = await argon2.hash(seedPassword, { type: argon2.argon2id })
+
   const user = await prisma.user.upsert({
     where: { email: 'owner.local@gmm.test' },
-    update: {},
+    update: { passwordHash, emailVerifiedAt: new Date(), status: 'ACTIVE' },
     create: {
       id: ids.user,
       email: 'owner.local@gmm.test',
+      passwordHash,
       emailVerifiedAt: new Date(),
       displayName: 'GMM Local Owner',
       status: 'ACTIVE',
     },
   })
+
+  const adminRole = await prisma.userRole.findFirst({ where: { userId: user.id, role: 'ADMIN', revokedAt: null } })
+  if (!adminRole) {
+    await prisma.userRole.create({ data: { id: ids.userRole, userId: user.id, role: 'ADMIN', reason: 'Local seed account' } })
+  }
 
   const template = await prisma.template.upsert({
     where: { key: 'local-wedding-website' },

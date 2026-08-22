@@ -29,6 +29,8 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 
 Design system implementation vẫn dùng [`design-system/MASTER.md`](../../design-system/MASTER.md) và override tương ứng trong `design-system/pages/`.
 
+- Todo checklist gợi ý trong MVP là preset static tại rontend/src/pages/todos/checklist-presets.ts; preview chạy ở FE và apply gửi bulk root tasks qua POST /api/weddings/{weddingId}/tasks/bulk. Không có template checklist persistence/admin management ở MVP.
+
 ## Boundary
 
 - Ghi ở đây: component contract, layout, state hiển thị, client navigation, accessibility UI, responsive và performance trình duyệt.

@@ -6,6 +6,7 @@ export class TaskService {
   list(actor: AuthenticatedUserActor, weddingId: string, filter: TaskListFilter) { return this.require(this.repository.listOwned(actor.userId, weddingId, filter)) }
   find(actor: AuthenticatedUserActor, weddingId: string, taskId: string) { return this.requireTask(this.repository.findOwned(actor.userId, weddingId, taskId)) }
   async create(actor: AuthenticatedUserActor, weddingId: string, data: CreateTaskData) { return this.requireTask(await this.repository.createOwned(actor.userId, weddingId, data)) }
+  async bulkCreate(actor: AuthenticatedUserActor, weddingId: string, data: import('./ports').BulkCreateTasksData) { return this.require(await this.repository.bulkCreateOwned(actor.userId, weddingId, data)) }
   async update(actor: AuthenticatedUserActor, weddingId: string, taskId: string, data: UpdateTaskData) { const result = await this.repository.updateOwned(actor.userId, weddingId, taskId, data); if (result === 'conflict') throw new TaskError('TASK_REVISION_CONFLICT', 409, 'Task was changed by another request'); return this.requireTask(result) }
   async remove(actor: AuthenticatedUserActor, weddingId: string, taskId: string) { const result = await this.repository.deleteOwned(actor.userId, weddingId, taskId); if (result === null || !result) throw new TaskError('TASK_NOT_FOUND', 404, 'Task not found') }
   async reorder(actor: AuthenticatedUserActor, weddingId: string, taskIds: string[]) { return this.require(await this.repository.reorderOwned(actor.userId, weddingId, taskIds)) }

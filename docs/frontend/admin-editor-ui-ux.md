@@ -184,6 +184,7 @@ Owner URL không chứa wedding ID vì wedding hiện hành được chọn tron
 - Validate form on blur; lỗi gần field, error summary/focus first invalid khi có nhiều lỗi.
 - Button async disabled + progress; thao tác thành công có feedback 3-5 giây, toast dùng `aria-live="polite"`.
 - Delete/irreversible có confirm; bulk/delete có undo nếu backend còn giữ soft-delete.
+- Mọi notice và xác nhận thao tác trong frontend, gồm xóa, thành công, lỗi và thông tin, phải dùng SweetAlert2 (`Swal.fire`); không dùng `window.alert`, `window.confirm` hoặc dialog mặc định của trình duyệt.
 - Loading trên 300ms dùng skeleton giữ đúng kích thước; empty/error/no-result đều có action phục hồi.
 - Search/filter dùng debounce/`useDeferredValue`; danh sách lớn có server pagination/virtualization khi cần.
 - Hover không phải cách duy nhất để khám phá action; focus visible trên toàn bộ UI.
