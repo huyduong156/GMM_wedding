@@ -64,6 +64,24 @@ Makefile nằm tại `backend/Makefile` và chỉ gọi npm/Docker command chu�
 | `make db-migrate-deploy` | Apply reviewed migration | Đổi DB | Release job |
 | `make db-seed` | Chạy seed local idempotent | Có | Tạo dữ liệu demo local sau migration |
 
+## Reseed fixture test local
+
+Sau khi database đã có migration, chạy lại toàn bộ fixture local bằng:
+
+```powershell
+npm --prefix .\backend run db:seed
+```
+
+Fixture tạo hoặc cập nhật idempotent các tài khoản test và dữ liệu mẫu cho workspace wedding:
+
+| Tài khoản | Mật khẩu | Quyền |
+|---|---|---|
+| `admin@gmail.com` | `mytester123@` | Platform admin |
+| `user@gmail.com` | `mytester123@` | Wedding owner |
+
+| `user2@gmail.com` | `mytester123@` | Wedding viewer |
+Dữ liệu gồm wedding/events, guest category/group, guests, invitations, RSVP, wishes, tasks/todolist và gift ledger. Đây là credentials/dữ liệu local-only; không dùng hoặc seed vào staging/production. Có thể đổi mật khẩu fixture qua biến môi trường `SEED_TEST_PASSWORD`.
+
 ## `install`, `sync` và `update` khác nhau
 
 - `install/sync` phải deterministic: dùng lockfile hiện có, không tự nâng version. `sync` còn khởi động service local cần cho migration và chạy `db:generate`, `db:validate`, `db:migrate:deploy`.
