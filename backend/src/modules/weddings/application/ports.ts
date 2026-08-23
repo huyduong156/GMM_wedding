@@ -81,7 +81,7 @@ export interface WeddingRepository {
   deleteEventOwned(userId: string, weddingId: string, eventId: string): Promise<boolean | null>
   dashboardOwned(userId: string, weddingId: string, now: Date): Promise<WeddingDashboardView | null>
   analyticsOwned(userId: string, weddingId: string): Promise<WeddingAnalyticsView | null>
-  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'): Promise<TemplateView[]>
+  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'): Promise<TemplateView[]>
   getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null>
   getContentOwned(userId: string, weddingId: string, surface: WeddingSurfaceValue): Promise<WeddingContentView | null>
   saveContentOwned(userId: string, weddingId: string, data: SaveWeddingContentData): Promise<WeddingContentView | 'conflict' | 'template-not-found' | 'template-incompatible' | 'section-invalid' | null>

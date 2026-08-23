@@ -36,7 +36,7 @@ export class WeddingService {
   }
   async dashboard(actor: AuthenticatedUserActor, weddingId: string, now = new Date()) { return this.requireWedding(await this.repository.dashboardOwned(actor.userId, weddingId, now)) }
   async analytics(actor: AuthenticatedUserActor, weddingId: string) { return this.requireWedding(await this.repository.analyticsOwned(actor.userId, weddingId)) }
-  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE') { return this.repository.listTemplates(productType) }
+  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP') { return this.repository.listTemplates(productType) }
   async getTemplateVersion(templateKey: string, version: string) { return this.repository.getTemplateVersion(templateKey, version) }
   async getContent(actor: AuthenticatedUserActor, weddingId: string, surface: WeddingSurfaceValue) { return this.requireWedding(await this.repository.getContentOwned(actor.userId, weddingId, surface)) }
   async saveContent(actor: AuthenticatedUserActor, weddingId: string, data: SaveWeddingContentData) {

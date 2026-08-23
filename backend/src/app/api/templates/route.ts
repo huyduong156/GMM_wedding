@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     await requireAuthenticatedUser(request)
     const productType = request.nextUrl.searchParams.get('productType')
-    const normalized = productType === 'ONLINE_INVITATION' || productType === 'WEDDING_WEBSITE' ? productType : undefined
+    const normalized = productType === 'ONLINE_INVITATION' || productType === 'WEDDING_WEBSITE' || productType === 'RECAP' ? productType : undefined
     return withAuthHeaders(jsonResponse({ items: await getWeddingService().listTemplates(normalized) }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }
