@@ -36,6 +36,8 @@ const serverEnvSchema = z.object({
   MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
   MEDIA_PUBLIC_BASE_URL: optionalUrl,
   S3_ENDPOINT: optionalUrl,
+  S3_PUBLIC_ENDPOINT: optionalUrl,
+  S3_FORCE_PATH_STYLE: booleanEnv.default(false),
   S3_BUCKET: optionalNonEmpty,
   S3_REGION: z.string().min(1).default('auto'),
   S3_ACCESS_KEY_ID: optionalNonEmpty,
@@ -46,6 +48,20 @@ const serverEnvSchema = z.object({
       code: z.ZodIssueCode.custom,
       path: ['REDIS_URL'],
       message: 'REDIS_URL is required when AUTH_RATE_LIMIT_DRIVER=redis',
+    })
+  }
+  if (env.APP_ENV === 'production' && env.MEDIA_STORAGE_DRIVER !== 's3') {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['MEDIA_STORAGE_DRIVER'],
+      message: 'Production media storage must use S3-compatible storage',
+    })
+  }
+  if (env.MEDIA_STORAGE_DRIVER === 's3' && (!env.S3_ENDPOINT || !env.S3_BUCKET || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['S3_ENDPOINT'],
+      message: 'S3 endpoint, bucket and credentials are required when MEDIA_STORAGE_DRIVER=s3',
     })
   }
   if (env.APP_ENV === 'production' && env.AUTH_RATE_LIMIT_DRIVER !== 'redis') {
