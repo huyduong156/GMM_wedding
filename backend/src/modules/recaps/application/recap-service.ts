@@ -79,11 +79,11 @@ export class RecapService {
   constructor(private readonly prisma: PrismaClient, private readonly storage: ObjectStorage) {}
 
   async getDraft(userId: string, weddingId: string) {
-    const recap = await this.prisma.weddingRecap.findFirst({ where: { weddingId, wedding: { createdById: userId, deletedAt: null } }, include: recapInclude })
-    if (!recap) throw new RecapError('RECAP_NOT_FOUND', 404, 'Wedding recap not found')
-    return this.view(recap)
+    const owned = await this.prisma.wedding.findFirst({ where: { id: weddingId, createdById: userId, deletedAt: null }, select: { id: true } })
+    if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
+    const recap = await this.prisma.weddingRecap.findUnique({ where: { weddingId }, include: recapInclude })
+    return recap ? this.view(recap) : null
   }
-
   async saveDraft(userId: string, weddingId: string, input: RecapSaveInput) {
     const owned = weddingId ? await this.prisma.wedding.findFirst({ where: { id: weddingId, createdById: userId, deletedAt: null }, select: { id: true } }) : null
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')

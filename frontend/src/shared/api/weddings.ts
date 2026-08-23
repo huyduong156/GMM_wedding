@@ -3,6 +3,7 @@ const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 
 export type WeddingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibility = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
 export type WeddingSurface = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'
+export type RecapSectionConfig = { enabled: string[]; order: string[] }
 
 export type TemplateSectionConfig = string | {
   sectionKey: string
@@ -44,6 +45,28 @@ export type WeddingTemplate = {
   status: string
   description: string | null
   versions: TemplateVersion[]
+}
+export type RecapMediaItem = { id: string; mediaAssetId: string; caption: string | null; sortOrder: number; publicUrl: string }
+export type RecapWishSelection = { id: string; wishId: string; sortOrder: number; authorName: string; content: string; isPinned: boolean }
+export type RecapDraft = {
+  id: string
+  weddingId: string
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+  slug: string | null
+  title: string
+  thankYouMessage: string | null
+  ogTitle: string | null
+  ogDescription: string | null
+  ogImageUrl: string | null
+  content: Record<string, unknown>
+  themeConfig: Record<string, unknown>
+  sectionConfig: RecapSectionConfig
+  revision: number
+  publishedAt: string | null
+  updatedAt: string
+  templateVersion: { id: string; key: string; version: string; config: Record<string, unknown> }
+  mediaItems: RecapMediaItem[]
+  wishSelections: RecapWishSelection[]
 }
 
 export type WeddingContent = {
@@ -278,7 +301,7 @@ export const weddingApi = {
   createEvent: (id: string, input: EventInput) => request<{ event: WeddingEvent }>(`/weddings/${id}/events`, { method: 'POST', body: JSON.stringify(input) }),
   updateEvent: (weddingId: string, eventId: string, input: Partial<EventInput> & { revision: number }) => request<{ event: WeddingEvent }>(`/weddings/${weddingId}/events/${eventId}`, { method: 'PATCH', body: JSON.stringify(input) }),
   removeEvent: (weddingId: string, eventId: string) => request<void>(`/weddings/${weddingId}/events/${eventId}`, { method: 'DELETE', body: '{}' }),
-  templates: (productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE') => request<{ items: WeddingTemplate[] }>(`/templates?productType=${productType}`),
+  templates: (productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP') => request<{ items: WeddingTemplate[] }>(`/templates?productType=${productType}`),
   content: (weddingId: string, surface: WeddingSurface) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content?surface=${surface}`),
   saveContent: (weddingId: string, input: {
     surface: WeddingSurface
@@ -292,7 +315,9 @@ export const weddingApi = {
   publish: (weddingId: string, input: { surface: WeddingSurface; slug: string; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
   unpublish: (weddingId: string, surface: WeddingSurface) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify({ surface }) }),
   uploadMedia: uploadMediaFile,
-}
+  recap: (weddingId: string) => request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
+  saveRecap: (weddingId: string, input: { templateVersionId: string; title: string; thankYouMessage?: string | null; ogTitle?: string | null; ogDescription?: string | null; ogImageUrl?: string | null; content: Record<string, unknown>; themeConfig: Record<string, unknown>; sectionConfig: RecapSectionConfig; mediaItems: Array<{ mediaAssetId: string; caption?: string | null; sortOrder: number }>; wishSelections: Array<{ wishId: string; sortOrder: number }>; revision: number }) => request<{ recap: RecapDraft }>(`/weddings/${weddingId}/recap`, { method: 'PUT', body: JSON.stringify(input) }),
+  recapSlugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/recaps/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),}
 
 export const guestApi = {
   list: (weddingId: string, params: { q?: string; categoryId?: string; limit?: number; cursor?: string } = {}) => {
