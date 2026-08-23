@@ -3,7 +3,7 @@ import { createHash, randomUUID } from 'node:crypto'
 
 import type {
   CreateWeddingData, CreateWeddingEventData, DashboardActivityView, UpdateWeddingData,
-  PublishWeddingData, PublishedSnapshotView, SaveWeddingContentData, TemplateView, UpdateWeddingEventData, WeddingContentView, WeddingDashboardView, WeddingEventView, WeddingRepository, WeddingSurfaceValue, WeddingView, WishView,
+  PublishWeddingData, PublishedSnapshotView, SaveWeddingContentData, TemplateView, UpdateWeddingEventData, WeddingAnalyticsView, WeddingContentView, WeddingDashboardView, WeddingEventView, WeddingRepository, WeddingSurfaceValue, WeddingView, WishView,
 } from '../application/ports'
 import type { GuestView } from '@/modules/guests/application/ports'
 import { WeddingError } from '../domain/wedding-error'
@@ -269,6 +269,27 @@ export class PrismaWeddingRepository implements WeddingRepository {
       responseTrend: this.buildTrend(since, trendRows.map((row) => row.submittedAt)),
       recentActivity: activity,
     }
+  }
+
+  async analyticsOwned(userId: string, weddingId: string): Promise<WeddingAnalyticsView | null> {
+    if (!await this.isOwned(userId, weddingId)) return null
+    const [guestTotal, attending, taskGroups, priorityGroups, recentCompleted, giftEntries, linkedGiftGuests, wishGroups] = await Promise.all([
+      this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
+      this.prisma.rsvpResponse.count({ where: { weddingId, attendance: 'ATTENDING', invitation: { status: 'ACTIVE' } } }),
+      this.prisma.weddingTask.groupBy({ by: ['status'], where: { weddingId, deletedAt: null }, _count: { _all: true } }),
+      this.prisma.weddingTask.groupBy({ by: ['priority'], where: { weddingId, deletedAt: null }, _count: { _all: true } }),
+      this.prisma.weddingTask.findMany({ where: { weddingId, status: 'DONE', deletedAt: null }, select: { id: true, title: true, completedAt: true }, orderBy: [{ completedAt: 'desc' }, { id: 'desc' }], take: 5 }),
+      this.prisma.giftLedgerEntry.count({ where: { weddingId, deletedAt: null } }),
+      this.prisma.giftLedgerEntry.findMany({ where: { weddingId, deletedAt: null, guestId: { not: null } }, select: { guestId: true }, distinct: ['guestId'] }),
+      this.prisma.wish.groupBy({ by: ['status'], where: { weddingId, deletedAt: null }, _count: { _all: true } }),
+    ])
+    const statuses = Object.fromEntries(taskGroups.map((group) => [group.status, group._count._all]))
+    const priorities = Object.fromEntries(priorityGroups.map((group) => [group.priority, group._count._all]))
+    const wishes = Object.fromEntries(wishGroups.map((group) => [group.status, group._count._all]))
+    const completed = statuses.DONE ?? 0
+    const total = taskGroups.reduce((sum, group) => sum + group._count._all, 0)
+    const rate = (value: number, denominator: number) => denominator ? Math.round((value / denominator) * 1000) / 10 : 0
+    return { guests: { total: guestTotal, attending, attendanceRate: rate(attending, guestTotal) }, tasks: { total, completed, completedRate: rate(completed, total), byStatus: { todo: statuses.TODO ?? 0, inProgress: statuses.IN_PROGRESS ?? 0, done: completed, cancelled: statuses.CANCELLED ?? 0 }, byPriority: { low: priorities.LOW ?? 0, medium: priorities.MEDIUM ?? 0, high: priorities.HIGH ?? 0, urgent: priorities.URGENT ?? 0 }, recentCompleted: recentCompleted.map((task) => ({ ...task, completedAt: task.completedAt ?? new Date(0) })) }, gifts: { entryCount: giftEntries, linkedGuestCount: linkedGiftGuests.length, anonymousEntryCount: giftEntries - linkedGiftGuests.length }, wishes: { total: wishGroups.reduce((sum, group) => sum + group._count._all, 0), pending: wishes.PENDING ?? 0, approved: wishes.APPROVED ?? 0, rejected: wishes.REJECTED ?? 0, spam: wishes.SPAM ?? 0, hidden: wishes.HIDDEN ?? 0 } }
   }
 
   async listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'): Promise<TemplateView[]> {

@@ -54,6 +54,13 @@ export interface WeddingDashboardView {
   recentActivity: DashboardActivityView[]
 }
 
+export interface WeddingAnalyticsView {
+  guests: { total: number; attending: number; attendanceRate: number }
+  tasks: { total: number; completed: number; completedRate: number; byStatus: { todo: number; inProgress: number; done: number; cancelled: number }; byPriority: { low: number; medium: number; high: number; urgent: number }; recentCompleted: Array<{ id: string; title: string; completedAt: Date }> }
+  gifts: { entryCount: number; linkedGuestCount: number; anonymousEntryCount: number }
+  wishes: { total: number; pending: number; approved: number; rejected: number; spam: number; hidden: number }
+}
+
 import type { GuestView } from '@/modules/guests/application/ports'
 
 export interface WishListFilter {
@@ -73,6 +80,7 @@ export interface WeddingRepository {
   updateEventOwned(userId: string, weddingId: string, eventId: string, data: UpdateWeddingEventData): Promise<WeddingEventView | 'conflict' | null>
   deleteEventOwned(userId: string, weddingId: string, eventId: string): Promise<boolean | null>
   dashboardOwned(userId: string, weddingId: string, now: Date): Promise<WeddingDashboardView | null>
+  analyticsOwned(userId: string, weddingId: string): Promise<WeddingAnalyticsView | null>
   listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'): Promise<TemplateView[]>
   getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null>
   getContentOwned(userId: string, weddingId: string, surface: WeddingSurfaceValue): Promise<WeddingContentView | null>

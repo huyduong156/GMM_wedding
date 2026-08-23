@@ -178,6 +178,8 @@ export type Dashboard = {
   }>
 }
 
+export type Analytics = { guests: { total: number; attending: number; attendanceRate: number }; tasks: { total: number; completed: number; completedRate: number; byStatus: { todo: number; inProgress: number; done: number; cancelled: number }; byPriority: { low: number; medium: number; high: number; urgent: number }; recentCompleted: Array<{ id: string; title: string; completedAt: string }> }; gifts: { entryCount: number; linkedGuestCount: number; anonymousEntryCount: number }; wishes: { total: number; pending: number; approved: number; rejected: number; spam: number; hidden: number } }
+
 type PublicationStatus = {
   configured: boolean; published: boolean; slug: string | null
   templateName: string | null; templateVersion: string | null; views: null
@@ -271,6 +273,7 @@ export const weddingApi = {
   update: (id: string, input: Partial<WeddingInput> & { status?: 'DRAFT' | 'ARCHIVED'; revision: number }) => request<{ wedding: Wedding }>(`/weddings/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<void>(`/weddings/${id}`, { method: 'DELETE', body: '{}' }),
   dashboard: (id: string) => request<{ dashboard: Dashboard }>(`/weddings/${id}/dashboard`),
+  analytics: (id: string) => request<{ analytics: Analytics }>(`/weddings/${id}/analytics`),
   events: (id: string) => request<{ items: WeddingEvent[] }>(`/weddings/${id}/events`),
   createEvent: (id: string, input: EventInput) => request<{ event: WeddingEvent }>(`/weddings/${id}/events`, { method: 'POST', body: JSON.stringify(input) }),
   updateEvent: (weddingId: string, eventId: string, input: Partial<EventInput> & { revision: number }) => request<{ event: WeddingEvent }>(`/weddings/${weddingId}/events/${eventId}`, { method: 'PATCH', body: JSON.stringify(input) }),
