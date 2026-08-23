@@ -6,7 +6,7 @@ export type GiftLedgerView = { id: string; weddingId: string; guestId: string | 
 export type GiftListFilter = { query?: string | undefined; giftType?: GiftType | undefined; receiveMethod?: GiftReceiveMethod | undefined; reciprocityStatus?: ReciprocityStatus | undefined; guestId?: string | undefined; from?: Date | undefined; to?: Date | undefined; limit: number; cursor?: string | undefined }
 export type GiftDateFilter = { from?: Date | undefined; to?: Date | undefined }
 export type CreateGiftData = { guestName: string; guestId?: string | undefined; giftType: GiftType; amountMinor?: bigint | undefined; currency?: string | undefined; goldWeight?: string | undefined; goldUnit?: string | undefined; goldType?: string | undefined; giftDescription?: string | undefined; receiveMethod: GiftReceiveMethod; receivedAt: Date; note?: string | undefined; reciprocityStatus?: ReciprocityStatus | undefined; returnedAt?: Date | undefined }
-export type UpdateGiftData = Partial<Omit<CreateGiftData, 'guestId' | 'guestName'>> & { guestName?: string | undefined; revision: number }
+export type UpdateGiftData = Partial<Omit<CreateGiftData, 'guestId' | 'guestName'>> & { guestName?: string | undefined; guestId?: string | null | undefined; revision: number }
 export type GiftSummary = { entryCount: number; pendingCount: number; returnedCount: number; notApplicableCount: number; money: { count: number; totals: Array<{ currency: string; amountMinor: string }> }; gold: { count: number; totals: Array<{ unit: string; type: string | null; weight: string }> }; physicalGiftCount: number }
 export interface GiftLedgerRepository {
   listOwned(userId: string, weddingId: string, filter: GiftListFilter): Promise<{ items: GiftLedgerView[]; nextCursor: string | null } | null>

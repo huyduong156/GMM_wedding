@@ -226,3 +226,14 @@ Kiểm tra tối thiểu 375, 768, 1024 và 1440px; landscape và browser zoom 2
 - Bulk action, import CSV, editor autosave/conflict và destructive confirmation có prototype/test.
 - Mobile không có horizontal page scroll; bảng có chiến lược riêng.
 - Reduced motion, focus restore, modal/sheet escape và back-state preservation hoạt động.
+
+## 12. Motion continuity cho surface phụ
+
+Các surface phụ không được xuất hiện hoặc biến mất đột ngột khi user thao tác. Modal, sheet, popover, dropdown, toast và menu action cần có enter/exit transition rõ ràng; exit phải được giữ mounted đủ thời gian để hoàn tất animation.
+
+- Modal/sheet: overlay fade đồng bộ với panel scale nhẹ `0.965 → 1` khi mở và scale nhẹ xuống khi đóng, khoảng 160–260ms.
+- Dropdown/popover: fade + translateY tối đa 4–8px, không dùng bounce.
+- Button/action: press scale tối đa `0.97`, chỉ animate `transform` và `opacity` khi có thể.
+- Surface loading/success/error: dùng skeleton hoặc feedback transition, tránh chèn nội dung mới làm layout nhảy.
+- Mọi motion phải có `prefers-reduced-motion` fallback: trạng thái hiển thị tức thời, không làm mất nội dung hay focus.
+- Không thêm thư viện animation mới nếu CSS transition/keyframes đủ; chỉ dùng motion library cho enter/exit phức tạp, gesture hoặc sequence có thể ngắt.

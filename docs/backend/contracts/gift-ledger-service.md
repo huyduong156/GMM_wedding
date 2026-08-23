@@ -15,7 +15,7 @@ Sau đó user có thể promote entry thành Guest mới, liên kết với Gues
 ## API
 
 - `GET|POST /weddings/{weddingId}/gift-ledger`: list/filter hoặc tạo entry.
-- `GET|PATCH|DELETE /weddings/{weddingId}/gift-ledger/{entryId}`: đọc/sửa/xóa mềm với `revision`.
+- `GET|PATCH|DELETE /weddings/{weddingId}/gift-ledger/{entryId}`: đọc/sửa/xóa mềm với `revision`. PATCH có thể nhận đồng thời `guestName` (snapshot tên) và `guestId` nullable; `null` biểu thị khách ẩn danh.
 - `GET /weddings/{weddingId}/gift-ledger/summary`: tổng hợp tiền theo currency, vàng theo unit/type, quà hiện vật và trạng thái mừng lại.
 - `GET /weddings/{weddingId}/gift-ledger/export`: CSV riêng tư.
 - `POST .../{entryId}/promote-to-guest`, `link-guest`, `unlink-guest` cho lifecycle liên kết Guest.
