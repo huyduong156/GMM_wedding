@@ -292,7 +292,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
     return { guests: { total: guestTotal, attending, attendanceRate: rate(attending, guestTotal) }, tasks: { total, completed, completedRate: rate(completed, total), byStatus: { todo: statuses.TODO ?? 0, inProgress: statuses.IN_PROGRESS ?? 0, done: completed, cancelled: statuses.CANCELLED ?? 0 }, byPriority: { low: priorities.LOW ?? 0, medium: priorities.MEDIUM ?? 0, high: priorities.HIGH ?? 0, urgent: priorities.URGENT ?? 0 }, recentCompleted: recentCompleted.map((task) => ({ ...task, completedAt: task.completedAt ?? new Date(0) })) }, gifts: { entryCount: giftEntries, linkedGuestCount: linkedGiftGuests.length, anonymousEntryCount: giftEntries - linkedGiftGuests.length }, wishes: { total: wishGroups.reduce((sum, group) => sum + group._count._all, 0), pending: wishes.PENDING ?? 0, approved: wishes.APPROVED ?? 0, rejected: wishes.REJECTED ?? 0, spam: wishes.SPAM ?? 0, hidden: wishes.HIDDEN ?? 0 } }
   }
 
-  async listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'): Promise<TemplateView[]> {
+  async listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'): Promise<TemplateView[]> {
     const rows = await this.prisma.template.findMany({
       where: { status: 'ACTIVE', ...(productType ? { productType } : {}) },
       include: { versions: { where: { releasedAt: { not: null }, deprecatedAt: null }, orderBy: { createdAt: 'desc' } } },

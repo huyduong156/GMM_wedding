@@ -193,10 +193,11 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/promote-to-guest` | Owner only | Implemented | Tạo Guest từ tên nhập nhanh và liên kết entry |
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/link-guest` | Owner only | Implemented | Liên kết entry với Guest có sẵn |
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/unlink-guest` | Owner only | Implemented | Gỡ liên kết, giữ nguyên entry |
-| GET/PUT | `/weddings/{weddingId}/recap` | Recap policy | Planned | Read/save recap draft |
-| POST | `/weddings/{weddingId}/recap/publish` | Recap publish policy | Planned | Publish immutable recap snapshot |
-| POST | `/weddings/{weddingId}/recap/unpublish` | Recap publish policy | Planned | Unpublish recap |
+| GET/PUT | `/weddings/{weddingId}/recap` | Recap policy | Implemented | Read/save recap draft with revision |
+| POST | `/weddings/{weddingId}/recap/publish` | Owner + CSRF | Implemented | Publish immutable recap snapshot |
+| POST | `/weddings/{weddingId}/recap/unpublish` | Owner + CSRF | Implemented | Unpublish recap |
 
+| GET | /slugs/recaps/{slug}/availability | Session | Implemented | Check recap slug availability |
 ## Public API
 
 | Method | Path | Auth | Trạng thái | Mục đích |
@@ -209,7 +210,7 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Common URL wish, bắt buộc guestName |
 | PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public invitation slug | Implemented | Personalized RSVP, tự lấy tên/guestId |
 | POST | `/public/invitations/{weddingSlug}/{guestSlug}/wishes` | Public invitation slug | Implemented | Personalized wish, không nhập tên |
-| GET | `/public/recaps/{recapSlug}` | Public | Planned | Published recap snapshot |
+| GET | `/public/recaps/{recapSlug}` | Public | Implemented | Published recap snapshot with ETag/cache |
 
 ## Postman workflow
 

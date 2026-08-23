@@ -753,6 +753,9 @@ model WeddingRecap {
   slug              String?                  @db.VarChar(64)
   status            RecapStatus              @default(DRAFT)
   title             String                   @db.VarChar(200)
+  content           Json
+  themeConfig       Json
+  sectionConfig     Json
   thankYouMessage   String?                  @db.Text
   ogTitle           String?                  @db.VarChar(200)
   ogDescription     String?                  @db.VarChar(500)
