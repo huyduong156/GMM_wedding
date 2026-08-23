@@ -339,6 +339,23 @@ export const wishApi = {
   moderate: (weddingId: string, wishId: string, input: { status?: WishStatus; isPinned?: boolean }) =>
     request<{ wish: Wish }>(`/weddings/${weddingId}/wishes/${wishId}`, { method: 'PATCH', body: JSON.stringify(input) }),
 }
+export type GiftType = 'money' | 'gold' | 'physicalGift'
+export type GiftReceiveMethod = 'cash' | 'bankTransfer' | 'physicalGift' | 'other'
+export type GiftReciprocityStatus = 'pending' | 'returned' | 'notApplicable'
+export type GiftLedgerEntry = { id: string; weddingId: string; guestId: string | null; guestDisplayNameSnapshot: string; giftType: GiftType; amountMinor: string | null; currency: string | null; goldWeight: string | null; goldUnit: string | null; goldType: string | null; giftDescription: string | null; receiveMethod: GiftReceiveMethod; receivedAt: string; note: string | null; reciprocityStatus: GiftReciprocityStatus; returnedAt: string | null; revision: number; createdAt: string; updatedAt: string; linkedGuest: { id: string; displayName: string } | null }
+export type GiftSummary = { entryCount: number; pendingCount: number; returnedCount: number; notApplicableCount: number; money: { count: number; totals: Array<{ currency: string; amountMinor: string }> }; gold: { count: number; totals: Array<{ unit: string; type: string | null; weight: string }> }; physicalGiftCount: number }
+export type GiftListParams = { q?: string; giftType?: GiftType; receiveMethod?: GiftReceiveMethod; reciprocityStatus?: GiftReciprocityStatus; limit?: number; cursor?: string }
+export type GiftCreateInput = { guestName: string; guestId?: string | null; giftType: GiftType; amountMinor?: string; currency?: string; goldWeight?: string; goldUnit?: string; goldType?: string; giftDescription?: string; receiveMethod: GiftReceiveMethod; receivedAt?: string; note?: string; reciprocityStatus?: GiftReciprocityStatus; returnedAt?: string }
+export type GiftUpdateInput = Partial<Omit<GiftCreateInput, 'guestId'>> & { guestId?: string | null; revision: number }
+export const giftApi = {
+  list: (weddingId: string, params: GiftListParams = {}) => { const query = new URLSearchParams(); if (params.q) query.set('q', params.q); if (params.giftType) query.set('giftType', params.giftType); if (params.receiveMethod) query.set('receiveMethod', params.receiveMethod); if (params.reciprocityStatus) query.set('reciprocityStatus', params.reciprocityStatus); query.set('limit', String(params.limit ?? 100)); if (params.cursor) query.set('cursor', params.cursor); return request<{ items: GiftLedgerEntry[]; nextCursor: string | null }>(`/weddings/${weddingId}/gift-ledger?${query}`) },
+  summary: (weddingId: string) => request<{ summary: GiftSummary }>(`/weddings/${weddingId}/gift-ledger/summary`),
+  create: (weddingId: string, input: GiftCreateInput) => request<{ entry: GiftLedgerEntry }>(`/weddings/${weddingId}/gift-ledger`, { method: 'POST', body: JSON.stringify(input) }),
+  update: (weddingId: string, entryId: string, input: GiftUpdateInput) => request<{ entry: GiftLedgerEntry }>('/weddings/' + weddingId + '/gift-ledger/' + entryId, { method: 'PATCH', body: JSON.stringify(input) }),
+  remove: (weddingId: string, entryId: string) => request<void>('/weddings/' + weddingId + '/gift-ledger/' + entryId, { method: 'DELETE', body: '{}' }),
+  linkGuest: (weddingId: string, entryId: string, guestId: string) => request<{ entry: GiftLedgerEntry }>('/weddings/' + weddingId + '/gift-ledger/' + entryId + '/link-guest', { method: 'POST', body: JSON.stringify({ guestId }) }),
+  unlinkGuest: (weddingId: string, entryId: string) => request<{ entry: GiftLedgerEntry }>('/weddings/' + weddingId + '/gift-ledger/' + entryId + '/unlink-guest', { method: 'POST', body: '{}' }),
+}
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
 export type WeddingTask = { id: string; weddingId: string; eventId: string | null; event: { id: string; name: string; eventType: string; startsAt: string; endsAt: string | null } | null; parentTaskId: string | null; title: string; description: string | null; dueAt: string | null; priority: TaskPriority; status: TaskStatus; sortOrder: number; completedAt: string | null; completedById: string | null; sourceTemplateKey: string | null; sourceTemplateVersion: number | null; revision: number; createdAt: string; updatedAt: string }
@@ -355,3 +372,6 @@ export const taskApi = {
   templates: () => request<{ items: TaskChecklistTemplate[] }>('/task-checklist-templates'),
   applyTemplate: (weddingId: string, input: { templateKey: string; templateVersion: number; eventId?: string | null; baseDate?: string }) => request<{ items: WeddingTask[] }>(`/weddings/${weddingId}/tasks/apply-template`, { method: 'POST', body: JSON.stringify(input) }),
 }
+
+
+
