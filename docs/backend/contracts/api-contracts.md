@@ -22,11 +22,11 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 ## Endpoint MVP
 
 - Auth: `POST /auth/{register,login,logout,forgot-password,reset-password}`, `GET|PATCH /me`.
-- Wedding base đã implement: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, CRUD `/weddings/{id}/events` và `GET /weddings/{id}/dashboard`; slug availability, content/theme, publish/unpublish và preview token vẫn planned.
+- Wedding base đã implement: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, CRUD `/weddings/{id}/events`, `GET /weddings/{id}/dashboard` và `GET /weddings/{id}/analytics`; slug availability, content/theme, publish/unpublish và preview token vẫn planned.
 - Template/media: `GET /templates[...]`, upload intent/complete/list/delete.
 - Nhạc nền: owner/editor đọc `GET /music-tracks`; platform admin quản lý upload/metadata/activate/retire qua `/admin/music-tracks[...]`; chọn track được lưu atomically trong wedding content theo revision.
 - Guest: CRUD, group, import preview/commit, export, invitation create/rotate/revoke.
-- Owner RSVP/wish: list/filter/update/moderate, liên kết anonymous interaction với Guest và analytics summary.
+- Owner RSVP/wish: list/filter/update/moderate, liên kết anonymous interaction với Guest và analytics summary. Analytics trả tổng khách, khách xác nhận/tỷ lệ, tiến độ task theo status/priority và completedRate, 5 task hoàn thành gần nhất, khách đã gửi quà và thống kê lời chúc; không theo dõi lượt xem trong MVP.
 - Todo: `GET|POST /weddings/{id}/tasks`, `POST /weddings/{id}/tasks/bulk`, `GET|PATCH|DELETE /weddings/{id}/tasks/{taskId}`, reorder/bulk status. Checklist gợi ý là static preset phía FE trong MVP; bulk payload chỉ nhận root task, không nhận `parentTaskId`. Task thủ công vẫn có thể gắn `eventId` hoặc `parentTaskId` tối đa một cấp; chưa có assignee/member ở MVP.
 - Gift ledger (owner-only): `GET|POST /weddings/{id}/gift-ledger`, `GET|PATCH|DELETE /weddings/{id}/gift-ledger/{entryId}`, summary/export và promote/link/unlink Guest. Entry có thể được nhập nhanh bằng tên không cần Guest; Guest chỉ là liên kết tùy chọn và không cascade xóa ledger.
 - Recap: `GET|PUT /weddings/{id}/recap`, media/wish selection, slug availability, preview token, publish/unpublish; public `GET /public/recaps/{slug}`.

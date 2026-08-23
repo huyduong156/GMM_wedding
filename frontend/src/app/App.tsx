@@ -24,7 +24,7 @@ import { TodosPage } from '../pages/todos/ui/TodosPage'
 import { GiftLedgerPage } from '../pages/gift-ledger/ui/GiftLedgerPage'
 import { RsvpsPageConnected } from '../pages/rsvps/ui/RsvpsPageConnected'
 import { WishesPageConnected } from '../pages/wishes/ui/WishesPageConnected'
-import { PlaceholderPage } from '../pages/placeholder/ui/PlaceholderPage'
+import { AnalyticsPage } from '../pages/analytics/ui/AnalyticsPage'
 import { useNavigation } from '../shared/lib/navigation/navigation-context'
 import { adminRoutes, legacyStudioRoutes, marketingRoutes, studioRoutes } from '../shared/config/routes'
 import { WeddingWorkspace } from '../widgets/app-shell/ui/WeddingWorkspace'
@@ -59,7 +59,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.giftLedger]: <GiftLedgerPage />,
   [studioRoutes.recap]: <RecapEditorPage />,
   [studioRoutes.recapThemes]: <RecapThemesPage />,
-  [studioRoutes.analytics]: <PlaceholderPage section="analytics" />,
+  [studioRoutes.analytics]: <AnalyticsPage />,
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
   [studioRoutes.profile]: <ProfilePage />,
