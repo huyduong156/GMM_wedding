@@ -4,7 +4,7 @@ Recap là publication surface độc lập với thiệp online và wedding web.
 
 ## API
 
-- `GET/PUT /api/weddings/{weddingId}/recap`: đọc hoặc lưu draft theo `revision`.
+- `GET/PUT /api/weddings/{weddingId}/recap`: đọc hoặc lưu draft theo `revision`; nếu owner chưa tạo draft, GET trả `200 { recap: null }`.
 - `POST /api/weddings/{weddingId}/recap/publish`: validate và tạo snapshot immutable.
 - `POST /api/weddings/{weddingId}/recap/unpublish`: thu hồi publication pointer.
 - `GET /api/slugs/recaps/{slug}/availability`: kiểm tra slug recap và wedding đang live.

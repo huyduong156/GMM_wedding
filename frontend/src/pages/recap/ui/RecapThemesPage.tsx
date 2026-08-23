@@ -1,14 +1,134 @@
-import { Check, Eye, ImagesSquare, PencilSimple } from '@phosphor-icons/react'
-import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Check, Eye, ImagesSquare, MagnifyingGlass, PencilSimple, WarningCircle } from '@phosphor-icons/react'
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
+import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { RecapDraft, TemplateSectionConfig, WeddingApiError, WeddingTemplate, weddingApi } from '../../../shared/api/weddings'
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
+import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import './recap.css'
 
+type RecapTheme = {
+  key: string
+  versionId: string
+  version: string
+  name: string
+  description: string
+  style: string
+  palette: string
+  sections: TemplateSectionConfig[]
+  previewPath?: string
+  config: Record<string, unknown>
+}
+
+const previewPaths: Record<string, string> = { 'winter-wedding-recap': publicTemplateRoutes.winterWeddingRecapPreview }
+const localMeta: Record<string, { name: string; style: string; palette: string }> = {
+  'winter-wedding-recap': { name: 'Winter Wedding Recap', style: 'Điện ảnh', palette: 'Winter navy · Champagne' },
+}
+
+function sectionKey(section: TemplateSectionConfig) {
+  if (typeof section === 'string') return section
+  return section.sectionKey
+}
+
+function toTheme(template: WeddingTemplate): RecapTheme | null {
+  const version = template.versions.find((item) => !item.deprecatedAt) ?? template.versions[0]
+  if (!version) return null
+  const meta = localMeta[template.key]
+  const sections = Array.isArray(version.config.sections) ? version.config.sections : []
+  return {
+    key: template.key,
+    versionId: version.id,
+    version: version.version,
+    name: meta?.name ?? template.name,
+    description: template.description ?? 'Một cách kể lại ngày vui bằng nhịp ảnh, lời kể và những khoảng lặng vừa đủ.',
+    style: meta?.style ?? 'Điện ảnh',
+    palette: meta?.palette ?? 'Theo cấu hình mẫu',
+    sections,
+    previewPath: previewPaths[template.key],
+    config: version.config,
+  }
+}
+
+function defaultSectionConfig(theme: RecapTheme) {
+  const order = theme.sections.map(sectionKey).filter(Boolean)
+  return { enabled: order, order }
+}
+
+function toast(message: string, icon: 'success' | 'error' | 'warning' = 'success') {
+  return Swal.fire({ toast: true, position: 'top-end', icon, title: message, showConfirmButton: false, timer: 2200, timerProgressBar: true })
+}
+
+function Artwork({ theme, active }: { theme: RecapTheme; active: boolean }) {
+  return <div className={`recap-library-art theme-${theme.key}`} role="img" aria-label={`Xem trước ${theme.name}`}>
+    <div className="recap-library-art-copy"><span>WEDDING RECAP · {theme.style}</span><strong>Mai Anh <i>&</i> Đức</strong><small>Đà Lạt · 14.12.2026</small></div>
+    {active ? <span className="recap-theme-badge"><Check size={13} weight="bold" /> Đang dùng</span> : null}
+  </div>
+}
+
 export function RecapThemesPage() {
+  const workspace = useOptionalWeddingWorkspace()
+  const wedding = workspace?.activeWedding ?? null
+  const [themes, setThemes] = useState<RecapTheme[]>([])
+  const [recap, setRecap] = useState<RecapDraft | null>(null)
+  const [query, setQuery] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    if (!wedding) { setLoading(false); return }
+    setLoading(true); setError(null)
+    try {
+      const catalog = await weddingApi.templates('RECAP')
+      setThemes(catalog.items.map(toTheme).filter((item): item is RecapTheme => item !== null))
+      try { setRecap((await weddingApi.recap(wedding.id)).recap) }
+      catch (cause) {
+        if (cause instanceof WeddingApiError && cause.status === 404) setRecap(null)
+        else throw cause
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể tải kho recap.')
+    } finally { setLoading(false) }
+  }, [wedding])
+
+  useEffect(() => { void load() }, [load])
+
+  const visible = useMemo(() => {
+    const value = query.trim().toLocaleLowerCase('vi')
+    return themes.filter((theme) => !value || `${theme.name} ${theme.style} ${theme.palette}`.toLocaleLowerCase('vi').includes(value))
+  }, [query, themes])
+
+  const applyTheme = async (theme: RecapTheme) => {
+    if (!wedding) return
+    setSaving(theme.versionId)
+    try {
+      const saved = await weddingApi.saveRecap(wedding.id, {
+        templateVersionId: theme.versionId,
+        title: recap?.title ?? `Wedding Recap của ${wedding.name}`,
+        thankYouMessage: recap?.thankYouMessage ?? null,
+        ogTitle: recap?.ogTitle ?? null,
+        ogDescription: recap?.ogDescription ?? null,
+        ogImageUrl: recap?.ogImageUrl ?? null,
+        content: recap?.content ?? {},
+        themeConfig: recap?.themeConfig ?? {},
+        sectionConfig: recap ? recap.sectionConfig : defaultSectionConfig(theme),
+        mediaItems: recap?.mediaItems.map((item) => ({ mediaAssetId: item.mediaAssetId, caption: item.caption, sortOrder: item.sortOrder })) ?? [],
+        wishSelections: recap?.wishSelections.map((item) => ({ wishId: item.wishId, sortOrder: item.sortOrder })) ?? [],
+        revision: recap?.revision ?? 1,
+      })
+      setRecap(saved.recap)
+      await toast(`Đã chọn giao diện ${theme.name}.`)
+    } catch (cause) {
+      await toast(cause instanceof Error ? cause.message : 'Không thể áp dụng giao diện recap.', 'error')
+      if (cause instanceof WeddingApiError && cause.code === 'RECAP_REVISION_CONFLICT') await load()
+    } finally { setSaving(null) }
+  }
+
+  const activeVersionId = recap?.templateVersion.id
   return <section className="recap-themes-page" aria-labelledby="recap-themes-heading">
-    <header className="recap-page-heading"><div><p className="breadcrumb">Mai & Đức <span>/</span> Wedding Recap <span>/</span> Kho giao diện</p><h1 id="recap-themes-heading">Chọn cách kể lại ngày vui</h1><p>Mỗi theme giữ nguyên album và lời chúc của bạn, chỉ thay đổi nhịp kể và không khí hình ảnh.</p></div><span className="recap-status-pill"><Check size={14} weight="bold" /> Bản nháp</span></header>
-    <div className="recap-theme-grid">
-      <article className="recap-theme-card is-active"><div className="recap-theme-art"><div className="recap-theme-art-copy"><span>WINTER WEDDING RECAP</span><strong>Minh Anh <i>&</i> Hoàng Nam</strong><small>14 · 12 · 2026 / Đà Lạt</small></div><span className="recap-theme-badge">Đang dùng</span></div><div className="recap-theme-copy"><div><h2>Winter Wedding Recap</h2><p>Cinematic · Film strip · Winter navy</p></div><p>Nhịp kể điện ảnh dành cho những khoảnh khắc sau lời thề, từ khoảng lặng trước lễ cưới đến đêm champagne.</p></div><footer><AppLink className="button button-secondary" to={publicTemplateRoutes.winterWeddingRecapPreview}><Eye size={16} /> Xem trước</AppLink><AppLink className="button button-primary" to={studioRoutes.recap}><PencilSimple size={16} /> Chỉnh sửa recap</AppLink></footer></article>
-      <div className="recap-theme-coming"><ImagesSquare size={28} /><strong>Thêm câu chuyện của bạn</strong><span>Các theme recap khác sẽ xuất hiện sau khi được phát hành.</span></div>
-    </div>
+    <header className="recap-page-heading"><div><p className="breadcrumb">{wedding?.name ?? 'Đám cưới của bạn'} <span>/</span> Wedding Recap <span>/</span> Kho giao diện</p><h1 id="recap-themes-heading">Chọn cách kể lại ngày vui</h1><p>Mỗi theme giữ nguyên album và lời chúc của bạn, chỉ thay đổi nhịp kể và không khí hình ảnh.</p></div>{recap ? <span className="recap-status-pill"><Check size={14} weight="bold" /> {recap.status === 'PUBLISHED' ? 'Đã xuất bản' : 'Bản nháp'}</span> : null}</header>
+    <div className="recap-library-toolbar"><label className="recap-library-search"><MagnifyingGlass size={17} /><span className="sr-only">Tìm giao diện recap</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên, phong cách hoặc màu sắc" /></label><span className="recap-library-count">{themes.length} giao diện khả dụng</span></div>
+    {loading ? <div className="recap-library-grid" aria-label="Đang tải kho recap">{[1, 2].map((item) => <div className="recap-library-skeleton" key={item}><span /><i /><i /></div>)}</div> : error ? <div className="recap-theme-coming recap-library-state"><WarningCircle size={30} /><strong>Chưa tải được kho recap</strong><span>{error}</span><button className="button button-secondary" type="button" onClick={() => void load()}>Thử lại</button></div> : visible.length ? <div className="recap-library-grid">{visible.map((theme) => { const active = activeVersionId === theme.versionId; return <article className={`recap-library-card ${active ? 'is-active' : ''}`} key={theme.versionId}><Artwork theme={theme} active={active} /><div className="recap-library-copy"><div><h2>{theme.name}</h2><p>{theme.style} · {theme.palette} · v{theme.version}</p></div><p>{theme.description}</p></div><footer>{theme.previewPath ? <AppLink className="button button-secondary" to={theme.previewPath}><Eye size={16} /> Xem trước</AppLink> : null}{active ? <AppLink className="button button-primary" to={studioRoutes.recap}><PencilSimple size={16} /> Chỉnh sửa recap</AppLink> : <button className="button button-primary" type="button" disabled={saving !== null} onClick={() => void applyTheme(theme)}>{saving === theme.versionId ? 'Đang áp dụng…' : recap ? 'Dùng giao diện này' : 'Bắt đầu với giao diện này'}</button>}</footer></article> })}</div> : <div className="recap-theme-coming recap-library-state"><ImagesSquare size={30} /><strong>Chưa có giao diện phù hợp</strong><span>Thử đổi từ khóa tìm kiếm hoặc chờ thêm theme được phát hành.</span><button className="button button-secondary" type="button" onClick={() => setQuery('')}>Xóa tìm kiếm</button></div>}
   </section>
 }

@@ -55,6 +55,13 @@ function makeService() {
 }
 
 describe('RecapService', () => {
+  it('returns an empty draft for an owned wedding without recap data', async () => {
+    const { service, prisma } = makeService()
+    prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1' })
+    prisma.weddingRecap.findUnique.mockResolvedValue(null)
+    await expect(service.getDraft('user-1', 'wedding-1')).resolves.toBeNull()
+  })
+
   it('rejects a non-recap or unreleased template', async () => {
     const { service, prisma } = makeService()
     prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1' })

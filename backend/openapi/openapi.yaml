@@ -1256,9 +1256,9 @@ paths:
       summary: Get the owner recap draft
       security: [{ cookieAuth: [] }]
       responses:
-        '200': { description: Recap draft }
+        '200': { description: Recap draft; returns recap: null when no draft exists }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
+  
     put:
       operationId: saveWeddingRecap
       summary: Save the owner recap draft
