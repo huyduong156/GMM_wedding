@@ -202,6 +202,8 @@ model User {
   notifications     Notification[]
   notificationPrefs NotificationPreference[]
   auditLogs         AuditLog[]
+  ownedMusicTracks  MusicTrack[]          @relation("MusicTrackOwner")
+  uploadedMusicTracks MusicTrack[]         @relation("MusicTrackUploader")
   roles             UserRole[]               @relation("UserRoles")
   grantedRoles      UserRole[]               @relation("GrantedUserRoles")
 
@@ -892,4 +894,44 @@ model IdempotencyRecord {
 
   @@unique([scope, keyHash])
   @@index([expiresAt])
+}
+
+enum MusicTrackScope {
+  SYSTEM
+  PERSONAL
+}
+
+enum MusicTrackStatus {
+  DRAFT
+  PROCESSING
+  FAILED
+  READY
+  RETIRED
+}
+
+model MusicTrack {
+  id               String            @id @default(uuid()) @db.Uuid
+  ownerUserId      String?           @db.Uuid
+  createdById      String            @db.Uuid
+  scope            MusicTrackScope   @default(SYSTEM)
+  status           MusicTrackStatus  @default(DRAFT)
+  displayName      String            @db.VarChar(160)
+  artistName       String?           @db.VarChar(160)
+  durationSeconds  Int?
+  mimeType         String            @db.VarChar(128)
+  sizeBytes        BigInt
+  storageKey       String            @unique @db.VarChar(512)
+  licenseType      String?           @db.VarChar(80)
+  licenseReference String?           @db.VarChar(500)
+  creditText       String?           @db.VarChar(500)
+  sortOrder        Int               @default(0)
+  revision         Int               @default(1)
+  retiredAt        DateTime?         @db.Timestamptz(3)
+  createdAt        DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime          @updatedAt @db.Timestamptz(3)
+  owner            User?             @relation("MusicTrackOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  createdBy        User              @relation("MusicTrackUploader", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([scope, status, sortOrder])
+  @@index([ownerUserId, status, createdAt])
 }
