@@ -1,4 +1,4 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, MagnifyingGlass, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
+import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, MagnifyingGlass, MusicNote, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
@@ -14,6 +14,7 @@ const adminNav = [
     { to: adminRoutes.subscriptions, label: 'Gói đăng ký', icon: CreditCard },
   ] },
   { label: 'Nội dung & giao diện', items: [
+    { to: adminRoutes.music, label: 'Âm nhạc', icon: MusicNote },
     { label: 'Kho giao diện', icon: Palette, children: [
       { to: adminRoutes.inviteLibrary, label: 'Kho thiệp online', icon: EnvelopeSimple },
       { to: adminRoutes.websiteLibrary, label: 'Kho website online', icon: Browser },
@@ -45,7 +46,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 const ParentIcon = item.icon
                 return <div className="admin-nav-branch" key={item.label}>
                   <div className="admin-nav-heading"><ParentIcon size={19} /><span>{item.label}</span></div>
-                  {item.children.map(({ to, label, icon: ChildIcon }) => <AppLink key={to} to={to} className={`admin-nav-item is-child ${pathname === to ? 'is-active' : ''}`} ariaCurrent={pathname === to ? 'page' : undefined}><ChildIcon size={16} /><span>{label}</span></AppLink>)}
+                  {(item.children ?? []).map(({ to, label, icon: ChildIcon }) => <AppLink key={to} to={to} className={`admin-nav-item is-child ${pathname === to ? 'is-active' : ''}`} ariaCurrent={pathname === to ? 'page' : undefined}><ChildIcon size={16} /><span>{label}</span></AppLink>)}
                 </div>
               }
               const Icon = item.icon

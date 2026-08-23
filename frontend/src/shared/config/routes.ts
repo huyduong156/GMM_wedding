@@ -31,6 +31,7 @@ export const adminRoutes = {
   websiteStyles: '/gmm_admin/styles/websites',
   moderation: '/gmm_admin/moderation',
   operations: '/gmm_admin/operations',
+  music: '/gmm_admin/music',
 } as const
 
 export const legacyStudioRoutes: Record<string, string> = {

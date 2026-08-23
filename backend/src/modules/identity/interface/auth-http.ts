@@ -7,9 +7,15 @@ import { apiError, takeRequestOrigin, type ApiErrorBody } from '@/shared/http/ap
 
 function allowedOrigins() {
   const env = getServerEnv()
-  return new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+  const origins = new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+  if (env.APP_ENV === 'local' || env.APP_ENV === 'test') {
+    for (const port of [5173, 8080, 4173]) {
+      origins.add(`http://localhost:${port}`)
+      origins.add(`http://127.0.0.1:${port}`)
+    }
+  }
+  return origins
 }
-
 export function clientIp(request: Request): string {
   const env = getServerEnv()
   if (env.TRUST_PROXY) {

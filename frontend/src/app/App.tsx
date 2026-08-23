@@ -9,6 +9,7 @@ import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
 import { AdminTemplatesApiPage } from '../pages/admin/ui/AdminTemplatesApiPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
 import { AdminPlaceholderPage } from '../pages/admin/ui/AdminPlaceholderPage'
+import { AdminMusicPage } from '../pages/admin/ui/AdminMusicPage'
 import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
 import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage'
 import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
@@ -113,6 +114,8 @@ export function App() {
           ? <AdminTemplatesApiPage kind="website" />
         : pathname === adminRoutes.recapLibrary
           ? <AdminTemplatesApiPage kind="recap" />
+        : pathname === adminRoutes.music
+          ? <AdminMusicPage />
         : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
     return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
   }
