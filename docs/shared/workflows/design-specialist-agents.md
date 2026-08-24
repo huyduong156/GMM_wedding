@@ -20,6 +20,8 @@ All three agents must read `docs/frontend/theme-authoring/README.md` first. The 
 
 The main agent must not substitute one domain agent for another, and must not start theme implementation if the selected agent has not produced its pre-code brief and acceptance map.
 
+Every domain theme agent must follow the phased authoring flow in `docs/frontend/theme-authoring/README.md`: meaning/content → media contract → section composition → advanced visual experience → artwork/atmosphere/review/release. At every phase, the agent must reread the applicable common/domain rules, produce the required artifact, and check the phase checklist before continuing. A theme is incomplete if any phase, required section, optional-section contract, review step or final `template-config.ts` audit is missing.
+
 The three surfaces must remain intentionally different:
 
 - Invitation: receive/open an invitation and quickly act on wedding details.

@@ -18,6 +18,80 @@ Không được bỏ qua domain agent vì task “chỉ làm một theme”, “
 
 Theme không được dừng ở mức layout cơ bản như hero ảnh + text, grid card, static section và fade-in đơn giản. Agent phải tăng độ phức tạp theo hướng có chủ đích bằng các kỹ thuật trong approved catalog: depth/3D, scroll storytelling, image transition, kinetic typography, interactive gallery, shared element, scroll-driven animation, motion choreography hoặc visual effect phù hợp. Độ phức tạp phải làm trải nghiệm đáng nhớ hơn, không được trở thành hiệu ứng chồng chéo thiếu hierarchy.
 
+## 1.1. Phased authoring flow bắt buộc cho mọi template
+
+Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự qua năm phase dưới đây. Agent phải đọc lại common contract và tài liệu domain liên quan ở mỗi phase, đối chiếu checklist trước khi chuyển phase tiếp theo. Không được gộp toàn bộ phase vào một lượt code, không được bắt đầu từ fixture hoặc asset, và không được đánh dấu hoàn tất nếu thiếu artifact của bất kỳ phase nào.
+
+### Phase 1 — Product meaning, chủ đề và content system
+
+Đọc lại common contract, `docs/frontend/README.md`, tài liệu section/content của đúng product và domain agent instructions. Agent phải chốt:
+
+- product type, product meaning, viewer job, audience, non-goals và experience arc;
+- chủ đề, visual metaphor, cảm xúc, palette, typography, chất liệu, decor direction, motion direction và signature moment;
+- điểm khác biệt với hai product type còn lại để tránh theme Invitation, Wedding Website và Wedding Recap bị giống nhau;
+- required sections, optional sections và vai trò của từng section trong câu chuyện;
+- content anchor, heading, mô tả, quote, CTA, metadata, empty state và fallback content của từng section;
+- nội dung nào user được sửa, section nào được bật/tắt, thêm/xóa, reorder, repeatable hoặc chọn layout;
+- ngôn ngữ chính và giới hạn English quote/tagline theo common contract.
+
+Đầu ra bắt buộc: `theme brief`, product meaning statement, viewer journey, section/content matrix, required/optional section list, content fixture plan, editor field plan, acceptance checklist, non-goals và anti-pattern. Chưa được generate image, decor hoặc viết renderer trước khi phase này đạt checklist.
+
+### Phase 2 — Media contract và bảo vệ main content
+
+Đọc lại phần media-independence, asset generation, responsive và `template-config` trong common contract cùng section rules của domain. Agent phải lập media matrix cho từng section, ghi rõ:
+
+- media role: hero, story, chapter, moment, gallery, background, video;
+- user-upload hay renderer-owned; bắt buộc hay tùy chọn; số lượng min/max;
+- tỉ lệ, crop, focal point, object-fit, vị trí, alt text, loading và fallback;
+- mobile/tablet behavior, ảnh dọc/ngang, ảnh thiếu, ảnh lỗi, ảnh chất lượng thấp và nội dung dài;
+- media nào chỉ là content và asset nào chịu trách nhiệm giữ theme identity;
+- album nội bộ hoặc external album: URL field, CTA, redirect behavior, tab behavior, invalid/empty state.
+
+Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn bộ ảnh mẫu, thay ảnh sáng/tối, thay tỉ lệ ảnh và bỏ trống media mà theme vẫn giữ hierarchy, semantic content, CTA và nhận diện. Không được hard-code couple/model/sample photo làm nền tảng cho theme.
+
+Đầu ra bắt buộc: media matrix, upload/editability matrix, crop/focal-point rules, fallback/error/empty states, external album behavior, media field schema, media-independence checklist và mapping media vào `template-config.ts`.
+
+### Phase 3 — Section architecture và visual composition
+
+Đọc lại section catalog/domain rules và đối chiếu section/content matrix của Phase 1. Agent phải thiết kế bộ xương của theme trước khi thêm motion:
+
+- chọn layout phù hợp cho từng section, không ép mọi section thành cùng một slide/card/grid;
+- nếu contract cho phép, khai báo nhiều layout option để user lựa chọn;
+- xác định tỉ lệ text, ảnh, whitespace, decor, content anchor và visual focal point;
+- xác định section transition, responsive composition, empty state và fallback;
+- render đủ required sections và các optional sections được theme hỗ trợ;
+- cập nhật `template-config.ts`, content schema và fixture để khớp cấu trúc.
+
+Đầu ra bắt buộc: section composition map, layout/transition map và skeleton renderer/config đã map đúng section key. Không dùng animation để che một bố cục chưa đạt.
+
+### Phase 4 — Advanced visual experience, interaction và motion
+
+Đọc lại approved technique catalog, animation/motion rules, responsive/reduced-motion rules và các skill cần thiết. Agent phải lập technique map cho từng section, ưu tiên kỹ thuật hiện đại có purpose:
+
+- 3D slide, 3D card, 3D photo stack, 3D carousel, CSS perspective;
+- parallax, sticky storytelling, horizontal scroll, scale scroll, scroll snapping;
+- image masking, image reveal, cinematic image transition, blur-to-sharp, blend mode;
+- kinetic typography, text reveal, variable/fluid typography;
+- interactive gallery, hover/focus/press, magnetic, drag hoặc gesture khi phù hợp.
+
+Mỗi technique phải ghi UX purpose, trigger, duration/easing hoặc spring, desktop/mobile behavior, touch/keyboard fallback, reduced-motion fallback, browser fallback và performance budget. Mỗi section phải có motion/interaction có chủ đích nhưng không được lạm dụng cùng một pattern cho toàn trang.
+
+Đầu ra bắt buộc: technique map, motion choreography, interaction map, responsive/reduced-motion map và implementation plan trước khi code effect.
+
+### Phase 5 — Artwork, atmosphere, system effects, review và release
+
+Đọc lại asset/provenance, motion performance, accessibility và quality gate trong common contract. Sau khi content/layout đã ổn định, agent mới:
+
+- generate artwork/decor renderer-owned như hoa lá, frame, paper, ribbon, stamp, texture, grain, light leak và props;
+- bố trí asset theo composition, z-index, crop, density, breakpoint; không che content/CTA;
+- thêm background atmosphere như lá/petal bay, dust, mist, ambient particle hoặc light movement;
+- thêm entrance/reveal, auto-animation khi section vào viewport, hover/focus/press và interaction fallback;
+- kiểm tra visibility pause, density, CPU/GPU, asset size, mobile và reduced-motion.
+
+Sau đó bắt buộc render/review toàn bộ screen bằng design review skill/agent ở desktop, tablet, mobile và reduced-motion. Kiểm tra toàn bộ required/optional sections, toggle, reorder, repeatable, empty/loading/error, internal/external media, section seam, overflow, accessibility và media independence. Chạy typecheck, lint, test, build; cuối cùng audit `template-config.ts` với renderer, editor, catalog, preview path và admin publish/sync.
+
+Đầu ra bắt buộc: asset manifest/provenance, decor map, background-motion map, review report, validation result và release checklist. Chỉ sau phase này template mới được coi là hoàn chỉnh.
+
 ## 2. Theme identity không được phụ thuộc media upload
 
 Ảnh/video của couple, chapter, gallery, story, hero và finale là content do user thay đổi. Renderer không được dùng các media này làm nguồn duy nhất để nhận diện theme.
