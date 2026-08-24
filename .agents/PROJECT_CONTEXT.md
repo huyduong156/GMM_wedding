@@ -1,4 +1,8 @@
 # GMM Wedding - Persistent Project Context
+- Theme không được dừng ở layout cơ bản; agent phải tạo complexity có chủ đích bằng kỹ thuật hiện đại và luôn review toàn bộ screen bằng design/review skill trước khi hoàn tất. Phải kiểm tra đủ required + optional sections, sau đó kiểm tra `template-config.ts` lần cuối để admin publish/sync không lỗi.
+- Common theme contract yêu cầu mỗi section có content anchor nhìn vào hiểu ngay mục đích, nội dung ưu tiên tiếng Việt với tối đa 3 câu quote/tagline tiếng Anh, entrance effect và auto-animation khi vào viewport; smooth scroll, depth/3D, parallax/horizontal/sticky/scale storytelling và kỹ thuật FE hiện đại được ưu tiên nhưng luôn phải có purpose, feature fallback, mobile/reduced-motion và performance budget.
+- Approved theme techniques dùng chung gồm motion/scroll/image/3D-depth/UI interaction/visual effects/typography, GSAP/ScrollTrigger/Lottie/Rive/Web Animations API và Web Platform APIs; CSS/DOM 3D được ưu tiên trước, Three.js/WebGL chưa bắt buộc và mọi kỹ thuật phải có fallback, purpose và budget.
+- Public theme authoring bắt buộc route qua đúng domain agent: `.agents/agents/invitation-theme-agent`, `.agents/agents/wedding-website-theme-agent` hoặc `.agents/agents/wedding-recap-theme-agent`; cả ba phải đọc `docs/frontend/theme-authoring/README.md` trước section docs riêng. Không bắt đầu renderer/config/asset work nếu agent chưa tạo pre-code brief và acceptance map.
 - TemplateConfig contract dùng chung cho invitation, wedding website và Wedding Recap: metadata/settings (status, type, versions, palettes, preview, capabilities, theme, sections) giữ cùng shape; chỉ productType, content/section schema và renderer khác nhau.
 
 

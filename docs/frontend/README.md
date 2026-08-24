@@ -21,6 +21,7 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 - [Nền live template editor dùng chung](./live-template-editor.md)
 - [Nhạc nền cưới: admin catalog, owner editor và guest playback](./wedding-background-music.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
+- [Common Theme Authoring Contract và quality gate cho mọi theme](./theme-authoring/README.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)
 - [Website cưới: section, content/config contract và authoring checklist](./wedding-websites/README.md)
 - [Typography và font cưới](./online-invitations/typography-and-fonts.md)

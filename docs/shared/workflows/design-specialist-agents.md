@@ -6,6 +6,28 @@ Chia tác vụ thiết kế cho sub-agent theo lĩnh vực để agent chính kh
 
 Mọi skill trong workflow này nằm tại `.agents/skills/`; không cài hoặc sửa `$CODEX_HOME/skills` và không ảnh hưởng repository khác.
 
+## Domain theme agents (mandatory)
+
+Theme authoring is routed through exactly one domain agent before any renderer/config/asset work starts:
+
+| Product type | Agent instruction | Section rules |
+|---|---|---|
+| Online Invitation | `.agents/agents/invitation-theme-agent/AGENT.md` | `docs/frontend/online-invitations/` |
+| Wedding Website | `.agents/agents/wedding-website-theme-agent/AGENT.md` | `docs/frontend/wedding-websites/` |
+| Wedding Recap | `.agents/agents/wedding-recap-theme-agent/AGENT.md` | `docs/frontend/wedding-recaps/` |
+
+All three agents must read `docs/frontend/theme-authoring/README.md` first. The common document owns asset generation, media-independence, motion, auto-animation, responsive/reduced-motion behavior, file structure, `template-config.ts` and release quality gates. The domain document owns only the product-specific content, semantic sections and purpose.
+
+The main agent must not substitute one domain agent for another, and must not start theme implementation if the selected agent has not produced its pre-code brief and acceptance map.
+
+The three surfaces must remain intentionally different:
+
+- Invitation: receive/open an invitation and quickly act on wedding details.
+- Wedding Website: explore a public wedding story and find event/venue/RSVP information.
+- Wedding Recap: revisit a completed wedding, explore memories, receive photos and end with gratitude.
+
+If the proposed hero, navigation, copy, section order or interaction could be moved to another product without meaningful changes, the domain agent must stop and revise the brief before implementation.
+
 ## Specialist roster
 
 | Agent | Khi gọi | Skill repo-local phải đọc | Kết quả trả về |
@@ -25,7 +47,8 @@ Mọi skill trong workflow này nằm tại `.agents/skills/`; không cài hoặ
 3. Specialist chỉ đọc `SKILL.md` trong hàng của mình và tài liệu repo được chỉ định; không tải toàn bộ catalog.
 4. Specialist trả brief dưới khoảng 1.200 từ hoặc patch hẹp. Raw research/thử nghiệm không đưa vào context chính.
 5. Agent chính tích hợp, bảo vệ contract/editor behavior và chạy typecheck/test/build.
-6. Với thay đổi rủi ro cao, gọi `design_review_agent` sau cùng trên diff đã tích hợp.
+6. Bắt buộc gọi `design_review_agent` hoặc skill review UI tương đương để đọc/render lại toàn bộ screen trước khi hoàn tất; review phải bao phủ required/optional sections, responsive, reduced motion, asset independence và lỗi visual/runtime.
+7. Kiểm tra `template-config.ts` lần cuối sau review screen, bảo đảm config khớp renderer/editor/catalog trước khi admin publish/sync.
 
 ## Nguyên tắc surface
 
