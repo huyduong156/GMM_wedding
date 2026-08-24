@@ -27,7 +27,7 @@ help:
 	@echo "  make db-migrate-deploy  Apply reviewed production migrations"
 	@echo "  make db-seed            Insert idempotent local demo data"
 	@echo "  make reset-templates    Clear local template registry and template-bound publications"
-	@echo "  make images             Rebuild the backend Docker image"
+	@echo "  make images             Pull local service images and rebuild the backend image"
 
 doctor:
 	node --version
@@ -39,7 +39,7 @@ install:
 	npm ci
 
 sync: install
-	docker compose up -d postgres redis mailpit
+	docker compose up -d postgres redis mailpit minio minio-init
 	npm run db:generate
 	npm run db:validate
 	npm run db:migrate:deploy
@@ -53,6 +53,7 @@ reset-templates:
 	npm run db:reset-templates
 
 images:
+	docker compose pull minio minio-init postgres redis mailpit db-admin
 	docker compose build backend
 
 build-images: images

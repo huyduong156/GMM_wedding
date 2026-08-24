@@ -5,7 +5,7 @@
 Run this from the repository root after `git pull` or switching branches:
 
 ```powershell
-# Start local dependencies, install packages, regenerate/validate Prisma, and apply migrations.
+# Pull/start local dependencies (including MinIO), install packages, regenerate/validate Prisma, and apply migrations.
 make sync
 ```
 
@@ -21,11 +21,13 @@ npm run sync
 Use this after pulling code that runs inside Docker or changing a Dockerfile:
 
 ```powershell
-# Rebuild both frontend and backend images from the current working tree.
+# Pull all local service images and rebuild frontend/backend images from the current working tree.
 make images
 ```
 
-`make build-images` is an equivalent explicit alias. Recreate services afterward so they use the new images:
+`make build-images` is an equivalent explicit alias. It pulls the upstream images declared by the backend Compose file
+(MinIO, MinIO client, PostgreSQL, Redis, Mailpit, and the optional Adminer image) and rebuilds the two application
+images. It does not start or recreate containers. Recreate services afterward so they use the new images:
 
 ```powershell
 # Recreate the frontend container.
@@ -69,6 +71,7 @@ Run the template sync/release flow after the reset to repopulate the registry.
 | Adminer | http://localhost:8081 | Backend Compose `tools` profile |
 | Mailpit UI | http://localhost:8025 | SMTP host port `localhost:1025` |
 | Redis | localhost:6379 | Container hostname `redis` |
+| MinIO S3 API | http://localhost:9000 | Bucket `gmm-wedding`; Console: http://localhost:9001 |
 
 ## Daily commands
 
