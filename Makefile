@@ -12,11 +12,11 @@ help:
 	@echo "  make sync             Install dependencies, generate/validate Prisma, apply migrations"
 	@echo "  make update           Alias of sync for pulling new code"
 	@echo "  make reset-templates  Clear local template registry and template-bound publications"
-	@echo "  make images           Rebuild frontend and backend Docker images"
+	@echo "  make images           Pull local service images and rebuild frontend/backend images"
 
 # Reconcile both app dependency trees and the local database schema.
 sync:
-	docker compose -f backend/compose.yaml up -d postgres redis mailpit
+	docker compose -f backend/compose.yaml up -d postgres redis mailpit minio minio-init
 	npm --prefix frontend ci
 	npm --prefix backend ci
 	npm --prefix backend run db:generate
@@ -26,8 +26,9 @@ sync:
 # Keep the developer-facing update command safe and deterministic.
 update: sync
 
-# Rebuild both application images from the current working tree.
+# Pull infrastructure images and rebuild both application images from the current working tree.
 images:
+	docker compose -f backend/compose.yaml pull minio minio-init postgres redis mailpit db-admin
 	docker compose build frontend
 	docker compose -f backend/compose.yaml build backend
 

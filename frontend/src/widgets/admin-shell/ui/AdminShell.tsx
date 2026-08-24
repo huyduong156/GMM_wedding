@@ -1,5 +1,5 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, MagnifyingGlass, MusicNote, Palette, SignOut, Tag, UsersThree } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, List, MagnifyingGlass, MusicNote, Palette, SignOut, Tag, UsersThree, X } from '@phosphor-icons/react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { adminRoutes, studioRoutes } from '../../../shared/config/routes'
@@ -34,9 +34,15 @@ const adminNav = [
 export function AdminShell({ children }: { children: ReactNode }) {
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  useEffect(() => {
+    setMobileNavOpen(false)
+  }, [pathname])
+
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar" aria-label="Điều hướng quản trị hệ thống">
+      <aside className={`admin-sidebar ${mobileNavOpen ? 'is-mobile-open' : ''}`} aria-label="Điều hướng quản trị hệ thống">
         <div className="admin-brand"><img src="/assets/logo/wedding_logo.png" alt="" /><div><strong>GMM Wedding</strong><span>Platform Admin</span></div></div>
         <nav>
           {adminNav.map((group) => <section className="admin-nav-group" key={group.label} aria-label={group.label}>
@@ -57,9 +63,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <div className="admin-sidebar-footer"><AppLink to={studioRoutes.home}>Về giao diện người dùng</AppLink><span>v0.1 prototype</span></div>
       </aside>
       <div className="admin-workspace">
-        <header className="admin-topbar"><button className="admin-search"><MagnifyingGlass size={18} /><span>Tìm user, wedding hoặc template</span><kbd>⌘ K</kbd></button><div><button className="icon-button" aria-label="Thông báo quản trị"><Bell size={19} /></button><button className="account-button"><span className="user-avatar admin-avatar">AD</span><span className="account-copy"><strong>{auth?.user?.displayName ?? 'Admin'}</strong><small>Platform admin</small></span><CaretDown size={14} /></button><button className="icon-button" aria-label="Đăng xuất quản trị" onClick={() => void auth?.logout().then(() => navigate(adminRoutes.login, true))}><SignOut size={19} /></button></div></header>
+        <header className="admin-topbar"><button className="admin-mobile-menu" type="button" aria-label={mobileNavOpen ? 'Đóng menu quản trị' : 'Mở menu quản trị'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X size={20} /> : <List size={20} />}</button><button className="admin-search"><MagnifyingGlass size={18} /><span>Tìm user, wedding hoặc template</span><kbd>⌘ K</kbd></button><div><button className="icon-button" aria-label="Thông báo quản trị"><Bell size={19} /></button><button className="account-button"><span className="user-avatar admin-avatar">AD</span><span className="account-copy"><strong>{auth?.user?.displayName ?? 'Admin'}</strong><small>Platform admin</small></span><CaretDown size={14} /></button><button className="icon-button" aria-label="Đăng xuất quản trị" onClick={() => void auth?.logout().then(() => navigate(adminRoutes.login, true))}><SignOut size={19} /></button></div></header>
         <main className="admin-main">{children}</main>
       </div>
+      {mobileNavOpen ? <button className="admin-mobile-overlay" type="button" aria-label="Đóng menu quản trị" onClick={() => setMobileNavOpen(false)} /> : null}
     </div>
   )
 }

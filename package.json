@@ -5,7 +5,7 @@
     "db:refresh": "npm --prefix backend run db:refresh",
     "db:reset": "npm --prefix backend run db:reset",
     "db:reset-templates": "npm --prefix backend run db:reset-templates",
-    "sync": "docker compose -f backend/compose.yaml up -d postgres redis mailpit && npm --prefix frontend ci && npm --prefix backend ci && npm --prefix backend run db:generate && npm --prefix backend run db:validate && npm --prefix backend run db:migrate:deploy",
+    "sync": "docker compose -f backend/compose.yaml up -d postgres redis mailpit minio minio-init && npm --prefix frontend ci && npm --prefix backend ci && npm --prefix backend run db:generate && npm --prefix backend run db:validate && npm --prefix backend run db:migrate:deploy",
     "db:reset:docker": "docker compose -f backend/compose.yaml --profile tools run --rm backend-reset"
   },
   "dependencies": {
