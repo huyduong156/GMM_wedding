@@ -55,7 +55,10 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 
 Đọc lại section catalog/domain rules và đối chiếu section/content matrix của Phase 1. Agent phải thiết kế bộ xương của theme trước khi thêm motion:
 
+- Xác định thiết kế đủ tất cả section gồm required và optional;
 - chọn layout phù hợp cho từng section, không ép mọi section thành cùng một slide/card/grid;
+- xác định cách trình bày của từng setion tránh cùng 1 layout sử dụng quá 3 lần;
+- ưu tiên sử dụng các kĩ thuật slide hiện đại cho các section mà user có thể thêm nhiều mục;
 - nếu contract cho phép, khai báo nhiều layout option để user lựa chọn;
 - xác định tỉ lệ text, ảnh, whitespace, decor, content anchor và visual focal point;
 - xác định section transition, responsive composition, empty state và fallback;
@@ -65,6 +68,13 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 Đầu ra bắt buộc: section composition map, layout/transition map và skeleton renderer/config đã map đúng section key. Không dùng animation để che một bố cục chưa đạt.
 
 ### Phase 4 — Advanced visual experience, interaction và motion
+Đây là pharse quan trọng nhất bắt buộc áp dụng mọi hiệu ứng có thể vào template
+- sử dụng agent image để generate ra các artwork(Floating decorative element, Corner decoration,Divider Decoration, Background Decoration, Overlay Decoration, Watermark Decoration, Cluster Decoration, Standalone Element ) và sắp xếp hợp lý dựa theo ý nghĩa và vị trí của từng loại ảnh decor 1 cách hợp lý nhất
+- thêm các hiệu ứng auto animation cho các artwork hoặc các thành phần nhỏ trong template
+- thêm các hiệu ứng xuất hiện khi scroll tới section
+- tăng độ nhận diện bằng cách sử dụng các css sáng tạo và hiệu ứng 3D
+- Tăng trải nghiệm người xem bằng các hiệu ứng thị giác mạnh như paralax scroll hoặc các hiệu ứng thị giác nổi bật khác
+- Thêm các hiệu ứng dưới nền để cho background thành background động chứ tránh sử dụng background tĩnh.
 
 Đọc lại approved technique catalog, animation/motion rules, responsive/reduced-motion rules và các skill cần thiết. Agent phải lập technique map cho từng section, ưu tiên kỹ thuật hiện đại có purpose:
 
@@ -76,7 +86,8 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 
 Mỗi technique phải ghi UX purpose, trigger, duration/easing hoặc spring, desktop/mobile behavior, touch/keyboard fallback, reduced-motion fallback, browser fallback và performance budget. Mỗi section phải có motion/interaction có chủ đích nhưng không được lạm dụng cùng một pattern cho toàn trang.
 
-Đầu ra bắt buộc: technique map, motion choreography, interaction map, responsive/reduced-motion map và implementation plan trước khi code effect.
+Đầu ra bắt buộc: technique map, motion choreography, interaction map, responsive/reduced-motion map và implementation plan trước khi code effect, các hiệu ứng và animation
+=> Luôn ưu tiên độ mooth cho toàn bộ trang nên cần hiệu ứng chuyển giao giữa các thao tác, hover, section....
 
 ### Phase 5 — Artwork, atmosphere, system effects, review và release
 
@@ -87,10 +98,19 @@ Mỗi technique phải ghi UX purpose, trigger, duration/easing hoặc spring, d
 - thêm background atmosphere như lá/petal bay, dust, mist, ambient particle hoặc light movement;
 - thêm entrance/reveal, auto-animation khi section vào viewport, hover/focus/press và interaction fallback;
 - kiểm tra visibility pause, density, CPU/GPU, asset size, mobile và reduced-motion.
+- Sử dụng agent gen image để tạo ra các hình ảnh phù hợp với template đang thiết kế (bao gồm các hình ảnh decor phụ như sao rơi, lá nhỏ,.. và các hình ảnh decor chính như cụm hoa, vật trang trí, thiệp, vows, ...)
 
 Sau đó bắt buộc render/review toàn bộ screen bằng design review skill/agent ở desktop, tablet, mobile và reduced-motion. Kiểm tra toàn bộ required/optional sections, toggle, reorder, repeatable, empty/loading/error, internal/external media, section seam, overflow, accessibility và media independence. Chạy typecheck, lint, test, build; cuối cùng audit `template-config.ts` với renderer, editor, catalog, preview path và admin publish/sync.
 
 Đầu ra bắt buộc: asset manifest/provenance, decor map, background-motion map, review report, validation result và release checklist. Chỉ sau phase này template mới được coi là hoàn chỉnh.
+
+Sau khi kết thúc pharse 5 cần liệt kê ra để chắc chắn:
+- Tất cả section đều có hiệu ứng xuất hiện cho từng thành phần trong nó
+- Cần có ít nhất 3 artwork phụ trang trí xung quanh trang và có hiệu ứng auto animation cho nó
+- Cần chắc chắn background có ít nhất 1 hiệu ứng: lá bay ngang, phong thư, hoa rơi, sao rơi,...
+- Cần chắc chắn phải có hiệu ứng động khi user dừng ở bát cứ section nào
+- Cần đảm bảo phải có ít nhất 1 section 3D
+- Cần đảm bảo template phải được bao gồm nhiều loại hiệu ứng
 
 ## 2. Theme identity không được phụ thuộc media upload
 
