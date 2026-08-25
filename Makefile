@@ -47,8 +47,8 @@ dev:
 docker-sync:
 	docker compose -f backend/compose.yaml pull --ignore-buildable
 	docker compose -f backend/compose.yaml up -d --build --remove-orphans
-	docker compose -f frontend/compose.yaml pull --ignore-buildable
-	docker compose -f frontend/compose.yaml up -d --build --remove-orphans
+	docker compose -f compose.yaml pull --ignore-buildable
+	docker compose -f compose.yaml up -d --build --remove-orphans
 
 # Force rebuild application images and recreate all Docker services.
 # Ép build lại application images và recreate toàn bộ Docker services.
@@ -58,8 +58,8 @@ docker-sync:
 docker-rebuild:
 	docker compose -f backend/compose.yaml build --no-cache
 	docker compose -f backend/compose.yaml up -d --force-recreate --remove-orphans
-	docker compose -f frontend/compose.yaml build --no-cache
-	docker compose -f frontend/compose.yaml up -d --force-recreate --remove-orphans
+	docker compose -f compose.yaml build --no-cache
+	docker compose -f compose.yaml up -d --force-recreate --remove-orphans
 
 # Full local environment synchronization after pulling new code.
 # Đồng bộ toàn bộ môi trường local sau khi pull code mới.
