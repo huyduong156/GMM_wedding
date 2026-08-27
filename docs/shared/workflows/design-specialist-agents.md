@@ -2,9 +2,9 @@
 
 ## Mục tiêu
 
-Chia tác vụ thiết kế cho sub-agent theo lĩnh vực để agent chính không nạp đồng thời toàn bộ hướng dẫn UI, React, motion, 3D, mobile và SEO. Agent chính giữ brief sản phẩm, tích hợp kết quả và chạy validation cuối.
+Chia tác vụ thiết kế cho sub-agent theo lĩnh vực để agent chính không nạp đồng thời toàn bộ hướng dẫn UI, React, motion, 3D, image generation, mobile và SEO. Agent chính giữ brief sản phẩm, tích hợp kết quả và chạy validation cuối.
 
-Mọi skill trong workflow này nằm tại `.agents/skills/`; không cài hoặc sửa `$CODEX_HOME/skills` và không ảnh hưởng repository khác.
+Agent instruction nằm tại `.agents/agents/`; mọi skill bổ sung trong workflow này nằm tại `.agents/skills/`. Không cài hoặc sửa `$CODEX_HOME/skills` và không ảnh hưởng repository khác.
 
 ## Domain theme agents (mandatory)
 
@@ -32,9 +32,10 @@ If the proposed hero, navigation, copy, section order or interaction could be mo
 
 ## Specialist roster
 
-| Agent | Khi gọi | Skill repo-local phải đọc | Kết quả trả về |
+| Agent | Khi gọi | Skill/tài liệu repo-local phải đọc | Kết quả trả về |
 |---|---|---|---|
 | `visual_direction_agent` | Theme public, landing, thiệp, website cưới, recap | `frontend-design`, `design`, `ui-ux-pro-max`; có thể thêm `design-taste-frontend` như góc audit | Art direction, composition map, token/pattern, anti-pattern và mobile fallback |
+| `image_generation_agent` | Khi theme cần generated raster artwork/decor/texture/prop/sprite renderer-owned | `.agents/agents/image-generation-agent/AGENT.md`; dùng built-in `imagegen` capability khi có, kết hợp `frontend-design`, `ambient-section-particles`, `web-animation-design`, `animation-systems`, `brand` theo nhu cầu | Asset list, prompt/source notes, decor/ambient placement map, provenance notes và integration constraints |
 | `react_quality_agent` | Sau khi có UI React hoặc trước production | `react-best-practices`, `web-design-guidelines` | Lỗi theo mức độ và patch hẹp về render, performance, accessibility, responsive |
 | `motion_agent` | Scroll storytelling, ambient motion, transitions, particle, CSS/GSAP motion | `web-animation-design`, `animation-systems`, `ambient-section-particles`, `cinematic-gsap-lenis-motion-system`, `scroll-world-storytelling` | Motion map, timing/easing, performance budget và reduced-motion fallback |
 | `spatial_3d_agent` | Skill cards 3D, category spheres/orbs, procedural motion, WebGL/Three.js UI | `threejs`, `webgl-3d-object`, `thinking-orbs`; thêm `remotion-best-practices` khi output là video | Scene graph, camera/input model, 2D fallback, DPR/asset budget |
@@ -46,7 +47,7 @@ If the proposed hero, navigation, copy, section order or interaction could be mo
 
 1. Agent chính đọc context/docs bắt buộc và viết brief hẹp: surface, audience, art direction, media contract, breakpoint, performance và acceptance criteria.
 2. Chỉ spawn specialist liên quan; không spawn cả roster mặc định.
-3. Specialist chỉ đọc `SKILL.md` trong hàng của mình và tài liệu repo được chỉ định; không tải toàn bộ catalog.
+3. Specialist chỉ đọc `AGENT.md`, `SKILL.md` hoặc tài liệu repo được chỉ định trong hàng của mình; không tải toàn bộ catalog.
 4. Specialist trả brief dưới khoảng 1.200 từ hoặc patch hẹp. Raw research/thử nghiệm không đưa vào context chính.
 5. Agent chính tích hợp, bảo vệ contract/editor behavior và chạy typecheck/test/build.
 6. Bắt buộc gọi `design_review_agent` hoặc skill review UI tương đương để đọc/render lại toàn bộ screen trước khi hoàn tất; review phải bao phủ required/optional sections, responsive, reduced motion, asset independence và lỗi visual/runtime.

@@ -210,7 +210,17 @@ photoDelivery
 thankYou
 ```
 
-Winter Wedding Recap hiện tại **không phải baseline để tham khảo**. Đây là một implementation/anti-example cần tránh vì cấu trúc `opening`, `chapters`, `filmstrip`, `quote`, `finale` không phản ánh đầy đủ semantic contract mới, thiếu `moments` và `photoDelivery`, đồng thời khóa mạnh composition theo một theme duy nhất. Khi tạo recap theme mới, không copy cấu trúc này; hãy map content theo sáu section bắt buộc và khai báo các optional section theo contract ở trên.
+Các implementation recap dùng cấu trúc cũ như `opening`, `filmstrip`, `quote`, `finale` **không phải baseline để tham khảo** và không còn được giữ trong source. Khi tạo recap theme mới, hãy map content theo sáu section bắt buộc và khai báo các optional section theo contract ở trên.
+
+Baseline authoring artifact hiện hành:
+
+- [Red Spider Lily Phase 1](./red-spider-lily-phase-1.md)
+- [Red Spider Lily Phase 2](./red-spider-lily-phase-2.md)
+- [Red Spider Lily Phase 3](./red-spider-lily-phase-3.md)
+- [Red Spider Lily Phase 4](./red-spider-lily-phase-4.md)
+- [Red Spider Lily Phase 5](./red-spider-lily-phase-5.md)
+
+- [`Red Spider Lily Recap — Phase 1`](./red-spider-lily-phase-1.md): theme brief, product meaning, viewer journey, section/content matrix, fixture plan, editor field plan, acceptance checklist, non-goals và anti-pattern cho `red-spider-lily-recap`.
 
 ## 9. Authoring checklist
 

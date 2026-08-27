@@ -1,5 +1,16 @@
 # Asset sources
 
+## Red Spider Lily Recap template
+
+- `frontend/public/assets/images/templates/red-spider-lily/red-spider-lily-botanical-cluster.png`, `red-spider-lily-vow-prop.png`, `red-spider-lily-petal-sprite.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-26. The petal sprite is source/provenance material only; the renderer must not place or spin the full sheet as a floating decorative object.
+- Prompt direction: original red spider lily wedding recap decor, transparent/self-contained botanical cluster, vow stationery prop and ambient petal sprite. No people, readable text, logo, watermark or external template identity.
+- `red-spider-lily-ring-prop.svg`, `red-spider-lily-film-ribbon.svg`, `red-spider-lily-divider-thread.svg`, `red-spider-lily-light-leak.svg`: project-authored vector artwork on 2026-08-27 for ring, film, divider and light-leak roles.
+- `red-spider-lily-ring-prop-v2.png`, `red-spider-lily-film-ribbon-v2.png`, `red-spider-lily-divider-thread-v2.png`, `red-spider-lily-light-leak-v2.png`, `red-spider-lily-topdown-bloom.png`: regenerated with built-in OpenAI image generation on 2026-08-27, then background-extracted/alpha-cleaned for project use.
+- Prompt direction: photorealistic red spider lily wedding cutouts for rings, film ribbon, horizontal divider, warm light leak and a top-down bloom with no visible stems. No people, text, logo, watermark or external template identity.
+- Usage: renderer-owned floating decoration, section transitions, ambient background and supporting props across the 12-section Red Spider Lily Recap preview.
+- Treatment: locally hosted assets, decorative empty alt text, self-contained composition without required edge/corner cropping and reduced-motion static fallback.
+- Demo media in `frontend/public/assets/images/templates/red-spider-lily/demo/*.jpg`: local preview-only user-media stand-ins from Unsplash, recorded in `docs/frontend/wedding-recaps/red-spider-lily-phase-4.md`; all remain replaceable by owner media and are not theme identity.
+
 ## Winter Wedding Recap template
 
 - `frontend/public/assets/images/templates/winter-wedding-recap/winter-opening.png`, `ring-ceremony.png`, `champagne-finale.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-14.

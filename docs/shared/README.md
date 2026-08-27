@@ -18,6 +18,7 @@ Folder này chứa tài liệu mà cả frontend và backend phải cùng hiểu
 
 ### Workflow và project
 
+- [Design specialist agents](./workflows/design-specialist-agents.md)
 - [Web research workflow](./workflows/web-research-workflow.md)
 - [Documentation status](./project/documentation-status.md)
 

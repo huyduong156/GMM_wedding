@@ -69,7 +69,7 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 
 ### Phase 4 — Advanced visual experience, interaction và motion
 Đây là pharse quan trọng nhất bắt buộc áp dụng mọi hiệu ứng có thể vào template
-- sử dụng agent image để generate ra các artwork(Floating decorative element, Corner decoration,Divider Decoration, Background Decoration, Overlay Decoration, Watermark Decoration, Cluster Decoration, Standalone Element ) và sắp xếp hợp lý dựa theo ý nghĩa và vị trí của từng loại ảnh decor 1 cách hợp lý nhất
+- sử dụng `.agents/agents/image-generation-agent/AGENT.md` để generate các artwork renderer-owned (Floating decorative element, Corner Decoration, Divider Decoration, Background Decoration, Overlay Decoration, Watermark Decoration, Cluster Decoration, Standalone Element) và sắp xếp hợp lý dựa theo ý nghĩa/vị trí của từng loại ảnh decor
 - thêm các hiệu ứng auto animation cho các artwork hoặc các thành phần nhỏ trong template
 - thêm các hiệu ứng xuất hiện khi scroll tới section
 - tăng độ nhận diện bằng cách sử dụng các css sáng tạo và hiệu ứng 3D
@@ -98,7 +98,7 @@ Mỗi technique phải ghi UX purpose, trigger, duration/easing hoặc spring, d
 - thêm background atmosphere như lá/petal bay, dust, mist, ambient particle hoặc light movement;
 - thêm entrance/reveal, auto-animation khi section vào viewport, hover/focus/press và interaction fallback;
 - kiểm tra visibility pause, density, CPU/GPU, asset size, mobile và reduced-motion.
-- Sử dụng agent gen image để tạo ra các hình ảnh phù hợp với template đang thiết kế (bao gồm các hình ảnh decor phụ như sao rơi, lá nhỏ,.. và các hình ảnh decor chính như cụm hoa, vật trang trí, thiệp, vows, ...)
+- Sử dụng `.agents/agents/image-generation-agent/AGENT.md` để tạo các hình ảnh phù hợp với template đang thiết kế, bao gồm decor phụ như sao rơi/lá nhỏ và decor chính như cụm hoa, vật trang trí, thiệp, vows.
 
 Sau đó bắt buộc render/review toàn bộ screen bằng design review skill/agent ở desktop, tablet, mobile và reduced-motion. Kiểm tra toàn bộ required/optional sections, toggle, reorder, repeatable, empty/loading/error, internal/external media, section seam, overflow, accessibility và media independence. Chạy typecheck, lint, test, build; cuối cùng audit `template-config.ts` với renderer, editor, catalog, preview path và admin publish/sync.
 
@@ -111,6 +111,8 @@ Sau khi kết thúc pharse 5 cần liệt kê ra để chắc chắn:
 - Cần chắc chắn phải có hiệu ứng động khi user dừng ở bát cứ section nào
 - Cần đảm bảo phải có ít nhất 1 section 3D
 - Cần đảm bảo template phải được bao gồm nhiều loại hiệu ứng
+
+Rule bo sung cho preview dai: voi preview dai tu 12 section tro len, can toi thieu 6 artwork/decor role rieng biet va phai map ro artwork nao di cung section nao de khi user reorder/xoa section thi decor van theo dung section.
 
 ## 2. Theme identity không được phụ thuộc media upload
 

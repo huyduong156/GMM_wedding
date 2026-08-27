@@ -240,7 +240,7 @@ Mỗi pattern bên dưới là **design inference của GMM** rút ra từ các 
 - Interaction: then-and-now reveal hoặc draggable filmstrip.
 - Mobile: contact sheet/scroll-snap, poster tĩnh cho finale.
 
-`Winter Wedding Recap` v1.0.0 tại `/templates/recaps/winter-wedding/preview` áp dụng công thức này với scroll-scrub film strip làm signature, snow field thưa, light leak một lớp và finale champagne. Desktop dùng sticky horizontal narrative; mobile và reduced motion chuyển toàn bộ chapter về document flow dọc, không hijack scroll.
+Template recap hiện hành cần áp dụng công thức này trên contract semantic mới, ưu tiên một signature effect duy nhất và giữ đủ fallback mobile/reduced-motion. `Red Spider Lily Recap` tại `/templates/recaps/red-spider-lily/preview` đang là baseline source cho sáu section bắt buộc; các implementation dùng section cũ như `opening`, `filmstrip`, `quote`, `finale` không còn được giữ trong source.
 
 ## Performance và accessibility guardrails
 
