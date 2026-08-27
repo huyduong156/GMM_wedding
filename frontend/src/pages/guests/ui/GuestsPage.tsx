@@ -1,3 +1,4 @@
+import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useDeferredValue, useMemo, useState } from 'react'
 import {
   Archive,
@@ -96,21 +97,21 @@ export function GuestsPage() {
           </label>
           <label className="guest-group-filter">
             <span>Nhóm</span>
-            <select value={group} onChange={(event) => setGroup(event.target.value)}>
+            <NativeSelectField value={group} onChange={(event) => setGroup(event.target.value)}>
               <option value="all">Tất cả nhóm</option>
               <option value="Gia đình">Gia đình</option>
               <option value="Bạn bè">Bạn bè</option>
               <option value="Đồng nghiệp">Đồng nghiệp</option>
-            </select>
+            </NativeSelectField>
           </label>
           <label className="guest-group-filter guest-tag-filter">
             <span>Tag</span>
-            <select value={tag} onChange={(event) => setTag(event.target.value)}>
+            <NativeSelectField value={tag} onChange={(event) => setTag(event.target.value)}>
               <option value="all">Tất cả tag</option>
               <optgroup label="Công ty">{guestTags.filter((item) => item.startsWith('Công ty')).map((item) => <option key={item}>{item}</option>)}</optgroup>
               <optgroup label="Họ hàng">{guestTags.filter((item) => ['Họ nội', 'Họ ngoại', 'Nhà trai', 'Nhà gái'].includes(item)).map((item) => <option key={item}>{item}</option>)}</optgroup>
               <optgroup label="Bạn bè">{guestTags.filter((item) => !item.startsWith('Công ty') && !['Họ nội', 'Họ ngoại', 'Nhà trai', 'Nhà gái'].includes(item)).map((item) => <option key={item}>{item}</option>)}</optgroup>
-            </select>
+            </NativeSelectField>
           </label>
           <button className="button button-secondary guest-export" type="button"><DownloadSimple size={16} /> Xuất file</button>
         </div>
@@ -166,7 +167,7 @@ export function GuestsPage() {
           </>
         ) : <div className="guest-empty"><Users size={28} /><h2>Không tìm thấy khách mời</h2><p>Thử đổi từ khóa hoặc bỏ bớt bộ lọc đang áp dụng.</p><button className="button button-secondary" type="button" onClick={() => { setQuery(''); setFilter('all'); setGroup('all'); setTag('all') }}>Xóa bộ lọc</button></div>}
 
-        <footer className="guest-pagination"><span>Đang hiển thị <strong>1–50</strong> trong 128 khách</span><label className="guest-page-size">Số dòng <select defaultValue="50"><option>50</option><option>100</option><option>200</option></select></label><div><button type="button" disabled aria-label="Trang trước"><CaretLeft size={16} /></button><span>Trang <strong>1</strong> / 3</span><button type="button" aria-label="Trang sau"><CaretRight size={16} /></button></div></footer>
+        <footer className="guest-pagination"><span>Đang hiển thị <strong>1–50</strong> trong 128 khách</span><label className="guest-page-size">Số dòng <NativeSelectField defaultValue="50"><option>50</option><option>100</option><option>200</option></NativeSelectField></label><div><button type="button" disabled aria-label="Trang trước"><CaretLeft size={16} /></button><span>Trang <strong>1</strong> / 3</span><button type="button" aria-label="Trang sau"><CaretRight size={16} /></button></div></footer>
       </div>
 
       <button className="guest-mobile-add" type="button" aria-label="Thêm khách mời"><Plus size={22} weight="bold" /></button>

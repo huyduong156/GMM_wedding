@@ -1,13 +1,12 @@
+import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useEffect, useMemo, useState } from 'react'
 import { CaretDown, CaretRight, FolderSimple, Plus, TreeStructure, UsersThree, X } from '@phosphor-icons/react'
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
 import { guestCategoryApi, type GuestCategory, type Wedding } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { GuestCategoriesPage } from './GuestCategoriesPage'
 
-const alertError = (text: string) => Swal.fire({ icon: 'error', title: 'Không thể thực hiện', text, confirmButtonText: 'Đã hiểu' })
-const alertSuccess = (text: string) => Swal.fire({ icon: 'success', title: 'Đã cập nhật', text, timer: 900, timerProgressBar: true, showConfirmButton: false })
+const alertError = (text: string) => notifications.fire({ icon: 'error', title: 'Không thể thực hiện', text, confirmButtonText: 'Đã hiểu' })
+const alertSuccess = (text: string) => notifications.fire({ icon: 'success', title: 'Đã cập nhật', text, timer: 900, timerProgressBar: true, showConfirmButton: false })
 
 export function GuestCategoriesConnectedV2() {
   const workspace = useOptionalWeddingWorkspace()
@@ -50,7 +49,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
   }
   const remove = async () => {
     if (!activeWedding || !selected.length) return
-    const result = await Swal.fire({ icon: 'warning', title: 'Xóa danh mục?', text: `${selected.length} danh mục sẽ được xóa. Danh mục con sẽ trở thành danh mục gốc.`, showCancelButton: true, confirmButtonText: 'Xóa danh mục', cancelButtonText: 'Hủy', confirmButtonColor: '#a43d34' })
+    const result = await notifications.fire({ icon: 'warning', title: 'Xóa danh mục?', text: `${selected.length} danh mục sẽ được xóa. Danh mục con sẽ trở thành danh mục gốc.`, showCancelButton: true, confirmButtonText: 'Xóa danh mục', cancelButtonText: 'Hủy', confirmButtonColor: '#a43d34' })
     if (!result.isConfirmed) return
     setBusy(true)
     try { await guestCategoryApi.removeMany(activeWedding.id, selected); setSelected([]); await load(); await alertSuccess('Danh mục đã được xóa.') }
