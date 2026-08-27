@@ -76,7 +76,8 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
     if (!templateKey || !displayName || !templateVersion) throw new Error(`Template metadata is incomplete: ${file}`)
     const sections = readSectionKeys(source)
     if (!sections.length) throw new Error(`Template sections are missing: ${file}`)
-    const sourceStatus = (readField(source, 'status') ?? 'review').toUpperCase()
+    const rawSourceStatus = (readField(source, 'status') ?? 'review').toUpperCase()
+    const sourceStatus = rawSourceStatus === 'DRAFT' ? 'DEVELOPMENT' : rawSourceStatus
     const previewPath = readField(source, 'previewPath'); const type = readField(source, 'type'); const rawProductType = readField(source, 'productType') ?? (type === 'website' ? 'WEDDING_WEBSITE' : type === 'recap' ? 'RECAP' : 'ONLINE_INVITATION'); const productType = rawProductType === 'WEDDING_RECAP' ? 'RECAP' : rawProductType
     return { sourceStatus: sourceStatus as 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED', templateKey, displayName, productType: productType as 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', templateVersion, templateConfigVersion: readNumberField(source, 'templateConfigVersion'), contentSchemaVersion: readNumberField(source, 'contentSchemaVersion'), rendererApiVersion: readNumberField(source, 'rendererApiVersion'), description: readField(source, 'description'), config: { sections, sourceFile: path.relative(root, file).replaceAll(path.sep, '/'), sourceHash: createHash('sha256').update(source).digest('hex'), ...(previewPath ? { previewPath } : {}) }, source }
   })).then((items) => items.filter((item): item is NonNullable<typeof item> => item !== null))
