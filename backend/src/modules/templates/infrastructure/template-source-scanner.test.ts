@@ -21,7 +21,9 @@ describe('readSectionKeys', () => {
   })
 
   it('reads recap configs that map a string array into section objects', () => {
-    expect(keys(readSectionKeys(source('recaps/winter-wedding/template-config.ts')))).toEqual(['opening', 'chapters', 'filmstrip', 'quote', 'finale'])
+    expect(keys(readSectionKeys(source('recaps/red-spider-lily/template-config.ts')))).toEqual([
+      'hero', 'ourStory', 'chapters', 'moments', 'photoDelivery', 'thankYou', 'guestbook', 'peopleBehindTheDay', 'weddingFilm', 'soundtrack', 'behindTheScenes', 'memoryCapsule',
+    ])
   })
 
   it('supports sections mapped from a separately named key array', () => {

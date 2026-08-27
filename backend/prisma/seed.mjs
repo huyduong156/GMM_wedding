@@ -1,4 +1,4 @@
-import argon2 from 'argon2'
+import { Algorithm, hash as argonHash } from '@node-rs/argon2'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -20,7 +20,7 @@ const ids = {
 
 async function main() {
   const seedPassword = process.env.SEED_OWNER_PASSWORD ?? 'LocalOwnerPassword123!'
-  const passwordHash = await argon2.hash(seedPassword, { type: argon2.argon2id })
+  const passwordHash = await argonHash(seedPassword, { algorithm: Algorithm.Argon2id })
 
   const user = await prisma.user.upsert({
     where: { email: 'owner.local@gmm.test' },
@@ -164,7 +164,7 @@ async function main() {
       if (!exists) await prisma.wish.create({ data: { weddingId: target.id, ...sample, submittedAt: new Date() } })
     }
   }
-  await seedTestFixtures({ prisma, argon2 })
+  await seedTestFixtures({ prisma })
 }
 
 main()
@@ -176,9 +176,9 @@ main()
     await prisma.$disconnect()
     process.exit(1)
   })
-async function seedTestFixtures({ prisma, argon2 }) {
+async function seedTestFixtures({ prisma }) {
   const password = process.env.SEED_TEST_PASSWORD ?? 'mytester123@'
-  const passwordHash = await argon2.hash(password, { type: argon2.argon2id })
+  const passwordHash = await argonHash(password, { algorithm: Algorithm.Argon2id })
   const ids = {
     admin: 'a1000000-0000-4000-8000-000000000001', user: 'a1000000-0000-4000-8000-000000000002', extraUser: 'a1000000-0000-4000-8000-000000000003', wedding: 'a2000000-0000-4000-8000-000000000001',
     userMember: 'a3000000-0000-4000-8000-000000000001', adminMember: 'a3000000-0000-4000-8000-000000000002', extraUserMember: 'a3000000-0000-4000-8000-000000000003', ceremony: 'a4000000-0000-4000-8000-000000000001', reception: 'a4000000-0000-4000-8000-000000000002',

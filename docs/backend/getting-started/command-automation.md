@@ -50,10 +50,11 @@ Makefile nằm tại `backend/Makefile` và chỉ gọi npm/Docker command chu�
 |---|---|---:|---|
 | `make doctor` | Kiểm tra Node, npm, Docker, Compose | Không | Onboarding/chẩn đoán máy |
 | `make install` | Chạy `npm ci` | Không | Clone mới hoặc CI |
-| `make sync` | Cài dependency frontend/backend, start local dependencies including MinIO/bucket init, generate/validate Prisma và apply migration | Không | Đổi branch/máy sau khi pull code |
+| `make sync` | Dừng Vite/Next dev server, cài dependency frontend/backend, start local dependencies including MinIO/bucket init, generate/validate Prisma và apply migration | Không | Đổi branch/máy sau khi pull code |
 | `make outdated` | Báo dependency có bản mới | Không | Maintenance review |
 | `make update` | Alias của `make sync`; không nâng version dependency | Không | Đồng bộ sau khi pull code |
 | `make dev` | Development server | Không | Code local |
+| `make stop-dev` | Dừng các process Vite/Next local theo command line | Không | Trước `npm ci` hoặc `make sync` |
 | `make check` | Lint + typecheck + test | Không | Trước commit/PR |
 | `make build` | Production build | Không | Verify release artifact |
 | `make docker-build` | Build backend image riêng | Không | Container verification |

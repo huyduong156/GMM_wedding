@@ -3,7 +3,7 @@ import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
 import { getServerEnv } from '@/platform/config/env'
-import { apiError, takeRequestOrigin, type ApiErrorBody } from '@/shared/http/api-response'
+import { apiError, completeHttpRequest, getRequestId, takeRequestOrigin, type ApiErrorBody } from '@/shared/http/api-response'
 
 function allowedOrigins() {
   const env = getServerEnv()
@@ -59,23 +59,27 @@ export function authErrorResponse(error: unknown, requestId: string): NextRespon
     if (error.retryAfter) response.headers.set('retry-after', String(error.retryAfter))
     return response
   }
-  return apiError(requestId, 'INTERNAL_ERROR', 'An unexpected error occurred', 500)
+  return apiError(requestId, 'INTERNAL_ERROR', 'An unexpected error occurred', 500, undefined, error)
 }
 
 export function optionsResponse(request?: Request) {
   const env = getServerEnv()
   const requestOrigin = request?.headers.get('origin')
   const origin = requestOrigin && allowedOrigins().has(requestOrigin) ? requestOrigin : env.APP_ORIGIN
-  return new Response(null, {
+  const requestId = request ? getRequestId(request) : undefined
+  const response = new Response(null, {
     status: 204,
     headers: {
       'access-control-allow-origin': origin,
       'access-control-allow-credentials': 'true',
       'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'access-control-allow-headers': 'content-type,x-csrf-protection,x-request-id',
+      ...(requestId ? { 'x-request-id': requestId } : {}),
       vary: 'Origin',
     },
   })
+  if (requestId) completeHttpRequest(response, requestId)
+  return response
 }
 
 export function withAuthHeaders<T extends Response>(response: T, requestId: string): T {
@@ -85,5 +89,6 @@ export function withAuthHeaders<T extends Response>(response: T, requestId: stri
   response.headers.set('access-control-allow-origin', origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN)
   response.headers.set('access-control-allow-credentials', 'true')
   response.headers.append('vary', 'Origin')
+  completeHttpRequest(response, requestId)
   return response
 }

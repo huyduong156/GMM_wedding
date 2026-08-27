@@ -73,6 +73,19 @@ Run the template sync/release flow after the reset to repopulate the registry.
 | Redis | localhost:6379 | Container hostname `redis` |
 | MinIO S3 API | http://localhost:9000 | Bucket `gmm-wedding`; Console: http://localhost:9001 |
 
+## Seed accounts
+
+`make database-seed` creates or updates the following local/test accounts. These credentials are for local development only and must not be reused in staging or production.
+
+| Email | Password | Role |
+|---|---|---|
+| `owner.local@gmm.test` | `LocalOwnerPassword123!` | Local owner and platform admin |
+| `admin@gmail.com` | `mytester123@` | Platform admin test account |
+| `user@gmail.com` | `mytester123@` | Wedding owner test account |
+| `user2@gmail.com` | `mytester123@` | Wedding viewer test account |
+
+The test fixture password can be overridden with `SEED_TEST_PASSWORD`; the local owner password can be overridden with `SEED_OWNER_PASSWORD`.
+
 ## Daily commands
 
 ```powershell

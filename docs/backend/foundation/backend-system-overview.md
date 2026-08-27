@@ -15,7 +15,7 @@
 | Concern | Công nghệ/cách tiếp cận | Trạng thái | Vai trò |
 |---|---|---|---|
 | Ngôn ngữ | TypeScript strict | Accepted | Backend application và tooling |
-| Runtime | Node.js >=20.9 | Accepted/implemented | Chạy API/worker |
+| Runtime | Node.js >=20.9 | Accepted/implemented | Chạy API/worker; local seed supports Node 20.9+ |
 | Server/API | Next.js 16 App Router, Route Handlers | Accepted/implemented | HTTP JSON API `/api` |
 | Kiến trúc | Modular monolith stateless | Accepted | Module business rõ, deploy một backend image |
 | Database | PostgreSQL | Accepted | Source of truth, transaction và constraint |

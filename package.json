@@ -1,12 +1,14 @@
 {
   "scripts": {
+    "stop-dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-dev.ps1",
     "db:migrate": "npm --prefix backend run db:migrate:deploy",
     "db:seed": "npm --prefix backend run db:seed",
     "db:refresh": "npm --prefix backend run db:refresh",
     "db:reset": "npm --prefix backend run db:reset",
     "db:reset-templates": "npm --prefix backend run db:reset-templates",
-    "sync": "docker compose -f backend/compose.yaml up -d postgres redis mailpit minio minio-init && npm --prefix frontend ci && npm --prefix backend ci && npm --prefix backend run db:generate && npm --prefix backend run db:validate && npm --prefix backend run db:migrate:deploy",
-    "db:reset:docker": "docker compose -f backend/compose.yaml --profile tools run --rm backend-reset"
+    "sync": "npm run stop-dev && docker compose -f backend/compose.yaml up -d postgres redis mailpit minio minio-init && npm --prefix frontend ci && docker compose -f backend/compose.yaml --profile tools run --rm --build backend-migrate sh -lc \"npm run db:generate && npm run db:validate && npm run db:migrate:deploy\"",
+    "db:reset:docker": "docker compose -f backend/compose.yaml --profile tools run --rm --build backend-reset",
+    "db:seed:docker": "docker compose -f backend/compose.yaml --profile tools run --rm --build backend-migrate sh -lc \"npm run db:generate && npm run db:seed\""
   },
   "dependencies": {
     "@tsparticles/react": "^4.3.2",

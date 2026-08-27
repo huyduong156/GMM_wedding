@@ -1,11 +1,11 @@
-import { getRequestId, jsonResponse } from '@/shared/http/api-response'
+import { completeHttpRequest, getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
 
 export function GET(request: Request) {
   const requestId = getRequestId(request)
 
-  return jsonResponse(
+  const response = jsonResponse(
     {
       status: 'ok',
       service: 'gmm-wedding-backend',
@@ -15,4 +15,6 @@ export function GET(request: Request) {
       headers: { 'x-request-id': requestId },
     },
   )
+  completeHttpRequest(response, requestId)
+  return response
 }

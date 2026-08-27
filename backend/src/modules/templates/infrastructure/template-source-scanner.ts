@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readdir, readFile, stat } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import type { TemplateReleaseBundle } from '../interface/template-admin-schemas'
 
@@ -32,22 +32,33 @@ function matchingArray(source: string, start: number) {
 
 const unique = (keys: Array<string | undefined>) => [...new Set(keys.filter((key): key is string => Boolean(key)))].map((sectionKey) => ({ sectionKey }))
 const stringLiterals = (value: string) => [...value.matchAll(/['"]([^'"\n]+)['"]/g)].flatMap((match) => match[1] ? [match[1]] : [])
-const firstTupleValues = (value: string) => [...value.matchAll(/\[\s*\[\s*['"]([^'"\n]+)['"]/g)].flatMap((match) => match[1] ? [match[1]] : [])
+const firstTupleValues = (value: string) => [...value.matchAll(/(?:\[|,)\s*\[\s*['"]([^'"\n]+)['"]/g)].flatMap((match) => match[1] ? [match[1]] : [])
+const mappedArrayNames = (value: string) => [...value.matchAll(/\b([A-Za-z_$][\w$]*)\.map\s*\(/g)].flatMap((match) => match[1] ? [match[1]] : [])
+function declaredArray(source: string, name: string) {
+  const declaration = new RegExp(`(?:const|let|var)\\s+${name}\\s*=\\s*`).exec(source)
+  return declaration ? matchingArray(source, declaration.index + declaration[0].length) : null
+}
 
 export function readSectionKeys(source: string) {
   const configuredKeys = [...source.matchAll(/\bsectionKey\s*:\s*['"]([^'"\n]+)['"]/g)].map((match) => match[1])
   if (configuredKeys.length) return unique(configuredKeys)
 
-  const property = /\bsections\s*:\s*/.exec(source)
+  const declaredSections = declaredArray(source, 'sections')
+  const propertyMatches = [...source.matchAll(/\bsections\s*:\s*/g)]
+  const property = propertyMatches.at(-1)
   const propertyValueStart = property ? property.index + property[0].length : -1
   const mappedName = property ? source.slice(propertyValueStart).match(/^([A-Za-z_$][\w$]*)\s*(?:\.map\s*\()?/)?.[1] : null
-  const declaration = new RegExp(`(?:const|let|var)\\s+${mappedName ?? 'sections'}\\s*=\\s*`).exec(source)
-  const array = declaration
-    ? matchingArray(source, declaration.index + declaration[0].length)
+  const array = declaredSections ?? (mappedName
+    ? declaredArray(source, mappedName)
       : property
       ? matchingArray(source, propertyValueStart)
-      : null
+      : null)
   if (!array) return []
+  const spreadMapKeys = mappedArrayNames(array).flatMap((name) => {
+    const mappedArray = declaredArray(source, name)
+    return mappedArray ? stringLiterals(mappedArray) : []
+  })
+  if (spreadMapKeys.length) return unique(spreadMapKeys)
   const tupleKeys = firstTupleValues(array)
   return unique(tupleKeys.length ? tupleKeys : stringLiterals(array))
 }
@@ -70,6 +81,15 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
     return { sourceStatus: sourceStatus as 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED', templateKey, displayName, productType: productType as 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', templateVersion, templateConfigVersion: readNumberField(source, 'templateConfigVersion'), contentSchemaVersion: readNumberField(source, 'contentSchemaVersion'), rendererApiVersion: readNumberField(source, 'rendererApiVersion'), description: readField(source, 'description'), config: { sections, sourceFile: path.relative(root, file).replaceAll(path.sep, '/'), sourceHash: createHash('sha256').update(source).digest('hex'), ...(previewPath ? { previewPath } : {}) }, source }
   })).then((items) => items.filter((item): item is NonNullable<typeof item> => item !== null))
   const sourceRevision = createHash('sha256').update(scanned.map((item) => item.source).join('\n')).digest('hex').slice(0, 64)
-  return { bundleVersion: 1, generatedAt: new Date().toISOString(), sourceRevision, templates: scanned.map(({ source: _source, ...template }) => template) }
+  return {
+    bundleVersion: 1,
+    generatedAt: new Date().toISOString(),
+    sourceRevision,
+    templates: scanned.map((item) => {
+      const { source, ...template } = item
+      void source
+      return template
+    }),
+  }
 }
 

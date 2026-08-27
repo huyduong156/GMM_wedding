@@ -1,25 +1,25 @@
-import argon2, { type HashOptions } from 'argon2'
+import { hash as argonHash, verify as argonVerify } from '@node-rs/argon2'
+import type { Options as ArgonOptions } from '@node-rs/argon2'
 
 import type { PasswordHasher } from '@/modules/identity/application/ports'
 
-const ARGON_OPTIONS: HashOptions & { raw: false } = {
-  type: argon2.argon2id,
+const ARGON_OPTIONS: ArgonOptions = {
+  algorithm: 2,
   memoryCost: 65_536,
   timeCost: 3,
   parallelism: 4,
-  hashLength: 32,
-  raw: false,
+  outputLen: 32,
 }
 
 export class ArgonPasswordHasher implements PasswordHasher {
   private dummyHashPromise?: Promise<string>
 
   hash(password: string): Promise<string> {
-    return argon2.hash(password, ARGON_OPTIONS)
+    return argonHash(password, ARGON_OPTIONS)
   }
 
   verify(hash: string, password: string): Promise<boolean> {
-    return argon2.verify(hash, password)
+    return argonVerify(hash, password)
   }
 
   async verifyDummy(password: string): Promise<void> {
@@ -28,6 +28,6 @@ export class ArgonPasswordHasher implements PasswordHasher {
   }
 
   needsRehash(hash: string): boolean {
-    return argon2.needsRehash(hash, ARGON_OPTIONS)
+    return !hash.startsWith('$argon2id$v=19$m=65536,t=3,p=4$')
   }
 }

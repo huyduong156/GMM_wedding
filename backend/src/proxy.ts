@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { log } from '@/shared/observability/logger'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const requestId = request.headers.get('x-request-id') ?? crypto.randomUUID()
-  log('info', 'HTTP request started', { requestId, method: request.method, path: request.nextUrl.pathname })
-  const response = NextResponse.next()
+  const headers = new Headers(request.headers)
+  headers.set('x-request-id', requestId)
+  const response = NextResponse.next({ request: { headers } })
   response.headers.set('x-request-id', requestId)
   return response
 }
