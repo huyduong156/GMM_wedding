@@ -4,6 +4,8 @@
 
 Workflow điều phối UI, React, motion, 3D, mobile và SEO qua các sub-agent chuyên môn nằm tại [Design specialist agents](./shared/workflows/design-specialist-agents.md). Các skill bổ sung của workflow chỉ được cài trong `.agents/skills/` của repository này.
 
+Authoring mọi public theme phải đi qua đúng domain theme agent và common contract tại [Common Theme Authoring Contract](./frontend/theme-authoring/README.md), sau đó mới đọc section rules riêng của Invitation, Wedding Website hoặc Wedding Recap.
+
 ## Chọn đúng vùng tài liệu
 
 | Vùng | Dùng khi | Không đặt ở đây |

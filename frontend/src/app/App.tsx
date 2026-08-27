@@ -37,7 +37,7 @@ import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVo
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
-import { WinterWeddingRecapPreviewPage } from '../pages/public-recap/ui/WinterWeddingRecapPreviewPage'
+import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
 import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
@@ -100,7 +100,7 @@ export function App() {
   if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
   if (pathname === publicTemplateRoutes.enchantedForestPreview) return <EnchantedForestPreviewPage />
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview) return <CherryBlossomGardenPreviewPage />
-  if (pathname === publicTemplateRoutes.winterWeddingRecapPreview) return <WinterWeddingRecapPreviewPage />
+  if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview) return <RedSpiderLilyRecapPreviewPage />
   if (pathname === adminRoutes.login) return <AdminLoginPage />
 
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {

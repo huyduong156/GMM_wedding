@@ -21,6 +21,7 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 - [Nền live template editor dùng chung](./live-template-editor.md)
 - [Nhạc nền cưới: admin catalog, owner editor và guest playback](./wedding-background-music.md)
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
+- [Common Theme Authoring Contract và quality gate cho mọi theme](./theme-authoring/README.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)
 - [Website cưới: section, content/config contract và authoring checklist](./wedding-websites/README.md)
 - [Typography và font cưới](./online-invitations/typography-and-fonts.md)
@@ -30,6 +31,8 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 Design system implementation vẫn dùng [`design-system/MASTER.md`](../../design-system/MASTER.md) và override tương ứng trong `design-system/pages/`.
 
 - Todo checklist gợi ý trong MVP là preset static tại rontend/src/pages/todos/checklist-presets.ts; preview chạy ở FE và apply gửi bulk root tasks qua POST /api/weddings/{weddingId}/tasks/bulk. Không có template checklist persistence/admin management ở MVP.
+
+Wedding Recap có contract riêng về semantic content, layout options, optional sections và media replacement tại [Wedding Recap docs](./wedding-recaps/README.md). Layout/art direction tiếp tục tái sử dụng nguyên tắc authoring của invitation và wedding website; code template recap hiện hành chỉ giữ `red-spider-lily` làm baseline theo contract mới.
 
 ## Boundary
 

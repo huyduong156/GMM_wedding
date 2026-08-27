@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" role="img" aria-label="Wedding ring and red spider lily decorative prop">
+  <defs>
+    <radialGradient id="gold" cx="44%" cy="34%" r="68%">
+      <stop offset="0" stop-color="#fff6cf"/>
+      <stop offset=".42" stop-color="#d5a94e"/>
+      <stop offset="1" stop-color="#7d4b1d"/>
+    </radialGradient>
+    <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d43e49"/>
+      <stop offset=".6" stop-color="#9b1f2b"/>
+      <stop offset="1" stop-color="#5e1520"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#4a1319" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g fill="none" filter="url(#soft)" stroke-linecap="round">
+    <ellipse cx="226" cy="246" rx="92" ry="72" stroke="url(#gold)" stroke-width="18" transform="rotate(-17 226 246)"/>
+    <ellipse cx="300" cy="224" rx="98" ry="74" stroke="url(#gold)" stroke-width="16" transform="rotate(21 300 224)"/>
+    <path d="M168 204c82-54 171-54 267 0" stroke="#6f5d36" stroke-width="3" opacity=".22"/>
+    <g stroke="url(#petal)" stroke-width="8">
+      <path d="M86 170c66-16 108 8 128 72"/>
+      <path d="M112 128c54 8 83 42 84 102"/>
+      <path d="M154 102c38 29 52 70 31 124"/>
+      <path d="M205 104c12 50-4 88-50 119"/>
+      <path d="M74 228c66-34 119-26 159 24"/>
+    </g>
+    <g stroke="#c82f3b" stroke-width="3" opacity=".86">
+      <path d="M77 165c-24-24-37-47-41-69"/>
+      <path d="M106 124c-9-33-8-62 3-86"/>
+      <path d="M158 100c12-34 31-58 56-72"/>
+      <path d="M207 103c30-20 59-27 89-22"/>
+    </g>
+  </g>
+</svg>

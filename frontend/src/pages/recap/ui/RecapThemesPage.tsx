@@ -21,9 +21,9 @@ type RecapTheme = {
   config: Record<string, unknown>
 }
 
-const previewPaths: Record<string, string> = { 'winter-wedding-recap': publicTemplateRoutes.winterWeddingRecapPreview }
+const previewPaths: Record<string, string> = { 'red-spider-lily-recap': publicTemplateRoutes.redSpiderLilyRecapPreview }
 const localMeta: Record<string, { name: string; style: string; palette: string }> = {
-  'winter-wedding-recap': { name: 'Winter Wedding Recap', style: 'Điện ảnh', palette: 'Winter navy · Champagne' },
+  'red-spider-lily-recap': { name: 'Dấu Son Bỉ Ngạn', style: 'Botanical editorial', palette: 'Vermilion paper · Ink ivory' },
 }
 
 function sectionKey(section: TemplateSectionConfig) {
