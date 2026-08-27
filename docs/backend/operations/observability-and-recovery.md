@@ -6,6 +6,13 @@
 
 Structured JSON gồm timestamp, level, service, environment, release, requestId/traceId, route template, status, duration và error code. Actor/resource ID chỉ log dạng cần thiết; không log password, cookie, raw invite token, QR/bank data hoặc request body mặc định.
 
+Local Docker backend cũng bật log dễ đọc cho quá trình debug:
+
+- `ACCESS_LOGGING=true` in API request đã hoàn tất với status, duration, IP, method, URL và `requestId`.
+- `DATABASE_QUERY_LOGGING=true` in Prisma SQL với duration khi `LOG_LEVEL=debug`; Compose local dùng `BACKEND_LOG_LEVEL=debug` mặc định để tránh bị biến `LOG_LEVEL` của host override ngoài ý muốn.
+- `DATABASE_QUERY_LOG_PARAMS=false` redact giá trị query params theo mặc định. Chỉ bật với dữ liệu local dùng một lần.
+- `ERROR_RESPONSE_DETAILS=true` trả debug detail cho response 5xx trong local Docker; staging/production phải tắt và tra lỗi qua server log cùng `requestId`.
+
 ### Metrics
 
 - HTTP rate/error/duration theo route template, không theo raw URL.

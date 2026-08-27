@@ -6,7 +6,7 @@
 
 ## Nguyên tắc kiến trúc đã xác định
 
-- TypeScript strict trên Node.js >=20.9, Next.js 16 Route Handlers.
+- TypeScript strict trên Node.js >=20.9, Next.js 16 Route Handlers. Local development and seed support Node 20.9+; production/container images may use a newer supported LTS runtime.
 - Modular monolith stateless, deploy độc lập với frontend.
 - PostgreSQL là source of truth; Prisma 6 đã được chọn cho baseline và sẽ tiếp tục được kiểm chứng với schema/query/migration thật.
 - HTTP JSON API `/api`, OpenAPI 3.1, runtime validation tại boundary.

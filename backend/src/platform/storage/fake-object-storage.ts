@@ -11,7 +11,7 @@ function safePath(root: string, key: string) {
 }
 
 export class FakeObjectStorage implements ObjectStorage {
-  private root() { return resolve(process.cwd(), getServerEnv().MEDIA_FAKE_ROOT) }
+  private root() { return resolve(/* turbopackIgnore: true */ process.cwd(), getServerEnv().MEDIA_FAKE_ROOT) }
   async createUploadIntent(key: string, mimeType: string, sizeBytes: number): Promise<UploadIntent> {
     void key; void mimeType; void sizeBytes
     return { uploadUrl: 'backend-upload', method: 'PUT', headers: { 'content-type': mimeType }, expiresAt: new Date(Date.now() + 15 * 60_000) }

@@ -1,5 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, type Mock } from 'vitest'
 import { MusicError, MusicService } from './music-service'
+
+type PrismaMock = { musicTrack: { create: Mock; findMany: Mock; findFirst: Mock; update: Mock } }
+type StorageMock = { createUploadIntent: Mock; head: Mock; publicUrl: Mock }
 
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: 'track-1', scope: 'PERSONAL', status: 'READY', displayName: 'Song', artistName: null,
@@ -9,9 +12,9 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 })
 
 function makeService() {
-  const prisma = { musicTrack: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn(), update: vi.fn() } } as never
-  const storage = { createUploadIntent: vi.fn(), head: vi.fn(), publicUrl: vi.fn((key: string) => `https://cdn.test/${key}`) } as never
-  return { service: new MusicService(prisma, storage), prisma, storage } as any
+  const prisma: PrismaMock = { musicTrack: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn(), update: vi.fn() } }
+  const storage: StorageMock = { createUploadIntent: vi.fn(), head: vi.fn(), publicUrl: vi.fn((key: string) => `https://cdn.test/${key}`) }
+  return { service: new MusicService(prisma as never, storage as never), prisma, storage }
 }
 
 describe('MusicService', () => {

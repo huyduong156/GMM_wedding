@@ -1,6 +1,7 @@
 ﻿FROM node:24-alpine AS dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
 RUN npm ci
 
 FROM dependencies AS builder
@@ -28,4 +29,5 @@ FROM dependencies AS migration
 WORKDIR /app
 ENV NODE_ENV=production
 COPY prisma ./prisma
+RUN npm run db:generate
 CMD ["npm", "run", "db:migrate:deploy"]

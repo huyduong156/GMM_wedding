@@ -63,6 +63,8 @@ npm --prefix .\backend ci
 
 Dùng `npm ci` khi lockfile tồn tại. Chỉ dùng `npm install` khi chủ động thay dependency và commit lockfile tương ứng.
 
+Backend hỗ trợ Node.js 20.9 trở lên. Bộ mã hóa mật khẩu dùng `@node-rs/argon2` với binary dựng sẵn theo nền tảng, vì vậy cài dependency bằng `npm ci` trên Windows không cần Visual Studio C++ Build Tools. Docker backend vẫn dùng runtime LTS riêng.
+
 Nếu máy có GNU Make, có thể dùng wrapper tương đương:
 
 ```powershell

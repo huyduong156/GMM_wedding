@@ -159,7 +159,7 @@ describe('Owner Workspace', () => {
     window.history.replaceState(null, '', '/templates/recaps/red-spider-lily/preview')
     render(<NavigationProvider><App /></NavigationProvider>)
     expect(screen.getByRole('heading', { level: 1, name: /Minh.*Anh/i })).toBeInTheDocument()
-    expect(document.querySelectorAll('[data-editor-section]')).toHaveLength(6)
+    expect(document.querySelectorAll('[data-editor-section]')).toHaveLength(12)
   })
 
   it('renders the Verdant Promise invitation with botanical interactions', () => {
@@ -190,9 +190,10 @@ describe('Owner Workspace', () => {
     expect(screen.getAllByText('Nguyễn Minh Anh')).not.toHaveLength(0)
   })
 
-  it('renders the separate admin website library', () => {
+  it('renders the separate admin website library', async () => {
     window.history.replaceState(null, '', '/gmm_admin/library/websites')
     render(<NavigationProvider><App /></NavigationProvider>)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Đồng bộ template' })).toBeInTheDocument())
     expect(screen.getByRole('heading', { name: 'Kho website cưới' })).toBeInTheDocument()
   })
 })

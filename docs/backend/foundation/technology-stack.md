@@ -8,7 +8,7 @@ Stack phải ưu tiên type safety, portability, khả năng kiểm thử, vận
 
 | Thành phần | Lựa chọn | Trạng thái | Lý do |
 |---|---|---|---|
-| Runtime | Node.js >=20.9 | Accepted/implemented | Next.js 16 requirement; Docker dùng Node 20 |
+| Runtime | Node.js >=20.9 | Accepted/implemented | Next.js 16 requirement; local development supports Node 20.9+, Docker may use a newer supported LTS |
 | Language | TypeScript strict | Accepted | Contract rõ, refactor an toàn, dùng chung type generation |
 | API framework | Next.js 16 App Router/Route Handlers | Accepted/implemented | Standalone image đã build và smoke-test |
 | Database | PostgreSQL | Accepted | Transaction, constraint, indexing và JSONB phù hợp domain |

@@ -4,8 +4,8 @@ import { Bank, CaretDown, Coins, CurrencyCircleDollar, DotsThree, Eye, EyeSlash,
 import Swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import { giftApi, guestApi, type GiftLedgerEntry as ApiGiftEntry, type Guest } from '../../../shared/api/weddings'
-import { useWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
-import { methodLabels, reciprocityLabels, type GiftEntry, type GiftKind, type ReciprocityStatus } from '../model/gift-ledger-data'
+import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { initialGiftEntries, methodLabels, reciprocityLabels, type GiftEntry, type GiftKind, type ReciprocityStatus } from '../model/gift-ledger-data'
 function fromApiEntry(entry: ApiGiftEntry): GiftEntry {
   const kind = entry.giftType === 'physicalGift' ? 'gift' : entry.giftType
   const method = entry.receiveMethod === 'bankTransfer' ? 'bank' : entry.receiveMethod === 'cash' ? 'cash' : 'physical'
@@ -17,15 +17,15 @@ const isMobileViewport = () => typeof window !== 'undefined' && window.matchMedi
 const toast = (title: string, icon: 'success' | 'error' = 'success') => Swal.fire({ toast: true, position: 'top-end', icon, title, timer: 1500, timerProgressBar: true, showConfirmButton: false })
 
 export function GiftLedgerPage() {
-  const { activeWedding } = useWeddingWorkspace()
-  const weddingId = activeWedding?.id
-  const [entries, setEntries] = useState<GiftEntry[]>([])
+  const workspace = useOptionalWeddingWorkspace()
+  const weddingId = workspace?.activeWedding?.id
+  const [entries, setEntries] = useState<GiftEntry[]>(() => workspace ? [] : initialGiftEntries)
   const [loading, setLoading] = useState(Boolean(weddingId))
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'all' | ReciprocityStatus>('all')
-  const [revealed, setRevealed] = useState(true)
+  const [revealed, setRevealed] = useState(false)
   const [editing, setEditing] = useState<GiftEntry | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogClosing, setDialogClosing] = useState(false)
@@ -53,12 +53,13 @@ export function GiftLedgerPage() {
     return () => { cancelled = true }
   }, [guestPickerOpen, guestQuery, weddingId])
   useEffect(() => {
+    if (!workspace) { setEntries(initialGiftEntries); setLoading(false); return }
     if (!weddingId) { setEntries([]); setLoading(false); return }
     let cancelled = false
     setLoading(true)
     Promise.all([giftApi.list(weddingId, { limit: 100 }), giftApi.summary(weddingId)]).then(([result]) => { if (!cancelled) { setEntries(result.items.map(fromApiEntry)); setError(null) } }).catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'Không thể tải sổ tiền mừng.') }).finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [weddingId])
+  }, [weddingId, workspace])
   useEffect(() => {
     const handleEdit = (event: Event) => { const entry = entries.find((item) => item.id === (event as CustomEvent<string>).detail); if (entry) openEdit(entry) }
     const handleRemove = (event: Event) => { const entry = entries.find((item) => item.id === (event as CustomEvent<string>).detail); if (entry) void removeEntry(entry) }
