@@ -55,7 +55,7 @@ export type RedSpiderLilyRecapContent = {
   ourStory: { eyebrow: string; title: string; body: string; quote?: string; media: RedSpiderLilyMedia[] }
   chapters: RedSpiderLilyChapter[]
   moments: RedSpiderLilyMoment[]
-  photoDelivery: { eyebrow: string; title: string; body: string; ctaLabel: string; albums: RedSpiderLilyAlbumSource[] }
+  photoDelivery: { eyebrow: string; title: string; body: string; ctaLabel: string; albumUrl?: string; albums: RedSpiderLilyAlbumSource[] }
   thankYou: { title: string; body: string; signature: string; date: string; media?: RedSpiderLilyMedia }
   optional: {
     guestbook: RedSpiderLilyOptionalContent

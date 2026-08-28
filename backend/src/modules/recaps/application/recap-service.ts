@@ -2,9 +2,10 @@ import { createHash } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import type { ObjectStorage } from '@/platform/storage/object-storage'
 import type { RecapPublishInput, RecapSaveInput } from '../interface/recap-schemas'
+import { validateRecapContent } from './recap-content-validation'
 
 export class RecapError extends Error {
-  constructor(readonly code: string, readonly status: number, message: string) {
+  constructor(readonly code: string, readonly status: number, message: string, readonly fieldErrors?: Record<string, string[]>) {
     super(message)
     this.name = 'RecapError'
   }
@@ -88,6 +89,11 @@ export class RecapService {
     const owned = weddingId ? await this.prisma.wedding.findFirst({ where: { id: weddingId, createdById: userId, deletedAt: null }, select: { id: true } }) : null
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
     const template = await this.template(input.templateVersionId)
+    const contentIssues = validateRecapContent(template.template.key, input.content)
+    if (contentIssues.length) {
+      const fieldErrors = contentIssues.reduce<Record<string, string[]>>((result, issue) => { result[issue.path] = [...(result[issue.path] ?? []), issue.message]; return result }, {})
+      throw new RecapError('RECAP_CONTENT_INVALID', 400, 'Recap content is invalid', fieldErrors)
+    }
     const sectionConfig = normalizeSectionConfig(template.config, input.sectionConfig)
     const refs = await this.validateReferences(weddingId, { mediaItems: input.mediaItems.map((item) => ({ ...item, caption: item.caption ?? null })), wishSelections: input.wishSelections })
     const current = await this.prisma.weddingRecap.findUnique({ where: { weddingId }, select: { id: true, revision: true } })

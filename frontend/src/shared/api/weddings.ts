@@ -86,6 +86,7 @@ export type MediaAsset = {
   sizeBytes: number
   publicUrl: string
   originalName?: string | null
+  createdAt?: string
 }
 
 export type PublishedWeddingSnapshot = {
@@ -315,6 +316,8 @@ export const weddingApi = {
   publish: (weddingId: string, input: { surface: WeddingSurface; slug: string; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
   unpublish: (weddingId: string, surface: WeddingSurface) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify({ surface }) }),
   uploadMedia: uploadMediaFile,
+  media: (weddingId: string) => request<{ items: MediaAsset[] }>(`/weddings/${weddingId}/media`),
+  removeMedia: (weddingId: string, mediaId: string) => request<void>(`/weddings/${weddingId}/media/${mediaId}`, { method: 'DELETE', body: '{}' }),
   recap: (weddingId: string) => request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
   saveRecap: (weddingId: string, input: { templateVersionId: string; title: string; thankYouMessage?: string | null; ogTitle?: string | null; ogDescription?: string | null; ogImageUrl?: string | null; content: Record<string, unknown>; themeConfig: Record<string, unknown>; sectionConfig: RecapSectionConfig; mediaItems: Array<{ mediaAssetId: string; caption?: string | null; sortOrder: number }>; wishSelections: Array<{ wishId: string; sortOrder: number }>; revision: number }) => request<{ recap: RecapDraft }>(`/weddings/${weddingId}/recap`, { method: 'PUT', body: JSON.stringify(input) }),
   recapSlugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/recaps/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),}

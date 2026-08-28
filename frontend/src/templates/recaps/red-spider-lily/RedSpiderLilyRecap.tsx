@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, CaretRight, Flower, ImagesSquare, MagnifyingGlassMinus, MagnifyingGlassPlus, MusicNotes, Pause, Play, Quotes, X } from '@phosphor-icons/react'
 import type { RedSpiderLilyMedia, RedSpiderLilyMoment, RedSpiderLilyOptionalContent, RedSpiderLilyRecapContent } from './content'
 import { redSpiderLilyRecapFixture } from './fixture'
+import { isLiveEditorScroll, isLiveEditorUpdate, liveEditorEvents } from '../../../shared/lib/live-template-editor'
 import './red-spider-lily.css'
 import './red-spider-lily-rails.css'
 import './red-spider-lily-phase4.css'
@@ -111,8 +112,12 @@ function OptionalSection({ sectionKey, content }: { sectionKey: string; content:
   return <section className="rsl-capsule" data-editor-section={sectionKey}><RecapDecor variant="capsule" /><button type="button" className="rsl-capsule-open" onClick={() => capsuleGallery.length && setLightboxItems(capsuleGallery)} aria-label={`Mo album ${content.title}`}><MediaFrame media={content.media} className="rsl-capsule-media" label="Anh chuong tiep theo" /></button><div className="rsl-capsule-letter"><p className="rsl-eyebrow">{eyebrow}</p><h2>{content.title}</h2><p>{content.body}</p><strong>{content.date ?? 'Mot ngay sau nay'}</strong>{capsuleGallery.length ? <GalleryButton label="Xem khoanh khac" items={capsuleGallery} onOpen={setLightboxItems} /> : <span>Viet tiep cau chuyen</span>}</div>{lightboxItems ? <MediaLightbox items={lightboxItems} onClose={() => setLightboxItems(null)} /> : null}</section>
 }
 
-export function RedSpiderLilyRecap({ data = redSpiderLilyRecapFixture.content }: { data?: RedSpiderLilyRecapContent }) {
+type RecapEditorState = { data?: RedSpiderLilyRecapContent; sectionConfig: { enabled: string[]; order: string[] } }
+
+export function RedSpiderLilyRecap({ data: initialData = redSpiderLilyRecapFixture.content }: { data?: RedSpiderLilyRecapContent }) {
   const [lightboxItems, setLightboxItems] = useState<RedSpiderLilyMedia[] | null>(null)
+  const [data, setData] = useState(initialData)
+  useEffect(() => setData(initialData), [initialData])
   useEffect(() => {
     const root = document.querySelector<HTMLElement>('.red-spider-lily-recap')
     const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -177,6 +182,34 @@ export function RedSpiderLilyRecap({ data = redSpiderLilyRecapFixture.content }:
     })
     return () => { observer.disconnect(); cleanups.forEach((cleanup) => cleanup()); window.removeEventListener('scroll', onScroll); if (frame) window.cancelAnimationFrame(frame); root.classList.remove('is-motion-ready'); root.removeEventListener('click', onAnchorClick) }
   }, [data])
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('editor') !== '1') return
+    const applyEditorConfig = ({ enabled, order }: RecapEditorState['sectionConfig']) => {
+      const root = document.querySelector<HTMLElement>('.red-spider-lily-recap')
+      if (!root) return
+      const sections = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-editor-section]')).map((section) => [section.dataset.editorSection ?? '', section]))
+      const footer = root.querySelector<HTMLElement>('.rsl-footer')
+      order.forEach((key) => { const section = sections.get(key); if (!section) return; if (footer) root.insertBefore(section, footer); else root.appendChild(section) })
+      sections.forEach((section, key) => { section.hidden = !enabled.includes(key) })
+    }
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== window.parent) return
+      if (isLiveEditorUpdate<RecapEditorState>(event.data)) {
+        const { enabled, order } = event.data.payload.sectionConfig
+        if (event.data.payload.data) setData(event.data.payload.data)
+        applyEditorConfig(event.data.payload.sectionConfig)
+        document.documentElement.dataset.recapEnabled = enabled.join(',')
+        document.documentElement.dataset.recapOrder = order.join(',')
+      }
+      if (isLiveEditorScroll<string>(event.data)) {
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+        document.querySelector<HTMLElement>(`[data-editor-section="${event.data.payload.sectionKey}"]`)?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+      }
+    }
+    window.addEventListener('message', onMessage)
+    window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)
+    return () => window.removeEventListener('message', onMessage)
+  }, [])
 
   return <main className="red-spider-lily-recap">
     <div className="rsl-ambient" aria-hidden="true"><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /><span /></div>
@@ -184,7 +217,7 @@ export function RedSpiderLilyRecap({ data = redSpiderLilyRecapFixture.content }:
     <section id="rsl-story" className="rsl-story" data-editor-section="ourStory"><RecapDecor variant="story" /><div className="rsl-section-intro"><p className="rsl-eyebrow">{data.ourStory.eyebrow}</p><h2>{data.ourStory.title}</h2></div><div className="rsl-story-copy"><p>{data.ourStory.body}</p>{data.ourStory.quote ? <blockquote>“{data.ourStory.quote}”</blockquote> : null}<span className="rsl-media-action">Mot khung hinh giu lai buoi chieu hom ay.</span></div><div className="rsl-story-media">{data.ourStory.media.length ? data.ourStory.media.map((media) => <MediaFrame key={media.alt} media={media} label="Anh loi dan" />) : <MediaFrame media={{ src: '', alt: 'Anh loi dan', role: 'story' }} label="Anh loi dan" />}</div></section>
     <section className="rsl-chapters" data-editor-section="chapters"><RecapDecor variant="chapters" /><div className="rsl-chapters-head"><div><p className="rsl-eyebrow">Nhung chuong da qua</p><h2>Di qua tung ngay<br /><em>da lam nen chung minh.</em></h2></div><span className="rsl-section-index">03 / 06</span></div><div className="rsl-chapter-list">{data.chapters.map((chapter, index) => { const gallery = chapter.gallery?.length ? chapter.gallery : [chapter.cover]; return <article className="rsl-chapter" key={chapter.id}><div className="rsl-chapter-number">0{index + 1}</div><button type="button" className="rsl-chapter-open" onClick={() => setLightboxItems(gallery)} aria-label={`Mo album ${chapter.title}`}><MediaFrame media={chapter.cover} className="rsl-chapter-image" label="Anh chapter" /></button><div className="rsl-chapter-copy"><p className="rsl-eyebrow">{chapter.dateLabel}</p><h3>{chapter.title}</h3><p>{chapter.description}</p><GalleryButton label="Mo album ky niem" items={gallery} onOpen={setLightboxItems} /></div></article> })}</div></section>
     <section className="rsl-moments" data-editor-section="moments"><RecapDecor variant="moments" /><div className="rsl-moments-heading"><p className="rsl-eyebrow">Nhung khoanh khac</p><h2>Dieu chung minh<br /><em>se luon nho.</em></h2><p>Nhung nhom ky uc nho lam ngay hom ay tro nen that rieng.</p></div><MomentCarousel moments={data.moments} onOpen={setLightboxItems} /></section>
-    <section id="rsl-photo-delivery" className="rsl-delivery" data-editor-section="photoDelivery"><RecapDecor variant="delivery" /><div className="rsl-delivery-seal" aria-hidden="true"><ImagesSquare weight="thin" /></div><div><p className="rsl-eyebrow">{data.photoDelivery.eyebrow}</p><h2>{data.photoDelivery.title}</h2><p>{data.photoDelivery.body}</p><div className="rsl-delivery-albums">{(data.photoDelivery.albums.length ? data.photoDelivery.albums : [{ type: 'INTERNAL_ALBUM' as const, albumId: 'guest-gallery' }, { type: 'INTERNAL_ALBUM' as const, albumId: 'family-gallery' }]).map((album, index) => <span key={`${album.type}-${index}`}>{album.type === 'EXTERNAL_ALBUM_LINK' ? album.label : index === 0 ? 'Album khach moi' : 'Album gia dinh'}</span>)}</div></div><a className="rsl-solid-link" href="#rsl-photo-delivery">{data.photoDelivery.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a></section>
+    <section id="rsl-photo-delivery" className="rsl-delivery" data-editor-section="photoDelivery"><RecapDecor variant="delivery" /><div className="rsl-delivery-seal" aria-hidden="true"><ImagesSquare weight="thin" /></div><div><p className="rsl-eyebrow">{data.photoDelivery.eyebrow}</p><h2>{data.photoDelivery.title}</h2><p>{data.photoDelivery.body}</p></div><a className="rsl-solid-link" href={data.photoDelivery.albumUrl || '#rsl-photo-delivery'} target={data.photoDelivery.albumUrl ? '_blank' : undefined} rel={data.photoDelivery.albumUrl ? 'noreferrer' : undefined}>{data.photoDelivery.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a></section>
     <OptionalSection sectionKey="guestbook" content={data.optional.guestbook} /><OptionalSection sectionKey="peopleBehindTheDay" content={data.optional.peopleBehindTheDay} /><OptionalSection sectionKey="weddingFilm" content={data.optional.weddingFilm} /><OptionalSection sectionKey="soundtrack" content={data.optional.soundtrack} /><OptionalSection sectionKey="behindTheScenes" content={data.optional.behindTheScenes} /><OptionalSection sectionKey="memoryCapsule" content={data.optional.memoryCapsule} />
     <section className="rsl-thank-you" data-editor-section="thankYou"><RecapDecor variant="thankYou" /><div className="rsl-thank-you-image"><MediaFrame media={data.thankYou.media} label="Anh loi cam on" /></div><div className="rsl-thank-you-copy"><p className="rsl-eyebrow">Loi cam on</p><h2>{data.thankYou.title}</h2><p>{data.thankYou.body}</p><strong>{data.thankYou.signature}</strong><small>{data.thankYou.date}</small></div></section><footer className="rsl-footer"><span>{data.thankYou.signature}</span><span>{data.thankYou.date}</span><a href="#top" aria-label="Ve dau trang"><ArrowUp size={17} /></a></footer>{lightboxItems ? <MediaLightbox items={lightboxItems} onClose={() => setLightboxItems(null)} /> : null}
   </main>

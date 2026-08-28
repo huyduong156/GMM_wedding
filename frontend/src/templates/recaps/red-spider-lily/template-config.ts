@@ -3,18 +3,18 @@ import { redSpiderLilyMediaContract } from './media-contract'
 const requiredSections = ['hero', 'ourStory', 'chapters', 'moments', 'photoDelivery', 'thankYou'] as const
 const optionalSections = ['guestbook', 'peopleBehindTheDay', 'weddingFilm', 'soundtrack', 'behindTheScenes', 'memoryCapsule'] as const
 const sectionLabels = {
-  hero: 'Trang bia recap',
-  ourStory: 'Loi dan',
-  chapters: 'Cac chuong ky uc',
-  moments: 'Nhung khoanh khac',
-  photoDelivery: 'Tra anh',
-  thankYou: 'Loi cam on',
-  guestbook: 'Loi chuc o lai',
-  peopleBehindTheDay: 'Nhung nguoi phia sau',
-  weddingFilm: 'Thuoc phim ngay cuoi',
-  soundtrack: 'Am thanh cua ky uc',
-  behindTheScenes: 'Phia sau canh hoa',
-  memoryCapsule: 'Chuong tiep theo',
+  hero: 'Trang bìa recap',
+  ourStory: 'Lời dẫn',
+  chapters: 'Các chương ký ức',
+  moments: 'Những khoảnh khắc',
+  photoDelivery: 'Trả ảnh',
+  thankYou: 'Lời cảm ơn',
+  guestbook: 'Lời chúc ở lại',
+  peopleBehindTheDay: 'Những người phía sau',
+  weddingFilm: 'Thước phim ngày cưới',
+  soundtrack: 'Âm thanh của ký ức',
+  behindTheScenes: 'Phía sau cánh hoa',
+  memoryCapsule: 'Chương tiếp theo',
 } as const
 const sectionLayoutOptions = {
   hero: ['cinematic-cover', 'layered-album-cover'],
@@ -49,6 +49,13 @@ const repeatableSectionRules = {
   moments: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', maxMediaPerItem: 1, interaction: 'asymmetric-grid' },
   peopleBehindTheDay: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
   behindTheScenes: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
+} as const
+const photoDeliveryFields = {
+  eyebrow: { type: 'string', label: 'Dong mo dau' },
+  title: { type: 'string', label: 'Tieu de', required: true, maxLength: 180 },
+  body: { type: 'text', label: 'Noi dung', required: true, maxLength: 800 },
+  ctaLabel: { type: 'string', label: 'Nhan nut album', required: true, maxLength: 80 },
+  albumUrl: { type: 'url', label: 'URL album anh' },
 } as const
 
 export const redSpiderLilyRecapTemplateConfig = {
@@ -111,7 +118,7 @@ export const redSpiderLilyRecapTemplateConfig = {
     },
   },
   sections: [
-    ...requiredSections.map((sectionKey, index) => ({ sectionKey, label: sectionLabels[sectionKey], required: true, canToggle: false, canReorder: index > 0 && index < requiredSections.length - 1, layouts: sectionLayoutOptions[sectionKey], defaultLayout: sectionLayoutOptions[sectionKey][0], mediaRoles: sectionMediaRoles[sectionKey], ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? { repeatable: false }) })),
+    ...requiredSections.map((sectionKey, index) => ({ sectionKey, label: sectionLabels[sectionKey], required: true, canToggle: false, canReorder: index > 0 && index < requiredSections.length - 1, layouts: sectionLayoutOptions[sectionKey], defaultLayout: sectionLayoutOptions[sectionKey][0], mediaRoles: sectionMediaRoles[sectionKey], ...(sectionKey === 'photoDelivery' ? { fields: photoDeliveryFields } : {}), ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? { repeatable: false }) })),
     ...optionalSections.map((sectionKey) => ({ sectionKey, label: sectionLabels[sectionKey], required: false, canToggle: true, canReorder: true, defaultEnabled: false, layouts: sectionLayoutOptions[sectionKey], defaultLayout: sectionLayoutOptions[sectionKey][0], mediaRoles: sectionMediaRoles[sectionKey], ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? { repeatable: false }) })),
   ],
   authoring: {
