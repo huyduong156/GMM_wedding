@@ -1,3 +1,4 @@
+import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useEffect, useState } from 'react'
 import {
   Bell,
@@ -118,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <strong>{activeWedding.coupleName}</strong>
             <span><i className={`status-dot ${currentWedding?.status === 'ARCHIVED' ? 'is-archived' : currentWedding?.status === 'PUBLISHED' ? '' : 'is-draft'}`} /> {currentWedding?.status === 'ARCHIVED' ? 'Đã lưu trữ' : currentWedding?.status === 'PUBLISHED' ? 'Đã xuất bản' : 'Bản nháp'}</span>
           </span>
-          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? <select aria-label="Chọn đám cưới" value={activeWedding.id} onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}>{weddingWorkspace.weddings.map((wedding) => <option key={wedding.id} value={wedding.id}>{wedding.name}</option>)}</select> : <CaretDown size={16} aria-hidden="true" />}
+          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? <NativeSelectField aria-label="Chọn đám cưới" value={activeWedding.id} onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}>{weddingWorkspace.weddings.map((wedding) => <option key={wedding.id} value={wedding.id}>{wedding.name}</option>)}</NativeSelectField> : <CaretDown size={16} aria-hidden="true" />}
         </div>
 
         <nav className="primary-nav">

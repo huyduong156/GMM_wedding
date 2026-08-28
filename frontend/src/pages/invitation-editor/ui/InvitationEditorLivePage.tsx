@@ -1,3 +1,4 @@
+import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { ArrowClockwise, ArrowDown, ArrowLeft, ArrowUUpLeft, ArrowUUpRight, ArrowUp, ArrowsOut, CaretDown, CheckCircle, Desktop, DeviceMobile, Eye, FloppyDisk, Image, Monitor, MusicNote, Plus, RocketLaunch, Trash, UploadSimple, X } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -326,7 +327,7 @@ function TimelineFields({ items, onChange }: { items: NonNullable<ModernLuxeData
 }
 
 function DisplayStyleField({ label, value, options, onChange }: { label: string; value: string; options: readonly { key: string; label: string }[]; onChange: (value: string) => void }) {
-  return <label className="editor-field"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}</select></label>
+  return <label className="editor-field"><span>{label}</span><NativeSelectField value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}</NativeSelectField></label>
 }
 
 function ActivityFields({ items, style, update, uploadImage, imageError }: { items: ModernLuxeActivityItem[]; style: string; update: FieldsProps['update']; uploadImage: FieldsProps['uploadActivityImage']; imageError: string }) {

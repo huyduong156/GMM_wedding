@@ -1,6 +1,6 @@
+import Swal from 'sweetalert2'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
-import Swal from 'sweetalert2'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import { WeddingContext } from '../../../entities/wedding/model/wedding-context'
 import { WeddingApiError, weddingApi, type Wedding } from '../../../shared/api/weddings'

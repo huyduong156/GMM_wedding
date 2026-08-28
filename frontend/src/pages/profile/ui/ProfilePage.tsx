@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Check, FloppyDisk, ImageSquare, Phone, UserCircle, X } from '@phosphor-icons/react'
 import { useAuth } from '../../../features/auth/model/auth-context'
 import { AuthApiError } from '../../../shared/api/auth'
+import { SelectField } from '../../../shared/ui/form-controls/SelectField'
 
 function initials(name: string | null, email: string) {
   const source = name?.trim() || email
@@ -77,8 +78,8 @@ export function ProfilePage() {
       <section className="settings-panel">
         <header><ImageSquare size={20} /><div><h2>Ngôn ngữ & múi giờ</h2><p>Được dùng cho định dạng ngày giờ và thông báo.</p></div></header>
         <div className="settings-fields profile-fields-grid">
-          <label>Ngôn ngữ<select value={locale} onChange={(event) => setLocale(event.target.value)}><option value="vi-VN">Tiếng Việt (Việt Nam)</option><option value="en-US">English (United States)</option></select></label>
-          <label>Múi giờ<select value={timezone} onChange={(event) => setTimezone(event.target.value)}><option value="Asia/Ho_Chi_Minh">Việt Nam (GMT+7)</option><option value="Asia/Bangkok">Bangkok (GMT+7)</option><option value="Asia/Singapore">Singapore (GMT+8)</option></select></label>
+          <SelectField label="Ngôn ngữ" value={locale} onChange={setLocale} options={[{ value: "vi-VN", label: "Tiếng Việt (Việt Nam)" }, { value: "en-US", label: "English (United States)" }]} />
+          <SelectField label="Múi giờ" value={timezone} onChange={setTimezone} options={[{ value: "Asia/Ho_Chi_Minh", label: "Việt Nam (GMT+7)" }, { value: "Asia/Bangkok", label: "Bangkok (GMT+7)" }, { value: "Asia/Singapore", label: "Singapore (GMT+8)" }]} />
         </div>
       </section>
       {feedback ? <p className={`workspace-save-message profile-feedback ${feedback.tone}`} role="status">{feedback.tone === 'success' ? <Check size={16} /> : <X size={16} />}{feedback.text}</p> : null}

@@ -1,7 +1,6 @@
+import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Check, Eye, ImagesSquare, MagnifyingGlass, PencilSimple, WarningCircle } from '@phosphor-icons/react'
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { RecapDraft, TemplateSectionConfig, WeddingApiError, WeddingTemplate, weddingApi } from '../../../shared/api/weddings'
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
@@ -56,7 +55,7 @@ function defaultSectionConfig(theme: RecapTheme) {
 }
 
 function toast(message: string, icon: 'success' | 'error' | 'warning' = 'success') {
-  return Swal.fire({ toast: true, position: 'top-end', icon, title: message, showConfirmButton: false, timer: 2200, timerProgressBar: true })
+  return notifications.fire({ toast: true, position: 'top-end', icon, title: message, showConfirmButton: false, timer: 2200, timerProgressBar: true })
 }
 
 function Artwork({ theme, active }: { theme: RecapTheme; active: boolean }) {

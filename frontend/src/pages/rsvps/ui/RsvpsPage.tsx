@@ -8,6 +8,7 @@ import {
   UsersThree,
   XCircle,
 } from '@phosphor-icons/react'
+import { SelectField } from '../../../shared/ui/form-controls/SelectField'
 
 type RsvpStatus = 'attending' | 'pending' | 'declined'
 
@@ -76,7 +77,7 @@ export function RsvpsPage() {
             <MagnifyingGlass size={17} aria-hidden="true" />
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên hoặc nhóm khách" />
           </label>
-          <div className="rsvp-event-filter"><CalendarDots size={17} /><label htmlFor="rsvp-event">Sự kiện</label><select id="rsvp-event" defaultValue="all"><option value="all">Tất cả</option><option>Tiệc cưới</option><option>Lễ cưới</option><option>Lễ gia tiên</option></select></div>
+          <div className="rsvp-event-filter"><CalendarDots size={17} /><SelectField id="rsvp-event" label="Sự kiện" value="all" onChange={() => undefined} options={[{ value: "all", label: "Tất cả" }, { value: "reception", label: "Tiệc cưới" }, { value: "ceremony", label: "Lễ cưới" }, { value: "family", label: "Lễ gia tiên" }]} /></div>
         </div>
         <div className="rsvp-filter-row" aria-label="Lọc trạng thái">
           {([['all', 'Tất cả', 86], ['attending', 'Sẽ tham dự', 64], ['pending', 'Chưa chắc chắn', 12], ['declined', 'Không tham dự', 10]] as const).map(([value, label, count]) => (

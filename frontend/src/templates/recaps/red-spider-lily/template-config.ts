@@ -59,7 +59,7 @@ export const redSpiderLilyRecapTemplateConfig = {
   templateConfigVersion: 1,
   contentSchemaVersion: 1,
   rendererApiVersion: 1,
-  status: 'draft',
+  status: 'ready',
   type: 'recap',
   description: 'Wedding recap editorial về những ký ức còn nở lại sau ngày cưới.',
   previewPath: '/templates/recaps/red-spider-lily/preview',

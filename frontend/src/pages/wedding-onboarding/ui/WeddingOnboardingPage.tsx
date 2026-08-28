@@ -1,3 +1,4 @@
+import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
 import { useState } from 'react'
 import { CalendarBlank, Heart, Sparkle } from '@phosphor-icons/react'
 import { useWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -19,6 +20,6 @@ export function WeddingOnboardingPage() {
   }
   return <main className="wedding-onboarding">
     <section className="onboarding-story"><span className="onboarding-kicker"><Sparkle size={15} weight="fill" /> Không gian của hai bạn</span><h1>Mọi chuẩn bị đẹp đẽ đều bắt đầu từ một ngày được chọn.</h1><p>Tạo hồ sơ cưới để quản lý lịch lễ, thiệp, khách mời và những lời chúc trong cùng một nơi.</p><div className="onboarding-milestones" aria-hidden="true"><i /><i /><i /></div></section>
-    <form className="onboarding-form" onSubmit={submit}><span className="onboarding-heart"><Heart size={24} weight="duotone" /></span><p className="eyebrow">Bước đầu tiên</p><h2>Tạo đám cưới của bạn</h2><label>Tên hai bạn hoặc tên đám cưới<input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ví dụ: Mai & Đức" maxLength={160} autoFocus /></label><label>Ngày cưới chính <small>Có thể bổ sung sau</small><span className="date-input"><CalendarBlank size={18} /><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></span></label>{error ? <p className="workspace-form-error" role="alert">{error}</p> : null}<button className="button button-primary" disabled={saving}>{saving ? 'Đang tạo không gian…' : 'Bắt đầu chuẩn bị'}</button><small className="form-footnote">Bạn có thể thêm nhiều lễ và tiệc sau khi hoàn tất.</small></form>
+    <form className="onboarding-form" onSubmit={submit}><span className="onboarding-heart"><Heart size={24} weight="duotone" /></span><p className="eyebrow">Bước đầu tiên</p><h2>Tạo đám cưới của bạn</h2><label>Tên hai bạn hoặc tên đám cưới<input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ví dụ: Mai & Đức" maxLength={160} autoFocus /></label><label>Ngày cưới chính <small>Có thể bổ sung sau</small><span className="date-input"><CalendarBlank size={18} /><NativeDateField value={date} onChange={(event) => setDate(event.target.value)} /></span></label>{error ? <p className="workspace-form-error" role="alert">{error}</p> : null}<button className="button button-primary" disabled={saving}>{saving ? 'Đang tạo không gian…' : 'Bắt đầu chuẩn bị'}</button><small className="form-footnote">Bạn có thể thêm nhiều lễ và tiệc sau khi hoàn tất.</small></form>
   </main>
 }

@@ -1,3 +1,4 @@
+import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { Check, Eye, MagnifyingGlass, PaintBrush, PencilSimple, SlidersHorizontal, WarningCircle } from '@phosphor-icons/react'
 
@@ -6,8 +7,6 @@ import { weddingApi, type TemplateSectionConfig, type WeddingContent, type Weddi
 import { publicTemplateRoutes, studioRoutes as baseStudioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
 
 type Theme = {
   key: string; versionId: string; version: string; name: string; description: string
@@ -83,7 +82,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tải kho giao diện.') }
     if (activeWedding) {
       try { setContent((await weddingApi.content(activeWedding.id, surface)).content) }
-      catch (cause) { await Swal.fire({ icon: 'error', title: 'Không thể tải trạng thái giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' }) }
+      catch (cause) { await notifications.fire({ icon: 'error', title: 'Không thể tải trạng thái giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' }) }
     } else setContent(null)
     setLoading(false)
   }, [activeWedding, surface, workspace])
@@ -122,10 +121,10 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       setContent(saved.content); setNotice(`Đã chọn giao diện ${theme.name}.`)
     } catch (cause) {
       if (cause instanceof Error && 'code' in cause && cause.code === 'WEDDING_CONTENT_REVISION_CONFLICT') {
-        await Swal.fire({ icon: 'warning', title: 'Dữ liệu vừa thay đổi', text: 'Giao diện chưa được áp dụng. Danh sách sẽ được tải lại.', confirmButtonText: 'Đã hiểu' })
+        await notifications.fire({ icon: 'warning', title: 'Dữ liệu vừa thay đổi', text: 'Giao diện chưa được áp dụng. Danh sách sẽ được tải lại.', confirmButtonText: 'Đã hiểu' })
         await load()
       } else {
-        await Swal.fire({ icon: 'error', title: 'Không thể dùng giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' })
+        await notifications.fire({ icon: 'error', title: 'Không thể dùng giao diện', text: cause instanceof Error ? cause.message : 'Vui lòng thử lại sau.', confirmButtonText: 'Đã hiểu' })
       }
     } finally { setSaving(null) }
   }
