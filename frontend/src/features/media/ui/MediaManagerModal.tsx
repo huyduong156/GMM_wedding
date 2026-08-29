@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Check, ImageSquare, X } from '@phosphor-icons/react'
 import type { MediaAsset } from '../../../shared/api/weddings'
 import './media-manager.css'
@@ -20,11 +20,18 @@ const MediaAssetCard = memo(function MediaAssetCard({ asset, selected, onToggle 
 
 export function MediaManagerModal({ open, assets, selectedIds, selectionMode = 'single', loading, uploading, error, onClose, onUpload, onConfirm }: MediaManagerModalProps) {
   const [draftIds, setDraftIds] = useState<Set<string>>(new Set(selectedIds))
+  const closeRef = useRef<HTMLButtonElement>(null)
   const selectedKey = Array.from(selectedIds).sort().join('|')
 
   useEffect(() => {
-    if (open) setDraftIds(new Set(selectedIds))
+    if (open) { setDraftIds(new Set(selectedIds)); closeRef.current?.focus() }
   }, [open, selectedKey])
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
 
   const toggle = useCallback((asset: MediaAsset) => {
     setDraftIds((current) => {
@@ -44,7 +51,7 @@ export function MediaManagerModal({ open, assets, selectedIds, selectionMode = '
     <section className="media-manager-modal" role="dialog" aria-modal="true" aria-labelledby="media-manager-title">
       <header className="media-manager-header">
         <div><span className="media-manager-eyebrow">Kho ảnh của bạn</span><h3 id="media-manager-title">Chọn ảnh</h3><p>{selectionMode === 'multiple' ? 'Chọn một hoặc nhiều ảnh cho album.' : 'Chọn một ảnh để thay thế vị trí hiện tại.'}</p></div>
-        <button type="button" className="media-manager-close" onClick={onClose} aria-label="Đóng"><X size={18} /></button>
+        <button type="button" ref={closeRef} className="media-manager-close" onClick={onClose} aria-label="Đóng"><X size={18} /></button>
       </header>
       <label className="media-manager-upload">
         <input type="file" accept="image/jpeg,image/png,image/webp" multiple={selectionMode === 'multiple'} disabled={uploading} onChange={async (event) => { const uploaded = await onUpload(event.target.files); if (uploaded.length) setDraftIds((current) => { const next = new Set(selectionMode === 'single' ? [] : current); uploaded.forEach((asset) => next.add(asset.id)); return next }); event.target.value = '' }} />
@@ -52,7 +59,7 @@ export function MediaManagerModal({ open, assets, selectedIds, selectionMode = '
       </label>
       {error ? <p className="media-manager-error" role="alert">{error}</p> : null}
       {loading ? <p className="media-manager-empty">Đang tải kho ảnh…</p> : assets.length ? <div className="media-manager-grid-scroll"><div className="media-manager-grid">{assets.map((asset) => <MediaAssetCard key={asset.id} asset={asset} selected={draftIds.has(asset.id)} onToggle={toggle} />)}</div></div> : <p className="media-manager-empty">Chưa có ảnh trong kho.</p>}
-      <footer className="media-manager-footer"><button type="button" className="button button-secondary" onClick={onClose}>Hủy</button><button type="button" className="button button-primary" disabled={!draftIds.size || loading || uploading} onClick={confirm}>{selectionMode === 'multiple' ? 'Chọn ảnh' : 'Dùng ảnh này'}</button></footer>
+      <footer className="media-manager-footer"><button type="button" className="button button-secondary" onClick={onClose}>Hủy</button><button type="button" className="button button-primary" disabled={loading || uploading} onClick={confirm}>{draftIds.size ? (selectionMode === 'multiple' ? 'Chọn ảnh' : 'Dùng ảnh này') : 'Bỏ ảnh'}</button></footer>
     </section>
   </div>
 }

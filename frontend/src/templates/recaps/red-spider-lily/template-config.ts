@@ -45,8 +45,8 @@ const sectionMediaRoles = {
   memoryCapsule: ['capsule', 'gallery'],
 } as const
 const repeatableSectionRules = {
-  chapters: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', maxMediaPerItem: 1, interaction: 'editorial-timeline' },
-  moments: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', maxMediaPerItem: 1, interaction: 'asymmetric-grid' },
+  chapters: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'editorial-timeline' },
+  moments: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'asymmetric-grid' },
   peopleBehindTheDay: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
   behindTheScenes: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
 } as const

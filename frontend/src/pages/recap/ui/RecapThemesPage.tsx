@@ -44,7 +44,7 @@ function toTheme(template: WeddingTemplate): RecapTheme | null {
     style: meta?.style ?? 'Điện ảnh',
     palette: meta?.palette ?? 'Theo cấu hình mẫu',
     sections,
-    previewPath: previewPaths[template.key],
+    previewPath: typeof version.config.previewPath === 'string' ? version.config.previewPath : previewPaths[template.key],
     config: version.config,
   }
 }
@@ -111,7 +111,7 @@ export function RecapThemesPage() {
         ogImageUrl: recap?.ogImageUrl ?? null,
         content: recap?.content ?? {},
         themeConfig: recap?.themeConfig ?? {},
-        sectionConfig: recap ? recap.sectionConfig : defaultSectionConfig(theme),
+        sectionConfig: recap?.templateVersion.key === theme.key ? recap.sectionConfig : defaultSectionConfig(theme),
         mediaItems: recap?.mediaItems.map((item) => ({ mediaAssetId: item.mediaAssetId, caption: item.caption, sortOrder: item.sortOrder })) ?? [],
         wishSelections: recap?.wishSelections.map((item) => ({ wishId: item.wishId, sortOrder: item.sortOrder })) ?? [],
         revision: recap?.revision ?? 1,

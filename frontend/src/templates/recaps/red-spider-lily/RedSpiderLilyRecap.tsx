@@ -114,10 +114,26 @@ function OptionalSection({ sectionKey, content }: { sectionKey: string; content:
 
 type RecapEditorState = { data?: RedSpiderLilyRecapContent; sectionConfig: { enabled: string[]; order: string[] } }
 
-export function RedSpiderLilyRecap({ data: initialData = redSpiderLilyRecapFixture.content }: { data?: RedSpiderLilyRecapContent }) {
+type RecapSectionConfig = RecapEditorState['sectionConfig']
+
+function applySectionConfig(config: RecapSectionConfig) {
+  const root = document.querySelector<HTMLElement>('.red-spider-lily-recap')
+  if (!root) return
+  const sections = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-editor-section]')).map((section) => [section.dataset.editorSection ?? '', section]))
+  const footer = root.querySelector<HTMLElement>('.rsl-footer')
+  config.order.forEach((key) => { const section = sections.get(key); if (!section) return; if (footer) root.insertBefore(section, footer); else root.appendChild(section) })
+  sections.forEach((section, key) => { section.hidden = !config.enabled.includes(key) })
+}
+
+export function RedSpiderLilyRecap({ data: initialData = redSpiderLilyRecapFixture.content, sectionConfig }: { data?: RedSpiderLilyRecapContent; sectionConfig?: RecapSectionConfig }) {
   const [lightboxItems, setLightboxItems] = useState<RedSpiderLilyMedia[] | null>(null)
   const [data, setData] = useState(initialData)
+  const [editorUpdateVersion, setEditorUpdateVersion] = useState(0)
   useEffect(() => setData(initialData), [initialData])
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('editor') !== '1' || editorUpdateVersion === 0) return
+    window.parent.postMessage({ type: liveEditorEvents.hydrated, version: 1 }, window.location.origin)
+  }, [editorUpdateVersion])
   useEffect(() => {
     const root = document.querySelector<HTMLElement>('.red-spider-lily-recap')
     const reducedMotion = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -183,21 +199,17 @@ export function RedSpiderLilyRecap({ data: initialData = redSpiderLilyRecapFixtu
     return () => { observer.disconnect(); cleanups.forEach((cleanup) => cleanup()); window.removeEventListener('scroll', onScroll); if (frame) window.cancelAnimationFrame(frame); root.classList.remove('is-motion-ready'); root.removeEventListener('click', onAnchorClick) }
   }, [data])
   useEffect(() => {
+    if (sectionConfig) applySectionConfig(sectionConfig)
+  }, [sectionConfig])
+  useEffect(() => {
     if (new URLSearchParams(window.location.search).get('editor') !== '1') return
-    const applyEditorConfig = ({ enabled, order }: RecapEditorState['sectionConfig']) => {
-      const root = document.querySelector<HTMLElement>('.red-spider-lily-recap')
-      if (!root) return
-      const sections = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-editor-section]')).map((section) => [section.dataset.editorSection ?? '', section]))
-      const footer = root.querySelector<HTMLElement>('.rsl-footer')
-      order.forEach((key) => { const section = sections.get(key); if (!section) return; if (footer) root.insertBefore(section, footer); else root.appendChild(section) })
-      sections.forEach((section, key) => { section.hidden = !enabled.includes(key) })
-    }
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent) return
       if (isLiveEditorUpdate<RecapEditorState>(event.data)) {
         const { enabled, order } = event.data.payload.sectionConfig
         if (event.data.payload.data) setData(event.data.payload.data)
-        applyEditorConfig(event.data.payload.sectionConfig)
+        applySectionConfig(event.data.payload.sectionConfig)
+        setEditorUpdateVersion((value) => value + 1)
         document.documentElement.dataset.recapEnabled = enabled.join(',')
         document.documentElement.dataset.recapOrder = order.join(',')
       }
@@ -217,8 +229,10 @@ export function RedSpiderLilyRecap({ data: initialData = redSpiderLilyRecapFixtu
     <section id="rsl-story" className="rsl-story" data-editor-section="ourStory"><RecapDecor variant="story" /><div className="rsl-section-intro"><p className="rsl-eyebrow">{data.ourStory.eyebrow}</p><h2>{data.ourStory.title}</h2></div><div className="rsl-story-copy"><p>{data.ourStory.body}</p>{data.ourStory.quote ? <blockquote>“{data.ourStory.quote}”</blockquote> : null}<span className="rsl-media-action">Mot khung hinh giu lai buoi chieu hom ay.</span></div><div className="rsl-story-media">{data.ourStory.media.length ? data.ourStory.media.map((media) => <MediaFrame key={media.alt} media={media} label="Anh loi dan" />) : <MediaFrame media={{ src: '', alt: 'Anh loi dan', role: 'story' }} label="Anh loi dan" />}</div></section>
     <section className="rsl-chapters" data-editor-section="chapters"><RecapDecor variant="chapters" /><div className="rsl-chapters-head"><div><p className="rsl-eyebrow">Nhung chuong da qua</p><h2>Di qua tung ngay<br /><em>da lam nen chung minh.</em></h2></div><span className="rsl-section-index">03 / 06</span></div><div className="rsl-chapter-list">{data.chapters.map((chapter, index) => { const gallery = chapter.gallery?.length ? chapter.gallery : [chapter.cover]; return <article className="rsl-chapter" key={chapter.id}><div className="rsl-chapter-number">0{index + 1}</div><button type="button" className="rsl-chapter-open" onClick={() => setLightboxItems(gallery)} aria-label={`Mo album ${chapter.title}`}><MediaFrame media={chapter.cover} className="rsl-chapter-image" label="Anh chapter" /></button><div className="rsl-chapter-copy"><p className="rsl-eyebrow">{chapter.dateLabel}</p><h3>{chapter.title}</h3><p>{chapter.description}</p><GalleryButton label="Mo album ky niem" items={gallery} onOpen={setLightboxItems} /></div></article> })}</div></section>
     <section className="rsl-moments" data-editor-section="moments"><RecapDecor variant="moments" /><div className="rsl-moments-heading"><p className="rsl-eyebrow">Nhung khoanh khac</p><h2>Dieu chung minh<br /><em>se luon nho.</em></h2><p>Nhung nhom ky uc nho lam ngay hom ay tro nen that rieng.</p></div><MomentCarousel moments={data.moments} onOpen={setLightboxItems} /></section>
-    <section id="rsl-photo-delivery" className="rsl-delivery" data-editor-section="photoDelivery"><RecapDecor variant="delivery" /><div className="rsl-delivery-seal" aria-hidden="true"><img src={decorAssets.ring} alt="" width={180} height={180} loading="lazy" decoding="async" /></div><div><p className="rsl-eyebrow">{data.photoDelivery.eyebrow}</p><h2>{data.photoDelivery.title}</h2><p>{data.photoDelivery.body}</p></div><a className="rsl-solid-link" href={data.photoDelivery.albumUrl || '#rsl-photo-delivery'} target={data.photoDelivery.albumUrl ? '_blank' : undefined} rel={data.photoDelivery.albumUrl ? 'noreferrer' : undefined}>{data.photoDelivery.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a></section>
+    <section id="rsl-photo-delivery" className="rsl-delivery" data-editor-section="photoDelivery"><RecapDecor variant="delivery" /><div className="rsl-delivery-seal" aria-hidden="true"><img src={decorAssets.ring} alt="" width={180} height={180} loading="lazy" decoding="async" /></div><div><p className="rsl-eyebrow">{data.photoDelivery.eyebrow}</p><h2>{data.photoDelivery.title}</h2><p>{data.photoDelivery.body}</p></div><div className="rsl-delivery-media">{data.photoDelivery.media?.slice(0, 4).map((media) => <img key={media.mediaAssetId ?? media.src} src={media.src} alt={media.alt} loading="lazy" decoding="async" />)}</div><a className="rsl-solid-link" href={data.photoDelivery.albumUrl || '#rsl-photo-delivery'} target={data.photoDelivery.albumUrl ? '_blank' : undefined} rel={data.photoDelivery.albumUrl ? 'noreferrer' : undefined}>{data.photoDelivery.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a></section>
     <OptionalSection sectionKey="guestbook" content={data.optional.guestbook} /><OptionalSection sectionKey="peopleBehindTheDay" content={data.optional.peopleBehindTheDay} /><OptionalSection sectionKey="weddingFilm" content={data.optional.weddingFilm} /><OptionalSection sectionKey="soundtrack" content={data.optional.soundtrack} /><OptionalSection sectionKey="behindTheScenes" content={data.optional.behindTheScenes} /><OptionalSection sectionKey="memoryCapsule" content={data.optional.memoryCapsule} />
     <section className="rsl-thank-you" data-editor-section="thankYou"><RecapDecor variant="thankYou" /><div className="rsl-thank-you-image"><MediaFrame media={data.thankYou.media} label="Anh loi cam on" /></div><div className="rsl-thank-you-copy"><p className="rsl-eyebrow">Loi cam on</p><h2>{data.thankYou.title}</h2><p>{data.thankYou.body}</p><strong>{data.thankYou.signature}</strong><small>{data.thankYou.date}</small></div></section><footer className="rsl-footer"><span>{data.thankYou.signature}</span><span>{data.thankYou.date}</span><a href="#top" aria-label="Ve dau trang"><ArrowUp size={17} /></a></footer>{lightboxItems ? <MediaLightbox items={lightboxItems} onClose={() => setLightboxItems(null)} /> : null}
   </main>
 }
+
+

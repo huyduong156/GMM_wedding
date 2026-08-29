@@ -12,6 +12,15 @@ export type TemplateSectionConfig = string | {
   canToggle?: boolean
   canReorder?: boolean
   fields?: Record<string, TemplateFieldConfig>
+  repeatable?: boolean
+  minItems?: number
+  maxItems?: number
+  itemMediaField?: string
+  galleryField?: string
+  maxMediaPerItem?: number
+  interaction?: string
+  mediaRoles?: string[]
+  itemFields?: Record<string, TemplateFieldConfig>
 }
 
 export type TemplateFieldConfig = {
@@ -24,6 +33,7 @@ export type TemplateFieldConfig = {
   options?: Array<{ key: string; label: string }>
   itemFields?: Record<string, TemplateFieldConfig>
   contentKey?: string
+  mediaRole?: string
 }
 
 export type TemplateVersion = {
@@ -319,6 +329,8 @@ export const weddingApi = {
   media: (weddingId: string) => request<{ items: MediaAsset[] }>(`/weddings/${weddingId}/media`),
   removeMedia: (weddingId: string, mediaId: string) => request<void>(`/weddings/${weddingId}/media/${mediaId}`, { method: 'DELETE', body: '{}' }),
   recap: (weddingId: string) => request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
+  publishRecap: (weddingId: string, input: { slug: string; revision: number }) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/weddings/${weddingId}/recap/publish`, { method: 'POST', body: JSON.stringify(input) }),
+  publicRecap: (slug: string) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/public/recaps/${encodeURIComponent(slug)}`),
   saveRecap: (weddingId: string, input: { templateVersionId: string; title: string; thankYouMessage?: string | null; ogTitle?: string | null; ogDescription?: string | null; ogImageUrl?: string | null; content: Record<string, unknown>; themeConfig: Record<string, unknown>; sectionConfig: RecapSectionConfig; mediaItems: Array<{ mediaAssetId: string; caption?: string | null; sortOrder: number }>; wishSelections: Array<{ wishId: string; sortOrder: number }>; revision: number }) => request<{ recap: RecapDraft }>(`/weddings/${weddingId}/recap`, { method: 'PUT', body: JSON.stringify(input) }),
   recapSlugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/recaps/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),}
 
