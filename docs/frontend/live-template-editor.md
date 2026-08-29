@@ -7,8 +7,8 @@ Tài liệu này ghi lại nền editor dùng chung cho thiệp online, website 
 1. Editor nhúng route preview bằng `iframe` cùng origin và chỉ tải iframe một lần.
 2. Renderer gửi event `GMM_LIVE_EDITOR_READY` phiên bản `1` khi listener đã sẵn sàng.
 3. Parent gửi `GMM_LIVE_EDITOR_UPDATE` chứa toàn bộ state render hiện tại: content, theme và section config.
-4. Mọi thay đổi tiếp theo chỉ gửi state mới bằng `postMessage`; iframe cập nhật React state, không reload và không gọi server.
-5. Khi chọn hoặc focus phần chỉnh sửa, parent gửi `GMM_LIVE_EDITOR_SCROLL_TO_SECTION`; renderer cuộn mượt đến phần tử có `data-editor-section` tương ứng.
+4. Renderer báo `GMM_LIVE_EDITOR_HYDRATED` sau khi payload đã được áp dụng và React đã render; parent chỉ ẩn loading sau event này.\n5. Mọi thay đổi tiếp theo chỉ gửi state mới bằng `postMessage`; iframe cập nhật React state, không reload và không gọi server.
+6. Khi chọn hoặc focus phần chỉnh sửa, parent gửi `GMM_LIVE_EDITOR_SCROLL_TO_SECTION`; renderer cuộn mượt đến phần tử có `data-editor-section` tương ứng.
 
 Parent và iframe phải kiểm tra `event.origin`, `event.source`, `type` và `version`. Không nhận event tùy ý và không sửa DOM renderer trực tiếp từ parent.
 
@@ -42,6 +42,17 @@ Section key trong template config, card accordion và `data-editor-section` ph�
 - Mobile hiển thị accordion form toàn màn hình; preview là cửa sổ nổi nhỏ có thể mở rộng. Khi vào editor trên mobile, hiển thị lời khuyên dùng máy tính nhưng phải cho phép đóng và tiếp tục chỉnh sửa.
 - Trên viewport editor mobile, preview luôn dùng cấu hình mobile `550 × 950`; không hiển thị lựa chọn desktop để tránh renderer và khung nổi lệch mục tiêu thiết kế mobile-first.
 
+## Contract recap editor theo template config
+
+Recap editor đọc section config theo các quy ước sau:
+
+- Field cấp section nằm trong \`sections[].fields\`; dùng \`contentKey\` khi path content không trùng \`<sectionKey>.<fieldKey>\`.
+- Field \`type: "items"\` khai báo danh sách card; \`itemFields\` khai báo field của từng card.
+- Với section lặp, có thể khai báo trực tiếp \`repeatable\`, \`minItems\`, \`maxItems\`, \`itemMediaField\`, \`galleryField\`, \`maxMediaPerItem\`; editor dùng các metadata này để tạo card và mở media manager.
+- Field ảnh dùng \`type: "image"\` hoặc \`"images"\`; \`mediaRole\` hoặc \`sections[].mediaRoles\` xác định role gửi tới media manager.
+- Boolean, select, URL, text và date/time được render từ type/label/options/maxLength/required; editor không cần thêm nhánh theo template key.
+- Preview route vẫn phải được renderer registry của ứng dụng đăng ký; đây là wiring của renderer, không phải logic form editor.
+
 ## Hướng mở rộng
 
 Website cưới và recap tái sử dụng protocol/hook trên, nhưng giữ payload và renderer riêng. Nếu cần thêm event, thêm tên event cụ thể và tăng version khi thay đổi không tương thích; không dùng event chung chung hoặc truyền script thực thi vào iframe.
@@ -73,3 +84,4 @@ Các preview website (`editorial-vows`, `green-hydrangea`, `enchanted-forest`, `
 | Test API integration, schema editor, autosave/conflict và error states | Đang được duy trì cùng test suite frontend |
 
 Chi tiết UX nhạc cho admin, owner và khách xem [Nhạc nền cưới trên frontend](./wedding-background-music.md).
+

@@ -1,6 +1,7 @@
 export type RedSpiderLilyMedia = {
   src: string
   alt: string
+  mediaAssetId?: string
   role: 'hero' | 'story' | 'chapter' | 'moment' | 'finale' | 'video-poster' | 'guestbook' | 'person' | 'soundtrack' | 'behind-the-scenes' | 'capsule'
 }
 
@@ -55,7 +56,7 @@ export type RedSpiderLilyRecapContent = {
   ourStory: { eyebrow: string; title: string; body: string; quote?: string; media: RedSpiderLilyMedia[] }
   chapters: RedSpiderLilyChapter[]
   moments: RedSpiderLilyMoment[]
-  photoDelivery: { eyebrow: string; title: string; body: string; ctaLabel: string; albums: RedSpiderLilyAlbumSource[] }
+  photoDelivery: { eyebrow: string; title: string; body: string; ctaLabel: string; albumUrl?: string; albums: RedSpiderLilyAlbumSource[]; media?: RedSpiderLilyMedia[] }
   thankYou: { title: string; body: string; signature: string; date: string; media?: RedSpiderLilyMedia }
   optional: {
     guestbook: RedSpiderLilyOptionalContent
@@ -86,7 +87,7 @@ export const redSpiderLilyRecapContent: RedSpiderLilyRecapContent = {
     { id: 'bubble-memories', title: 'Bubble Memories', description: 'Những chiếc bong bóng và tiếng cười trong buổi tiệc.', cover: { src: '', alt: 'Ảnh bìa bubble memories', role: 'moment' } },
     { id: 'friends-family', title: 'Bạn bè & gia đình', description: 'Những người đã làm ngày hôm ấy trở nên đặc biệt.', cover: { src: '', alt: 'Ảnh bìa bạn bè và gia đình', role: 'moment' } },
   ],
-  photoDelivery: { eyebrow: 'Trả ảnh', title: 'Khoảnh khắc của bạn đang ở đây', body: 'Hãy tìm lại những khung hình có bạn trong ngày hôm ấy.', ctaLabel: 'Xem & tải ảnh', albums: [] },
+  photoDelivery: { eyebrow: 'Trả ảnh', title: 'Khoảnh khắc của bạn đang ở đây', body: 'Hãy tìm lại những khung hình có bạn trong ngày hôm ấy.', ctaLabel: 'Xem & tải ảnh', albums: [], media: [] },
   thankYou: { title: 'Cảm ơn vì đã trở thành một phần trong câu chuyện của chúng mình', body: 'Sự hiện diện của mọi người đã làm cho ngày hôm ấy trở nên đặc biệt hơn rất nhiều.', signature: 'Minh & Anh', date: '20 · 08 · 2026' },
   optional: {
     guestbook: { enabled: true, title: 'Lời chúc ở lại', body: 'Những lời chúc đã được gửi đến hai chúng mình.' },
@@ -97,3 +98,4 @@ export const redSpiderLilyRecapContent: RedSpiderLilyRecapContent = {
     memoryCapsule: { enabled: true, title: 'Chương tiếp theo', body: 'Một lời nhắn ngắn gửi đến những ngày sắp tới.' },
   },
 }
+

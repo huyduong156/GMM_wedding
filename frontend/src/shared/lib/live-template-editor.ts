@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const liveEditorEvents = {
   ready: 'GMM_LIVE_EDITOR_READY',
+  hydrated: 'GMM_LIVE_EDITOR_HYDRATED',
   update: 'GMM_LIVE_EDITOR_UPDATE',
   scrollToSection: 'GMM_LIVE_EDITOR_SCROLL_TO_SECTION',
 } as const
@@ -24,6 +25,7 @@ export function isLiveEditorScroll<T extends string>(value: unknown): value is L
 export function useLiveEditorBridge<T, S extends string>(state: T) {
   const frameRef = useRef<HTMLIFrameElement>(null)
   const [ready, setReady] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
   const sendState = useCallback(() => {
     const message: LiveEditorUpdateMessage<T> = { type: liveEditorEvents.update, version: 1, payload: state }
     frameRef.current?.contentWindow?.postMessage(message, window.location.origin)
@@ -35,12 +37,14 @@ export function useLiveEditorBridge<T, S extends string>(state: T) {
   useEffect(() => { if (ready) sendState() }, [ready, sendState])
   useEffect(() => {
     const receiveReady = (event: MessageEvent) => {
-      if (event.origin === window.location.origin && event.source === frameRef.current?.contentWindow && event.data?.type === liveEditorEvents.ready && event.data?.version === 1) setReady(true)
+      if (event.origin !== window.location.origin || event.source !== frameRef.current?.contentWindow || event.data?.version !== 1) return
+      if (event.data?.type === liveEditorEvents.ready) { setReady(true); setHydrated(false) }
+      if (event.data?.type === liveEditorEvents.hydrated) setHydrated(true)
     }
     window.addEventListener('message', receiveReady)
     return () => window.removeEventListener('message', receiveReady)
   }, [])
-  return { frameRef, ready, sendState, scrollToSection }
+  return { frameRef, ready, hydrated, sendState, scrollToSection }
 }
 
 export function useEditorSections<S extends string>(initial: S[], required: S[], canReorder: (section: S) => boolean = () => true) {
