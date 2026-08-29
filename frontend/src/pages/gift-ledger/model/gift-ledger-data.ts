@@ -1,7 +1,7 @@
 export type GiftMethod = 'cash' | 'bank' | 'physical'
 export type GiftKind = 'money' | 'gold' | 'gift'
 export type ReciprocityStatus = 'pending' | 'returned' | 'notApplicable'
-export type GiftEntry = { id: string; guestId?: string | null; guestName: string; initials: string; group: string; kind: GiftKind; amount?: number; goldWeight?: number; goldType?: string; description?: string; method: GiftMethod; receivedAt: string; reciprocity: ReciprocityStatus; note?: string; revision?: number }
+export type GiftEntry = { id: string; guestId?: string | null; guestName: string; initials: string; group: string; kind: GiftKind; amount?: number; goldWeight?: number; goldType?: string; description?: string; method: GiftMethod; receivedAt: string; reciprocity: ReciprocityStatus; note?: string; returnedAt?: string; revision?: number }
 
 export const initialGiftEntries: GiftEntry[] = [
   { id: 'gift-01', guestName: 'Nguyễn Minh Anh', initials: 'MA', group: 'Bạn cô dâu', kind: 'money', amount: 1000000, method: 'bank', receivedAt: '28/07/2026', reciprocity: 'pending', note: 'Chuyển khoản sau tiệc' },
