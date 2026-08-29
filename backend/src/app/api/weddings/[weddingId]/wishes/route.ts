@@ -3,7 +3,7 @@ import { requireAuthenticatedUser } from '@/modules/identity/interface/request-a
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
 import { weddingIdSchema, wishQuerySchema } from '@/modules/weddings/interface/wedding-schemas'
-import { withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, context: Context) {
       ...(query.to !== undefined ? { to: query.to } : {}),
       ...(query.cursor !== undefined ? { cursor: query.cursor } : {}),
     })
-    return withAuthHeaders(jsonResponse(result), requestId)
+    return withApiHeaders(jsonResponse(result), requestId)
   } catch (error) {
     return weddingErrorResponse(error, requestId)
   }

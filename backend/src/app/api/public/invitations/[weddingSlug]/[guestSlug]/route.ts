@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 
 import { getGuestService } from '@/modules/guests'
-import { withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 type Context = { params: Promise<{ weddingSlug: string; guestSlug: string }> }
@@ -11,6 +11,6 @@ export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   const { weddingSlug, guestSlug } = await context.params
   const invitation = await getGuestService().resolvePublicInvitation(weddingSlug, guestSlug)
-  if (!invitation) return withAuthHeaders(jsonResponse({ error: { code: 'RESOURCE_NOT_FOUND', message: 'Invitation not found', requestId } }, { status: 404 }), requestId)
-  return withAuthHeaders(jsonResponse({ invitation }, { headers: { 'cache-control': 'no-store' } }), requestId)
+  if (!invitation) return withApiHeaders(jsonResponse({ error: { code: 'RESOURCE_NOT_FOUND', message: 'Invitation not found', requestId } }, { status: 404 }), requestId)
+  return withApiHeaders(jsonResponse({ invitation }, { headers: { 'cache-control': 'no-store' } }), requestId)
 }

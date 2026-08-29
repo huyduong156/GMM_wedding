@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { z } from 'zod'
 
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
@@ -20,7 +20,7 @@ export async function PATCH(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, updateWeddingEventSchema)
     const { weddingId, eventId } = await ids(context)
-    return withAuthHeaders(jsonResponse({ event: await getWeddingService().updateEvent(actor, weddingId, eventId, input) }), requestId)
+    return withApiHeaders(jsonResponse({ event: await getWeddingService().updateEvent(actor, weddingId, eventId, input) }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }
 
@@ -31,6 +31,6 @@ export async function DELETE(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const { weddingId, eventId } = await ids(context)
     await getWeddingService().removeEvent(actor, weddingId, eventId)
-    return withAuthHeaders(new Response(null, { status: 204 }), requestId)
+    return withApiHeaders(new Response(null, { status: 204 }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }

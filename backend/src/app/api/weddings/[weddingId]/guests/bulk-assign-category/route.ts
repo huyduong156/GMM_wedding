@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getGuestService } from '@/modules/guests'
 import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const { weddingId } = await context.params
     const { guestIds, categoryId } = await parseJson(request, bulkAssignCategorySchema)
-    return withAuthHeaders(jsonResponse(await getGuestService().bulkAssignCategory(actor, weddingIdSchema.parse(weddingId), guestIds, categoryId)), requestId)
+    return withApiHeaders(jsonResponse(await getGuestService().bulkAssignCategory(actor, weddingIdSchema.parse(weddingId), guestIds, categoryId)), requestId)
   } catch (error) {
     return guestErrorResponse(error, requestId)
   }

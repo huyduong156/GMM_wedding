@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getRecapService } from '@/modules/recaps'
 import { recapErrorResponse, recapUnpublishSchema } from '@/modules/recaps/interface'
@@ -18,6 +18,6 @@ export async function POST(request: NextRequest, context: Context) {
     const input = await parseJson(request, recapUnpublishSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
     await getRecapService().unpublish(actor.userId, weddingId, input.revision)
-    return withAuthHeaders(new Response(null, { status: 204 }), requestId)
+    return withApiHeaders(new Response(null, { status: 204 }), requestId)
   } catch (error) { return recapErrorResponse(error, requestId) }
 }

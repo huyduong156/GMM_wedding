@@ -1,6 +1,6 @@
 import { getAuthService } from '@/modules/identity/composition'
 import { resetPasswordRequestSchema } from '@/modules/identity/interface/auth-schemas'
-import { assertSafeMutation, authErrorResponse, clientIp, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, authErrorResponse, clientIp, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getRequestId } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
@@ -12,8 +12,8 @@ export async function POST(request: Request) {
     assertSafeMutation(request)
     const input = await parseJson(request, resetPasswordRequestSchema)
     await getAuthService().resetPassword(input.token, input.password, clientIp(request))
-    return withAuthHeaders(new Response(null, { status: 204 }), requestId)
+    return withApiHeaders(new Response(null, { status: 204 }), requestId)
   } catch (error) {
-    return withAuthHeaders(authErrorResponse(error, requestId), requestId)
+    return withApiHeaders(authErrorResponse(error, requestId), requestId)
   }
 }

@@ -1,6 +1,6 @@
 import { getAuthService } from '@/modules/identity/composition'
 import { loginRequestSchema } from '@/modules/identity/interface/auth-schemas'
-import { assertSafeMutation, authErrorResponse, clientIp, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, authErrorResponse, clientIp, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getSessionCookiePolicy } from '@/platform/auth/session-policy'
 import { getServerEnv } from '@/platform/config/env'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
@@ -23,9 +23,9 @@ export async function POST(request: Request) {
     const env = getServerEnv()
     const cookie = getSessionCookiePolicy(env.NODE_ENV, new URL(env.APP_ORIGIN).protocol === 'https:')
     response.cookies.set(cookie.name, result.token, cookie.options)
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   } catch (error) {
     const response = authErrorResponse(error, requestId)
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   }
 }

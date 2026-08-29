@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { optionsResponse, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getRsvpService } from '@/modules/rsvps'
 import { rsvpErrorResponse } from '@/modules/rsvps/interface/rsvp-http'
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const { weddingId } = await context.params
     const query = rsvpQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams))
-    return withAuthHeaders(jsonResponse(await getRsvpService().list(actor, weddingIdSchema.parse(weddingId), {
+    return withApiHeaders(jsonResponse(await getRsvpService().list(actor, weddingIdSchema.parse(weddingId), {
       limit: query.limit,
       ...(query.q !== undefined ? { query: query.q } : {}),
       ...(query.attendance !== undefined ? { attendance: query.attendance } : {}),

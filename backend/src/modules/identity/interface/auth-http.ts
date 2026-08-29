@@ -3,7 +3,8 @@ import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
 import { getServerEnv } from '@/platform/config/env'
-import { apiError, completeHttpRequest, getRequestId, takeRequestOrigin, type ApiErrorBody } from '@/shared/http/api-response'
+import { apiError, completeHttpRequest, getRequestId, withApiHeaders, type ApiErrorBody } from '@/shared/http/api-response'
+export { withApiHeaders }
 
 function allowedOrigins() {
   const env = getServerEnv()
@@ -82,13 +83,4 @@ export function optionsResponse(request?: Request) {
   return response
 }
 
-export function withAuthHeaders<T extends Response>(response: T, requestId: string): T {
-  const env = getServerEnv()
-  const origin = takeRequestOrigin(requestId)
-  response.headers.set('x-request-id', requestId)
-  response.headers.set('access-control-allow-origin', origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN)
-  response.headers.set('access-control-allow-credentials', 'true')
-  response.headers.append('vary', 'Origin')
-  completeHttpRequest(response, requestId)
-  return response
-}
+export const withAuthHeaders = withApiHeaders

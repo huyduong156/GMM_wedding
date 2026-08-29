@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { optionsResponse, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getMusicService } from '@/modules/music'
 import { musicErrorResponse } from '@/modules/music/interface'
@@ -12,6 +12,6 @@ export async function GET(request: NextRequest) {
   try {
     const { actor } = await requireAuthenticatedUser(request)
     const input = musicListSchema.parse({ q: request.nextUrl.searchParams.get('q') ?? undefined })
-    return withAuthHeaders(jsonResponse(await getMusicService().listForUser(actor.userId, input)), requestId)
+    return withApiHeaders(jsonResponse(await getMusicService().listForUser(actor.userId, input)), requestId)
   } catch (error) { return musicErrorResponse(error, requestId) }
 }

@@ -64,6 +64,35 @@ function includeErrorDebug(status: number) {
   return env.ERROR_RESPONSE_DETAILS || env.APP_ENV === 'local' || env.APP_ENV === 'test'
 }
 
+function allowedOrigins() {
+  const env = getServerEnv()
+  const origins = new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+  if (env.APP_ENV === 'local' || env.APP_ENV === 'test') {
+    for (const port of [5173, 8080, 4173]) {
+      origins.add('http://localhost:' + port)
+      origins.add('http://127.0.0.1:' + port)
+    }
+  }
+  return origins
+}
+
+export function withApiHeaders<T extends Response>(response: T, requestId: string): T {
+  const env = getServerEnv()
+  if (response.headers.has('x-request-id') && response.headers.has('access-control-allow-origin')) {
+    completeHttpRequest(response, requestId)
+    return response
+  }
+  const origin = takeRequestOrigin(requestId)
+  response.headers.set('x-request-id', requestId)
+  response.headers.set('access-control-allow-origin', origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN)
+  response.headers.set('access-control-allow-credentials', 'true')
+  response.headers.append('vary', 'Origin')
+  completeHttpRequest(response, requestId)
+  return response
+}
+
+export const withAuthHeaders = withApiHeaders
+
 export function apiError(
   requestId: string,
   code: string,
@@ -87,6 +116,18 @@ export function apiError(
     },
     { status },
   )
-  completeHttpRequest(response, requestId)
-  return response
+  return withApiHeaders(response, requestId)
+}
+
+
+type ApiRouteHandler = (requestId: string) => Response | Promise<Response>
+type ApiRouteErrorHandler = (error: unknown, requestId: string) => Response
+
+export async function apiHandler(request: Request, handler: ApiRouteHandler, onError: ApiRouteErrorHandler): Promise<Response> {
+  const requestId = getRequestId(request)
+  try {
+    return withApiHeaders(await handler(requestId), requestId)
+  } catch (error) {
+    return withApiHeaders(onError(error, requestId), requestId)
+  }
 }

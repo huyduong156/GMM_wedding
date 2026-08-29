@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getRecapService } from '@/modules/recaps'
 import { recapErrorResponse, recapSlugSchema } from '@/modules/recaps/interface'
@@ -14,6 +14,6 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const slug = recapSlugSchema.parse((await context.params).slug)
     const weddingId = request.nextUrl.searchParams.get('weddingId') ?? undefined
-    return withAuthHeaders(jsonResponse({ slug, available: await getRecapService().slugAvailable(actor.userId, slug, weddingId) }), requestId)
+    return withApiHeaders(jsonResponse({ slug, available: await getRecapService().slugAvailable(actor.userId, slug, weddingId) }), requestId)
   } catch (error) { return recapErrorResponse(error, requestId) }
 }
