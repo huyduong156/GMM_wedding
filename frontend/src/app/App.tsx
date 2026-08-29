@@ -45,6 +45,8 @@ import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
 import { RecapThemesPage } from '../pages/recap/ui/RecapThemesPage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
 import { useOptionalAuth } from '../features/auth/model/auth-context'
+import { StatusPage, statusPathToKind } from '../pages/status/ui/StatusPage'
+import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
@@ -76,7 +78,14 @@ const adminPageNames: Record<string, string> = {
   [adminRoutes.operations]: 'Vận hành hệ thống',
 }
 
-export function App() {
+class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(error: Error, info: ErrorInfo) { void error; void info }
+  render() { return this.state.hasError ? <StatusPage kind="server-error" onRetry={() => window.location.reload()} /> : this.props.children }
+}
+
+function AppContent() {
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
 
@@ -105,6 +114,8 @@ export function App() {
   const publicRecapMatch = pathname.match(/^\/public\/recaps\/([^/]+)\/?$/)
   if (publicRecapMatch) return <PublicRecapPage slug={decodeURIComponent(publicRecapMatch[1])} />
   if (pathname === adminRoutes.login) return <AdminLoginPage />
+  const statusKind = statusPathToKind[pathname]
+  if (statusKind) return <StatusPage kind={statusKind} />
 
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {
     const content = pathname === adminRoutes.home
@@ -129,5 +140,10 @@ export function App() {
     return <AuthGate surface="studio"><WeddingWorkspace>{connectedContent}</WeddingWorkspace></AuthGate>
   }
 
-  return null
+  return <StatusPage kind="not-found" />
 }
+
+export function App() {
+  return <AppErrorBoundary><AppContent /></AppErrorBoundary>
+}
+

@@ -61,7 +61,7 @@ function toast(message: string, icon: 'success' | 'error' | 'warning' = 'success
 function Artwork({ theme, active }: { theme: RecapTheme; active: boolean }) {
   return <div className={`recap-library-art theme-${theme.key}`} role="img" aria-label={`Xem trước ${theme.name}`}>
     <div className="recap-library-art-copy"><span>WEDDING RECAP · {theme.style}</span><strong>Mai Anh <i>&</i> Đức</strong><small>Đà Lạt · 14.12.2026</small></div>
-    {active ? <span className="recap-theme-badge"><Check size={13} weight="bold" /> Đang dùng</span> : null}
+    {active ? <span className="recap-theme-selected" aria-label="Đang dùng" title="Đang dùng"><Check size={18} weight="bold" /></span> : null}
   </div>
 }
 

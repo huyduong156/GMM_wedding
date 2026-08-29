@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="cursorBody" x1="4" y1="2" x2="16" y2="21" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e0b99b"/>
+      <stop offset="0.48" stop-color="#c99a7d"/>
+      <stop offset="1" stop-color="#9a7059"/>
+    </linearGradient>
+    <linearGradient id="cursorEdge" x1="4" y1="3" x2="16" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#bd8b6d"/>
+      <stop offset="1" stop-color="#795643"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="15" y1="3" x2="19" y2="8" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f3c2b7"/>
+      <stop offset="1" stop-color="#ca8478"/>
+    </linearGradient>
+  </defs>
+  <path d="M4.08 2.94c-.26-.18-.58-.2-.84-.04-.31.19-.44.53-.39.9l1.85 15.07c.07.55.42.91.87.96.39.04.72-.13.96-.47l2.92-4.05 2.46 5.31c.22.47.75.7 1.23.5l.76-.32c.51-.22.74-.79.51-1.29l-2.46-5.3 5.55-.36c.42-.03.74-.31.85-.68.11-.39-.05-.78-.4-1.02L4.08 2.94Z" fill="#795643" opacity=".7" transform="translate(.55 .7)" stroke="#694837" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M4.08 2.94c-.26-.18-.58-.2-.84-.04-.31.19-.44.53-.39.9l1.85 15.07c.07.55.42.91.87.96.39.04.72-.13.96-.47l2.92-4.05 2.46 5.31c.22.47.75.7 1.23.5l.76-.32c.51-.22.74-.79.51-1.29l-2.46-5.3 5.55-.36c.42-.03.74-.31.85-.68.11-.39-.05-.78-.4-1.02L4.08 2.94Z" fill="url(#cursorBody)" stroke="url(#cursorEdge)" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M4.08 2.94c-.26-.18-.58-.2-.84-.04-.31.19-.44.53-.39.9l1.85 15.07c.07.55.42.91.87.96.39.04.72-.13.96-.47l2.92-4.05" fill="none" stroke="#f0c9a8" stroke-width=".78" stroke-linecap="round" stroke-linejoin="round" opacity=".82"/>
+  <path d="M9.25 13.92 11.8 13.92" fill="none" stroke="#d7a884" stroke-width=".62" stroke-linecap="round" opacity=".7"/>
+  <path d="M12.14 19.55 13.32 19.67 12.95 18.43" fill="none" stroke="#805b47" stroke-width=".72" stroke-linecap="round" opacity=".7"/>
+  <path d="M16.95 3.05c.7-1.02 2.27-.52 2.15.68-.12 1.1-2.02 2.38-2.02 2.38s-1.84-1.19-1.98-2.2c-.16-1.15 1.38-1.7 1.85-.86Z" fill="url(#heart)" stroke="#795342" stroke-width=".7" stroke-linejoin="round"/>
+  <circle cx="16.75" cy="3.82" r=".32" fill="#ffe2d8" opacity=".85"/>
+</svg>

@@ -235,3 +235,10 @@
 .recap-album-actions .recap-media-control{min-width:0;width:100%;justify-content:center;text-align:center}
 .recap-card-media-actions .recap-album-selection{flex:0 0 100%}
 @media (max-width:480px){.recap-album-actions{grid-template-columns:1fr}}
+
+.recap-library-card { transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease; }
+.recap-library-card.is-active { border-color:#bd8a4d; background:#f4f8f6; box-shadow:0 0 0 2px rgba(189,138,77,.18),0 18px 42px rgba(28,53,65,.1); }
+.recap-library-art { overflow:hidden; }
+.recap-theme-selected { position:absolute; top:16px; right:16px; width:34px; height:34px; display:grid; place-items:center; border:2px solid #fff; border-radius:50%; color:#fff; background:#4e8b78; box-shadow:0 6px 16px rgba(20,55,48,.28); }
+.recap-theme-selected svg { display:block; }
+

@@ -4,6 +4,7 @@ import {
   Bell,
   CalendarCheck,
   CaretDown,
+  CaretRight,
   ChartLineUp,
   GearSix,
   GlobeHemisphereWest,
@@ -113,13 +114,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <div className="wedding-switcher">
+        <div className="wedding-switcher" role={weddingWorkspace && weddingWorkspace.weddings.length > 1 ? undefined : "button"} tabIndex={weddingWorkspace && weddingWorkspace.weddings.length > 1 ? undefined : 0} aria-label={weddingWorkspace && weddingWorkspace.weddings.length > 1 ? undefined : "Mở cài đặt wedding"} onClick={() => { if (!weddingWorkspace || weddingWorkspace.weddings.length <= 1) navigate(studioRoutes.settings) }} onKeyDown={(event) => { if ((!weddingWorkspace || weddingWorkspace.weddings.length <= 1) && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); navigate(studioRoutes.settings) } }}>
           <span className="couple-avatar">MĐ</span>
           <span className="wedding-switcher-copy">
             <strong>{activeWedding.coupleName}</strong>
             <span><i className={`status-dot ${currentWedding?.status === 'ARCHIVED' ? 'is-archived' : currentWedding?.status === 'PUBLISHED' ? '' : 'is-draft'}`} /> {currentWedding?.status === 'ARCHIVED' ? 'Đã lưu trữ' : currentWedding?.status === 'PUBLISHED' ? 'Đã xuất bản' : 'Bản nháp'}</span>
           </span>
-          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? <NativeSelectField aria-label="Chọn đám cưới" value={activeWedding.id} onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}>{weddingWorkspace.weddings.map((wedding) => <option key={wedding.id} value={wedding.id}>{wedding.name}</option>)}</NativeSelectField> : <CaretDown size={16} aria-hidden="true" />}
+          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? <NativeSelectField aria-label="Chọn đám cưới" value={activeWedding.id} onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}>{weddingWorkspace.weddings.map((wedding) => <option key={wedding.id} value={wedding.id}>{wedding.name}</option>)}</NativeSelectField> : <CaretRight size={16} aria-hidden="true" />}
         </div>
 
         <nav className="primary-nav">
@@ -182,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button className="account-button" type="button" aria-label="Chỉnh sửa thông tin tài khoản" onClick={() => navigate(studioRoutes.profile)}>
               <span className="user-avatar">{auth?.user?.displayName?.trim().split(/\s+/).slice(-2).map((part) => part[0]).join('').toUpperCase().slice(0, 2) || 'TK'}</span>
               <span className="account-copy"><strong>{auth?.user?.displayName ?? 'Tài khoản'}</strong><small className={activeWedding.weddingDate ? '' : 'is-empty'}><CalendarCheck size={12} aria-hidden="true" />{weddingCountdownLabel}</small></span>
-              <CaretDown size={14} />
+              <CaretRight size={14} aria-hidden="true" />
             </button>
             <button className="icon-button" type="button" aria-label="Đăng xuất" onClick={() => void auth?.logout().then(() => navigate(marketingRoutes.login, true))}><SignOut size={19} /></button>
           </div>

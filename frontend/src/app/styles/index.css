@@ -1687,3 +1687,533 @@ kbd { padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 4
 .date-picker-popover .rdp-selected .rdp-day_button::after { content: ''; position: absolute; inset: 50% auto auto 50%; z-index: -1; width: 2.25rem; height: 2.25rem; border: 1px solid rgb(159 48 45 / .45); border-radius: 50%; opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(.65); animation: date-picker-heart-ripple 2.4s ease-out infinite; }
 @keyframes date-picker-heart-ripple { 0% { opacity: .5; transform: translate(-50%, -50%) scale(.7); } 72%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
 @media (prefers-reduced-motion: reduce) { .date-picker-popover .rdp-selected .rdp-day_button::after { animation: none; } }
+
+/* Shared application status pages */
+.status-page { min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; color: var(--fg); background: var(--canvas); }
+.status-page-card { width: min(100%, 560px); padding: clamp(28px, 6vw, 52px); border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: 0 24px 70px rgb(50 38 27 / .12); text-align: center; }
+.status-page-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 18px; color: var(--brand); background: var(--brand-subtle); }
+.status-page-code { color: var(--brand); font-size: 11px; font-weight: 750; letter-spacing: .18em; }
+.status-page-card h1 { margin: 10px 0 0; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.04em; }
+.status-page-card p { max-width: 430px; margin: 13px auto 0; color: var(--fg-muted); font-size: 12px; line-height: 1.7; }
+.status-page-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; margin-top: 25px; }
+.status-page-actions .button { min-height: 40px; }
+.status-page-back { display: inline-flex; align-items: center; gap: 5px; min-height: 40px; padding: 0 8px; color: var(--fg-secondary); font-size: 11px; font-weight: 650; }
+.status-page-back:hover { color: var(--brand); }
+.todo-status-select .native-select-field { width: 100%; min-width: 0; }
+.todo-status-select .select-field-trigger { min-height: 30px; height: 30px; padding: 0 7px 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--fg-secondary); font-size: 9px; font-weight: 650; }
+.todo-status-select .select-field-trigger:focus-visible { border: 0; box-shadow: 0 0 0 3px rgb(183 96 22 / .14); }
+.todo-status-select > svg { display: none; }
+@media (max-width: 720px) { .status-page-card { padding: 28px 20px; } .status-page-card h1 { font-size: 25px; } .status-page-actions { align-items: stretch; flex-direction: column; } .status-page-actions .button, .status-page-back { justify-content: center; } .todo-status-select .select-field-trigger { min-height: 32px; height: 32px; font-size: 9px; } }
+
+.account-button > svg { color: var(--fg-muted); transition: color 160ms ease, transform 160ms ease; }
+.account-button:hover > svg { color: var(--brand); transform: translateX(2px); }
+.wedding-switcher > svg { color: var(--fg-muted); transition: color 160ms ease, transform 160ms ease; }
+.wedding-switcher:hover > svg { color: var(--brand); transform: translateX(2px); }
+
+
+.theme-card { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+.theme-card.is-active { border-color: #d3975f; background: #fff8f1; box-shadow: 0 0 0 2px rgb(183 96 22 / .14), 0 13px 34px rgb(77 62 45 / .09); }
+.theme-selected { top: 16px; right: 16px; width: 34px; height: 34px; min-height: 0; display: grid; place-items: center; padding: 0; border: 2px solid #fff; border-radius: 50%; color: #fff; background: #4e8b78; box-shadow: 0 6px 16px rgb(20 55 48 / .28); }
+.theme-selected svg { display: block; }
+
+
+.gift-filter .native-select-field { width: 100%; min-width: 0; }
+.gift-filter .select-field-trigger { min-height: 38px; height: 38px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--fg-secondary); font-size: 10px; }
+.gift-filter .select-field-trigger:focus-visible { border: 0; box-shadow: 0 0 0 3px rgb(183 96 22 / .14); }
+.gift-filter > svg { display: none; }
+
+
+.gift-filter .select-field-trigger { width: 100%; box-sizing: border-box; position: relative; }
+.gift-filter .select-field-trigger > svg, .gift-filter .select-field-trigger [data-radix-select-icon] { position: static; right: auto; transform: none; flex: 0 0 auto; }
+
+
+.gift-filter .select-field-trigger svg { position: static; right: auto; top: auto; transform: none; flex: 0 0 auto; }
+.gift-filter .select-field-trigger [data-radix-select-icon] { position: static; display: inline-flex; align-items: center; flex: 0 0 auto; }
+
+
+.gift-received-cell { display: grid; gap: 5px; align-content: center; }
+.gift-received-cell > strong { color: var(--fg-secondary); font-size: 12px; font-weight: 700; }
+.gift-reciprocity-button { width: fit-content; min-height: 22px; padding: 0; border: 0; color: #8d5b12; background: transparent; cursor: pointer; font: inherit; font-size: 8px; font-weight: 700; }
+.gift-reciprocity-button:hover:not(:disabled) { color: var(--brand); text-decoration: underline; }
+.gift-reciprocity-button.is-returned { color: #28734a; cursor: not-allowed; }
+.gift-reciprocity-button.is-not-applicable { color: var(--fg-muted); cursor: not-allowed; }
+.gift-mobile-list .gift-received-cell dd { display: grid; gap: 5px; }
+
+
+.gift-reciprocity-button { min-height: 24px; padding: 0 8px; border: 1px solid #e6c995; border-radius: 6px; color: #8d5b12; background: #fff9e9; }
+.gift-reciprocity-button:hover:not(:disabled) { border-color: #d2a45f; color: #75490e; background: #fff3d8; text-decoration: none; }
+.gift-reciprocity-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gift-reciprocity-button.is-returned { border-color: #b9dec8; color: #28734a; background: #e8f6ed; }
+.gift-reciprocity-button.is-not-applicable { border-color: var(--border); color: var(--fg-muted); background: var(--subtle); }
+
+
+.swal2-popup:not(.swal2-hide) { animation: app-modal-content-in 230ms cubic-bezier(.22,1,.36,1) both; }
+.swal2-popup.swal2-hide { animation: swal2-hide .15s forwards !important; }
+.swal2-container.swal2-backdrop-hide { animation: none !important; }
+
+
+.gift-reciprocity-button { border-radius: 999px; }
+
+
+.gift-value-cell { display: grid; justify-items: start; gap: 5px; }
+.gift-method { display: inline-flex; align-items: center; gap: 4px; width: fit-content; min-height: 20px; padding: 0 7px; border-radius: 999px; font-size: 8px; font-weight: 700; white-space: nowrap; }
+.gift-method-cash { color: #8d5b12; background: #fff2d2; }
+.gift-method-bank { color: #356b89; background: #e8f3f8; }
+.gift-method-physical { color: #6d527d; background: #f1eaf6; }
+.gift-card-actions .gift-value-cell { flex: 1; }
+
+
+.gift-table th:nth-child(2), .gift-table td:nth-child(2) { width: 180px; max-width: 180px; }
+.gift-table th:nth-child(3), .gift-table td:nth-child(3) { width: 150px; max-width: 150px; }
+@media (max-width: 720px) { .gift-mobile-list .gift-received-cell .gift-reciprocity-button { display: none; } }
+
+
+.gift-table th:nth-child(1), .gift-table td:nth-child(1) { width: 300px; max-width: 300px; }
+
+
+/* Todo Done hover motion */
+@keyframes todo-done-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled) {
+    border-color: transparent;
+    color: #fff;
+    background: linear-gradient(120deg, #b76016, #d78b42, #4e8b78, #b76016);
+    background-size: 260% 260%;
+    animation: todo-done-gradient-shift 2.4s ease-in-out infinite;
+    box-shadow: 0 5px 14px rgb(183 96 22 / 20%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled) {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
+
+/* Todo Done hover ripple */
+@keyframes todo-done-ripple {
+  0% {
+    opacity: 0.28;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.8);
+  }
+}
+
+.todo-row > .todo-check {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.todo-row > .todo-check::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 140%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 52%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo-row > .todo-check::after {
+  position: relative;
+  z-index: 1;
+}
+
+.todo-row > .todo-check > svg {
+  position: relative;
+  z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--success) 68%, var(--border));
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 10%, var(--raised));
+    box-shadow: 0 4px 12px rgb(54 112 88 / 14%);
+  }
+
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: todo-done-ripple 620ms ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.todo-row > .todo-check::before { z-index: 0; }
+
+/* Todo Done brown border ripple */
+@keyframes todo-done-border-ripple {
+  0% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.75);
+  }
+}
+
+.todo-row > .todo-check {
+  overflow: visible;
+}
+
+.todo-row > .todo-check::before {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgb(183 96 22 / 48%);
+  box-sizing: border-box;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled) {
+    border-color: rgb(183 96 22 / 58%);
+    color: var(--brand-hover);
+    background: rgb(183 96 22 / 8%);
+    box-shadow: 0 4px 12px rgb(183 96 22 / 14%);
+  }
+
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: todo-done-border-ripple 720ms ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Todo Done rectangular border ripple */
+@keyframes todo-done-rect-ripple {
+  0% {
+    opacity: 0.32;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+.todo-row > .todo-check::before {
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  border-radius: inherit;
+  transform-origin: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: todo-done-rect-ripple 1.25s ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Fix Todo Done ripple bounds */
+.todo-row > .todo-check::before {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+}
+
+/* Todo Done outline wave */
+@keyframes todo-done-outline-wave {
+  0% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.16);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled) {
+    border-color: rgb(183 96 22 / 52%);
+    color: var(--brand-hover);
+    background: rgb(183 96 22 / 6%);
+    box-shadow: none;
+  }
+
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    border: 1px solid rgb(183 96 22 / 58%);
+    animation: todo-done-outline-wave 1.15s ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Todo Done four-direction outline wave */
+@keyframes todo-done-outline-wave-uniform {
+  0% {
+    opacity: 0.58;
+    transform: scale(1, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18, 1.18);
+  }
+}
+
+.todo-row > .todo-check::before {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  transform-origin: 50% 50%;
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: todo-done-outline-wave-uniform 1.15s ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-row > .todo-check:hover:not(:disabled)::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Wedding chibi cursor */
+body { cursor: url('/assets/ui/wedding-chibi-cursor.svg') 4 3, auto; }
+button, a, [role='button'], select, summary { cursor: url('/assets/ui/wedding-chibi-cursor.svg') 4 3, pointer; }
+input, textarea { cursor: text; }
+@media (pointer: coarse) {
+  body, button, a, [role='button'], select, summary, input, textarea { cursor: auto; }
+}
+
+/* Refined smaller cursor hotspot */
+body { cursor: url('/assets/ui/wedding-chibi-cursor.svg') 3 2, auto; }
+button, a, [role='button'], select, summary { cursor: url('/assets/ui/wedding-chibi-cursor.svg') 3 2, pointer; }
+
+/* Button hover lift */
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled) {
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Generated wedding cursor */
+body { cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, auto; }
+button, a, [role='button'], select, summary { cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, pointer; }
+
+/* Animated wedding cursor */
+.wedding-cursor {
+  position: fixed;
+  z-index: 9999;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  background: url('/assets/ui/wedding-chibi-cursor.png') center / contain no-repeat;
+  transform: translate(-3px, -2px);
+  opacity: 0;
+  transition: width 180ms ease, height 180ms ease, opacity 120ms ease;
+  will-change: width, height, opacity;
+}
+.wedding-cursor.is-visible { opacity: 1; }
+.wedding-cursor.is-interactive { width: 26.4px; height: 26.4px; }
+.wedding-cursor.is-text-field { opacity: 0; }
+@media (pointer: fine) {
+  body { cursor: none; }
+  button, a, [role='button'], select, summary { cursor: none; }
+  input, textarea { cursor: text; }
+}
+
+/* Keep native pointer hidden beneath animated cursor */
+@media (pointer: fine) {
+  button, a, [role='button'], select, summary { cursor: none !important; }
+  input, textarea, [contenteditable='true'] { cursor: text !important; }
+}
+
+/* Cursor tip ripple and 20% hover scale */
+@keyframes wedding-cursor-tip-ripple {
+  0% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.65);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3.8);
+  }
+}
+
+.wedding-cursor {
+  isolation: isolate;
+}
+.wedding-cursor::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 2px;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgb(137 91 67 / 58%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: wedding-cursor-tip-ripple 1.25s ease-out infinite;
+}
+.wedding-cursor.is-interactive {
+  width: 28.8px;
+  height: 28.8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wedding-cursor::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.wedding-cursor::before { z-index: 1; }
+
+/* Tip ripple only on interactive controls */
+.wedding-cursor::before {
+  animation: none;
+  opacity: 0;
+}
+.wedding-cursor.is-interactive::before {
+  animation: wedding-cursor-tip-ripple 1.25s ease-out infinite;
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wedding-cursor.is-interactive::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Align tip ripple with cursor artwork */
+.wedding-cursor::before {
+  top: 3px;
+  left: 3px;
+}
+
+/* Fine-tune tip ripple position */
+.wedding-cursor::before {
+  top: 4px;
+  left: 4px;
+}
+
+/* Final tip ripple alignment */
+.wedding-cursor::before {
+  top: 6px;
+  left: 7px;
+}
+
+/* Ripple alignment adjustment */
+.wedding-cursor::before {
+  top: 5px;
+  left: 7px;
+}
+
+/* Keep hover scale on cursor only */
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Template hover: scale cursor only */
+@media (hover: hover) and (pointer: fine) {
+  .ml-family-medallion:hover {
+    transform: translate(-50%, -50%) rotate(4deg);
+  }
+  .ml-month-days .is-wedding:hover {
+    transform: translateY(-3px);
+  }
+  .ev-person:hover figure img,
+  .gh-person:hover img,
+  .rsl-behind-open:hover .rsl-behind-media,
+  .rsl-person-open:hover .rsl-person-media,
+  .rsl-capsule-open:hover .rsl-capsule-media {
+    transform: none;
+  }
+  .rsl-behind-item:hover {
+    transform: translate3d(0, -8px, 92px) rotateY(0);
+  }
+}
+
+/* Static cursor only */
+.wedding-cursor::before {
+  display: none !important;
+}
+.wedding-cursor {
+  width: 24px;
+  height: 24px;
+  transition: opacity 120ms ease;
+}
+
+/* Native wedding cursor for zero-latency pointer response */
+.wedding-cursor {
+  display: none !important;
+}
+body { cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, auto; }
+button, a, [role='button'], select, summary { cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, pointer; }
+input, textarea, [contenteditable='true'] { cursor: text; }
+@media (pointer: coarse) {
+  body, button, a, [role='button'], select, summary { cursor: auto; }
+}
+
+/* Native cursor override for interactive descendants */
+button, a, span, [role='button'], select, summary {
+  cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, pointer !important;
+}
+input, textarea, [contenteditable='true'] {
+  cursor: text !important;
+}
+
+@media (pointer: coarse) {
+  button, a, span, [role='button'], select, summary { cursor: auto !important; }
+}

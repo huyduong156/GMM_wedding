@@ -97,7 +97,7 @@ export function TemplatesPage({ kind }: { kind: 'invitation' | 'website' }) {
       {visibleThemes.length ? <div className="theme-grid">{visibleThemes.map((theme) => {
         const isActive = activeTheme === theme.id
         return <article className={`theme-card ${isActive ? 'is-active' : ''}`} key={theme.id}>
-          <div className="theme-preview-wrap"><ThemeArtwork theme={theme} />{theme.badge ? <span className="theme-badge"><Sparkle size={12} />{theme.badge}</span> : null}{isActive ? <span className="theme-selected"><Check size={13} weight="bold" /> Đang dùng</span> : null}</div>
+          <div className="theme-preview-wrap"><ThemeArtwork theme={theme} />{theme.badge ? <span className="theme-badge"><Sparkle size={12} />{theme.badge}</span> : null}{isActive ? <span className="theme-selected" aria-label="Đang dùng" title="Đang dùng"><Check size={18} weight="bold" /></span> : null}</div>
           <div className="theme-card-copy"><div><h2>{theme.name}</h2><p>{theme.style} · {theme.palette}</p></div><p>{theme.description}</p></div>
           <footer><button className="button button-secondary" type="button" onClick={() => setPreviewTheme(theme)}><Eye size={16} /> Xem trước</button><button className={`button ${isActive ? 'button-secondary' : 'button-primary'}`} type="button" onClick={() => isActive ? setFeedback('Phần chỉnh sửa chi tiết sẽ được triển khai ở bước tiếp theo.') : chooseTheme(theme)}>{isActive ? <><PaintBrush size={16} /> Chỉnh sửa</> : 'Dùng giao diện'}</button></footer>
         </article>
