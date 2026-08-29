@@ -6,6 +6,8 @@ import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import { EditorPreviewModal } from '../../../shared/ui/EditorPreviewModal'
+import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
+import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { redSpiderLilyRecapTemplateConfig } from '../../../templates/recaps/red-spider-lily/template-config'
@@ -46,7 +48,15 @@ const mergeRecords = (base: Record<string, unknown>, override: Record<string, un
     : value
   return result
 }, clone(base))
-const mergeContent = (stored: Record<string, unknown>): RedSpiderLilyRecapContent => mergeRecords(clone(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>, stored) as unknown as RedSpiderLilyRecapContent
+const mergeContent = (stored: Record<string, unknown>): RedSpiderLilyRecapContent => {
+  const merged = mergeRecords(clone(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>, stored)
+  const ourStory = merged.ourStory
+  if (ourStory && typeof ourStory === 'object' && !Array.isArray(ourStory)) {
+    const media = (ourStory as Record<string, unknown>).media
+    if (media && !Array.isArray(media) && typeof media === 'object') (ourStory as Record<string, unknown>).media = [media]
+  }
+  return merged as unknown as RedSpiderLilyRecapContent
+}
 const getPath = (value: Record<string, unknown>, path: string) => path.split('.').reduce<unknown>((current, part) => current && typeof current === 'object' ? (current as Record<string, unknown>)[part] : undefined, value)
 const setPath = (value: RedSpiderLilyRecapContent, path: string, nextValue: unknown): RedSpiderLilyRecapContent => { const next = clone(value) as Record<string, unknown>; const parts = path.split('.'); let cursor = next; parts.slice(0, -1).forEach((part) => { cursor[part] = cursor[part] && typeof cursor[part] === 'object' ? cursor[part] : {}; cursor = cursor[part] as Record<string, unknown> }); cursor[parts.at(-1)!] = nextValue; return next as RedSpiderLilyRecapContent }
 const sectionContentFields: Record<string, { title: string; body: string }> = {
@@ -120,13 +130,9 @@ function RecapTextField({ label, path, value, update, multiline = false, maxLeng
   return <label className="recap-field"><span>{label}{limit ? <small>{value.length}/{limit}</small> : null}</span>{multiline ? <textarea value={value} maxLength={limit} rows={4} onChange={(event) => update(path, event.target.value)} /> : <input type={type} value={value} maxLength={limit} onChange={(event) => update(path, event.target.value)} />}</label>
 }
 
-type RecapMediaContextValue = { assets: MediaAsset[]; selectedIds: Set<string>; openManager: () => void }
+type RecapMediaRole = 'hero' | 'story' | 'chapter' | 'moment' | 'finale' | 'video-poster' | 'guestbook' | 'person' | 'soundtrack' | 'behind-the-scenes' | 'capsule'
+type RecapMediaContextValue = { assets: MediaAsset[]; selectedIds: Set<string>; openManager: (target?: string, role?: RecapMediaRole, multiple?: boolean) => void }
 const RecapMediaContext = createContext<RecapMediaContextValue | null>(null)
-
-function RecapMediaManager({ open, assets, selectedIds, loading, uploading, error, onClose, onUpload, onToggle }: { open: boolean; assets: MediaAsset[]; selectedIds: Set<string>; loading: boolean; uploading: boolean; error: string; onClose: () => void; onUpload: (files: FileList | null) => void; onToggle: (asset: MediaAsset) => void }) {
-  if (!open) return null
-  return <div className="recap-media-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="recap-media-modal" role="dialog" aria-modal="true" aria-labelledby="recap-media-modal-title"><header><div><span className="recap-form-eyebrow">Album hệ thống</span><h3 id="recap-media-modal-title">Quản lý ảnh</h3></div><button type="button" onClick={onClose} aria-label="Đóng"><X size={18} /></button></header><label className="recap-upload-dropzone"><input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={(event) => { onUpload(event.target.files); event.target.value = '' }} /><ImageSquare size={22} /><strong>{uploading ? 'Đang tải ảnh lên…' : 'Tải ảnh lên'}</strong><span>JPG, PNG hoặc WebP · tối đa 10MB mỗi ảnh</span></label>{error ? <p className="field-error" role="alert">{error}</p> : null}{loading ? <p className="recap-media-modal-empty">Đang tải kho ảnh…</p> : assets.length ? <div className="recap-uploaded-grid">{assets.map((asset) => <button type="button" key={asset.id} className={`recap-media-asset ${selectedIds.has(asset.id) ? 'is-selected' : ''}`} onClick={() => onToggle(asset)}><img src={asset.publicUrl} alt={asset.originalName ?? 'Ảnh đã tải lên'} /><span>{selectedIds.has(asset.id) ? <Check size={16} /> : null}{asset.originalName ?? 'Ảnh'}</span></button>)}</div> : <p className="recap-media-modal-empty">Chưa có ảnh. Hãy tải ảnh đầu tiên lên.</p>}<footer><button type="button" className="button button-primary" onClick={onClose}>Xong</button></footer></section></div>
-}
 
 function PhotoDeliverySourceField({ content, update }: { content: RedSpiderLilyRecapContent; update: (path: string, value: unknown) => void }) {
   const albums = content.photoDelivery.albums ?? []
@@ -141,10 +147,11 @@ function PhotoDeliverySourceField({ content, update }: { content: RedSpiderLilyR
     update('photoDelivery.albumUrl', '')
     update('photoDelivery.albums', [{ type: 'INTERNAL_ALBUM', albumId: selectedAlbum?.albumId ?? 'guest-gallery' }])
   }
-  return <div className="recap-source-field"><span className="recap-source-label">Nguồn album ảnh</span><div className="recap-source-tabs" role="tablist" aria-label="Nguồn album ảnh"><button type="button" role="tab" aria-selected={!external} className={!external ? 'is-active' : ''} onClick={() => setMode('internal')}>Album hệ thống</button><button type="button" role="tab" aria-selected={external} className={external ? 'is-active' : ''} onClick={() => setMode('external')}>URL bên ngoài</button></div>{external ? <RecapTextField label="URL album ảnh" path="photoDelivery.albumUrl" value={content.photoDelivery.albumUrl ?? ''} update={update} type="url" maxLength={2048} /> : <div className="recap-album-library"><div className="recap-album-actions"><button type="button" className="recap-media-control" onClick={() => media?.openManager()}><ImageSquare size={16} /> Tải ảnh lên</button><button type="button" className="recap-media-control" onClick={() => media?.openManager()}><ImageSquare size={16} /> Chọn ảnh đã tải lên</button></div><small className="recap-album-hint">{media?.selectedIds.size ? `Đã chọn ${media.selectedIds.size} ảnh từ kho media.` : 'Mở trình quản lý ảnh để tải lên hoặc chọn ảnh.'}</small></div>}</div>
+  return <div className="recap-source-field"><span className="recap-source-label">Nguồn album ảnh</span><div className="recap-source-tabs" role="tablist" aria-label="Nguồn album ảnh"><button type="button" role="tab" aria-selected={!external} className={!external ? 'is-active' : ''} onClick={() => setMode('internal')}>Album hệ thống</button><button type="button" role="tab" aria-selected={external} className={external ? 'is-active' : ''} onClick={() => setMode('external')}>URL bên ngoài</button></div>{external ? <RecapTextField label="URL album ảnh" path="photoDelivery.albumUrl" value={content.photoDelivery.albumUrl ?? ''} update={update} type="url" maxLength={2048} /> : <div className="recap-album-library"><div className="recap-album-actions"><button type="button" className="recap-media-control" onClick={() => media?.openManager(undefined, 'hero', true)}><ImageSquare size={16} /> Tải ảnh lên</button><button type="button" className="recap-media-control" onClick={() => media?.openManager(undefined, 'hero', true)}><ImageSquare size={16} /> Chọn ảnh đã tải lên</button></div><small className="recap-album-hint">{media?.selectedIds.size ? `Đã chọn ${media.selectedIds.size} ảnh từ kho media.` : 'Mở trình quản lý ảnh để tải lên hoặc chọn ảnh.'}</small></div>}</div>
 }
 
-function CardList({ path, fields, content, update, isOpen }: { path: string; fields: Array<{ key: string; label: string; multiline?: boolean; maxLength?: number }>; content: RedSpiderLilyRecapContent; update: (path: string, value: unknown) => void; isOpen: boolean }) {
+function CardList({ path, fields, content, update, isOpen, galleryField, maxMediaPerItem }: { path: string; fields: Array<{ key: string; label: string; multiline?: boolean; maxLength?: number }>; content: RedSpiderLilyRecapContent; update: (path: string, value: unknown) => void; isOpen: boolean; galleryField?: string; maxMediaPerItem?: number }) {
+  const media = useContext(RecapMediaContext)
   const items = (getPath(content as unknown as Record<string, unknown>, path) as Array<Record<string, unknown>> | undefined) ?? []
   const isMoments = path.endsWith('moments')
   const isChapters = path.endsWith('chapters')
@@ -154,14 +161,19 @@ function CardList({ path, fields, content, update, isOpen }: { path: string; fie
     const item = isPeople ? { id: `person-${Date.now()}`, name: '', role: '', media: { src: '', alt: 'Anh chan dung', role } } : path.endsWith('items') ? { id: `behind-${Date.now()}`, title: '', caption: '', media: { src: '', alt: 'Anh hau truong', role } } : { id: `${path}-${Date.now()}`, ...(isChapters ? { dateLabel: '' } : {}), title: '', description: '', cover: { src: '', alt: 'Ảnh cover', role } }
     update(path, [...items, item])
   }
-  return <div className="recap-card-editor"><div className="recap-repeatable-heading"><div><strong>{isChapters ? 'Các chapter' : isMoments ? 'Các nhóm khoảnh khắc' : isPeople ? 'Những người phía sau' : 'Các khoảnh khắc hậu trường'}</strong><small>{items.length} card</small></div><button type="button" className="recap-add-button" onClick={add} disabled={!isOpen}><Plus size={16} /> Thêm card</button></div>{items.map((item, index) => <article className="recap-card-editor-item" key={String(item.id ?? index)}><header><strong>Card {String(index + 1).padStart(2, '0')}</strong><button type="button" className="recap-card-remove" onClick={() => update(path, items.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Xóa card ${index + 1}`}><X size={15} /></button></header>{fields.map((field) => <RecapTextField key={field.key} label={field.label} path={`${path}.${index}.${field.key}`} value={String(item[field.key] ?? '')} update={update} multiline={field.multiline} maxLength={field.maxLength} />)}<button type="button" className="recap-media-control" disabled><ImageSquare size={16} /> Thêm ảnh cover sau</button></article>)}{!items.length ? <small className="recap-card-empty">Chưa có card. Thêm card để bắt đầu nhập nội dung.</small> : null}</div>
+  const role: RecapMediaRole = isMoments ? 'moment' : isChapters ? 'chapter' : isPeople ? 'person' : 'behind-the-scenes'
+  const mediaField = isPeople || path.endsWith('items') ? 'media' : 'cover'
+  return <div className="recap-card-editor"><div className="recap-repeatable-heading"><div><strong>{isChapters ? 'Các chapter' : isMoments ? 'Các nhóm khoảnh khắc' : isPeople ? 'Những người phía sau' : 'Các khoảnh khắc hậu trường'}</strong><small>{items.length} card</small></div><button type="button" className="recap-add-button" onClick={add} disabled={!isOpen}><Plus size={16} /> Thêm card</button></div>{items.map((item, index) => <article className="recap-card-editor-item" key={String(item.id ?? index)}><header><strong>Card {String(index + 1).padStart(2, '0')}</strong><button type="button" className="recap-card-remove" onClick={() => update(path, items.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Xóa card ${index + 1}`}><X size={15} /></button></header>{fields.map((field) => <RecapTextField key={field.key} label={field.label} path={`${path}.${index}.${field.key}`} value={String(item[field.key] ?? '')} update={update} multiline={field.multiline} maxLength={field.maxLength} />)}<div className="recap-card-media-actions"><button type="button" className="recap-media-control" onClick={() => media?.openManager(path + '.' + index + '.' + mediaField, role)} disabled={!isOpen}><ImageSquare size={16} /> {item[mediaField] ? 'Thay ảnh cover' : 'Thêm ảnh cover'}</button>{galleryField ? <button type="button" className="recap-media-control" onClick={() => media?.openManager(path + '.' + index + '.' + galleryField, role, true)} disabled={!isOpen}>{Array.isArray(item[galleryField]) && item[galleryField].length ? 'Thay album \u1ea3nh' : 'Ch\u1ecdn album \u1ea3nh'}</button> : null}</div></article>)}{!items.length ? <small className="recap-card-empty">Chưa có card. Thêm card để bắt đầu nhập nội dung.</small> : null}</div>
 }
 
 function DetailedSectionForm({ section, content, update, isOpen }: { section: EditorSection; content: RedSpiderLilyRecapContent; update: (path: string, value: unknown) => void; isOpen: boolean }) {
+  const media = useContext(RecapMediaContext)
+  const imageControls: Record<string, { path: string; role: RecapMediaRole }> = { hero: { path: 'hero.media', role: 'hero' }, ourStory: { path: 'ourStory.media.0', role: 'story' }, thankYou: { path: 'thankYou.media', role: 'finale' }, guestbook: { path: 'optional.guestbook.media', role: 'guestbook' }, weddingFilm: { path: 'optional.weddingFilm.poster', role: 'video-poster' }, soundtrack: { path: 'optional.soundtrack.cover', role: 'soundtrack' }, memoryCapsule: { path: 'optional.memoryCapsule.media', role: 'capsule' } }
+  const imageControl = imageControls[section.key]
   const values = sectionContentFields[section.key]
   const value = (path: string, fallback: string) => String(getPath(content as unknown as Record<string, unknown>, path) ?? fallback)
   const field = (label: string, path: string, multiline = false, maxLength?: number) => <RecapTextField label={label} path={path} value={value(path, '')} update={update} multiline={multiline} maxLength={maxLength} />
-  return <div className={`recap-accordion ${isOpen ? 'is-open' : ''}`} aria-hidden={!isOpen}><div className="recap-accordion-content"><div className="recap-form-panel"><div className="recap-form-eyebrow">Đang chỉnh sửa</div><h2>{value(values?.title ?? '', section.title)}</h2><p className="recap-form-lead">{value(values?.body ?? '', section.body)}</p>{section.key === 'hero' ? <>{field('Tên cặp đôi', 'hero.couple')}{field('Ngày hiển thị', 'hero.date')}{field('Địa điểm', 'hero.place')}{field('Tagline', 'hero.tagline', true)}{field('Nhãn nút mở album', 'hero.ctaLabel')}</> : section.key === 'ourStory' ? <>{field('Dòng mở đầu', 'ourStory.eyebrow')}{field('Tiêu đề lời dẫn', 'ourStory.title', true)}{field('Nội dung loi dan', 'ourStory.body', true)}{field('Trích dẫn', 'ourStory.quote', true)}</> : section.key === 'photoDelivery' ? <><>{field('Dòng mở đầu', 'photoDelivery.eyebrow')}{field('Tiêu đề', 'photoDelivery.title', true)}{field('Nội dung', 'photoDelivery.body', true)}{field('Nhãn nút album', 'photoDelivery.ctaLabel')}</><PhotoDeliverySourceField content={content} update={update} /></> : section.key === 'thankYou' ? <>{field('Tiêu đề lời cảm ơn', 'thankYou.title', true)}{field('Nội dung', 'thankYou.body', true)}{field('Chữ ký', 'thankYou.signature')}{field('Ngày kết', 'thankYou.date')}</> : section.key === 'chapters' ? <CardList path="chapters" fields={[{ key: 'dateLabel', label: 'Ngày / mốc thời gian' }, { key: 'title', label: 'Tiêu đề chapter' }, { key: 'description', label: 'Mô tả', multiline: true }]} content={content} update={update} isOpen={isOpen} /> : section.key === 'moments' ? <CardList path="moments" fields={[{ key: 'title', label: 'Tên nhóm khoảnh khắc' }, { key: 'description', label: 'Mô tả', multiline: true }]} content={content} update={update} isOpen={isOpen} /> : section.key === 'peopleBehindTheDay' ? <><>{field('Tiêu đề section', 'optional.peopleBehindTheDay.title', true)}{field('Mô tả section', 'optional.peopleBehindTheDay.body', true)}</><CardList path="optional.peopleBehindTheDay.people" fields={[{ key: 'name', label: 'Tên người / nhóm' }, { key: 'role', label: 'Vai trò / ghi chú', multiline: true }]} content={content} update={update} isOpen={isOpen} /></> : section.key === 'behindTheScenes' ? <><>{field('Tiêu đề section', 'optional.behindTheScenes.title', true)}{field('Mô tả section', 'optional.behindTheScenes.body', true)}</><CardList path="optional.behindTheScenes.items" fields={[{ key: 'title', label: 'Tiêu đề khoảnh khắc' }, { key: 'caption', label: 'Ghi chú', multiline: true }]} content={content} update={update} isOpen={isOpen} /></> : section.key === 'guestbook' ? <>{field('Tiêu đề section', 'optional.guestbook.title', true)}{field('Mô tả section', 'optional.guestbook.body', true)}{field('Lời dẫn lời chúc', 'optional.guestbook.intro', true)}</> : section.key === 'weddingFilm' ? <>{field('Tiêu đề section', 'optional.weddingFilm.title', true)}{field('Mô tả section', 'optional.weddingFilm.body', true)}{field('Thời lượng video', 'optional.weddingFilm.duration')}{field('Nhãn nút video', 'optional.weddingFilm.ctaLabel')}</> : section.key === 'soundtrack' ? <>{field('Tiêu đề section', 'optional.soundtrack.title', true)}{field('Mô tả section', 'optional.soundtrack.body', true)}{field('Tên track', 'optional.soundtrack.track')}{field('Nghệ sĩ', 'optional.soundtrack.artist')}{field('Thời lượng', 'optional.soundtrack.duration')}</> : section.key === 'memoryCapsule' ? <>{field('Tiêu đề section', 'optional.memoryCapsule.title', true)}{field('Lời nhắn', 'optional.memoryCapsule.body', true)}{field('Mốc thời gian', 'optional.memoryCapsule.date')}</> : null}<div className="recap-editor-tools"><button type="button" className="recap-media-control" disabled><ImageSquare size={18} /> Thêm ảnh sau</button><button type="button" className="recap-media-control" disabled><Quotes size={18} /> Chọn lời chúc đã duyệt</button></div></div></div></div>
+  return <div className={`recap-accordion ${isOpen ? 'is-open' : ''}`} aria-hidden={!isOpen}><div className="recap-accordion-content"><div className="recap-form-panel"><div className="recap-form-eyebrow">Đang chỉnh sửa</div><h2>{value(values?.title ?? '', section.title)}</h2><p className="recap-form-lead">{value(values?.body ?? '', section.body)}</p>{section.key === 'hero' ? <>{field('Tên cặp đôi', 'hero.couple')}{field('Ngày hiển thị', 'hero.date')}{field('Địa điểm', 'hero.place')}{field('Tagline', 'hero.tagline', true)}</> : section.key === 'ourStory' ? <>{field('Dòng mở đầu', 'ourStory.eyebrow')}{field('Tiêu đề lời dẫn', 'ourStory.title', true)}{field('Nội dung loi dan', 'ourStory.body', true)}{field('Trích dẫn', 'ourStory.quote', true)}</> : section.key === 'photoDelivery' ? <><>{field('Dòng mở đầu', 'photoDelivery.eyebrow')}{field('Tiêu đề', 'photoDelivery.title', true)}{field('Nội dung', 'photoDelivery.body', true)}</><PhotoDeliverySourceField content={content} update={update} /></> : section.key === 'thankYou' ? <>{field('Tiêu đề lời cảm ơn', 'thankYou.title', true)}{field('Nội dung', 'thankYou.body', true)}{field('Chữ ký', 'thankYou.signature')}{field('Ngày kết', 'thankYou.date')}</> : section.key === 'chapters' ? <CardList path="chapters" fields={[{ key: 'dateLabel', label: 'Ngày / mốc thời gian' }, { key: 'title', label: 'Tiêu đề chapter' }, { key: 'description', label: 'Mô tả', multiline: true }]} content={content} update={update} isOpen={isOpen} /> : section.key === 'moments' ? <CardList path="moments" fields={[{ key: 'title', label: 'Tên nhóm khoảnh khắc' }, { key: 'description', label: 'Mô tả', multiline: true }]} content={content} update={update} isOpen={isOpen} /> : section.key === 'peopleBehindTheDay' ? <><>{field('Tiêu đề section', 'optional.peopleBehindTheDay.title', true)}{field('Mô tả section', 'optional.peopleBehindTheDay.body', true)}</><CardList path="optional.peopleBehindTheDay.people" fields={[{ key: 'name', label: 'Tên người / nhóm' }, { key: 'role', label: 'Vai trò / ghi chú', multiline: true }]} content={content} update={update} isOpen={isOpen} galleryField={section.galleryField} maxMediaPerItem={section.maxMediaPerItem} /></> : section.key === 'behindTheScenes' ? <><>{field('Tiêu đề section', 'optional.behindTheScenes.title', true)}{field('Mô tả section', 'optional.behindTheScenes.body', true)}</><CardList path="optional.behindTheScenes.items" fields={[{ key: 'title', label: 'Tiêu đề khoảnh khắc' }, { key: 'caption', label: 'Ghi chú', multiline: true }]} content={content} update={update} isOpen={isOpen} galleryField={section.galleryField} maxMediaPerItem={section.maxMediaPerItem} /></> : section.key === 'guestbook' ? <>{field('Tiêu đề section', 'optional.guestbook.title', true)}{field('Mô tả section', 'optional.guestbook.body', true)}{field('Lời dẫn lời chúc', 'optional.guestbook.intro', true)}</> : section.key === 'weddingFilm' ? <>{field('Tiêu đề section', 'optional.weddingFilm.title', true)}{field('Mô tả section', 'optional.weddingFilm.body', true)}{field('Thời lượng video', 'optional.weddingFilm.duration')}</> : section.key === 'soundtrack' ? <>{field('Tiêu đề section', 'optional.soundtrack.title', true)}{field('Mô tả section', 'optional.soundtrack.body', true)}{field('Tên track', 'optional.soundtrack.track')}{field('Nghệ sĩ', 'optional.soundtrack.artist')}{field('Thời lượng', 'optional.soundtrack.duration')}</> : section.key === 'memoryCapsule' ? <>{field('Tiêu đề section', 'optional.memoryCapsule.title', true)}{field('Lời nhắn', 'optional.memoryCapsule.body', true)}{field('Mốc thời gian', 'optional.memoryCapsule.date')}</> : null}{imageControl ? <div className="recap-editor-tools"><button type="button" className="recap-media-control" onClick={() => media?.openManager(imageControl.path, imageControl.role)} disabled={!isOpen}><ImageSquare size={18} /> {getPath(content as unknown as Record<string, unknown>, imageControl.path) ? 'Thay ảnh' : 'Thêm ảnh'}</button></div> : null}</div></div></div>
 }
 
 export function RecapEditorPage() {
@@ -184,11 +196,10 @@ export function RecapEditorPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([])
   const [mediaManagerOpen, setMediaManagerOpen] = useState(false)
-  const [mediaLoading, setMediaLoading] = useState(false)
-  const [mediaUploading, setMediaUploading] = useState(false)
-  const [mediaError, setMediaError] = useState('')
+  const { assets: mediaAssets, loading: mediaLoading, uploading: mediaUploading, error: mediaError, setError: setMediaError, upload: uploadRecapMedia } = useMediaLibrary({ weddingId: wedding?.id ?? null })
+  const [mediaTarget, setMediaTarget] = useState<{ path: string; role: RecapMediaRole; multiple: boolean } | null>(null)
+  const [mediaSelectionMode, setMediaSelectionMode] = useState<'single' | 'multiple'>('single')
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
   const visibleSections = order.filter((key) => enabled.includes(key))
   const { frameRef, ready, sendState, scrollToSection } = useLiveEditorBridge<{ data: RedSpiderLilyRecapContent; sectionConfig: { enabled: string[]; order: string[] } }, string>({ data: content, sectionConfig: { enabled, order } })
@@ -211,15 +222,6 @@ export function RecapEditorPage() {
   }, [wedding])
 
   useEffect(() => { void load() }, [load])
-
-  const loadMedia = useCallback(async () => {
-    if (!wedding) return
-    setMediaLoading(true); setMediaError('')
-    try { setMediaAssets((await weddingApi.media(wedding.id)).items.filter((asset) => asset.status === 'READY')) }
-    catch (cause) { setMediaError(cause instanceof Error ? cause.message : 'Không thể tải kho ảnh.') }
-    finally { setMediaLoading(false) }
-  }, [wedding])
-  useEffect(() => { void loadMedia() }, [loadMedia])
 
   useEffect(() => {
     const receiveDeviceChange = (event: Event) => {
@@ -252,7 +254,30 @@ export function RecapEditorPage() {
     setSaved(false)
   }
   const selectedMediaIds = new Set((recap?.mediaItems ?? []).map((item) => item.mediaAssetId))
+  const attachMediaAsset = (asset: MediaAsset, target: { path: string; role: RecapMediaRole }) => {
+    updateContent(target.path, { src: asset.publicUrl, alt: asset.originalName ?? 'Ảnh đã tải lên', role: target.role })
+    setRecap((current) => {
+      if (!current || current.mediaItems.some((item) => item.mediaAssetId === asset.id)) return current
+      return { ...current, mediaItems: [...current.mediaItems, { id: asset.id, mediaAssetId: asset.id, caption: null, sortOrder: current.mediaItems.length, publicUrl: asset.publicUrl }] }
+    })
+    setSaved(false)
+  }
+  const attachMediaAssets = (assets: MediaAsset[], target: { path: string; role: RecapMediaRole }) => {
+    updateContent(target.path, assets.map((asset) => ({ src: asset.publicUrl, alt: asset.originalName ?? 'Anh da tai len', role: target.role })))
+    setRecap((current) => {
+      if (!current) return current
+      const existing = new Set(current.mediaItems.map((item) => item.mediaAssetId))
+      const additions = assets.filter((asset) => !existing.has(asset.id)).map((asset, index) => ({ id: asset.id, mediaAssetId: asset.id, caption: null, sortOrder: current.mediaItems.length + index, publicUrl: asset.publicUrl }))
+      return additions.length ? { ...current, mediaItems: [...current.mediaItems, ...additions] } : current
+    })
+    setSaved(false)
+  }
   const toggleMedia = (asset: MediaAsset) => {
+    if (mediaTarget) {
+      attachMediaAsset(asset, mediaTarget)
+      setMediaManagerOpen(false)
+      return
+    }
     setRecap((current) => {
       if (!current) return current
       const mediaItems = selectedMediaIds.has(asset.id)
@@ -261,19 +286,6 @@ export function RecapEditorPage() {
       return { ...current, mediaItems: mediaItems.map((item, index) => ({ ...item, sortOrder: index })) }
     })
     setSaved(false)
-  }
-  const uploadRecapMedia = async (files: FileList | null) => {
-    if (!wedding || !files?.length) return
-    const accepted = [...files].filter((file) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 10 * 1024 * 1024)
-    if (accepted.length !== files.length) setMediaError('Chỉ nhận ảnh JPG, PNG hoặc WebP, tối đa 10MB mỗi ảnh.')
-    if (!accepted.length) return
-    setMediaUploading(true)
-    try {
-      const uploaded = await Promise.all(accepted.map((file) => weddingApi.uploadMedia(wedding.id, file)))
-      setMediaAssets((current) => [...uploaded, ...current.filter((asset) => !uploaded.some((next) => next.id === asset.id))])
-      setMediaError('')
-    } catch (cause) { setMediaError(cause instanceof Error ? cause.message : 'Không thể tải ảnh lên kho media.') }
-    finally { setMediaUploading(false) }
   }
   const save = async (): Promise<boolean> => {
     if (!wedding || !recap || saving) return false
@@ -305,6 +317,7 @@ export function RecapEditorPage() {
     } finally { setSaving(false) }
   }
 
+  const managerSelectedIds = mediaTarget ? new Set(mediaAssets.filter((asset) => { const value = getPath(content as unknown as Record<string, unknown>, mediaTarget.path); const values = Array.isArray(value) ? value : [value]; return values.some((item) => item && typeof item === 'object' && (item as Record<string, unknown>).src === asset.publicUrl) }).map((asset) => asset.id)) : mediaSelectionMode === 'multiple' ? new Set(mediaAssets.map((asset) => asset.id)) : selectedMediaIds
   const hasUnsavedChanges = saved === false
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => { if (hasUnsavedChanges) { event.preventDefault(); event.returnValue = '' } }
@@ -322,12 +335,12 @@ export function RecapEditorPage() {
 
   if (!wedding || (!loading && !recap)) return <section className="recap-editor-empty" aria-labelledby="recap-editor-empty-heading"><div className="recap-editor-empty-card"><CheckCircle size={48} weight="duotone" aria-hidden="true" /><h1 id="recap-editor-empty-heading">Bạn chưa chọn giao diện recap</h1><p>Hãy chọn một giao diện trong kho recap trước khi bắt đầu chỉnh sửa.</p><AppLink className="button button-primary" to={studioRoutes.recapThemes}>Đi đến kho giao diện recap</AppLink></div></section>
 
-  return <RecapMediaContext.Provider value={{ assets: mediaAssets, selectedIds: selectedMediaIds, openManager: () => { setMediaError(''); setMediaManagerOpen(true) } }}><section className="recap-editor-page" aria-labelledby="recap-editor-heading">
+  return <RecapMediaContext.Provider value={{ assets: mediaAssets, selectedIds: selectedMediaIds, openManager: (target, role = 'hero', multiple = false) => { setMediaError(''); setMediaTarget(target ? { path: target, role, multiple } : null); setMediaSelectionMode(multiple ? 'multiple' : 'single'); setMediaManagerOpen(true) } }}><section className="recap-editor-page" aria-labelledby="recap-editor-heading">
     <header className="recap-editor-toolbar"><div className="recap-editor-title"><AppLink to={studioRoutes.recapThemes} ariaLabel="Quay lại kho giao diện recap"><ArrowLeft size={18} /></AppLink><div><p className="breadcrumb">Wedding Recap <span>/</span> Dấu Son Bỉ Ngạn</p><h1 id="recap-editor-heading">Kể lại ngày vui của bạn</h1></div></div><div className="recap-editor-actions"><span className={`recap-save-state ${saved ? 'is-saved' : ''}`}><Check size={14} /> {loading ? 'Đang tải' : saving ? 'Đang lưu' : error || (saved ? 'Đã lưu' : 'Chưa lưu')}</span><div className="recap-history-actions"><button type="button" disabled={!history.length} onClick={undo} aria-label="Hoàn tác"><ArrowUp size={15} /></button><button type="button" disabled={!future.length} onClick={redo} aria-label="Làm lại"><ArrowDown size={15} /></button></div><div className="recap-device-toggle" aria-label="Kích thước xem trước"><button type="button" className={device === 'desktop' ? 'is-active' : ''} aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')} aria-label="Xem dạng máy tính"><Desktop size={15} /></button><button type="button" className={device === 'mobile' ? 'is-active' : ''} aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} aria-label="Xem dạng điện thoại"><DeviceMobile size={15} /></button></div><AppLink className="button button-secondary" to={publicTemplateRoutes.redSpiderLilyRecapPreview}><Eye size={16} /> Xem trước</AppLink><button className="button button-secondary" type="button" disabled={!recap || saving || loading} onClick={() => void save()}><FloppyDisk size={16} /> {saving ? 'Đang lưu' : 'Lưu thay đổi'}</button><button className="button button-primary" type="button" onClick={() => setPublished(true)}><PaperPlaneTilt size={16} /> {published ? 'Đã chia sẻ' : 'Chia sẻ recap'}</button></div></header>
     <div className="recap-editor-layout"><aside className="recap-section-panel"><div className="recap-panel-intro"><span>DAU SON BI NGAN</span><strong>{visibleSections.length}/{order.length} section đang hiển thị</strong><small>Mở từng phần để chỉnh sửa nội dung.</small></div><ol>{order.map((key, index) => { const section = editorSections.find((item) => item.key === key)!; const isEnabled = enabled.includes(key); const fields = sectionContentFields[key]; const titleValue = String(getPath(content as unknown as Record<string, unknown>, fields?.title ?? '') ?? section.title); const bodyValue = String(getPath(content as unknown as Record<string, unknown>, fields?.body ?? '') ?? section.body); return <li className={`recap-section-card ${active === key ? 'is-active' : ''} ${isEnabled ? '' : 'is-disabled'}`} key={key}><div className="recap-section-row"><button className="recap-section-item" type="button" aria-expanded={active === key} onClick={() => { setActive((value) => value === key ? null : key); scrollToSection(key); setSaved(false) }}><span className="recap-section-index">{String(index + 1).padStart(2, '0')}</span><span><strong>{section.label}</strong><small>{section.required ? 'Bắt buộc' : isEnabled ? section.detail : 'Đang ẩn'}</small></span><Check className="recap-section-check" size={16} weight="bold" /></button><div className="recap-section-tools"><button type="button" disabled={!section.canReorder || index === 0} onClick={() => moveSection(key, -1)} aria-label={`Đưa ${section.label} lên`}><ArrowUp size={14} /></button><button type="button" disabled={!section.canReorder || index === order.length - 1} onClick={() => moveSection(key, 1)} aria-label={`Đưa ${section.label} xuống`}><ArrowDown size={14} /></button><button type="button" role="switch" aria-checked={isEnabled} disabled={!section.canToggle} className={`editor-switch ${isEnabled ? 'is-on' : ''}`} onClick={() => toggleSection(section)} aria-label={`${isEnabled ? 'An' : 'Hien'} ${section.label}`}><span /></button></div></div><SectionForm section={section} content={content} updateContent={updateContent} titleValue={titleValue} bodyValue={bodyValue} onTitleChange={(value) => fields && updateContent(fields.title, value)} onBodyChange={(value) => fields && updateContent(fields.body, value)} itemCount={itemCounts[key] ?? 0} galleryCount={galleryCounts[key] ?? 0} updateCount={updateCount} updateGallery={updateGallery} onChange={() => setSaved(false)} isOpen={active === key} /></li> })}</ol><div className="recap-editor-note"><MusicNotes size={18} /><span>Nhạc và video được chọn theo từng recap, không gắn cứng vào theme.</span></div></aside>
       <aside className="recap-live-preview"><div className="recap-live-preview-head"><span>Preview</span><small>{device === 'desktop' ? 'Desktop' : 'Mobile'}</small></div><RecapPreviewFrame frameRef={frameRef} route={`${publicTemplateRoutes.redSpiderLilyRecapPreview}?editor=1`} device={device} ready={ready} open={previewOpen} onToggleOpen={() => setPreviewOpen((value) => !value)} onLoad={sendState} /><AppLink className="recap-open-preview" to={studioRoutes.recapThemes}>Đổi giao diện recap</AppLink></aside></div>
     {pendingNavigation ? <div className="recap-unsaved-backdrop" role="presentation"><section className="recap-unsaved-dialog" role="dialog" aria-modal="true" aria-labelledby="recap-unsaved-title"><FloppyDisk size={28} /><h2 id="recap-unsaved-title">Bạn có thay đổi chưa lưu</h2><p>Bạn có muốn lưu nội dung recap trước khi rời khỏi trang này không?</p><footer><button className="button button-secondary" type="button" onClick={() => setPendingNavigation(null)}>Ở lại</button><button className="button button-secondary" type="button" onClick={() => { const target = pendingNavigation; setPendingNavigation(null); navigate(target) }}>Rời đi không lưu</button><button className="button button-primary" type="button" disabled={saving} onClick={() => void (async () => { const didSave = await save(); if (didSave) { const target = pendingNavigation; setPendingNavigation(null); navigate(target) } })()}>{saving ? 'Đang lưu…' : 'Lưu và rời đi'}</button></footer></section></div> : null}
-    <RecapMediaManager open={mediaManagerOpen} assets={mediaAssets} selectedIds={selectedMediaIds} loading={mediaLoading} uploading={mediaUploading} error={mediaError} onClose={() => setMediaManagerOpen(false)} onUpload={(files) => { void uploadRecapMedia(files) }} onToggle={toggleMedia} />
+    <MediaManagerModal selectionMode={mediaSelectionMode} open={mediaManagerOpen} assets={mediaAssets} selectedIds={managerSelectedIds} loading={mediaLoading} uploading={mediaUploading} error={mediaError} onClose={() => setMediaManagerOpen(false)} onUpload={uploadRecapMedia} onConfirm={(selected) => { if (mediaTarget && selected.length) { if (mediaTarget.multiple) attachMediaAssets(selected, mediaTarget); else attachMediaAsset(selected[0], mediaTarget) } else { setRecap((current) => current ? { ...current, mediaItems: selected.map((asset, index) => ({ id: asset.id, mediaAssetId: asset.id, caption: null, sortOrder: index, publicUrl: asset.publicUrl })) } : current); setSaved(false) }; setMediaManagerOpen(false) }} />
   </section></RecapMediaContext.Provider>
 }
 
