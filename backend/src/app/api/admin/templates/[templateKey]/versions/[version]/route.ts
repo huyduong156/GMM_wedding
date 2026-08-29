@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { optionsResponse, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requirePlatformAdmin } from '@/modules/identity/interface/request-authenticator'
 import { getTemplateAdminService } from '@/modules/templates'
 import { templateAdminErrorResponse } from '@/modules/templates/interface/template-admin-http'
@@ -13,6 +13,6 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     await requirePlatformAdmin(request)
     const { templateKey, version } = await context.params
-    return withAuthHeaders(jsonResponse({ template: await getTemplateAdminService().detail(templateKey, version) }), requestId)
+    return withApiHeaders(jsonResponse({ template: await getTemplateAdminService().detail(templateKey, version) }), requestId)
   } catch (error) { return templateAdminErrorResponse(error, requestId) }
 }

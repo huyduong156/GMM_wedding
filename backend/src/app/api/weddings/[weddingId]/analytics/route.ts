@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     const { actor } = await requireAuthenticatedUser(request)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
-    return withAuthHeaders(jsonResponse({ analytics: await getWeddingService().analytics(actor, weddingId) }), requestId)
+    return withApiHeaders(jsonResponse({ analytics: await getWeddingService().analytics(actor, weddingId) }), requestId)
   } catch (error) {
     return weddingErrorResponse(error, requestId)
   }

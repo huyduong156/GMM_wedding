@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { optionsResponse, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requirePlatformAdmin } from '@/modules/identity/interface/request-authenticator'
 import { getTemplateAdminService } from '@/modules/templates'
 import { templateAdminErrorResponse } from '@/modules/templates/interface/template-admin-http'
@@ -13,6 +13,6 @@ export async function GET(request: NextRequest) {
   try {
     await requirePlatformAdmin(request)
     const query = adminTemplateListQuerySchema.parse({ productType: request.nextUrl.searchParams.get('productType') ?? undefined, reviewStatus: request.nextUrl.searchParams.get('reviewStatus') ?? undefined })
-    return withAuthHeaders(jsonResponse(await getTemplateAdminService().list(query)), requestId)
+    return withApiHeaders(jsonResponse(await getTemplateAdminService().list(query)), requestId)
   } catch (error) { return templateAdminErrorResponse(error, requestId) }
 }

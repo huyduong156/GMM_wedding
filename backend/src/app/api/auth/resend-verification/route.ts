@@ -6,7 +6,7 @@ import {
   clientIp,
   optionsResponse,
   parseJson,
-  withAuthHeaders,
+  withApiHeaders,
 } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
@@ -23,8 +23,8 @@ export async function POST(request: Request) {
       { message: 'If the account is awaiting verification, a new email has been sent.' },
       { status: 202 },
     )
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   } catch (error) {
-    return withAuthHeaders(authErrorResponse(error, requestId), requestId)
+    return withApiHeaders(authErrorResponse(error, requestId), requestId)
   }
 }

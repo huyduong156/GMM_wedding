@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getRsvpService } from '@/modules/rsvps'
 import { rsvpErrorResponse } from '@/modules/rsvps/interface/rsvp-http'
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest, context: Context) {
     const { weddingId, rsvpId } = await context.params
     const { guestId } = await parseJson(request, linkRsvpGuestSchema)
     const result = await getRsvpService().linkGuest(actor, weddingIdSchema.parse(weddingId), rsvpIdSchema.parse(rsvpId), guestId)
-    return withAuthHeaders(jsonResponse(result), requestId)
+    return withApiHeaders(jsonResponse(result), requestId)
   } catch (error) {
     return rsvpErrorResponse(error, requestId)
   }

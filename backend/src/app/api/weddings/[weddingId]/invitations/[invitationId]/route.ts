@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getGuestService } from '@/modules/guests'
 import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     const { actor } = await requireAuthenticatedUser(request)
     const idsValue = await ids(context)
-    return withAuthHeaders(jsonResponse({ invitation: await getGuestService().getInvitation(actor, idsValue.weddingId, idsValue.invitationId) }), requestId)
+    return withApiHeaders(jsonResponse({ invitation: await getGuestService().getInvitation(actor, idsValue.weddingId, idsValue.invitationId) }), requestId)
   } catch (error) {
     return guestErrorResponse(error, requestId)
   }
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const idsValue = await ids(context)
-    return withAuthHeaders(jsonResponse({ invitation: await getGuestService().updateInvitation(actor, idsValue.weddingId, idsValue.invitationId, await parseJson(request, updateInvitationSchema)) }), requestId)
+    return withApiHeaders(jsonResponse({ invitation: await getGuestService().updateInvitation(actor, idsValue.weddingId, idsValue.invitationId, await parseJson(request, updateInvitationSchema)) }), requestId)
   } catch (error) {
     return guestErrorResponse(error, requestId)
   }

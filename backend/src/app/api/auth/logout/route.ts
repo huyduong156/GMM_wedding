@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 
 import { getAuthService } from '@/modules/identity/composition'
-import { assertSafeMutation, authErrorResponse, optionsResponse, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, authErrorResponse, optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getSessionCookiePolicy } from '@/platform/auth/session-policy'
 import { getServerEnv } from '@/platform/config/env'
 import { getRequestId } from '@/shared/http/api-response'
@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
       'set-cookie',
       `${cookie.name}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${cookie.options.secure ? '; Secure' : ''}`,
     )
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   } catch (error) {
     const response = authErrorResponse(error, requestId)
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   }
 }

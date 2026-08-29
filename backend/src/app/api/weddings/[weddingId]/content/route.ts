@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const surface = contentQuerySchema.parse({ surface: request.nextUrl.searchParams.get('surface') ?? undefined }).surface
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
-    return withAuthHeaders(jsonResponse({ content: await getWeddingService().getContent(actor, weddingId, surface) }), requestId)
+    return withApiHeaders(jsonResponse({ content: await getWeddingService().getContent(actor, weddingId, surface) }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }
 export async function PUT(request: NextRequest, context: Context) {
@@ -25,6 +25,6 @@ export async function PUT(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, saveWeddingContentSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
-    return withAuthHeaders(jsonResponse({ content: await getWeddingService().saveContent(actor, weddingId, input) }), requestId)
+    return withApiHeaders(jsonResponse({ content: await getWeddingService().saveContent(actor, weddingId, input) }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }

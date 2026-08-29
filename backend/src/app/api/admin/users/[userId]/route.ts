@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withAuthHeaders } from '@/modules/identity/interface/auth-http'
+import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { requirePlatformAdmin } from '@/modules/identity/interface/request-authenticator'
 import { getAdminUserService } from '@/modules/identity/admin-composition'
 import { adminUserErrorResponse } from '@/modules/identity/interface/admin-user-http'
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     await requirePlatformAdmin(request)
     const { userId } = await context.params
-    return withAuthHeaders(jsonResponse(await getAdminUserService().get(adminUserIdSchema.parse(userId))), requestId)
+    return withApiHeaders(jsonResponse(await getAdminUserService().get(adminUserIdSchema.parse(userId))), requestId)
   } catch (error) { return adminUserErrorResponse(error, requestId) }
 }
 
@@ -26,6 +26,6 @@ export async function PATCH(request: NextRequest, context: Context) {
     const { actor } = await requirePlatformAdmin(request)
     const { userId } = await context.params
     const input = await parseJson(request, adminUserUpdateSchema)
-    return withAuthHeaders(jsonResponse(await getAdminUserService().update(actor.userId, adminUserIdSchema.parse(userId), { ...(input.status !== undefined ? { status: input.status } : {}), ...(input.roles !== undefined ? { roles: input.roles } : {}) }, requestId)), requestId)
+    return withApiHeaders(jsonResponse(await getAdminUserService().update(actor.userId, adminUserIdSchema.parse(userId), { ...(input.status !== undefined ? { status: input.status } : {}), ...(input.roles !== undefined ? { roles: input.roles } : {}) }, requestId)), requestId)
   } catch (error) { return adminUserErrorResponse(error, requestId) }
 }

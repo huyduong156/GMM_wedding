@@ -6,7 +6,7 @@ import {
   clientIp,
   optionsResponse,
   parseJson,
-  withAuthHeaders,
+  withApiHeaders,
 } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
@@ -30,9 +30,9 @@ export async function POST(request: Request) {
       { message: 'If the address can be registered, a verification email has been sent.' },
       { status: 202 },
     )
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   } catch (error) {
     const response = authErrorResponse(error, requestId)
-    return withAuthHeaders(response, requestId)
+    return withApiHeaders(response, requestId)
   }
 }
