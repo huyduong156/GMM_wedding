@@ -2337,3 +2337,68 @@ input, textarea, [contenteditable='true'] {
     animation-delay: 500ms;
   }
 }
+
+/* Checkbox cursor and admin select cleanup */
+input[type='checkbox'], input[type='radio'], input[type='file'] {
+  cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, pointer !important;
+}
+.admin-filter-select .native-select-field {
+  width: 100%;
+  min-width: 0;
+}
+.admin-filter-select .select-field-trigger {
+  width: 100%;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 34px 0 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #52616e;
+  font-size: 11px;
+}
+.admin-filter-select .select-field-trigger > svg {
+  display: none;
+}
+.admin-filter-select > svg {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: block;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+/* Checkbox cursor and admin select alignment */
+input[type='checkbox'], input[type='radio'], input[type='file'] {
+  cursor: url('/assets/ui/wedding-chibi-cursor.png') 3 2, pointer !important;
+}
+.admin-filter-select .native-select-field {
+  width: 100%;
+  min-width: 0;
+}
+.admin-filter-select .select-field-trigger {
+  width: 100%;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 34px 0 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #52616e;
+  font-size: 11px;
+}
+.admin-filter-select .select-field-trigger > svg {
+  display: none;
+}
+.admin-filter-select > svg {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: block;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.editor-field .date-picker-field, .recap-field .date-picker-field { width: 100%; }
+
