@@ -26,15 +26,16 @@ export function clientIp(request: Request): string {
   return request.headers.get('x-real-ip') ?? 'unknown'
 }
 
-export function assertSafeMutation(request: Request) {
+export function assertSafeMutation(request: Request, options?: { contentTypes?: readonly string[] }) {
   const origin = request.headers.get('origin')
   const fetchSite = request.headers.get('sec-fetch-site')
   const contentType = request.headers.get('content-type')?.split(';')[0]?.trim()
+  const allowedContentTypes = options?.contentTypes ?? ['application/json']
   if (
     !allowedOrigins().has(origin ?? '')
     || fetchSite === 'cross-site'
     || request.headers.get('x-csrf-protection') !== '1'
-    || contentType !== 'application/json'
+    || !allowedContentTypes.includes(contentType ?? '')
   ) {
     throw new AuthError('REQUEST_ORIGIN_REJECTED', 403, 'Request origin or content type was rejected')
   }

@@ -1,26 +1,48 @@
 import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
-import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
-import { ArrowClockwise, ArrowDown, ArrowLeft, ArrowUUpLeft, ArrowUUpRight, ArrowUp, ArrowsOut, CaretDown, CheckCircle, Desktop, DeviceMobile, Eye, FloppyDisk, Image, Monitor, MusicNote, Plus, RocketLaunch, Trash, UploadSimple, X } from '@phosphor-icons/react'
+import { ArrowClockwise, ArrowDown, ArrowLeft, ArrowUUpLeft, ArrowUUpRight, ArrowUp, ArrowsOut, CaretDown, CheckCircle, Desktop, DeviceMobile, Eye, FloppyDisk, Image, Monitor, MusicNote, Plus, RocketLaunch, Trash, X } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { WeddingApiError, weddingApi } from '../../../shared/api/weddings'
-import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
+import { studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { EditorPreviewModal, type EditorPreviewDevice } from '../../../shared/ui/EditorPreviewModal'
+import { TemplateSchemaFields } from '../../../shared/ui/template-editor/TemplateSchemaFields'
 import { useEditorPreviewScrollLock } from '../../../shared/ui/useEditorPreviewScrollLock'
+import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
+import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
+import type { MediaAsset } from '../../../shared/api/weddings'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
-import { readEditorImages, useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
-import type { ModernLuxeActivityItem, ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
-import { modernLuxeDisplayStyles, modernLuxeTemplateConfig } from '../../../templates/invitations/modern-luxe/template-config'
+import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
+import type { ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
+import { getInvitationTemplate } from '../../../templates/template-registry'
 import { resolveEditorSections, validateSchemaContent, type EditorSectionDefinition } from './invitation-editor-schema'
 
 type Section = string
 type EditorData = ModernLuxeData & Record<string, unknown>
 type EditorValue = unknown
 type FieldErrors = Record<string, string>
-const labels: Record<string, string> = { cover: 'Bìa & cặp đôi', banner: 'Banner cặp đôi', invitation: 'Lời mời', families: 'Hai gia đình', eventDetails: 'Thời gian hôn lễ', ceremony: 'Lễ thành hôn', reception: 'Tiệc cưới', countdown: 'Lịch & đếm ngược', calendar: 'Lịch ngày cưới', timeline: 'Lịch trình', venue: 'Địa điểm & bản đồ', map: 'Bản đồ', activities: 'Hoạt động trong tiệc', gallery: 'Album ảnh', rsvp: 'Xác nhận tham dự', guestbook: 'Sổ lưu bút', gift: 'Thông tin mừng cưới', thanks: 'Lời cảm ơn', loveJourney: 'Hành trình tình yêu', music: 'Nhạc nền' }
-const allSections = Object.keys(labels)
-const initialData: ModernLuxeData = { brideName: 'Mai', groomName: 'Đức', weddingDate: '18 · 10 · 2026', eyebrow: 'Trân trọng kính mời', invitationTitle: 'Đến chung vui trong ngày thành hôn', invitationMessage: 'Sự hiện diện của bạn là niềm vui và món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.', ceremonyTime: '09:00', receptionTime: '11:00', venueName: 'The Garden Hall', venueAddress: 'Hà Nội', brideFatherTitle: 'Ông', brideFather: 'Nguyễn Văn An', brideMotherTitle: 'Bà', brideMother: 'Trần Thu Hà', groomFatherTitle: 'Ông', groomFather: 'Phạm Văn Minh', groomMotherTitle: 'Bà', groomMother: 'Lê Ngọc Lan', timelineItems: [{ time: '09:00', title: 'Đón khách', detail: 'Gặp gỡ và chụp ảnh cùng khách mời.' }, { time: '10:00', title: 'Lễ thành hôn', detail: 'Cùng chứng kiến nghi thức thành hôn.' }, { time: '11:00', title: 'Khai tiệc', detail: 'Khai tiệc và chung vui cùng hai gia đình.' }], activities: [{ title: 'Photobooth kỷ niệm', image: '/assets/images/templates/modern-luxe/wedding-detail.jpg' }, { title: 'Chụp hình cùng cô dâu chú rể', image: '/assets/images/templates/modern-luxe/couple-portrait.jpg' }, { title: 'Góc bong bóng cho bé', image: '/assets/images/login-wedding-luxury.jpg' }], activitiesStyle: 'activity-cards', galleryStyle: 'deck-3d', backgroundMusicAutoplay: true, rsvpDeadline: '10.10.2026', rsvpMessage: 'Vui lòng xác nhận để chúng mình chuẩn bị đón tiếp bạn thật chu đáo.', giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất.', galleryImages: [] }
+type QuickEditField = { contentKey: string; label: string }
+const readQuickEdit = (config: Record<string, unknown> | null | undefined): QuickEditField[] => Array.isArray(config?.quickEdit) ? config.quickEdit.filter((item): item is QuickEditField => Boolean(item && typeof item === 'object' && typeof (item as QuickEditField).contentKey === 'string' && typeof (item as QuickEditField).label === 'string')) : []
+const hydrateTemplateConfig = (templateKey: string, config: Record<string, unknown>) => {
+  const fallback = getInvitationTemplate(templateKey)?.config as Record<string, unknown> | undefined
+  if (!fallback) return config
+  const fallbackSections = Array.isArray(fallback.sections) ? fallback.sections : []
+  const configSections = Array.isArray(config.sections) ? config.sections : []
+  if (!configSections.length) return { ...fallback, ...config, sections: fallback.sections }
+  const sections = fallbackSections.map((fallbackSection) => {
+    if (!fallbackSection || typeof fallbackSection !== 'object') return fallbackSection
+    const fallbackRecord = fallbackSection as Record<string, any>
+    const configSection = configSections.find((item) => item && typeof item === 'object' && (item as Record<string, unknown>).sectionKey === fallbackRecord.sectionKey) as Record<string, any> | undefined
+    if (!configSection) return fallbackSection
+    const fallbackFields = fallbackRecord.fields ?? {}
+    const configFields = configSection.fields ?? {}
+    const fields = Object.fromEntries(Object.entries(fallbackFields).map(([key, field]) => [key, { ...((field ?? {}) as Record<string, unknown>), ...(configFields[key] ?? {}) }]))
+    return { ...fallbackRecord, ...configSection, fields: { ...fields, ...configFields } }
+  })
+  return { ...fallback, ...config, sections: sections.length ? sections : configSections }
+}
+const initialTemplate = getInvitationTemplate('modern-luxe')!
+const initialData: ModernLuxeData = initialTemplate.fixture
 
 export function InvitationEditorLivePage() {
   const { navigate } = useNavigation()
@@ -29,13 +51,16 @@ export function InvitationEditorLivePage() {
   const activeWeddingId = activeWedding?.id ?? null
   const [device, setDevice] = useState<'desktop' | 'mobile'>('mobile')
   const [isMobileEditor, setIsMobileEditor] = useState(() => window.matchMedia?.('(max-width: 767px)').matches ?? false)
-  const [sectionDefinitions, setSectionDefinitions] = useState<EditorSectionDefinition[]>(() => resolveEditorSections({ sections: modernLuxeTemplateConfig.sections }, allSections))
+  const [sectionDefinitions, setSectionDefinitions] = useState<EditorSectionDefinition[]>(() => resolveEditorSections(initialTemplate.config, []))
+  const [quickEditFields, setQuickEditFields] = useState<QuickEditField[]>(() => readQuickEdit(initialTemplate.config))
   const sectionDefinitionsRef = useRef(sectionDefinitions); sectionDefinitionsRef.current = sectionDefinitions
   const requiredSections = sectionDefinitions.filter((section) => section.required).map((section) => section.sectionKey)
   const { setSelected, order, enabled, move, toggle, reset } = useEditorSections(sectionDefinitions.map((section) => section.sectionKey), requiredSections, (key) => sectionDefinitionsRef.current.find((section) => section.sectionKey === key)?.canReorder !== false)
   const [data, setData] = useState<EditorData>(initialData), [palette, setPalette] = useState('champagne')
-  const [, setPaletteOptions] = useState<string[]>(['champagne', 'midnight', 'sage'])
-  const [imageError, setImageError] = useState('')
+  const [paletteOptions, setPaletteOptions] = useState<Array<{ key: string; label: string }>>(() => (initialTemplate.config.palettes ?? []).map((item) => ({ key: item.key, label: item.label })))
+  const [mediaManagerOpen, setMediaManagerOpen] = useState(false)
+  const [mediaTarget, setMediaTarget] = useState<{ kind: 'field'; path: string; multiple: boolean; role: string; mediaValue?: 'url' | 'object' } | null>(null)
+  const { assets: mediaAssets, loading: mediaLoading, uploading: mediaUploading, error: mediaError, setError: setMediaError, upload: uploadMedia } = useMediaLibrary({ weddingId: activeWeddingId })
   const [musicError, setMusicError] = useState('')
   const [expandedSection, setExpandedSection] = useState<Section | null>('cover')
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
@@ -45,6 +70,7 @@ export function InvitationEditorLivePage() {
   const [templateVersionId, setTemplateVersionId] = useState<string | null>(null)
   const [templateMissing, setTemplateMissing] = useState(false)
   const [templateKey, setTemplateKey] = useState<string | null>(null)
+  const [previewPath, setPreviewPath] = useState<string>(initialTemplate.config.previewPath)
   const [loading, setLoading] = useState(Boolean(activeWedding))
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -79,22 +105,23 @@ export function InvitationEditorLivePage() {
       if (!loaded.templateVersion) { setTemplateMissing(true); setLoading(false); return }
       const stored = loaded.content as EditorData
       const storedPalette = typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
-      const definitions = resolveEditorSections(loaded.templateVersion.config, loaded.sectionConfig.order)
+      const templateConfig = hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config)
+      const definitions = resolveEditorSections(templateConfig, loaded.sectionConfig.order)
       const validKeys = definitions.map((section) => section.sectionKey)
       const storedOrder = loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
       const storedEnabled = new Set(loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)))
       const nextOrder = [...storedOrder, ...validKeys.filter((key) => !storedOrder.includes(key))]
       const nextEnabled = validKeys.filter((key) => storedEnabled.has(key) || !storedOrder.includes(key) || definitions.find((section) => section.sectionKey === key)?.required)
-      setSectionDefinitions(definitions)
+      setSectionDefinitions(definitions); if (Array.isArray(templateConfig.quickEdit)) setQuickEditFields(readQuickEdit(templateConfig))
       setData({ ...initialData, ...stored })
-      const configuredPalettes = ((loaded.templateVersion.config.palettes ?? []) as Array<{ key: string }>).map((item) => item.key)
-      setPaletteOptions(configuredPalettes.length ? configuredPalettes : ['champagne', 'midnight', 'sage'])
+      const configuredPalettes = ((templateConfig.palettes ?? []) as Array<{ key: string }>).map((item) => item.key)
+      setPaletteOptions(configuredPalettes.length ? configuredPalettes.map((key) => ({ key, label: key })) : (initialTemplate.config.palettes ?? []).map((item) => ({ key: item.key, label: item.label })))
       const loadedPalette = storedPalette ?? configuredPalettes[0] ?? 'champagne'
       const loadedOrder = nextOrder.length ? nextOrder : validKeys
       const loadedEnabled = nextEnabled.length ? nextEnabled : validKeys
       setPalette(loadedPalette); reset(loadedOrder, loadedEnabled)
       baselineRef.current = editorSignature({ ...initialData, ...stored }, loadedPalette, loadedOrder, loadedEnabled)
-      setContentRevision(loaded.revision); setTemplateVersionId(loaded.templateVersion.id); setTemplateKey(loaded.templateVersion.key); setDirty(false)
+      setContentRevision(loaded.revision); setTemplateVersionId(loaded.templateVersion.id); setTemplateKey(loaded.templateVersion.key); if (typeof templateConfig.previewPath === 'string') setPreviewPath(templateConfig.previewPath); setDirty(false)
     } catch (cause) { setApiError(friendlyEditorError(cause, 'Không thể tải nội dung thiệp. Vui lòng thử lại.')) }
     finally { setLoading(false) }
   }, [activeWeddingId, reset])
@@ -118,35 +145,17 @@ export function InvitationEditorLivePage() {
   const undo = () => { const previous = historyRef.current.pop(); if (!previous) return; futureRef.current.push(snapshot()); restoreSnapshot(previous) }
   const redo = () => { const next = futureRef.current.pop(); if (!next) return; historyRef.current.push(snapshot()); restoreSnapshot(next) }
   const update = (key: string, value: EditorValue) => { recordHistory(); setData((current) => ({ ...current, [key]: value })); setFieldErrors((current) => { const next = { ...current }; delete next[key]; return next }); setDirty(true); setSaveMessage('') }
+  const updatePath = (path: string, value: EditorValue) => { recordHistory(); setData((current) => setNestedValue(current, path, value)); setDirty(true); setSaveMessage('') }
   const choosePalette = (value: string) => { recordHistory(); setPalette(value); setDirty(true); setSaveMessage('') }
+  const uploadMusic = async (files: FileList | null) => { const file = files?.[0]; if (!file) return; if (!file.type.startsWith('audio/') || file.size > 15 * 1024 * 1024) { setMusicError('Chỉ nhận file âm thanh tối đa 15MB.'); return }; const url = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsDataURL(file) }); setMusicError(''); setData((current) => ({ ...current, backgroundMusicUrl: url, backgroundMusicName: file.name })); setDirty(true) }
   const focusPreviewSection = (key: Section) => { if (key !== 'music') scrollToSection(key) }
   const selectSection = (key: Section) => { setSelected(key); setExpandedSection((current) => current === key ? null : key); focusPreviewSection(key) }
-  const upload = async (files: FileList | null) => {
-    if (!files?.length) return
-    const accepted = [...files].filter((file) => ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 5 * 1024 * 1024).slice(0, Math.max(0, 12 - (data.galleryImages?.length ?? 0)))
-    if (!activeWedding) { const result = await readEditorImages(files, data.galleryImages?.length ?? 0); setImageError(result.rejected ? 'Chỉ nhận ảnh JPG, PNG hoặc WebP tối đa 5MB.' : ''); update('galleryImages', [...(data.galleryImages ?? []), ...result.images]); return }
-    if (accepted.length !== files.length) setImageError('Chỉ nhận ảnh JPG, PNG hoặc WebP tối đa 5MB, tối đa 12 ảnh.')
-    try { const assets = await Promise.all(accepted.map((file) => weddingApi.uploadMedia(activeWedding.id, file))); update('galleryImages', [...(data.galleryImages ?? []), ...assets.map((asset) => asset.publicUrl)]) }
-    catch (cause) { setImageError(cause instanceof Error ? cause.message : 'Không thể tải ảnh lên.') }
-  }
-  const uploadMusic = async (files: FileList | null) => {
-    const file = files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('audio/') || file.size > 15 * 1024 * 1024) { setMusicError('Chỉ nhận file âm thanh tối đa 15MB.'); return }
-    const url = await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsDataURL(file) })
-    setMusicError(''); setData((current) => ({ ...current, backgroundMusicUrl: url, backgroundMusicName: file.name })); setDirty(true)
-  }
-  const uploadActivityImage = async (index: number, files: FileList | null) => {
-    if (activeWedding && files?.[0]) {
-      const file = files[0]
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { setImageError('Chỉ nhận ảnh JPG, PNG hoặc WebP tối đa 5MB.'); return }
-      try { const asset = await weddingApi.uploadMedia(activeWedding.id, file); setImageError(''); update('activities', (data.activities ?? []).map((item, itemIndex) => itemIndex === index ? { ...item, image: asset.publicUrl } : item)) }
-      catch (cause) { setImageError(cause instanceof Error ? cause.message : 'Không thể tải ảnh lên.') }
-      return
-    }
-    const result = await readEditorImages(files, 0, 1)
-    if (!result.images[0]) { setImageError(result.rejected ? 'Chỉ nhận ảnh JPG, PNG hoặc WebP tối đa 5MB.' : ''); return }
-    setImageError(''); update('activities', (data.activities ?? []).map((item, itemIndex) => itemIndex === index ? { ...item, image: result.images[0] } : item))
+  const openMediaManager = (target: NonNullable<typeof mediaTarget>) => { setMediaError(''); setMediaTarget(target); setMediaManagerOpen(true) }
+  const confirmMedia = (selected: MediaAsset[]) => {
+    if (!mediaTarget || !selected.length) { setMediaManagerOpen(false); return }
+    const values = selected.map((asset) => ({ src: asset.publicUrl, alt: asset.originalName ?? 'Ảnh đã tải lên', role: mediaTarget.role, mediaAssetId: asset.id }))
+    updatePath(mediaTarget.path, mediaTarget.multiple ? values : mediaTarget.mediaValue === 'url' ? values[0]?.src ?? '' : values[0] ?? { src: '', alt: '', role: mediaTarget.role })
+    setMediaManagerOpen(false)
   }
   const save = async (): Promise<boolean> => {
     if (!activeWedding || !templateVersionId || contentRevision === null) return false
@@ -178,7 +187,7 @@ export function InvitationEditorLivePage() {
   const openFullPreview = () => {
     if (!templateKey) return
     sessionStorage.setItem(`gmm-invitation-preview:${templateKey}`, JSON.stringify({ data, palette, sectionConfig: { enabled, order } }))
-    window.open(previewRoute(templateKey), '_blank', 'noopener,noreferrer')
+    window.open(previewPath, '_blank', 'noopener,noreferrer')
   }
   const publish = async () => {
     if (!activeWedding || dirty || !publishSlug.trim()) return
@@ -221,19 +230,39 @@ export function InvitationEditorLivePage() {
   }, [hasUnsavedChanges])
   if (templateMissing && !loading) return <section className="invitation-editor-empty" aria-labelledby="invitation-editor-empty-heading"><div className="invitation-editor-empty-card"><CheckCircle size={48} weight="duotone" aria-hidden="true" /><h1 id="invitation-editor-empty-heading">Bạn chưa chọn giao diện thiệp</h1><p>Hãy chọn một template trong kho giao diện trước khi bắt đầu chỉnh sửa thiệp.</p><AppLink className="button button-primary" to={studioRoutes.inviteThemes}>Đi đến kho giao diện</AppLink></div></section>
   return <section className="invitation-editor" aria-labelledby="invitation-editor-heading">
-    <header className="editor-toolbar"><div className="editor-toolbar-title"><AppLink to={studioRoutes.inviteThemes} ariaLabel="Quay lại kho giao diện"><ArrowLeft /></AppLink><div><p>Thiệp online · {templateKey ?? 'Đang tải giao diện'}</p><h1 id="invitation-editor-heading">Chỉnh sửa thiệp</h1></div></div><div className="editor-toolbar-actions"><span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>{loading ? 'Đang tải nội dung…' : saving ? 'Đang lưu…' : dirty ? 'Có thay đổi chưa lưu' : saveMessage || (templateVersionId ? 'Nội dung đã sẵn sàng' : ready ? 'Bản xem trước đã sẵn sàng' : 'Đang chuẩn bị…')}</span><div className="editor-history-actions" data-history-version={historyVersion}><button type="button" disabled={!historyRef.current.length} onClick={undo} aria-label="Hoàn tác"><ArrowUUpLeft /></button><button type="button" disabled={!futureRef.current.length} onClick={redo} aria-label="Làm lại"><ArrowUUpRight /></button></div>{activeWedding ? <button className="button button-secondary" type="button" disabled={loading || saving} onClick={() => void loadContent()}><ArrowClockwise /> Tải lại</button> : null}<div className="editor-device-toggle" aria-hidden={isMobileEditor}><button type="button" aria-label="Xem dạng máy tính" aria-pressed={previewDevice === 'desktop'} className={previewDevice === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')}><Desktop /></button><button type="button" aria-label="Xem dạng điện thoại" aria-pressed={previewDevice === 'mobile'} className={previewDevice === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')}><DeviceMobile /></button></div><button className="button button-secondary" type="button" onClick={openFullPreview}><Eye /> Toàn màn hình</button><button className="button button-secondary" type="button" disabled={dirty || saving || !templateVersionId} onClick={() => setPublishOpen(true)}><RocketLaunch /> Xuất bản</button><button className="button button-primary" type="button" disabled={!activeWedding || !templateVersionId || loading || saving} onClick={() => void save()}><FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu thiệp'}</button></div></header>
+    <header className="editor-toolbar"><div className="editor-toolbar-title"><AppLink to={studioRoutes.inviteThemes} ariaLabel="Quay lại kho giao diện"><ArrowLeft /></AppLink><div><p>Thiệp online · {templateKey ?? 'Đang tải giao diện'}</p><h1 id="invitation-editor-heading">Chỉnh sửa thiệp</h1></div></div><div className="editor-couple-quick-edit">{quickEditFields.map((field) => <Input key={field.contentKey} fieldKey={field.contentKey} label={field.label} value={typeof getNestedValue(data, field.contentKey) === 'string' ? getNestedValue(data, field.contentKey) as string : ''} error={fieldErrors[field.contentKey]} onChange={(value) => update(field.contentKey, value)} />)}</div><div className="editor-toolbar-actions"><span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>{loading ? 'Đang tải nội dung…' : saving ? 'Đang lưu…' : dirty ? 'Có thay đổi chưa lưu' : saveMessage || (templateVersionId ? 'Nội dung đã sẵn sàng' : ready ? 'Bản xem trước đã sẵn sàng' : 'Đang chuẩn bị…')}</span><div className="editor-history-actions" data-history-version={historyVersion}><button type="button" disabled={!historyRef.current.length} onClick={undo} aria-label="Hoàn tác"><ArrowUUpLeft /></button><button type="button" disabled={!futureRef.current.length} onClick={redo} aria-label="Làm lại"><ArrowUUpRight /></button></div>{activeWedding ? <button className="button button-secondary" type="button" disabled={loading || saving} onClick={() => void loadContent()}><ArrowClockwise /> Tải lại</button> : null}<div className="editor-device-toggle" aria-hidden={isMobileEditor}><button type="button" aria-label="Xem dạng máy tính" aria-pressed={previewDevice === 'desktop'} className={previewDevice === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')}><Desktop /></button><button type="button" aria-label="Xem dạng điện thoại" aria-pressed={previewDevice === 'mobile'} className={previewDevice === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')}><DeviceMobile /></button></div><button className="button button-secondary" type="button" onClick={openFullPreview}><Eye /> Toàn màn hình</button><button className="button button-secondary" type="button" disabled={dirty || saving || !templateVersionId} onClick={() => setPublishOpen(true)}><RocketLaunch /> Xuất bản</button><button className="button button-primary" type="button" disabled={!activeWedding || !templateVersionId || loading || saving} onClick={() => void save()}><FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu thiệp'}</button></div></header>
     {apiError ? <div className="editor-api-feedback is-error" role="alert"><span>{apiError}</span>{Object.keys(fieldErrors).length ? <button type="button" onClick={() => setApiError('')}>Đóng</button> : <button type="button" onClick={() => void loadContent()}>Thử lại</button>}</div> : saveMessage ? <div className={`editor-api-feedback ${conflicted ? 'is-error' : 'is-success'}`} role={conflicted ? 'alert' : 'status'}>{!conflicted ? <CheckCircle className="editor-success-check" size={42} weight="fill" /> : null}<span>{saveMessage}</span>{conflicted ? <button type="button" onClick={() => void loadContent()}>Tải lại bản mới</button> : null}</div> : null}
     {activeWedding?.status === 'PUBLISHED' ? <div className="editor-published-bar"><span>Thiệp đang được công khai{publishSlug ? ` tại /${publishSlug}` : ''}.</span><button className="button button-secondary" type="button" disabled={publishing} onClick={() => void unpublish()}>{publishing ? 'Đang xử lý…' : 'Gỡ xuất bản'}</button></div> : null}
     <div className="editor-workspace editor-workspace-two-column">
-      <aside className="editor-sections editor-section-accordion" aria-label="Cấu trúc và nội dung thiệp" aria-busy={loading}><header><div><strong>Cấu trúc thiệp</strong><small>{loading ? 'Đang tải nội dung đã lưu…' : 'Mở từng phần để chỉnh sửa nội dung'}</small></div><div className="editor-couple-quick-edit"><Input fieldKey="brideName" label="Tên cô dâu" value={data.brideName} error={fieldErrors.brideName} onChange={(v) => update('brideName', v)} /><Input fieldKey="groomName" label="Tên chú rể" value={data.groomName} error={fieldErrors.groomName} onChange={(v) => update('groomName', v)} /></div></header><ol>{order.map((key, index) => <EditorSectionCard key={key} sectionKey={key} definition={sectionDefinitions.find((section) => section.sectionKey === key)} index={index} order={order} expanded={expandedSection === key} shown={enabled.includes(key)} select={() => selectSection(key)} focus={() => { setSelected(key); focusPreviewSection(key) }} move={(step) => { move(key, step); setDirty(true); focusPreviewSection(key) }} toggle={() => { toggle(key); setDirty(true) }}><Fields section={key} definition={sectionDefinitions.find((section) => section.sectionKey === key)} data={data} palette={palette} fieldErrors={fieldErrors} update={update} setPalette={choosePalette} upload={upload} uploadMusic={uploadMusic} uploadActivityImage={uploadActivityImage} imageError={imageError} musicError={musicError} /></EditorSectionCard>)}</ol></aside>
-      <main className={`editor-canvas editor-iframe-canvas ${mobilePreviewOpen ? 'is-mobile-preview-open' : ''}`} aria-label="Bản xem trước thiệp"><button className="editor-mobile-preview-toggle" type="button" onClick={() => setMobilePreviewOpen((current) => !current)} aria-expanded={mobilePreviewOpen}>{mobilePreviewOpen ? <X /> : <ArrowsOut />}<span>{mobilePreviewOpen ? 'Thu nhỏ' : 'Xem thiệp'}</span></button><EditorPreviewFrame device={previewDevice} templateKey={templateKey} frameRef={frameRef} onLoad={sendState} ready={ready} /><button className="editor-mobile-preview-hitbox" type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Mở rộng bản xem trước thiệp" /></main>
+      <aside className="editor-sections editor-section-accordion" aria-label="Cấu trúc và nội dung thiệp" aria-busy={loading}><header><div><strong>Cấu trúc thiệp</strong><small>{loading ? 'Đang tải nội dung đã lưu…' : 'Mở từng phần để chỉnh sửa nội dung'}</small></div></header><ol>{order.map((key, index) => <EditorSectionCard key={key} sectionKey={key} definition={sectionDefinitions.find((section) => section.sectionKey === key)} index={index} order={order} expanded={expandedSection === key} shown={enabled.includes(key)} select={() => selectSection(key)} focus={() => { setSelected(key); focusPreviewSection(key) }} move={(step) => { move(key, step); setDirty(true); focusPreviewSection(key) }} toggle={() => { toggle(key); setDirty(true) }}><Fields section={key} definition={sectionDefinitions.find((section) => section.sectionKey === key)} data={data} palette={palette} fieldErrors={fieldErrors} update={update} setPalette={choosePalette} paletteOptions={paletteOptions} showPalette={index === 0} uploadMusic={uploadMusic} openMediaManager={openMediaManager} useMediaManager={Boolean(activeWedding)} musicError={musicError} /></EditorSectionCard>)}</ol></aside>
+      <main className={`editor-canvas editor-iframe-canvas ${mobilePreviewOpen ? 'is-mobile-preview-open' : ''}`} aria-label="Bản xem trước thiệp"><button className="editor-mobile-preview-toggle" type="button" onClick={() => setMobilePreviewOpen((current) => !current)} aria-expanded={mobilePreviewOpen}>{mobilePreviewOpen ? <X /> : <ArrowsOut />}<span>{mobilePreviewOpen ? 'Thu nhỏ' : 'Xem thiệp'}</span></button><EditorPreviewFrame device={previewDevice} templateKey={templateKey} route={previewPath} frameRef={frameRef} onLoad={sendState} ready={ready} /><button className="editor-mobile-preview-hitbox" type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Mở rộng bản xem trước thiệp" /></main>
     </div>
     {mobileAdviceOpen ? <div className="editor-mobile-advice-backdrop" role="presentation"><section className="editor-mobile-advice" role="dialog" aria-modal="true" aria-labelledby="mobile-editor-advice-title"><Monitor size={30} /><h2 id="mobile-editor-advice-title">Chỉnh thiệp dễ hơn trên máy tính</h2><p>Bạn vẫn có thể chỉnh sửa đầy đủ trên điện thoại. Với màn hình lớn, việc nhập nội dung và quan sát toàn bộ thiệp sẽ trực quan hơn.</p><button className="button button-primary" type="button" onClick={() => setMobileAdviceOpen(false)}>Đã hiểu, tiếp tục</button></section></div> : null}
     {pendingNavigation ? <div className="editor-publish-backdrop"><section className="editor-publish-dialog" role="dialog" aria-modal="true" aria-labelledby="unsaved-dialog-title"><FloppyDisk size={28} /><h2 id="unsaved-dialog-title">Bạn có thay đổi chưa lưu</h2><p>Bạn có muốn lưu nội dung thiệp trước khi rời khỏi trang này không?</p><footer className="editor-unsaved-actions"><button className="button button-secondary" type="button" onClick={() => setPendingNavigation(null)}>Ở lại</button><button className="button button-secondary" type="button" onClick={() => { const target = pendingNavigation; allowNavigationRef.current = true; setPendingNavigation(null); navigate(target) }}>Rời đi không lưu</button><button className="button button-primary" type="button" disabled={saving} onClick={() => void (async () => { if (await save()) { const target = pendingNavigation; allowNavigationRef.current = true; setPendingNavigation(null); navigate(target) } })()}>{saving ? 'Đang lưu…' : 'Lưu và rời đi'}</button></footer></section></div> : null}
+    {activeWedding ? <MediaManagerModal selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'} open={mediaManagerOpen} assets={mediaAssets} selectedIds={new Set(mediaTarget?.kind === 'field' ? mediaIdsAtValue(getNestedValue(data, mediaTarget.path)) : [])} loading={mediaLoading} uploading={mediaUploading} error={mediaError} onClose={() => setMediaManagerOpen(false)} onUpload={uploadMedia} onConfirm={confirmMedia} /> : null}
     {publishOpen ? <div className="editor-publish-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPublishOpen(false) }}><section className="editor-publish-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-dialog-title"><RocketLaunch size={28} /><h2 id="publish-dialog-title">Xuất bản thiệp online</h2><p>Chọn đường dẫn dễ nhớ để gửi thiệp cho khách mời.</p><label className="editor-field"><span>Đường dẫn thiệp</span><div className="editor-slug-input"><span>/</span><input autoFocus value={publishSlug} onChange={(event) => setPublishSlug(event.target.value)} placeholder="mai-va-duc" /></div></label><footer><button className="button button-secondary" type="button" onClick={() => setPublishOpen(false)}>Hủy</button><button className="button button-primary" type="button" disabled={publishing || publishSlug.trim().length < 3} onClick={() => void publish()}>{publishing ? 'Đang xuất bản…' : 'Xuất bản thiệp'}</button></footer></section></div> : null}
   </section>
 }
 
+function mediaIdsAtValue(value: unknown): string[] {
+  const values = Array.isArray(value) ? value : value ? [value] : []
+  return values.map((item) => item && typeof item === 'object' && typeof (item as Record<string, unknown>).mediaAssetId === 'string' ? (item as Record<string, unknown>).mediaAssetId as string : '').filter(Boolean)
+}
+function getNestedValue(value: unknown, path: string): unknown { return path.split('.').reduce<unknown>((current, key) => current && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined, value) }
+function setNestedValue<T>(value: T, path: string, nextValue: unknown): T {
+  const keys = path.split('.')
+  const root = structuredClone(value) as Record<string, unknown>
+  let cursor: Record<string, unknown> = root
+  keys.forEach((key, index) => {
+    if (index === keys.length - 1) cursor[key] = nextValue
+    else {
+      const current = cursor[key]
+      cursor[key] = Array.isArray(current) ? [...current] : current && typeof current === 'object' ? { ...(current as Record<string, unknown>) } : {}
+      cursor = cursor[key] as Record<string, unknown>
+    }
+  })
+  return root as T
+}
 function mapServerFieldErrors(serverErrors?: Record<string, string[]>): FieldErrors {
   const result: FieldErrors = {}
   if (!serverErrors) return result
@@ -258,7 +287,6 @@ function showFirstInvalidField(errors: FieldErrors, definitions: EditorSectionDe
 }
 
 function editorSignature(data: EditorData, palette: string, order: string[], enabled: string[]) { return JSON.stringify({ data, palette, order, enabled }) }
-const previewRoute = (key: string | null) => key === 'verdant-promise' ? publicTemplateRoutes.verdantPromisePreview : key === 'chibi-daydream' ? publicTemplateRoutes.chibiDaydreamPreview : publicTemplateRoutes.modernLuxePreview
 function friendlyEditorError(cause: unknown, fallback: string) {
   if (cause instanceof WeddingApiError) {
     if (cause.status === 401) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
@@ -268,16 +296,16 @@ function friendlyEditorError(cause: unknown, fallback: string) {
   return fallback
 }
 
-function EditorPreviewFrame({ device, templateKey, frameRef, onLoad, ready }: { device: EditorPreviewDevice; templateKey: string | null; frameRef: RefObject<HTMLIFrameElement>; onLoad: () => void; ready: boolean }) {
-  return <EditorPreviewModal frameRef={frameRef} route={`${previewRoute(templateKey)}?editor=1`} device={device} defaultDevice="mobile" ready={ready} templateKey={templateKey} title="Bản xem trước thiệp" open={false} onToggleOpen={() => undefined} onDeviceChange={(next) => window.dispatchEvent(new CustomEvent('gmm-editor-preview-device-change', { detail: next }))} onLoad={onLoad} embedded />
+function EditorPreviewFrame({ device, templateKey, route, frameRef, onLoad, ready }: { device: EditorPreviewDevice; templateKey: string | null; route: string; frameRef: RefObject<HTMLIFrameElement>; onLoad: () => void; ready: boolean }) {
+  return <EditorPreviewModal frameRef={frameRef} route={`${route}?editor=1`} device={device} defaultDevice="mobile" ready={ready} templateKey={templateKey} title="Bản xem trước thiệp" open={false} onToggleOpen={() => undefined} onDeviceChange={(next) => window.dispatchEvent(new CustomEvent('gmm-editor-preview-device-change', { detail: next }))} onLoad={onLoad} embedded />
 }
 
 function EditorSectionCard({ sectionKey, definition, index, order, expanded, shown, select, focus, move, toggle, children }: { sectionKey: Section; definition?: EditorSectionDefinition; index: number; order: Section[]; expanded: boolean; shown: boolean; select: () => void; focus: () => void; move: (step: -1 | 1) => void; toggle: () => void; children: React.ReactNode }) {
-  const label = definition?.label ?? labels[sectionKey] ?? sectionKey
+  const label = definition?.label ?? sectionKey
   const reorderable = definition?.canReorder !== false
   const canMoveUp = reorderable && index > 0
   const canMoveDown = reorderable && index < order.length - 1
-  return <li className={`editor-accordion-card ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}><header><button type="button" className="editor-accordion-trigger" onClick={select} aria-expanded={expanded}><span><strong>{label}</strong><small>{definition?.required ? 'Bắt buộc' : shown ? 'Đang hiển thị' : 'Đang ẩn'}</small></span><CaretDown /></button><div className="editor-section-tools"><button type="button" disabled={!canMoveUp} onClick={() => move(-1)} aria-label={`Đưa ${label} lên`} title={reorderable ? 'Đưa lên' : 'Vị trí được khóa bởi giao diện'}><ArrowUp /></button><button type="button" disabled={!canMoveDown} onClick={() => move(1)} aria-label={`Đưa ${label} xuống`} title={reorderable ? 'Đưa xuống' : 'Vị trí được khóa bởi giao diện'}><ArrowDown /></button><button type="button" role="switch" aria-checked={shown} aria-label={`${shown ? 'Ẩn' : 'Hiện'} ${label}`} disabled={definition?.canToggle === false || definition?.required} className={`editor-switch ${shown ? 'is-on' : ''}`} onClick={toggle}><span /></button></div></header>{expanded ? <div className="editor-accordion-content" onFocusCapture={focus}>{children}</div> : null}</li>
+  return <li className={`editor-accordion-card ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}><header><button type="button" className="editor-accordion-trigger" onClick={select} aria-expanded={expanded}><span><strong>{label}</strong><small>{definition?.required ? 'Bắt buộc' : shown ? 'Đang hiển thị' : 'Đang ẩn'}</small></span><CaretDown /></button><div className="editor-section-tools"><button type="button" disabled={!canMoveUp} onClick={() => move(-1)} aria-label={`Đưa ${label} lên`} title={reorderable ? 'Đưa lên' : 'Vị trí được khóa bởi giao diện'}><ArrowUp /></button><button type="button" disabled={!canMoveDown} onClick={() => move(1)} aria-label={`Đưa ${label} xuống`} title={reorderable ? 'Đưa xuống' : 'Vị trí được khóa bởi giao diện'}><ArrowDown /></button><button type="button" role="switch" aria-checked={shown} aria-label={`${shown ? 'Ẩn' : 'Hiện'} ${label}`} disabled={definition?.canToggle === false || definition?.required} className={`editor-switch ${shown ? 'is-on' : ''}`} onClick={toggle}><span /></button></div></header><div className={`editor-accordion-content ${expanded ? 'is-open' : ''}`} aria-hidden={!expanded} onFocusCapture={focus}><div className="editor-accordion-content-inner">{children}</div></div></li>
 }
 
 function Input({ fieldKey, label, ariaLabel, value, type = 'text', area, error, onChange }: { fieldKey?: string; label: string; ariaLabel?: string; value?: string; type?: string; area?: boolean; error?: string; onChange: (value: string) => void }) {
@@ -288,52 +316,10 @@ function Input({ fieldKey, label, ariaLabel, value, type = 'text', area, error, 
 function FamilyPersonFields({ person, title, name, updateTitle, updateName }: { person: string; title?: string; name?: string; updateTitle: (value: string) => void; updateName: (value: string) => void }) {
   return <div className="editor-family-person-fields"><strong>{person}</strong><div className="editor-family-person-grid"><Input label="Danh xưng" ariaLabel={`Danh xưng ${person.toLowerCase()}`} value={title} onChange={updateTitle} /><Input label="Họ tên" ariaLabel={`Họ tên ${person.toLowerCase()}`} value={name} onChange={updateName} /></div></div>
 }
-type FieldsProps = { section: Section; definition?: EditorSectionDefinition; data: EditorData; palette: string; fieldErrors: FieldErrors; update: (key: string, value: EditorValue) => void; setPalette: (p: string) => void; upload: (files: FileList | null) => Promise<void>; uploadMusic: (files: FileList | null) => Promise<void>; uploadActivityImage: (index: number, files: FileList | null) => Promise<void>; imageError: string; musicError: string }
-function Fields({ section, definition, data, palette, fieldErrors, update, setPalette, upload, uploadMusic, uploadActivityImage, imageError, musicError }: FieldsProps) {
-  if (section === 'cover') return <><div className="editor-palette">{(['champagne', 'midnight', 'sage'] as const).map((p) => <button type="button" key={p} className={palette === p ? 'is-active' : ''} onClick={() => setPalette(p)}><i className={`palette-dot ${p}`} />{p}</button>)}</div><Input fieldKey="eyebrow" label="Dòng mở đầu" value={data.eyebrow} error={fieldErrors.eyebrow} onChange={(v) => update('eyebrow', v)} /><div className="editor-field-grid"><Input fieldKey="brideName" label="Tên cô dâu" value={data.brideName} error={fieldErrors.brideName} onChange={(v) => update('brideName', v)} /><Input fieldKey="groomName" label="Tên chú rể" value={data.groomName} error={fieldErrors.groomName} onChange={(v) => update('groomName', v)} /></div><Input fieldKey="weddingDate" label="Ngày cưới hiển thị" type="date" value={data.weddingDate} error={fieldErrors.weddingDate} onChange={(v) => update('weddingDate', v)} /></>
-  if (section === 'invitation') return <><Input fieldKey="invitationTitle" label="Tiêu đề lời mời" value={data.invitationTitle} error={fieldErrors.invitationTitle} onChange={(v) => update('invitationTitle', v)} /><Input fieldKey="invitationMessage" label="Nội dung lời mời" area value={data.invitationMessage} error={fieldErrors.invitationMessage} onChange={(v) => update('invitationMessage', v)} /></>
-  if (section === 'families') return <><div className="editor-field-divider">Nhà gái</div><FamilyPersonFields person="Cha cô dâu" title={data.brideFatherTitle} name={data.brideFather} updateTitle={(v) => update('brideFatherTitle', v)} updateName={(v) => update('brideFather', v)} /><FamilyPersonFields person="Mẹ cô dâu" title={data.brideMotherTitle} name={data.brideMother} updateTitle={(v) => update('brideMotherTitle', v)} updateName={(v) => update('brideMother', v)} /><div className="editor-field-divider">Nhà trai</div><FamilyPersonFields person="Cha chú rể" title={data.groomFatherTitle} name={data.groomFather} updateTitle={(v) => update('groomFatherTitle', v)} updateName={(v) => update('groomFather', v)} /><FamilyPersonFields person="Mẹ chú rể" title={data.groomMotherTitle} name={data.groomMother} updateTitle={(v) => update('groomMotherTitle', v)} updateName={(v) => update('groomMother', v)} /></>
-  if (section === 'eventDetails') return <div className="editor-field-grid"><Input label="Giờ đón khách" type="time" value={data.ceremonyTime} onChange={(v) => update('ceremonyTime', v)} /><Input label="Giờ khai tiệc" type="time" value={data.receptionTime} onChange={(v) => update('receptionTime', v)} /></div>
-  if (section === 'timeline') return <TimelineFields items={data.timelineItems ?? []} onChange={(items) => update('timelineItems', items)} />
-  if (section === 'venue') return <><Input fieldKey="venueName" label="Tên địa điểm" value={data.venueName} error={fieldErrors.venueName} onChange={(v) => update('venueName', v)} /><Input fieldKey="venueAddress" label="Địa chỉ" area value={data.venueAddress} error={fieldErrors.venueAddress} onChange={(v) => update('venueAddress', v)} /><Input fieldKey="mapUrl" label="Link Google Maps" type="url" value={data.mapUrl} error={fieldErrors.mapUrl} onChange={(v) => update('mapUrl', v)} /></>
-  if (section === 'activities') return <ActivityFields items={data.activities ?? []} style={data.activitiesStyle ?? 'activity-cards'} update={update} uploadImage={uploadActivityImage} imageError={imageError} />
-  if (section === 'gallery') return <><DisplayStyleField label="Kiểu hiển thị album" value={data.galleryStyle ?? 'deck-3d'} options={modernLuxeDisplayStyles.gallery} onChange={(value) => update('galleryStyle', value)} /><label className="editor-upload"><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(e) => { void upload(e.target.files); e.target.value = '' }} /><UploadSimple /><strong>Thêm ảnh vào album</strong><span>Tối đa 12 ảnh · 5MB/ảnh</span></label>{imageError ? <p className="editor-upload-error">{imageError}</p> : null}<div className="editor-image-grid">{(data.galleryImages ?? []).map((src, i) => <figure key={`${src.slice(0, 20)}-${i}`}><img src={src} alt={`Ảnh album ${i + 1}`} /><button type="button" onClick={() => update('galleryImages', (data.galleryImages ?? []).filter((_, index) => index !== i))}>×</button></figure>)}</div>{!data.galleryImages?.length ? <div className="editor-field-placeholder"><Image /><strong>Đang dùng ảnh mẫu</strong><p>Tải ảnh lên để thay ngay trong thiệp.</p></div> : null}</>
-  if (section === 'rsvp') return <><Input fieldKey="rsvpDeadline" label="Hạn phản hồi" value={data.rsvpDeadline} error={fieldErrors.rsvpDeadline} onChange={(v) => update('rsvpDeadline', v)} /><Input fieldKey="rsvpMessage" label="Lời nhắn RSVP" area value={data.rsvpMessage} error={fieldErrors.rsvpMessage} onChange={(v) => update('rsvpMessage', v)} /></>
-  if (section === 'gift') return <Input fieldKey="giftMessage" label="Lời nhắn mừng cưới" area value={data.giftMessage} error={fieldErrors.giftMessage} onChange={(v) => update('giftMessage', v)} />
-  if (section === 'music') return <><label className="editor-upload editor-audio-upload"><input type="file" accept="audio/*" onChange={(event) => { void uploadMusic(event.target.files); event.target.value = '' }} /><MusicNote /><strong>{data.backgroundMusicUrl ? 'Thay nhạc nền' : 'Tải nhạc nền lên'}</strong><span>File âm thanh · tối đa 15MB</span></label>{musicError ? <p className="editor-upload-error">{musicError}</p> : null}<label className="editor-setting-row"><span><strong>Tự động phát</strong><small>Phát nhạc khi khách mở thiệp</small></span><button type="button" role="switch" aria-checked={data.backgroundMusicAutoplay !== false} className={`editor-switch ${data.backgroundMusicAutoplay !== false ? 'is-on' : ''}`} onClick={() => update('backgroundMusicAutoplay', data.backgroundMusicAutoplay === false)}><span /></button></label>{data.backgroundMusicUrl ? <div className="editor-audio-selected"><MusicNote /><span><strong>{data.backgroundMusicName || 'Nhạc nền'}</strong><small>Nhấn nút loa trong preview để nghe thử</small></span><button type="button" onClick={() => setDataMusicEmpty(update)} aria-label="Xóa nhạc nền"><Trash /></button></div> : <div className="editor-field-placeholder"><MusicNote /><strong>Chưa có nhạc nền</strong><p>Tải file lên để nghe thử trực tiếp trong preview.</p></div>}</>
-  if (definition && Object.keys(definition.fields).length) return <SchemaFields definition={definition} data={data} errors={fieldErrors} update={update} />
-  return <div className="editor-field-placeholder"><strong>Section tự động</strong><p>Section này dùng thông tin chung đã nhập. Bạn có thể đổi vị trí hoặc bật/tắt trong danh sách.</p></div>
+type FieldsProps = { section: Section; definition?: EditorSectionDefinition; data: EditorData; palette: string; fieldErrors: FieldErrors; update: (key: string, value: EditorValue) => void; setPalette: (p: string) => void; uploadMusic: (files: FileList | null) => Promise<void>; openMediaManager: (target: { kind: 'field'; path: string; multiple: boolean; role: string; mediaValue?: 'url' | 'object' }) => void; useMediaManager: boolean; musicError: string; paletteOptions: Array<{ key: string; label: string }>; showPalette: boolean }
+function Fields({ definition, data, palette, fieldErrors, update, setPalette, uploadMusic, openMediaManager, useMediaManager, musicError, paletteOptions, showPalette }: FieldsProps) {
+  return <>{showPalette ? <div className="editor-palette">{paletteOptions.map((option) => <button type="button" key={option.key} className={palette === option.key ? 'is-active' : ''} onClick={() => setPalette(option.key)}><i className={'palette-dot ' + option.key} />{option.label}</button>)}</div> : null}{definition && Object.keys(definition.fields).length ? <SchemaFields definition={definition} data={data} errors={fieldErrors} update={update} openMediaManager={openMediaManager} useMediaManager={useMediaManager} uploadMusic={uploadMusic} musicError={musicError} /> : <div className="editor-fixed-section"><strong>Section cố định</strong><p>Section này không có nội dung cần nhập. Bạn có thể bật/tắt hoặc đổi vị trí theo cấu hình template.</p></div>}</>
 }
-
-function SchemaFields({ definition, data, errors, update }: { definition: EditorSectionDefinition; data: EditorData; errors: FieldErrors; update: FieldsProps['update'] }) {
-  return <div className="editor-schema-fields">{Object.entries(definition.fields).map(([key, field]) => {
-    if (['image', 'images', 'audio'].includes(field.type)) return null
-    if (field.type === 'boolean') return <label className="editor-setting-row" key={key}><span><strong>{field.label ?? key}</strong></span><button type="button" role="switch" aria-checked={Boolean(data[key])} className={`editor-switch ${data[key] ? 'is-on' : ''}`} onClick={() => update(key, !data[key])}><span /></button></label>
-    if (field.type === 'select') return <DisplayStyleField key={key} label={field.label ?? key} value={String(data[key] ?? field.default ?? '')} options={field.options ?? []} onChange={(value) => update(key, value)} />
-    if (field.type === 'items') return <SchemaItems key={key} fieldKey={key} label={field.label ?? key} value={Array.isArray(data[key]) ? data[key] as Record<string, unknown>[] : []} maxItems={field.maxItems ?? 10} itemFields={field.itemFields ?? {}} errors={errors} onChange={(value) => update(key, value)} />
-    return <Input key={key} fieldKey={key} label={field.label ?? key} type={field.type === 'url' ? 'url' : field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : 'text'} area={field.type === 'text'} value={typeof data[key] === 'string' ? data[key] as string : ''} error={errors[key]} onChange={(value) => update(key, value)} />
-  })}</div>
+function SchemaFields({ definition, data, errors, update, openMediaManager, useMediaManager, uploadMusic, musicError }: { definition: EditorSectionDefinition; data: EditorData; errors: FieldErrors; update: FieldsProps['update']; openMediaManager: FieldsProps['openMediaManager']; useMediaManager: boolean; uploadMusic: FieldsProps['uploadMusic']; musicError: string }) {
+  return <TemplateSchemaFields fields={definition.fields} data={data} update={update} errors={errors} mediaEnabled={useMediaManager} uploadAudio={uploadMusic} audioError={musicError} openMediaManager={(target) => openMediaManager({ kind: 'field', ...target })} />
 }
-
-function SchemaItems({ fieldKey, label, value, maxItems, itemFields, errors, onChange }: { fieldKey: string; label: string; value: Record<string, unknown>[]; maxItems: number; itemFields: Record<string, import('../../../shared/api/weddings').TemplateFieldConfig>; errors: FieldErrors; onChange: (value: Record<string, unknown>[]) => void }) {
-  const change = (index: number, key: string, nextValue: string) => onChange(value.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: nextValue } : item))
-  return <div className="editor-timeline-fields"><strong>{label}</strong>{value.map((item, index) => <article key={index}><header><strong>Mục {index + 1}</strong><button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Xóa mục ${index + 1}`}><Trash /></button></header>{Object.entries(itemFields).map(([key, field]) => <Input key={key} fieldKey={`${fieldKey}.${index}.${key}`} label={field.label ?? key} type={field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : field.type === 'url' ? 'url' : 'text'} area={field.type === 'text'} value={typeof item[key] === 'string' ? item[key] as string : ''} error={errors[`${fieldKey}.${index}.${key}`]} onChange={(nextValue) => change(index, key, nextValue)} />)}</article>)}<button className="editor-add-item" type="button" disabled={value.length >= maxItems} onClick={() => onChange([...value, Object.fromEntries(Object.keys(itemFields).map((key) => [key, '']))])}><Plus /> Thêm mục</button></div>
-}
-
-function setDataMusicEmpty(update: FieldsProps['update']) { update('backgroundMusicUrl', ''); update('backgroundMusicName', '') }
-
-function TimelineFields({ items, onChange }: { items: NonNullable<ModernLuxeData['timelineItems']>; onChange: (items: NonNullable<ModernLuxeData['timelineItems']>) => void }) {
-  const updateItem = (index: number, key: 'time' | 'title' | 'detail', value: string) => onChange(items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item))
-  return <div className="editor-timeline-fields">{items.map((item, index) => <article key={index}><header><strong>Hạng mục {index + 1}</strong><button type="button" onClick={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Xóa hạng mục ${index + 1}`}><Trash /></button></header><div className="editor-field-grid"><Input label="Thời gian" type="time" value={item.time} onChange={(value) => updateItem(index, 'time', value)} /><Input label="Tên hạng mục" value={item.title} onChange={(value) => updateItem(index, 'title', value)} /></div><Input label="Mô tả" area value={item.detail} onChange={(value) => updateItem(index, 'detail', value)} /></article>)}<button className="editor-add-item" type="button" disabled={items.length >= 10} onClick={() => onChange([...items, { time: '', title: '', detail: '' }])}><Plus /> Thêm hạng mục</button></div>
-}
-
-function DisplayStyleField({ label, value, options, onChange }: { label: string; value: string; options: readonly { key: string; label: string }[]; onChange: (value: string) => void }) {
-  return <label className="editor-field"><span>{label}</span><NativeSelectField value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}</NativeSelectField></label>
-}
-
-function ActivityFields({ items, style, update, uploadImage, imageError }: { items: ModernLuxeActivityItem[]; style: string; update: FieldsProps['update']; uploadImage: FieldsProps['uploadActivityImage']; imageError: string }) {
-  const updateItem = (index: number, title: string) => update('activities', items.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item))
-  return <><DisplayStyleField label="Kiểu hiển thị hoạt động" value={style} options={modernLuxeDisplayStyles.activities} onChange={(value) => update('activitiesStyle', value)} /><div className="editor-activity-fields">{items.map((item, index) => <article key={index}><header><strong>Hoạt động {index + 1}</strong><button type="button" onClick={() => update('activities', items.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Xóa hoạt động ${index + 1}`}><Trash /></button></header><Input label="Tên hoạt động" value={item.title} onChange={(value) => updateItem(index, value)} /><label className="editor-activity-image"><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { void uploadImage(index, event.target.files); event.target.value = '' }} /><img src={item.image} alt="" /><span><UploadSimple /> Thay ảnh</span></label></article>)}</div>{imageError ? <p className="editor-upload-error">{imageError}</p> : null}<button className="editor-add-item" type="button" disabled={items.length >= 8} onClick={() => update('activities', [...items, { title: 'Hoạt động mới', image: '/assets/images/templates/modern-luxe/wedding-detail.jpg' }])}><Plus /> Thêm hoạt động</button></>
-}
-
-

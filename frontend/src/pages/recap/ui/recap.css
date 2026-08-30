@@ -63,14 +63,14 @@
 .recap-source-tabs button.is-active{background:#fff;color:#245c56;box-shadow:0 1px 3px rgb(24 42 45 / 12%)}
 .recap-source-tabs button:focus-visible{outline:2px solid #bd8a4d;outline-offset:1px}
 .recap-source-field .recap-field{margin-top:4px}
-.recap-album-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.recap-album-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.recap-album-actions .recap-media-control,.recap-card-media-actions .recap-media-control{min-height:34px;padding:8px 10px;font-size:11px}
 .recap-album-actions .recap-media-control{margin:0}
 .recap-album-hint{color:#83939a;font-size:11px;line-height:1.45}
 .recap-media-modal-backdrop{position:fixed;z-index:50;inset:0;display:grid;place-items:center;padding:20px;background:rgb(16 30 35 / 48%)}
 .recap-media-modal{width:min(100%,560px);max-height:min(680px,calc(100dvh - 40px));overflow:auto;padding:24px;background:#fff;box-shadow:0 24px 70px rgb(16 30 35 / 24%)}
 .recap-media-modal header,.recap-media-modal footer{display:flex;align-items:center;justify-content:space-between;gap:16px}.recap-media-modal header{margin-bottom:20px}.recap-media-modal header h3{margin:5px 0 0;color:#203946;font:500 28px 'Playfair Display GMM',Georgia,serif}.recap-media-modal header button{display:grid;width:34px;height:34px;place-items:center;border:1px solid #d7e1e3;background:#fff;color:#61727a;cursor:pointer}
 .recap-upload-dropzone{display:grid;place-items:center;gap:8px;padding:28px 18px;border:1px dashed #9aacab;background:#f7faf9;color:#536c75;text-align:center;cursor:pointer}.recap-upload-dropzone input{position:absolute;width:1px;height:1px;opacity:0}.recap-upload-dropzone strong{color:#245c56;font-size:13px}.recap-upload-dropzone span{font-size:11px;color:#83939a}.recap-uploaded-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}.recap-uploaded-grid img{width:100%;aspect-ratio:1;object-fit:cover}.recap-media-modal-empty{padding:24px 0;color:#83939a;font-size:12px;text-align:center}.recap-media-modal footer{justify-content:flex-end;margin-top:22px}
-@media (max-width:480px){.recap-source-tabs{grid-template-columns:1fr}.recap-album-actions{display:grid}.recap-album-actions .recap-media-control{justify-content:center}}
+@media (max-width:480px){.recap-source-tabs{grid-template-columns:1fr}.recap-album-actions{display:flex}.recap-album-actions .recap-media-control{flex:1 1 auto;justify-content:center}}
 @media (max-width:480px){.recap-media-modal{padding:18px}.recap-uploaded-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:700px){.recap-live-preview{position:static;min-height:0;padding:0;border:0;background:transparent;overflow:visible}.recap-live-preview-head,.recap-open-preview{display:none}.recap-live-preview>.editor-iframe-canvas{min-height:0}}
 .recap-editor-layout{overflow:hidden}

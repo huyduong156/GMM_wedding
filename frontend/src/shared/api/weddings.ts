@@ -15,6 +15,8 @@ export type TemplateSectionConfig = string | {
   repeatable?: boolean
   minItems?: number
   maxItems?: number
+  emptyMessage?: string
+  recommendedMinItems?: number
   itemMediaField?: string
   galleryField?: string
   maxMediaPerItem?: number
@@ -29,11 +31,16 @@ export type TemplateFieldConfig = {
   required?: boolean
   maxLength?: number
   maxItems?: number
+  emptyMessage?: string
+  recommendedMinItems?: number
   default?: unknown
-  options?: Array<{ key: string; label: string }>
+  options?: readonly { key: string; label: string }[]
   itemFields?: Record<string, TemplateFieldConfig>
   contentKey?: string
   mediaRole?: string
+  mediaValue?: 'url' | 'object'
+  audioNameKey?: string
+  maxSizeMb?: number
 }
 
 export type TemplateVersion = {
@@ -415,6 +422,9 @@ export const taskApi = {
   templates: () => request<{ items: TaskChecklistTemplate[] }>('/task-checklist-templates'),
   applyTemplate: (weddingId: string, input: { templateKey: string; templateVersion: number; eventId?: string | null; baseDate?: string }) => request<{ items: WeddingTask[] }>(`/weddings/${weddingId}/tasks/apply-template`, { method: 'POST', body: JSON.stringify(input) }),
 }
+
+
+
 
 
 
