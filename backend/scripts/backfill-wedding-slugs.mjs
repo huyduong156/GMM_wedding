@@ -38,7 +38,12 @@ try {
     await prisma.wedding.update({ where: { id: wedding.id }, data: { slug } })
     console.log(`${wedding.id}: ${slug}`)
   }
-  console.log(`Backfilled ${weddings.length} wedding slug(s).`)
+  const slugs = await prisma.wedding.findMany({ where: { slug: { not: null }, deletedAt: null }, select: { id: true, slug: true } })
+  for (const wedding of slugs) {
+    await prisma.weddingRecap.updateMany({ where: { weddingId: wedding.id }, data: { slug: wedding.slug } })
+    await prisma.publishedRecapSnapshot.updateMany({ where: { recap: { weddingId: wedding.id } }, data: { slug: wedding.slug } })
+  }
+  console.log(`Backfilled ${weddings.length} wedding slug(s) and synchronized ${slugs.length} recap slug(s).`)
 } finally {
   await prisma.$disconnect()
 }

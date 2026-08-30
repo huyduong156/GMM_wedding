@@ -29,8 +29,8 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 - Owner RSVP/wish: list/filter/update/moderate, liên kết anonymous interaction với Guest và analytics summary. Analytics trả tổng khách, khách xác nhận/tỷ lệ, tiến độ task theo status/priority và completedRate, 5 task hoàn thành gần nhất, khách đã gửi quà và thống kê lời chúc; không theo dõi lượt xem trong MVP.
 - Todo: `GET|POST /weddings/{id}/tasks`, `POST /weddings/{id}/tasks/bulk`, `GET|PATCH|DELETE /weddings/{id}/tasks/{taskId}`, reorder/bulk status. Checklist gợi ý là static preset phía FE trong MVP; bulk payload chỉ nhận root task, không nhận `parentTaskId`. Task thủ công vẫn có thể gắn `eventId` hoặc `parentTaskId` tối đa một cấp; chưa có assignee/member ở MVP.
 - Gift ledger (owner-only): `GET|POST /weddings/{id}/gift-ledger`, `GET|PATCH|DELETE /weddings/{id}/gift-ledger/{entryId}`, summary/export và promote/link/unlink Guest. Entry có thể được nhập nhanh bằng tên không cần Guest; Guest chỉ là liên kết tùy chọn và không cascade xóa ledger.
-- Recap: `GET|PUT /weddings/{id}/recap`, media/wish selection, slug availability, preview token, publish/unpublish; public `GET /public/recaps/{slug}`.
-- Public: `GET /public/weddings/{slug}`, `GET /public/invitations/{token}`, `GET /public/invitations/{weddingSlug}/{guestSlug}`, `PUT .../{token}/rsvp`, `PUT .../{weddingSlug}/{guestSlug}/rsvp`, `POST .../{slug}/rsvps`, `POST|GET .../{slug}/wishes`. URL chung nhận `authorName`/tên khách; URL cá nhân lấy identity từ invitation slug và không yêu cầu nhập tên.
+- Recap: `GET|PUT /weddings/{id}/recap`, media/wish selection, slug availability, preview token, publish/unpublish; public `GET /public/recaps/{weddingSlug}`.
+- Public: `GET /public/weddings/{weddingSlug}`, `GET /public/websites/{weddingSlug}`, `GET /public/invitations/{token}`, `GET /public/invitations/{weddingSlug}/{guestSlug}`, `PUT .../{token}/rsvp`, `PUT .../{weddingSlug}/{guestSlug}/rsvp`, `POST .../{slug}/rsvps`, `POST|GET .../{slug}/wishes`. URL chung nhận `authorName`/tên khách; URL cá nhân lấy identity từ invitation slug và không yêu cầu nhập tên.
 
 ## Quyền
 

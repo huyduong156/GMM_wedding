@@ -7,7 +7,7 @@ import { weddingApi, type Wedding } from '../../../shared/api/weddings'
 import { TemplatesApiPage } from './TemplatesApiPage'
 
 const wedding: Wedding = {
-  id: '11111111-1111-4111-8111-111111111111', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC',
+  id: '11111111-1111-4111-8111-111111111111', slug: 'mai-duc', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC',
   timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN', primaryDate: null, revision: 1, publishedAt: null,
   archivedAt: null, createdAt: '2026-08-10T00:00:00Z', updatedAt: '2026-08-10T00:00:00Z',
 }

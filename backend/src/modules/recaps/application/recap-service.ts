@@ -134,8 +134,10 @@ export class RecapService {
   }
 
   async publish(userId: string, weddingId: string, input: RecapPublishInput) {
-    const owned = weddingId ? await this.prisma.wedding.findFirst({ where: { id: weddingId, createdById: userId, deletedAt: null }, select: { id: true } }) : null
+    const owned = weddingId ? await this.prisma.wedding.findFirst({ where: { id: weddingId, createdById: userId, deletedAt: null }, select: { id: true, slug: true } }) : null
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
+    if (!owned.slug) throw new RecapError('WEDDING_SLUG_MISSING', 400, 'Wedding public slug is not configured')
+    const slug = owned.slug
     const recap = await this.prisma.weddingRecap.findUnique({ where: { weddingId }, include: recapInclude })
     if (!recap) throw new RecapError('RECAP_NOT_FOUND', 404, 'Wedding recap not found')
     if (recap.revision !== input.revision) throw new RecapError('RECAP_REVISION_CONFLICT', 409, 'Wedding recap was changed by another request')
@@ -159,16 +161,16 @@ export class RecapService {
     }
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
     const live = await this.prisma.publishedRecapSnapshot.findFirst({ where: { recapId: recap.id, unpublishedAt: null }, include: { templateVersion: { include: { template: true } }, }, orderBy: { version: 'desc' } })
-    if (live?.slug === input.slug && live.payloadHash === payloadHash) return this.snapshotView(live)
-    const slugConflict = await this.slugTaken(input.slug, weddingId)
+    if (live?.slug === slug && live.payloadHash === payloadHash) return this.snapshotView(live)
+    const slugConflict = await this.slugTaken(slug, weddingId)
     if (slugConflict) throw new RecapError('RECAP_SLUG_TAKEN', 409, 'Recap slug is already in use')
     try {
       const created = await this.prisma.$transaction(async (tx) => {
-        const claimed = await tx.weddingRecap.updateMany({ where: { id: recap.id, revision: input.revision }, data: { status: 'PUBLISHED', slug: input.slug, publishedAt: new Date(), revision: { increment: 1 } } })
+        const claimed = await tx.weddingRecap.updateMany({ where: { id: recap.id, revision: input.revision }, data: { status: 'PUBLISHED', slug: slug, publishedAt: new Date(), revision: { increment: 1 } } })
         if (claimed.count !== 1) throw new RecapRevisionConflictError()
         await tx.publishedRecapSnapshot.updateMany({ where: { recapId: recap.id, unpublishedAt: null }, data: { unpublishedAt: new Date() } })
         const previous = await tx.publishedRecapSnapshot.aggregate({ where: { recapId: recap.id }, _max: { version: true } })
-        const snapshot = await tx.publishedRecapSnapshot.create({ data: { recapId: recap.id, templateVersionId: template.id, version: (previous._max.version ?? 0) + 1, slug: input.slug, payload: payload as Prisma.InputJsonValue, payloadHash }, include: { templateVersion: { include: { template: true } } } })
+        const snapshot = await tx.publishedRecapSnapshot.create({ data: { recapId: recap.id, templateVersionId: template.id, version: (previous._max.version ?? 0) + 1, slug: slug, payload: payload as Prisma.InputJsonValue, payloadHash }, include: { templateVersion: { include: { template: true } } } })
         await tx.wedding.update({ where: { id: weddingId }, data: { status: 'PUBLISHED', publishedAt: new Date() } })
         return snapshot
       })

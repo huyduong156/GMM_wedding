@@ -122,14 +122,14 @@ describe('RecapService', () => {
     const createdSnapshot = {
       id: 'snapshot-1',
       recapId: 'recap-1',
-      slug: 'ngay-vui',
+      slug: 'mai-duc-wedding',
       version: 1,
       payload: { surface: 'RECAP' },
       payloadHash: 'hash',
       publishedAt: new Date(),
       templateVersion: { template: { key: 'winter-wedding' }, version: '1.0.0' },
     }
-    prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1' })
+    prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1', slug: 'mai-duc-wedding' })
     prisma.weddingRecap.findUnique.mockResolvedValue(current)
     prisma.templateVersion.findUnique.mockResolvedValue(template())
     prisma.mediaAsset.findMany.mockResolvedValue([])
@@ -141,9 +141,9 @@ describe('RecapService', () => {
     prisma.weddingRecap.updateMany.mockResolvedValue({ count: 1 })
     prisma.publishedRecapSnapshot.updateMany.mockResolvedValue({ count: 0 })
     prisma.wedding.update.mockResolvedValue({})
-    const result = await service.publish('user-1', 'wedding-1', { slug: 'ngay-vui', revision: 1 })
-    expect(result).toMatchObject({ id: 'snapshot-1', slug: 'ngay-vui', version: 1 })
-    expect(prisma.publishedRecapSnapshot.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ recapId: 'recap-1', slug: 'ngay-vui', version: 1 }) }))
+    const result = await service.publish('user-1', 'wedding-1', { revision: 1 })
+    expect(result).toMatchObject({ id: 'snapshot-1', slug: 'mai-duc-wedding', version: 1 })
+    expect(prisma.publishedRecapSnapshot.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ recapId: 'recap-1', slug: 'mai-duc-wedding', version: 1 }) }))
     expect(prisma.weddingRecap.updateMany).toHaveBeenCalled()
   })
 

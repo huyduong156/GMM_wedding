@@ -6,7 +6,7 @@ import { WeddingContext } from '../../../entities/wedding/model/wedding-context'
 import { weddingApi, type Wedding } from '../../../shared/api/weddings'
 import { InvitationEditorLivePage } from './InvitationEditorLivePage'
 
-const wedding: Wedding = { id: '00000000-0000-4000-8000-000000000001', name: 'Lan & Minh', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN', primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' }
+const wedding: Wedding = { id: '00000000-0000-4000-8000-000000000001', slug: 'lan-minh', name: 'Lan & Minh', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN', primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z' }
 const workspace = { weddings: [wedding], activeWedding: wedding, loading: false, error: null, selectWedding: vi.fn(), refresh: vi.fn(), addWedding: vi.fn(), replaceWedding: vi.fn(), removeWedding: vi.fn() }
 
 describe('InvitationEditorLivePage', () => {
