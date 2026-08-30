@@ -2,7 +2,7 @@ export type WeddingStatusValue = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibilityValue = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
 
 export interface WeddingView {
-  id: string; name: string; status: WeddingStatusValue; visibility: WeddingVisibilityValue
+  id: string; slug: string | null; name: string; status: WeddingStatusValue; visibility: WeddingVisibilityValue
   timezone: string; locale: string; primaryDate: Date | null; revision: number
   publishedAt: Date | null; archivedAt: Date | null; createdAt: Date; updatedAt: Date
 }

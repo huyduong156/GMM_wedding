@@ -9,7 +9,7 @@ const newTokenHash = () => hash(randomBytes(32).toString('base64url'))
 export class PublicInteractionService {
   constructor(private readonly prisma: PrismaClient) {}
   private async publishedWedding(slug: string, requirePublic = true) {
-    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { slug, surface: 'ONLINE_INVITATION', unpublishedAt: null, wedding: { status: 'PUBLISHED', deletedAt: null, ...(requirePublic ? { visibility: 'PUBLIC' as const } : {}) } }, select: { wedding: { select: { id: true } } } })
+    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { surface: 'ONLINE_INVITATION', unpublishedAt: null, wedding: { slug, status: 'PUBLISHED', deletedAt: null, ...(requirePublic ? { visibility: 'PUBLIC' as const } : {}) } }, select: { wedding: { select: { id: true } } } })
     if (!snapshot) throw new GuestError('PUBLIC_WEDDING_NOT_FOUND', 404, 'Published wedding not found')
     return { id: snapshot.wedding.id, slug }
   }

@@ -25,6 +25,7 @@
     "db:reset": "prisma migrate reset --force --skip-seed && npm run db:seed",
     "db:reset-templates": "node scripts/reset-templates.mjs",
     "db:seed": "node prisma/seed.mjs",
+    "db:backfill-wedding-slugs": "node scripts/backfill-wedding-slugs.mjs",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
