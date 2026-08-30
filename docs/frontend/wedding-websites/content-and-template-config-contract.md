@@ -126,9 +126,40 @@ export const templateConfig = {
 
 Implementation thật bổ sung field definitions/max item. `previewPath` phải là route nội bộ đã đăng ký và render đúng version.
 
+
+## 5.1 Quy tắc bắt buộc cho field editor
+
+Đây là quy tắc implementation bắt buộc cho mọi template mới:
+
+- Mọi section có nội dung owner được phép chỉnh sửa phải khai báo `fields` ngay trong `sections[].fields` của `template-config.ts`.
+- Mỗi field phải khai báo `type` và `label`; `label` là text hiển thị cho người dùng, không được để editor tự suy ra từ key.
+- Khai báo `contentKey` khi key lưu trong content khác tên field hoặc là đường dẫn lồng nhau. `contentKey` là nguồn duy nhất để đọc/ghi dữ liệu.
+- Field ảnh dùng `type: 'image'` hoặc `type: 'images'` và khai báo `mediaRole`; field danh sách dùng `type: 'items'` và khai báo `itemFields`.
+- Field ảnh khai báo mediaValue: 'url' nếu renderer lưu URL string; mặc định dùng object media có src, mediaAssetId, ole. Editor không tự đoán shape này.
+- Khai báo thêm `required`, `maxLength`, `maxItems`, `default`, `options` tùy loại để editor validate và render control.
+- Field `type: 'items'` có thể khai báo `recommendedMinItems: 3` để editor hiển thị note khuyến nghị; đây là gợi ý UX, không phải validation bắt buộc.
+- Với field `items`, fixture mặc định chỉ được seed khi content key chưa tồn tại. Khi người dùng xóa hết, editor phải lưu array rỗng và preview ẩn section khi section không enabled hoặc array rỗng; không fallback lại seed.
+- Section không có field chỉ được dùng khi thật sự là section trình bày cố định; không dùng section rỗng để thay thế metadata còn thiếu.
+- Editor không được thêm nhánh theo `templateKey` để tạo label, field, content key, palette hoặc upload behavior riêng. Nếu cần control mới, mở rộng `TemplateFieldConfig` và contract chung.
+- Template mới phải được thêm vào registry/loader của surface, có `previewPath`, fixture phù hợp và test field render đúng label/content key.
+
+Ví dụ tối thiểu:
+
+```ts
+sections: [{
+  sectionKey: 'hero', label: 'Trang mở đầu', required: true, canToggle: false, canReorder: false,
+  fields: {
+    title: { type: 'string', contentKey: 'hero.title', label: 'Tiêu đề', required: true, maxLength: 120 },
+    photo: { type: 'image', contentKey: 'hero.photo', label: 'Ảnh mở đầu', mediaRole: 'hero' },
+  },
+}]
+```
+
+Đây là quality gate trước khi release: mọi content editable phải có field metadata; nếu không, editor chỉ hiển thị section cố định và template không đạt contract.
 ## 6. Fixture và release
 
 Mỗi template có `fixture.ts` gồm content v1, event/media projection, theme và section config. Dùng dữ liệu hư cấu, asset có nguồn/license và biến thể thiếu ảnh/tên dài/nhiều event/section tắt; không dùng fixture làm wedding thật.
 
 Release bundle dùng `productType: 'WEDDING_WEBSITE'` và integer contract versions. Config JSON chứa `previewPath`, sections, theme options, capabilities. Cùng key/version nhưng đổi config phải thất bại; breaking change tăng version và có migration.
+
 

@@ -18,31 +18,40 @@ import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/da
 import './modern-luxe.css'
 
 export type ModernLuxePalette = 'champagne' | 'midnight' | 'sage'
-export type ModernLuxeSectionKey = 'cover' | 'invitation' | 'loveJourney' | 'families' | 'eventDetails' | 'countdown' | 'timeline' | 'venue' | 'activities' | 'gallery' | 'rsvp' | 'guestbook' | 'gift' | 'music'
+export type ModernLuxeSectionKey = 'cover' | 'invitation' | 'loveJourney' | 'families' | 'eventDetails' | 'countdown' | 'timeline' | 'venue' | 'activities' | 'gallery' | 'rsvp' | 'guestbook' | 'gift' | 'music' | 'footer'
 export type ModernLuxeSectionConfig = { enabled: ModernLuxeSectionKey[]; order: ModernLuxeSectionKey[] }
 export type ModernLuxeTimelineItem = { time: string; title: string; detail: string }
-export type ModernLuxeActivityItem = { title: string; image: string }
+export type ModernLuxeLoveJourneyItem = { year: string; title: string; note: string; image?: ModernLuxeMedia }
+export type ModernLuxeMedia = { src: string; alt?: string; mediaAssetId?: string; role?: string }
+export type ModernLuxeActivityItem = { title: string; image: string; mediaAssetId?: string }
 export type ModernLuxeGalleryStyle = 'deck-3d' | 'editorial-grid' | 'film-row'
 export type ModernLuxeActivitiesStyle = 'activity-cards' | 'activity-grid' | 'activity-marquee'
 export type ModernLuxeData = {
   brideName?: string; groomName?: string; weddingDate?: string; eyebrow?: string
   invitationTitle?: string; invitationMessage?: string
-  ceremonyTime?: string; receptionTime?: string; venueName?: string; venueAddress?: string; mapUrl?: string
-  rsvpDeadline?: string; rsvpMessage?: string; galleryImages?: string[]
+  ceremonyTime?: string; receptionTime?: string; eventDetailsMedia?: ModernLuxeMedia | null; venueName?: string; venueAddress?: string; mapUrl?: string
+  rsvpDeadline?: string; rsvpMessage?: string; galleryImages?: string[]; galleryMediaIds?: string[]; heroMedia?: ModernLuxeMedia | null; loveJourney?: ModernLuxeLoveJourneyItem[]
   brideFatherTitle?: string; brideFather?: string; brideMotherTitle?: string; brideMother?: string; brideFamilyAddress?: string; brideRole?: string
   groomFatherTitle?: string; groomFather?: string; groomMotherTitle?: string; groomMother?: string; groomFamilyAddress?: string; groomRole?: string
-  calendarUrl?: string; giftMessage?: string; timelineItems?: ModernLuxeTimelineItem[]; activities?: ModernLuxeActivityItem[]; activitiesStyle?: ModernLuxeActivitiesStyle; galleryStyle?: ModernLuxeGalleryStyle; backgroundMusicUrl?: string; backgroundMusicName?: string; backgroundMusicAutoplay?: boolean
+  calendarUrl?: string; giftMessage?: string; giftQrMedia?: ModernLuxeMedia | null; timelineItems?: ModernLuxeTimelineItem[]; activities?: ModernLuxeActivityItem[]; activitiesStyle?: ModernLuxeActivitiesStyle; galleryStyle?: ModernLuxeGalleryStyle; backgroundMusicUrl?: string; backgroundMusicName?: string; backgroundMusicAutoplay?: boolean; footerMessage?: string; footerMedia?: ModernLuxeMedia | null
 }
+
+const defaultLoveJourney: ModernLuxeLoveJourneyItem[] = [
+  { year: '2019', title: 'Lần đầu gặp nhau', note: 'Một cuộc gặp nhỏ mở ra câu chuyện thật dài.' },
+  { year: '2022', title: 'Những chuyến đi', note: 'Mình cùng đi, cùng lớn lên và cùng nhớ.' },
+  { year: '2025', title: 'Lời cầu hôn', note: 'Một lời đồng ý cho mọi ngày về sau.' },
+  { year: '2026', title: 'Ngày mình chung nhà', note: 'Chương đẹp nhất bắt đầu cùng những người thương.' },
+] as const
 
 const defaults: Required<ModernLuxeData> = {
   brideName: 'Minh Anh', groomName: 'Hoàng Nam', weddingDate: '12 · 12 · 2026', eyebrow: 'Trân trọng kính mời',
   invitationTitle: 'Đến chung vui trong ngày thành hôn', invitationMessage: 'Sự hiện diện của bạn là niềm vui và là món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.',
-  ceremonyTime: '09:00', receptionTime: '11:00', venueName: 'The Grand Ballroom', venueAddress: '88 Đồng Khởi, Quận 1, TP. Hồ Chí Minh', mapUrl: '#',
-  rsvpDeadline: '01.12.2026', rsvpMessage: 'Vui lòng xác nhận để chúng mình chuẩn bị đón tiếp bạn thật chu đáo.', galleryImages: [],
+  ceremonyTime: '09:00', receptionTime: '11:00', eventDetailsMedia: null, venueName: 'The Grand Ballroom', venueAddress: '88 Đồng Khởi, Quận 1, TP. Hồ Chí Minh', mapUrl: '#',
+  rsvpDeadline: '01.12.2026', rsvpMessage: 'Vui lòng xác nhận để chúng mình chuẩn bị đón tiếp bạn thật chu đáo.', galleryImages: [], galleryMediaIds: [], heroMedia: null, loveJourney: defaultLoveJourney,
   brideFatherTitle: 'Ông', brideFather: 'Trần Văn Bình', brideMotherTitle: 'Bà', brideMother: 'Nguyễn Thu Hà', brideFamilyAddress: 'Quận 3, TP. Hồ Chí Minh', brideRole: 'Trưởng nữ',
   groomFatherTitle: 'Ông', groomFather: 'Nguyễn Văn Minh', groomMotherTitle: 'Bà', groomMother: 'Lê Ngọc Lan', groomFamilyAddress: 'TP. Thủ Đức, TP. Hồ Chí Minh', groomRole: 'Trưởng nam',
   calendarUrl: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Minh%20Anh%20va%20Hoang%20Nam&dates=20261212T020000Z/20261212T060000Z',
-  giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất dành cho chúng mình.',
+  giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất dành cho chúng mình.', giftQrMedia: null,
   timelineItems: [
     { time: '09:00', title: 'Đón khách', detail: 'Gặp gỡ, chụp ảnh và lưu lại những lời chúc đầu tiên.' },
     { time: '10:00', title: 'Lễ thành hôn', detail: 'Cùng chứng kiến nghi thức và lời hẹn trăm năm.' },
@@ -53,15 +62,10 @@ const defaults: Required<ModernLuxeData> = {
     { title: 'Chụp hình cùng cô dâu chú rể', image: '/assets/images/templates/modern-luxe/couple-portrait.jpg' },
     { title: 'Góc bong bóng cho bé', image: '/assets/images/login-wedding-luxury.jpg' },
   ], activitiesStyle: 'activity-cards', galleryStyle: 'deck-3d',
-  backgroundMusicUrl: '', backgroundMusicName: '', backgroundMusicAutoplay: true,
+  backgroundMusicUrl: '', backgroundMusicName: '', backgroundMusicAutoplay: true, footerMessage: 'Cảm ơn bạn đã mở lời mời và dành thời gian trở thành một phần trong ngày vui của chúng mình.', footerMedia: null,
 }
 
-const loveJourney = [
-  { year: '2019', title: 'Lần đầu gặp nhau', note: 'Một cuộc gặp nhỏ mở ra câu chuyện thật dài.' },
-  { year: '2022', title: 'Những chuyến đi', note: 'Mình cùng đi, cùng lớn lên và cùng nhớ.' },
-  { year: '2025', title: 'Lời cầu hôn', note: 'Một lời đồng ý cho mọi ngày về sau.' },
-  { year: '2026', title: 'Ngày mình chung nhà', note: 'Chương đẹp nhất bắt đầu cùng những người thương.' },
-] as const
+
 
 const decemberDays = Array.from({ length: 31 }, (_, index) => index + 1)
 const weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
@@ -77,9 +81,10 @@ const resolveFamilyPerson = (defaultTitle: string, defaultName: string, supplied
   return { honorific: defaultTitle, name: defaultName }
 }
 
-function SectionReveal({ children, className, sectionKey, sectionConfig }: { children: React.ReactNode; className: string; sectionKey?: ModernLuxeSectionKey; sectionConfig?: ModernLuxeSectionConfig }) {
+function SectionReveal({ children, className, sectionKey, sectionConfig, hasContent = true }: { children: React.ReactNode; className: string; sectionKey?: ModernLuxeSectionKey; sectionConfig?: ModernLuxeSectionConfig; hasContent?: boolean }) {
   const reduceMotion = useReducedMotion()
   if (sectionKey && sectionConfig && !sectionConfig.enabled.includes(sectionKey)) return null
+  if (!hasContent) return null
   return (
     <motion.section
       className={className}
@@ -119,6 +124,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
   const openingTimerRef = useRef<number | undefined>(undefined)
   const focusFrameRef = useRef<number | undefined>(undefined)
   const reduceMotion = useReducedMotion()
+  const journey = content.loveJourney
   const gallery = content.galleryImages.length ? content.galleryImages : [
     '/assets/images/templates/modern-luxe/couple-portrait.jpg',
     '/assets/images/templates/modern-luxe/wedding-detail.jpg',
@@ -136,6 +142,8 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
     return () => window.clearInterval(timer)
   }, [gallery.length, galleryPaused, opened, reduceMotion])
 
+  useEffect(() => { if (editorMode) { setOpened(true); setOpening(false) } }, [editorMode])
+
   useEffect(() => () => {
     if (openingTimerRef.current !== undefined) window.clearTimeout(openingTimerRef.current)
     if (focusFrameRef.current !== undefined) window.cancelAnimationFrame(focusFrameRef.current)
@@ -145,7 +153,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
     const audio = audioRef.current
     if (!audio) return
     audio.load(); setMusicPlaying(false)
-    if (!opened || !content.backgroundMusicAutoplay || !content.backgroundMusicUrl) return
+    if (editorMode || !opened || !content.backgroundMusicAutoplay || !content.backgroundMusicUrl) return
     void audio.play().then(() => setMusicPlaying(true)).catch(() => setMusicPlaying(false))
   }, [content.backgroundMusicAutoplay, content.backgroundMusicUrl, opened])
 
@@ -205,8 +213,8 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
               <div className="ml-opening-light" aria-hidden="true" />
               <div className="ml-opening-arc ml-opening-arc-a" aria-hidden="true" />
               <div className="ml-opening-arc ml-opening-arc-b" aria-hidden="true" />
-              <motion.div className="ml-opening-photo ml-opening-photo-back" aria-hidden="true" animate={opening && !reduceMotion ? { x: -180, rotate: -18, opacity: 0 } : { x: 0, rotate: -8, opacity: 0.58 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} />
-              <motion.div className="ml-opening-photo ml-opening-photo-front" aria-hidden="true" animate={opening && !reduceMotion ? { x: 180, rotate: 18, opacity: 0 } : { x: 0, rotate: 8, opacity: 0.72 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} />
+              <motion.div className="ml-opening-photo ml-opening-photo-back" aria-hidden="true" style={content.heroMedia?.src ? { backgroundImage: 'linear-gradient(#0002,#0003),url(' + content.heroMedia.src + ')' } : undefined} animate={opening && !reduceMotion ? { x: -180, rotate: -18, opacity: 0 } : { x: 0, rotate: -8, opacity: 0.58 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} />
+              <motion.div className="ml-opening-photo ml-opening-photo-front" aria-hidden="true" style={content.heroMedia?.src ? { backgroundImage: 'linear-gradient(#0001,#0003),url(' + content.heroMedia.src + ')' } : undefined} animate={opening && !reduceMotion ? { x: 180, rotate: 18, opacity: 0 } : { x: 0, rotate: 8, opacity: 0.72 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} />
               <motion.button
                 className="ml-folio"
                 type="button"
@@ -243,7 +251,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
               <motion.div className="ml-hero-word" style={reduceMotion ? undefined : { y: heroTypeY }} aria-hidden="true">ÉLAN</motion.div>
               <div className="ml-hero-stage" aria-hidden="true">
                 <div className="ml-hero-shadow-card" />
-                <motion.div className="ml-hero-photo" style={reduceMotion ? undefined : { y: heroPhotoY }} />
+                <motion.div className="ml-hero-photo" style={{ ...(reduceMotion ? {} : { y: heroPhotoY }), ...(content.heroMedia?.src ? { backgroundImage: 'url(' + content.heroMedia.src + ')' } : {}) }} />
                 <div className="ml-hero-metal-frame" />
                 <div className="ml-hero-vellum"><span>12</span><small>DEC<br />2026</small></div>
               </div>
@@ -256,7 +264,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
               <div className="ml-hero-index" aria-hidden="true"><span>01</span><i /><small>CHAPTER<br />TOGETHER</small></div>
             </header> : null}
 
-            <SectionReveal className="ml-invitation-suite">
+            <SectionReveal className="ml-invitation-suite" sectionKey="invitation" sectionConfig={sectionConfig}>
               <div className="ml-suite-number" aria-hidden="true">I</div>
               <div className="ml-floating-memories" aria-hidden="true">
                 {gallery.slice(0, 3).map((image, index) => (
@@ -273,7 +281,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
                   </motion.figure>
                 ))}
               </div>
-              <article className="ml-invitation-card" data-editor-section="invitation">
+              <article className="ml-invitation-card">
                 <motion.img
                   className="ml-invitation-art"
                   src="/assets/images/templates/modern-luxe/couture-invitation-frame-v1.png"
@@ -299,15 +307,18 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
                   <div className="ml-signature">with love</div>
                 </div>
               </article>
-              {(!sectionConfig || sectionConfig.enabled.includes('loveJourney')) ? <div className="ml-journey" data-editor-section="loveJourney" aria-label="Hành trình tình yêu của cô dâu và chú rể">
+            </SectionReveal>
+
+            <SectionReveal className="ml-journey" sectionKey="loveJourney" sectionConfig={sectionConfig} hasContent={content.loveJourney.length > 0}>
+              <div aria-label="Hành trình tình yêu của cô dâu và chú rể">
                 <div className="ml-journey-heading"><span>Our love story</span><strong>Hành trình đến ngày chung đôi</strong></div>
                 <div className="ml-journey-viewport" tabIndex={0}>
                   <div className="ml-journey-track">
                     {[false, true].map((duplicate) => (
                       <div className="ml-journey-group" aria-hidden={duplicate} key={duplicate ? 'duplicate' : 'primary'}>
-                        {loveJourney.map((item, index) => (
+                        {journey.map((item, index) => (
                           <article className="ml-journey-card" key={`${duplicate ? 'd' : 'p'}-${item.year}`}>
-                            <img src={gallery[index % gallery.length]} alt={duplicate ? '' : `Kỷ niệm ${item.title.toLowerCase()}`} loading="lazy" />
+                            <img src={item.image?.src ?? gallery[index % gallery.length]} alt={duplicate ? '' : `Kỷ niệm ${item.title.toLowerCase()}`} loading="lazy" />
                             <div><time>{item.year}</time><strong>{item.title}</strong><p>{item.note}</p></div>
                           </article>
                         ))}
@@ -315,8 +326,11 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
                     ))}
                   </div>
                 </div>
-              </div> : null}
-              <div className="ml-families" data-editor-section="families" role="region" aria-label="Thông tin hai bên gia đình">
+              </div>
+            </SectionReveal>
+
+            <SectionReveal className="ml-families" sectionKey="families" sectionConfig={sectionConfig}>
+              <div role="region" aria-label="Thông tin hai bên gia đình">
                 <header className="ml-family-heading"><span className="ml-eyebrow">Thông tin gia đình</span><h2>Hai gia đình trân trọng báo tin</h2><p>Lễ thành hôn của các con chúng tôi</p></header>
                 <div className="ml-family-grid">
                   <article><small>Nhà gái</small><span>Đại diện gia đình</span><div className="ml-family-person"><em>{brideFather.honorific}</em><strong>{brideFather.name}</strong></div><i>&amp;</i><div className="ml-family-person"><em>{brideMother.honorific}</em><strong>{brideMother.name}</strong></div><div className="ml-family-child"><em>{content.brideRole}</em><b>{content.brideName}</b></div><address>Tư gia · {content.brideFamilyAddress}</address></article>
@@ -328,7 +342,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
             </SectionReveal>
 
             <SectionReveal className="ml-date-suite" sectionKey="eventDetails" sectionConfig={sectionConfig}>
-              <div className="ml-date-photo" aria-hidden="true"><span>Save<br />the<br />date</span></div>
+              <div className="ml-date-photo" aria-hidden="true" style={content.eventDetailsMedia?.src ? { backgroundImage: 'linear-gradient(180deg, transparent 24%, rgb(24 13 9 / .42)), url(' + content.eventDetailsMedia.src + ')' } : undefined}><span>Save<br />the<br />date</span></div>
               <div className="ml-date-plane">
                 <span className="ml-eyebrow">Hôn lễ &amp; tiệc cưới</span>
                 <div className="ml-date-lockup"><small>Tháng 12</small><strong>12</strong><time>2026</time></div>
@@ -352,7 +366,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
               </div>
             </SectionReveal>
 
-            <SectionReveal className="ml-timeline" sectionKey="timeline" sectionConfig={sectionConfig}>
+            <SectionReveal className="ml-timeline" sectionKey="timeline" sectionConfig={sectionConfig} hasContent={content.timelineItems.length > 0}>
               <header><span className="ml-eyebrow">Lịch trình ngày vui</span><h2 id="timeline-title">Một ngày, những khoảnh khắc đáng nhớ</h2></header>
               <ol>
                 {content.timelineItems.map(({ time, title, detail }, index) => {
@@ -373,7 +387,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
               <div className="ml-map-frame"><iframe title={`Bản đồ ${content.venueName}`} src={mapEmbedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /></div>
             </SectionReveal>
 
-            <SectionReveal className={`ml-activities style-${content.activitiesStyle}`} sectionKey="activities" sectionConfig={sectionConfig}>
+            <SectionReveal className={`ml-activities style-${content.activitiesStyle}`} sectionKey="activities" sectionConfig={sectionConfig} hasContent={content.activities.length > 0}>
               <header><span className="ml-eyebrow">Cùng vui trong ngày cưới</span><h2>Hoạt động trong tiệc</h2><p>Những góc trải nghiệm dành cho khách mời trong ngày chung vui.</p></header>
               <div className="ml-activities-list">{content.activities.map((activity, index) => <article key={`${activity.title}-${index}`}><img src={activity.image} alt={activity.title} loading="lazy" /><div><span>{String(index + 1).padStart(2, '0')}</span><strong>{activity.title}</strong></div></article>)}</div>
             </SectionReveal>
@@ -412,15 +426,15 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
             <SectionReveal className="ml-gift-note" sectionKey="gift" sectionConfig={sectionConfig}>
               <Gift weight="thin" />
               <span className="ml-eyebrow">Quà mừng</span>
-              <p>{content.giftMessage}</p>
+              <p>{content.giftMessage}</p>{content.giftQrMedia?.src ? <div className="ml-gift-qr"><img src={content.giftQrMedia.src} alt="Mã QR mừng cưới" loading="lazy" /></div> : null}
               <button type="button" onClick={() => setGiftOpen((current) => !current)} aria-expanded={giftOpen}>{giftOpen ? 'Khép lại' : 'Xem thông tin mừng cưới'}</button>
               <AnimatePresence>{giftOpen ? <motion.div className="ml-gift-disclosure" initial={{ opacity: 0, scaleY: 0.85 }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0.85 }}><Sparkle weight="fill" /><span>Thông tin chuyển khoản chỉ hiển thị khi chủ thiệp chủ động bật.</span></motion.div> : null}</AnimatePresence>
             </SectionReveal>
 
-            <motion.footer className="ml-footer" initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-              <div className="ml-footer-photo" aria-hidden="true" />
-              <span>With love</span><strong>{content.brideName} <i>&amp;</i> {content.groomName}</strong><p>Cảm ơn bạn đã mở lời mời và dành thời gian trở thành một phần trong ngày vui của chúng mình.</p><small>{content.weddingDate}</small>
-            </motion.footer>
+            {(!sectionConfig || sectionConfig.enabled.includes('footer')) ? <motion.footer className="ml-footer" data-editor-section="footer" style={{ order: 999 }} initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+              <div className="ml-footer-photo" aria-hidden="true" style={content.footerMedia?.src ? { backgroundImage: 'linear-gradient(#25150d6e,#170e0be8), url(' + content.footerMedia.src + ')' } : undefined} />
+              <span>With love</span><strong>{content.brideName} <i>&amp;</i> {content.groomName}</strong><p>{content.footerMessage}</p><small>{content.weddingDate}</small>
+            </motion.footer> : null}
           </main>
         ) : null}
       </div>

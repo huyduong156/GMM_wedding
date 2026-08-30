@@ -6,6 +6,8 @@ export type GreenHydrangeaData = {
   couple: { bride: { name: string; role: string; bio: string; image: string }; groom: { name: string; role: string; bio: string; image: string } }
   story: Array<{ year: string; title: string; body: string; image: string }>
   events: Array<{ date: string; time: string; title: string; venue: string; address: string }>
+  venues?: { title: string; address: string; mapUrl: string }
+  rsvp?: { title: string; message: string; deadline: string }
   gallery: Array<{ src: string; alt: string }>
   schedule: Array<{ time: string; title: string; detail: string }>
   dressCode: { title: string; message: string; colors: string[] }

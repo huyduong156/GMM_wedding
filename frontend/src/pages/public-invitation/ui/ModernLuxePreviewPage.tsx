@@ -19,7 +19,7 @@ export function ModernLuxePreviewPage() {
         setData(event.data.payload.data); setPalette(event.data.payload.palette); setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<ModernLuxeSectionConfig['order'][number]>(event.data)) {
         const target = document.querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-        if (target) window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' })
+        if (target) { if (event.data.payload.sectionKey === 'footer') target.scrollIntoView({ behavior: 'smooth', block: 'start' }); else window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' }) }
       }
     }
     window.addEventListener('message', receive)
