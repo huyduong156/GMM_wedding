@@ -201,7 +201,7 @@ export class RecapService {
   }
 
   async publicSnapshot(slug: string) {
-    const row = await this.prisma.publishedRecapSnapshot.findFirst({ where: { slug, unpublishedAt: null, recap: { wedding: { status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
+    const row = await this.prisma.publishedRecapSnapshot.findFirst({ where: { unpublishedAt: null, recap: { wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
     if (!row) throw new RecapError('RECAP_PUBLIC_NOT_FOUND', 404, 'Published recap not found')
     return this.snapshotView(row)
   }

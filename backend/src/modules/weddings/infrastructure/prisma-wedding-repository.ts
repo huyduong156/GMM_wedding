@@ -7,6 +7,7 @@ import type {
 } from '../application/ports'
 import type { GuestView } from '@/modules/guests/application/ports'
 import { WeddingError } from '../domain/wedding-error'
+import { SlugService } from '@/shared/slug/slug-service'
 
 const legacyTemplateSections: Record<string, string[]> = {
   'modern-luxe': ['cover', 'invitation', 'loveJourney', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'activities', 'gallery', 'rsvp', 'guestbook', 'gift', 'music'],
@@ -63,7 +64,7 @@ function effectiveTemplateConfig(templateKey: string, config: unknown) {
 }
 
 const weddingSelect = {
-  id: true, name: true, status: true, visibility: true, timezone: true, locale: true,
+  id: true, slug: true, name: true, status: true, visibility: true, timezone: true, locale: true,
   primaryDate: true, revision: true, publishedAt: true, archivedAt: true, createdAt: true, updatedAt: true,
 } satisfies Prisma.WeddingSelect
 
@@ -103,21 +104,30 @@ function collectMediaIds(value: unknown, key = '', result = new Set<string>()): 
 }
 
 export class PrismaWeddingRepository implements WeddingRepository {
+  private readonly slugService = new SlugService()
+
   constructor(private readonly prisma: PrismaClient) {}
 
   async create(userId: string, data: CreateWeddingData): Promise<WeddingView> {
-    return this.prisma.$transaction(async (tx) => {
-      const row = await tx.wedding.create({
-        data: {
-          createdById: userId, name: data.name, timezone: data.timezone, locale: data.locale,
-          visibility: data.visibility, ...(data.primaryDate ? { primaryDate: data.primaryDate } : {}),
-          members: { create: { userId, role: 'OWNER', status: 'ACTIVE', joinedAt: new Date() } },
-        }, select: weddingSelect,
-      })
-      return weddingView(row)
-    })
+    for (;;) {
+      const slug = await this.slugService.unique(data.name, async (candidate) => Boolean(await this.prisma.wedding.findFirst({ where: { slug: candidate }, select: { id: true } })))
+      try {
+        return await this.prisma.$transaction(async (tx) => {
+          const row = await tx.wedding.create({
+            data: {
+              createdById: userId, name: data.name, slug, timezone: data.timezone, locale: data.locale,
+              visibility: data.visibility, ...(data.primaryDate ? { primaryDate: data.primaryDate } : {}),
+              members: { create: { userId, role: 'OWNER', status: 'ACTIVE', joinedAt: new Date() } },
+            }, select: weddingSelect,
+          })
+          return weddingView(row)
+        })
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') continue
+        throw error
+      }
+    }
   }
-
   async listOwned(userId: string): Promise<WeddingView[]> {
     const rows = await this.prisma.wedding.findMany({
       where: { createdById: userId, deletedAt: null }, select: weddingSelect,
@@ -426,7 +436,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
   }
 
   async getPublicSnapshot(slug: string, surface: WeddingSurfaceValue): Promise<PublishedSnapshotView | null> {
-    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { slug, surface, unpublishedAt: null, wedding: { status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
+    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { surface, unpublishedAt: null, wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
     return row ? this.snapshotView(row) : null
   }
 

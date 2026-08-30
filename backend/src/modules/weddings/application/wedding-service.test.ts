@@ -6,7 +6,7 @@ import { WeddingService } from './wedding-service'
 
 const actor: AuthenticatedUserActor = { kind: 'user', userId: 'user-1', sessionId: 'session-1' }
 const wedding: WeddingView = {
-  id: 'wedding-1', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN',
+  id: 'wedding-1', slug: 'mai-duc-wedding', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN',
   primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: new Date('2026-08-01T00:00:00Z'), updatedAt: new Date('2026-08-01T00:00:00Z'),
 }
 const event: WeddingEventView = {
