@@ -1,5 +1,6 @@
 import { ArrowsOut, Desktop, DeviceMobile, X } from '@phosphor-icons/react'
 import { useEffect, useRef, useState, type Ref } from 'react'
+import { useDraggablePreviewPosition } from './useDraggablePreviewPosition'
 
 export type EditorPreviewDevice = 'desktop' | 'mobile'
 
@@ -21,6 +22,7 @@ type Props = {
 const viewports = { desktop: { width: 1200, height: 800 }, mobile: { width: 550, height: 950 } } as const
 
 export function EditorPreviewModal({ frameRef, route, device, defaultDevice, ready, templateKey, title, open, onToggleOpen, onDeviceChange, onLoad, embedded = false }: Props) {
+  const draggable = useDraggablePreviewPosition()
   const viewportRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   const [switching, setSwitching] = useState(false)
@@ -60,8 +62,8 @@ export function EditorPreviewModal({ frameRef, route, device, defaultDevice, rea
     </div>
   </>
   if (embedded) return surface
-  return <main className={`editor-iframe-canvas ${open ? 'is-mobile-preview-open' : ''}`} aria-label={title}>
-    <button className="editor-mobile-preview-toggle" type="button" onClick={toggleOpen} aria-expanded={open}>{open ? <X /> : <ArrowsOut />}<span>{open ? 'Thu nhỏ' : `Xem ${defaultDevice === 'desktop' ? 'desktop' : 'mobile'}`}</span></button>
+  return <main className={`editor-iframe-canvas ${open ? 'is-mobile-preview-open' : ''}`} aria-label={title} style={open ? undefined : draggable.style} {...draggable.dragHandlers}>
+    <button className="editor-mobile-preview-toggle" type="button" onClick={toggleOpen} aria-expanded={open}><span className="editor-preview-drag-handle" data-preview-drag-handle>{open ? <X /> : <ArrowsOut />}</span><span>{open ? 'Thu nhỏ' : `Xem ${defaultDevice === 'desktop' ? 'desktop' : 'mobile'}`}</span></button>
     {surface}
     <button className="editor-mobile-preview-hitbox" type="button" onClick={toggleOpen} aria-label={`Mở rộng ${title}`} />
   </main>

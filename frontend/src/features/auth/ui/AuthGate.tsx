@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { adminRoutes, marketingRoutes } from '../../../shared/config/routes'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { useOptionalAuth } from '../model/auth-context'
+import { PageLoading } from '../../../shared/ui/PageLoading'
 
 export function AuthGate({ surface, children }: { surface: 'studio' | 'admin'; children: ReactNode }) {
   const auth = useOptionalAuth()
@@ -21,6 +22,6 @@ export function AuthGate({ surface, children }: { surface: 'studio' | 'admin'; c
     return () => { active = false }
   }, [checkAdminSession, checkUserSession, navigate, surface])
   if (!auth) return children
-  if (checking) return <main className="auth-route-loading" role="status" aria-label="Đang kiểm tra phiên đăng nhập"><span /><p>Đang xác thực phiên đăng nhập…</p></main>
+  if (checking) return <PageLoading label="Đang xác thực phiên đăng nhập" detail="Đang kiểm tra không gian làm việc của bạn." />
   return children
 }

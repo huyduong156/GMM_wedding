@@ -16,6 +16,7 @@ import {
 import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './modern-luxe.css'
+import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
 export type ModernLuxePalette = 'champagne' | 'midnight' | 'sage'
 export type ModernLuxeSectionKey = 'cover' | 'invitation' | 'loveJourney' | 'families' | 'eventDetails' | 'countdown' | 'timeline' | 'venue' | 'activities' | 'gallery' | 'rsvp' | 'guestbook' | 'gift' | 'music' | 'footer'
@@ -100,7 +101,7 @@ function SectionReveal({ children, className, sectionKey, sectionConfig, hasCont
   )
 }
 
-export function ModernLuxeInvitation({ data, palette = 'champagne', preview = false, editorMode = false, sectionConfig }: { data?: ModernLuxeData; palette?: ModernLuxePalette; preview?: boolean; editorMode?: boolean; sectionConfig?: ModernLuxeSectionConfig }) {
+export function ModernLuxeInvitation({ data, palette = 'champagne', preview = false, editorMode = false, sectionConfig, interactions }: { data?: ModernLuxeData; palette?: ModernLuxePalette; preview?: boolean; editorMode?: boolean; sectionConfig?: ModernLuxeSectionConfig; interactions?: PublicInteractions }) {
   const content = { ...defaults, ...data }
   const brideFather = resolveFamilyPerson(defaults.brideFatherTitle, defaults.brideFather, data?.brideFatherTitle, data?.brideFather)
   const brideMother = resolveFamilyPerson(defaults.brideMotherTitle, defaults.brideMother, data?.brideMotherTitle, data?.brideMother)
@@ -111,6 +112,7 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
   const [activeImage, setActiveImage] = useState(0)
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [rsvp, setRsvp] = useState<'attending' | 'declined' | null>(null)
+  const submittedRsvpRef = useRef<string | null>(null)
   const [giftOpen, setGiftOpen] = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const [wishName, setWishName] = useState('')
@@ -172,14 +174,26 @@ export function ModernLuxeInvitation({ data, palette = 'champagne', preview = fa
     focusFrameRef.current = window.requestAnimationFrame(() => mainRef.current?.focus())
   }
 
-  const submitWish = () => {
+  const submitWish = async () => {
     const message = wish.trim()
     const name = wishName.trim()
     if (!message || !name) return
-    setWishes((current) => [{ name, message }, ...current])
+    if (interactions) {
+      if (!await interactions.wishes.submit({ guestName: interactions.isPersonalized ? undefined : name, content: message })) return
+    } else setWishes((current) => [{ name, message }, ...current])
     setWishName('')
     setWish('')
   }
+
+  useEffect(() => {
+    if (!interactions || !rsvp || submittedRsvpRef.current === rsvp) return
+    submittedRsvpRef.current = rsvp
+    void interactions.rsvp.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED', partySize: 1 })
+  }, [interactions?.isPersonalized, interactions?.rsvp.submit, rsvp, wishName])
+
+  useEffect(() => {
+    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
+  }, [interactions?.wishes.items])
 
   const moveHeroLayers = (event: React.PointerEvent<HTMLElement>) => {
     if (reduceMotion || event.pointerType !== 'mouse') return

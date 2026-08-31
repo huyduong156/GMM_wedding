@@ -1,41 +1,98 @@
 import { useEffect, useState } from 'react'
-import { weddingApi, type PublishedWeddingSnapshot } from '../../../shared/api/weddings'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
+import { WeddingApiError, weddingApi, type PublishedWeddingSnapshot } from '../../../shared/api/weddings'
 import { ModernLuxeInvitation, type ModernLuxeData, type ModernLuxePalette, type ModernLuxeSectionConfig } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { VerdantPromiseInvitation } from '../../../templates/invitations/verdant-promise/VerdantPromiseInvitation'
 import type { ModernLuxeData as VerdantPromiseData, ModernLuxeSectionConfig as VerdantPromiseSectionConfig } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { ChibiDaydreamInvitation } from '../../../templates/invitations/chibi-daydream/ChibiDaydreamInvitation'
 import type { ChibiDaydreamData } from '../../../templates/invitations/chibi-daydream/ChibiDaydreamInvitation'
+import { StatusPage } from '../../status/ui/StatusPage'
+import { PageLoading } from '../../../shared/ui/PageLoading'
+import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
+import { usePublicWishes } from '../../../shared/lib/navigation/usePublicWishes'
 
 type Props = { weddingSlug: string; guestSlug?: string }
 type Snapshot = PublishedWeddingSnapshot
 
 export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
+  const auth = useOptionalAuth()
+  const checkUserSession = auth?.checkUserSession
   const [snapshot, setSnapshot] = useState<Snapshot>()
   const [error, setError] = useState('')
+  const [notFound, setNotFound] = useState(false)
   useEffect(() => {
-    const load = guestSlug
-      ? Promise.all([weddingApi.publicInvitation(weddingSlug), weddingApi.publicInvitationGuest(weddingSlug, guestSlug)])
-      : weddingApi.publicInvitation(weddingSlug)
-    void load.then((result) => setSnapshot(Array.isArray(result) ? result[0].snapshot : result.snapshot))
-      .catch((cause) => setError(cause instanceof Error ? cause.message : 'Không thể tải thiệp cưới.'))
-  }, [guestSlug, weddingSlug])
+    let active = true
+    const load = async () => {
+      setError('')
+      setNotFound(false)
+      try {
+        const signedIn = checkUserSession ? await checkUserSession() : false
+        if (guestSlug) {
+          const result = await Promise.all([weddingApi.publicInvitation(weddingSlug), weddingApi.publicInvitationGuest(weddingSlug, guestSlug)])
+          if (active) setSnapshot(result[0].snapshot)
+          return
+        }
+
+        try {
+          const result = await weddingApi.publicInvitation(weddingSlug)
+          if (active) setSnapshot(result.snapshot)
+          return
+        } catch (cause) {
+          // A private draft is only available to its authenticated owner.
+          if (!signedIn || !(cause instanceof WeddingApiError) || cause.status !== 404) throw cause
+        }
+
+        const weddings = await weddingApi.list()
+        const wedding = weddings.items.find((item) => item.slug === weddingSlug)
+        if (!wedding) throw new WeddingApiError(404, 'PUBLIC_INVITATION_NOT_FOUND', 'Invitation not found')
+        const content = (await weddingApi.content(wedding.id, 'ONLINE_INVITATION')).content
+        if (!content.templateVersion) throw new WeddingApiError(404, 'PUBLIC_INVITATION_NOT_FOUND', 'Invitation not found')
+        if (active) setSnapshot({
+          id: `draft-${wedding.id}`,
+          weddingId: wedding.id,
+          surface: 'ONLINE_INVITATION',
+          slug: wedding.slug ?? weddingSlug,
+          version: 0,
+          publishedAt: new Date(0).toISOString(),
+          payload: {
+            surface: 'ONLINE_INVITATION',
+            template: { key: content.templateVersion.key, version: content.templateVersion.version },
+            content: content.content,
+            theme: { themeConfig: content.themeConfig, sectionConfig: content.sectionConfig },
+          },
+          templateVersion: { key: content.templateVersion.key, version: content.templateVersion.version },
+        })
+      } catch (cause) {
+        if (!active) return
+        if (cause instanceof WeddingApiError && cause.status === 404) setNotFound(true)
+        else setError(cause instanceof Error ? cause.message : 'Không thể tải thiệp cưới.')
+      }
+    }
+    void load()
+    return () => { active = false }
+  }, [checkUserSession, guestSlug, weddingSlug])
+  if (notFound) return <StatusPage kind="not-found" />
   if (error) return <main style={{ padding: 32 }}><h1>Không thể mở thiệp</h1><p>{error}</p></main>
-  if (!snapshot) return <main style={{ padding: 32 }}><p>Đang tải thiệp cưới…</p></main>
-  return <InvitationSnapshot snapshot={snapshot} />
+  if (!snapshot) return <PageLoading label="Đang chuẩn bị thiệp cưới" detail="Một chút nữa thôi, thiệp của bạn đang được mở ra." />
+  return <InvitationSnapshot snapshot={snapshot} weddingSlug={weddingSlug} guestSlug={guestSlug} />
 }
 
-function InvitationSnapshot({ snapshot }: { snapshot: Snapshot }) {
+function InvitationSnapshot({ snapshot, weddingSlug, guestSlug }: { snapshot: Snapshot; weddingSlug: string; guestSlug?: string }) {
+  const enabled = !snapshot.id.startsWith('draft-')
+  const rsvp = usePublicRsvp({ weddingSlug, guestSlug })
+  const wishes = usePublicWishes({ weddingSlug, guestSlug, enabled })
+  const interactions = { isPersonalized: Boolean(guestSlug), rsvp, wishes }
   const payload = snapshot.payload as { template: { key: string }; content?: unknown; theme?: { themeConfig?: Record<string, unknown>; sectionConfig?: unknown } }
   const content = payload.content ?? {}
   const theme = payload.theme ?? {}
   const sectionConfig = theme.sectionConfig
   switch (payload.template.key) {
     case 'modern-luxe':
-      return <ModernLuxeInvitation data={content as ModernLuxeData} palette={(theme.themeConfig?.palette as ModernLuxePalette | undefined) ?? 'champagne'} sectionConfig={sectionConfig as ModernLuxeSectionConfig | undefined} />
+      return <ModernLuxeInvitation data={content as ModernLuxeData} palette={(theme.themeConfig?.palette as ModernLuxePalette | undefined) ?? 'champagne'} sectionConfig={sectionConfig as ModernLuxeSectionConfig | undefined} interactions={interactions} />
     case 'verdant-promise':
-      return <VerdantPromiseInvitation data={content as VerdantPromiseData} sectionConfig={sectionConfig as VerdantPromiseSectionConfig | undefined} />
+      return <VerdantPromiseInvitation data={content as VerdantPromiseData} sectionConfig={sectionConfig as VerdantPromiseSectionConfig | undefined} interactions={interactions} />
     case 'chibi-daydream':
-      return <ChibiDaydreamInvitation data={content as ChibiDaydreamData} sectionConfig={sectionConfig as { enabled: string[]; order: string[] } | undefined} />
+      return <ChibiDaydreamInvitation data={content as ChibiDaydreamData} sectionConfig={sectionConfig as { enabled: string[]; order: string[] } | undefined} interactions={interactions} />
     default:
       return <main style={{ padding: 32 }}><h1>Template chưa được hỗ trợ</h1><p>Template {payload.template.key} chưa có renderer trên phiên bản frontend này.</p></main>
   }

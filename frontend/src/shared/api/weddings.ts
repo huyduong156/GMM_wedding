@@ -309,6 +309,8 @@ export type Wish = {
   submittedAt: string
   moderatedAt: string | null
 }
+export type PublicRsvpInput = { guestName?: string; attendance: RsvpAttendance; partySize: number; mealPreference?: string; specialRequest?: string; message?: string }
+export type PublicWish = { id: string; authorName: string; content: string; submittedAt: string; isPinned: boolean }
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
   get: (id: string) => request<{ wedding: Wedding }>(`/weddings/${id}`),
@@ -342,6 +344,11 @@ export const weddingApi = {
   publicRecap: (slug: string) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/public/recaps/${encodeURIComponent(slug)}`),
   publicInvitation: (weddingSlug: string) => request<{ snapshot: PublishedWeddingSnapshot }>(`/public/invitations/${encodeURIComponent(weddingSlug)}`),
   publicInvitationGuest: (weddingSlug: string, guestSlug: string) => request<{ invitation: { weddingSlug: string; invitationSlug: string; guestName: string | null; maxPartySize: number; expiresAt: string | null } }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}`),
+  publicRsvp: (weddingSlug: string, input: PublicRsvpInput) => request<{ rsvp: Rsvp }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/rsvps`, { method: 'POST', body: JSON.stringify(input) }),
+  publicPersonalRsvp: (weddingSlug: string, guestSlug: string, input: PublicRsvpInput) => request<{ rsvp: Rsvp }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}/rsvp`, { method: 'PUT', body: JSON.stringify(input) }),
+  publicWish: (weddingSlug: string, input: { guestName?: string; content: string }) => request<{ wish: Wish }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/wishes`, { method: 'POST', body: JSON.stringify(input) }),
+  publicPersonalWish: (weddingSlug: string, guestSlug: string, input: { guestName?: string; content: string }) => request<{ wish: Wish }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}/wishes`, { method: 'POST', body: JSON.stringify(input) }),
+  publicWishes: (weddingSlug: string) => request<{ wishes: PublicWish[] }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/wishes`),
   publicWebsite: (weddingSlug: string) => request<{ snapshot: PublishedWeddingSnapshot }>(`/public/websites/${encodeURIComponent(weddingSlug)}`),
   saveRecap: (weddingId: string, input: { templateVersionId: string; title: string; thankYouMessage?: string | null; ogTitle?: string | null; ogDescription?: string | null; ogImageUrl?: string | null; content: Record<string, unknown>; themeConfig: Record<string, unknown>; sectionConfig: RecapSectionConfig; mediaItems: Array<{ mediaAssetId: string; caption?: string | null; sortOrder: number }>; wishSelections: Array<{ wishId: string; sortOrder: number }>; revision: number }) => request<{ recap: RecapDraft }>(`/weddings/${weddingId}/recap`, { method: 'PUT', body: JSON.stringify(input) }),
   recapSlugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/recaps/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),}
