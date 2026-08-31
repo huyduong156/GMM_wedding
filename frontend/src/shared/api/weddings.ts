@@ -1,4 +1,4 @@
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '')
+const apiBaseUrl = (import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api')).replace(/\/$/, '')
 
 export type WeddingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibility = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
@@ -314,6 +314,7 @@ export type PublicWish = { id: string; authorName: string; content: string; subm
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
   get: (id: string) => request<{ wedding: Wedding }>(`/weddings/${id}`),
+  status: (id: string) => request<{ wedding: Pick<Wedding, 'id' | 'slug' | 'status' | 'revision' | 'publishedAt'> }>(`/weddings/${id}`),
   create: (input: WeddingInput) => request<{ wedding: Wedding }>('/weddings', { method: 'POST', body: JSON.stringify(input) }),
   update: (id: string, input: Partial<WeddingInput> & { status?: 'DRAFT' | 'ARCHIVED'; revision: number }) => request<{ wedding: Wedding }>(`/weddings/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<void>(`/weddings/${id}`, { method: 'DELETE', body: '{}' }),

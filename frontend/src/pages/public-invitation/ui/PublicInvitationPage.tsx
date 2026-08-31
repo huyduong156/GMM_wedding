@@ -26,7 +26,6 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
       setError('')
       setNotFound(false)
       try {
-        const signedIn = checkUserSession ? await checkUserSession() : false
         if (guestSlug) {
           const result = await Promise.all([weddingApi.publicInvitation(weddingSlug), weddingApi.publicInvitationGuest(weddingSlug, guestSlug)])
           if (active) setSnapshot(result[0].snapshot)
@@ -39,8 +38,11 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
           return
         } catch (cause) {
           // A private draft is only available to its authenticated owner.
-          if (!signedIn || !(cause instanceof WeddingApiError) || cause.status !== 404) throw cause
+          if (!(cause instanceof WeddingApiError) || cause.status !== 404) throw cause
         }
+
+        const signedIn = checkUserSession ? await checkUserSession() : false
+        if (!signedIn) throw new WeddingApiError(404, 'PUBLIC_INVITATION_NOT_FOUND', 'Invitation not found')
 
         const weddings = await weddingApi.list()
         const wedding = weddings.items.find((item) => item.slug === weddingSlug)

@@ -48,10 +48,10 @@ const initialData: ModernLuxeData = initialTemplate.fixture
 export function InvitationEditorLivePage() {
   const { navigate } = useNavigation()
   const workspace = useOptionalWeddingWorkspace()
-  const activeWedding = workspace?.activeWedding ?? null
-  const activeWeddingId = activeWedding?.id ?? null
+  const workspaceWedding = workspace?.activeWedding ?? null
+  const activeWeddingId = workspaceWedding?.id ?? null
   const siteOrigin = typeof window === 'undefined' ? '' : window.location.origin
-  const invitationUrl = activeWedding?.slug ? `${siteOrigin}/${encodeURIComponent(activeWedding.slug)}/invitation` : ''
+  const invitationUrl = workspaceWedding?.slug ? `${siteOrigin}/${encodeURIComponent(workspaceWedding.slug)}/invitation` : ''
   const [device, setDevice] = useState<'desktop' | 'mobile'>('mobile')
   const [isMobileEditor, setIsMobileEditor] = useState(() => window.matchMedia?.('(max-width: 767px)').matches ?? false)
   const [sectionDefinitions, setSectionDefinitions] = useState<EditorSectionDefinition[]>(() => resolveEditorSections(initialTemplate.config, []))
@@ -75,7 +75,7 @@ export function InvitationEditorLivePage() {
   const [templateMissing, setTemplateMissing] = useState(false)
   const [templateKey, setTemplateKey] = useState<string | null>(null)
   const [previewPath, setPreviewPath] = useState<string>(initialTemplate.config.previewPath)
-  const [loading, setLoading] = useState(Boolean(activeWedding))
+  const [loading, setLoading] = useState(Boolean(workspaceWedding))
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
@@ -91,8 +91,10 @@ export function InvitationEditorLivePage() {
   const [pendingEditorAction, setPendingEditorAction] = useState<'invitation' | 'publish' | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
+  const [surfacePublished, setSurfacePublished] = useState(false)
   const baselineRef = useRef('')
   const allowNavigationRef = useRef(false)
+  const activeWedding = workspaceWedding ? { ...workspaceWedding, status: surfacePublished ? 'PUBLISHED' as const : 'DRAFT' as const } : null
   const previewDevice = device
   useEffect(() => { if (!mobilePreviewOpen) setDevice('mobile') }, [mobilePreviewOpen])
   useEffect(() => {
@@ -132,6 +134,10 @@ export function InvitationEditorLivePage() {
     finally { setLoading(false) }
   }, [activeWeddingId, reset])
   useEffect(() => { void loadContent() }, [loadContent])
+  useEffect(() => {
+    if (!activeWeddingId) return
+    void weddingApi.dashboard(activeWeddingId).then((result) => setSurfacePublished(result.dashboard.publication.invitation.published)).catch(() => setSurfacePublished(false))
+  }, [activeWeddingId, workspaceWedding?.revision])
   useEffect(() => {
     if (!saveMessage || conflicted) return
     const timeout = window.setTimeout(() => setSaveMessage(''), 1800)
