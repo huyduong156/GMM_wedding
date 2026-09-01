@@ -104,14 +104,14 @@ export const giftQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(50),
     cursor: z.string().max(512).optional(),
   })
-  .strict()
+  .strip()
   .refine((v) => !v.from || !v.to || v.from <= v.to, {
     path: ['to'],
     message: 'to must be after from',
   })
 export const createGiftSchema = z
   .object({ ...base, guestId: uuid.optional() })
-  .strict()
+  .strip()
   .superRefine(validGift)
 export const updateGiftSchema = z
   .object({
@@ -119,7 +119,7 @@ export const updateGiftSchema = z
     guestId: uuid.nullable().optional(),
     revision: z.number().int().min(1),
   })
-  .strict()
+  .strip()
   .superRefine((value, ctx) => {
     const candidate = value as Partial<GiftValidationInput> & { revision: number }
     if (Object.keys(value).length === 1)
@@ -127,13 +127,13 @@ export const updateGiftSchema = z
     if (candidate.giftType && candidate.receiveMethod && candidate.reciprocityStatus)
       validGift(candidate as GiftValidationInput, ctx)
   })
-export const linkGuestSchema = z.object({ guestId: uuid }).strict()
+export const linkGuestSchema = z.object({ guestId: uuid }).strip()
 export const promoteGuestSchema = z
   .object({ displayName: z.string().trim().min(1).max(160) })
-  .strict()
+  .strip()
 export const giftDateQuerySchema = z
   .object({ from: date.optional(), to: date.optional() })
-  .strict()
+  .strip()
   .refine((v) => !v.from || !v.to || v.from <= v.to, {
     path: ['to'],
     message: 'to must be after from',

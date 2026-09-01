@@ -28,7 +28,7 @@ export const musicUpdateSchema = z
     sortOrder: z.number().int().min(0).optional(),
     revision: z.number().int().min(1),
   })
-  .strict()
+  .strip()
   .refine((value) => Object.keys(value).some((key) => key !== 'revision'), {
     message: 'At least one field is required',
   })

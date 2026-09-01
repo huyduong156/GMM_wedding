@@ -61,7 +61,7 @@ CSR có thể yếu hơn SSR về SEO/first-load; đo Core Web Vitals trước b
 - Template là code được review, không cho user upload script/HTML tùy ý.
 - `Template` giữ identity/catalog metadata; `TemplateVersion` bất biến chứa renderer, template config hash, section hỗ trợ và các contract version.
 - Template config là contract dùng chung cho editor, backend validator, migration và renderer; `templateConfigVersion`, content schema version và renderer API version được quản lý độc lập với SemVer của template.
-- Wedding lưu canonical semantic content độc lập presentation. Mỗi thiệp online, website cưới hoặc recap chọn template/lifecycle riêng; template cung cấp section/theme/thứ tự mặc định và editor chỉ tạo section override sau khi user đã chọn template.
+- `WeddingContent` stores template-owned content independently per `(weddingId, surface)`. Each invitation, website and recap surface has its own template version, content JSON, theme/section config, publication status and revision; the template defines the field contract.
 - Wedding cũ giữ version cũ cho đến khi migration chủ động.
 - Sync template là idempotent, chỉ thêm version mới; cùng key/version nhưng khác hash phải thất bại. Version cũ được deprecate thay vì xóa khi còn tham chiếu.
 - Template source lifecycle: development bị bỏ qua khi admin sync; eview chỉ hiển thị để feedback; eady mới được release; sau release version immutable và thay đổi phải tạo version mới. Preview trước release là admin-only, public preview chỉ mở sau release.
@@ -77,7 +77,7 @@ Nhạc nền dùng catalog chung do platform admin quản lý. PostgreSQL lưu m
 ## Publication-first và Wedding companion core
 
 - Wedding aggregate ở MVP là hồ sơ gốc tối giản và owner-only trong luồng sản phẩm: thông tin cặp đôi/ngày cưới, các lễ/tiệc dạng dữ liệu và liên kết tới publication/guest/RSVP. Không xây workflow wedding planner quanh từng event.
-- Recap là publication aggregate trọng tâm sau thiệp online và website cưới: draft tham chiếu media/wish hợp lệ, publish tạo immutable `PublishedRecapSnapshot`, public API/cache theo recap slug. Template recap dùng registry hiện có với product type riêng.
+- Recap is the `RECAP` `WeddingContent` surface. Recap media and wishes reference that row, publish creates an immutable `PublishedRecapSnapshot`, and public lookup resolves through the single `Wedding.slug`.
 - Todo, ngân sách và gift ledger là các module trọng tâm độc lập, được triển khai theo phase và mở bằng progressive disclosure để không chặn luồng publish. Dữ liệu ngân sách/ledger là owner-only, không vào public snapshot, analytics, search hoặc log. Collaboration nhiều cấp và planner chuyên nghiệp vẫn là phần mở rộng.
 
 Chi tiết thiết kế task/ledger/recap xem [ADR 0005](./adr/0005-wedding-planning-ledger-and-recap.md); cách giữ luồng publication đơn giản trong khi triển khai các module companion theo phase xem [ADR 0008](./adr/0008-invitation-first-wedding-scope.md).

@@ -8,10 +8,10 @@ export const rsvpSchema = z
     specialRequest: z.string().trim().max(2000).optional(),
     message: z.string().trim().max(2000).optional(),
   })
-  .strict()
+  .strip()
 export const wishSchema = z
   .object({
     guestName: z.string().trim().min(1).max(160).optional(),
     content: z.string().trim().min(1).max(2000),
   })
-  .strict()
+  .strip()

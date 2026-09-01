@@ -14,30 +14,30 @@ export const registerRequestSchema = z
     password: passwordSchema,
     displayName: z.string().trim().min(1).max(120).optional(),
   })
-  .strict()
+  .strip()
 
 export const verifyEmailRequestSchema = z
   .object({
     token: z.string().min(20).max(512),
   })
-  .strict()
+  .strip()
 
-export const resendVerificationRequestSchema = z.object({ email: emailSchema }).strict()
+export const resendVerificationRequestSchema = z.object({ email: emailSchema }).strip()
 
 export const loginRequestSchema = z
   .object({
     email: emailSchema,
     password: passwordSchema,
   })
-  .strict()
+  .strip()
 
-export const forgotPasswordRequestSchema = z.object({ email: emailSchema }).strict()
+export const forgotPasswordRequestSchema = z.object({ email: emailSchema }).strip()
 export const resetPasswordRequestSchema = z
   .object({
     token: z.string().min(20).max(512),
     password: passwordSchema,
   })
-  .strict()
+  .strip()
 
 export const updateProfileRequestSchema = z
   .object({
@@ -60,7 +60,7 @@ export const updateProfileRequestSchema = z
       .optional(),
     timezone: z.string().trim().min(1).max(64).optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => Object.keys(value).length > 0, 'At least one profile field is required')
 
 export type RegisterRequest = z.infer<typeof registerRequestSchema>

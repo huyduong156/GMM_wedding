@@ -63,19 +63,26 @@ Lễ/tiệc thuộc wedding. Trường: `id`, `weddingId`, `name`, `eventType`, 
 
 ### `WeddingContent`
 
-Canonical semantic content duy nhất của wedding. Trường: `id`, `weddingId` unique, `schemaVersion`, `content` JSON, `revision`, `createdAt`, `updatedAt`. Không lưu guest PII trong JSON này.
+Content draft is scoped by `(weddingId, surface)`. Supported surfaces are
+`ONLINE_INVITATION`, `WEDDING_WEBSITE` and `RECAP`; each row stores its own
+`templateVersionId?`, `schemaVersion`, template-owned `content` JSON and
+`themeConfig`, `sectionConfig`, publication `status`, `publishedAt` and
+`revision`. Payloads from different surfaces must never be reused or
+overwritten by another surface. `Wedding.slug` is the single public URL
+source; `WeddingContent` does not store a slug.
+Publication status is one of `DRAFT`, `PUBLISHED`, `SUSPENDED` or `ARCHIVED`;
+`publishedAt` records publication history and remains set while a surface is
+temporarily suspended.
 
-### `WeddingTheme`
+Template-owned content and lifecycle for one wedding surface. Template-specific
+fields such as thank-you text and SEO metadata live inside `content` JSON;
+they are not dedicated database columns. Không lưu guest PII trong JSON này.
 
-Presentation và thứ tự section tách theo surface. Trường: `id`, `weddingId`, `surface`, `configVersion`, `themeConfig` JSON, `sectionConfig` JSON, `revision`, timestamps. `(weddingId, surface)` unique.
+### Legacy surface tables
 
-### `WeddingWebsite`
-
-Lifecycle website cưới. Trường: `id`, `weddingId` unique, `templateVersionId?`, `slug?`, `isPublished`, `revision`, timestamps. Slug là public pointer riêng của surface và template version được pin.
-
-### `InvitationDesign`
-
-Template selection và lifecycle riêng cho thiệp online. Trường: `id`, `weddingId` unique, `templateVersionId?`, `slug?`, `isPublished`, `revision`, timestamps.
+`WeddingTheme`, `WeddingWebsite` and `InvitationDesign` are retired as sources
+of truth. Their former template, theme and publication fields belong to the
+corresponding `WeddingContent` row.
 
 ## Template và publication
 
@@ -89,7 +96,7 @@ Version renderer bất biến. Trường: `id`, `templateId`, `version`, `config
 
 ### `PublishedWeddingSnapshot`
 
-Payload public bất biến của website/thiệp. Trường: `id`, `weddingId`, `templateVersionId`, `version`, `surface`, `slug`, `payload` JSON, `payloadHash`, `contentSchemaVersion`, `rendererApiVersion`, `publishedAt`, `unpublishedAt?`. `(weddingId, surface, version)` unique; partial unique index bảo đảm một slug chỉ trỏ tới một snapshot live; payload không chứa PII khách.
+Payload public bất biến của website/thiệp. Trường: `id`, `weddingId`, `templateVersionId`, `version`, `surface`, `payload` JSON, `payloadHash`, `contentSchemaVersion`, `rendererApiVersion`, `publishedAt`, `unpublishedAt?`. `(weddingId, surface, version)` unique; public lookup dùng `Wedding.slug` và surface; payload không chứa PII khách.
 
 ## Media
 
@@ -155,9 +162,11 @@ Sổ quà owner-only. Trường: `id`, `weddingId`, `guestId?`, `guestDisplayNam
 
 ## Wedding recap
 
-### `WeddingRecap`
+### Recap content
 
-Một recap cho wedding. Trường: `id`, `weddingId` unique, `templateVersionId`, `slug?` mirror của `Wedding.slug` khi publish, `status`, `title`, `thankYouMessage?`, `ogTitle?`, `ogDescription?`, `ogImageUrl?`, `revision`, `publishedAt?`, timestamps. Active slug unique.
+Recap metadata, publication status and template-specific values are stored in
+`WeddingContent` where `surface = RECAP`. There is no `WeddingRecap` table and
+no dedicated columns for title, thank-you or SEO fields.
 
 ### `RecapMediaItem`
 
@@ -169,7 +178,7 @@ Wish được chọn: `id`, `recapId`, `wishId`, `sortOrder`. Cặp `(recapId, w
 
 ### `PublishedRecapSnapshot`
 
-Snapshot recap bất biến: `id`, `recapId`, `templateVersionId`, `version`, `slug`, `payload` JSON, `payloadHash`, `publishedAt`, `unpublishedAt?`. `(recapId, version)` unique; live slug unique; payload bỏ guest/contact/moderation metadata.
+Snapshot recap bất biến: `id`, `contentId`, `templateVersionId`, `version`, `payload` JSON, `payloadHash`, `publishedAt`, `unpublishedAt?`. `(contentId, version)` unique; public lookup dùng `Wedding.slug`; payload bỏ guest/contact/moderation metadata.
 
 ## Notification, audit và reliability
 
@@ -208,4 +217,4 @@ PostgreSQL bảo vệ type, FK, unique, range và các check cục bộ. Các in
 
 ## Seed local
 
-`backend/prisma/seed.mjs` tạo dữ liệu giả idempotent: một user, wedding, owner membership, event, canonical content, theme, template/version và website draft. Seed không có password thật, token raw hoặc PII thật.
+`backend/prisma/seed.mjs` tạo dữ liệu giả idempotent: một user, wedding, owner membership, event, surface-scoped content, template/version và website draft. Seed không có password thật, token raw hoặc PII thật.

@@ -1950,63 +1950,6 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
-  /weddings/{weddingId}/recap/publish:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
-    post:
-      operationId: publishWeddingRecap
-      summary: Publish an immutable recap snapshot
-      security: [{ cookieAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/Origin'
-        - $ref: '#/components/parameters/CsrfProtection'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PublishRecapRequest' }
-      responses:
-        '201': { description: Published recap snapshot }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /weddings/{weddingId}/recap/unpublish:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }]
-    post:
-      operationId: unpublishWeddingRecap
-      summary: Unpublish the current recap snapshot
-      security: [{ cookieAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/Origin'
-        - $ref: '#/components/parameters/CsrfProtection'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/UnpublishRecapRequest' }
-      responses:
-        '204': { description: Recap unpublished }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-  /slugs/recaps/{slug}/availability:
-    get:
-      operationId: checkRecapSlugAvailability
-      summary: Check global recap slug availability
-      security: [{ cookieAuth: [] }]
-      parameters:
-        - {
-            name: slug,
-            in: path,
-            required: true,
-            schema:
-              { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 },
-          }
-        - { name: weddingId, in: query, schema: { type: string, format: uuid } }
-      responses:
-        '200': { description: Availability result }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
   /public/recaps/{recapSlug}:
     get:
       operationId: getPublishedRecap
@@ -2085,7 +2028,11 @@ paths:
                 type: object,
                 additionalProperties: false,
                 required: [surface],
-                properties: { surface: { $ref: '#/components/schemas/WeddingSurface' } },
+                properties:
+                  {
+                    surface: { $ref: '#/components/schemas/WeddingSurface' },
+                    revision: { type: integer, minimum: 1 },
+                  },
               }
       responses:
         '204': { description: Surface unpublished }
@@ -3216,7 +3163,6 @@ components:
       required:
         [
           templateVersionId,
-          title,
           content,
           themeConfig,
           sectionConfig,
@@ -3226,11 +3172,6 @@ components:
         ]
       properties:
         templateVersionId: { type: string, format: uuid }
-        title: { type: string, minLength: 1, maxLength: 200 }
-        thankYouMessage: { type: [string, 'null'], maxLength: 10000 }
-        ogTitle: { type: [string, 'null'], maxLength: 200 }
-        ogDescription: { type: [string, 'null'], maxLength: 500 }
-        ogImageUrl: { type: [string, 'null'], format: uri, maxLength: 2048 }
         content: { type: object, additionalProperties: true }
         themeConfig: { type: object, additionalProperties: true }
         sectionConfig: { $ref: '#/components/schemas/RecapSectionConfig' }
@@ -3246,19 +3187,6 @@ components:
             maxItems: 200,
             items: { $ref: '#/components/schemas/RecapWishSelectionInput' },
           }
-        revision: { type: integer, minimum: 1 }
-    PublishRecapRequest:
-      type: object
-      additionalProperties: false
-      required: [slug, revision]
-      properties:
-        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 }
-        revision: { type: integer, minimum: 1 }
-    UnpublishRecapRequest:
-      type: object
-      additionalProperties: false
-      required: [revision]
-      properties:
         revision: { type: integer, minimum: 1 }
     SaveWeddingContentRequest:
       type: object
@@ -3280,10 +3208,9 @@ components:
     PublishWeddingRequest:
       type: object
       additionalProperties: false
-      required: [surface, slug, revision]
+      required: [surface, revision]
       properties:
         surface: { $ref: '#/components/schemas/WeddingSurface' }
-        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 }
         revision: { type: integer, minimum: 1 }
     PublicRsvpRequest:
       type: object

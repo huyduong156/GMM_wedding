@@ -36,6 +36,13 @@ enum WeddingStatus {
   ARCHIVED
 }
 
+enum ContentPublicationStatus {
+  DRAFT
+  PUBLISHED
+  SUSPENDED
+  ARCHIVED
+}
+
 enum WeddingVisibility {
   PUBLIC
   PASSWORD_PROTECTED
@@ -58,6 +65,7 @@ enum MembershipStatus {
 enum WeddingSurface {
   ONLINE_INVITATION
   WEDDING_WEBSITE
+  RECAP
 }
 
 enum TemplateProductType {
@@ -147,12 +155,6 @@ enum ReciprocityStatus {
   NOT_APPLICABLE
 }
 
-enum RecapStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
 enum NotificationChannel {
   IN_APP
   EMAIL
@@ -179,33 +181,33 @@ enum IdempotencyStatus {
 }
 
 model User {
-  id                String                   @id @default(uuid()) @db.Uuid
-  email             String                   @unique @db.VarChar(320)
-  emailVerifiedAt   DateTime?                @db.Timestamptz(3)
-  passwordHash      String?                  @db.VarChar(255)
-  displayName       String?                  @db.VarChar(120)
-  phone             String?                  @db.VarChar(32)
-  avatarUrl         String?                  @db.VarChar(2048)
-  locale            String                   @default("vi-VN") @db.VarChar(16)
-  timezone          String                   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
-  status            UserStatus               @default(PENDING_VERIFICATION)
-  platformRole      PlatformRole             @default(USER)
-  lastLoginAt       DateTime?                @db.Timestamptz(3)
-  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
-  deletedAt         DateTime?                @db.Timestamptz(3)
-  accounts          Account[]
-  sessions          Session[]
-  memberships       WeddingMember[]
-  createdWeddings   Wedding[]                @relation("WeddingCreator")
-  completedTasks    WeddingTask[]            @relation("TaskCompletedBy")
-  notifications     Notification[]
-  notificationPrefs NotificationPreference[]
-  auditLogs         AuditLog[]
-  ownedMusicTracks  MusicTrack[]          @relation("MusicTrackOwner")
-  uploadedMusicTracks MusicTrack[]         @relation("MusicTrackUploader")
-  roles             UserRole[]               @relation("UserRoles")
-  grantedRoles      UserRole[]               @relation("GrantedUserRoles")
+  id                  String                   @id @default(uuid()) @db.Uuid
+  email               String                   @unique @db.VarChar(320)
+  emailVerifiedAt     DateTime?                @db.Timestamptz(3)
+  passwordHash        String?                  @db.VarChar(255)
+  displayName         String?                  @db.VarChar(120)
+  phone               String?                  @db.VarChar(32)
+  avatarUrl           String?                  @db.VarChar(2048)
+  locale              String                   @default("vi-VN") @db.VarChar(16)
+  timezone            String                   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  status              UserStatus               @default(PENDING_VERIFICATION)
+  platformRole        PlatformRole             @default(USER)
+  lastLoginAt         DateTime?                @db.Timestamptz(3)
+  createdAt           DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime                 @updatedAt @db.Timestamptz(3)
+  deletedAt           DateTime?                @db.Timestamptz(3)
+  accounts            Account[]
+  sessions            Session[]
+  memberships         WeddingMember[]
+  createdWeddings     Wedding[]                @relation("WeddingCreator")
+  completedTasks      WeddingTask[]            @relation("TaskCompletedBy")
+  notifications       Notification[]
+  notificationPrefs   NotificationPreference[]
+  auditLogs           AuditLog[]
+  ownedMusicTracks    MusicTrack[]             @relation("MusicTrackOwner")
+  uploadedMusicTracks MusicTrack[]             @relation("MusicTrackUploader")
+  roles               UserRole[]               @relation("UserRoles")
+  grantedRoles        UserRole[]               @relation("GrantedUserRoles")
 
   @@index([status, createdAt])
 }
@@ -294,10 +296,7 @@ model Wedding {
   createdBy          User                       @relation("WeddingCreator", fields: [createdById], references: [id], onDelete: Restrict)
   members            WeddingMember[]
   events             WeddingEvent[]
-  content            WeddingContent?
-  themes             WeddingTheme[]
-  website            WeddingWebsite?
-  invitationDesign   InvitationDesign?
+  content            WeddingContent[]
   snapshots          PublishedWeddingSnapshot[]
   mediaAssets        MediaAsset[]
   guestCategories    GuestCategory[]
@@ -308,12 +307,11 @@ model Wedding {
   wishes             Wish[]
   tasks              WeddingTask[]
   giftLedgerEntries  GiftLedgerEntry[]
-  recap              WeddingRecap?
   auditLogs          AuditLog[]
 
+  @@unique([slug])
   @@index([createdById, status])
   @@index([status, primaryDate])
-  @@unique([slug])
 }
 
 model WeddingMember {
@@ -363,59 +361,27 @@ model WeddingEvent {
 }
 
 model WeddingContent {
-  id            String   @id @default(uuid()) @db.Uuid
-  weddingId     String   @unique @db.Uuid
-  schemaVersion Int      @default(1)
-  content       Json
-  revision      Int      @default(1)
-  createdAt     DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
-  wedding       Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-}
-
-model WeddingTheme {
-  id            String         @id @default(uuid()) @db.Uuid
-  weddingId     String         @db.Uuid
-  surface       WeddingSurface
-  configVersion Int            @default(1)
-  themeConfig   Json
-  sectionConfig Json
-  revision      Int            @default(1)
-  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
-  wedding       Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  id                String                   @id @default(uuid()) @db.Uuid
+  weddingId         String                   @db.Uuid
+  surface           WeddingSurface
+  templateVersionId String?                  @db.Uuid
+  schemaVersion     Int                      @default(1)
+  content           Json
+  themeConfig       Json                     @default("{}")
+  sectionConfig     Json                     @default("{}")
+  status            ContentPublicationStatus @default(DRAFT)
+  publishedAt       DateTime?                @db.Timestamptz(3)
+  revision          Int                      @default(1)
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
+  wedding           Wedding                  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  templateVersion   TemplateVersion?         @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
+  mediaItems        RecapMediaItem[]
+  wishSelections    RecapWishSelection[]
+  snapshots         PublishedRecapSnapshot[]
 
   @@unique([weddingId, surface])
-}
-
-model WeddingWebsite {
-  id                String           @id @default(uuid()) @db.Uuid
-  weddingId         String           @unique @db.Uuid
-  templateVersionId String?          @db.Uuid
-  slug              String?          @db.VarChar(64)
-  isPublished       Boolean          @default(false)
-  revision          Int              @default(1)
-  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
-  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion   TemplateVersion? @relation("WebsiteTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
-
-  @@unique([slug])
-}
-
-model InvitationDesign {
-  id                String           @id @default(uuid()) @db.Uuid
-  weddingId         String           @unique @db.Uuid
-  templateVersionId String?          @db.Uuid
-  slug              String?          @db.VarChar(64)
-  isPublished       Boolean          @default(false)
-  revision          Int              @default(1)
-  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
-  wedding           Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion   TemplateVersion? @relation("InvitationTemplateVersion", fields: [templateVersionId], references: [id], onDelete: Restrict)
-
-  @@unique([slug])
+  @@index([templateVersionId])
 }
 
 model Template {
@@ -445,10 +411,8 @@ model TemplateVersion {
   deprecatedAt          DateTime?                  @db.Timestamptz(3)
   createdAt             DateTime                   @default(now()) @db.Timestamptz(3)
   template              Template                   @relation(fields: [templateId], references: [id], onDelete: Restrict)
-  websiteSelections     WeddingWebsite[]           @relation("WebsiteTemplateVersion")
-  invitationSelections  InvitationDesign[]         @relation("InvitationTemplateVersion")
+  contentSelections     WeddingContent[]
   weddingSnapshots      PublishedWeddingSnapshot[]
-  recaps                WeddingRecap[]
   recapSnapshots        PublishedRecapSnapshot[]
 
   @@unique([templateId, version])
@@ -591,9 +555,9 @@ model Invitation {
   rsvpResponse RsvpResponse?
   wishes       Wish[]
 
+  @@unique([weddingId, publicSlug])
   @@index([weddingId, status])
   @@index([guestId])
-  @@unique([weddingId, publicSlug])
 }
 
 model RsvpResponse {
@@ -746,59 +710,34 @@ model GiftLedgerEntry {
   @@index([weddingId, reciprocityStatus, receivedAt])
 }
 
-model WeddingRecap {
-  id                String                   @id @default(uuid()) @db.Uuid
-  weddingId         String                   @unique @db.Uuid
-  templateVersionId String                   @db.Uuid
-  slug              String?                  @db.VarChar(64)
-  status            RecapStatus              @default(DRAFT)
-  title             String                   @db.VarChar(200)
-  content           Json
-  themeConfig       Json
-  sectionConfig     Json
-  thankYouMessage   String?                  @db.Text
-  ogTitle           String?                  @db.VarChar(200)
-  ogDescription     String?                  @db.VarChar(500)
-  ogImageUrl        String?                  @db.VarChar(2048)
-  revision          Int                      @default(1)
-  publishedAt       DateTime?                @db.Timestamptz(3)
-  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
-  wedding           Wedding                  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  templateVersion   TemplateVersion          @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
-  mediaItems        RecapMediaItem[]
-  wishSelections    RecapWishSelection[]
-  snapshots         PublishedRecapSnapshot[]
-}
-
 model RecapMediaItem {
-  id           String       @id @default(uuid()) @db.Uuid
-  recapId      String       @db.Uuid
-  mediaAssetId String       @db.Uuid
-  caption      String?      @db.VarChar(500)
-  sortOrder    Int          @default(0)
-  recap        WeddingRecap @relation(fields: [recapId], references: [id], onDelete: Cascade)
-  mediaAsset   MediaAsset   @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
+  id           String         @id @default(uuid()) @db.Uuid
+  contentId    String         @db.Uuid
+  mediaAssetId String         @db.Uuid
+  caption      String?        @db.VarChar(500)
+  sortOrder    Int            @default(0)
+  content      WeddingContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  mediaAsset   MediaAsset     @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
 
-  @@unique([recapId, mediaAssetId])
-  @@index([recapId, sortOrder])
+  @@unique([contentId, mediaAssetId])
+  @@index([contentId, sortOrder])
 }
 
 model RecapWishSelection {
-  id        String       @id @default(uuid()) @db.Uuid
-  recapId   String       @db.Uuid
-  wishId    String       @db.Uuid
-  sortOrder Int          @default(0)
-  recap     WeddingRecap @relation(fields: [recapId], references: [id], onDelete: Cascade)
-  wish      Wish         @relation(fields: [wishId], references: [id], onDelete: Restrict)
+  id        String         @id @default(uuid()) @db.Uuid
+  contentId String         @db.Uuid
+  wishId    String         @db.Uuid
+  sortOrder Int            @default(0)
+  content   WeddingContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  wish      Wish           @relation(fields: [wishId], references: [id], onDelete: Restrict)
 
-  @@unique([recapId, wishId])
-  @@index([recapId, sortOrder])
+  @@unique([contentId, wishId])
+  @@index([contentId, sortOrder])
 }
 
 model PublishedRecapSnapshot {
   id                String          @id @default(uuid()) @db.Uuid
-  recapId           String          @db.Uuid
+  contentId         String          @db.Uuid
   templateVersionId String          @db.Uuid
   version           Int
   slug              String          @db.VarChar(64)
@@ -806,10 +745,10 @@ model PublishedRecapSnapshot {
   payloadHash       String          @db.VarChar(128)
   publishedAt       DateTime        @default(now()) @db.Timestamptz(3)
   unpublishedAt     DateTime?       @db.Timestamptz(3)
-  recap             WeddingRecap    @relation(fields: [recapId], references: [id], onDelete: Restrict)
+  content           WeddingContent  @relation(fields: [contentId], references: [id], onDelete: Restrict)
   templateVersion   TemplateVersion @relation(fields: [templateVersionId], references: [id], onDelete: Restrict)
 
-  @@unique([recapId, version])
+  @@unique([contentId, version])
   @@index([slug, unpublishedAt])
 }
 
@@ -913,27 +852,27 @@ enum MusicTrackStatus {
 }
 
 model MusicTrack {
-  id               String            @id @default(uuid()) @db.Uuid
-  ownerUserId      String?           @db.Uuid
-  createdById      String            @db.Uuid
-  scope            MusicTrackScope   @default(SYSTEM)
-  status           MusicTrackStatus  @default(DRAFT)
-  displayName      String            @db.VarChar(160)
-  artistName       String?           @db.VarChar(160)
+  id               String           @id @default(uuid()) @db.Uuid
+  ownerUserId      String?          @db.Uuid
+  createdById      String           @db.Uuid
+  scope            MusicTrackScope  @default(SYSTEM)
+  status           MusicTrackStatus @default(DRAFT)
+  displayName      String           @db.VarChar(160)
+  artistName       String?          @db.VarChar(160)
   durationSeconds  Int?
-  mimeType         String            @db.VarChar(128)
+  mimeType         String           @db.VarChar(128)
   sizeBytes        BigInt
-  storageKey       String            @unique @db.VarChar(512)
-  licenseType      String?           @db.VarChar(80)
-  licenseReference String?           @db.VarChar(500)
-  creditText       String?           @db.VarChar(500)
-  sortOrder        Int               @default(0)
-  revision         Int               @default(1)
-  retiredAt        DateTime?         @db.Timestamptz(3)
-  createdAt        DateTime          @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime          @updatedAt @db.Timestamptz(3)
-  owner            User?             @relation("MusicTrackOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
-  createdBy        User              @relation("MusicTrackUploader", fields: [createdById], references: [id], onDelete: Restrict)
+  storageKey       String           @unique @db.VarChar(512)
+  licenseType      String?          @db.VarChar(80)
+  licenseReference String?          @db.VarChar(500)
+  creditText       String?          @db.VarChar(500)
+  sortOrder        Int              @default(0)
+  revision         Int              @default(1)
+  retiredAt        DateTime?        @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  owner            User?            @relation("MusicTrackOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  createdBy        User             @relation("MusicTrackUploader", fields: [createdById], references: [id], onDelete: Restrict)
 
   @@index([scope, status, sortOrder])
   @@index([ownerUserId, status, createdAt])

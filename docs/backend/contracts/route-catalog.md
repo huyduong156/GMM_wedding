@@ -194,10 +194,7 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/link-guest` | Owner only | Implemented | Liên kết entry với Guest có sẵn |
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/unlink-guest` | Owner only | Implemented | Gỡ liên kết, giữ nguyên entry |
 | GET/PUT | `/weddings/{weddingId}/recap` | Recap policy | Implemented | Read/save recap draft with revision |
-| POST | `/weddings/{weddingId}/recap/publish` | Owner + CSRF | Implemented | Publish immutable recap snapshot |
-| POST | `/weddings/{weddingId}/recap/unpublish` | Owner + CSRF | Implemented | Unpublish recap |
 
-| GET | /slugs/recaps/{slug}/availability | Session | Implemented | Check recap slug availability |
 ## Public API
 
 | Method | Path | Auth | Trạng thái | Mục đích |

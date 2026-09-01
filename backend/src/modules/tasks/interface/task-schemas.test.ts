@@ -23,15 +23,15 @@ describe('task schemas', () => {
       'DONE',
     )
   })
-  it('accepts a root-task bulk payload and rejects parentTaskId', () => {
+  it('accepts a root-task bulk payload and strips unsupported parentTaskId', () => {
     expect(
       bulkCreateTaskSchema.parse({ tasks: [{ title: 'Đặt hoa', priority: 'MEDIUM' }] }).tasks,
     ).toHaveLength(1)
-    expect(() =>
+    expect(
       bulkCreateTaskSchema.parse({
         tasks: [{ title: 'Task con', parentTaskId: '11111111-1111-4111-8111-111111111111' }],
-      }),
-    ).toThrow()
+      }).tasks[0],
+    ).toEqual({ title: 'Task con', priority: 'MEDIUM' })
   })
   it('accepts applying a template to an event', () => {
     expect(

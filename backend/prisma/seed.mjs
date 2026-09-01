@@ -12,10 +12,8 @@ const ids = {
   member: '30000000-0000-4000-8000-000000000001',
   event: '40000000-0000-4000-8000-000000000001',
   content: '50000000-0000-4000-8000-000000000001',
-  theme: '60000000-0000-4000-8000-000000000001',
   template: '70000000-0000-4000-8000-000000000001',
   templateVersion: '80000000-0000-4000-8000-000000000001',
-  website: '90000000-0000-4000-8000-000000000001',
 }
 
 async function main() {
@@ -121,11 +119,21 @@ async function main() {
   })
 
   await prisma.weddingContent.upsert({
-    where: { weddingId: wedding.id },
+    where: {
+      weddingId_surface: { weddingId: wedding.id, surface: 'WEDDING_WEBSITE' },
+    },
     update: {},
     create: {
       id: ids.content,
       weddingId: wedding.id,
+      surface: 'WEDDING_WEBSITE',
+      templateVersionId: templateVersion.id,
+      themeConfig: { colorScheme: 'champagne' },
+      sectionConfig: {
+        enabled: ['hero', 'events', 'rsvp', 'wishes'],
+        order: ['hero', 'events', 'rsvp', 'wishes'],
+      },
+      status: 'DRAFT',
       content: {
         couple: { partnerOne: 'Minh', partnerTwo: 'An' },
         hero: { invitationText: 'Trân trọng kính mời' },
@@ -133,28 +141,6 @@ async function main() {
     },
   })
 
-  await prisma.weddingTheme.upsert({
-    where: { weddingId_surface: { weddingId: wedding.id, surface: 'WEDDING_WEBSITE' } },
-    update: {},
-    create: {
-      id: ids.theme,
-      weddingId: wedding.id,
-      surface: 'WEDDING_WEBSITE',
-      themeConfig: { colorScheme: 'champagne' },
-      sectionConfig: { order: ['hero', 'events', 'rsvp', 'wishes'] },
-    },
-  })
-
-  await prisma.weddingWebsite.upsert({
-    where: { weddingId: wedding.id },
-    update: {},
-    create: {
-      id: ids.website,
-      weddingId: wedding.id,
-      templateVersionId: templateVersion.id,
-      slug: 'dam-cuoi-mau-local',
-    },
-  })
   const wishSeed = [
     {
       authorName: 'Nguyễn Hoàng Nam',
@@ -349,19 +335,19 @@ async function seedTestFixtures({ prisma }) {
   })
   await upsert('weddingContent', 'a7000000-0000-4000-8000-000000000001', {
     weddingId: ids.wedding,
+    surface: 'WEDDING_WEBSITE',
+    templateVersionId: '80000000-0000-4000-8000-000000000001',
+    themeConfig: { colorScheme: 'champagne' },
+    sectionConfig: {
+      enabled: ['hero', 'events', 'rsvp', 'wishes'],
+      order: ['hero', 'events', 'rsvp', 'wishes'],
+    },
     content: {
       couple: { partnerOne: 'Minh', partnerTwo: 'An' },
       hero: { invitationText: 'Trân trọng kính mời' },
       families: { bride: 'Gia đình cô dâu', groom: 'Gia đình chú rể' },
     },
   })
-  await upsert('weddingTheme', 'a8000000-0000-4000-8000-000000000001', {
-    weddingId: ids.wedding,
-    surface: 'WEDDING_WEBSITE',
-    themeConfig: { colorScheme: 'champagne' },
-    sectionConfig: { order: ['hero', 'events', 'rsvp', 'wishes'] },
-  })
-
   await upsert('guestCategory', ids.categoryFamily, {
     weddingId: ids.wedding,
     name: 'Gia đình',

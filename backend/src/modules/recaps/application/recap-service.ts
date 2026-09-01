@@ -19,13 +19,7 @@ export class RecapError extends Error {
 export type RecapView = {
   id: string
   weddingId: string
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-  slug: string | null
-  title: string
-  thankYouMessage: string | null
-  ogTitle: string | null
-  ogDescription: string | null
-  ogImageUrl: string | null
+  status: 'DRAFT' | 'PUBLISHED' | 'SUSPENDED' | 'ARCHIVED'
   content: unknown
   themeConfig: unknown
   sectionConfig: { enabled: string[]; order: string[] }
@@ -67,7 +61,7 @@ const recapInclude = {
   templateVersion: { include: { template: true } },
   mediaItems: { include: { mediaAsset: true }, orderBy: { sortOrder: 'asc' as const } },
   wishSelections: { include: { wish: true }, orderBy: { sortOrder: 'asc' as const } },
-} satisfies Prisma.WeddingRecapInclude
+} satisfies Prisma.WeddingContentInclude
 
 function sectionKey(item: unknown) {
   if (typeof item === 'string') return item
@@ -124,8 +118,8 @@ export class RecapService {
       select: { id: true },
     })
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
-    const recap = await this.prisma.weddingRecap.findUnique({
-      where: { weddingId },
+    const recap = await this.prisma.weddingContent.findUnique({
+      where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
       include: recapInclude,
     })
     return recap ? this.view(recap) : null
@@ -152,8 +146,8 @@ export class RecapService {
       mediaItems: input.mediaItems.map((item) => ({ ...item, caption: item.caption ?? null })),
       wishSelections: input.wishSelections,
     })
-    const current = await this.prisma.weddingRecap.findUnique({
-      where: { weddingId },
+    const current = await this.prisma.weddingContent.findUnique({
+      where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
       select: { id: true, revision: true },
     })
     if (current && current.revision !== input.revision)
@@ -170,35 +164,36 @@ export class RecapService {
       )
     try {
       await this.prisma.$transaction(async (tx) => {
-        const data = {
+        const nextRevision = input.revision + 1
+        const storedRevision = current ? nextRevision : 1
+        const recapData = {
+          surface: 'RECAP' as const,
           templateVersionId: template.id,
-          title: input.title,
-          thankYouMessage: input.thankYouMessage ?? null,
-          ogTitle: input.ogTitle ?? null,
-          ogDescription: input.ogDescription ?? null,
-          ogImageUrl: input.ogImageUrl ?? null,
+          schemaVersion: template.contentSchemaVersion,
           content: input.content as Prisma.InputJsonValue,
           themeConfig: input.themeConfig as Prisma.InputJsonValue,
           sectionConfig: sectionConfig as Prisma.InputJsonValue,
           status: 'DRAFT' as const,
-          ...(current ? { revision: { increment: 1 } } : {}),
+          revision: storedRevision,
         }
         if (current) {
-          const result = await tx.weddingRecap.updateMany({
-            where: { weddingId, revision: input.revision },
-            data,
+          const result = await tx.weddingContent.updateMany({
+            where: { id: current.id, surface: 'RECAP', revision: input.revision },
+            data: recapData,
           })
           if (result.count !== 1) throw new RecapRevisionConflictError()
         } else {
-          await tx.weddingRecap.create({ data: { weddingId, ...data, revision: 1 } })
+          await tx.weddingContent.create({
+            data: { weddingId, ...recapData },
+          })
         }
         await tx.recapMediaItem.deleteMany({
           where: {
-            recapId:
+            contentId:
               current?.id ??
               (
-                await tx.weddingRecap.findUniqueOrThrow({
-                  where: { weddingId },
+                await tx.weddingContent.findUniqueOrThrow({
+                  where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
                   select: { id: true },
                 })
               ).id,
@@ -206,22 +201,26 @@ export class RecapService {
         })
         const recapId =
           current?.id ??
-          (await tx.weddingRecap.findUniqueOrThrow({ where: { weddingId }, select: { id: true } }))
-            .id
+          (
+            await tx.weddingContent.findUniqueOrThrow({
+              where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
+              select: { id: true },
+            })
+          ).id
         if (refs.media.length)
           await tx.recapMediaItem.createMany({
             data: refs.media.map((item) => ({
-              recapId,
+              contentId: recapId,
               mediaAssetId: item.mediaAssetId,
               caption: item.caption ?? null,
               sortOrder: item.sortOrder,
             })),
           })
-        await tx.recapWishSelection.deleteMany({ where: { recapId } })
+        await tx.recapWishSelection.deleteMany({ where: { contentId: recapId } })
         if (refs.wishes.length)
           await tx.recapWishSelection.createMany({
             data: refs.wishes.map((item) => ({
-              recapId,
+              contentId: recapId,
               wishId: item.wishId,
               sortOrder: item.sortOrder,
             })),
@@ -253,8 +252,8 @@ export class RecapService {
     if (!owned.slug)
       throw new RecapError('WEDDING_SLUG_MISSING', 400, 'Wedding public slug is not configured')
     const slug = owned.slug
-    const recap = await this.prisma.weddingRecap.findUnique({
-      where: { weddingId },
+    const recap = await this.prisma.weddingContent.findUnique({
+      where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
       include: recapInclude,
     })
     if (!recap) throw new RecapError('RECAP_NOT_FOUND', 404, 'Wedding recap not found')
@@ -264,6 +263,8 @@ export class RecapService {
         409,
         'Wedding recap was changed by another request',
       )
+    if (!recap.templateVersionId)
+      throw new RecapError('RECAP_TEMPLATE_NOT_FOUND', 404, 'Recap template is not configured')
     const template = await this.template(recap.templateVersionId)
     const sectionConfig = normalizeSectionConfig(
       template.config,
@@ -283,9 +284,6 @@ export class RecapService {
     const payload = {
       surface: 'RECAP',
       template: { key: template.template.key, version: template.version, config: template.config },
-      title: recap.title,
-      thankYouMessage: recap.thankYouMessage,
-      seo: { title: recap.ogTitle, description: recap.ogDescription, imageUrl: recap.ogImageUrl },
       content: recap.content,
       theme: { themeConfig: recap.themeConfig, sectionConfig },
       mediaItems: refs.media.map((item) => {
@@ -312,36 +310,33 @@ export class RecapService {
     }
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
     const live = await this.prisma.publishedRecapSnapshot.findFirst({
-      where: { recapId: recap.id, unpublishedAt: null },
+      where: { contentId: recap.id, unpublishedAt: null },
       include: { templateVersion: { include: { template: true } } },
       orderBy: { version: 'desc' },
     })
     if (live?.slug === slug && live.payloadHash === payloadHash) return this.snapshotView(live)
-    const slugConflict = await this.slugTaken(slug, weddingId)
-    if (slugConflict) throw new RecapError('RECAP_SLUG_TAKEN', 409, 'Recap slug is already in use')
     try {
       const created = await this.prisma.$transaction(async (tx) => {
-        const claimed = await tx.weddingRecap.updateMany({
-          where: { id: recap.id, revision: input.revision },
+        const claimed = await tx.weddingContent.updateMany({
+          where: { id: recap.id, surface: 'RECAP', revision: input.revision },
           data: {
             status: 'PUBLISHED',
-            slug: slug,
             publishedAt: new Date(),
             revision: { increment: 1 },
           },
         })
         if (claimed.count !== 1) throw new RecapRevisionConflictError()
         await tx.publishedRecapSnapshot.updateMany({
-          where: { recapId: recap.id, unpublishedAt: null },
+          where: { contentId: recap.id, unpublishedAt: null },
           data: { unpublishedAt: new Date() },
         })
         const previous = await tx.publishedRecapSnapshot.aggregate({
-          where: { recapId: recap.id },
+          where: { contentId: recap.id },
           _max: { version: true },
         })
         const snapshot = await tx.publishedRecapSnapshot.create({
           data: {
-            recapId: recap.id,
+            contentId: recap.id,
             templateVersionId: template.id,
             version: (previous._max.version ?? 0) + 1,
             slug: slug,
@@ -365,7 +360,11 @@ export class RecapService {
           'Wedding recap was changed by another request',
         )
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')
-        throw new RecapError('RECAP_SLUG_TAKEN', 409, 'Recap slug is already in use')
+        throw new RecapError(
+          'RECAP_REVISION_CONFLICT',
+          409,
+          'Wedding recap was changed by another request',
+        )
       throw error
     }
   }
@@ -378,27 +377,27 @@ export class RecapService {
         })
       : null
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
-    const recap = await this.prisma.weddingRecap.findUnique({
-      where: { weddingId },
+    const recap = await this.prisma.weddingContent.findUnique({
+      where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
       select: { id: true, revision: true },
     })
     if (!recap) throw new RecapError('RECAP_NOT_FOUND', 404, 'Wedding recap not found')
     try {
       await this.prisma.$transaction(async (tx) => {
-        const updated = await tx.weddingRecap.updateMany({
-          where: { id: recap.id, revision },
-          data: { status: 'DRAFT', slug: null, publishedAt: null, revision: { increment: 1 } },
+        const updated = await tx.weddingContent.updateMany({
+          where: { id: recap.id, surface: 'RECAP', revision },
+          data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
         })
         if (updated.count !== 1) throw new RecapRevisionConflictError()
         await tx.publishedRecapSnapshot.updateMany({
-          where: { recapId: recap.id, unpublishedAt: null },
+          where: { contentId: recap.id, unpublishedAt: null },
           data: { unpublishedAt: new Date() },
         })
         const liveWedding = await tx.publishedWeddingSnapshot.count({
           where: { weddingId, unpublishedAt: null },
         })
         const liveRecap = await tx.publishedRecapSnapshot.count({
-          where: { recapId: recap.id, unpublishedAt: null },
+          where: { contentId: recap.id, unpublishedAt: null },
         })
         if (liveWedding === 0 && liveRecap === 0)
           await tx.wedding.update({
@@ -421,25 +420,13 @@ export class RecapService {
     const row = await this.prisma.publishedRecapSnapshot.findFirst({
       where: {
         unpublishedAt: null,
-        recap: { wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } },
+        content: { wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } },
       },
       include: { templateVersion: { include: { template: true } } },
       orderBy: { version: 'desc' },
     })
     if (!row) throw new RecapError('RECAP_PUBLIC_NOT_FOUND', 404, 'Published recap not found')
     return this.snapshotView(row)
-  }
-
-  async slugAvailable(userId: string, slug: string, weddingId?: string) {
-    const owned = weddingId
-      ? await this.prisma.wedding.findFirst({
-          where: { id: weddingId, createdById: userId, deletedAt: null },
-          select: { id: true },
-        })
-      : null
-    if (weddingId && !owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 64) return false
-    return !(await this.slugTaken(slug, weddingId))
   }
 
   private async template(templateVersionId: string) {
@@ -512,35 +499,14 @@ export class RecapService {
     }
   }
 
-  private async slugTaken(slug: string, weddingId?: string) {
-    const [weddingSnapshot, recapSnapshot] = await Promise.all([
-      this.prisma.publishedWeddingSnapshot.findFirst({
-        where: { slug, unpublishedAt: null, ...(weddingId ? { NOT: { weddingId } } : {}) },
-        select: { id: true },
-      }),
-      this.prisma.publishedRecapSnapshot.findFirst({
-        where: {
-          slug,
-          unpublishedAt: null,
-          ...(weddingId ? { recap: { NOT: { weddingId } } } : {}),
-        },
-        select: { id: true },
-      }),
-    ])
-    return Boolean(weddingSnapshot || recapSnapshot)
-  }
-
-  private view(row: Prisma.WeddingRecapGetPayload<{ include: typeof recapInclude }>): RecapView {
+  private view(row: Prisma.WeddingContentGetPayload<{ include: typeof recapInclude }>): RecapView {
+    const template = row.templateVersion
+    if (!template)
+      throw new RecapError('RECAP_TEMPLATE_NOT_FOUND', 404, 'Recap template is not configured')
     return {
       id: row.id,
       weddingId: row.weddingId,
       status: row.status,
-      slug: row.slug,
-      title: row.title,
-      thankYouMessage: row.thankYouMessage,
-      ogTitle: row.ogTitle,
-      ogDescription: row.ogDescription,
-      ogImageUrl: row.ogImageUrl,
       content: row.content,
       themeConfig: row.themeConfig,
       sectionConfig: row.sectionConfig as { enabled: string[]; order: string[] },
@@ -548,10 +514,10 @@ export class RecapService {
       publishedAt: row.publishedAt,
       updatedAt: row.updatedAt,
       templateVersion: {
-        id: row.templateVersion.id,
-        key: row.templateVersion.template.key,
-        version: row.templateVersion.version,
-        config: row.templateVersion.config,
+        id: template.id,
+        key: template.template.key,
+        version: template.version,
+        config: template.config,
       },
       mediaItems: row.mediaItems.map((item) => ({
         id: item.id,
@@ -578,7 +544,7 @@ export class RecapService {
   ): PublishedRecapView {
     return {
       id: row.id,
-      recapId: row.recapId,
+      recapId: row.contentId,
       slug: row.slug,
       version: row.version,
       payload: row.payload,

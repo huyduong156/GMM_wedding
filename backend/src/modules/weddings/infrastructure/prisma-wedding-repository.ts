@@ -546,8 +546,8 @@ export class PrismaWeddingRepository implements WeddingRepository {
       companions,
       wishGroups,
       nextEventRow,
-      invitationDesign,
-      website,
+      invitationContent,
+      websiteContent,
       recap,
       invitationSnapshot,
       websiteSnapshot,
@@ -581,15 +581,18 @@ export class PrismaWeddingRepository implements WeddingRepository {
         select: eventSelect,
         orderBy: [{ startsAt: 'asc' }, { sortOrder: 'asc' }],
       }),
-      this.prisma.invitationDesign.findUnique({
-        where: { weddingId },
+      this.prisma.weddingContent.findUnique({
+        where: { weddingId_surface: { weddingId, surface: 'ONLINE_INVITATION' } },
         include: { templateVersion: { include: { template: true } } },
       }),
-      this.prisma.weddingWebsite.findUnique({
-        where: { weddingId },
+      this.prisma.weddingContent.findUnique({
+        where: { weddingId_surface: { weddingId, surface: 'WEDDING_WEBSITE' } },
         include: { templateVersion: { include: { template: true } } },
       }),
-      this.prisma.weddingRecap.findUnique({ where: { weddingId } }),
+      this.prisma.weddingContent.findUnique({
+        where: { weddingId_surface: { weddingId, surface: 'RECAP' } },
+        select: { status: true, templateVersionId: true },
+      }),
       this.prisma.publishedWeddingSnapshot.findFirst({
         where: { weddingId, surface: 'ONLINE_INVITATION', unpublishedAt: null },
         orderBy: { version: 'desc' },
@@ -645,25 +648,25 @@ export class PrismaWeddingRepository implements WeddingRepository {
       wedding,
       publication: {
         invitation: {
-          configured: Boolean(invitationDesign?.templateVersionId),
-          published: Boolean(invitationSnapshot),
-          slug: invitationSnapshot?.slug ?? null,
-          templateName: invitationDesign?.templateVersion?.template.name ?? null,
-          templateVersion: invitationDesign?.templateVersion?.version ?? null,
+          configured: Boolean(invitationContent?.templateVersionId),
+          published: Boolean(invitationContent?.status === 'PUBLISHED' && invitationSnapshot),
+          slug: invitationSnapshot?.slug ?? wedding.slug ?? null,
+          templateName: invitationContent?.templateVersion?.template.name ?? null,
+          templateVersion: invitationContent?.templateVersion?.version ?? null,
           views: null,
         },
         website: {
-          configured: Boolean(website?.templateVersionId),
-          published: Boolean(website?.isPublished && websiteSnapshot),
-          slug: websiteSnapshot?.slug ?? website?.slug ?? null,
-          templateName: website?.templateVersion?.template.name ?? null,
-          templateVersion: website?.templateVersion?.version ?? null,
+          configured: Boolean(websiteContent?.templateVersionId),
+          published: Boolean(websiteContent?.status === 'PUBLISHED' && websiteSnapshot),
+          slug: websiteSnapshot?.slug ?? wedding.slug ?? null,
+          templateName: websiteContent?.templateVersion?.template.name ?? null,
+          templateVersion: websiteContent?.templateVersion?.version ?? null,
           views: null,
         },
         recap: {
-          configured: Boolean(recap),
+          configured: Boolean(recap?.templateVersionId),
           published: recap?.status === 'PUBLISHED',
-          slug: recap?.slug ?? null,
+          slug: wedding.slug ?? null,
           views: null,
         },
       },
@@ -833,47 +836,43 @@ export class PrismaWeddingRepository implements WeddingRepository {
       select: { id: true },
     })
     if (!wedding) return null
-    const [content, theme, selection] = await Promise.all([
-      this.prisma.weddingContent.findUnique({ where: { weddingId } }),
-      this.prisma.weddingTheme.findUnique({ where: { weddingId_surface: { weddingId, surface } } }),
-      surface === 'ONLINE_INVITATION'
-        ? this.prisma.invitationDesign.findUnique({
-            where: { weddingId },
-            include: { templateVersion: { include: { template: true } } },
-          })
-        : this.prisma.weddingWebsite.findUnique({
-            where: { weddingId },
-            include: { templateVersion: { include: { template: true } } },
-          }),
-    ])
-    const effectiveConfig = selection?.templateVersion
+    const content = await this.prisma.weddingContent.findUnique({
+      where: { weddingId_surface: { weddingId, surface } },
+      include: { templateVersion: { include: { template: true } } },
+    })
+    const selectedTemplateVersion = content?.templateVersion
+    const effectiveConfig = selectedTemplateVersion
       ? effectiveTemplateConfig(
-          selection.templateVersion.template.key,
-          selection.templateVersion.config,
+          selectedTemplateVersion.template.key,
+          selectedTemplateVersion.config,
         )
       : null
     const templateVersion =
-      selection?.templateVersion && effectiveConfig
+      selectedTemplateVersion && effectiveConfig
         ? {
-            id: selection.templateVersion.id,
-            key: selection.templateVersion.template.key,
-            version: selection.templateVersion.version,
+            id: selectedTemplateVersion.id,
+            key: selectedTemplateVersion.template.key,
+            version: selectedTemplateVersion.version,
             config: effectiveConfig,
           }
         : null
     const rawSections =
       effectiveConfig && Array.isArray(effectiveConfig.sections) ? effectiveConfig.sections : []
+    const storedThemeConfig = content?.themeConfig
+    const storedSectionConfig = content?.sectionConfig
     const sectionConfig = rawSections.length
-      ? reconcileSectionConfig(rawSections, (theme?.sectionConfig ?? {}) as SectionConfig)
+      ? reconcileSectionConfig(rawSections, (storedSectionConfig ?? {}) as SectionConfig)
       : { enabled: [], order: [] }
     return {
       content: content?.content ?? {},
       schemaVersion: content?.schemaVersion ?? 1,
       revision: content?.revision ?? 1,
       surface,
-      themeConfig: theme?.themeConfig ?? {},
+      themeConfig: storedThemeConfig ?? {},
       sectionConfig: { enabled: sectionConfig.enabled, order: sectionConfig.order },
       templateVersion,
+      status: content?.status ?? 'DRAFT',
+      publishedAt: content?.publishedAt ?? null,
     }
   }
 
@@ -900,7 +899,11 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     if (!template || template.deprecatedAt) return 'template-not-found'
     const expectedProduct =
-      data.surface === 'ONLINE_INVITATION' ? 'ONLINE_INVITATION' : 'WEDDING_WEBSITE'
+      data.surface === 'ONLINE_INVITATION'
+        ? 'ONLINE_INVITATION'
+        : data.surface === 'WEDDING_WEBSITE'
+          ? 'WEDDING_WEBSITE'
+          : 'RECAP'
     if (template.template.productType !== expectedProduct) return 'template-incompatible'
     const config = effectiveTemplateConfig(template.template.key, template.config)
     const rawSections = config.sections
@@ -916,7 +919,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
     )
       return 'section-invalid'
     const currentContent = await this.prisma.weddingContent.findUnique({
-      where: { weddingId },
+      where: { weddingId_surface: { weddingId, surface: data.surface } },
       select: { revision: true },
     })
     if ((currentContent?.revision ?? 1) !== data.revision) return 'conflict'
@@ -925,10 +928,18 @@ export class PrismaWeddingRepository implements WeddingRepository {
         const nextRevision = data.revision + 1
         if (currentContent) {
           const claimed = await tx.weddingContent.updateMany({
-            where: { weddingId, revision: data.revision },
+            where: {
+              weddingId,
+              surface: data.surface,
+              revision: data.revision,
+            },
             data: {
+              templateVersionId: template.id,
               schemaVersion: template.contentSchemaVersion,
               content: data.content as Prisma.InputJsonValue,
+              themeConfig: data.themeConfig as Prisma.InputJsonValue,
+              sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue,
+              status: 'DRAFT',
               revision: nextRevision,
             },
           })
@@ -937,41 +948,17 @@ export class PrismaWeddingRepository implements WeddingRepository {
           await tx.weddingContent.create({
             data: {
               weddingId,
+              surface: data.surface,
+              templateVersionId: template.id,
               schemaVersion: template.contentSchemaVersion,
               content: data.content as Prisma.InputJsonValue,
+              themeConfig: data.themeConfig as Prisma.InputJsonValue,
+              sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue,
+              status: 'DRAFT',
               revision: nextRevision,
             },
           })
         }
-        await tx.weddingTheme.upsert({
-          where: { weddingId_surface: { weddingId, surface: data.surface } },
-          create: {
-            weddingId,
-            surface: data.surface,
-            configVersion: template.templateConfigVersion,
-            themeConfig: data.themeConfig as Prisma.InputJsonValue,
-            sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue,
-            revision: nextRevision,
-          },
-          update: {
-            configVersion: template.templateConfigVersion,
-            themeConfig: data.themeConfig as Prisma.InputJsonValue,
-            sectionConfig: normalizedSectionConfig as Prisma.InputJsonValue,
-            revision: nextRevision,
-          },
-        })
-        if (data.surface === 'ONLINE_INVITATION')
-          await tx.invitationDesign.upsert({
-            where: { weddingId },
-            create: { weddingId, templateVersionId: template.id, revision: nextRevision },
-            update: { templateVersionId: template.id, revision: nextRevision },
-          })
-        else
-          await tx.weddingWebsite.upsert({
-            where: { weddingId },
-            create: { weddingId, templateVersionId: template.id, revision: nextRevision },
-            update: { templateVersionId: template.id, revision: nextRevision },
-          })
       })
     } catch (error) {
       if (
@@ -991,24 +978,16 @@ export class PrismaWeddingRepository implements WeddingRepository {
   ): Promise<PublishedSnapshotView | 'not-ready' | 'slug-taken' | 'conflict' | null> {
     const wedding = await this.prisma.wedding.findFirst({
       where: this.ownedWhere(userId, weddingId),
-      select: { id: true, revision: true },
+      select: { id: true, revision: true, slug: true },
     })
     if (!wedding) return null
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug) || data.slug.length > 64) return 'slug-taken'
-    const [content, theme, selection, events, wishes] = await Promise.all([
-      this.prisma.weddingContent.findUnique({ where: { weddingId } }),
-      this.prisma.weddingTheme.findUnique({
+    const weddingSlug = wedding.slug
+    if (!weddingSlug) return 'not-ready'
+    const [content, events, wishes] = await Promise.all([
+      this.prisma.weddingContent.findUnique({
         where: { weddingId_surface: { weddingId, surface: data.surface } },
+        include: { templateVersion: { include: { template: true } } },
       }),
-      data.surface === 'ONLINE_INVITATION'
-        ? this.prisma.invitationDesign.findUnique({
-            where: { weddingId },
-            include: { templateVersion: { include: { template: true } } },
-          })
-        : this.prisma.weddingWebsite.findUnique({
-            where: { weddingId },
-            include: { templateVersion: { include: { template: true } } },
-          }),
       this.prisma.weddingEvent.findMany({
         where: { weddingId, deletedAt: null, isPublic: true },
         select: {
@@ -1034,17 +1013,14 @@ export class PrismaWeddingRepository implements WeddingRepository {
         take: 100,
       }),
     ])
-    if (!content || !theme || !selection?.templateVersion || selection.templateVersion.deprecatedAt)
-      return 'not-ready'
-    const config = effectiveTemplateConfig(
-      selection.templateVersion.template.key,
-      selection.templateVersion.config,
-    )
-    const sectionConfig = theme.sectionConfig as { enabled?: unknown; order?: unknown }
+    const templateVersion = content?.templateVersion
+    if (!content || !templateVersion || templateVersion.deprecatedAt) return 'not-ready'
+    const config = effectiveTemplateConfig(templateVersion.template.key, templateVersion.config)
+    const sectionConfig = content.sectionConfig as { enabled?: unknown; order?: unknown }
     const rawSections =
       Array.isArray(config.sections) && config.sections.length > 0
         ? config.sections
-        : (legacyTemplateSections[selection.templateVersion.template.key] ?? [])
+        : (legacyTemplateSections[templateVersion.template.key] ?? [])
     const normalizedSectionConfig = reconcileSectionConfig(rawSections, sectionConfig)
     const { enabled, order, supported, required } = normalizedSectionConfig
     if (
@@ -1057,7 +1033,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       [...required].some((key) => !enabled.includes(key))
     )
       return 'not-ready'
-    const mediaIds = [...collectMediaIds(content.content), ...collectMediaIds(theme.themeConfig)]
+    const mediaIds = [...collectMediaIds(content.content), ...collectMediaIds(content.themeConfig)]
     if (mediaIds.length > 0) {
       const readyCount = await this.prisma.mediaAsset.count({
         where: { id: { in: [...new Set(mediaIds)] }, weddingId, status: 'READY', deletedAt: null },
@@ -1067,12 +1043,12 @@ export class PrismaWeddingRepository implements WeddingRepository {
     const payload = {
       surface: data.surface,
       template: {
-        key: selection.templateVersion.template.key,
-        version: selection.templateVersion.version,
+        key: templateVersion.template.key,
+        version: templateVersion.version,
         config,
       },
       content: content.content,
-      theme: { themeConfig: theme.themeConfig, sectionConfig: { enabled, order } },
+      theme: { themeConfig: content.themeConfig, sectionConfig: { enabled, order } },
       events: events.map((event) => ({
         ...event,
         latitude: event.latitude?.toString() ?? null,
@@ -1086,22 +1062,18 @@ export class PrismaWeddingRepository implements WeddingRepository {
       include: { templateVersion: { include: { template: true } } },
       orderBy: { version: 'desc' },
     })
-    if (live?.slug === data.slug && live.payloadHash === payloadHash) return this.snapshotView(live)
-    if (wedding.revision !== data.revision) return 'conflict'
+    if (live?.payloadHash === payloadHash) return this.snapshotView(live)
+    if (content.revision !== data.revision) return 'conflict'
     try {
       const snapshot = await this.prisma.$transaction(async (tx) => {
-        const claimed = await tx.wedding.updateMany({
-          where: { ...this.ownedWhere(userId, weddingId), revision: data.revision },
+        const claimed = await tx.weddingContent.updateMany({
+          where: { id: content.id, surface: data.surface, revision: data.revision },
           data: { status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 } },
         })
         if (claimed.count !== 1) throw new WeddingPublishConflictError()
         await tx.publishedWeddingSnapshot.updateMany({
           where: { weddingId, surface: data.surface, unpublishedAt: null },
           data: { unpublishedAt: new Date() },
-        })
-        await tx.weddingTheme.update({
-          where: { weddingId_surface: { weddingId, surface: data.surface } },
-          data: { sectionConfig: { enabled, order } as Prisma.InputJsonValue },
         })
         const previous = await tx.publishedWeddingSnapshot.aggregate({
           where: { weddingId, surface: data.surface },
@@ -1110,30 +1082,28 @@ export class PrismaWeddingRepository implements WeddingRepository {
         const created = await tx.publishedWeddingSnapshot.create({
           data: {
             weddingId,
-            templateVersionId: selection.templateVersion!.id,
+            templateVersionId: templateVersion.id,
             version: (previous._max.version ?? 0) + 1,
             surface: data.surface,
-            slug: data.slug,
+            slug: weddingSlug,
             payload: payload as Prisma.InputJsonValue,
             payloadHash,
-            contentSchemaVersion: selection.templateVersion!.contentSchemaVersion,
-            rendererApiVersion: selection.templateVersion!.rendererApiVersion,
+            contentSchemaVersion: templateVersion.contentSchemaVersion,
+            rendererApiVersion: templateVersion.rendererApiVersion,
           },
           include: { templateVersion: { include: { template: true } } },
         })
-        if (data.surface === 'ONLINE_INVITATION')
-          await tx.invitationDesign.update({
-            where: { weddingId },
-            data: { slug: data.slug, isPublished: true, revision: { increment: 1 } },
-          })
-        else
-          await tx.weddingWebsite.update({
-            where: { weddingId },
-            data: { slug: data.slug, isPublished: true, revision: { increment: 1 } },
-          })
+        await tx.wedding.update({
+          where: { id: weddingId },
+          data: { status: 'PUBLISHED', publishedAt: new Date() },
+        })
         return created
       })
-      return this.snapshotView(snapshot)
+      return this.snapshotView(
+        snapshot as Prisma.PublishedWeddingSnapshotGetPayload<{
+          include: { templateVersion: { include: { template: true } } }
+        }>,
+      )
     } catch (error) {
       if (error instanceof WeddingPublishConflictError) return 'conflict'
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')
@@ -1157,16 +1127,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
         where: { weddingId, surface, unpublishedAt: null },
         data: { unpublishedAt: new Date() },
       })
-      if (surface === 'ONLINE_INVITATION')
-        await tx.invitationDesign.updateMany({
-          where: { weddingId },
-          data: { slug: null, isPublished: false, revision: { increment: 1 } },
-        })
-      else
-        await tx.weddingWebsite.updateMany({
-          where: { weddingId },
-          data: { slug: null, isPublished: false, revision: { increment: 1 } },
-        })
+      await tx.weddingContent.updateMany({
+        where: { weddingId, surface, status: 'PUBLISHED' },
+        data: { status: 'DRAFT', revision: { increment: 1 } },
+      })
       const otherLive = await tx.publishedWeddingSnapshot.count({
         where: { weddingId, surface: { not: surface }, unpublishedAt: null },
       })
@@ -1181,8 +1145,8 @@ export class PrismaWeddingRepository implements WeddingRepository {
 
   async slugAvailable(userId: string, slug: string, weddingId?: string): Promise<boolean> {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 64) return false
-    const row = await this.prisma.publishedWeddingSnapshot.findFirst({
-      where: { slug, unpublishedAt: null, ...(weddingId ? { NOT: { weddingId } } : {}) },
+    const row = await this.prisma.wedding.findFirst({
+      where: { slug, ...(weddingId ? { NOT: { id: weddingId } } : {}) },
       select: { id: true },
     })
     return !row

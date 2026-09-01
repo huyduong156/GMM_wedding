@@ -22,7 +22,7 @@ export const rsvpQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(50),
     cursor: z.string().max(512).optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => !value.from || !value.to || value.from <= value.to, {
     message: 'from must be before to',
     path: ['from'],
@@ -34,6 +34,6 @@ export const promoteRsvpSchema = z
     categoryId: uuid.optional(),
     groupId: uuid.optional(),
   })
-  .strict()
+  .strip()
 
-export const linkRsvpGuestSchema = z.object({ guestId: uuid }).strict()
+export const linkRsvpGuestSchema = z.object({ guestId: uuid }).strip()

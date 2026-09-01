@@ -21,7 +21,7 @@ export const taskQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).default(50),
     cursor: z.string().max(512).optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => !value.from || !value.to || value.from <= value.to, {
     message: 'from must be before to',
     path: ['from'],
@@ -34,7 +34,7 @@ const taskFields = {
   dueAt: dateTime.optional(),
   priority: priority.default('MEDIUM'),
 }
-export const createTaskSchema = z.object(taskFields).strict()
+export const createTaskSchema = z.object(taskFields).strip()
 export const updateTaskSchema = z
   .object({
     title: taskFields.title.optional(),
@@ -46,7 +46,7 @@ export const updateTaskSchema = z
     status: status.optional(),
     revision: z.number().int().positive(),
   })
-  .strict()
+  .strip()
   .refine(
     (value) => Object.keys(value).some((key) => key !== 'revision'),
     'At least one editable field is required',
@@ -59,7 +59,7 @@ export const reorderTaskSchema = z
       .max(200)
       .refine((ids) => new Set(ids).size === ids.length, 'Task IDs must be unique'),
   })
-  .strict()
+  .strip()
 export const bulkTaskStatusSchema = z
   .object({
     taskIds: z
@@ -69,10 +69,10 @@ export const bulkTaskStatusSchema = z
       .refine((ids) => new Set(ids).size === ids.length, 'Task IDs must be unique'),
     status,
   })
-  .strict()
+  .strip()
 export const templateQuerySchema = z
   .object({ locale: z.string().trim().min(2).max(16).optional() })
-  .strict()
+  .strip()
 export const applyTemplateSchema = z
   .object({
     templateKey: z.string().trim().min(1).max(80),
@@ -80,7 +80,7 @@ export const applyTemplateSchema = z
     eventId: uuid.nullable().optional(),
     baseDate: dateTime.optional(),
   })
-  .strict()
+  .strip()
 export const bulkCreateTaskSchema = z
   .object({
     tasks: z
@@ -93,9 +93,9 @@ export const bulkCreateTaskSchema = z
             dueAt: taskFields.dueAt,
             priority: taskFields.priority,
           })
-          .strict(),
+          .strip(),
       )
       .min(1)
       .max(100),
   })
-  .strict()
+  .strip()

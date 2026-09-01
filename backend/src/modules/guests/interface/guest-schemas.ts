@@ -20,10 +20,10 @@ const guestFields = {
   maxPartySize: z.number().int().min(1).max(50).default(1),
   tags: z.array(z.string().trim().min(1).max(48)).max(30).default([]),
 }
-export const createGuestSchema = z.object(guestFields).strict()
+export const createGuestSchema = z.object(guestFields).strip()
 export const updateGuestSchema = z
   .object({ ...guestFields, displayName: guestFields.displayName.optional() })
-  .strict()
+  .strip()
   .refine((v) => Object.keys(v).length > 0, 'At least one field is required')
 export const categorySchema = z
   .object({
@@ -31,24 +31,24 @@ export const categorySchema = z
     parentId: z.union([uuid, z.null()]).optional(),
     sortOrder: z.number().int().min(0).default(0),
   })
-  .strict()
+  .strip()
 export const updateCategorySchema = z
   .object({
     name: z.string().trim().min(1).max(120).optional(),
     parentId: z.union([uuid, z.null()]).optional(),
     sortOrder: z.number().int().min(0).optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => Object.keys(value).length > 0, 'At least one field is required')
 export const groupSchema = z
   .object({ name: z.string().trim().min(1).max(120), note: z.string().trim().max(2000).optional() })
-  .strict()
+  .strip()
 export const updateGroupSchema = z
   .object({
     name: z.string().trim().min(1).max(120).optional(),
     note: z.string().trim().max(2000).nullable().optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => Object.keys(value).length > 0, 'At least one field is required')
 export const invitationSchema = z
   .object({
@@ -61,7 +61,7 @@ export const invitationSchema = z
       .transform((v) => new Date(v))
       .optional(),
   })
-  .strict()
+  .strip()
 export const invitationQuerySchema = z.object({
   guestId: uuid.optional(),
   status: z.enum(['ACTIVE', 'REVOKED']).optional(),
@@ -79,7 +79,7 @@ export const updateInvitationSchema = z
       .nullable()
       .optional(),
   })
-  .strict()
+  .strip()
   .refine((value) => Object.keys(value).length > 0, 'At least one field is required')
 export const bulkDeleteSchema = z
   .object({
@@ -89,7 +89,7 @@ export const bulkDeleteSchema = z
       .max(200)
       .refine((ids) => new Set(ids).size === ids.length, 'IDs must be unique'),
   })
-  .strict()
+  .strip()
 export const bulkAssignCategorySchema = z
   .object({
     guestIds: z
@@ -99,7 +99,7 @@ export const bulkAssignCategorySchema = z
       .refine((ids) => new Set(ids).size === ids.length, 'Guest IDs must be unique'),
     categoryId: uuid.nullable(),
   })
-  .strict()
+  .strip()
 export const guestImportRowSchema = z
   .object({
     displayName: z.string().trim().min(1).max(160),
@@ -112,7 +112,7 @@ export const guestImportRowSchema = z
     maxPartySize: z.number().int().min(1).max(50).optional(),
     tags: z.array(z.string().trim().min(1).max(48)).max(30).optional(),
   })
-  .strict()
+  .strip()
 export const guestImportSchema = z
   .object({ rows: z.array(guestImportRowSchema).min(1).max(5000) })
-  .strict()
+  .strip()

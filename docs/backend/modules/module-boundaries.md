@@ -9,7 +9,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 | Module | Trách nhiệm | Dữ liệu sở hữu chính | Phụ thuộc được phép |
 |---|---|---|---|
 | `identity` | User, account, session, verification | User/Account/Session | platform email/audit |
-| `weddings` | Wedding lifecycle, membership, event, canonical content | Wedding/Member/Event/Content/Theme | identity, audit |
+| `weddings` | Wedding lifecycle, membership, event and surface-scoped content | Wedding/Member/Event/WeddingContent | identity, audit |
 | `templates` | Template registry, immutable versions, compatibility | Template/TemplateVersion | media, weddings contract |
 | `publications` | Publish/unpublish, snapshot, public lookup | PublishedWeddingSnapshot | weddings, templates, media |
 | `guests` | Guest/category/group/import/export | Guest/Category/Group | weddings |
@@ -20,7 +20,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 | `music` | Catalog nhạc nền dùng chung, license và lifecycle | MusicTrack | media, platform-admin policy, publications contract |
 | `tasks` | Wedding planning task/checklist | WeddingTask/ChecklistTemplate | weddings membership |
 | `gift-ledger` | Private owner-only gift record | GiftLedgerEntry | weddings, optional guest reference |
-| `recaps` | Recap draft/selection/publish lifecycle | WeddingRecap/selection/snapshot | weddings, media, wishes, templates |
+| `recaps` | Recap lifecycle, selection and publish on the RECAP content surface | WeddingContent/selection/snapshot | weddings, media, wishes, templates |
 | `notifications` | Preference và delivery intent | Notification/Preference | domain events, platform email |
 | `audit` | Security/business audit trail | AuditLog | actor/resource references |
 | `platform-admin` | Platform moderation/operations policy | admin-specific state | explicit module APIs only |
@@ -31,7 +31,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 - `gift-ledger` không export read model cho analytics, search, notification hoặc platform admin.
 - `publications` đọc canonical content qua contract và sinh DTO public; không expose draft ORM object.
 - `music` sở hữu catalog/permission phân phối; bytes thuộc storage qua `media`, còn `publications` chỉ resolve track hợp lệ khi tạo snapshot.
-- `recaps` tham chiếu media/wish hợp lệ nhưng sở hữu lifecycle publish riêng.
+- `recaps` xử lý RECAP `WeddingContent`, media/wish selections và recap snapshots; không sở hữu bảng recap riêng.
 - `notifications` nhận event sau commit; failure không rollback transaction nghiệp vụ.
 - Circular dependency phải được giải bằng event, shared value contract hoặc điều chỉnh ownership—không dùng dynamic import để che cycle.
 

@@ -260,7 +260,7 @@ export interface WeddingRepository {
   ): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null>
 }
 
-export type WeddingSurfaceValue = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'
+export type WeddingSurfaceValue = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
 export interface TemplateView {
   key: string
   name: string
@@ -287,6 +287,8 @@ export interface WeddingContentView {
   themeConfig: unknown
   sectionConfig: unknown
   templateVersion: { id: string; key: string; version: string; config: unknown } | null
+  status: 'DRAFT' | 'PUBLISHED' | 'SUSPENDED' | 'ARCHIVED'
+  publishedAt: Date | null
 }
 export interface SaveWeddingContentData {
   surface: WeddingSurfaceValue
@@ -298,7 +300,6 @@ export interface SaveWeddingContentData {
 }
 export interface PublishWeddingData {
   surface: WeddingSurfaceValue
-  slug: string
   revision: number
 }
 export interface PublishedSnapshotView {

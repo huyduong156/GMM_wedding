@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import {
   linkWishGuestSchema,
+  publishWeddingSchema,
   promoteWishSchema,
   saveWeddingContentSchema,
+  unpublishWeddingSchema,
   wishQuerySchema,
 } from './wedding-schemas'
 
@@ -31,6 +33,26 @@ describe('saveWeddingContentSchema', () => {
       revision: 1,
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('publication schemas', () => {
+  it('strips legacy publish fields while preserving the surface and content revision', () => {
+    expect(
+      publishWeddingSchema.parse({
+        surface: 'ONLINE_INVITATION',
+        revision: 1,
+        slug: 'legacy-slug',
+      }),
+    ).toEqual({ surface: 'ONLINE_INVITATION', revision: 1 })
+  })
+
+  it('requires a revision when unpublishing a recap', () => {
+    expect(unpublishWeddingSchema.safeParse({ surface: 'RECAP' }).success).toBe(false)
+    expect(unpublishWeddingSchema.parse({ surface: 'RECAP', revision: 2, legacy: true })).toEqual({
+      surface: 'RECAP',
+      revision: 2,
+    })
   })
 })
 

@@ -68,7 +68,9 @@ export class TemplateAdminService {
           orderBy: { createdAt: 'desc' },
           include: {
             _count: {
-              select: { invitationSelections: true, websiteSelections: true, recaps: true },
+              select: {
+                contentSelections: true,
+              },
             },
           },
         },
@@ -108,12 +110,7 @@ export class TemplateAdminService {
             ...version,
             reviewStatus: reviewStatus(version),
             compatibility: templateCompatibility(version),
-            usageCount:
-              template.productType === 'ONLINE_INVITATION'
-                ? version._count.invitationSelections
-                : template.productType === 'WEDDING_WEBSITE'
-                  ? version._count.websiteSelections
-                  : version._count.recaps,
+            usageCount: version._count.contentSelections,
             recentAudit: auditByVersion.get(version.id) ?? [],
           }))
           .filter(
