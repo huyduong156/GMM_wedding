@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
-import { linkWishGuestSchema, promoteWishSchema, saveWeddingContentSchema, wishQuerySchema } from './wedding-schemas'
+import {
+  linkWishGuestSchema,
+  publishWeddingSchema,
+  promoteWishSchema,
+  saveWeddingContentSchema,
+  unpublishWeddingSchema,
+  wishQuerySchema,
+} from './wedding-schemas'
 
 describe('saveWeddingContentSchema', () => {
   it('accepts the editor content contract', () => {
     const result = saveWeddingContentSchema.parse({
       surface: 'ONLINE_INVITATION',
       templateVersionId: '11111111-1111-4111-8111-111111111111',
-      content: {}, themeConfig: { palette: 'sage', typography: { display: 'Fraunces' } },
+      content: {},
+      themeConfig: { palette: 'sage', typography: { display: 'Fraunces' } },
       sectionConfig: { enabled: ['hero', 'rsvp'], order: ['hero', 'rsvp'] },
       revision: 1,
     })
@@ -19,7 +27,8 @@ describe('saveWeddingContentSchema', () => {
     const result = saveWeddingContentSchema.safeParse({
       surface: 'ONLINE_INVITATION',
       templateVersionId: '11111111-1111-4111-8111-111111111111',
-      content: {}, themeConfig: 'sage',
+      content: {},
+      themeConfig: 'sage',
       sectionConfig: { enabled: ['hero'], order: ['hero'] },
       revision: 1,
     })
@@ -27,15 +36,44 @@ describe('saveWeddingContentSchema', () => {
   })
 })
 
+describe('publication schemas', () => {
+  it('strips legacy publish fields while preserving the surface and content revision', () => {
+    expect(
+      publishWeddingSchema.parse({
+        surface: 'ONLINE_INVITATION',
+        revision: 1,
+        slug: 'legacy-slug',
+      }),
+    ).toEqual({ surface: 'ONLINE_INVITATION', revision: 1 })
+  })
+
+  it('requires a revision when unpublishing a recap', () => {
+    expect(unpublishWeddingSchema.safeParse({ surface: 'RECAP' }).success).toBe(false)
+    expect(unpublishWeddingSchema.parse({ surface: 'RECAP', revision: 2, legacy: true })).toEqual({
+      surface: 'RECAP',
+      revision: 2,
+    })
+  })
+})
+
 describe('wish schemas', () => {
   it('normalizes owner wish filters and validates the date range', () => {
-    const result = wishQuerySchema.parse({ status: 'PENDING', q: '  hoa  ', from: '2026-08-01T00:00:00.000Z', to: '2026-08-02T00:00:00.000Z' })
+    const result = wishQuerySchema.parse({
+      status: 'PENDING',
+      q: '  hoa  ',
+      from: '2026-08-01T00:00:00.000Z',
+      to: '2026-08-02T00:00:00.000Z',
+    })
     expect(result).toMatchObject({ status: 'PENDING', q: 'hoa', limit: 50 })
     expect(result.from).toBeInstanceOf(Date)
   })
 
   it('accepts guest-link actions', () => {
-    expect(promoteWishSchema.parse({ displayName: 'Nguyen Van A' })).toEqual({ displayName: 'Nguyen Van A' })
-    expect(linkWishGuestSchema.parse({ guestId: '11111111-1111-4111-8111-111111111111' }).guestId).toBeTruthy()
+    expect(promoteWishSchema.parse({ displayName: 'Nguyen Van A' })).toEqual({
+      displayName: 'Nguyen Van A',
+    })
+    expect(
+      linkWishGuestSchema.parse({ guestId: '11111111-1111-4111-8111-111111111111' }).guestId,
+    ).toBeTruthy()
   })
 })

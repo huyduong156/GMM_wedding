@@ -19,3 +19,4 @@ Quyết định mới nhất: [0011 - Owner-private Wedding data boundary](./001
 
 - [ADR 0010: Template source lifecycle và preview access](./0010-template-source-lifecycle-and-preview-access.md)
 - [ADR 0011: Owner-private Wedding data boundary](./0011-owner-private-wedding-data-boundary.md)
+- [ADR 0012: Surface-scoped template content](./0012-surface-scoped-template-content.md)

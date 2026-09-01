@@ -3,12 +3,23 @@ import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
 import { getServerEnv } from '@/platform/config/env'
-import { apiError, completeHttpRequest, getRequestId, withApiHeaders, type ApiErrorBody } from '@/shared/http/api-response'
+import {
+  apiError,
+  completeHttpRequest,
+  getRequestId,
+  withApiHeaders,
+  type ApiErrorBody,
+} from '@/shared/http/api-response'
 export { withApiHeaders }
 
 function allowedOrigins() {
   const env = getServerEnv()
-  const origins = new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+  const origins = new Set(
+    (env.APP_ORIGINS ?? env.APP_ORIGIN)
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  )
   if (env.APP_ENV === 'local' || env.APP_ENV === 'test') {
     for (const port of [5173, 8080, 4173]) {
       origins.add(`http://localhost:${port}`)
@@ -26,22 +37,32 @@ export function clientIp(request: Request): string {
   return request.headers.get('x-real-ip') ?? 'unknown'
 }
 
-export function assertSafeMutation(request: Request, options?: { contentTypes?: readonly string[] }) {
+export function assertSafeMutation(
+  request: Request,
+  options?: { contentTypes?: readonly string[] },
+) {
   const origin = request.headers.get('origin')
   const fetchSite = request.headers.get('sec-fetch-site')
   const contentType = request.headers.get('content-type')?.split(';')[0]?.trim()
   const allowedContentTypes = options?.contentTypes ?? ['application/json']
   if (
-    !allowedOrigins().has(origin ?? '')
-    || fetchSite === 'cross-site'
-    || request.headers.get('x-csrf-protection') !== '1'
-    || !allowedContentTypes.includes(contentType ?? '')
+    !allowedOrigins().has(origin ?? '') ||
+    fetchSite === 'cross-site' ||
+    request.headers.get('x-csrf-protection') !== '1' ||
+    !allowedContentTypes.includes(contentType ?? '')
   ) {
-    throw new AuthError('REQUEST_ORIGIN_REJECTED', 403, 'Request origin or content type was rejected')
+    throw new AuthError(
+      'REQUEST_ORIGIN_REJECTED',
+      403,
+      'Request origin or content type was rejected',
+    )
   }
 }
 
-export async function parseJson<T>(request: Request, schema: ZodType<T, ZodTypeDef, unknown>): Promise<T> {
+export async function parseJson<T>(
+  request: Request,
+  schema: ZodType<T, ZodTypeDef, unknown>,
+): Promise<T> {
   let body: unknown
   try {
     body = await request.json()
@@ -61,13 +82,21 @@ export function authErrorResponse(error: unknown, requestId: string): NextRespon
     if (error.retryAfter) response.headers.set('retry-after', String(error.retryAfter))
     return response
   }
-  return apiError(requestId, 'INTERNAL_ERROR', 'An unexpected error occurred', 500, undefined, error)
+  return apiError(
+    requestId,
+    'INTERNAL_ERROR',
+    'An unexpected error occurred',
+    500,
+    undefined,
+    error,
+  )
 }
 
 export function optionsResponse(request?: Request) {
   const env = getServerEnv()
   const requestOrigin = request?.headers.get('origin')
-  const origin = requestOrigin && allowedOrigins().has(requestOrigin) ? requestOrigin : env.APP_ORIGIN
+  const origin =
+    requestOrigin && allowedOrigins().has(requestOrigin) ? requestOrigin : env.APP_ORIGIN
   const requestId = request ? getRequestId(request) : undefined
   const response = new Response(null, {
     status: 204,

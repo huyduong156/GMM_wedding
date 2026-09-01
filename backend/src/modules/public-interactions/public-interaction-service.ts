@@ -2,32 +2,210 @@ import { createHash, randomBytes } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
 import { GuestError } from '@/modules/guests/domain/guest-error'
 
-export type RsvpInput = { guestName?: string | undefined; attendance: 'ATTENDING' | 'DECLINED' | 'MAYBE'; partySize: number; mealPreference?: string | undefined; specialRequest?: string | undefined; message?: string | undefined }
+export type RsvpInput = {
+  guestName?: string | undefined
+  attendance: 'ATTENDING' | 'DECLINED' | 'MAYBE'
+  partySize: number
+  mealPreference?: string | undefined
+  specialRequest?: string | undefined
+  message?: string | undefined
+}
 export type WishInput = { guestName?: string | undefined; content: string }
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')
 const newTokenHash = () => hash(randomBytes(32).toString('base64url'))
 export class PublicInteractionService {
   constructor(private readonly prisma: PrismaClient) {}
   private async publishedWedding(slug: string, requirePublic = true) {
-    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { surface: 'ONLINE_INVITATION', unpublishedAt: null, wedding: { slug, status: 'PUBLISHED', deletedAt: null, ...(requirePublic ? { visibility: 'PUBLIC' as const } : {}) } }, select: { wedding: { select: { id: true } } } })
-    if (!snapshot) throw new GuestError('PUBLIC_WEDDING_NOT_FOUND', 404, 'Published wedding not found')
+    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({
+      where: {
+        surface: 'ONLINE_INVITATION',
+        unpublishedAt: null,
+        wedding: {
+          slug,
+          status: 'PUBLISHED',
+          deletedAt: null,
+          ...(requirePublic ? { visibility: 'PUBLIC' as const } : {}),
+        },
+      },
+      select: { wedding: { select: { id: true } } },
+    })
+    if (!snapshot)
+      throw new GuestError('PUBLIC_WEDDING_NOT_FOUND', 404, 'Published wedding not found')
     return { id: snapshot.wedding.id, slug }
   }
-  async approvedWishes(weddingSlug: string) { const wedding = await this.publishedWedding(weddingSlug, false); return { wishes: await this.prisma.wish.findMany({ where: { weddingId: wedding.id, status: 'APPROVED', deletedAt: null }, select: { id: true, authorName: true, content: true, submittedAt: true, isPinned: true }, orderBy: [{ isPinned: 'desc' }, { submittedAt: 'desc' }], take: 100 }) } }
-  private async personalInvitation(weddingSlug: string, guestSlug: string) { const wedding = await this.publishedWedding(weddingSlug, false); const invitation = await this.prisma.invitation.findFirst({ where: { weddingId: wedding.id, publicSlug: guestSlug, status: 'ACTIVE' }, select: { id: true, guestId: true, maxPartySize: true, expiresAt: true } }); if (!invitation || (invitation.expiresAt && invitation.expiresAt <= new Date())) throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found'); return { wedding, invitation } }
-  async resolveToken(token: string) {
-    const invitation = await this.prisma.invitation.findFirst({ where: { tokenHash: hash(token), status: 'ACTIVE', OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] }, include: { wedding: { select: { id: true, slug: true, status: true, deletedAt: true } }, guest: { select: { displayName: true, maxPartySize: true } }, rsvpResponse: { select: { attendance: true, partySize: true, mealPreference: true, specialRequest: true, message: true } } } })
-    if (!invitation || invitation.wedding.status !== 'PUBLISHED' || invitation.wedding.deletedAt) throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found')
-    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { weddingId: invitation.weddingId, surface: 'ONLINE_INVITATION', unpublishedAt: null }, orderBy: { version: 'desc' }, select: { payload: true, version: true, slug: true } })
-    if (!snapshot) throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found')
-    await this.prisma.invitation.update({ where: { id: invitation.id }, data: { lastViewedAt: new Date() } })
-    return { invitation: { id: invitation.id, guestName: invitation.guest?.displayName ?? invitation.label, maxPartySize: invitation.maxPartySize, rsvp: invitation.rsvpResponse }, snapshot }
+  async approvedWishes(weddingSlug: string) {
+    const wedding = await this.publishedWedding(weddingSlug, false)
+    return {
+      wishes: await this.prisma.wish.findMany({
+        where: { weddingId: wedding.id, status: 'APPROVED', deletedAt: null },
+        select: { id: true, authorName: true, content: true, submittedAt: true, isPinned: true },
+        orderBy: [{ isPinned: 'desc' }, { submittedAt: 'desc' }],
+        take: 100,
+      }),
+    }
   }
-  private async anonymousInvitation(weddingSlug: string, guestName: string) { const wedding = await this.publishedWedding(weddingSlug, false); return this.prisma.invitation.create({ data: { weddingId: wedding.id, label: guestName, tokenHash: newTokenHash(), maxPartySize: 50 }, select: { id: true, maxPartySize: true } }) }
-  async submitRsvp(weddingSlug: string, input: RsvpInput) { if (!input.guestName) throw new GuestError('GUEST_NAME_REQUIRED', 400, 'Guest name is required for the common invitation URL'); const invitation = await this.anonymousInvitation(weddingSlug, input.guestName); return this.saveRsvp(invitation.id, input) }
-  async submitPersonalRsvp(weddingSlug: string, guestSlug: string, input: RsvpInput) { const { invitation } = await this.personalInvitation(weddingSlug, guestSlug); return this.saveRsvp(invitation.id, input) }
-  async submitTokenRsvp(token: string, input: RsvpInput) { const resolved = await this.resolveToken(token); return this.saveRsvp(resolved.invitation.id, input) }
-  private async saveRsvp(invitationId: string, input: RsvpInput) { const invitation = await this.prisma.invitation.findUniqueOrThrow({ where: { id: invitationId }, select: { weddingId: true, maxPartySize: true } }); if (input.partySize < 1 || input.partySize > invitation.maxPartySize) throw new GuestError('RSVP_PARTY_SIZE_INVALID', 400, `Party size must be between 1 and ${invitation.maxPartySize}`); const optional = { ...(input.mealPreference !== undefined ? { mealPreference: input.mealPreference } : {}), ...(input.specialRequest !== undefined ? { specialRequest: input.specialRequest } : {}), ...(input.message !== undefined ? { message: input.message } : {}) }; const response = await this.prisma.rsvpResponse.upsert({ where: { invitationId }, create: { weddingId: invitation.weddingId, invitationId, attendance: input.attendance, partySize: input.partySize, ...optional }, update: { attendance: input.attendance, partySize: input.partySize, ...optional, revision: { increment: 1 } }, select: { id: true, invitationId: true, attendance: true, partySize: true, updatedAt: true } }); return { rsvp: response } }
-  async submitWish(weddingSlug: string, input: WishInput) { if (!input.guestName) throw new GuestError('GUEST_NAME_REQUIRED', 400, 'Guest name is required for the common invitation URL'); const invitation = await this.anonymousInvitation(weddingSlug, input.guestName); return { wish: await this.prisma.wish.create({ data: { weddingId: (await this.prisma.invitation.findUniqueOrThrow({ where: { id: invitation.id }, select: { weddingId: true } })).weddingId, invitationId: invitation.id, authorName: input.guestName, content: input.content }, select: { id: true, authorName: true, content: true, status: true, submittedAt: true } }) } }
-  async submitPersonalWish(weddingSlug: string, guestSlug: string, input: WishInput) { const { wedding, invitation } = await this.personalInvitation(weddingSlug, guestSlug); const guest = invitation.guestId ? await this.prisma.guest.findUnique({ where: { id: invitation.guestId }, select: { displayName: true } }) : null; return { wish: await this.prisma.wish.create({ data: { weddingId: wedding.id, invitationId: invitation.id, guestId: invitation.guestId, authorName: guest?.displayName ?? 'Khách mời', content: input.content }, select: { id: true, authorName: true, content: true, status: true, submittedAt: true } }) } }
+  private async personalInvitation(weddingSlug: string, guestSlug: string) {
+    const wedding = await this.publishedWedding(weddingSlug, false)
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { weddingId: wedding.id, publicSlug: guestSlug, status: 'ACTIVE' },
+      select: { id: true, guestId: true, maxPartySize: true, expiresAt: true },
+    })
+    if (!invitation || (invitation.expiresAt && invitation.expiresAt <= new Date()))
+      throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found')
+    return { wedding, invitation }
+  }
+  async resolveToken(token: string) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: {
+        tokenHash: hash(token),
+        status: 'ACTIVE',
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      include: {
+        wedding: { select: { id: true, slug: true, status: true, deletedAt: true } },
+        guest: { select: { displayName: true, maxPartySize: true } },
+        rsvpResponse: {
+          select: {
+            attendance: true,
+            partySize: true,
+            mealPreference: true,
+            specialRequest: true,
+            message: true,
+          },
+        },
+      },
+    })
+    if (!invitation || invitation.wedding.status !== 'PUBLISHED' || invitation.wedding.deletedAt)
+      throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found')
+    const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({
+      where: { weddingId: invitation.weddingId, surface: 'ONLINE_INVITATION', unpublishedAt: null },
+      orderBy: { version: 'desc' },
+      select: { payload: true, version: true, slug: true },
+    })
+    if (!snapshot) throw new GuestError('PUBLIC_INVITATION_NOT_FOUND', 404, 'Invitation not found')
+    await this.prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { lastViewedAt: new Date() },
+    })
+    return {
+      invitation: {
+        id: invitation.id,
+        guestName: invitation.guest?.displayName ?? invitation.label,
+        maxPartySize: invitation.maxPartySize,
+        rsvp: invitation.rsvpResponse,
+      },
+      snapshot,
+    }
+  }
+  private async anonymousInvitation(weddingSlug: string, guestName: string) {
+    const wedding = await this.publishedWedding(weddingSlug, false)
+    return this.prisma.invitation.create({
+      data: {
+        weddingId: wedding.id,
+        label: guestName,
+        tokenHash: newTokenHash(),
+        maxPartySize: 50,
+      },
+      select: { id: true, maxPartySize: true },
+    })
+  }
+  async submitRsvp(weddingSlug: string, input: RsvpInput) {
+    if (!input.guestName)
+      throw new GuestError(
+        'GUEST_NAME_REQUIRED',
+        400,
+        'Guest name is required for the common invitation URL',
+      )
+    const invitation = await this.anonymousInvitation(weddingSlug, input.guestName)
+    return this.saveRsvp(invitation.id, input)
+  }
+  async submitPersonalRsvp(weddingSlug: string, guestSlug: string, input: RsvpInput) {
+    const { invitation } = await this.personalInvitation(weddingSlug, guestSlug)
+    return this.saveRsvp(invitation.id, input)
+  }
+  async submitTokenRsvp(token: string, input: RsvpInput) {
+    const resolved = await this.resolveToken(token)
+    return this.saveRsvp(resolved.invitation.id, input)
+  }
+  private async saveRsvp(invitationId: string, input: RsvpInput) {
+    const invitation = await this.prisma.invitation.findUniqueOrThrow({
+      where: { id: invitationId },
+      select: { weddingId: true, maxPartySize: true },
+    })
+    if (input.partySize < 1 || input.partySize > invitation.maxPartySize)
+      throw new GuestError(
+        'RSVP_PARTY_SIZE_INVALID',
+        400,
+        `Party size must be between 1 and ${invitation.maxPartySize}`,
+      )
+    const optional = {
+      ...(input.mealPreference !== undefined ? { mealPreference: input.mealPreference } : {}),
+      ...(input.specialRequest !== undefined ? { specialRequest: input.specialRequest } : {}),
+      ...(input.message !== undefined ? { message: input.message } : {}),
+    }
+    const response = await this.prisma.rsvpResponse.upsert({
+      where: { invitationId },
+      create: {
+        weddingId: invitation.weddingId,
+        invitationId,
+        attendance: input.attendance,
+        partySize: input.partySize,
+        ...optional,
+      },
+      update: {
+        attendance: input.attendance,
+        partySize: input.partySize,
+        ...optional,
+        revision: { increment: 1 },
+      },
+      select: { id: true, invitationId: true, attendance: true, partySize: true, updatedAt: true },
+    })
+    return { rsvp: response }
+  }
+  async submitWish(weddingSlug: string, input: WishInput) {
+    if (!input.guestName)
+      throw new GuestError(
+        'GUEST_NAME_REQUIRED',
+        400,
+        'Guest name is required for the common invitation URL',
+      )
+    const invitation = await this.anonymousInvitation(weddingSlug, input.guestName)
+    return {
+      wish: await this.prisma.wish.create({
+        data: {
+          weddingId: (
+            await this.prisma.invitation.findUniqueOrThrow({
+              where: { id: invitation.id },
+              select: { weddingId: true },
+            })
+          ).weddingId,
+          invitationId: invitation.id,
+          authorName: input.guestName,
+          content: input.content,
+        },
+        select: { id: true, authorName: true, content: true, status: true, submittedAt: true },
+      }),
+    }
+  }
+  async submitPersonalWish(weddingSlug: string, guestSlug: string, input: WishInput) {
+    const { wedding, invitation } = await this.personalInvitation(weddingSlug, guestSlug)
+    const guest = invitation.guestId
+      ? await this.prisma.guest.findUnique({
+          where: { id: invitation.guestId },
+          select: { displayName: true },
+        })
+      : null
+    return {
+      wish: await this.prisma.wish.create({
+        data: {
+          weddingId: wedding.id,
+          invitationId: invitation.id,
+          guestId: invitation.guestId,
+          authorName: guest?.displayName ?? 'Khách mời',
+          content: input.content,
+        },
+        select: { id: true, authorName: true, content: true, status: true, submittedAt: true },
+      }),
+    }
+  }
 }

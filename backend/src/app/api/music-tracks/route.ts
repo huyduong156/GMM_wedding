@@ -12,6 +12,11 @@ export async function GET(request: NextRequest) {
   try {
     const { actor } = await requireAuthenticatedUser(request)
     const input = musicListSchema.parse({ q: request.nextUrl.searchParams.get('q') ?? undefined })
-    return withApiHeaders(jsonResponse(await getMusicService().listForUser(actor.userId, input)), requestId)
-  } catch (error) { return musicErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse(await getMusicService().listForUser(actor.userId, input)),
+      requestId,
+    )
+  } catch (error) {
+    return musicErrorResponse(error, requestId)
+  }
 }

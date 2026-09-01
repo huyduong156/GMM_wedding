@@ -1,6 +1,14 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  parseJson,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
+import { getRecapService } from '@/modules/recaps'
+import { RecapError } from '@/modules/recaps/application/recap-service'
+import { recapErrorResponse } from '@/modules/recaps/interface/recap-http'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
 import { publishWeddingSchema, weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
@@ -15,6 +23,25 @@ export async function POST(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, publishWeddingSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
-    return withApiHeaders(jsonResponse({ snapshot: await getWeddingService().publish(actor, weddingId, input) }, { status: 201 }), requestId)
-  } catch (error) { return weddingErrorResponse(error, requestId) }
+    if (input.surface === 'RECAP') {
+      return withApiHeaders(
+        jsonResponse(
+          { snapshot: await getRecapService().publish(actor.userId, weddingId, input) },
+          { status: 201 },
+        ),
+        requestId,
+      )
+    }
+    return withApiHeaders(
+      jsonResponse(
+        { snapshot: await getWeddingService().publish(actor, weddingId, input) },
+        { status: 201 },
+      ),
+      requestId,
+    )
+  } catch (error) {
+    return error instanceof RecapError
+      ? recapErrorResponse(error, requestId)
+      : weddingErrorResponse(error, requestId)
+  }
 }

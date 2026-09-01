@@ -20,8 +20,12 @@ function createPrismaClient() {
         ],
   })
 
-  client.$on('warn', (event) => log('warn', 'Prisma warning', { message: event.message, target: event.target }))
-  client.$on('error', (event) => log('error', 'Prisma error', { message: event.message, target: event.target }))
+  client.$on('warn', (event) =>
+    log('warn', 'Prisma warning', { message: event.message, target: event.target }),
+  )
+  client.$on('error', (event) =>
+    log('error', 'Prisma error', { message: event.message, target: event.target }),
+  )
   if (queryLogging) {
     client.$on('query', (event) => {
       logDatabaseQuery({

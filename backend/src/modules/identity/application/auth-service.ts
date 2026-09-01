@@ -93,7 +93,11 @@ export class AuthService {
     await this.limit('verify-ip', ip, 20, 60 * 60)
     const verified = await this.repository.verifyEmail(hashOpaqueToken(token), new Date())
     if (!verified) {
-      throw new AuthError('INVALID_VERIFICATION_TOKEN', 400, 'Verification token is invalid or expired')
+      throw new AuthError(
+        'INVALID_VERIFICATION_TOKEN',
+        400,
+        'Verification token is invalid or expired',
+      )
     }
   }
 
@@ -104,7 +108,8 @@ export class AuthService {
       this.limit('resend-verification-email', email, 3, 60 * 60),
     ])
     const user = await this.repository.findUserByEmail(email)
-    if (!user?.passwordHash || user.status !== 'PENDING_VERIFICATION' || user.emailVerifiedAt) return
+    if (!user?.passwordHash || user.status !== 'PENDING_VERIFICATION' || user.emailVerifiedAt)
+      return
 
     const token = createOpaqueToken()
     const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS)
@@ -153,9 +158,17 @@ export class AuthService {
   async resetPassword(token: string, password: string, ip: string) {
     await this.limit('reset-password-ip', ip, 10, 60 * 60)
     const passwordHash = await this.passwordHasher.hash(password)
-    const reset = await this.repository.resetPassword(hashOpaqueToken(token), passwordHash, new Date())
+    const reset = await this.repository.resetPassword(
+      hashOpaqueToken(token),
+      passwordHash,
+      new Date(),
+    )
     if (!reset) {
-      throw new AuthError('INVALID_PASSWORD_RESET_TOKEN', 400, 'Password reset token is invalid or expired')
+      throw new AuthError(
+        'INVALID_PASSWORD_RESET_TOKEN',
+        400,
+        'Password reset token is invalid or expired',
+      )
     }
   }
 
@@ -184,10 +197,17 @@ export class AuthService {
       throw new AuthError('ACCOUNT_SUSPENDED', 403, 'Account is not active')
     }
     if (requiredRole && !user.roles.includes(requiredRole)) {
-      throw new AuthError('ADMIN_ACCESS_REQUIRED', 403, 'This account cannot access the administration portal')
+      throw new AuthError(
+        'ADMIN_ACCESS_REQUIRED',
+        403,
+        'This account cannot access the administration portal',
+      )
     }
     if (this.passwordHasher.needsRehash(user.passwordHash)) {
-      await this.repository.updatePasswordHash(user.id, await this.passwordHasher.hash(input.password))
+      await this.repository.updatePasswordHash(
+        user.id,
+        await this.passwordHasher.hash(input.password),
+      )
     }
 
     const token = createOpaqueToken()
@@ -209,7 +229,12 @@ export class AuthService {
     const idleExpiresAt = session
       ? session.lastSeenAt.getTime() + SESSION_IDLE_TTL_SECONDS * 1_000
       : 0
-    if (!session || session.revokedAt || session.expiresAt <= now || idleExpiresAt <= now.getTime()) {
+    if (
+      !session ||
+      session.revokedAt ||
+      session.expiresAt <= now ||
+      idleExpiresAt <= now.getTime()
+    ) {
       throw new AuthError('SESSION_EXPIRED', 401, 'Session is invalid or expired')
     }
     if (session.user.status !== 'ACTIVE') {
@@ -223,7 +248,16 @@ export class AuthService {
     return { sessionId: session.id, user: publicUser(session.user) }
   }
 
-  async updateProfile(userId: string, data: { displayName?: string | null | undefined; phone?: string | null | undefined; avatarUrl?: string | null | undefined; locale?: string | undefined; timezone?: string | undefined }) {
+  async updateProfile(
+    userId: string,
+    data: {
+      displayName?: string | null | undefined
+      phone?: string | null | undefined
+      avatarUrl?: string | null | undefined
+      locale?: string | undefined
+      timezone?: string | undefined
+    },
+  ) {
     const user = await this.repository.updateProfile(userId, data)
     if (!user) throw new AuthError('AUTHENTICATION_REQUIRED', 401, 'Authentication is required')
     return publicUser(user)

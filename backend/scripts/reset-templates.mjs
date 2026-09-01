@@ -12,28 +12,19 @@ async function main() {
   const result = await prisma.$transaction(async (tx) => {
     const publishedWeddingSnapshots = await tx.publishedWeddingSnapshot.deleteMany()
     const publishedRecapSnapshots = await tx.publishedRecapSnapshot.deleteMany()
-    const recaps = await tx.weddingRecap.deleteMany()
-    const websites = await tx.weddingWebsite.updateMany({
+    const contents = await tx.weddingContent.updateMany({
       where: { templateVersionId: { not: null } },
-      data: { templateVersionId: null, isPublished: false, slug: null },
+      data: { templateVersionId: null, status: 'DRAFT', publishedAt: null },
     })
-    const invitations = await tx.invitationDesign.updateMany({
-      where: { templateVersionId: { not: null } },
-      data: { templateVersionId: null, isPublished: false, slug: null },
-    })
-    const themes = await tx.weddingTheme.deleteMany()
     const versions = await tx.templateVersion.deleteMany()
     const templates = await tx.template.deleteMany()
 
     return {
       templates: templates.count,
       versions: versions.count,
-      websites: websites.count,
-      invitations: invitations.count,
-      themes: themes.count,
+      contents: contents.count,
       publishedWeddingSnapshots: publishedWeddingSnapshots.count,
       publishedRecapSnapshots: publishedRecapSnapshots.count,
-      recaps: recaps.count,
     }
   })
 

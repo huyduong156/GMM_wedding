@@ -1,3 +1,29 @@
-import type { NextRequest } from 'next/server'; import { assertSafeMutation, parseJson, optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'; import { getRequestId, jsonResponse } from '@/shared/http/api-response'; import { getPublicInteractionService } from '@/modules/public-interactions'; import { rsvpSchema } from '@/modules/public-interactions/public-schemas'; import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
-export const OPTIONS = optionsResponse; type Context = { params: Promise<{ slug: string }> }
-export async function POST(request: NextRequest, context: Context) { const requestId = getRequestId(request); try { assertSafeMutation(request); const { slug } = await context.params; return withApiHeaders(jsonResponse(await getPublicInteractionService().submitRsvp(slug, await parseJson(request, rsvpSchema)), { status: 201 }), requestId) } catch (e) { return guestErrorResponse(e, requestId) } }
+import type { NextRequest } from 'next/server'
+import {
+  assertSafeMutation,
+  parseJson,
+  optionsResponse,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
+import { getRequestId, jsonResponse } from '@/shared/http/api-response'
+import { getPublicInteractionService } from '@/modules/public-interactions'
+import { rsvpSchema } from '@/modules/public-interactions/public-schemas'
+import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
+export const OPTIONS = optionsResponse
+type Context = { params: Promise<{ slug: string }> }
+export async function POST(request: NextRequest, context: Context) {
+  const requestId = getRequestId(request)
+  try {
+    assertSafeMutation(request)
+    const { slug } = await context.params
+    return withApiHeaders(
+      jsonResponse(
+        await getPublicInteractionService().submitRsvp(slug, await parseJson(request, rsvpSchema)),
+        { status: 201 },
+      ),
+      requestId,
+    )
+  } catch (e) {
+    return guestErrorResponse(e, requestId)
+  }
+}

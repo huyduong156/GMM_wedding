@@ -17,17 +17,22 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const { weddingId } = await context.params
     const query = rsvpQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams))
-    return withApiHeaders(jsonResponse(await getRsvpService().list(actor, weddingIdSchema.parse(weddingId), {
-      limit: query.limit,
-      ...(query.q !== undefined ? { query: query.q } : {}),
-      ...(query.attendance !== undefined ? { attendance: query.attendance } : {}),
-      ...(query.eventId !== undefined ? { eventId: query.eventId } : {}),
-      ...(query.categoryId !== undefined ? { categoryId: query.categoryId } : {}),
-      ...(query.groupId !== undefined ? { groupId: query.groupId } : {}),
-      ...(query.from !== undefined ? { from: query.from } : {}),
-      ...(query.to !== undefined ? { to: query.to } : {}),
-      ...(query.cursor !== undefined ? { cursor: query.cursor } : {}),
-    })), requestId)
+    return withApiHeaders(
+      jsonResponse(
+        await getRsvpService().list(actor, weddingIdSchema.parse(weddingId), {
+          limit: query.limit,
+          ...(query.q !== undefined ? { query: query.q } : {}),
+          ...(query.attendance !== undefined ? { attendance: query.attendance } : {}),
+          ...(query.eventId !== undefined ? { eventId: query.eventId } : {}),
+          ...(query.categoryId !== undefined ? { categoryId: query.categoryId } : {}),
+          ...(query.groupId !== undefined ? { groupId: query.groupId } : {}),
+          ...(query.from !== undefined ? { from: query.from } : {}),
+          ...(query.to !== undefined ? { to: query.to } : {}),
+          ...(query.cursor !== undefined ? { cursor: query.cursor } : {}),
+        }),
+      ),
+      requestId,
+    )
   } catch (error) {
     return rsvpErrorResponse(error, requestId)
   }

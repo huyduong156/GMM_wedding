@@ -1,7 +1,12 @@
 import type { NextRequest } from 'next/server'
 
 import { getAuthService } from '@/modules/identity/composition'
-import { assertSafeMutation, authErrorResponse, optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  authErrorResponse,
+  optionsResponse,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { getSessionCookiePolicy } from '@/platform/auth/session-policy'
 import { getServerEnv } from '@/platform/config/env'
 import { getRequestId } from '@/shared/http/api-response'

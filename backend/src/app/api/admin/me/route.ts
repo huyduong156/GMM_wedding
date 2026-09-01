@@ -1,6 +1,10 @@
 import type { NextRequest } from 'next/server'
 
-import { authErrorResponse, optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  authErrorResponse,
+  optionsResponse,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requirePlatformAdmin } from '@/modules/identity/interface/request-authenticator'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 

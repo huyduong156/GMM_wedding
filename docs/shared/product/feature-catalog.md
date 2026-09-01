@@ -72,7 +72,7 @@
 
 ## Chuẩn bị, tài chính cá nhân và sau ngày cưới
 
-- Wedding Recap là publication surface ưu tiên sau thiệp/website: draft single-page gồm media sẵn sàng, lời chúc đã duyệt được chọn và lời cảm ơn; publish/unpublish bằng slug riêng, có OG metadata để chia sẻ và phục vụ SEO.
+- Wedding Recap là publication surface ưu tiên sau thiệp/website: draft single-page gồm media sẵn sàng, lời chúc đã duyệt được chọn và lời cảm ơn; publish/unpublish độc lập theo surface nhưng dùng chung Wedding.slug, có OG metadata để chia sẻ và phục vụ SEO.
 - Wedding Todo List là module trọng tâm: checklist cá nhân theo wedding, deadline, priority, category, trạng thái và reminder; template checklist giúp bắt đầu nhanh. Module được mở theo nhu cầu và không chặn onboarding/publish.
 - Ngân sách cưới là module trọng tâm: hạng mục dự kiến/thực chi, số tiền theo minor unit + currency, trạng thái thanh toán và tổng hợp chênh lệch. Đây là sổ kế hoạch cá nhân, không phải kế toán hay quản lý hợp đồng nhà cung cấp.
 - Sổ tiền mừng là module trọng tâm sau ngày cưới: owner ghi tiền/vàng/quà theo khách, ngày/hình thức nhận, ghi chú và trạng thái mừng lại. Đây là dữ liệu owner-only, không giữ tiền, không kết nối/suy diễn giao dịch ngân hàng và không đưa vào public surface.

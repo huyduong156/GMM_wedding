@@ -7,7 +7,11 @@ describe.skipIf(process.env.S3_INTEGRATION !== 'true')('S3ObjectStorage with Min
     const key = `tests/music-${Date.now()}.mp3`
     const body = Buffer.from('fake-mp3-content')
     const intent = await storage.createUploadIntent(key, 'audio/mpeg', body.length)
-    const response = await fetch(intent.uploadUrl, { method: intent.method, headers: intent.headers, body })
+    const response = await fetch(intent.uploadUrl, {
+      method: intent.method,
+      headers: intent.headers,
+      body,
+    })
     expect(response.ok).toBe(true)
     await expect(storage.head(key)).resolves.toMatchObject({ sizeBytes: body.length })
     await storage.delete(key)

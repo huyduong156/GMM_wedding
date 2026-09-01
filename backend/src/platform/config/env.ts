@@ -1,95 +1,100 @@
 import { z } from 'zod'
 
-const booleanEnv = z.preprocess(
-  (value) => value === true || value === 'true',
-  z.boolean(),
-)
+const booleanEnv = z.preprocess((value) => value === true || value === 'true', z.boolean())
 const optionalNonEmpty = z.preprocess(
-  (value) => value === '' ? undefined : value,
+  (value) => (value === '' ? undefined : value),
   z.string().min(1).optional(),
 )
 
-const optionalUrl = z.preprocess((value) => value === "" ? undefined : value, z.string().url().optional())
+const optionalUrl = z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().url().optional(),
+)
 
-const serverEnvSchema = z.object({
-  APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().positive().max(65_535).default(3000),
-  APP_ORIGIN: z.string().url(),
-  APP_ORIGINS: optionalNonEmpty,
-  DATABASE_URL: z.string().min(1),
-  AUTH_SECRET: z.string().min(32),
-  AUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32),
-  AUTH_RATE_LIMIT_SECRET: z.string().min(32),
-  AUTH_RATE_LIMIT_DRIVER: z.enum(['disabled', 'memory', 'redis']).default('memory'),
-  REDIS_URL: z.string().url().optional(),
-  SMTP_HOST: z.string().min(1).default('localhost'),
-  SMTP_PORT: z.coerce.number().int().positive().max(65_535).default(1025),
-  SMTP_SECURE: booleanEnv.default(false),
-  SMTP_FROM: z.string().email().default('no-reply@gmm-wedding.local'),
-  SMTP_USER: optionalNonEmpty,
-  SMTP_PASSWORD: optionalNonEmpty,
-  TRUST_PROXY: booleanEnv.default(false),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-  ACCESS_LOGGING: booleanEnv.default(true),
-  ERROR_RESPONSE_DETAILS: booleanEnv.default(false),
-  DATABASE_QUERY_LOGGING: booleanEnv.default(false),
-  DATABASE_QUERY_LOG_PARAMS: booleanEnv.default(false),
-  API_DOCS_ENABLED: booleanEnv.default(false),
-  MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3']).default('fake'),
-  MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
-  MEDIA_PUBLIC_BASE_URL: optionalUrl,
-  S3_ENDPOINT: optionalUrl,
-  S3_PUBLIC_ENDPOINT: optionalUrl,
-  S3_FORCE_PATH_STYLE: booleanEnv.default(false),
-  S3_BUCKET: optionalNonEmpty,
-  S3_REGION: z.string().min(1).default('auto'),
-  S3_ACCESS_KEY_ID: optionalNonEmpty,
-  S3_SECRET_ACCESS_KEY: optionalNonEmpty,
-}).superRefine((env, context) => {
-  if (env.AUTH_RATE_LIMIT_DRIVER === 'redis' && !env.REDIS_URL) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['REDIS_URL'],
-      message: 'REDIS_URL is required when AUTH_RATE_LIMIT_DRIVER=redis',
-    })
-  }
-  if (env.APP_ENV === 'production' && env.MEDIA_STORAGE_DRIVER !== 's3') {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['MEDIA_STORAGE_DRIVER'],
-      message: 'Production media storage must use S3-compatible storage',
-    })
-  }
-  if (env.MEDIA_STORAGE_DRIVER === 's3' && (!env.S3_ENDPOINT || !env.S3_BUCKET || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY)) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['S3_ENDPOINT'],
-      message: 'S3 endpoint, bucket and credentials are required when MEDIA_STORAGE_DRIVER=s3',
-    })
-  }
-  if (env.APP_ENV === 'production' && env.AUTH_RATE_LIMIT_DRIVER !== 'redis') {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['AUTH_RATE_LIMIT_DRIVER'],
-      message: 'Production authentication requires the distributed Redis rate limiter',
-    })
-  }
-  if (!['local', 'test'].includes(env.APP_ENV) && env.AUTH_RATE_LIMIT_DRIVER === 'disabled') {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['AUTH_RATE_LIMIT_DRIVER'],
-      message: 'Rate limiting may only be disabled in local or test environments',
-    })
-  }
-  if (Boolean(env.SMTP_USER) !== Boolean(env.SMTP_PASSWORD)) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['SMTP_USER'],
-      message: 'SMTP_USER and SMTP_PASSWORD must be configured together',
-    })
-  }
-})
+const serverEnvSchema = z
+  .object({
+    APP_ENV: z.enum(['local', 'test', 'staging', 'production']).default('local'),
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().positive().max(65_535).default(3000),
+    APP_ORIGIN: z.string().url(),
+    APP_ORIGINS: optionalNonEmpty,
+    DATABASE_URL: z.string().min(1),
+    AUTH_SECRET: z.string().min(32),
+    AUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32),
+    AUTH_RATE_LIMIT_SECRET: z.string().min(32),
+    AUTH_RATE_LIMIT_DRIVER: z.enum(['disabled', 'memory', 'redis']).default('memory'),
+    REDIS_URL: z.string().url().optional(),
+    SMTP_HOST: z.string().min(1).default('localhost'),
+    SMTP_PORT: z.coerce.number().int().positive().max(65_535).default(1025),
+    SMTP_SECURE: booleanEnv.default(false),
+    SMTP_FROM: z.string().email().default('no-reply@gmm-wedding.local'),
+    SMTP_USER: optionalNonEmpty,
+    SMTP_PASSWORD: optionalNonEmpty,
+    TRUST_PROXY: booleanEnv.default(false),
+    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    ACCESS_LOGGING: booleanEnv.default(true),
+    ERROR_RESPONSE_DETAILS: booleanEnv.default(false),
+    DATABASE_QUERY_LOGGING: booleanEnv.default(false),
+    DATABASE_QUERY_LOG_PARAMS: booleanEnv.default(false),
+    API_DOCS_ENABLED: booleanEnv.default(false),
+    MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3']).default('fake'),
+    MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
+    MEDIA_PUBLIC_BASE_URL: optionalUrl,
+    S3_ENDPOINT: optionalUrl,
+    S3_PUBLIC_ENDPOINT: optionalUrl,
+    S3_FORCE_PATH_STYLE: booleanEnv.default(false),
+    S3_BUCKET: optionalNonEmpty,
+    S3_REGION: z.string().min(1).default('auto'),
+    S3_ACCESS_KEY_ID: optionalNonEmpty,
+    S3_SECRET_ACCESS_KEY: optionalNonEmpty,
+  })
+  .superRefine((env, context) => {
+    if (env.AUTH_RATE_LIMIT_DRIVER === 'redis' && !env.REDIS_URL) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['REDIS_URL'],
+        message: 'REDIS_URL is required when AUTH_RATE_LIMIT_DRIVER=redis',
+      })
+    }
+    if (env.APP_ENV === 'production' && env.MEDIA_STORAGE_DRIVER !== 's3') {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['MEDIA_STORAGE_DRIVER'],
+        message: 'Production media storage must use S3-compatible storage',
+      })
+    }
+    if (
+      env.MEDIA_STORAGE_DRIVER === 's3' &&
+      (!env.S3_ENDPOINT || !env.S3_BUCKET || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['S3_ENDPOINT'],
+        message: 'S3 endpoint, bucket and credentials are required when MEDIA_STORAGE_DRIVER=s3',
+      })
+    }
+    if (env.APP_ENV === 'production' && env.AUTH_RATE_LIMIT_DRIVER !== 'redis') {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['AUTH_RATE_LIMIT_DRIVER'],
+        message: 'Production authentication requires the distributed Redis rate limiter',
+      })
+    }
+    if (!['local', 'test'].includes(env.APP_ENV) && env.AUTH_RATE_LIMIT_DRIVER === 'disabled') {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['AUTH_RATE_LIMIT_DRIVER'],
+        message: 'Rate limiting may only be disabled in local or test environments',
+      })
+    }
+    if (Boolean(env.SMTP_USER) !== Boolean(env.SMTP_PASSWORD)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SMTP_USER'],
+        message: 'SMTP_USER and SMTP_PASSWORD must be configured together',
+      })
+    }
+  })
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>
 

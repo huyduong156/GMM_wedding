@@ -1,5 +1,12 @@
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
-const priorities: Record<LogLevel, number> = { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, trace: 5 }
+const priorities: Record<LogLevel, number> = {
+  fatal: 0,
+  error: 1,
+  warn: 2,
+  info: 3,
+  debug: 4,
+  trace: 5,
+}
 
 function shouldLog(level: LogLevel) {
   const configured = (process.env.LOG_LEVEL as LogLevel | undefined) ?? 'info'
@@ -24,7 +31,12 @@ export function serializeError(error: unknown): Record<string, unknown> {
 
 export function log(level: LogLevel, message: string, context: Record<string, unknown> = {}) {
   if (!shouldLog(level)) return
-  const payload = Object.fromEntries(Object.entries(context).map(([key, value]) => [key, value instanceof Error ? serializeError(value) : value]))
+  const payload = Object.fromEntries(
+    Object.entries(context).map(([key, value]) => [
+      key,
+      value instanceof Error ? serializeError(value) : value,
+    ]),
+  )
   const output = `[${new Date().toISOString()}] ${level.toUpperCase()} ${message}${Object.keys(payload).length ? ` ${JSON.stringify(payload)}` : ''}`
   write(level, output)
 }
@@ -47,7 +59,10 @@ export function logHttpAccess(event: HttpAccessLog) {
   if (!shouldLog('info') || process.env.ACCESS_LOGGING === 'false') return
   const status = String(event.status).padStart(3)
   const duration = `${event.durationMs.toFixed(3)}ms`.padStart(12)
-  write('info', `[HTTP] ${localTimestamp()} | ${status} | ${duration} | ${event.ip.padStart(15)} | ${event.method.padEnd(7)} "${event.path}" requestId=${event.requestId}`)
+  write(
+    'info',
+    `[HTTP] ${localTimestamp()} | ${status} | ${duration} | ${event.ip.padStart(15)} | ${event.method.padEnd(7)} "${event.path}" requestId=${event.requestId}`,
+  )
 }
 
 function formatParams(params: string) {
@@ -66,7 +81,10 @@ export interface DatabaseQueryLog {
 export function logDatabaseQuery(event: DatabaseQueryLog) {
   if (!shouldLog('debug')) return
   const source = event.target ? `prisma:${event.target}` : 'prisma:query'
-  write('debug', `${localTimestamp()} ${source}\n[${event.durationMs.toFixed(3)}ms] ${event.query}\n${formatParams(event.params)}`)
+  write(
+    'debug',
+    `${localTimestamp()} ${source}\n[${event.durationMs.toFixed(3)}ms] ${event.query}\n${formatParams(event.params)}`,
+  )
 }
 
 export function logHttpError(error: unknown, context: Record<string, unknown>) {

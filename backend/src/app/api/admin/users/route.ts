@@ -13,7 +13,22 @@ export async function GET(request: NextRequest) {
   const requestId = getRequestId(request)
   try {
     await requirePlatformAdmin(request)
-    const query = adminUserListQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams.entries()))
-    return withApiHeaders(jsonResponse(await getAdminUserService().list({ ...(query.q !== undefined ? { query: query.q } : {}), ...(query.status !== undefined ? { status: query.status } : {}), ...(query.role !== undefined ? { role: query.role } : {}), limit: query.limit, ...(query.cursor !== undefined ? { cursor: query.cursor } : {}) })), requestId)
-  } catch (error) { return adminUserErrorResponse(error, requestId) }
+    const query = adminUserListQuerySchema.parse(
+      Object.fromEntries(request.nextUrl.searchParams.entries()),
+    )
+    return withApiHeaders(
+      jsonResponse(
+        await getAdminUserService().list({
+          ...(query.q !== undefined ? { query: query.q } : {}),
+          ...(query.status !== undefined ? { status: query.status } : {}),
+          ...(query.role !== undefined ? { role: query.role } : {}),
+          limit: query.limit,
+          ...(query.cursor !== undefined ? { cursor: query.cursor } : {}),
+        }),
+      ),
+      requestId,
+    )
+  } catch (error) {
+    return adminUserErrorResponse(error, requestId)
+  }
 }
