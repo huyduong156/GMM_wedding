@@ -157,7 +157,7 @@ Sổ quà owner-only. Trường: `id`, `weddingId`, `guestId?`, `guestDisplayNam
 
 ### `WeddingRecap`
 
-Một recap cho wedding. Trường: `id`, `weddingId` unique, `templateVersionId`, `slug?`, `status`, `title`, `thankYouMessage?`, `ogTitle?`, `ogDescription?`, `ogImageUrl?`, `revision`, `publishedAt?`, timestamps. Active slug unique.
+Một recap cho wedding. Trường: `id`, `weddingId` unique, `templateVersionId`, `slug?` mirror của `Wedding.slug` khi publish, `status`, `title`, `thankYouMessage?`, `ogTitle?`, `ogDescription?`, `ogImageUrl?`, `revision`, `publishedAt?`, timestamps. Active slug unique.
 
 ### `RecapMediaItem`
 

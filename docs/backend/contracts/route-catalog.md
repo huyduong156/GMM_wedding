@@ -202,15 +202,16 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/public/weddings/{slug}` | Public | Implemented | Snapshot thiệp online live cho wedding `PUBLIC`, hỗ trợ ETag/304 |
-| GET | `/public/invitations/{invitationToken}` | Invite token | Implemented | Thiệp cá nhân và snapshot live, không phụ thuộc visibility public |
-| GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public invitation slug | Implemented | Resolve personalized invitation without entering name |
+| GET | `/public/weddings/{weddingSlug}` | Public | Implemented | Snapshot thiệp online live theo Wedding slug, hỗ trợ ETag/304 |
+| GET | `/public/websites/{weddingSlug}` | Public | Implemented | Snapshot website cưới live theo Wedding slug, hỗ trợ ETag/304 |
+| GET | `/public/invitations/{weddingSlug}` | Public | Implemented | Snapshot thiệp online live theo Wedding slug; chỉ yêu cầu Wedding đã publish, không phụ thuộc visibility metadata |
+| GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public invitation slug | Implemented | Resolve personalized invitation trong đúng Wedding slug |
 | PUT | `/public/invitations/{invitationToken}/rsvp` | Invite token | Implemented | Upsert RSVP và enforce `Invitation.maxPartySize` |
 | POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | Common URL RSVP, bắt buộc guestName |
 | POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Common URL wish, bắt buộc guestName |
 | PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public invitation slug | Implemented | Personalized RSVP, tự lấy tên/guestId |
 | POST | `/public/invitations/{weddingSlug}/{guestSlug}/wishes` | Public invitation slug | Implemented | Personalized wish, không nhập tên |
-| GET | `/public/recaps/{recapSlug}` | Public | Implemented | Published recap snapshot with ETag/cache |
+| GET | `/public/recaps/{weddingSlug}` | Public | Implemented | Published recap snapshot theo Wedding slug với ETag/cache |
 
 ## Postman workflow
 

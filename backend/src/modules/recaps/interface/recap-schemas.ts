@@ -35,7 +35,6 @@ export const recapSaveSchema = z.object({
 }).strict()
 
 export const recapPublishSchema = z.object({
-  slug: recapSlugSchema,
   revision: z.number().int().positive(),
 }).strict()
 

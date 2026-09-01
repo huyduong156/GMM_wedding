@@ -1,4 +1,4 @@
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '')
+const apiBaseUrl = (import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api')).replace(/\/$/, '')
 
 export type WeddingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibility = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
@@ -124,6 +124,7 @@ type MediaUploadIntent = {
 
 export type Wedding = {
   id: string
+  slug: string | null
   name: string
   status: WeddingStatus
   visibility: WeddingVisibility
@@ -308,8 +309,12 @@ export type Wish = {
   submittedAt: string
   moderatedAt: string | null
 }
+export type PublicRsvpInput = { guestName?: string; attendance: RsvpAttendance; partySize: number; mealPreference?: string; specialRequest?: string; message?: string }
+export type PublicWish = { id: string; authorName: string; content: string; submittedAt: string; isPinned: boolean }
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
+  get: (id: string) => request<{ wedding: Wedding }>(`/weddings/${id}`),
+  status: (id: string) => request<{ wedding: Pick<Wedding, 'id' | 'slug' | 'status' | 'revision' | 'publishedAt'> }>(`/weddings/${id}`),
   create: (input: WeddingInput) => request<{ wedding: Wedding }>('/weddings', { method: 'POST', body: JSON.stringify(input) }),
   update: (id: string, input: Partial<WeddingInput> & { status?: 'DRAFT' | 'ARCHIVED'; revision: number }) => request<{ wedding: Wedding }>(`/weddings/${id}`, { method: 'PATCH', body: JSON.stringify(input) }),
   remove: (id: string) => request<void>(`/weddings/${id}`, { method: 'DELETE', body: '{}' }),
@@ -336,8 +341,16 @@ export const weddingApi = {
   media: (weddingId: string) => request<{ items: MediaAsset[] }>(`/weddings/${weddingId}/media`),
   removeMedia: (weddingId: string, mediaId: string) => request<void>(`/weddings/${weddingId}/media/${mediaId}`, { method: 'DELETE', body: '{}' }),
   recap: (weddingId: string) => request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
-  publishRecap: (weddingId: string, input: { slug: string; revision: number }) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/weddings/${weddingId}/recap/publish`, { method: 'POST', body: JSON.stringify(input) }),
+  publishRecap: (weddingId: string, input: { revision: number }) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/weddings/${weddingId}/recap/publish`, { method: 'POST', body: JSON.stringify(input) }),
   publicRecap: (slug: string) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/public/recaps/${encodeURIComponent(slug)}`),
+  publicInvitation: (weddingSlug: string) => request<{ snapshot: PublishedWeddingSnapshot }>(`/public/invitations/${encodeURIComponent(weddingSlug)}`),
+  publicInvitationGuest: (weddingSlug: string, guestSlug: string) => request<{ invitation: { weddingSlug: string; invitationSlug: string; guestName: string | null; maxPartySize: number; expiresAt: string | null } }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}`),
+  publicRsvp: (weddingSlug: string, input: PublicRsvpInput) => request<{ rsvp: Rsvp }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/rsvps`, { method: 'POST', body: JSON.stringify(input) }),
+  publicPersonalRsvp: (weddingSlug: string, guestSlug: string, input: PublicRsvpInput) => request<{ rsvp: Rsvp }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}/rsvp`, { method: 'PUT', body: JSON.stringify(input) }),
+  publicWish: (weddingSlug: string, input: { guestName?: string; content: string }) => request<{ wish: Wish }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/wishes`, { method: 'POST', body: JSON.stringify(input) }),
+  publicPersonalWish: (weddingSlug: string, guestSlug: string, input: { guestName?: string; content: string }) => request<{ wish: Wish }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}/wishes`, { method: 'POST', body: JSON.stringify(input) }),
+  publicWishes: (weddingSlug: string) => request<{ wishes: PublicWish[] }>(`/public/weddings/${encodeURIComponent(weddingSlug)}/wishes`),
+  publicWebsite: (weddingSlug: string) => request<{ snapshot: PublishedWeddingSnapshot }>(`/public/websites/${encodeURIComponent(weddingSlug)}`),
   saveRecap: (weddingId: string, input: { templateVersionId: string; title: string; thankYouMessage?: string | null; ogTitle?: string | null; ogDescription?: string | null; ogImageUrl?: string | null; content: Record<string, unknown>; themeConfig: Record<string, unknown>; sectionConfig: RecapSectionConfig; mediaItems: Array<{ mediaAssetId: string; caption?: string | null; sortOrder: number }>; wishSelections: Array<{ wishId: string; sortOrder: number }>; revision: number }) => request<{ recap: RecapDraft }>(`/weddings/${weddingId}/recap`, { method: 'PUT', body: JSON.stringify(input) }),
   recapSlugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/recaps/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),}
 

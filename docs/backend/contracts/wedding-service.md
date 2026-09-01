@@ -16,6 +16,8 @@ Vertical slice đầu tiên triển khai Wedding như hồ sơ gốc tối giả
 
 DTO hiện có `name`, `primaryDate?`, `timezone`, `locale`, `visibility`, lifecycle timestamps và `revision`. Frontend có thể dùng `name` làm `coupleName` trong active wedding contract. Publish là use case khác nên `PATCH` chỉ chấp nhận trạng thái `DRAFT|ARCHIVED`, không cho client tự đặt `PUBLISHED`.
 
+`slug` được sinh phía server khi tạo Wedding từ `name`, được normalize về dạng URL-safe và phải unique trên toàn hệ thống. Thứ tự candidate ưu tiên là `<base>`, `<base>-wedding`, `wedding-<base>`, `<base>-web-wedding`, `web-wedding-<base>`; nếu cả năm candidate đã tồn tại thì dùng `<base>-wedding-1`, `<base>-wedding-2`, ... cho tới khi tìm được giá trị trống. Client không tự truyền slug khi tạo hoặc cập nhật trong contract hiện tại. Slug giữ ổn định khi đổi tên; việc đổi slug sau này phải là một use case riêng vì ảnh hưởng public URL.
+
 Update gửi `revision` hiện hành. Repository update có compare-and-swap và tăng revision; mismatch trả `409 WEDDING_REVISION_CONFLICT`. Delete là soft delete, đặt archived và thu hồi `Wedding.slug`; publication snapshot cleanup/unpublish đầy đủ thuộc publication slice.
 
 `ARCHIVED` là trạng thái nghiệp vụ có thể mở lại về `DRAFT`. Soft delete là terminal trong MVP: resource bị ẩn khỏi mọi owner query và chưa có restore API.

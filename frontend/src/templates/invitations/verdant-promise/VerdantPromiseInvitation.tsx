@@ -16,6 +16,7 @@ import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, use
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import type { ModernLuxeData, ModernLuxeSectionConfig } from '../modern-luxe/ModernLuxeInvitation'
 import './verdant-promise.css'
+import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
 const VerdantParticles = lazy(async () => {
   const module = await import('./VerdantParticles')
@@ -73,13 +74,15 @@ function EdgeAtmosphere() {
   )
 }
 
-function SectionReveal({ children, className }: { children: ReactNode; className: string }) {
+function SectionReveal({ children, className, sectionKey, sectionConfig }: { children: ReactNode; className: string; sectionKey?: string; sectionConfig?: ModernLuxeSectionConfig }) {
   const reduceMotion = useReducedMotion()
+  if (sectionKey && sectionConfig && !sectionConfig.enabled.includes(sectionKey as ModernLuxeSectionConfig['enabled'][number])) return null
 
   return (
     <motion.section
       className={className}
-      data-editor-section={className.replace(/^vp-/, '')}
+      data-editor-section={sectionKey ?? className.replace(/^vp-/, '')}
+      style={sectionKey && sectionConfig ? { order: sectionConfig.order.indexOf(sectionKey as ModernLuxeSectionConfig['order'][number]) } : undefined}
       initial={reduceMotion ? false : { opacity: 0, y: 72 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ amount: 0.12, once: true }}
@@ -90,11 +93,13 @@ function SectionReveal({ children, className }: { children: ReactNode; className
   )
 }
 
-export function VerdantPromiseInvitation({ preview = false, data, sectionConfig }: { preview?: boolean; data?: ModernLuxeData; sectionConfig?: ModernLuxeSectionConfig }) {
+export function VerdantPromiseInvitation({ preview = false, data, sectionConfig, interactions }: { preview?: boolean; data?: ModernLuxeData; sectionConfig?: ModernLuxeSectionConfig; interactions?: PublicInteractions }) {
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
   const weddingDate = data?.weddingDate || '18 · 10 · 2026'
-  const gallery = data?.galleryImages?.length ? data.galleryImages : defaultGallery
+  const gallery = data?.galleryImages?.length
+    ? data.galleryImages.map((item) => typeof item === 'string' ? item : (item as unknown as { src?: string })?.src).filter((item): item is string => Boolean(item))
+    : defaultGallery
   const families = data ? [{ ...defaultFamilies[0], father: data.brideFather || defaultFamilies[0].father, mother: data.brideMother || defaultFamilies[0].mother, child: brideName }, { ...defaultFamilies[1], father: data.groomFather || defaultFamilies[1].father, mother: data.groomMother || defaultFamilies[1].mother, child: groomName }] : defaultFamilies
   const timeline = data?.timelineItems?.length ? data.timelineItems.map((item, index) => ({ ...item, Icon: index === 1 ? Heart : index === 2 ? Gift : Clock })) : defaultTimeline
   const enabledSectionKeys = sectionConfig?.enabled.join(' ') ?? 'cover invitation families eventDetails countdown timeline venue gallery rsvp guestbook gift'
@@ -103,6 +108,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
   const [slide, setSlide] = useState(0)
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [rsvp, setRsvp] = useState<'attending' | 'declined' | null>(null)
+  const submittedRsvpRef = useRef<string | null>(null)
   const [giftOpen, setGiftOpen] = useState(false)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
@@ -162,12 +168,24 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
     focusFrameRef.current = window.requestAnimationFrame(() => mainRef.current?.focus())
   }
 
-  const sendWish = () => {
+  const sendWish = async () => {
     if (!wishName.trim() || !wish.trim()) return
-    setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
+    if (interactions) {
+      if (!await interactions.wishes.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), content: wish.trim() })) return
+    } else setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
     setWishName('')
     setWish('')
   }
+
+  useEffect(() => {
+    if (!interactions || !rsvp || submittedRsvpRef.current === rsvp) return
+    submittedRsvpRef.current = rsvp
+    void interactions.rsvp.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED', partySize: 1 })
+  }, [interactions?.isPersonalized, interactions?.rsvp.submit, rsvp])
+
+  useEffect(() => {
+    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
+  }, [interactions?.wishes.items])
 
   return (
     <MotionConfig reducedMotion="user">
@@ -228,7 +246,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
         <main ref={mainRef} className="vp-invitation" tabIndex={-1}>
           <EdgeAtmosphere />
           {preview ? <div className="vp-preview-note">Bản xem trước · Dữ liệu mẫu</div> : null}
-          <section className="vp-hero">
+          <section className="vp-hero" data-editor-section="invitation" style={sectionConfig ? { order: sectionConfig.order.indexOf('invitation') } : undefined}>
             <motion.div className="vp-hero-photo" style={reduceMotion ? undefined : { y: heroImageY }} aria-hidden="true" />
             <div className="vp-hero-vignette" aria-hidden="true" />
             <motion.div
@@ -251,7 +269,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
               transition={{ delay: 0.12, duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
             >
               <span className="vp-eyebrow vp-eyebrow-light">{data?.eyebrow || 'Trân trọng báo tin lễ thành hôn'}</span>
-              <p className="vp-hero-script">Our verdant promise</p>
+              <p className="vp-hero-script">{data?.invitationTitle || 'Our verdant promise'}</p>
               <h1>
                 <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{brideName}</motion.span></span>
                 <motion.i initial={reduceMotion ? false : { opacity: 0, rotate: -18, scale: 0.7 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: 0.62, duration: 0.72 }}>&amp;</motion.i>
@@ -263,7 +281,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             <div className="vp-scroll-cue" aria-hidden="true"><span>Cuộn để bước vào vườn</span><i /></div>
           </section>
 
-          <SectionReveal className="vp-families">
+          <SectionReveal className="vp-families" sectionKey="families" sectionConfig={sectionConfig}>
             <div className="vp-botanical-shadow vp-botanical-shadow-left" aria-hidden="true" />
             <div className="vp-botanical-shadow vp-botanical-shadow-right" aria-hidden="true" />
             <header className="vp-section-heading">
@@ -298,7 +316,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             <p className="vp-family-invitation">Kính mời <strong>Quý khách</strong> đến dự bữa tiệc thân mật, chung vui cùng gia đình chúng tôi.</p>
           </SectionReveal>
 
-          <SectionReveal className="vp-date">
+          <SectionReveal className="vp-date" sectionKey="eventDetails" sectionConfig={sectionConfig}>
             <div className="vp-date-card">
               <div className="vp-date-calendar">
                 <span>Ngày thành hôn</span>
@@ -319,14 +337,14 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </div>
           </SectionReveal>
 
-          <SectionReveal className="vp-countdown">
+          <SectionReveal className="vp-countdown" sectionKey="countdown" sectionConfig={sectionConfig}>
             <div className="vp-countdown-orbit" aria-hidden="true" />
             <span>Chỉ còn</span>
             <div className="vp-countdown-units" role="timer" aria-live="off" aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}><div><strong>{weddingCountdown.days}</strong><small>Ngày</small></div><div><strong>{formatCountdownUnit(weddingCountdown.hours)}</strong><small>Giờ</small></div><div><strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong><small>Phút</small></div><div><strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong><small>Giây</small></div></div>
             <p>để cùng gặp nhau trong khu vườn ngập nắng</p>
           </SectionReveal>
 
-          <SectionReveal className="vp-timeline">
+          <SectionReveal className="vp-timeline" sectionKey="timeline" sectionConfig={sectionConfig}>
             <header className="vp-section-heading vp-section-heading-left">
               <span className="vp-eyebrow">Lịch trình</span>
               <h2>Những khoảnh khắc trong ngày vui</h2>
@@ -348,7 +366,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </ol>
           </SectionReveal>
 
-          <SectionReveal className="vp-map">
+          <SectionReveal className="vp-map" sectionKey="venue" sectionConfig={sectionConfig}>
             <div className="vp-map-copy">
               <MapPin weight="fill" />
               <span className="vp-eyebrow">Địa điểm</span>
@@ -362,7 +380,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </div>
           </SectionReveal>
 
-          <SectionReveal className="vp-gallery">
+          <SectionReveal className="vp-gallery" sectionKey="gallery" sectionConfig={sectionConfig}>
             <span className="vp-eyebrow">Our moments</span>
             <h2>Chuyện của chúng mình, qua những khung hình</h2>
             <div
@@ -397,7 +415,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </div>
           </SectionReveal>
 
-          <SectionReveal className="vp-rsvp">
+          <SectionReveal className="vp-rsvp" sectionKey="rsvp" sectionConfig={sectionConfig}>
             <div className="vp-rsvp-glow" aria-hidden="true" />
             <span className="vp-eyebrow vp-eyebrow-light">RSVP{data?.rsvpDeadline ? ` · Trước ${data.rsvpDeadline}` : ''}</span>
             <Sparkle weight="fill" />
@@ -423,7 +441,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </AnimatePresence>
           </SectionReveal>
 
-          <SectionReveal className="vp-guestbook">
+          <SectionReveal className="vp-guestbook" sectionKey="guestbook" sectionConfig={sectionConfig}>
             <header className="vp-section-heading">
               <span className="vp-eyebrow">Sổ lưu bút</span>
               <h2>Gửi một lời chúc thật xanh</h2>
@@ -442,7 +460,7 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </div>
           </SectionReveal>
 
-          <SectionReveal className="vp-gift">
+          <SectionReveal className="vp-gift" sectionKey="gift" sectionConfig={sectionConfig}>
             <Gift weight="fill" />
             <span className="vp-eyebrow">Quà mừng</span>
             <p>{data?.giftMessage || 'Sự hiện diện và lời chúc của bạn đã là món quà quý giá nhất.'}</p>
@@ -457,11 +475,11 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig 
             </AnimatePresence>
           </SectionReveal>
 
-          <motion.footer className="vp-footer" initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}>
-            <div className="vp-footer-photo" aria-hidden="true" />
+          <motion.footer className="vp-footer" data-editor-section="footer" style={sectionConfig ? { order: sectionConfig.order.indexOf('footer') } : undefined} initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}>
+            <div className="vp-footer-photo" aria-hidden="true" style={data?.footerMedia?.src ? { backgroundImage: `url(${data.footerMedia.src})` } : undefined} />
             <span>With love</span>
             <strong>{brideName} &amp; {groomName}</strong>
-            <p>Cảm ơn bạn đã dành thời gian bước vào khu vườn và trở thành một phần trong ngày thật đẹp của chúng mình.</p>
+            <p>{data?.footerMessage || 'Cảm ơn bạn đã dành thời gian bước vào khu vườn và trở thành một phần trong ngày thật đẹp của chúng mình.'}</p>
             <small>{weddingDate}</small>
           </motion.footer>
         </main>

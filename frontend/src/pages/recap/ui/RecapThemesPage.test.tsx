@@ -6,7 +6,7 @@ import { WeddingContext } from '../../../entities/wedding/model/wedding-context'
 import { WeddingApiError, weddingApi, type Wedding } from '../../../shared/api/weddings'
 import { RecapThemesPage } from './RecapThemesPage'
 
-const wedding: Wedding = { id: '11111111-1111-4111-8111-111111111111', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN', primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: '2026-08-10T00:00:00Z', updatedAt: '2026-08-10T00:00:00Z' }
+const wedding: Wedding = { id: '11111111-1111-4111-8111-111111111111', slug: 'mai-duc', name: 'Mai & Đức', status: 'DRAFT', visibility: 'PUBLIC', timezone: 'Asia/Ho_Chi_Minh', locale: 'vi-VN', primaryDate: null, revision: 1, publishedAt: null, archivedAt: null, createdAt: '2026-08-10T00:00:00Z', updatedAt: '2026-08-10T00:00:00Z' }
 const context = { weddings: [wedding], activeWedding: wedding, loading: false, error: null, selectWedding: vi.fn(), refresh: vi.fn(), addWedding: vi.fn(), replaceWedding: vi.fn(), removeWedding: vi.fn() }
 
 describe('RecapThemesPage', () => {

@@ -70,6 +70,6 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 
 ### Recap
 
-- `WeddingRecap`: unique `weddingId`, unique active lowercase `slug`, `status(draft|published|archived)`, `templateVersionId`, `title`, `thankYouMessage`, OG fields và `revision`.
+- `WeddingRecap`: unique `weddingId`, `slug` là bản mirror của `Wedding.slug` khi publish, `status(draft|published|archived)`, `templateVersionId`, `title`, `thankYouMessage`, OG fields và `revision`.
 - `RecapMediaItem` chỉ tham chiếu `MediaAsset ready`; `RecapWishSelection` unique `(recapId, wishId)` và chỉ chọn wish approved.
 - `PublishedRecapSnapshot` unique `(recapId, version)`, lưu payload/hash/template version bất biến, không chứa guest/contact metadata.

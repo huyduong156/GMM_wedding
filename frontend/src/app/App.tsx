@@ -20,7 +20,7 @@ import { GuestCategoriesConnectedV2 } from '../pages/guest-categories/ui/GuestCa
 import { TemplatesApiPage } from '../pages/templates/ui/TemplatesApiPage'
 import { WebsiteTemplatesApiPage } from '../pages/templates/ui/WebsiteTemplatesApiPage'
 import { InvitationEditorLivePage } from '../pages/invitation-editor/ui/InvitationEditorLivePage'
-import { WebsiteEditorLivePage } from '../pages/invitation-editor/ui/WebsiteEditorLivePage'
+import { WebsiteEditorLivePageNext as WebsiteEditorLivePage } from '../pages/invitation-editor/ui/WebsiteEditorLivePageNext'
 import { TodosPage } from '../pages/todos/ui/TodosPage'
 import { GiftLedgerPage } from '../pages/gift-ledger/ui/GiftLedgerPage'
 import { RsvpsPageConnected } from '../pages/rsvps/ui/RsvpsPageConnected'
@@ -39,6 +39,8 @@ import { EnchantedForestPreviewPage } from '../pages/public-website/ui/Enchanted
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
 import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
 import { PublicRecapPage } from '../pages/public-recap/ui/PublicRecapPage'
+import { PublicInvitationPage } from '../pages/public-invitation/ui/PublicInvitationPage'
+import { PublicWebsitePageNext as PublicWebsitePage } from '../pages/public-website/ui/PublicWebsitePageNext'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
 import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
@@ -62,6 +64,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.todos]: <TodosPage />,
   [studioRoutes.giftLedger]: <GiftLedgerPage />,
   [studioRoutes.recap]: <RecapEditorPage />,
+  [studioRoutes.recapReview]: <RedSpiderLilyRecapPreviewPage />,
   [studioRoutes.recapThemes]: <RecapThemesPage />,
   [studioRoutes.analytics]: <AnalyticsPage />,
   [studioRoutes.events]: <WeddingEventsPage />,
@@ -111,6 +114,12 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.enchantedForestPreview) return <EnchantedForestPreviewPage />
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview) return <CherryBlossomGardenPreviewPage />
   if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview) return <RedSpiderLilyRecapPreviewPage />
+  const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
+  if (publicInvitationMatch) return <PublicInvitationPage weddingSlug={decodeURIComponent(publicInvitationMatch[1])} guestSlug={publicInvitationMatch[2] ? decodeURIComponent(publicInvitationMatch[2]) : undefined} />
+  const publicWebsiteMatch = pathname.match(/^\/([^/]+)\/website\/?$/)
+  if (publicWebsiteMatch) return <PublicWebsitePage weddingSlug={decodeURIComponent(publicWebsiteMatch[1])} />
+  const publicWeddingRecapMatch = pathname.match(/^\/([^/]+)\/recaps\/?$/)
+  if (publicWeddingRecapMatch) return <PublicRecapPage slug={decodeURIComponent(publicWeddingRecapMatch[1])} />
   const publicRecapMatch = pathname.match(/^\/public\/recaps\/([^/]+)\/?$/)
   if (publicRecapMatch) return <PublicRecapPage slug={decodeURIComponent(publicRecapMatch[1])} />
   if (pathname === adminRoutes.login) return <AdminLoginPage />

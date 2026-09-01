@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { CalendarBlank, CaretLeft, CaretRight, Check, Gift, Heart, MapPin, NavigationArrow, PaperPlaneTilt, UsersThree } from '@phosphor-icons/react'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './chibi-daydream.css'
+import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
 const asset = (name: string) => `/assets/images/templates/chibi-daydream/${name}`
 const gallery = [asset('chibi-couple-hero.png'), asset('album-wedding-car.png'), asset('album-cake-evening.png')]
 const days = Array.from({ length: 31 }, (_, index) => index + 1)
 export type ChibiDaydreamData = Record<string, unknown> & { brideName?: string; groomName?: string; weddingDate?: string; invitationTitle?: string; invitationMessage?: string; ceremonyTime?: string; receptionTime?: string; venueName?: string; venueAddress?: string; mapUrl?: string; thanksMessage?: string; timelineItems?: Array<{ time: string; title: string; detail?: string }> }
 
-export function ChibiDaydreamInvitation({ data, sectionConfig, editorMode = false }: { data?: ChibiDaydreamData; sectionConfig?: { enabled: string[]; order: string[] }; editorMode?: boolean }) {
+export function ChibiDaydreamInvitation({ data, sectionConfig, editorMode = false, interactions }: { data?: ChibiDaydreamData; sectionConfig?: { enabled: string[]; order: string[] }; editorMode?: boolean; interactions?: PublicInteractions }) {
   const content = { brideName: 'Khánh An', groomName: 'Đức Minh', weddingDate: '20 · 12 · 2026', invitationTitle: 'Trân trọng báo tin lễ thành hôn của con chúng tôi', invitationMessage: 'Đến dự bữa tiệc chung vui cùng gia đình chúng tôi', ceremonyTime: '09:00', receptionTime: '18:30', venueName: 'Coral Garden Hall', venueAddress: '28 Bạch Đằng, Hải Châu, Đà Nẵng', mapUrl: 'https://maps.google.com/?q=28+Bach+Dang+Da+Nang', thanksMessage: 'Cảm ơn bạn đã dành thời gian đến chung vui', timelineItems: [{ time: '17:30', title: 'Đón khách', detail: 'Chụp ảnh và nhận một chiếc sticker nhỏ.' }, { time: '18:15', title: 'Lễ thành hôn', detail: 'Cùng chứng kiến lời hẹn trăm năm.' }, { time: '18:30', title: 'Tiệc chung vui', detail: 'Dùng tiệc và nâng ly cùng hai gia đình.' }], ...data }
   const visible = (key: string) => !sectionConfig || sectionConfig.enabled.includes(key)
   const sectionStyle = (key: string) => sectionConfig ? { order: sectionConfig.order.indexOf(key) } : undefined
@@ -17,6 +18,9 @@ export function ChibiDaydreamInvitation({ data, sectionConfig, editorMode = fals
   const [slide, setSlide] = useState(0)
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)
+  const submittedRsvpRef = useRef(false)
+  const [rsvpName, setRsvpName] = useState('')
+  const [partySize, setPartySize] = useState(1)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
   const [wishes, setWishes] = useState([{ name: 'Gia đình cô Mai', message: 'Chúc hai con mãi đáng yêu và hạnh phúc như hôm nay nhé!' }, { name: 'Nhóm bạn Đại học', message: 'Một hành trình mới thật nhiều tiếng cười đang chờ hai bạn.' }])
@@ -35,11 +39,24 @@ export function ChibiDaydreamInvitation({ data, sectionConfig, editorMode = fals
     return () => window.clearInterval(timer)
   }, [opened])
 
-  const sendWish = () => {
+  const sendWish = async () => {
     if (!wishName.trim() || !wish.trim()) return
-    setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
+    if (interactions) {
+      if (!await interactions.wishes.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), content: wish.trim() })) return
+    } else setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
     setWishName(''); setWish('')
   }
+
+  useEffect(() => {
+    if (!interactions || !rsvpSent || !attendance || submittedRsvpRef.current) return
+    submittedRsvpRef.current = true
+    const guestName = (mainRef.current?.querySelector('.cd-rsvp input') as HTMLInputElement | null)?.value.trim()
+    void interactions.rsvp.submit({ guestName: interactions.isPersonalized ? undefined : guestName, attendance: attendance === 'yes' ? 'ATTENDING' : 'DECLINED', partySize: 1 })
+  }, [attendance, interactions?.isPersonalized, interactions?.rsvp.submit, rsvpSent])
+
+  useEffect(() => {
+    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
+  }, [interactions?.wishes.items])
 
   return <div className={`cd-wrap ${opened ? 'is-opened' : ''}`}>
     {!opened && <section className={`cd-opening ${opening ? 'is-opening' : ''}`} aria-label="Mở thiệp Mây Hồng Có Đôi">

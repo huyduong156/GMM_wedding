@@ -11,6 +11,15 @@ Frontend uses the backend opaque HTTP-only session and never stores credentials 
 
 All requests use `credentials: include`. Unsafe requests send JSON and `X-CSRF-Protection: 1`; the browser supplies the `Origin` header. Backend `APP_ORIGIN` must exactly match the frontend origin.
 
+## Public invitation URL
+
+The owner-facing public URL is `/{weddingSlug}/invitation`.
+
+- The page always tries the public published snapshot first, so a published invitation is viewable without login.
+- If no public snapshot exists, only an authenticated owner whose wedding has the requested slug may read the owner-scoped draft at that URL.
+- Anonymous visitors and authenticated users who do not own that wedding receive the normal 404 page; draft content is never exposed through a public API.
+- Personalized guest URLs remain public-only and require the invitation to be published.
+
 ## Runtime behavior
 
 - A protected route shows a short session-check state before rendering private content.

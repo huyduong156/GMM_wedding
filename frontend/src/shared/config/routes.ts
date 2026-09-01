@@ -12,6 +12,7 @@ export const studioRoutes = {
   todos: '/studio/todos',
   giftLedger: '/studio/gift-ledger',
   recap: '/studio/recap',
+  recapReview: '/studio/recap/review',
   recapThemes: '/studio/recap/themes',
   analytics: '/studio/analytics',
   events: '/studio/events',

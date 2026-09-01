@@ -436,7 +436,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
   }
 
   async getPublicSnapshot(slug: string, surface: WeddingSurfaceValue): Promise<PublishedSnapshotView | null> {
-    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { surface, unpublishedAt: null, wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
+    const row = await this.prisma.publishedWeddingSnapshot.findFirst({ where: { surface, unpublishedAt: null, wedding: { slug, status: 'PUBLISHED', deletedAt: null } }, include: { templateVersion: { include: { template: true } } }, orderBy: { version: 'desc' } })
     return row ? this.snapshotView(row) : null
   }
 
