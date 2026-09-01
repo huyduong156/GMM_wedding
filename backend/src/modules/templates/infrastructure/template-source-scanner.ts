@@ -62,9 +62,15 @@ export function readSectionKeys(source: string) {
   const tupleKeys = firstTupleValues(array)
   return unique(tupleKeys.length ? tupleKeys : stringLiterals(array))
 }
-async function configFiles(directory: string): Promise<string[]> {
+async function configFiles(directory: string, rootDirectory = directory): Promise<string[]> {
   const entries = await readdir(directory, { withFileTypes: true })
-  const nested = await Promise.all(entries.map(async (entry) => { const absolute = path.join(directory, entry.name); if (entry.isDirectory()) return configFiles(absolute); return entry.name === 'template-config.ts' ? [absolute] : [] }))
+  const nested = await Promise.all(entries.map(async (entry) => {
+    const absolute = path.join(directory, entry.name)
+    if (entry.isDirectory()) return configFiles(absolute, rootDirectory)
+    // The source root contains the shared TemplateConfig type contract. Only
+    // config files inside a concrete template directory are release sources.
+    return directory !== rootDirectory && entry.name === 'template-config.ts' ? [absolute] : []
+  }))
   return nested.flat()
 }
 

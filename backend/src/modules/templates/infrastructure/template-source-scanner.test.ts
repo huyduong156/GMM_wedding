@@ -10,7 +10,7 @@ const keys = (value: ReturnType<typeof readSectionKeys>) => value.map((item) => 
 describe('readSectionKeys', () => {
   it('reads invitation configs with inline sectionKey objects', () => {
     expect(keys(readSectionKeys(source('invitations/verdant-promise/template-config.ts')))).toEqual([
-      'cover', 'invitation', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'gallery', 'rsvp', 'guestbook', 'gift',
+      'cover', 'invitation', 'families', 'eventDetails', 'countdown', 'timeline', 'venue', 'gallery', 'rsvp', 'guestbook', 'gift', 'footer',
     ])
   })
 
