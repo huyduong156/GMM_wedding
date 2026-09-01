@@ -14,7 +14,10 @@ export async function GET(request: NextRequest, context: Context) {
     await requireAuthenticatedUser(request)
     const { templateKey, version } = await context.params
     const template = await getWeddingService().getTemplateVersion(templateKey, version)
-    if (!template) throw new WeddingError('WEDDING_TEMPLATE_NOT_FOUND', 404, 'Template version not found')
+    if (!template)
+      throw new WeddingError('WEDDING_TEMPLATE_NOT_FOUND', 404, 'Template version not found')
     return withApiHeaders(jsonResponse({ template }), requestId)
-  } catch (error) { return weddingErrorResponse(error, requestId) }
+  } catch (error) {
+    return weddingErrorResponse(error, requestId)
+  }
 }

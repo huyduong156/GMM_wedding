@@ -3,7 +3,13 @@ import { updateProfileRequestSchema } from './auth-schemas'
 
 describe('updateProfileRequestSchema', () => {
   it('accepts editable profile fields and nullable values for clearing', () => {
-    expect(updateProfileRequestSchema.parse({ displayName: ' Nguyễn An ', phone: '+84 912 345 678', avatarUrl: null })).toEqual({
+    expect(
+      updateProfileRequestSchema.parse({
+        displayName: ' Nguyễn An ',
+        phone: '+84 912 345 678',
+        avatarUrl: null,
+      }),
+    ).toEqual({
       displayName: 'Nguyễn An',
       phone: '+84 912 345 678',
       avatarUrl: null,

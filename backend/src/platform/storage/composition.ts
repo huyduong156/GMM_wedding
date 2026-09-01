@@ -5,6 +5,7 @@ import type { ObjectStorage } from './object-storage'
 
 export function getObjectStorage(): ObjectStorage {
   const env = getServerEnv()
-  if (env.APP_ENV === 'production' || env.MEDIA_STORAGE_DRIVER === 's3') return new S3ObjectStorage()
+  if (env.APP_ENV === 'production' || env.MEDIA_STORAGE_DRIVER === 's3')
+    return new S3ObjectStorage()
   return new FakeObjectStorage()
 }

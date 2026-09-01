@@ -16,10 +16,21 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     if (isWeddingSlug) {
       const snapshot = await getWeddingService().publicSnapshot(value, 'ONLINE_INVITATION')
-      return withApiHeaders(jsonResponse({ snapshot }, { headers: { 'cache-control': 'public, max-age=60, stale-while-revalidate=300' } }), requestId)
+      return withApiHeaders(
+        jsonResponse(
+          { snapshot },
+          { headers: { 'cache-control': 'public, max-age=60, stale-while-revalidate=300' } },
+        ),
+        requestId,
+      )
     }
-    return withApiHeaders(jsonResponse(await getPublicInteractionService().resolveToken(value)), requestId)
+    return withApiHeaders(
+      jsonResponse(await getPublicInteractionService().resolveToken(value)),
+      requestId,
+    )
   } catch (error) {
-    return isWeddingSlug ? weddingErrorResponse(error, requestId) : guestErrorResponse(error, requestId)
+    return isWeddingSlug
+      ? weddingErrorResponse(error, requestId)
+      : guestErrorResponse(error, requestId)
   }
 }

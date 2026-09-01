@@ -14,6 +14,14 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const slug = recapSlugSchema.parse((await context.params).slug)
     const weddingId = request.nextUrl.searchParams.get('weddingId') ?? undefined
-    return withApiHeaders(jsonResponse({ slug, available: await getRecapService().slugAvailable(actor.userId, slug, weddingId) }), requestId)
-  } catch (error) { return recapErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse({
+        slug,
+        available: await getRecapService().slugAvailable(actor.userId, slug, weddingId),
+      }),
+      requestId,
+    )
+  } catch (error) {
+    return recapErrorResponse(error, requestId)
+  }
 }

@@ -23,10 +23,7 @@ export type AnonymousActor = {
 }
 
 export type ActorContext =
-  | AuthenticatedUserActor
-  | PlatformAdminActor
-  | InvitationActor
-  | AnonymousActor
+  AuthenticatedUserActor | PlatformAdminActor | InvitationActor | AnonymousActor
 
 export function isAuthenticatedActor(
   actor: ActorContext,

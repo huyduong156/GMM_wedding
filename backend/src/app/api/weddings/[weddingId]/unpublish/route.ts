@@ -1,5 +1,9 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
@@ -13,9 +17,15 @@ export async function POST(request: NextRequest, context: Context) {
   try {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
-    const body = await request.json() as { surface?: unknown }
+    const body = (await request.json()) as { surface?: unknown }
     const surface = weddingSurfaceSchema.parse(body.surface ?? 'ONLINE_INVITATION')
-    await getWeddingService().unpublish(actor, weddingIdSchema.parse((await context.params).weddingId), surface)
+    await getWeddingService().unpublish(
+      actor,
+      weddingIdSchema.parse((await context.params).weddingId),
+      surface,
+    )
     return withApiHeaders(new Response(null, { status: 204 }), requestId)
-  } catch (error) { return weddingErrorResponse(error, requestId) }
+  } catch (error) {
+    return weddingErrorResponse(error, requestId)
+  }
 }

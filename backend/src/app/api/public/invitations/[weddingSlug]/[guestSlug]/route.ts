@@ -11,6 +11,16 @@ export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   const { weddingSlug, guestSlug } = await context.params
   const invitation = await getGuestService().resolvePublicInvitation(weddingSlug, guestSlug)
-  if (!invitation) return withApiHeaders(jsonResponse({ error: { code: 'RESOURCE_NOT_FOUND', message: 'Invitation not found', requestId } }, { status: 404 }), requestId)
-  return withApiHeaders(jsonResponse({ invitation }, { headers: { 'cache-control': 'no-store' } }), requestId)
+  if (!invitation)
+    return withApiHeaders(
+      jsonResponse(
+        { error: { code: 'RESOURCE_NOT_FOUND', message: 'Invitation not found', requestId } },
+        { status: 404 },
+      ),
+      requestId,
+    )
+  return withApiHeaders(
+    jsonResponse({ invitation }, { headers: { 'cache-control': 'no-store' } }),
+    requestId,
+  )
 }

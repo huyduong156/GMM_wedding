@@ -566,16 +566,29 @@ paths:
       parameters:
         - { $ref: '#/components/parameters/WeddingId' }
         - { name: q, in: query, schema: { type: string, maxLength: 160 } }
-        - { name: attendance, in: query, schema: { type: string, enum: [ATTENDING, DECLINED, MAYBE] } }
+        - {
+            name: attendance,
+            in: query,
+            schema: { type: string, enum: [ATTENDING, DECLINED, MAYBE] },
+          }
         - { name: eventId, in: query, schema: { type: string, format: uuid } }
         - { name: categoryId, in: query, schema: { type: string, format: uuid } }
         - { name: groupId, in: query, schema: { type: string, format: uuid } }
         - { name: from, in: query, schema: { type: string, format: date-time } }
         - { name: to, in: query, schema: { type: string, format: date-time } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
       responses:
-        '200': { description: Owner RSVP list, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpListEnvelope' } } } }
+        '200':
+          {
+            description: Owner RSVP list,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/RsvpListEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -593,7 +606,15 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/PromoteRsvpRequest' }
       responses:
-        '201': { description: Guest created and linked, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } } } }
+        '201':
+          {
+            description: Guest created and linked,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -612,7 +633,15 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/LinkRsvpGuestRequest' }
       responses:
-        '200': { description: RSVP linked to guest, content: { application/json: { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } } } }
+        '200':
+          {
+            description: RSVP linked to guest,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/RsvpGuestLinkEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -625,7 +654,15 @@ paths:
       parameters:
         - { name: locale, in: query, schema: { type: string, minLength: 2, maxLength: 16 } }
       responses:
-        '200': { description: Active checklist templates, content: { application/json: { schema: { $ref: '#/components/schemas/TaskChecklistTemplateListEnvelope' } } } }
+        '200':
+          {
+            description: Active checklist templates,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/TaskChecklistTemplateListEnvelope' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
   /weddings/{weddingId}/tasks:
     get:
@@ -635,7 +672,11 @@ paths:
       parameters:
         - { $ref: '#/components/parameters/WeddingId' }
         - { name: q, in: query, schema: { type: string, maxLength: 200 } }
-        - { name: status, in: query, schema: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] } }
+        - {
+            name: status,
+            in: query,
+            schema: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] },
+          }
         - { name: priority, in: query, schema: { type: string, enum: [LOW, MEDIUM, HIGH, URGENT] } }
         - { name: eventId, in: query, schema: { type: string, format: uuid } }
         - { name: withoutEvent, in: query, schema: { type: boolean } }
@@ -643,10 +684,19 @@ paths:
         - { name: withoutParent, in: query, schema: { type: boolean } }
         - { name: from, in: query, schema: { type: string, format: date-time } }
         - { name: to, in: query, schema: { type: string, format: date-time } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
       responses:
-        '200': { description: Task list, content: { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } } }
+        '200':
+          {
+            description: Task list,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
@@ -660,7 +710,12 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/CreateTaskRequest' }
       responses:
-        '201': { description: Created task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '201':
+          {
+            description: Created task,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -673,7 +728,12 @@ paths:
         - { $ref: '#/components/parameters/WeddingId' }
         - { name: taskId, in: path, required: true, schema: { type: string, format: uuid } }
       responses:
-        '200': { description: Task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '200':
+          {
+            description: Task,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     patch:
@@ -689,7 +749,12 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/UpdateTaskRequest' }
       responses:
-        '200': { description: Updated task, content: { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } } }
+        '200':
+          {
+            description: Updated task,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/TaskEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -749,7 +814,12 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/ApplyTaskTemplateRequest' }
       responses:
-        '201': { description: Created tasks, content: { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } } }
+        '201':
+          {
+            description: Created tasks,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/TaskListEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -762,27 +832,64 @@ paths:
         - { $ref: '#/components/parameters/WeddingId' }
         - { name: q, in: query, schema: { type: string, maxLength: 160 } }
         - { name: giftType, in: query, schema: { type: string, enum: [money, gold, physicalGift] } }
-        - { name: receiveMethod, in: query, schema: { type: string, enum: [cash, bankTransfer, physicalGift, other] } }
-        - { name: reciprocityStatus, in: query, schema: { type: string, enum: [pending, returned, notApplicable] } }
+        - {
+            name: receiveMethod,
+            in: query,
+            schema: { type: string, enum: [cash, bankTransfer, physicalGift, other] },
+          }
+        - {
+            name: reciprocityStatus,
+            in: query,
+            schema: { type: string, enum: [pending, returned, notApplicable] },
+          }
         - { name: guestId, in: query, schema: { type: string, format: uuid } }
         - { name: from, in: query, schema: { type: string, format: date-time } }
         - { name: to, in: query, schema: { type: string, format: date-time } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
       responses:
-        '200': { description: Private ledger entries, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerListEnvelope' } } } }
+        '200':
+          {
+            description: Private ledger entries,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerListEnvelope' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
       operationId: createGiftLedgerEntry
       summary: Quickly record a gift, optionally linked to a guest
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/CreateGiftLedgerEntryRequest' } } }
+        content:
+          {
+            application/json:
+              { schema: { $ref: '#/components/schemas/CreateGiftLedgerEntryRequest' } },
+          }
       responses:
-        '201': { description: Created entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '201':
+          {
+            description: Created entry,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -791,21 +898,51 @@ paths:
       operationId: getGiftLedgerEntry
       summary: Get a private gift ledger entry
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+        ]
       responses:
-        '200': { description: Ledger entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '200':
+          {
+            description: Ledger entry,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     patch:
       operationId: updateGiftLedgerEntry
       summary: Update a private gift ledger entry with revision control
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGiftLedgerEntryRequest' } } }
+        content:
+          {
+            application/json:
+              { schema: { $ref: '#/components/schemas/UpdateGiftLedgerEntryRequest' } },
+          }
       responses:
-        '200': { description: Updated entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '200':
+          {
+            description: Updated entry,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -814,7 +951,13 @@ paths:
       operationId: deleteGiftLedgerEntry
       summary: Soft-delete a private gift ledger entry
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       responses:
         '204': { description: Entry deleted }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -824,9 +967,22 @@ paths:
       operationId: summarizeGiftLedger
       summary: Summarize private ledger totals without currency conversion
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: from, in: query, schema: { type: string, format: date-time } },
+          { name: to, in: query, schema: { type: string, format: date-time } },
+        ]
       responses:
-        '200': { description: Ledger summary, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerSummaryEnvelope' } } } }
+        '200':
+          {
+            description: Ledger summary,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerSummaryEnvelope' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/gift-ledger/export:
@@ -834,9 +990,15 @@ paths:
       operationId: exportGiftLedger
       summary: Export private ledger CSV
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: from, in: query, schema: { type: string, format: date-time } }, { name: to, in: query, schema: { type: string, format: date-time } }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: from, in: query, schema: { type: string, format: date-time } },
+          { name: to, in: query, schema: { type: string, format: date-time } },
+        ]
       responses:
-        '200': { description: UTF-8 CSV export, content: { text/csv: { schema: { type: string } } } }
+        '200':
+          { description: UTF-8 CSV export, content: { text/csv: { schema: { type: string } } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/gift-ledger/{entryId}/promote-to-guest:
@@ -844,12 +1006,27 @@ paths:
       operationId: promoteGiftLedgerEntryToGuest
       summary: Create and link a Guest from a manually entered ledger name
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/PromoteGiftGuestRequest' } } }
+        content:
+          { application/json: { schema: { $ref: '#/components/schemas/PromoteGiftGuestRequest' } } }
       responses:
-        '201': { description: Guest created and entry linked, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '201':
+          {
+            description: Guest created and entry linked,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -859,12 +1036,27 @@ paths:
       operationId: linkGiftLedgerEntryGuest
       summary: Link a ledger entry to an existing Guest
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       requestBody:
         required: true
-        content: { application/json: { schema: { $ref: '#/components/schemas/LinkGiftGuestRequest' } } }
+        content:
+          { application/json: { schema: { $ref: '#/components/schemas/LinkGiftGuestRequest' } } }
       responses:
-        '200': { description: Linked entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '200':
+          {
+            description: Linked entry,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -873,9 +1065,23 @@ paths:
       operationId: unlinkGiftLedgerEntryGuest
       summary: Remove a Guest link without deleting ledger data
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { name: entryId, in: path, required: true, schema: { type: string, format: uuid } }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { name: entryId, in: path, required: true, schema: { type: string, format: uuid } },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       responses:
-        '200': { description: Unlinked entry, content: { application/json: { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } } } }
+        '200':
+          {
+            description: Unlinked entry,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/GiftLedgerEntryEnvelope' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/wishes:
@@ -885,14 +1091,27 @@ paths:
       security: [{ cookieAuth: [] }]
       parameters:
         - { $ref: '#/components/parameters/WeddingId' }
-        - { name: status, in: query, schema: { type: string, enum: [PENDING, APPROVED, REJECTED, SPAM, HIDDEN] } }
+        - {
+            name: status,
+            in: query,
+            schema: { type: string, enum: [PENDING, APPROVED, REJECTED, SPAM, HIDDEN] },
+          }
         - { name: q, in: query, schema: { type: string, maxLength: 160 } }
         - { name: from, in: query, schema: { type: string, format: date-time } }
         - { name: to, in: query, schema: { type: string, format: date-time } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
       responses:
-        '200': { description: Owner wish list, content: { application/json: { schema: { $ref: '#/components/schemas/WishListEnvelope' } } } }
+        '200':
+          {
+            description: Owner wish list,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/WishListEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -910,7 +1129,12 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/WishModerationRequest' }
       responses:
-        '200': { description: Moderated wish, content: { application/json: { schema: { $ref: '#/components/schemas/WishEnvelope' } } } }
+        '200':
+          {
+            description: Moderated wish,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/WishEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -928,7 +1152,15 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/PromoteWishRequest' }
       responses:
-        '201': { description: Guest created and linked, content: { application/json: { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } } } }
+        '201':
+          {
+            description: Guest created and linked,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -947,7 +1179,15 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/LinkWishGuestRequest' }
       responses:
-        '200': { description: Wish linked to guest, content: { application/json: { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } } } }
+        '200':
+          {
+            description: Wish linked to guest,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/WishGuestLinkEnvelope' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -962,149 +1202,482 @@ paths:
         - { name: q, in: query, schema: { type: string, maxLength: 160 } }
         - { name: categoryId, in: query, schema: { type: string, format: uuid } }
         - { name: groupId, in: query, schema: { type: string, format: uuid } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
       responses:
-        '200': { description: Guest list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestListEnvelope' } } } }
+        '200':
+          {
+            description: Guest list,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/GuestListEnvelope' } } },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
       operationId: createOwnedGuest
       summary: Create a guest
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestRequest' } } } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/CreateGuestRequest' } } },
+        }
       responses:
-        '201': { description: Guest created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }
+        '201':
+          {
+            description: Guest created,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
   /weddings/{weddingId}/guests/{guestId}:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GuestId' }]
+    parameters:
+      [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GuestId' }]
     get:
       operationId: getOwnedGuest
       summary: Get one guest
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Guest detail, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200':
+            {
+              description: Guest detail,
+              content:
+                { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } },
+            },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     patch:
       operationId: updateOwnedGuest
       summary: Update one guest
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestRequest' } } } }
-      responses: { '200': { description: Guest updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestRequest' } } },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Guest updated,
+              content:
+                { application/json: { schema: { $ref: '#/components/schemas/GuestEnvelope' } } },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     delete:
       operationId: deleteOwnedGuest
       summary: Soft-delete one guest
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      responses: { '204': { description: Guest deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      responses:
+        {
+          '204': { description: Guest deleted },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guests/bulk-delete:
     post:
       operationId: bulkDeleteOwnedGuests
       summary: Soft-delete multiple guests in one owner-scoped request
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } } }
-      responses: { '200': { description: Number of deleted guests, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Number of deleted guests,
+              content:
+                {
+                  application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guests/bulk-assign-category:
     post:
       operationId: bulkAssignGuestCategory
       summary: Assign or clear one category for multiple guests
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/BulkAssignCategoryRequest' } } } }
-      responses: { '200': { description: Number of updated guests, content: { application/json: { schema: { $ref: '#/components/schemas/BulkAssignCategoryResponse' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/BulkAssignCategoryRequest' } },
+            },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Number of updated guests,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/BulkAssignCategoryResponse' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guest-categories:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
       operationId: listGuestCategories
       summary: List the guest category tree
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Category list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200':
+            {
+              description: Category list,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/GuestCategoryListEnvelope' } },
+                },
+            },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     post:
       operationId: createGuestCategory
       summary: Create a guest category
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestCategoryRequest' } } } }
-      responses: { '201': { description: Category created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/CreateGuestCategoryRequest' } },
+            },
+        }
+      responses:
+        {
+          '201':
+            {
+              description: Category created,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guest-categories/{categoryId}:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/CategoryId' }]
+    parameters:
+      [
+        { $ref: '#/components/parameters/WeddingId' },
+        { $ref: '#/components/parameters/CategoryId' },
+      ]
     patch:
       operationId: updateGuestCategory
       summary: Rename or move a guest category
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestCategoryRequest' } } } }
-      responses: { '200': { description: Category updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/UpdateGuestCategoryRequest' } },
+            },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Category updated,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/GuestCategoryEnvelope' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     delete:
       operationId: deleteGuestCategory
       summary: Soft-delete a guest category
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      responses: { '204': { description: Category deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      responses:
+        {
+          '204': { description: Category deleted },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guest-categories/bulk-delete:
     post:
       operationId: bulkDeleteGuestCategories
       summary: Soft-delete multiple guest categories in one owner-scoped request
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } } }
-      responses: { '200': { description: Number of deleted categories, content: { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/BulkDeleteRequest' } } },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Number of deleted categories,
+              content:
+                {
+                  application/json: { schema: { $ref: '#/components/schemas/BulkDeleteResponse' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guest-groups:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
       operationId: listGuestGroups
       summary: List guest groups
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Group list, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200':
+            {
+              description: Group list,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/GuestGroupListEnvelope' } },
+                },
+            },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     post:
       operationId: createGuestGroup
       summary: Create a guest group
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateGuestGroupRequest' } } } }
-      responses: { '201': { description: Group created, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/CreateGuestGroupRequest' } },
+            },
+        }
+      responses:
+        {
+          '201':
+            {
+              description: Group created,
+              content:
+                {
+                  application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+        }
   /weddings/{weddingId}/guest-groups/{groupId}:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GroupId' }]
+    parameters:
+      [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/GroupId' }]
     patch:
       operationId: updateGuestGroup
       summary: Update a guest group
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateGuestGroupRequest' } } } }
-      responses: { '200': { description: Group updated, content: { application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } } } }, '400': { $ref: '#/components/responses/BadRequest' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/UpdateGuestGroupRequest' } },
+            },
+        }
+      responses:
+        {
+          '200':
+            {
+              description: Group updated,
+              content:
+                {
+                  application/json: { schema: { $ref: '#/components/schemas/GuestGroupEnvelope' } },
+                },
+            },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     delete:
       operationId: deleteGuestGroup
       summary: Soft-delete a guest group
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      responses: { '204': { description: Group deleted }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      responses:
+        {
+          '204': { description: Group deleted },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guests/import/preview:
     post:
       operationId: previewGuestImport
       summary: Validate guest import rows without writing data
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } } }
-      responses: { '200': { description: Import preview }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } },
+        }
+      responses:
+        {
+          '200': { description: Import preview },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+        }
   /weddings/{weddingId}/guests/import/commit:
     post:
       operationId: commitGuestImport
       summary: Commit a validated guest import in one transaction
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } } }
-      responses: { '201': { description: Imported guests }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            { application/json: { schema: { $ref: '#/components/schemas/GuestImportRequest' } } },
+        }
+      responses:
+        {
+          '201': { description: Imported guests },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/guests/export:
     get:
       operationId: exportOwnedGuests
       summary: Export owner guest data as UTF-8 CSV
       security: [{ cookieAuth: [] }]
       parameters: [{ $ref: '#/components/parameters/WeddingId' }]
-      responses: { '200': { description: UTF-8 BOM CSV export, content: { text/csv: { schema: { type: string } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200':
+            {
+              description: UTF-8 BOM CSV export,
+              content: { text/csv: { schema: { type: string } } },
+            },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/invitations:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
@@ -1114,44 +1687,132 @@ paths:
       parameters:
         - { name: guestId, in: query, schema: { type: string, format: uuid } }
         - { name: status, in: query, schema: { type: string, enum: [ACTIVE, REVOKED] } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 50 },
+          }
         - { name: cursor, in: query, schema: { type: string, maxLength: 512 } }
-      responses: { '200': { description: Invitation list, content: { application/json: { schema: { $ref: '#/components/schemas/InvitationListEnvelope' } } } }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200':
+            {
+              description: Invitation list,
+              content:
+                {
+                  application/json:
+                    { schema: { $ref: '#/components/schemas/InvitationListEnvelope' } },
+                },
+            },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     post:
       operationId: createOwnedInvitation
       summary: Create an invitation and return its raw token once
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateInvitationRequest' } } } }
-      responses: { '201': { description: Invitation created with one-time token }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/CreateInvitationRequest' } },
+            },
+        }
+      responses:
+        {
+          '201': { description: Invitation created with one-time token },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/invitations/{invitationId}:
-    parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }]
+    parameters:
+      [
+        { $ref: '#/components/parameters/WeddingId' },
+        { $ref: '#/components/parameters/InvitationId' },
+      ]
     get:
       operationId: getOwnedInvitation
       summary: Get invitation metadata without exposing tokens
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Invitation detail }, '401': { $ref: '#/components/responses/Unauthorized' }, '404': { $ref: '#/components/responses/NotFound' } }
+      responses:
+        {
+          '200': { description: Invitation detail },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
     patch:
       operationId: updateOwnedInvitation
       summary: Update invitation metadata
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateInvitationRequest' } } } }
-      responses: { '200': { description: Invitation updated }, '400': { $ref: '#/components/responses/BadRequest' }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/UpdateInvitationRequest' } },
+            },
+        }
+      responses:
+        {
+          '200': { description: Invitation updated },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/invitations/{invitationId}/rotate:
     post:
       operationId: rotateOwnedInvitationToken
       summary: Rotate an invitation token and return the new raw token once
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      responses: { '200': { description: Invitation metadata and one-time raw token }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/InvitationId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      responses:
+        {
+          '200': { description: Invitation metadata and one-time raw token },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /weddings/{weddingId}/invitations/{invitationId}/revoke:
     post:
       operationId: revokeOwnedInvitation
       summary: Revoke an active invitation token
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/WeddingId' }, { $ref: '#/components/parameters/InvitationId' }, { $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
-      responses: { '204': { description: Invitation revoked }, '401': { $ref: '#/components/responses/Unauthorized' }, '403': { $ref: '#/components/responses/Forbidden' }, '404': { $ref: '#/components/responses/NotFound' } }
+      parameters:
+        [
+          { $ref: '#/components/parameters/WeddingId' },
+          { $ref: '#/components/parameters/InvitationId' },
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
+      responses:
+        {
+          '204': { description: Invitation revoked },
+          '401': { $ref: '#/components/responses/Unauthorized' },
+          '403': { $ref: '#/components/responses/Forbidden' },
+          '404': { $ref: '#/components/responses/NotFound' },
+        }
   /templates:
     get:
       operationId: listTemplates
@@ -1182,8 +1843,16 @@ paths:
       summary: List template versions for admin review
       security: [{ cookieAuth: [] }]
       parameters:
-        - { name: productType, in: query, schema: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE, RECAP] } }
-        - { name: reviewStatus, in: query, schema: { type: string, enum: [PENDING_REVIEW, RELEASED, DEPRECATED] } }
+        - {
+            name: productType,
+            in: query,
+            schema: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE, RECAP] },
+          }
+        - {
+            name: reviewStatus,
+            in: query,
+            schema: { type: string, enum: [PENDING_REVIEW, RELEASED, DEPRECATED] },
+          }
       responses:
         '200': { description: Admin catalog with pendingReviewCount }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1193,7 +1862,11 @@ paths:
       operationId: syncTemplateReleaseBundle
       summary: Sync a template release bundle as versions awaiting review
       security: [{ cookieAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/Origin' }, { $ref: '#/components/parameters/CsrfProtection' }]
+      parameters:
+        [
+          { $ref: '#/components/parameters/Origin' },
+          { $ref: '#/components/parameters/CsrfProtection' },
+        ]
       requestBody:
         required: true
         content:
@@ -1256,9 +1929,9 @@ paths:
       summary: Get the owner recap draft
       security: [{ cookieAuth: [] }]
       responses:
-        '200': { description: Recap draft; returns recap: null when no draft exists }
+        '200': { description: 'Recap draft; returns recap: null when no draft exists' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-  
+
     put:
       operationId: saveWeddingRecap
       summary: Save the owner recap draft
@@ -1322,7 +1995,13 @@ paths:
       summary: Check global recap slug availability
       security: [{ cookieAuth: [] }]
       parameters:
-        - { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 } }
+        - {
+            name: slug,
+            in: path,
+            required: true,
+            schema:
+              { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 3, maxLength: 64 },
+          }
         - { name: weddingId, in: query, schema: { type: string, format: uuid } }
       responses:
         '200': { description: Availability result }
@@ -1338,7 +2017,8 @@ paths:
       responses:
         '200': { description: Published recap snapshot }
         '304': { description: Snapshot has not changed }
-        '404': { $ref: '#/components/responses/NotFound' }  /weddings/{weddingId}/content:
+        '404': { $ref: '#/components/responses/NotFound' }
+  /weddings/{weddingId}/content:
     parameters: [{ $ref: '#/components/parameters/WeddingId' }]
     get:
       operationId: getWeddingContent
@@ -1400,7 +2080,13 @@ paths:
         required: true
         content:
           application/json:
-            schema: { type: object, additionalProperties: false, required: [surface], properties: { surface: { $ref: '#/components/schemas/WeddingSurface' } } }
+            schema:
+              {
+                type: object,
+                additionalProperties: false,
+                required: [surface],
+                properties: { surface: { $ref: '#/components/schemas/WeddingSurface' } },
+              }
       responses:
         '204': { description: Surface unpublished }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1411,7 +2097,12 @@ paths:
       summary: Check global live publication slug availability
       security: [{ cookieAuth: [] }]
       parameters:
-        - { name: slug, in: path, required: true, schema: { type: string, minLength: 3, maxLength: 64 } }
+        - {
+            name: slug,
+            in: path,
+            required: true,
+            schema: { type: string, minLength: 3, maxLength: 64 },
+          }
         - { name: weddingId, in: query, schema: { type: string, format: uuid } }
       responses:
         '200': { description: Availability result }
@@ -1459,7 +2150,15 @@ paths:
       parameters:
         - { name: slug, in: path, required: true, schema: { type: string } }
       responses:
-        '200': { description: Approved public wishes, content: { application/json: { schema: { $ref: '#/components/schemas/PublicWishListEnvelope' } } } }
+        '200':
+          {
+            description: Approved public wishes,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/PublicWishListEnvelope' } },
+              },
+          }
         '404': { $ref: '#/components/responses/NotFound' }
     post:
       operationId: submitCommonWish
@@ -1714,7 +2413,17 @@ components:
           maxItems: 100
           items:
             type: object
-            required: [templateKey, displayName, productType, templateVersion, templateConfigVersion, contentSchemaVersion, rendererApiVersion, config]
+            required:
+              [
+                templateKey,
+                displayName,
+                productType,
+                templateVersion,
+                templateConfigVersion,
+                contentSchemaVersion,
+                rendererApiVersion,
+                config,
+              ]
             properties:
               templateKey: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
               displayName: { type: string, maxLength: 160 }
@@ -1740,7 +2449,27 @@ components:
     Task:
       type: object
       additionalProperties: false
-      required: [id, weddingId, eventId, event, parentTaskId, title, description, dueAt, priority, status, sortOrder, completedAt, completedById, sourceTemplateKey, sourceTemplateVersion, revision, createdAt, updatedAt]
+      required:
+        [
+          id,
+          weddingId,
+          eventId,
+          event,
+          parentTaskId,
+          title,
+          description,
+          dueAt,
+          priority,
+          status,
+          sortOrder,
+          completedAt,
+          completedById,
+          sourceTemplateKey,
+          sourceTemplateVersion,
+          revision,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
@@ -1799,12 +2528,26 @@ components:
       type: object
       required: [taskIds]
       properties:
-        taskIds: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
+        taskIds:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 200,
+            uniqueItems: true,
+            items: { type: string, format: uuid },
+          }
     BulkTaskStatusRequest:
       type: object
       required: [taskIds, status]
       properties:
-        taskIds: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
+        taskIds:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 200,
+            uniqueItems: true,
+            items: { type: string, format: uuid },
+          }
         status: { type: string, enum: [TODO, IN_PROGRESS, DONE, CANCELLED] }
     ApplyTaskTemplateRequest:
       type: object
@@ -1843,14 +2586,41 @@ components:
     GiftLedgerEntry:
       type: object
       additionalProperties: false
-      required: [id, weddingId, guestId, guestDisplayNameSnapshot, giftType, amountMinor, currency, goldWeight, goldUnit, goldType, giftDescription, receiveMethod, receivedAt, note, reciprocityStatus, returnedAt, revision, createdAt, updatedAt, linkedGuest]
+      required:
+        [
+          id,
+          weddingId,
+          guestId,
+          guestDisplayNameSnapshot,
+          giftType,
+          amountMinor,
+          currency,
+          goldWeight,
+          goldUnit,
+          goldType,
+          giftDescription,
+          receiveMethod,
+          receivedAt,
+          note,
+          reciprocityStatus,
+          returnedAt,
+          revision,
+          createdAt,
+          updatedAt,
+          linkedGuest,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
         guestId: { type: [string, 'null'], format: uuid }
         guestDisplayNameSnapshot: { type: string, maxLength: 160 }
         giftType: { type: string, enum: [money, gold, physicalGift] }
-        amountMinor: { type: [string, 'null'], pattern: '^\\d+$', description: Non-negative integer minor units; returned as string for BigInt safety }
+        amountMinor:
+          {
+            type: [string, 'null'],
+            pattern: '^\\d+$',
+            description: Non-negative integer minor units; returned as string for BigInt safety,
+          }
         currency: { type: [string, 'null'], minLength: 3, maxLength: 3 }
         goldWeight: { type: [string, 'null'], description: Decimal weight, not converted to money }
         goldUnit: { type: [string, 'null'], maxLength: 32 }
@@ -1864,7 +2634,18 @@ components:
         revision: { type: integer, minimum: 1 }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
-        linkedGuest: { anyOf: [{ type: object, required: [id, displayName], properties: { id: { type: string, format: uuid }, displayName: { type: string } } }, { type: 'null' }] }
+        linkedGuest:
+          {
+            anyOf:
+              [
+                {
+                  type: object,
+                  required: [id, displayName],
+                  properties: { id: { type: string, format: uuid }, displayName: { type: string } },
+                },
+                { type: 'null' },
+              ],
+          }
     GiftLedgerEntryEnvelope:
       type: object
       required: [entry]
@@ -1880,7 +2661,13 @@ components:
       additionalProperties: false
       required: [guestName, giftType, receiveMethod]
       properties:
-        guestName: { type: string, minLength: 1, maxLength: 160, description: Manual name used for fast entry; guestId is optional }
+        guestName:
+          {
+            type: string,
+            minLength: 1,
+            maxLength: 160,
+            description: Manual name used for fast entry; guestId is optional,
+          }
         guestId: { type: string, format: uuid }
         giftType: { type: string, enum: [money, gold, physicalGift] }
         amountMinor: { type: [string, number], minimum: 0 }
@@ -1892,7 +2679,8 @@ components:
         receiveMethod: { type: string, enum: [cash, bankTransfer, physicalGift, other] }
         receivedAt: { type: string, format: date-time, description: Defaults to current time }
         note: { type: string, maxLength: 5000 }
-        reciprocityStatus: { type: string, enum: [pending, returned, notApplicable], default: pending }
+        reciprocityStatus:
+          { type: string, enum: [pending, returned, notApplicable], default: pending }
         returnedAt: { type: string, format: date-time }
     UpdateGiftLedgerEntryRequest:
       type: object
@@ -1916,14 +2704,64 @@ components:
         revision: { type: integer, minimum: 1 }
     GiftLedgerSummary:
       type: object
-      required: [entryCount, pendingCount, returnedCount, notApplicableCount, money, gold, physicalGiftCount]
+      required:
+        [
+          entryCount,
+          pendingCount,
+          returnedCount,
+          notApplicableCount,
+          money,
+          gold,
+          physicalGiftCount,
+        ]
       properties:
         entryCount: { type: integer, minimum: 0 }
         pendingCount: { type: integer, minimum: 0 }
         returnedCount: { type: integer, minimum: 0 }
         notApplicableCount: { type: integer, minimum: 0 }
-        money: { type: object, required: [count, totals], properties: { count: { type: integer }, totals: { type: array, items: { type: object, required: [currency, amountMinor], properties: { currency: { type: string }, amountMinor: { type: string } } } } } }
-        gold: { type: object, required: [count, totals], properties: { count: { type: integer }, totals: { type: array, items: { type: object, required: [unit, type, weight], properties: { unit: { type: string }, type: { type: [string, 'null'] }, weight: { type: string } } } } } }
+        money:
+          {
+            type: object,
+            required: [count, totals],
+            properties:
+              {
+                count: { type: integer },
+                totals:
+                  {
+                    type: array,
+                    items:
+                      {
+                        type: object,
+                        required: [currency, amountMinor],
+                        properties: { currency: { type: string }, amountMinor: { type: string } },
+                      },
+                  },
+              },
+          }
+        gold:
+          {
+            type: object,
+            required: [count, totals],
+            properties:
+              {
+                count: { type: integer },
+                totals:
+                  {
+                    type: array,
+                    items:
+                      {
+                        type: object,
+                        required: [unit, type, weight],
+                        properties:
+                          {
+                            unit: { type: string },
+                            type: { type: [string, 'null'] },
+                            weight: { type: string },
+                          },
+                      },
+                  },
+              },
+          }
         physicalGiftCount: { type: integer, minimum: 0 }
     GiftLedgerSummaryEnvelope:
       type: object
@@ -1942,7 +2780,19 @@ components:
     Wish:
       type: object
       additionalProperties: false
-      required: [id, authorName, guestName, guestId, invitationId, content, status, isPinned, submittedAt, moderatedAt]
+      required:
+        [
+          id,
+          authorName,
+          guestName,
+          guestId,
+          invitationId,
+          content,
+          status,
+          isPinned,
+          submittedAt,
+          moderatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         authorName: { type: string }
@@ -2013,7 +2863,30 @@ components:
     Rsvp:
       type: object
       additionalProperties: false
-      required: [id, weddingId, invitationId, guestId, guestName, guestPhone, guestEmail, categoryId, groupId, invitationLabel, invitationStatus, attendance, partySize, mealPreference, specialRequest, message, submittedAt, updatedAt, revision, eventSelections, companions]
+      required:
+        [
+          id,
+          weddingId,
+          invitationId,
+          guestId,
+          guestName,
+          guestPhone,
+          guestEmail,
+          categoryId,
+          groupId,
+          invitationLabel,
+          invitationStatus,
+          attendance,
+          partySize,
+          mealPreference,
+          specialRequest,
+          message,
+          submittedAt,
+          updatedAt,
+          revision,
+          eventSelections,
+          companions,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
@@ -2062,7 +2935,22 @@ components:
     Guest:
       type: object
       additionalProperties: false
-      required: [id, weddingId, categoryId, groupId, displayName, phone, email, note, tableName, maxPartySize, tags, createdAt, updatedAt]
+      required:
+        [
+          id,
+          weddingId,
+          categoryId,
+          groupId,
+          displayName,
+          phone,
+          email,
+          note,
+          tableName,
+          maxPartySize,
+          tags,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
@@ -2174,7 +3062,21 @@ components:
       properties: { items: { type: array, items: { $ref: '#/components/schemas/GuestGroup' } } }
     Invitation:
       type: object
-      required: [id, weddingId, guestId, label, publicSlug, status, maxPartySize, expiresAt, revokedAt, lastViewedAt, createdAt, updatedAt]
+      required:
+        [
+          id,
+          weddingId,
+          guestId,
+          label,
+          publicSlug,
+          status,
+          maxPartySize,
+          expiresAt,
+          revokedAt,
+          lastViewedAt,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
@@ -2219,7 +3121,13 @@ components:
       additionalProperties: false
       required: [rows]
       properties:
-        rows: { type: array, minItems: 1, maxItems: 5000, items: { $ref: '#/components/schemas/GuestImportRow' } }
+        rows:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 5000,
+            items: { $ref: '#/components/schemas/GuestImportRow' },
+          }
     GuestImportRow:
       type: object
       additionalProperties: false
@@ -2239,7 +3147,14 @@ components:
       additionalProperties: false
       required: [ids]
       properties:
-        ids: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
+        ids:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 200,
+            uniqueItems: true,
+            items: { type: string, format: uuid },
+          }
     BulkDeleteResponse:
       type: object
       additionalProperties: false
@@ -2251,8 +3166,20 @@ components:
       additionalProperties: false
       required: [guestIds, categoryId]
       properties:
-        guestIds: { type: array, minItems: 1, maxItems: 200, uniqueItems: true, items: { type: string, format: uuid } }
-        categoryId: { type: [string, 'null'], format: uuid, description: Set null to clear the category assignment. }
+        guestIds:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 200,
+            uniqueItems: true,
+            items: { type: string, format: uuid },
+          }
+        categoryId:
+          {
+            type: [string, 'null'],
+            format: uuid,
+            description: Set null to clear the category assignment.,
+          }
     BulkAssignCategoryResponse:
       type: object
       additionalProperties: false
@@ -2264,8 +3191,10 @@ components:
       additionalProperties: false
       required: [enabled, order]
       properties:
-        enabled: { type: array, maxItems: 100, uniqueItems: true, items: { type: string, minLength: 1 } }
-        order: { type: array, maxItems: 100, uniqueItems: true, items: { type: string, minLength: 1 } }
+        enabled:
+          { type: array, maxItems: 100, uniqueItems: true, items: { type: string, minLength: 1 } }
+        order:
+          { type: array, maxItems: 100, uniqueItems: true, items: { type: string, minLength: 1 } }
     RecapMediaItemInput:
       type: object
       additionalProperties: false
@@ -2284,7 +3213,17 @@ components:
     SaveRecapRequest:
       type: object
       additionalProperties: false
-      required: [templateVersionId, title, content, themeConfig, sectionConfig, mediaItems, wishSelections, revision]
+      required:
+        [
+          templateVersionId,
+          title,
+          content,
+          themeConfig,
+          sectionConfig,
+          mediaItems,
+          wishSelections,
+          revision,
+        ]
       properties:
         templateVersionId: { type: string, format: uuid }
         title: { type: string, minLength: 1, maxLength: 200 }
@@ -2295,8 +3234,18 @@ components:
         content: { type: object, additionalProperties: true }
         themeConfig: { type: object, additionalProperties: true }
         sectionConfig: { $ref: '#/components/schemas/RecapSectionConfig' }
-        mediaItems: { type: array, maxItems: 200, items: { $ref: '#/components/schemas/RecapMediaItemInput' } }
-        wishSelections: { type: array, maxItems: 200, items: { $ref: '#/components/schemas/RecapWishSelectionInput' } }
+        mediaItems:
+          {
+            type: array,
+            maxItems: 200,
+            items: { $ref: '#/components/schemas/RecapMediaItemInput' },
+          }
+        wishSelections:
+          {
+            type: array,
+            maxItems: 200,
+            items: { $ref: '#/components/schemas/RecapWishSelectionInput' },
+          }
         revision: { type: integer, minimum: 1 }
     PublishRecapRequest:
       type: object
@@ -2310,7 +3259,8 @@ components:
       additionalProperties: false
       required: [revision]
       properties:
-        revision: { type: integer, minimum: 1 }    SaveWeddingContentRequest:
+        revision: { type: integer, minimum: 1 }
+    SaveWeddingContentRequest:
       type: object
       additionalProperties: false
       required: [surface, templateVersionId, content, themeConfig, sectionConfig, revision]
@@ -2500,7 +3450,21 @@ components:
     Wedding:
       type: object
       additionalProperties: false
-      required: [id, name, status, visibility, timezone, locale, primaryDate, revision, publishedAt, archivedAt, createdAt, updatedAt]
+      required:
+        [
+          id,
+          name,
+          status,
+          visibility,
+          timezone,
+          locale,
+          primaryDate,
+          revision,
+          publishedAt,
+          archivedAt,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         name: { type: string, maxLength: 160 }
@@ -2523,7 +3487,8 @@ components:
         primaryDate: { type: string, format: date-time }
         timezone: { type: string, default: Asia/Ho_Chi_Minh, maxLength: 64 }
         locale: { type: string, default: vi-VN, maxLength: 16 }
-        visibility: { type: string, enum: [PUBLIC, PASSWORD_PROTECTED, INVITE_ONLY], default: PUBLIC }
+        visibility:
+          { type: string, enum: [PUBLIC, PASSWORD_PROTECTED, INVITE_ONLY], default: PUBLIC }
     UpdateWeddingRequest:
       type: object
       additionalProperties: false
@@ -2554,7 +3519,26 @@ components:
     WeddingEvent:
       type: object
       additionalProperties: false
-      required: [id, weddingId, name, eventType, startsAt, endsAt, timezone, venueName, addressLine, mapUrl, latitude, longitude, sortOrder, isPublic, revision, createdAt, updatedAt]
+      required:
+        [
+          id,
+          weddingId,
+          name,
+          eventType,
+          startsAt,
+          endsAt,
+          timezone,
+          venueName,
+          addressLine,
+          mapUrl,
+          latitude,
+          longitude,
+          sortOrder,
+          isPublic,
+          revision,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id: { type: string, format: uuid }
         weddingId: { type: string, format: uuid }
@@ -2643,7 +3627,21 @@ components:
                 recap: { $ref: '#/components/schemas/RecapPublicationStatus' }
             metrics:
               type: object
-              required: [guests, invitations, activeInvitations, responses, attending, declined, maybe, pendingResponses, attendingPartySize, companions, pendingWishes, approvedWishes]
+              required:
+                [
+                  guests,
+                  invitations,
+                  activeInvitations,
+                  responses,
+                  attending,
+                  declined,
+                  maybe,
+                  pendingResponses,
+                  attendingPartySize,
+                  companions,
+                  pendingWishes,
+                  approvedWishes,
+                ]
               properties:
                 guests: { type: integer, minimum: 0 }
                 invitations: { type: integer, minimum: 0 }

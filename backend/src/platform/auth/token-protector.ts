@@ -25,4 +25,3 @@ export class TokenProtector {
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8')
   }
 }
-

@@ -54,15 +54,31 @@ export class PrismaIdentityRepository implements IdentityRepository {
     await this.db.user.update({ where: { id: userId }, data: { passwordHash } })
   }
 
-  async updateProfile(userId: string, data: { displayName?: string | null | undefined; phone?: string | null | undefined; avatarUrl?: string | null | undefined; locale?: string | undefined; timezone?: string | undefined }) {
-    const cleanData = Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined))
+  async updateProfile(
+    userId: string,
+    data: {
+      displayName?: string | null | undefined
+      phone?: string | null | undefined
+      avatarUrl?: string | null | undefined
+      locale?: string | undefined
+      timezone?: string | undefined
+    },
+  ) {
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined),
+    )
     const result = await this.db.user.updateMany({
       where: { id: userId, deletedAt: null, status: 'ACTIVE' },
       data: cleanData,
     })
     if (!result.count) return null
     await this.db.auditLog.create({
-      data: { actorUserId: userId, action: 'identity.profile_updated', resourceType: 'User', resourceId: userId },
+      data: {
+        actorUserId: userId,
+        action: 'identity.profile_updated',
+        resourceType: 'User',
+        resourceId: userId,
+      },
     })
     const user = await this.db.user.findUnique({ where: { id: userId }, select: userSelection })
     return user ? toIdentityUser(user) : null
@@ -78,46 +94,49 @@ export class PrismaIdentityRepository implements IdentityRepository {
   }) {
     try {
       return await this.db.$transaction(async (tx) => {
-      const existing = await tx.user.findUnique({ where: { email: input.email }, select: { id: true } })
-      if (existing) return { created: false }
+        const existing = await tx.user.findUnique({
+          where: { email: input.email },
+          select: { id: true },
+        })
+        if (existing) return { created: false }
 
-      const user = await tx.user.create({
-        data: {
-          email: input.email,
-          passwordHash: input.passwordHash,
-          ...(input.displayName ? { displayName: input.displayName } : {}),
-        },
-        select: { id: true },
-      })
-      await tx.verificationToken.create({
-        data: {
-          identifier: input.email,
-          purpose: 'EMAIL_VERIFICATION',
-          tokenHash: input.tokenHash,
-          expiresAt: input.tokenExpiresAt,
-        },
-      })
-      const outbox = await tx.outboxEvent.create({
-        data: {
-          aggregateType: 'User',
-          aggregateId: user.id,
-          eventType: 'IdentityVerificationEmailRequestedV1',
-          payload: {
-            userId: user.id,
-            encryptedToken: input.encryptedToken,
-            expiresAt: input.tokenExpiresAt.toISOString(),
+        const user = await tx.user.create({
+          data: {
+            email: input.email,
+            passwordHash: input.passwordHash,
+            ...(input.displayName ? { displayName: input.displayName } : {}),
           },
-        },
-        select: { id: true },
-      })
-      await tx.auditLog.create({
-        data: {
-          actorUserId: user.id,
-          action: 'identity.registered',
-          resourceType: 'User',
-          resourceId: user.id,
-        },
-      })
+          select: { id: true },
+        })
+        await tx.verificationToken.create({
+          data: {
+            identifier: input.email,
+            purpose: 'EMAIL_VERIFICATION',
+            tokenHash: input.tokenHash,
+            expiresAt: input.tokenExpiresAt,
+          },
+        })
+        const outbox = await tx.outboxEvent.create({
+          data: {
+            aggregateType: 'User',
+            aggregateId: user.id,
+            eventType: 'IdentityVerificationEmailRequestedV1',
+            payload: {
+              userId: user.id,
+              encryptedToken: input.encryptedToken,
+              expiresAt: input.tokenExpiresAt.toISOString(),
+            },
+          },
+          select: { id: true },
+        })
+        await tx.auditLog.create({
+          data: {
+            actorUserId: user.id,
+            action: 'identity.registered',
+            resourceType: 'User',
+            resourceId: user.id,
+          },
+        })
         return { created: true, userId: user.id, outboxId: outbox.id }
       })
     } catch (error) {
@@ -131,7 +150,12 @@ export class PrismaIdentityRepository implements IdentityRepository {
   async verifyEmail(tokenHash: string, now: Date) {
     return this.db.$transaction(async (tx) => {
       const token = await tx.verificationToken.findUnique({ where: { tokenHash } })
-      if (!token || token.purpose !== 'EMAIL_VERIFICATION' || token.usedAt || token.expiresAt <= now) {
+      if (
+        !token ||
+        token.purpose !== 'EMAIL_VERIFICATION' ||
+        token.usedAt ||
+        token.expiresAt <= now
+      ) {
         return false
       }
       const claimed = await tx.verificationToken.updateMany({
@@ -228,18 +252,33 @@ export class PrismaIdentityRepository implements IdentityRepository {
         data: { usedAt: now },
       })
       await tx.verificationToken.create({
-        data: { identifier: input.email, purpose: 'PASSWORD_RESET', tokenHash: input.tokenHash, expiresAt: input.tokenExpiresAt },
+        data: {
+          identifier: input.email,
+          purpose: 'PASSWORD_RESET',
+          tokenHash: input.tokenHash,
+          expiresAt: input.tokenExpiresAt,
+        },
       })
       const outbox = await tx.outboxEvent.create({
         data: {
-          aggregateType: 'User', aggregateId: input.userId,
+          aggregateType: 'User',
+          aggregateId: input.userId,
           eventType: 'IdentityPasswordResetEmailRequestedV1',
-          payload: { userId: input.userId, encryptedToken: input.encryptedToken, expiresAt: input.tokenExpiresAt.toISOString() },
+          payload: {
+            userId: input.userId,
+            encryptedToken: input.encryptedToken,
+            expiresAt: input.tokenExpiresAt.toISOString(),
+          },
         },
         select: { id: true },
       })
       await tx.auditLog.create({
-        data: { actorUserId: input.userId, action: 'identity.password_reset_requested', resourceType: 'User', resourceId: input.userId },
+        data: {
+          actorUserId: input.userId,
+          action: 'identity.password_reset_requested',
+          resourceType: 'User',
+          resourceId: input.userId,
+        },
       })
       return { outboxId: outbox.id }
     })
@@ -248,23 +287,43 @@ export class PrismaIdentityRepository implements IdentityRepository {
   async resetPassword(tokenHash: string, passwordHash: string, now: Date) {
     return this.db.$transaction(async (tx) => {
       const token = await tx.verificationToken.findUnique({ where: { tokenHash } })
-      if (!token || token.purpose !== 'PASSWORD_RESET' || token.usedAt || token.expiresAt <= now) return false
+      if (!token || token.purpose !== 'PASSWORD_RESET' || token.usedAt || token.expiresAt <= now)
+        return false
       const user = await tx.user.findUnique({
         where: { email: token.identifier },
-        select: { id: true, status: true, roles: { where: { role: 'ADMIN', revokedAt: null }, select: { expiresAt: true } } },
+        select: {
+          id: true,
+          status: true,
+          roles: { where: { role: 'ADMIN', revokedAt: null }, select: { expiresAt: true } },
+        },
       })
-      if (!user || user.status !== 'ACTIVE' || user.roles.some((role) => !role.expiresAt || role.expiresAt > now)) return false
+      if (
+        !user ||
+        user.status !== 'ACTIVE' ||
+        user.roles.some((role) => !role.expiresAt || role.expiresAt > now)
+      )
+        return false
       const claimed = await tx.verificationToken.updateMany({
-        where: { id: token.id, usedAt: null, expiresAt: { gt: now } }, data: { usedAt: now },
+        where: { id: token.id, usedAt: null, expiresAt: { gt: now } },
+        data: { usedAt: now },
       })
       if (claimed.count !== 1) return false
       await tx.user.update({ where: { id: user.id }, data: { passwordHash } })
-      await tx.session.updateMany({ where: { userId: user.id, revokedAt: null }, data: { revokedAt: now } })
+      await tx.session.updateMany({
+        where: { userId: user.id, revokedAt: null },
+        data: { revokedAt: now },
+      })
       await tx.verificationToken.updateMany({
-        where: { identifier: token.identifier, purpose: 'PASSWORD_RESET', usedAt: null }, data: { usedAt: now },
+        where: { identifier: token.identifier, purpose: 'PASSWORD_RESET', usedAt: null },
+        data: { usedAt: now },
       })
       await tx.auditLog.create({
-        data: { actorUserId: user.id, action: 'identity.password_reset_completed', resourceType: 'User', resourceId: user.id },
+        data: {
+          actorUserId: user.id,
+          action: 'identity.password_reset_completed',
+          resourceType: 'User',
+          resourceId: user.id,
+        },
       })
       return true
     })
@@ -316,7 +375,10 @@ export class PrismaIdentityRepository implements IdentityRepository {
   }
 
   async revokeSession(sessionHash: string, now: Date) {
-    await this.db.session.updateMany({ where: { sessionHash, revokedAt: null }, data: { revokedAt: now } })
+    await this.db.session.updateMany({
+      where: { sessionHash, revokedAt: null },
+      data: { revokedAt: now },
+    })
   }
 
   async markOutboxCompleted(outboxId: string, now: Date) {

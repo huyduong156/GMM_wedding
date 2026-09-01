@@ -13,6 +13,11 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     await requirePlatformAdmin(request)
     const { templateKey, version } = await context.params
-    return withApiHeaders(jsonResponse({ template: await getTemplateAdminService().detail(templateKey, version) }), requestId)
-  } catch (error) { return templateAdminErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse({ template: await getTemplateAdminService().detail(templateKey, version) }),
+      requestId,
+    )
+  } catch (error) {
+    return templateAdminErrorResponse(error, requestId)
+  }
 }

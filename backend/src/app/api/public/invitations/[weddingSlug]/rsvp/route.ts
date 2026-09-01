@@ -1,5 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  parseJson,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { getPublicInteractionService } from '@/modules/public-interactions'
 import { rsvpSchema } from '@/modules/public-interactions/public-schemas'
 import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
@@ -12,6 +17,16 @@ export async function PUT(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     assertSafeMutation(request)
-    return withApiHeaders(jsonResponse(await getPublicInteractionService().submitTokenRsvp((await context.params).weddingSlug, await parseJson(request, rsvpSchema))), requestId)
-  } catch (error) { return guestErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse(
+        await getPublicInteractionService().submitTokenRsvp(
+          (await context.params).weddingSlug,
+          await parseJson(request, rsvpSchema),
+        ),
+      ),
+      requestId,
+    )
+  } catch (error) {
+    return guestErrorResponse(error, requestId)
+  }
 }

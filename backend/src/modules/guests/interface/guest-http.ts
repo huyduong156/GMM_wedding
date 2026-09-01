@@ -3,7 +3,18 @@ import { authErrorResponse, withApiHeaders } from '@/modules/identity/interface/
 import { apiError } from '@/shared/http/api-response'
 import { GuestError } from '../domain/guest-error'
 export function guestErrorResponse(error: unknown, requestId: string) {
-  if (error instanceof GuestError) return withApiHeaders(apiError(requestId, error.code, error.message, error.status), requestId)
-  if (error instanceof ZodError) return withApiHeaders(apiError(requestId, 'VALIDATION_ERROR', 'Request validation failed', 400, error.flatten().fieldErrors as Record<string, string[]>), requestId)
+  if (error instanceof GuestError)
+    return withApiHeaders(apiError(requestId, error.code, error.message, error.status), requestId)
+  if (error instanceof ZodError)
+    return withApiHeaders(
+      apiError(
+        requestId,
+        'VALIDATION_ERROR',
+        'Request validation failed',
+        400,
+        error.flatten().fieldErrors as Record<string, string[]>,
+      ),
+      requestId,
+    )
   return withApiHeaders(authErrorResponse(error, requestId), requestId)
 }

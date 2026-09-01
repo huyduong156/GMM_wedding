@@ -1,5 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  parseJson,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requirePlatformAdmin } from '@/modules/identity/interface/request-authenticator'
 import { getMusicService } from '@/modules/music'
 import { musicErrorResponse, musicIdSchema, musicUpdateSchema } from '@/modules/music/interface'
@@ -16,6 +21,17 @@ export async function PATCH(request: NextRequest, context: Context) {
     const { actor } = await requirePlatformAdmin(request)
     const params = await context.params
     const input = await parseJson(request, musicUpdateSchema)
-    return withApiHeaders(jsonResponse(await getMusicService().updateAdmin(actor.userId, musicIdSchema.parse(params.trackId), input)), requestId)
-  } catch (error) { return musicErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse(
+        await getMusicService().updateAdmin(
+          actor.userId,
+          musicIdSchema.parse(params.trackId),
+          input,
+        ),
+      ),
+      requestId,
+    )
+  } catch (error) {
+    return musicErrorResponse(error, requestId)
+  }
 }

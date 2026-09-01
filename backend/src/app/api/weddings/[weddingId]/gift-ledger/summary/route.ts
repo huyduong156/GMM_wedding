@@ -9,4 +9,17 @@ import { weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
 export const dynamic = 'force-dynamic'
 type Context = { params: Promise<{ weddingId: string }> }
 export const OPTIONS = optionsResponse
-export async function GET(request: NextRequest, context: Context) { const requestId = getRequestId(request); try { const { actor } = await requireAuthenticatedUser(request); const weddingId = weddingIdSchema.parse((await context.params).weddingId); const filter = giftDateQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams)); return withApiHeaders(jsonResponse({ summary: await getGiftLedgerService().summary(actor, weddingId, filter) }), requestId) } catch (error) { return giftLedgerErrorResponse(error, requestId) } }
+export async function GET(request: NextRequest, context: Context) {
+  const requestId = getRequestId(request)
+  try {
+    const { actor } = await requireAuthenticatedUser(request)
+    const weddingId = weddingIdSchema.parse((await context.params).weddingId)
+    const filter = giftDateQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams))
+    return withApiHeaders(
+      jsonResponse({ summary: await getGiftLedgerService().summary(actor, weddingId, filter) }),
+      requestId,
+    )
+  } catch (error) {
+    return giftLedgerErrorResponse(error, requestId)
+  }
+}

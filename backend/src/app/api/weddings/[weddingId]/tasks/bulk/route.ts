@@ -1,5 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  parseJson,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getTaskService } from '@/modules/tasks'
 import { taskErrorResponse } from '@/modules/tasks/interface/task-http'

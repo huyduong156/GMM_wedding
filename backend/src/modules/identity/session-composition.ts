@@ -5,5 +5,11 @@ import { UserSessionService } from './application/user-session-service'
 
 let sessions: UserSessionService | undefined
 let passwords: PasswordChangeService | undefined
-export function getUserSessionService() { sessions ??= new UserSessionService(prisma); return sessions }
-export function getPasswordChangeService() { passwords ??= new PasswordChangeService(prisma, new ArgonPasswordHasher()); return passwords }
+export function getUserSessionService() {
+  sessions ??= new UserSessionService(prisma)
+  return sessions
+}
+export function getPasswordChangeService() {
+  passwords ??= new PasswordChangeService(prisma, new ArgonPasswordHasher())
+  return passwords
+}

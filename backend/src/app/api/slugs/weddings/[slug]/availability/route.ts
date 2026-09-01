@@ -12,6 +12,14 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const slug = (await context.params).slug
     const weddingId = request.nextUrl.searchParams.get('weddingId') ?? undefined
-    return withApiHeaders(jsonResponse({ slug, available: await getWeddingService().slugAvailable(actor, slug, weddingId) }), requestId)
-  } catch (error) { return weddingErrorResponse(error, requestId) }
+    return withApiHeaders(
+      jsonResponse({
+        slug,
+        available: await getWeddingService().slugAvailable(actor, slug, weddingId),
+      }),
+      requestId,
+    )
+  } catch (error) {
+    return weddingErrorResponse(error, requestId)
+  }
 }

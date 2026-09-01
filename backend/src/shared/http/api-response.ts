@@ -14,11 +14,20 @@ export interface ApiErrorBody {
 }
 
 const requestOrigins = new Map<string, string | undefined>()
-const requestContexts = new Map<string, { method: string; path: string; ip: string; startedAt: number }>()
+const requestContexts = new Map<
+  string,
+  { method: string; path: string; ip: string; startedAt: number }
+>()
 const completedResponses = new WeakSet<Response>()
 
-export function rememberRequestOrigin(requestId: string, origin: string | null) { requestOrigins.set(requestId, origin ?? undefined) }
-export function takeRequestOrigin(requestId: string) { const origin = requestOrigins.get(requestId); requestOrigins.delete(requestId); return origin }
+export function rememberRequestOrigin(requestId: string, origin: string | null) {
+  requestOrigins.set(requestId, origin ?? undefined)
+}
+export function takeRequestOrigin(requestId: string) {
+  const origin = requestOrigins.get(requestId)
+  requestOrigins.delete(requestId)
+  return origin
+}
 
 export function getRequestId(request: Request): string {
   const requestId = request.headers.get('x-request-id') ?? randomUUID()
@@ -66,7 +75,12 @@ function includeErrorDebug(status: number) {
 
 function allowedOrigins() {
   const env = getServerEnv()
-  const origins = new Set((env.APP_ORIGINS ?? env.APP_ORIGIN).split(',').map((origin) => origin.trim()).filter(Boolean))
+  const origins = new Set(
+    (env.APP_ORIGINS ?? env.APP_ORIGIN)
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  )
   if (env.APP_ENV === 'local' || env.APP_ENV === 'test') {
     for (const port of [5173, 8080, 4173]) {
       origins.add('http://localhost:' + port)
@@ -84,7 +98,10 @@ export function withApiHeaders<T extends Response>(response: T, requestId: strin
   }
   const origin = takeRequestOrigin(requestId)
   response.headers.set('x-request-id', requestId)
-  response.headers.set('access-control-allow-origin', origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN)
+  response.headers.set(
+    'access-control-allow-origin',
+    origin && allowedOrigins().has(origin) ? origin : env.APP_ORIGIN,
+  )
   response.headers.set('access-control-allow-credentials', 'true')
   response.headers.append('vary', 'Origin')
   completeHttpRequest(response, requestId)
@@ -119,11 +136,14 @@ export function apiError(
   return withApiHeaders(response, requestId)
 }
 
-
 type ApiRouteHandler = (requestId: string) => Response | Promise<Response>
 type ApiRouteErrorHandler = (error: unknown, requestId: string) => Response
 
-export async function apiHandler(request: Request, handler: ApiRouteHandler, onError: ApiRouteErrorHandler): Promise<Response> {
+export async function apiHandler(
+  request: Request,
+  handler: ApiRouteHandler,
+  onError: ApiRouteErrorHandler,
+): Promise<Response> {
   const requestId = getRequestId(request)
   try {
     return withApiHeaders(await handler(requestId), requestId)

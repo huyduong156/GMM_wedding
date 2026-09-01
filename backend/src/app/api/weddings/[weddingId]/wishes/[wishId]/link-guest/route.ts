@@ -1,5 +1,10 @@
 import type { NextRequest } from 'next/server'
-import { assertSafeMutation, optionsResponse, parseJson, withApiHeaders } from '@/modules/identity/interface/auth-http'
+import {
+  assertSafeMutation,
+  optionsResponse,
+  parseJson,
+  withApiHeaders,
+} from '@/modules/identity/interface/auth-http'
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
@@ -17,7 +22,12 @@ export async function POST(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const params = await context.params
     const { guestId } = await parseJson(request, linkWishGuestSchema)
-    const result = await getWeddingService().linkWishGuest(actor, weddingIdSchema.parse(params.weddingId), params.wishId, guestId)
+    const result = await getWeddingService().linkWishGuest(
+      actor,
+      weddingIdSchema.parse(params.weddingId),
+      params.wishId,
+      guestId,
+    )
     return withApiHeaders(jsonResponse(result), requestId)
   } catch (error) {
     return weddingErrorResponse(error, requestId)

@@ -26,7 +26,10 @@ const recap = (overrides: Record<string, unknown> = {}) => ({
   ogImageUrl: null,
   content: { opening: { title: 'Ngày vui' } },
   themeConfig: {},
-  sectionConfig: { enabled: ['opening', 'chapters', 'filmstrip'], order: ['opening', 'chapters', 'filmstrip'] },
+  sectionConfig: {
+    enabled: ['opening', 'chapters', 'filmstrip'],
+    order: ['opening', 'chapters', 'filmstrip'],
+  },
   revision: 1,
   publishedAt: null,
   updatedAt: new Date(),
@@ -45,13 +48,28 @@ function makeService() {
     wish: { findMany: vi.fn() },
     recapMediaItem: { deleteMany: vi.fn(), createMany: vi.fn() },
     recapWishSelection: { deleteMany: vi.fn(), createMany: vi.fn() },
-    publishedRecapSnapshot: { findFirst: vi.fn(), updateMany: vi.fn(), aggregate: vi.fn(), create: vi.fn(), count: vi.fn() },
+    publishedRecapSnapshot: {
+      findFirst: vi.fn(),
+      updateMany: vi.fn(),
+      aggregate: vi.fn(),
+      create: vi.fn(),
+      count: vi.fn(),
+    },
     publishedWeddingSnapshot: { findFirst: vi.fn(), count: vi.fn() },
     $transaction: vi.fn(),
   }
-  prisma.$transaction.mockImplementation(async (callback: (tx: typeof prisma) => unknown) => callback(prisma))
+  prisma.$transaction.mockImplementation(async (callback: (tx: typeof prisma) => unknown) =>
+    callback(prisma),
+  )
   const storage = { publicUrl: vi.fn((key: string) => 'https://cdn.test/' + key) }
-  return { service: new RecapService(prisma as unknown as PrismaClient, storage as unknown as ObjectStorage), prisma, storage }
+  return {
+    service: new RecapService(
+      prisma as unknown as PrismaClient,
+      storage as unknown as ObjectStorage,
+    ),
+    prisma,
+    storage,
+  }
 }
 
 describe('RecapService', () => {
@@ -66,16 +84,18 @@ describe('RecapService', () => {
     const { service, prisma } = makeService()
     prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1' })
     prisma.templateVersion.findUnique.mockResolvedValue(template({ releasedAt: null }))
-    await expect(service.saveDraft('user-1', 'wedding-1', {
-      templateVersionId: 'template-version-1',
-      title: 'Ngày vui',
-      content: {},
-      themeConfig: {},
-      sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
-      mediaItems: [],
-      wishSelections: [],
-      revision: 1,
-    })).rejects.toMatchObject({ code: 'RECAP_TEMPLATE_NOT_FOUND' })
+    await expect(
+      service.saveDraft('user-1', 'wedding-1', {
+        templateVersionId: 'template-version-1',
+        title: 'Ngày vui',
+        content: {},
+        themeConfig: {},
+        sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
+        mediaItems: [],
+        wishSelections: [],
+        revision: 1,
+      }),
+    ).rejects.toMatchObject({ code: 'RECAP_TEMPLATE_NOT_FOUND' })
   })
 
   it('rejects media that is not ready or does not belong to the wedding', async () => {
@@ -84,16 +104,18 @@ describe('RecapService', () => {
     prisma.templateVersion.findUnique.mockResolvedValue(template())
     prisma.mediaAsset.findMany.mockResolvedValue([])
     prisma.wish.findMany.mockResolvedValue([])
-    await expect(service.saveDraft('user-1', 'wedding-1', {
-      templateVersionId: 'template-version-1',
-      title: 'Ngày vui',
-      content: {},
-      themeConfig: {},
-      sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
-      mediaItems: [{ mediaAssetId: 'media-1', sortOrder: 0 }],
-      wishSelections: [],
-      revision: 1,
-    })).rejects.toMatchObject({ code: 'RECAP_MEDIA_NOT_READY' })
+    await expect(
+      service.saveDraft('user-1', 'wedding-1', {
+        templateVersionId: 'template-version-1',
+        title: 'Ngày vui',
+        content: {},
+        themeConfig: {},
+        sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
+        mediaItems: [{ mediaAssetId: 'media-1', sortOrder: 0 }],
+        wishSelections: [],
+        revision: 1,
+      }),
+    ).rejects.toMatchObject({ code: 'RECAP_MEDIA_NOT_READY' })
   })
 
   it('rejects stale draft revisions before writing', async () => {
@@ -103,16 +125,18 @@ describe('RecapService', () => {
     prisma.mediaAsset.findMany.mockResolvedValue([])
     prisma.wish.findMany.mockResolvedValue([])
     prisma.weddingRecap.findUnique.mockResolvedValue({ id: 'recap-1', revision: 4 })
-    await expect(service.saveDraft('user-1', 'wedding-1', {
-      templateVersionId: 'template-version-1',
-      title: 'Ngày vui',
-      content: {},
-      themeConfig: {},
-      sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
-      mediaItems: [],
-      wishSelections: [],
-      revision: 3,
-    })).rejects.toMatchObject({ code: 'RECAP_REVISION_CONFLICT' })
+    await expect(
+      service.saveDraft('user-1', 'wedding-1', {
+        templateVersionId: 'template-version-1',
+        title: 'Ngày vui',
+        content: {},
+        themeConfig: {},
+        sectionConfig: { enabled: ['opening'], order: ['opening', 'chapters', 'filmstrip'] },
+        mediaItems: [],
+        wishSelections: [],
+        revision: 3,
+      }),
+    ).rejects.toMatchObject({ code: 'RECAP_REVISION_CONFLICT' })
     expect(prisma.$transaction).not.toHaveBeenCalled()
   })
 
@@ -143,14 +167,20 @@ describe('RecapService', () => {
     prisma.wedding.update.mockResolvedValue({})
     const result = await service.publish('user-1', 'wedding-1', { revision: 1 })
     expect(result).toMatchObject({ id: 'snapshot-1', slug: 'mai-duc-wedding', version: 1 })
-    expect(prisma.publishedRecapSnapshot.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ recapId: 'recap-1', slug: 'mai-duc-wedding', version: 1 }) }))
+    expect(prisma.publishedRecapSnapshot.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ recapId: 'recap-1', slug: 'mai-duc-wedding', version: 1 }),
+      }),
+    )
     expect(prisma.weddingRecap.updateMany).toHaveBeenCalled()
   })
 
   it('does not expose a public snapshot after it is unpublished', async () => {
     const { service, prisma } = makeService()
     prisma.publishedRecapSnapshot.findFirst.mockResolvedValue(null)
-    await expect(service.publicSnapshot('missing-recap')).rejects.toMatchObject({ code: 'RECAP_PUBLIC_NOT_FOUND' })
+    await expect(service.publicSnapshot('missing-recap')).rejects.toMatchObject({
+      code: 'RECAP_PUBLIC_NOT_FOUND',
+    })
   })
 
   it('checks recap slugs against wedding and recap snapshots', async () => {
@@ -165,16 +195,18 @@ describe('RecapService', () => {
     const { service, prisma } = makeService()
     prisma.wedding.findFirst.mockResolvedValue({ id: 'wedding-1' })
     prisma.templateVersion.findUnique.mockResolvedValue(template())
-    await expect(service.saveDraft('user-1', 'wedding-1', {
-      templateVersionId: 'template-version-1',
-      title: 'Ngày vui',
-      content: {},
-      themeConfig: {},
-      sectionConfig: { enabled: ['opening'], order: ['opening', 'unknown', 'filmstrip'] },
-      mediaItems: [],
-      wishSelections: [],
-      revision: 1,
-    })).rejects.toMatchObject({ code: 'RECAP_SECTION_INVALID' })
+    await expect(
+      service.saveDraft('user-1', 'wedding-1', {
+        templateVersionId: 'template-version-1',
+        title: 'Ngày vui',
+        content: {},
+        themeConfig: {},
+        sectionConfig: { enabled: ['opening'], order: ['opening', 'unknown', 'filmstrip'] },
+        mediaItems: [],
+        wishSelections: [],
+        revision: 1,
+      }),
+    ).rejects.toMatchObject({ code: 'RECAP_SECTION_INVALID' })
   })
 
   it('keeps domain errors typed', () => {

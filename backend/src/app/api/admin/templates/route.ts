@@ -12,7 +12,12 @@ export async function GET(request: NextRequest) {
   const requestId = getRequestId(request)
   try {
     await requirePlatformAdmin(request)
-    const query = adminTemplateListQuerySchema.parse({ productType: request.nextUrl.searchParams.get('productType') ?? undefined, reviewStatus: request.nextUrl.searchParams.get('reviewStatus') ?? undefined })
+    const query = adminTemplateListQuerySchema.parse({
+      productType: request.nextUrl.searchParams.get('productType') ?? undefined,
+      reviewStatus: request.nextUrl.searchParams.get('reviewStatus') ?? undefined,
+    })
     return withApiHeaders(jsonResponse(await getTemplateAdminService().list(query)), requestId)
-  } catch (error) { return templateAdminErrorResponse(error, requestId) }
+  } catch (error) {
+    return templateAdminErrorResponse(error, requestId)
+  }
 }

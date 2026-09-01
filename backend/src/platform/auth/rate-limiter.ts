@@ -23,9 +23,10 @@ export class MemoryRateLimiter implements RateLimiter {
   async consume(key: string, limit: number, windowSeconds: number) {
     const now = Date.now()
     const current = this.buckets.get(key)
-    const bucket = !current || current.resetAt <= now
-      ? { count: 0, resetAt: now + windowSeconds * 1_000 }
-      : current
+    const bucket =
+      !current || current.resetAt <= now
+        ? { count: 0, resetAt: now + windowSeconds * 1_000 }
+        : current
     bucket.count += 1
     this.buckets.set(key, bucket)
     return {
@@ -45,20 +46,22 @@ export class RedisRateLimiter implements RateLimiter {
 
   private async connect() {
     if (!this.client.isOpen) {
-      this.connecting ??= this.client.connect().finally(() => { this.connecting = undefined })
+      this.connecting ??= this.client.connect().finally(() => {
+        this.connecting = undefined
+      })
       await this.connecting
     }
   }
 
   async consume(key: string, limit: number, windowSeconds: number) {
     await this.connect()
-    const result = await this.client.eval(
+    const result = (await this.client.eval(
       `local count = redis.call('INCR', KEYS[1])
        if count == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end
        local ttl = redis.call('TTL', KEYS[1])
        return {count, ttl}`,
       { keys: [key], arguments: [String(windowSeconds)] },
-    ) as [number, number]
+    )) as [number, number]
     return { allowed: result[0] <= limit, retryAfter: Math.max(1, result[1]) }
   }
 }
