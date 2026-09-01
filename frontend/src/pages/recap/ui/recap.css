@@ -242,3 +242,32 @@
 .recap-theme-selected { position:absolute; top:16px; right:16px; width:34px; height:34px; display:grid; place-items:center; border:2px solid #fff; border-radius:50%; color:#fff; background:#4e8b78; box-shadow:0 6px 16px rgba(20,55,48,.28); }
 .recap-theme-selected svg { display:block; }
 
+
+/* Keep the recap preview floating above the mobile editor layout. */
+@media (max-width: 767px) {
+  .recap-editor-page .recap-editor-layout .recap-live-preview > main.editor-iframe-canvas:not(.is-mobile-preview-open) {
+    position: fixed !important;
+    top: 118px !important;
+    right: 10px !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 142px !important;
+    max-width: 142px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    z-index: 40 !important;
+  }
+
+  .recap-editor-page .recap-editor-layout .recap-live-preview > main.editor-iframe-canvas.is-mobile-preview-open {
+    position: fixed !important;
+    top: 72px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    left: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    z-index: 80 !important;
+  }
+}

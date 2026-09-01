@@ -2,7 +2,7 @@ const apiBaseUrl = (import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BAS
 
 export type WeddingStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type WeddingVisibility = 'PUBLIC' | 'PASSWORD_PROTECTED' | 'INVITE_ONLY'
-export type WeddingSurface = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE'
+export type WeddingSurface = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
 export type RecapSectionConfig = { enabled: string[]; order: string[] }
 
 export type TemplateSectionConfig = string | {
@@ -335,13 +335,13 @@ export const weddingApi = {
     revision: number
   }) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content`, { method: 'PUT', body: JSON.stringify({ ...input, content: typeof input.content === 'object' && !Array.isArray(input.content) ? input.content : {}, themeConfig: typeof input.themeConfig === 'object' && !Array.isArray(input.themeConfig) ? input.themeConfig : {}, sectionConfig: typeof input.sectionConfig === 'object' && !Array.isArray(input.sectionConfig) ? input.sectionConfig : { enabled: [], order: [] } }) }),
   slugAvailable: (slug: string, weddingId?: string) => request<{ available: boolean }>(`/slugs/weddings/${encodeURIComponent(slug)}/availability${weddingId ? `?weddingId=${encodeURIComponent(weddingId)}` : ''}`),
-  publish: (weddingId: string, input: { surface: WeddingSurface; slug: string; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
-  unpublish: (weddingId: string, surface: WeddingSurface) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify({ surface }) }),
+  publish: (weddingId: string, input: { surface: WeddingSurface; revision: number }) => request<{ snapshot: PublishedWeddingSnapshot }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify(input) }),
+  unpublish: (weddingId: string, input: { surface: WeddingSurface; revision?: number }) => request<void>(`/weddings/${weddingId}/unpublish`, { method: 'POST', body: JSON.stringify(input) }),
   uploadMedia: uploadMediaFile,
   media: (weddingId: string) => request<{ items: MediaAsset[] }>(`/weddings/${weddingId}/media`),
   removeMedia: (weddingId: string, mediaId: string) => request<void>(`/weddings/${weddingId}/media/${mediaId}`, { method: 'DELETE', body: '{}' }),
   recap: (weddingId: string) => request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
-  publishRecap: (weddingId: string, input: { revision: number }) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/weddings/${weddingId}/recap/publish`, { method: 'POST', body: JSON.stringify(input) }),
+  publishRecap: (weddingId: string, input: { revision: number }) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/weddings/${weddingId}/publish`, { method: 'POST', body: JSON.stringify({ surface: 'RECAP', ...input }) }),
   publicRecap: (slug: string) => request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(`/public/recaps/${encodeURIComponent(slug)}`),
   publicInvitation: (weddingSlug: string) => request<{ snapshot: PublishedWeddingSnapshot }>(`/public/invitations/${encodeURIComponent(weddingSlug)}`),
   publicInvitationGuest: (weddingSlug: string, guestSlug: string) => request<{ invitation: { weddingSlug: string; invitationSlug: string; guestName: string | null; maxPartySize: number; expiresAt: string | null } }>(`/public/invitations/${encodeURIComponent(weddingSlug)}/${encodeURIComponent(guestSlug)}`),
