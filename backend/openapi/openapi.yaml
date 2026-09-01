@@ -1821,7 +1821,7 @@ paths:
       parameters:
         - name: productType
           in: query
-          schema: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE] }
+          schema: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE, RECAP] }
       responses:
         '200': { description: Template catalog }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1950,12 +1950,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
-  /public/recaps/{recapSlug}:
+  /public/recaps/{weddingSlug}:
     get:
       operationId: getPublishedRecap
       summary: Get the current public recap snapshot
       parameters:
-        - { name: recapSlug, in: path, required: true, schema: { type: string } }
+        - { name: weddingSlug, in: path, required: true, schema: { type: string } }
         - { name: If-None-Match, in: header, schema: { type: string } }
       responses:
         '200': { description: Published recap snapshot }
@@ -2383,7 +2383,7 @@ components:
               config: { type: object, additionalProperties: true }
     WeddingSurface:
       type: string
-      enum: [ONLINE_INVITATION, WEDDING_WEBSITE]
+      enum: [ONLINE_INVITATION, WEDDING_WEBSITE, RECAP]
     TaskEvent:
       type: object
       required: [id, name, eventType, startsAt, endsAt]

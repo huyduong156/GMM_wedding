@@ -24,16 +24,19 @@ LEFT JOIN "InvitationDesign" AS invitation ON invitation."weddingId" = wedding."
 LEFT JOIN "WeddingWebsite" AS website ON website."weddingId" = wedding."id"
 WHERE content."weddingId" = wedding."id";
 
--- A wedding may already have both surfaces. Duplicate the legacy payload for
--- the website only when the existing row was assigned to invitation.
+-- A wedding may already have both surfaces. Create an independent website
+-- draft when the existing row was assigned to invitation. Do not copy the
+-- invitation payload: content is template-owned and schemas are
+-- surface-specific. The website editor will hydrate defaults from its
+-- selected template.
 INSERT INTO "WeddingContent" (
   "id", "weddingId", "surface", "templateVersionId", "schemaVersion",
   "content", "revision", "createdAt", "updatedAt"
 )
 SELECT
   gen_random_uuid(), content."weddingId", 'WEDDING_WEBSITE'::"WeddingSurface",
-  website."templateVersionId", content."schemaVersion", content."content",
-  content."revision", content."createdAt", content."updatedAt"
+  website."templateVersionId", 1, '{}'::jsonb,
+  1, now(), now()
 FROM "WeddingContent" AS content
 JOIN "WeddingWebsite" AS website ON website."weddingId" = content."weddingId"
 WHERE content."surface" = 'ONLINE_INVITATION'::"WeddingSurface"

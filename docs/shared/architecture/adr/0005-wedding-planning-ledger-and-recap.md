@@ -29,7 +29,7 @@ Owner cần quản lý việc chuẩn bị trước lễ cưới, ghi nhận ti�
 ### Wedding Recap
 
 - Recap dùng `WeddingContent(surface = RECAP)` cho draft/lifecycle; nội dung tham chiếu media đã `ready` và các `Wish` approved mà owner chủ động chọn. URL dùng chung `Wedding.slug`.
-- Publish tạo immutable `PublishedRecapSnapshot` không chứa PII; public renderer đọc snapshot theo recap slug với cache/ETag. Unpublish thu hồi public access nhưng giữ lịch sử.
+- Publish tạo immutable `PublishedRecapSnapshot` không chứa PII; public renderer đọc snapshot theo Wedding.slug với cache/ETag. Unpublish thu hồi public access nhưng giữ lịch sử.
 - Recap có OG metadata và share URL riêng. Template recap dùng registry/version hiện có với `productType=recap`, không làm đổi template website cưới.
 
 ## Consequences

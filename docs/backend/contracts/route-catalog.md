@@ -27,7 +27,6 @@ baseUrl
 weddingId
 guestId
 invitationToken
-recapSlug
 revision
 idempotencyKey
 ```
