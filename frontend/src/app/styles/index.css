@@ -2616,3 +2616,36 @@ input[type='checkbox'], input[type='radio'], input[type='file'] {
 .editor-audio-track button { padding: 6px 8px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #ded4cc; border-radius: 6px; color: #5a4b42; background: #fff; font-size: 10px; cursor: pointer; }
 .editor-audio-track button:last-child { color: #fff; border-color: #a95618; background: #a95618; }
 @media (prefers-reduced-motion: reduce) { .editor-audio-track, .editor-audio-track button { transition: none; } }
+
+.publication-share-backdrop{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:18px;background:rgb(16 30 35 / 48%);backdrop-filter:blur(4px);animation:publication-share-in 180ms ease-out both}.publication-share-dialog{position:relative;width:min(100%,520px);padding:24px;border:1px solid #d7e1e3;background:#fff;box-shadow:0 24px 70px rgb(16 30 35 / 24%);animation:publication-dialog-in 220ms cubic-bezier(.165,.84,.44,1) both}.publication-share-close{position:absolute;top:18px;right:18px;display:grid;width:34px;height:34px;place-items:center;border:1px solid #d7e1e3;background:#fff;color:#61727a;cursor:pointer}.publication-share-kicker{display:block;color:#8b5e2a;font-size:10px;letter-spacing:.16em}.publication-share-dialog h2{margin:8px 46px 5px 0;color:#203946;font:500 28px 'Playfair Display GMM',Georgia,serif}.publication-share-dialog p{margin:0;color:#6c7f85;font-size:12px;line-height:1.5}.publication-share-link{display:flex;align-items:center;gap:9px;margin-top:22px;padding:11px 12px;border:1px solid #d7e1e3;background:#f7faf9;color:#61727a}.publication-share-link span{min-width:0;overflow:hidden;color:#304a53;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.publication-share-link button{display:grid;flex:0 0 auto;place-items:center;margin-left:auto;border:0;background:transparent;color:#61727a;cursor:pointer}.publication-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.publication-share-actions .button{display:inline-flex;align-items:center;gap:6px}.publication-share-actions .button:hover{transform:translateY(-1px)}@keyframes publication-share-in{from{opacity:0}to{opacity:1}}@keyframes publication-dialog-in{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:520px){.publication-share-dialog{padding:18px}.publication-share-actions{display:grid}.publication-share-actions .button{justify-content:center}}@media (prefers-reduced-motion:reduce){.publication-share-backdrop,.publication-share-dialog{animation:none}}
+.recap-share-backdrop{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:18px;background:rgb(16 30 35 / 48%);backdrop-filter:blur(4px)}.recap-share-dialog{width:min(100%,520px);padding:24px;border:1px solid #d7e1e3;background:#fff;box-shadow:0 24px 70px rgb(16 30 35 / 24%)}.recap-share-dialog header{display:flex;justify-content:space-between;gap:18px}.recap-share-dialog header span{color:#8b5e2a;font-size:10px;letter-spacing:.16em}.recap-share-dialog h2{margin:6px 0 5px;color:#203946;font:500 28px 'Playfair Display GMM',Georgia,serif}.recap-share-dialog header p{margin:0;color:#6c7f85;font-size:12px;line-height:1.5}.recap-share-dialog header>button{display:grid;width:34px;height:34px;place-items:center;border:1px solid #d7e1e3;background:#fff;color:#61727a;cursor:pointer}.recap-share-link{display:flex;align-items:center;gap:9px;margin-top:22px;padding:11px 12px;border:1px solid #d7e1e3;background:#f7faf9;color:#61727a}.recap-share-link span{min-width:0;overflow:hidden;color:#304a53;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.recap-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.recap-share-actions .button{display:inline-flex;align-items:center;gap:6px}.recap-share-actions .button:hover{transform:translateY(-1px)}@media(max-width:520px){.recap-share-dialog{padding:18px}.recap-share-actions{display:grid}.recap-share-actions .button{justify-content:center}}
+
+.recap-share-backdrop{animation:recap-share-overlay-in 220ms ease-out both}.recap-share-dialog{animation:recap-share-dialog-in 260ms cubic-bezier(.165,.84,.44,1) both;will-change:transform,opacity}@keyframes recap-share-overlay-in{from{opacity:0}to{opacity:1}}@keyframes recap-share-dialog-in{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media (prefers-reduced-motion:reduce){.recap-share-backdrop,.recap-share-dialog{animation:none;will-change:auto}}
+
+
+.editor-structure-publication-status, .recap-publication-status { align-items: center; background: #f2faf4; border: 1px solid #cfe5d4; border-radius: 999px; color: #285d39; display: inline-flex; flex-wrap: nowrap; gap: 7px; margin-top: 10px; max-width: 100%; overflow: hidden; padding: 5px 8px; }
+.editor-structure-publication-status span, .recap-publication-status span { flex: 0 0 auto; font-size: 10px; font-weight: 400; letter-spacing: normal; text-transform: none; white-space: nowrap; }
+.editor-structure-publication-status a, .recap-publication-status a { color: inherit; flex: 0 1 auto; font-size: 10px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .editor-structure-publication-status, .recap-publication-status { max-width: 100%; } }
+
+
+/* Keep invitation quick-edit fields from pushing toolbar actions at tablet widths. */
+@media (min-width: 801px) and (max-width: 1024px) {
+  .invitation-editor .editor-couple-quick-edit {
+    flex: 0 1 320px;
+    width: min(320px, 100%);
+    min-width: 220px;
+    max-width: 320px;
+  }
+}
+
+.invitation-editor .editor-couple-quick-edit .editor-field {
+  min-width: 0;
+}
+
+.invitation-editor .editor-couple-quick-edit input {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

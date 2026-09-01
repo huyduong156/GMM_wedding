@@ -1134,7 +1134,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
       const otherLive = await tx.publishedWeddingSnapshot.count({
         where: { weddingId, surface: { not: surface }, unpublishedAt: null },
       })
-      if (otherLive === 0)
+      const liveRecap = await tx.publishedRecapSnapshot.count({
+        where: { content: { weddingId }, unpublishedAt: null },
+      })
+      if (otherLive === 0 && liveRecap === 0)
         await tx.wedding.update({
           where: { id: weddingId },
           data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
