@@ -83,8 +83,8 @@ export class WeddingService {
   async analytics(actor: AuthenticatedUserActor, weddingId: string) {
     return this.requireWedding(await this.repository.analyticsOwned(actor.userId, weddingId))
   }
-  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP') {
-    return this.repository.listTemplates(productType)
+  listTemplates(productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', styleKey?: string) {
+    return this.repository.listTemplates(productType, styleKey)
   }
   async getTemplateVersion(templateKey: string, version: string) {
     return this.repository.getTemplateVersion(templateKey, version)

@@ -15,6 +15,11 @@ function duplicate(error: unknown) { return error instanceof Error && 'code' in 
 export class TemplateStyleAdminService {
   constructor(private readonly db: PrismaClient) {}
 
+  async listActive() {
+    const rows = await this.db.$queryRaw<StyleRow[]>`SELECT * FROM "TemplateStyle" WHERE status = 'ACTIVE' ORDER BY "sortOrder" ASC, name ASC`
+    return { items: rows.map(dto) }
+  }
+
   async list(includeArchived = true) {
     const rows = await this.db.$queryRaw<StyleRow[]>`
       SELECT s.*, COUNT(a."templateId")::bigint AS "templateCount"

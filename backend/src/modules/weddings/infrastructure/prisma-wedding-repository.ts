@@ -789,10 +789,12 @@ export class PrismaWeddingRepository implements WeddingRepository {
 
   async listTemplates(
     productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP',
+    styleKey?: string,
   ): Promise<TemplateView[]> {
     const rows = await this.prisma.template.findMany({
-      where: { status: 'ACTIVE', ...(productType ? { productType } : {}) },
+      where: { status: 'ACTIVE', ...(productType ? { productType } : {}), ...(styleKey ? { styles: { some: { style: { key: styleKey, status: 'ACTIVE' } } } } : {}) },
       include: {
+        styles: { where: { style: { status: 'ACTIVE' } }, include: { style: { select: { id: true, key: true, name: true } } }, orderBy: { style: { sortOrder: 'asc' } } },
         versions: {
           where: { releasedAt: { not: null }, deprecatedAt: null },
           orderBy: { createdAt: 'desc' },
@@ -806,6 +808,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       productType: row.productType,
       status: row.status,
       description: row.description,
+      styles: row.styles.map((assignment) => assignment.style),
       versions: row.versions,
     }))
   }
@@ -813,7 +816,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
   async getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null> {
     const row = await this.prisma.template.findFirst({
       where: { key: templateKey, status: 'ACTIVE' },
-      include: { versions: { where: { version, releasedAt: { not: null }, deprecatedAt: null } } },
+      include: { styles: { where: { style: { status: 'ACTIVE' } }, include: { style: { select: { id: true, key: true, name: true } } }, orderBy: { style: { sortOrder: 'asc' } } }, versions: { where: { version, releasedAt: { not: null }, deprecatedAt: null } } },
     })
     if (!row || row.versions.length === 0) return null
     return {
@@ -822,6 +825,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       productType: row.productType,
       status: row.status,
       description: row.description,
+      styles: row.styles.map((assignment) => assignment.style),
       versions: row.versions,
     }
   }

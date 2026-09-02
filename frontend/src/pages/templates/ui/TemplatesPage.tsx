@@ -4,12 +4,12 @@ import {
   Eye,
   MagnifyingGlass,
   PaintBrush,
-  SlidersHorizontal,
   Sparkle,
   X,
 } from '@phosphor-icons/react'
 import { publicTemplateRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 
 type ThemeStyle = 'Lãng mạn' | 'Tối giản' | 'Hiện đại' | 'Truyền thống'
 
@@ -91,7 +91,7 @@ export function TemplatesPage({ kind }: { kind: 'invitation' | 'website' }) {
 
       <div className="templates-controls">
         <label className="template-search"><span className="sr-only">Tìm giao diện</span><MagnifyingGlass size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên hoặc phong cách" /></label>
-        <div className="template-filters" aria-label="Lọc phong cách"><SlidersHorizontal size={16} aria-hidden="true" />{filters.map((item) => <button key={item} type="button" className={filter === item ? 'is-active' : ''} onClick={() => setFilter(item)} aria-pressed={filter === item}>{item}</button>)}</div>
+        <label className="template-style-filter"><span className="sr-only">Lọc phong cách</span><NativeSelectField value={filter} onChange={(event) => setFilter(event.target.value as (typeof filters)[number])}>{filters.map((item) => <option key={item} value={item}>{item}</option>)}</NativeSelectField></label>
       </div>
 
       {visibleThemes.length ? <div className="theme-grid">{visibleThemes.map((theme) => {

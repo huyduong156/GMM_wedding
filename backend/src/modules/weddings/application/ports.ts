@@ -196,6 +196,7 @@ export interface WeddingRepository {
   analyticsOwned(userId: string, weddingId: string): Promise<WeddingAnalyticsView | null>
   listTemplates(
     productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP',
+    styleKey?: string,
   ): Promise<TemplateView[]>
   getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null>
   getContentOwned(
@@ -267,6 +268,7 @@ export interface TemplateView {
   productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
   status: string
   description: string | null
+  styles: Array<{ id: string; key: string; name: string }>
   versions: Array<{
     id: string
     version: string

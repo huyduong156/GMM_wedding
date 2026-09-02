@@ -61,6 +61,7 @@ export type WeddingTemplate = {
   productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
   status: string
   description: string | null
+  styles?: Array<{ id: string; key: string; name: string }>
   versions: TemplateVersion[]
 }
 export type RecapMediaItem = { id: string; mediaAssetId: string; caption: string | null; sortOrder: number; publicUrl: string }
@@ -311,6 +312,7 @@ export type Wish = {
 }
 export type PublicRsvpInput = { guestName?: string; attendance: RsvpAttendance; partySize: number; mealPreference?: string; specialRequest?: string; message?: string }
 export type PublicWish = { id: string; authorName: string; content: string; submittedAt: string; isPinned: boolean }
+export type TemplateStyle = { id: string; key: string; name: string; description?: string | null }
 export const weddingApi = {
   list: () => request<{ items: Wedding[] }>('/weddings'),
   get: (id: string) => request<{ wedding: Wedding }>(`/weddings/${id}`),
@@ -324,7 +326,8 @@ export const weddingApi = {
   createEvent: (id: string, input: EventInput) => request<{ event: WeddingEvent }>(`/weddings/${id}/events`, { method: 'POST', body: JSON.stringify(input) }),
   updateEvent: (weddingId: string, eventId: string, input: Partial<EventInput> & { revision: number }) => request<{ event: WeddingEvent }>(`/weddings/${weddingId}/events/${eventId}`, { method: 'PATCH', body: JSON.stringify(input) }),
   removeEvent: (weddingId: string, eventId: string) => request<void>(`/weddings/${weddingId}/events/${eventId}`, { method: 'DELETE', body: '{}' }),
-  templates: (productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP') => request<{ items: WeddingTemplate[] }>(`/templates?productType=${productType}`),
+  templateStyles: () => request<{ items: TemplateStyle[] }>('/template-styles'),
+  templates: (productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP', styleKey?: string) => request<{ items: WeddingTemplate[] }>(`/templates?productType=` + productType + `${styleKey ? `&styleKey=` + encodeURIComponent(styleKey) : ''}`),
   content: (weddingId: string, surface: WeddingSurface) => request<{ content: WeddingContent }>(`/weddings/${weddingId}/content?surface=${surface}`),
   saveContent: (weddingId: string, input: {
     surface: WeddingSurface
