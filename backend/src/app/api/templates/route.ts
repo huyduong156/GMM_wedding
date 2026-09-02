@@ -17,8 +17,9 @@ export async function GET(request: NextRequest) {
       productType === 'RECAP'
         ? productType
         : undefined
+    const styleKey = request.nextUrl.searchParams.get('styleKey') ?? undefined
     return withApiHeaders(
-      jsonResponse({ items: await getWeddingService().listTemplates(normalized) }),
+      jsonResponse({ items: await getWeddingService().listTemplates(normalized, styleKey) }),
       requestId,
     )
   } catch (error) {
