@@ -2123,6 +2123,18 @@ paths:
         '201': { description: Wish submitted }
         '400': { $ref: '#/components/responses/BadRequest' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /public/invitations/{weddingSlug}/{guestSlug}:
+    get:
+      operationId: resolvePersonalizedInvitation
+      summary: Resolve a personalized invitation and its public guest name
+      parameters:
+        - { name: weddingSlug, in: path, required: true, schema: { type: string } }
+        - { name: guestSlug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Personalized invitation
+          content: { application/json: { schema: { $ref: '#/components/schemas/PublicInvitationEnvelope' } } }
+        '404': { $ref: '#/components/responses/NotFound' }
   /public/invitations/{weddingSlug}/{guestSlug}/wishes:
     post:
       operationId: submitPersonalWish
@@ -2879,6 +2891,19 @@ components:
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/Rsvp' } }
         nextCursor: { type: [string, 'null'] }
+    PublicInvitationEnvelope:
+      type: object
+      required: [invitation]
+      properties:
+        invitation:
+          type: object
+          required: [weddingSlug, invitationSlug, guestName, maxPartySize, expiresAt]
+          properties:
+            weddingSlug: { type: string }
+            invitationSlug: { type: string }
+            guestName: { type: [string, 'null'] }
+            maxPartySize: { type: integer, minimum: 1, maximum: 50 }
+            expiresAt: { type: [string, 'null'], format: date-time }
     Guest:
       type: object
       additionalProperties: false
@@ -2888,6 +2913,7 @@ components:
           weddingId,
           categoryId,
           groupId,
+          name,
           displayName,
           phone,
           email,
@@ -2903,7 +2929,8 @@ components:
         weddingId: { type: string, format: uuid }
         categoryId: { type: [string, 'null'], format: uuid }
         groupId: { type: [string, 'null'], format: uuid }
-        displayName: { type: string, minLength: 1, maxLength: 160 }
+        name: { type: string, minLength: 1, maxLength: 160 }
+        displayName: { type: [string, 'null'], maxLength: 160 }
         phone: { type: [string, 'null'], maxLength: 32 }
         email: { type: [string, 'null'], format: email, maxLength: 320 }
         note: { type: [string, 'null'], maxLength: 5000 }
@@ -2915,9 +2942,10 @@ components:
     CreateGuestRequest:
       type: object
       additionalProperties: false
-      required: [displayName]
+      required: [name]
       properties:
-        displayName: { type: string, minLength: 1, maxLength: 160 }
+        name: { type: string, minLength: 1, maxLength: 160 }
+        displayName: { type: [string, 'null'], maxLength: 160 }
         categoryId: { type: string, format: uuid }
         groupId: { type: string, format: uuid }
         phone: { type: string, maxLength: 32 }

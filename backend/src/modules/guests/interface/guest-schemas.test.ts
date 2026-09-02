@@ -8,17 +8,17 @@ import {
 
 describe('guest API schemas', () => {
   it('applies safe defaults and rejects invalid contact data', () => {
-    expect(createGuestSchema.parse({ displayName: 'Mai' })).toMatchObject({
-      displayName: 'Mai',
+    expect(createGuestSchema.parse({ name: 'Mai' })).toMatchObject({
+      name: 'Mai',
       maxPartySize: 1,
       tags: [],
     })
-    expect(() => createGuestSchema.parse({ displayName: 'Mai', email: 'not-an-email' })).toThrow()
+    expect(() => createGuestSchema.parse({ name: 'Mai', email: 'not-an-email' })).toThrow()
   })
   it('accepts null for optional guest fields', () => {
     expect(
       createGuestSchema.parse({
-        displayName: 'Mai',
+        name: 'Mai',
         phone: null,
         email: null,
         note: null,

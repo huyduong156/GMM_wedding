@@ -169,8 +169,8 @@ export class GuestService {
     ]
     let section = ''
     for (const row of rows.sort((a, b) =>
-      `${a.categoryPath}\u0000${a.groupName ?? ''}\u0000${a.displayName}`.localeCompare(
-        `${b.categoryPath}\u0000${b.groupName ?? ''}\u0000${b.displayName}`,
+      `${a.categoryPath}\u0000${a.groupName ?? ''}\u0000${a.name}`.localeCompare(
+        `${b.categoryPath}\u0000${b.groupName ?? ''}\u0000${b.name}`,
         'vi',
       ),
     )) {
@@ -194,7 +194,7 @@ export class GuestService {
         'KHÁCH',
         row.categoryPath,
         row.groupName,
-        row.displayName,
+        row.name,
         row.maxPartySize,
         row.phone,
         row.email,
@@ -217,8 +217,8 @@ export class GuestService {
     const validRows: GuestImportRow[] = []
     rows.forEach((row, index) => {
       const rowNumber = index + 2
-      if (!row.displayName?.trim())
-        issues.push({ row: rowNumber, field: 'displayName', message: 'Tên khách mời là bắt buộc' })
+      if (!row.name?.trim())
+        issues.push({ row: rowNumber, field: 'name', message: 'Tên khách mời là bắt buộc' })
       const depth =
         row.categoryPath
           ?.split('/')
@@ -236,7 +236,7 @@ export class GuestService {
           message: 'Số người dự kiến phải từ 1 đến 50',
         })
       if (!issues.some((issue) => issue.row === rowNumber))
-        validRows.push({ ...row, displayName: row.displayName.trim() })
+        validRows.push({ ...row, name: row.name.trim() })
     })
     return { validRows, issues }
   }

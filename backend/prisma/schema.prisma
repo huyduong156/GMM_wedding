@@ -542,7 +542,8 @@ model Guest {
   weddingId         String            @db.Uuid
   categoryId        String?           @db.Uuid
   groupId           String?           @db.Uuid
-  displayName       String            @db.VarChar(160)
+  name              String            @db.VarChar(160)
+  displayName       String?           @db.VarChar(160)
   phone             String?           @db.VarChar(32)
   email             String?           @db.VarChar(320)
   note              String?           @db.Text
@@ -561,7 +562,7 @@ model Guest {
 
   @@index([weddingId, groupId])
   @@index([weddingId, categoryId])
-  @@index([weddingId, displayName])
+  @@index([weddingId, name])
 }
 
 model Invitation {

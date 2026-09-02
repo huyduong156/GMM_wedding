@@ -3,11 +3,12 @@ import { getPublicInteractionService } from '@/modules/public-interactions'
 import { getWeddingService } from '@/modules/weddings'
 import { guestErrorResponse } from '@/modules/guests/interface/guest-http'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
-import { withApiHeaders } from '@/modules/identity/interface/auth-http'
+import { optionsResponse, withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 type Context = { params: Promise<{ weddingSlug: string }> }
 export const dynamic = 'force-dynamic'
+export const OPTIONS = optionsResponse
 
 export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)

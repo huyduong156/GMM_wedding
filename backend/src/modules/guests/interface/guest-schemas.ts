@@ -1,6 +1,9 @@
 import { z } from 'zod'
 const uuid = z.string().uuid()
 const optionalText = (max: number) => z.string().trim().min(1).max(max).nullable().optional()
+const optionalDisplayName = z.string().trim().max(160).nullable().optional().transform((value) =>
+  value === undefined ? undefined : value || null,
+)
 export const guestIdSchema = uuid
 export const guestQuerySchema = z.object({
   q: z.string().trim().max(160).optional(),
@@ -10,7 +13,8 @@ export const guestQuerySchema = z.object({
   cursor: z.string().max(512).optional(),
 })
 const guestFields = {
-  displayName: z.string().trim().min(1).max(160),
+  name: z.string().trim().min(1).max(160),
+    displayName: optionalDisplayName,
   categoryId: uuid.nullable().optional(),
   groupId: uuid.nullable().optional(),
   phone: optionalText(32),
@@ -22,7 +26,7 @@ const guestFields = {
 }
 export const createGuestSchema = z.object(guestFields).strip()
 export const updateGuestSchema = z
-  .object({ ...guestFields, displayName: guestFields.displayName.optional() })
+  .object({ ...guestFields, name: guestFields.name.optional() })
   .strip()
   .refine((v) => Object.keys(v).length > 0, 'At least one field is required')
 export const categorySchema = z
@@ -102,7 +106,8 @@ export const bulkAssignCategorySchema = z
   .strip()
 export const guestImportRowSchema = z
   .object({
-    displayName: z.string().trim().min(1).max(160),
+    name: z.string().trim().min(1).max(160),
+    displayName: optionalDisplayName,
     categoryPath: z.string().trim().max(400).optional(),
     groupName: z.string().trim().max(120).optional(),
     phone: z.string().trim().max(32).optional(),

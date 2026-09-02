@@ -49,7 +49,7 @@ khi invitation đã liên kết trả conflict.
 
 ## Guest fields
 
-Guest gồm `displayName`, phone/email, note, table name, `maxPartySize`, tags,
+Guest gồm `name` bắt buộc và `displayName` tùy chọn (nullable), cùng phone/email, note, table name, `maxPartySize`, tags,
 category và group. `maxPartySize` nằm trong khoảng 1–50. Query list hỗ trợ
 `q`, `categoryId`, `groupId`, `limit` tối đa 100 và opaque cursor.
 
@@ -68,5 +68,4 @@ header tiếng Việt, BOM UTF-8 và chỉ chứa guest fields cần cho việc 
 ## Public boundary
 
 Personalized invitation resolve, RSVP và wishes dùng public invitation boundary
-riêng. Public response chỉ được suy ra từ token/slug hợp lệ và publication đã
-publish; không trả guest phone, email, note, category/group hoặc guest list.
+riêng. Public response chỉ được suy ra từ token/slug hợp lệ và publication đã publish; với personalized invitation, `guestName` được resolve bằng `Guest.displayName ?? Guest.name`; không trả guest phone, email, note, category/group hoặc guest list.

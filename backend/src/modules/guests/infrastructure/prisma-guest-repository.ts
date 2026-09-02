@@ -21,6 +21,7 @@ const guestSelect = {
   weddingId: true,
   categoryId: true,
   groupId: true,
+  name: true,
   displayName: true,
   phone: true,
   email: true,
@@ -150,7 +151,7 @@ export class PrismaGuestRepository implements GuestRepository {
         deletedAt: null,
         ...(filter.categoryId ? { categoryId: filter.categoryId } : {}),
         ...(filter.groupId ? { groupId: filter.groupId } : {}),
-        ...(filter.query ? { displayName: { contains: filter.query, mode: 'insensitive' } } : {}),
+        ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
         ...(cursor
           ? {
               OR: [
@@ -185,7 +186,8 @@ export class PrismaGuestRepository implements GuestRepository {
       return await this.prisma.guest.create({
         data: {
           weddingId,
-          displayName: data.displayName,
+          name: data.name,
+          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
           maxPartySize: data.maxPartySize,
           tags: data.tags,
           ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
@@ -503,7 +505,7 @@ export class PrismaGuestRepository implements GuestRepository {
           },
         },
       },
-      orderBy: [{ displayName: 'asc' }, { id: 'asc' }],
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
     })
     return rows.map((row) => ({
       ...row,
@@ -578,13 +580,15 @@ export class PrismaGuestRepository implements GuestRepository {
           where: {
             weddingId,
             deletedAt: null,
-            displayName: row.displayName,
+            name: row.name,
+            ...(row.displayName !== undefined ? { displayName: row.displayName } : {}),
             ...(row.phone ? { phone: row.phone } : {}),
           },
           select: { id: true },
         })
         const data = {
-          displayName: row.displayName,
+          name: row.name,
+          ...(row.displayName !== undefined ? { displayName: row.displayName } : {}),
           maxPartySize: row.maxPartySize ?? 1,
           tags: row.tags ?? [],
           ...(categoryId ? { categoryId } : {}),
@@ -611,7 +615,7 @@ export class PrismaGuestRepository implements GuestRepository {
     const guest = data.guestId ? await this.findOwned(userId, weddingId, data.guestId) : null
     if (data.guestId && !guest) return null
     const raw = token()
-    const base = slugBase(guest?.displayName ?? data.label ?? 'guest')
+    const base = slugBase(guest?.name ?? data.label ?? 'guest')
     let publicSlug = base
     for (
       let suffix = 2;
@@ -696,7 +700,7 @@ export class PrismaGuestRepository implements GuestRepository {
         publicSlug: true,
         maxPartySize: true,
         expiresAt: true,
-        guest: { select: { displayName: true } },
+        guest: { select: { name: true, displayName: true } },
       },
     })
     if (!row?.publicSlug) return null
@@ -704,7 +708,7 @@ export class PrismaGuestRepository implements GuestRepository {
     return {
       weddingSlug,
       invitationSlug: row.publicSlug,
-      guestName: row.guest?.displayName ?? null,
+      guestName: row.guest ? (row.guest.displayName ?? row.guest.name) : null,
       maxPartySize: row.maxPartySize,
       expiresAt: row.expiresAt,
     }

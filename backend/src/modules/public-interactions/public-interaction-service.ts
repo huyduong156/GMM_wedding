@@ -63,7 +63,7 @@ export class PublicInteractionService {
       },
       include: {
         wedding: { select: { id: true, slug: true, status: true, deletedAt: true } },
-        guest: { select: { displayName: true, maxPartySize: true } },
+        guest: { select: { name: true, displayName: true, maxPartySize: true } },
         rsvpResponse: {
           select: {
             attendance: true,
@@ -90,7 +90,7 @@ export class PublicInteractionService {
     return {
       invitation: {
         id: invitation.id,
-        guestName: invitation.guest?.displayName ?? invitation.label,
+        guestName: invitation.guest ? (invitation.guest.displayName ?? invitation.guest.name) : invitation.label,
         maxPartySize: invitation.maxPartySize,
         rsvp: invitation.rsvpResponse,
       },
@@ -192,7 +192,7 @@ export class PublicInteractionService {
     const guest = invitation.guestId
       ? await this.prisma.guest.findUnique({
           where: { id: invitation.guestId },
-          select: { displayName: true },
+          select: { name: true, displayName: true },
         })
       : null
     return {
@@ -201,7 +201,7 @@ export class PublicInteractionService {
           weddingId: wedding.id,
           invitationId: invitation.id,
           guestId: invitation.guestId,
-          authorName: guest?.displayName ?? 'Khách mời',
+          authorName: guest ? (guest.displayName ?? guest.name) : 'Khách mời',
           content: input.content,
         },
         select: { id: true, authorName: true, content: true, status: true, submittedAt: true },

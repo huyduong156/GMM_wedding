@@ -58,12 +58,12 @@ describe('GuestService', () => {
       nextCursor: null,
     })
     await expect(
-      service.create(actor, 'wedding-1', { displayName: 'Nguyễn An', maxPartySize: 1, tags: [] }),
+      service.create(actor, 'wedding-1', { name: 'Nguyễn An', maxPartySize: 1, tags: [] }),
     ).resolves.toEqual(guest)
     expect(repo.createOwned).toHaveBeenCalledWith(
       'user-1',
       'wedding-1',
-      expect.objectContaining({ displayName: 'Nguyễn An' }),
+      expect.objectContaining({ name: 'Nguyễn An' }),
     )
   })
   it('returns not found instead of leaking another tenant', async () => {
@@ -119,15 +119,15 @@ describe('GuestService', () => {
   it('previews import rows and rejects invalid depth or names', () => {
     const service = new GuestService(repository())
     const result = service.previewImport([
-      { displayName: '  Huyền  ', categoryPath: 'Họ nội / Bác / Gia đình', maxPartySize: 2 },
-      { displayName: '', categoryPath: 'A / B / C / D' },
+      { name: '  Huyền  ', categoryPath: 'Họ nội / Bác / Gia đình', maxPartySize: 2 },
+      { name: '', categoryPath: 'A / B / C / D' },
     ])
     expect(result.validRows).toEqual([
-      { displayName: 'Huyền', categoryPath: 'Họ nội / Bác / Gia đình', maxPartySize: 2 },
+      { name: 'Huyền', categoryPath: 'Họ nội / Bác / Gia đình', maxPartySize: 2 },
     ])
     expect(result.issues).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ row: 3, field: 'displayName' }),
+        expect.objectContaining({ row: 3, field: 'name' }),
         expect.objectContaining({ row: 3, field: 'categoryPath' }),
       ]),
     )
