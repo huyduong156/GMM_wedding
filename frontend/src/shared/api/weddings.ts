@@ -164,7 +164,9 @@ export type Guest = {
   weddingId: string
   categoryId: string | null
   groupId: string | null
-  displayName: string
+  name: string
+  displayName: string | null
+  slug?: string | null
   phone: string | null
   email: string | null
   note: string | null
@@ -188,7 +190,8 @@ export type GuestCategory = {
 }
 
 export type GuestInput = {
-  displayName: string
+  name: string
+  displayName?: string | null
   categoryId?: string | null
   groupId?: string | null
   phone?: string | null
