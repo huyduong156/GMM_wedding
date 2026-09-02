@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     const query = adminTemplateListQuerySchema.parse({
       productType: request.nextUrl.searchParams.get('productType') ?? undefined,
       reviewStatus: request.nextUrl.searchParams.get('reviewStatus') ?? undefined,
+      styleKey: request.nextUrl.searchParams.get('styleKey') ?? undefined,
     })
     return withApiHeaders(jsonResponse(await getTemplateAdminService().list(query)), requestId)
   } catch (error) {

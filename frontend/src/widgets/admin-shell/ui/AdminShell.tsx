@@ -20,10 +20,7 @@ const adminNav = [
       { to: adminRoutes.websiteLibrary, label: 'Kho website online', icon: Browser },
       { to: adminRoutes.recapLibrary, label: 'Kho Wedding Recap', icon: ImagesSquare },
     ] },
-    { label: 'Danh mục phong cách', icon: Tag, children: [
-      { to: adminRoutes.inviteStyles, label: 'Phong cách thiệp', icon: EnvelopeSimple },
-      { to: adminRoutes.websiteStyles, label: 'Phong cách website', icon: Browser },
-    ] },
+    { to: adminRoutes.styles, label: 'Danh mục phong cách', icon: Tag },
   ] },
   { label: 'Kiểm soát hệ thống', items: [
     { to: adminRoutes.moderation, label: 'Kiểm duyệt', icon: Flag, badge: '8' },
@@ -70,3 +67,5 @@ export function AdminShell({ children }: { children: ReactNode }) {
     </div>
   )
 }
+
+

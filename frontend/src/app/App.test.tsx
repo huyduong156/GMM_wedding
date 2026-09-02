@@ -97,7 +97,7 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('link', { name: 'Gói đăng ký' })).toHaveAttribute('href', '/gmm_admin/subscriptions')
     expect(screen.getByRole('link', { name: 'Kho thiệp online' })).toHaveAttribute('href', '/gmm_admin/library/invites')
     expect(screen.getByRole('link', { name: 'Kho website online' })).toHaveAttribute('href', '/gmm_admin/library/websites')
-    expect(screen.getByRole('link', { name: 'Phong cách thiệp' })).toHaveAttribute('href', '/gmm_admin/styles/invites')
+    expect(screen.getByRole('link', { name: 'Danh mục phong cách' })).toHaveAttribute('href', '/gmm_admin/styles')
   })
 
   it('renders admin login outside the admin shell', () => {
@@ -197,3 +197,4 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('heading', { name: 'Kho website cưới' })).toBeInTheDocument()
   })
 })
+
