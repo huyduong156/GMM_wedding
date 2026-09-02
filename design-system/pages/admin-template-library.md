@@ -28,3 +28,12 @@ Search/filter, version detail, đồng bộ release bundle, phát hành và ng�
 Preview thật chỉ mount trong iframe sandbox khi admin chủ động mở. Template mới khai báo `config.previewPath` là route nội bộ tương đối; ba template cũ được giữ fallback route để tương thích dữ liệu đã sync. Nếu thiếu route, UI hiển thị rõ `Thiếu previewPath` thay vì dựng preview giả.
 
 Restore version đã deprecated và rollback version cũ chưa có API nên nằm ngoài trạng thái hoàn tất hiện tại.
+
+## Danh mục phong cách
+
+Phong cách là taxonomy dùng chung cho cả ba loại template. Một template có thể có nhiều style. Admin quản lý taxonomy ở màn hình `Danh mục phong cách`, rồi gán style trong phần quản lý template; không tạo danh mục riêng cho invitation, website và recap. Owner gallery chỉ hiển thị các style đang được dùng trong product type hiện tại.
+
+Đây là phạm vi Planned, tách khỏi lifecycle release của template:
+
+- Admin tạo, sửa tên/slug/mô tả, sắp xếp và archive style.
+- Admin gán nhiều style cho một template bằng một thao tác thay thế toàn bộ assignment.

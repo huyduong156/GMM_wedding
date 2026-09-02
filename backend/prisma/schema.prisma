@@ -74,6 +74,11 @@ enum TemplateProductType {
   RECAP
 }
 
+enum TemplateStyleStatus {
+  ACTIVE
+  ARCHIVED
+}
+
 enum TemplateStatus {
   DRAFT
   ACTIVE
@@ -394,6 +399,29 @@ model Template {
   createdAt   DateTime            @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
   versions    TemplateVersion[]
+  styles      TemplateStyleAssignment[]
+}
+
+model TemplateStyle {
+  id          String                    @id @default(uuid()) @db.Uuid
+  key         String                    @unique @db.VarChar(80)
+  name        String                    @db.VarChar(120)
+  description String?                   @db.Text
+  sortOrder   Int                       @default(0)
+  status      TemplateStyleStatus       @default(ACTIVE)
+  createdAt   DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime                  @updatedAt @db.Timestamptz(3)
+  templates   TemplateStyleAssignment[]
+}
+
+model TemplateStyleAssignment {
+  templateId String        @db.Uuid
+  styleId    String        @db.Uuid
+  template   Template      @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  style      TemplateStyle @relation(fields: [styleId], references: [id], onDelete: Restrict)
+
+  @@id([templateId, styleId])
+  @@index([styleId])
 }
 
 model TemplateVersion {
@@ -877,3 +905,4 @@ model MusicTrack {
   @@index([scope, status, sortOrder])
   @@index([ownerUserId, status, createdAt])
 }
+

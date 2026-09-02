@@ -229,3 +229,8 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 - Rate limit/abuse control nếu public.
 - Integration/contract test và Postman-import compatibility.
 - Audit, log/metric và PII classification.
+| GET/POST | `/admin/template-styles` | Platform admin; POST + CSRF | Planned | Liệt kê/tạo danh mục phong cách dùng chung cho invitation, website và recap |
+| PATCH/DELETE | `/admin/template-styles/{styleId}` | Platform admin + CSRF | Planned | Sửa hoặc archive danh mục phong cách; không xóa cứng khi còn template sử dụng |
+| GET | `/admin/templates/{templateKey}/styles` | Platform admin | Planned | Lấy các danh mục phong cách đang gán cho template |
+| PUT | `/admin/templates/{templateKey}/styles` | Platform admin + CSRF | Planned | Thay toàn bộ danh sách style của một template trong một transaction; hỗ trợ gán nhiều style một lần |
+| POST/DELETE | `/admin/templates/{templateKey}/styles/{styleId}` | Platform admin + CSRF | Planned | Gán thêm hoặc gỡ một danh mục phong cách khỏi template |
