@@ -7,6 +7,7 @@ const encode = (value: { submittedAt: Date; id: string }) =>
   Buffer.from(JSON.stringify([value.submittedAt.toISOString(), value.id])).toString('base64url')
 const guestSelect = {
   id: true,
+  name: true,
   weddingId: true,
   categoryId: true,
   groupId: true,
@@ -79,7 +80,7 @@ export class PrismaRsvpRepository implements RsvpRepository {
                 ? {
                     OR: [
                       { label: { contains: filter.query, mode: 'insensitive' } },
-                      { guest: { displayName: { contains: filter.query, mode: 'insensitive' } } },
+                      { guest: { OR: [{ name: { contains: filter.query, mode: 'insensitive' } }, { displayName: { contains: filter.query, mode: 'insensitive' } }] } },
                     ],
                   }
                 : {}),
@@ -118,6 +119,7 @@ export class PrismaRsvpRepository implements RsvpRepository {
             guest: {
               select: {
                 id: true,
+                name: true,
                 displayName: true,
                 phone: true,
                 email: true,
@@ -143,7 +145,7 @@ export class PrismaRsvpRepository implements RsvpRepository {
       weddingId: row.weddingId,
       invitationId: row.invitationId,
       guestId: row.invitation.guest?.id ?? null,
-      guestName: row.invitation.guest?.displayName ?? row.invitation.label ?? 'Guest',
+      guestName: row.invitation.guest ? (row.invitation.guest.displayName ?? row.invitation.guest.name) : row.invitation.label ?? 'Guest',
       guestPhone: row.invitation.guest?.phone ?? null,
       guestEmail: row.invitation.guest?.email ?? null,
       categoryId: row.invitation.guest?.categoryId ?? null,
@@ -240,7 +242,7 @@ export class PrismaRsvpRepository implements RsvpRepository {
         const guest = await tx.guest.create({
           data: {
             weddingId,
-            displayName,
+            name: displayName,
             maxPartySize: Math.max(1, response.partySize),
             tags: [],
             ...(data.categoryId ? { categoryId: data.categoryId } : {}),

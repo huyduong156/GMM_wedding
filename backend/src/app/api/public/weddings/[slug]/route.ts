@@ -3,6 +3,7 @@ import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 export const dynamic = 'force-dynamic'
+export const OPTIONS = optionsResponse
 type Context = { params: Promise<{ slug: string }> }
 export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)

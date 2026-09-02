@@ -373,7 +373,7 @@ async function seedTestFixtures({ prisma }) {
   const guests = [
     {
       id: 'aa000000-0000-4000-8000-000000000001',
-      displayName: 'Nguyễn Minh Khang',
+      name: 'Nguyễn Minh Khang',
       email: 'khang.guest@example.test',
       categoryId: ids.categoryFamily,
       groupId: ids.groupFamily,
@@ -383,7 +383,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'aa000000-0000-4000-8000-000000000002',
-      displayName: 'Trần Ngọc Mai',
+      name: 'Trần Ngọc Mai',
       email: 'mai.guest@example.test',
       categoryId: ids.categoryFamily,
       groupId: ids.groupFamily,
@@ -393,7 +393,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'aa000000-0000-4000-8000-000000000003',
-      displayName: 'Lê Hoàng Nam',
+      name: 'Lê Hoàng Nam',
       email: 'nam.guest@example.test',
       categoryId: ids.categoryFriends,
       groupId: ids.groupFriends,
@@ -403,7 +403,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'aa000000-0000-4000-8000-000000000004',
-      displayName: 'Phạm Thu Hà',
+      name: 'Phạm Thu Hà',
       email: 'ha.guest@example.test',
       categoryId: ids.categoryFriends,
       groupId: ids.groupFriends,
@@ -413,7 +413,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'aa000000-0000-4000-8000-000000000005',
-      displayName: 'Đỗ Gia Bảo',
+      name: 'Đỗ Gia Bảo',
       email: 'bao.guest@example.test',
       categoryId: ids.categoryFriends,
       groupId: ids.groupFriends,
@@ -426,7 +426,7 @@ async function seedTestFixtures({ prisma }) {
       const isFamily = number % 2 === 0
       return {
         id: `aa000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
-        displayName: `Khách test ${String(number).padStart(2, '0')}`,
+        name: `Khách test ${String(number).padStart(2, '0')}`,
         email: `guest${String(number).padStart(2, '0')}@example.test`,
         categoryId: isFamily ? ids.categoryFamily : ids.categoryFriends,
         groupId: isFamily ? ids.groupFamily : ids.groupFriends,
@@ -581,7 +581,7 @@ async function seedTestFixtures({ prisma }) {
     {
       id: 'af000000-0000-4000-8000-000000000001',
       guestId: guests[0].id,
-      guestDisplayNameSnapshot: guests[0].displayName,
+      guestDisplayNameSnapshot: guests[0].name,
       giftType: 'MONEY',
       amountMinor: BigInt(3000000),
       currency: 'VND',
@@ -593,7 +593,7 @@ async function seedTestFixtures({ prisma }) {
     {
       id: 'af000000-0000-4000-8000-000000000002',
       guestId: guests[2].id,
-      guestDisplayNameSnapshot: guests[2].displayName,
+      guestDisplayNameSnapshot: guests[2].name,
       giftType: 'GOLD',
       goldWeight: '0.5000',
       goldUnit: 'chi',
@@ -606,7 +606,7 @@ async function seedTestFixtures({ prisma }) {
     {
       id: 'af000000-0000-4000-8000-000000000003',
       guestId: guests[3].id,
-      guestDisplayNameSnapshot: guests[3].displayName,
+      guestDisplayNameSnapshot: guests[3].name,
       giftType: 'PHYSICAL_GIFT',
       receiveMethod: 'PHYSICAL_GIFT',
       receivedAt: new Date('2027-03-20T19:00:00+07:00'),

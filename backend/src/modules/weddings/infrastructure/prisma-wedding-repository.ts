@@ -253,6 +253,7 @@ const eventSelect = {
 } satisfies Prisma.WeddingEventSelect
 const guestSelect = {
   id: true,
+  name: true,
   weddingId: true,
   categoryId: true,
   groupId: true,
@@ -1205,12 +1206,12 @@ export class PrismaWeddingRepository implements WeddingRepository {
     moderatedAt: Date | null
     invitationId: string | null
     guestId: string | null
-    guest: { displayName: string } | null
+    guest: { name: string; displayName: string | null } | null
   }): WishView {
     return {
       id: row.id,
       authorName: row.authorName,
-      guestName: row.guest?.displayName ?? row.authorName,
+      guestName: (row.guest ? (row.guest.displayName ?? row.guest.name) : null) ?? row.authorName,
       guestId: row.guestId,
       invitationId: row.invitationId,
       content: row.content,
@@ -1241,7 +1242,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         OR: [
           { authorName: { contains: filter.query, mode: 'insensitive' } },
           { content: { contains: filter.query, mode: 'insensitive' } },
-          { guest: { displayName: { contains: filter.query, mode: 'insensitive' } } },
+          { guest: { OR: [{ name: { contains: filter.query, mode: 'insensitive' } }, { displayName: { contains: filter.query, mode: 'insensitive' } }] } },
         ],
       })
     if (filter.from || filter.to)
@@ -1277,7 +1278,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         moderatedAt: true,
         invitationId: true,
         guestId: true,
-        guest: { select: { displayName: true } },
+        guest: { select: { name: true, displayName: true } },
       },
       orderBy: [{ submittedAt: 'desc' }, { id: 'desc' }],
       take: filter.limit + 1,
@@ -1324,7 +1325,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         moderatedAt: true,
         invitationId: true,
         guestId: true,
-        guest: { select: { displayName: true } },
+        guest: { select: { name: true, displayName: true } },
       },
     })
     return this.wishView(row)
@@ -1394,7 +1395,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         const guest = await tx.guest.create({
           data: {
             weddingId,
-            displayName,
+            name: displayName,
             maxPartySize: 1,
             tags: [],
             ...(data.categoryId ? { categoryId: data.categoryId } : {}),

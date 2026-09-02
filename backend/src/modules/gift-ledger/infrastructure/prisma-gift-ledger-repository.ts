@@ -33,7 +33,7 @@ const entrySelect = {
   revision: true,
   createdAt: true,
   updatedAt: true,
-  guest: { select: { id: true, displayName: true, deletedAt: true } },
+  guest: { select: { id: true, name: true, displayName: true, deletedAt: true } },
 } satisfies Prisma.GiftLedgerEntrySelect
 const encode = (value: { receivedAt: Date; id: string }) =>
   Buffer.from(JSON.stringify([value.receivedAt.toISOString(), value.id])).toString('base64url')
@@ -85,7 +85,7 @@ function map(
     amountMinor: row.amountMinor?.toString() ?? null,
     goldWeight: row.goldWeight?.toString() ?? null,
     linkedGuest:
-      guest && !guest.deletedAt ? { id: guest.id, displayName: guest.displayName } : null,
+      guest && !guest.deletedAt ? { id: guest.id, displayName: guest.displayName ?? guest.name } : null,
   }
 }
 
@@ -106,7 +106,7 @@ export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
     if (!(await this.owns(userId, weddingId))) return null
     return this.prisma.guest.findFirst({
       where: { id: guestId, weddingId, deletedAt: null },
-      select: { id: true, displayName: true },
+      select: { id: true, name: true, displayName: true },
     })
   }
   private validateUpdate(
@@ -414,14 +414,14 @@ export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
           'Gift entry is already linked to a guest',
         )
       const guest = await tx.guest.create({
-        data: { weddingId, displayName, maxPartySize: 1, tags: [] },
-        select: { id: true, displayName: true },
+        data: { weddingId, name: displayName, maxPartySize: 1, tags: [] },
+        select: { id: true, name: true, displayName: true },
       })
       const row = await tx.giftLedgerEntry.update({
         where: { id: entryId },
         data: {
           guestId: guest.id,
-          guestDisplayNameSnapshot: guest.displayName,
+          guestDisplayNameSnapshot: guest.displayName ?? guest.name,
           revision: { increment: 1 },
         },
         select: entrySelect,
@@ -437,7 +437,7 @@ export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
       where: { id: entryId, weddingId, deletedAt: null },
       data: {
         guestId: guest.id,
-        guestDisplayNameSnapshot: guest.displayName,
+        guestDisplayNameSnapshot: guest.displayName ?? guest.name,
         revision: { increment: 1 },
       },
     })

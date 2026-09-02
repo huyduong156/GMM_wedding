@@ -3,7 +3,8 @@ export interface GuestView {
   weddingId: string
   categoryId: string | null
   groupId: string | null
-  displayName: string
+  name: string
+  displayName: string | null
   phone: string | null
   email: string | null
   note: string | null
@@ -53,7 +54,8 @@ export interface PublicInvitationView {
   expiresAt: Date | null
 }
 export interface CreateGuestData {
-  displayName: string
+  name: string
+  displayName?: string | null | undefined
   categoryId?: string | null | undefined
   groupId?: string | null | undefined
   phone?: string | null | undefined
@@ -84,7 +86,8 @@ export interface UpdateGroupData {
   note?: string | null | undefined
 }
 export interface GuestImportRow {
-  displayName: string
+  name: string
+  displayName?: string | null | undefined
   categoryPath?: string | undefined
   groupName?: string | undefined
   phone?: string | null | undefined
