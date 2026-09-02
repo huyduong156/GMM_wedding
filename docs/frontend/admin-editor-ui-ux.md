@@ -237,3 +237,5 @@ Các surface phụ không được xuất hiện hoặc biến mất đột ng�
 - Surface loading/success/error: dùng skeleton hoặc feedback transition, tránh chèn nội dung mới làm layout nhảy.
 - Mọi motion phải có `prefers-reduced-motion` fallback: trạng thái hiển thị tức thời, không làm mất nội dung hay focus.
 - Không thêm thư viện animation mới nếu CSS transition/keyframes đủ; chỉ dùng motion library cho enter/exit phức tạp, gesture hoặc sequence có thể ngắt.
+- **Template styles:** một màn hình `Danh mục phong cách` dùng chung cho cả invitation, website và recap. Admin tạo/sửa/archive style, sau đó gán nhiều style cho từng template bằng multi-select; không tách style thành ba taxonomy theo product type. Assignment là metadata của `Template`, không phải của từng `TemplateVersion`.
+- Kho template và owner gallery lọc theo các style đang được gán; taxonomy không lấy từ metadata hardcode ở frontend.

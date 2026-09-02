@@ -92,3 +92,4 @@
 - WCAG 2.2 AA cho luồng chính, keyboard/focus/contrast/alt/reduced motion.
 - Kiến trúc i18n từ đầu; lưu UTC và hiển thị theo timezone.
 - Mobile-first, ảnh responsive và trang public tối ưu mạng chậm.
+- Admin quản lý một taxonomy danh mục phong cách dùng chung cho invitation, wedding website và Wedding Recap; mỗi template có thể được gán nhiều phong cách để tìm kiếm/lọc trong catalog.

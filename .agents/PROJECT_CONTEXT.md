@@ -109,3 +109,4 @@
 - Không commit secret, `.env`, PII, DB dump hoặc asset không rõ quyền.
 - Không tự mở rộng MVP sang drag-drop, billing/custom domain/marketplace.
 - Khi scaffold source: `.env.example`, strict TypeScript, lint/typecheck/test/build, multi-stage Dockerfile, `.dockerignore`, Compose và CI image smoke test từ đầu.
+- Danh mục phong cách template là một taxonomy dùng chung cho invitation, wedding website và Wedding Recap (Planned), do platform admin quản lý; một template có thể có nhiều style và assignment thuộc `Template`, không thuộc từng `TemplateVersion`.
