@@ -28,8 +28,7 @@ export const adminRoutes = {
   inviteLibrary: '/gmm_admin/library/invites',
   websiteLibrary: '/gmm_admin/library/websites',
   recapLibrary: '/gmm_admin/library/recaps',
-  inviteStyles: '/gmm_admin/styles/invites',
-  websiteStyles: '/gmm_admin/styles/websites',
+  styles: '/gmm_admin/styles',
   moderation: '/gmm_admin/moderation',
   operations: '/gmm_admin/operations',
   music: '/gmm_admin/music',
@@ -76,3 +75,5 @@ export const marketingRoutes = {
 } as const
 
 export const statusRoutes = { unauthorized: '/401', forbidden: '/403', notFound: '/404', serverError: '/500' } as const
+
+

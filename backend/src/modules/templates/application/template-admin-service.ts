@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, type PrismaClient } from '@prisma/client'
 
 import type { PlatformAdminActor } from '@/platform/auth/actor-context'
 import { TemplateAdminError } from '../domain/template-admin-error'
@@ -77,6 +77,21 @@ export class TemplateAdminService {
       },
       orderBy: { name: 'asc' },
     })
+    const templateIds = rows.map((template) => template.id)
+    const styleRows = templateIds.length
+      ? await this.db.$queryRaw<Array<{ templateId: string; id: string; key: string; name: string }>>`
+          SELECT a."templateId", s.id, s.key, s.name
+          FROM "TemplateStyleAssignment" a
+          JOIN "TemplateStyle" s ON s.id = a."styleId"
+          WHERE a."templateId" IN (${Prisma.join(templateIds.map((id) => Prisma.sql`${id}::uuid`))})
+          ORDER BY s."sortOrder" ASC, s.name ASC`
+      : []
+    const stylesByTemplate = new Map<string, Array<{ id: string; key: string; name: string }>>()
+    for (const style of styleRows) {
+      const styles = stylesByTemplate.get(style.templateId) ?? []
+      styles.push({ id: style.id, key: style.key, name: style.name })
+      stylesByTemplate.set(style.templateId, styles)
+    }
     const versionIds = rows.flatMap((template) => template.versions.map((version) => version.id))
     const auditRows = versionIds.length
       ? await this.db.auditLog.findMany({
@@ -105,6 +120,7 @@ export class TemplateAdminService {
         productType: template.productType,
         status: template.status,
         description: template.description,
+        styles: stylesByTemplate.get(template.id) ?? [],
         versions: template.versions
           .map((version) => ({
             ...version,
@@ -121,14 +137,14 @@ export class TemplateAdminService {
       }))
       .filter(
         (template) =>
-          template.versions.length > 0 && (!query.reviewStatus || template.versions.length > 0),
+          template.versions.length > 0 && (!query.reviewStatus || template.versions.length > 0) && (!query.styleKey || template.styles.some((style) => style.key === query.styleKey)),
       )
     const pendingReviewCount = rows.reduce(
       (count, template) =>
         count +
         template.versions.filter(
           (version) =>
-            version.sourceStatus !== 'DEVELOPMENT' && reviewStatus(version) === 'PENDING_REVIEW',
+            version.sourceStatus !== 'DEVELOPMENT' && reviewStatus(version) === 'PENDING_REVIEW' && (!query.styleKey || (stylesByTemplate.get(template.id) ?? []).some((style) => style.key === query.styleKey)),
         ).length,
       0,
     )

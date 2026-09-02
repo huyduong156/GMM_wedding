@@ -10,6 +10,7 @@ import { AdminTemplatesApiPage } from '../pages/admin/ui/AdminTemplatesApiPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
 import { AdminPlaceholderPage } from '../pages/admin/ui/AdminPlaceholderPage'
 import { AdminMusicPage } from '../pages/admin/ui/AdminMusicPage'
+import { AdminStylesPage } from '../pages/admin/ui/AdminStylesPage'
 import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
 import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage'
 import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
@@ -75,8 +76,7 @@ const studioPages: Record<string, React.ReactNode> = {
 const adminPageNames: Record<string, string> = {
   [adminRoutes.users]: 'Quản lý người dùng',
   [adminRoutes.subscriptions]: 'Quản lý gói đăng ký',
-  [adminRoutes.inviteStyles]: 'Danh mục phong cách thiệp',
-  [adminRoutes.websiteStyles]: 'Danh mục phong cách website',
+  [adminRoutes.styles]: 'Danh mục phong cách',
   [adminRoutes.moderation]: 'Kiểm duyệt nội dung',
   [adminRoutes.operations]: 'Vận hành hệ thống',
 }
@@ -139,6 +139,8 @@ function AppContent() {
           ? <AdminTemplatesApiPage kind="recap" />
         : pathname === adminRoutes.music
           ? <AdminMusicPage />
+        : pathname === adminRoutes.styles
+          ? <AdminStylesPage />
         : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
     return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
   }
@@ -155,4 +157,6 @@ function AppContent() {
 export function App() {
   return <AppErrorBoundary><AppContent /></AppErrorBoundary>
 }
+
+
 

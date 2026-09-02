@@ -52,6 +52,7 @@ export const templateReleaseBundleSchema = z
 export const adminTemplateListQuerySchema = z.object({
   productType: z.enum(['ONLINE_INVITATION', 'WEDDING_WEBSITE', 'RECAP']).optional(),
   reviewStatus: z.enum(['PENDING_REVIEW', 'RELEASED', 'DEPRECATED']).optional(),
+  styleKey: templateKeySchema.optional(),
 })
 
 export type TemplateReleaseBundle = z.infer<typeof templateReleaseBundleSchema>

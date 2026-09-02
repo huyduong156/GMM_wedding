@@ -12,7 +12,7 @@ export type AdminTemplateVersion = {
 }
 export type AdminTemplate = {
   key: string; name: string; productType: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
-  status: 'DRAFT' | 'ACTIVE' | 'DEPRECATED' | 'RETIRED'; description: string | null; versions: AdminTemplateVersion[]
+  status: 'DRAFT' | 'ACTIVE' | 'DEPRECATED' | 'RETIRED'; description: string | null; styles?: Array<{ id: string; key: string; name: string }>; versions: AdminTemplateVersion[]
 }
 export type TemplateReleaseBundle = {
   bundleVersion: 1; generatedAt: string; sourceRevision: string
@@ -36,8 +36,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 const segment = encodeURIComponent
 export const adminTemplateApi = {
-  async list(productType: AdminTemplate['productType']) {
-    const result = await request<{ pendingReviewCount: number; items: LegacyAdminTemplate[] }>(`/admin/templates?productType=${productType}`)
+  async list(productType: AdminTemplate['productType'], styleKey?: string) {
+    const result = await request<{ pendingReviewCount: number; items: LegacyAdminTemplate[] }>('/admin/templates?productType=' + encodeURIComponent(productType) + (styleKey ? '&styleKey=' + encodeURIComponent(styleKey) : ''))
     return { ...result, items: result.items.map((item): AdminTemplate => ({ ...item, versions: item.versions.map((version): AdminTemplateVersion => ({ ...version, usageCount: version.usageCount ?? 0, compatibility: version.compatibility ?? { compatible: version.templateConfigVersion === 1 && version.contentSchemaVersion === 1 && version.rendererApiVersion === 1, issues: [], supported: { templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1 } }, recentAudit: version.recentAudit ?? [] })) })) }
   },
   detail(key: string, version: string) { return request<{ template: AdminTemplate & { version: AdminTemplateVersion } }>(`/admin/templates/${segment(key)}/versions/${segment(version)}`) },
