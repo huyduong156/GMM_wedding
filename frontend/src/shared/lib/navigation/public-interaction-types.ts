@@ -18,6 +18,7 @@ export type PublicWishesController = {
 }
 export type PublicInteractions = {
   isPersonalized: boolean
+  guestName: string | null
   rsvp: PublicRsvpController
   wishes: PublicWishesController
 }
