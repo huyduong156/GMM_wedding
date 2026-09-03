@@ -3,7 +3,6 @@ import {
   bulkAssignCategorySchema,
   createGuestSchema,
   guestQuerySchema,
-  invitationSchema,
 } from './guest-schemas'
 
 describe('guest API schemas', () => {
@@ -30,13 +29,6 @@ describe('guest API schemas', () => {
   it('limits list pagination', () => {
     expect(guestQuerySchema.parse({ limit: '25' }).limit).toBe(25)
     expect(() => guestQuerySchema.parse({ limit: '101' })).toThrow()
-  })
-  it('parses invitation expiry into a Date', () => {
-    const result = invitationSchema.parse({
-      maxPartySize: 2,
-      expiresAt: '2030-01-01T00:00:00.000Z',
-    })
-    expect(result.expiresAt).toBeInstanceOf(Date)
   })
   it('supports assigning and clearing a category for a bounded unique guest set', () => {
     expect(

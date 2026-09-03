@@ -15,8 +15,10 @@ Date: YYYY-MM-DD
 
 Đánh số tăng dần từ `0001`, không tái sử dụng số.
 
-Quyết định mới nhất: [0011 - Owner-private Wedding data boundary](./0011-owner-private-wedding-data-boundary.md).
+Quyết định mới nhất: [0013 - Direct guest-slug personalized invitation flow](./0013-direct-guest-slug-personalized-flow.md).
 
 - [ADR 0010: Template source lifecycle và preview access](./0010-template-source-lifecycle-and-preview-access.md)
 - [ADR 0011: Owner-private Wedding data boundary](./0011-owner-private-wedding-data-boundary.md)
 - [ADR 0012: Surface-scoped template content](./0012-surface-scoped-template-content.md)
+- [ADR 0013: Direct guest-slug personalized invitation flow](./0013-direct-guest-slug-personalized-flow.md)
+- [ADR 0013: Direct guest-slug personalized invitation flow](./0013-direct-guest-slug-personalized-flow.md)

@@ -54,37 +54,6 @@ export const updateGroupSchema = z
   })
   .strip()
   .refine((value) => Object.keys(value).length > 0, 'At least one field is required')
-export const invitationSchema = z
-  .object({
-    guestId: uuid.optional(),
-    label: z.string().trim().min(1).max(160).optional(),
-    maxPartySize: z.number().int().min(1).max(50).default(1),
-    expiresAt: z
-      .string()
-      .datetime({ offset: true })
-      .transform((v) => new Date(v))
-      .optional(),
-  })
-  .strip()
-export const invitationQuerySchema = z.object({
-  guestId: uuid.optional(),
-  status: z.enum(['ACTIVE', 'REVOKED']).optional(),
-  limit: z.coerce.number().int().min(1).max(100).default(50),
-  cursor: z.string().max(512).optional(),
-})
-export const updateInvitationSchema = z
-  .object({
-    label: z.string().trim().min(1).max(160).nullable().optional(),
-    maxPartySize: z.number().int().min(1).max(50).optional(),
-    expiresAt: z
-      .string()
-      .datetime({ offset: true })
-      .transform((v) => new Date(v))
-      .nullable()
-      .optional(),
-  })
-  .strip()
-  .refine((value) => Object.keys(value).length > 0, 'At least one field is required')
 export const bulkDeleteSchema = z
   .object({
     ids: z

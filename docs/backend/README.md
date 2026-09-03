@@ -2,7 +2,7 @@
 
 Đây là entrypoint cho mọi công việc thuộc backend Next.js API. Tài liệu được tổ chức theo concern, không theo thứ tự số hoặc framework folder.
 
-> Trạng thái hiện tại: backend foundation, auth, Wedding base và Guest core đã được triển khai. Guest core gồm CRUD owner-scoped, category/group, import/export, invitation list/detail/create/update/token lifecycle, personalized invitation slug và public RSVP/wish hai mode; rate limit/idempotency nâng cao và các publication API khác vẫn theo phase kế tiếp.
+> Trạng thái hiện tại: backend foundation, auth, Wedding base và Guest core đã được triển khai. Guest core gồm CRUD owner-scoped, category/group, import/export, guest-slug và public RSVP/wish hai mode; rate limit/idempotency nâng cao và các publication API khác vẫn theo phase kế tiếp.
 
 ## Nguyên tắc kiến trúc đã xác định
 
@@ -34,7 +34,8 @@
 ### Làm endpoint hoặc business feature
 
 1. [Module boundaries](./modules/module-boundaries.md)
-2. [Route catalog và Postman](./contracts/route-catalog.md)`r`n3. [Template lifecycle](./contracts/template-lifecycle.md)
+2. [Route catalog và Postman](./contracts/route-catalog.md)
+3. [Template lifecycle](./contracts/template-lifecycle.md)
 3. [API contracts](./contracts/api-contracts.md)
 4. [Authentication và authorization](./contracts/authentication-and-authorization.md)
 5. [Authentication workflows and implementation runbook](./contracts/authentication-workflows.md)

@@ -13,9 +13,8 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 | `templates` | Template registry, immutable versions, compatibility | Template/TemplateVersion | media, weddings contract |
 | `publications` | Publish/unpublish, snapshot, public lookup | PublishedWeddingSnapshot | weddings, templates, media |
 | `guests` | Guest/category/group/import/export | Guest/Category/Group | weddings |
-| `invitations` | Invite identity/token/recipient scope | Invitation | guests, weddings |
-| `rsvps` | Attendance response và event selection | RsvpResponse/Selection/Companion | invitations, wedding events |
-| `wishes` | Submission, moderation, public selection | Wish | weddings/invitations |
+| `rsvps` | Attendance response và event selection | RsvpResponse/Selection/Companion | guests, wedding events |
+| `wishes` | Submission, moderation, public selection | Wish | weddings, guests |
 | `media` | Upload lifecycle, variants, readiness | MediaAsset/Variant | weddings ownership policy |
 | `music` | Catalog nhạc nền dùng chung, license và lifecycle | MusicTrack | media, platform-admin policy, publications contract |
 | `tasks` | Wedding planning task/checklist | WeddingTask/ChecklistTemplate | weddings membership |

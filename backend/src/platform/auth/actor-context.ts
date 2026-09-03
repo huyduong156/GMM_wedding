@@ -11,19 +11,13 @@ export type PlatformAdminActor = {
   assurance: 'base' | 'stepUp'
 }
 
-export type InvitationActor = {
-  kind: 'invite'
-  invitationId: string
-  weddingId: string
-}
-
 export type AnonymousActor = {
   kind: 'anonymous'
   fingerprint?: string
 }
 
 export type ActorContext =
-  AuthenticatedUserActor | PlatformAdminActor | InvitationActor | AnonymousActor
+  AuthenticatedUserActor | PlatformAdminActor | AnonymousActor
 
 export function isAuthenticatedActor(
   actor: ActorContext,

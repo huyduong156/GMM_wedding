@@ -26,7 +26,7 @@ Postman variables tối thiểu:
 baseUrl
 weddingId
 guestId
-invitationToken
+guestSlug
 revision
 idempotencyKey
 ```
@@ -136,44 +136,23 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 
 Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](../modules/background-music.md).
 
-## Guests và invitations
+## Guests và guest links
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/weddings/{weddingId}/guests` | Owner | Implemented | List/filter guest với cursor |
-| POST | `/weddings/{weddingId}/guests` | Owner | Implemented | Tạo guest |
-| GET | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Chi tiết guest |
-| PATCH | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Cập nhật guest |
-| DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Soft delete guest |
-| POST/DELETE | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft delete nhiều guest trong một request; UI đơn lẻ gửi một ID |
-| POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Owner | Implemented | Gắn hoặc gỡ nhiều guest; truyền `categoryId: null` để gỡ |
-| GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách tối đa 3 cấp |
-| PATCH | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Đổi tên, di chuyển danh mục; chặn vòng lặp và cấp > 3 |
-| DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Soft delete danh mục |
-| POST/DELETE | `/weddings/{weddingId}/guest-categories/bulk-delete` | Owner | Implemented | Soft delete nhiều danh mục trong một request; UI đơn lẻ gửi một ID |
-| GET/POST | `/weddings/{weddingId}/guest-groups` | Owner | Implemented | Nhóm khách |
-| PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Cập nhật hoặc soft delete nhóm |
-| POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Implemented | Nhận `{ rows }` sau khi FE parse CSV; validate và trả lỗi theo dòng |
-| POST | `/weddings/{weddingId}/guests/import/commit` | Guest write policy | Implemented | Commit các dòng hợp lệ; tự tạo category path/group còn thiếu |
-| GET | `/weddings/{weddingId}/guests/export` | Guest access policy | Implemented | CSV UTF-8 BOM, sort và chèn dòng section theo danh mục/nhóm |
-| POST | `/weddings/{weddingId}/invitations` | Owner | Implemented | Tạo invitation/token; raw token chỉ trả một lần |
-| GET | `/weddings/{weddingId}/invitations` | Owner | Implemented | List invitation theo guest/status với cursor |
-| GET/PATCH | `/weddings/{weddingId}/invitations/{invitationId}` | Owner | Implemented | Đọc/cập nhật metadata invitation; không cập nhật token trực tiếp |
-| POST | `/weddings/{weddingId}/invitations/{invitationId}/rotate` | Owner | Implemented | Rotate token |
-| POST | `/weddings/{weddingId}/invitations/{invitationId}/revoke` | Owner | Implemented | Revoke token |
+| GET/POST | `/weddings/{weddingId}/guests` | Owner | Implemented | List/filter hoặc tạo guest; response có guest slug |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Đọc/cập nhật/soft-delete guest |
+| POST | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft-delete nhiều guest |
+| POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Owner | Implemented | Gắn/gỡ category nhiều guest |
+| GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách |
+| PATCH/DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Owner | Implemented | Sửa/xóa danh mục |
+| GET/POST | `/weddings/{weddingId}/guest-groups` | Owner | Implemented | Đọc/tạo group khách |
+| PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Owner | Implemented | Sửa/xóa group khách |
+| POST | `/weddings/{weddingId}/guests/import/preview` | Guest write policy | Implemented | Validate import |
+| POST | `/weddings/{weddingId}/guests/import/commit` | Guest write policy | Implemented | Commit import và sinh slug |
+| GET | `/weddings/{weddingId}/guests/export` | Guest access policy | Implemented | Export guest fields |
 
-## RSVP và wishes
-
-| Method | Path | Auth | Trạng thái | Mục đích |
-|---|---|---|---|---|
-| GET | `/weddings/{weddingId}/rsvps` | Owner | Implemented | Owner list/filter RSVP với guest, event, companion và cursor |
-| POST | `/weddings/{weddingId}/rsvps/{rsvpId}/promote-to-guest` | Owner | Implemented | Tạo Guest từ RSVP ẩn danh và liên kết trong transaction |
-| POST | `/weddings/{weddingId}/rsvps/{rsvpId}/link-guest` | Owner | Implemented | Liên kết RSVP với Guest có sẵn |
-| PATCH | `/weddings/{weddingId}/rsvps/{rsvpId}` | RSVP write policy | Planned | Owner correction |
-| GET | `/weddings/{weddingId}/wishes` | Owner | Implemented | List/filter lời chúc theo status, nội dung, thời gian và cursor |
-| PATCH | `/weddings/{weddingId}/wishes/{wishId}` | Owner | Implemented | Approve/reject/spam/hide/pin |
-| POST | `/weddings/{weddingId}/wishes/{wishId}/promote-to-guest` | Owner | Implemented | Tạo Guest từ lời chúc anonymous và liên kết trong transaction |
-| POST | `/weddings/{weddingId}/wishes/{wishId}/link-guest` | Owner | Implemented | Liên kết lời chúc với Guest có sẵn |
+Không có route Invitation. Link cá nhân sử dụng `Guest.slug`; guest slug do BE sinh và ổn định sau khi tạo.
 
 ## Planning, gift ledger và recap
 
@@ -198,16 +177,13 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/public/weddings/{weddingSlug}` | Public | Implemented | Snapshot thiệp online live theo Wedding slug, hỗ trợ ETag/304 |
-| GET | `/public/websites/{weddingSlug}` | Public | Implemented | Snapshot website cưới live theo Wedding slug, hỗ trợ ETag/304 |
-| GET | `/public/invitations/{weddingSlug}` | Public | Implemented | Snapshot thiệp online live theo Wedding slug; chỉ yêu cầu Wedding đã publish, không phụ thuộc visibility metadata |
-| GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public invitation slug | Implemented | Resolve personalized invitation trong đúng Wedding slug |
-| PUT | `/public/invitations/{invitationToken}/rsvp` | Invite token | Implemented | Upsert RSVP và enforce `Invitation.maxPartySize` |
-| POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | Common URL RSVP, bắt buộc guestName |
-| POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Common URL wish, bắt buộc guestName |
-| PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public invitation slug | Implemented | Personalized RSVP, tự lấy tên/guestId |
-| POST | `/public/invitations/{weddingSlug}/{guestSlug}/wishes` | Public invitation slug | Implemented | Personalized wish, không nhập tên |
-| GET | `/public/recaps/{weddingSlug}` | Public | Implemented | Published recap snapshot theo Wedding slug với ETag/cache |
+| GET | `/public/invitations/{weddingSlug}` | Public | Implemented | Snapshot thiệp online theo Wedding slug |
+| GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public | Implemented | Resolve trực tiếp Guest theo Wedding + guest slug |
+| POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | RSVP URL chung, guestId null |
+| POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Wish URL chung, guestId null |
+| PUT | `/public/invitations/{weddingSlug}/{guestSlug}/rsvp` | Public | Implemented | RSVP cá nhân, lưu guestId trực tiếp |
+| POST | `/public/invitations/{weddingSlug}/{guestSlug}/wishes` | Public | Implemented | Wish cá nhân, lưu guestId trực tiếp |
+| GET | `/public/recaps/{weddingSlug}` | Public | Implemented | Published recap snapshot |
 
 ## Postman workflow
 

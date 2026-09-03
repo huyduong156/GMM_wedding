@@ -4,12 +4,10 @@ import type {
   CreateCategoryData,
   CreateGuestData,
   CreateGroupData,
-  CreateInvitationData,
   GuestRepository,
   UpdateGuestData,
   UpdateCategoryData,
   UpdateGroupData,
-  UpdateInvitationData,
   GuestImportIssue,
   GuestImportRow,
 } from './ports'
@@ -102,50 +100,8 @@ export class GuestService {
     if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
     if (!result) throw new GuestError('GUEST_GROUP_NOT_FOUND', 404, 'Guest group not found')
   }
-  listInvitations(
-    actor: AuthenticatedUserActor,
-    weddingId: string,
-    filter: {
-      guestId?: string | undefined
-      status?: 'ACTIVE' | 'REVOKED' | undefined
-      limit: number
-      cursor?: string | undefined
-    },
-  ) {
-    return this.require(this.repository.listInvitations(actor.userId, weddingId, filter))
-  }
-  getInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) {
-    return this.requireResource(
-      this.repository.findInvitation(actor.userId, weddingId, id),
-      'INVITATION_NOT_FOUND',
-      'Invitation not found',
-    )
-  }
-  createInvitation(actor: AuthenticatedUserActor, weddingId: string, data: CreateInvitationData) {
-    return this.require(this.repository.createInvitation(actor.userId, weddingId, data))
-  }
-  updateInvitation(
-    actor: AuthenticatedUserActor,
-    weddingId: string,
-    id: string,
-    data: UpdateInvitationData,
-  ) {
-    return this.requireResource(
-      this.repository.updateInvitation(actor.userId, weddingId, id, data),
-      'INVITATION_NOT_FOUND',
-      'Invitation not found',
-    )
-  }
-  rotateInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) {
-    return this.require(this.repository.rotateInvitation(actor.userId, weddingId, id))
-  }
-  async revokeInvitation(actor: AuthenticatedUserActor, weddingId: string, id: string) {
-    const result = await this.repository.revokeInvitation(actor.userId, weddingId, id)
-    if (result === null) throw new GuestError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
-    if (!result) throw new GuestError('INVITATION_NOT_FOUND', 404, 'Invitation not found')
-  }
-  resolvePublicInvitation(weddingSlug: string, guestSlug: string) {
-    return this.repository.resolvePublicInvitation(weddingSlug, guestSlug)
+  resolvePublicGuestLink(weddingSlug: string, guestSlug: string) {
+    return this.repository.resolvePublicGuestLink(weddingSlug, guestSlug)
   }
   async exportCsv(actor: AuthenticatedUserActor, weddingId: string) {
     const rows = this.require(await this.repository.exportOwned(actor.userId, weddingId))

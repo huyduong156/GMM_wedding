@@ -16,7 +16,6 @@ backend/
         interface/
         index.ts                 public module API
       guests/
-      invitations/
       rsvps/
       wishes/
       templates/

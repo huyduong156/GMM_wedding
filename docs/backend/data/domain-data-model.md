@@ -18,7 +18,7 @@ Danh sách trường, kiểu dữ liệu và quan hệ đã triển khai xem [da
 - `Template`, immutable `TemplateVersion`, `PublishedWeddingSnapshot`.
 - `MediaAsset`, `MediaVariant`.
 - `MusicTrack` catalog dùng chung, tham chiếu audio asset và metadata quyền sử dụng.
-- `GuestCategory`, `GuestGroup`, `Guest`, `Invitation`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
+- `GuestCategory`, `GuestGroup`, `Guest`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
 - `Wish`, `Notification`, `NotificationPreference`, `AuditLog`.
 - `WeddingTask`, `TaskChecklistTemplate`, `TaskChecklistItem`.
 - `GiftLedgerEntry`, `RecapWishSelection`, `RecapMediaItem`, `PublishedRecapSnapshot`.
@@ -32,7 +32,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
                                |--< GuestCategory --< Guest
                                |--< GuestCategory --< Guest
                                |--< GuestCategory --< Guest
-                               |--< GuestGroup --< Guest --< Invitation -- RsvpResponse
+                               |--< GuestGroup --< Guest --< RsvpResponse
                                |--< WeddingTask
                                |--< GiftLedgerEntry >-- Guest?
                                |-- WeddingContent(RECAP) --< PublishedRecapSnapshot
@@ -43,7 +43,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 
 - Unique lowercase `User.email` và lowercase active `Wedding.slug`; slug này là URL duy nhất của mọi surface.
 - Unique `(weddingId, userId)` cho member.
-- `Invitation.tokenHash` unique; tuyệt đối không lưu token raw.
+- `Guest.slug` được sinh server-side từ `name` sau khi normalize, unique theo `(weddingId, slug)` và ổn định; nếu trùng thì thêm hậu tố `-1`, `-2`, ...
 - Index guest theo `(weddingId, groupId)`; RSVP theo `(weddingId, attendance, submittedAt)`; wish theo moderation status.
 - `GuestCategory` self-reference qua `parentId`, thuộc đúng một wedding và có `depth` từ 1 đến 3. Parent phải cùng wedding, depth của child bằng parent + 1; không cho tạo chu kỳ hoặc cấp 4. Guest có thể gắn một category chính trong MVP.
 - Unique `(weddingId, version)` cho published snapshot.
@@ -53,7 +53,6 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 - Unique `(templateId, version)` cho `TemplateVersion`; version đã phát hành không được ghi đè. Lưu `configHash`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion` và code revision để sync/audit.
 - `WeddingContent` lưu template-owned content, theme/section config, template selection và publication lifecycle theo surface. Các surface không dùng chung payload.
 - Cấu hình nhạc theo surface lưu `musicTrackId | null`, `enabled`, `autoplayRequested`; `MusicTrack` phải `ACTIVE` và audio asset `READY` tại lần publish. Bytes/URL ký không nằm trong JSON canonical.
-- Revoke/rotate invitation làm token cũ vô hiệu ngay.
 - Xóa wedding thu hồi public access ngay; hard delete theo retention job.
 
 ### Task

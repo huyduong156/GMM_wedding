@@ -4,6 +4,7 @@ export interface GuestView {
   categoryId: string | null
   groupId: string | null
   name: string
+  slug: string
   displayName: string | null
   phone: string | null
   email: string | null
@@ -32,23 +33,9 @@ export interface GuestGroupView {
   createdAt: Date
   updatedAt: Date
 }
-export interface InvitationView {
-  id: string
-  weddingId: string
-  guestId: string | null
-  label: string | null
-  publicSlug: string | null
-  status: string
-  maxPartySize: number
-  expiresAt: Date | null
-  revokedAt: Date | null
-  lastViewedAt: Date | null
-  createdAt: Date
-  updatedAt: Date
-}
-export interface PublicInvitationView {
+export interface PublicGuestLinkView {
   weddingSlug: string
-  invitationSlug: string
+  guestSlug: string
   guestName: string | null
   maxPartySize: number
   expiresAt: Date | null
@@ -106,18 +93,8 @@ export interface GuestExportRow extends GuestView {
   categoryPath: string
   groupName: string | null
 }
-export interface CreateInvitationData {
-  guestId?: string | undefined
-  label?: string | undefined
-  maxPartySize: number
-  expiresAt?: Date | undefined
-}
-export interface UpdateInvitationData {
-  label?: string | null | undefined
-  maxPartySize?: number | undefined
-  expiresAt?: Date | null | undefined
-}
 export interface GuestRepository {
+  resolvePublicGuestLink(weddingSlug: string, guestSlug: string): Promise<PublicGuestLinkView | null>
   listOwned(
     userId: string,
     weddingId: string,
@@ -180,42 +157,6 @@ export interface GuestRepository {
     data: UpdateGroupData,
   ): Promise<GuestGroupView | null>
   deleteGroup(userId: string, weddingId: string, groupId: string): Promise<boolean | null>
-  listInvitations(
-    userId: string,
-    weddingId: string,
-    filter: {
-      guestId?: string | undefined
-      status?: 'ACTIVE' | 'REVOKED' | undefined
-      limit: number
-      cursor?: string | undefined
-    },
-  ): Promise<{ items: InvitationView[]; nextCursor: string | null } | null>
-  findInvitation(
-    userId: string,
-    weddingId: string,
-    invitationId: string,
-  ): Promise<InvitationView | null>
-  createInvitation(
-    userId: string,
-    weddingId: string,
-    data: CreateInvitationData,
-  ): Promise<{ invitation: InvitationView; token: string } | null>
-  updateInvitation(
-    userId: string,
-    weddingId: string,
-    invitationId: string,
-    data: UpdateInvitationData,
-  ): Promise<InvitationView | null>
-  rotateInvitation(
-    userId: string,
-    weddingId: string,
-    invitationId: string,
-  ): Promise<{ invitation: InvitationView; token: string } | null>
-  revokeInvitation(userId: string, weddingId: string, invitationId: string): Promise<boolean | null>
-  resolvePublicInvitation(
-    weddingSlug: string,
-    guestSlug: string,
-  ): Promise<PublicInvitationView | null>
   exportOwned(userId: string, weddingId: string): Promise<GuestExportRow[] | null>
   importOwned(
     userId: string,

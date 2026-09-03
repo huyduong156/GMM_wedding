@@ -32,11 +32,11 @@ describe('RsvpService', () => {
   it('promotes an anonymous RSVP through the repository', async () => {
     const promoteToGuest = vi
       .fn()
-      .mockResolvedValue({ guest: { id: 'guest-1' }, invitationId: 'invitation-1' })
+      .mockResolvedValue({ guest: { id: 'guest-1' }, guestId: 'invitation-1' })
     const repo = repository(null, { promoteToGuest })
     await expect(
       new RsvpService(repo).promoteToGuest(actor, 'wedding-1', 'rsvp-1', { displayName: 'Guest' }),
-    ).resolves.toEqual({ guest: { id: 'guest-1' }, invitationId: 'invitation-1' })
+    ).resolves.toEqual({ guest: { id: 'guest-1' }, guestId: 'invitation-1' })
     expect(promoteToGuest).toHaveBeenCalledWith('user-1', 'wedding-1', 'rsvp-1', {
       displayName: 'Guest',
     })

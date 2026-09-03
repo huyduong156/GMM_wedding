@@ -30,7 +30,7 @@ HTTP / job / CLI entry point
 
 ### Application
 
-- Một use case biểu diễn một hành động nghiệp vụ: `PublishWedding`, `SubmitRsvp`, `RotateInvitationToken`.
+- Một use case biểu diễn một hành động nghiệp vụ: `PublishWedding`, `SubmitRsvp`.
 - Authorize theo actor + resource, điều phối transaction, repository port, domain service và side-effect intent.
 - Không phụ thuộc HTTP, React hoặc provider SDK.
 

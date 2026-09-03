@@ -252,13 +252,13 @@ export interface WeddingRepository {
       categoryId?: string | undefined
       groupId?: string | undefined
     },
-  ): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null>
+  ): Promise<{ guest: GuestView; wishId: string; guestId: string | null } | 'conflict' | null>
   linkWishGuest(
     userId: string,
     weddingId: string,
     wishId: string,
     guestId: string,
-  ): Promise<{ guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null>
+  ): Promise<{ guest: GuestView; wishId: string; guestId: string | null } | 'conflict' | null>
 }
 
 export type WeddingSurfaceValue = 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP'
@@ -319,7 +319,7 @@ export interface WishView {
   authorName: string
   guestName: string
   guestId: string | null
-  invitationId: string | null
+
   content: string
   status: string
   isPinned: boolean

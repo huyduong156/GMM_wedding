@@ -101,12 +101,6 @@ enum MediaStatus {
   FAILED
 }
 
-enum InvitationStatus {
-  ACTIVE
-  REVOKED
-  EXPIRED
-}
-
 enum AttendanceStatus {
   ATTENDING
   DECLINED
@@ -307,7 +301,6 @@ model Wedding {
   guestCategories    GuestCategory[]
   guestGroups        GuestGroup[]
   guests             Guest[]
-  invitations        Invitation[]
   rsvpResponses      RsvpResponse[]
   wishes             Wish[]
   tasks              WeddingTask[]
@@ -543,6 +536,7 @@ model Guest {
   categoryId        String?           @db.Uuid
   groupId           String?           @db.Uuid
   name              String            @db.VarChar(160)
+  slug              String            @db.VarChar(80)
   displayName       String?           @db.VarChar(160)
   phone             String?           @db.VarChar(32)
   email             String?           @db.VarChar(320)
@@ -556,43 +550,20 @@ model Guest {
   wedding           Wedding           @relation(fields: [weddingId], references: [id], onDelete: Cascade)
   category          GuestCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   group             GuestGroup?       @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  invitations       Invitation[]
+  rsvpResponses     RsvpResponse[]
   wishes            Wish[]
   giftLedgerEntries GiftLedgerEntry[]
 
   @@index([weddingId, groupId])
   @@index([weddingId, categoryId])
+  @@unique([weddingId, slug])
   @@index([weddingId, name])
-}
-
-model Invitation {
-  id           String           @id @default(uuid()) @db.Uuid
-  weddingId    String           @db.Uuid
-  guestId      String?          @db.Uuid
-  label        String?          @db.VarChar(160)
-  publicSlug   String?          @db.VarChar(160)
-  tokenHash    String           @unique @db.VarChar(255)
-  status       InvitationStatus @default(ACTIVE)
-  maxPartySize Int              @default(1)
-  expiresAt    DateTime?        @db.Timestamptz(3)
-  revokedAt    DateTime?        @db.Timestamptz(3)
-  lastViewedAt DateTime?        @db.Timestamptz(3)
-  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime         @updatedAt @db.Timestamptz(3)
-  wedding      Wedding          @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  guest        Guest?           @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  rsvpResponse RsvpResponse?
-  wishes       Wish[]
-
-  @@unique([weddingId, publicSlug])
-  @@index([weddingId, status])
-  @@index([guestId])
 }
 
 model RsvpResponse {
   id              String               @id @default(uuid()) @db.Uuid
   weddingId       String               @db.Uuid
-  invitationId    String               @unique @db.Uuid
+  guestId         String?              @db.Uuid
   attendance      AttendanceStatus
   partySize       Int
   mealPreference  String?              @db.VarChar(160)
@@ -602,10 +573,11 @@ model RsvpResponse {
   updatedAt       DateTime             @updatedAt @db.Timestamptz(3)
   revision        Int                  @default(1)
   wedding         Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  invitation      Invitation           @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  guest           Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
   eventSelections RsvpEventSelection[]
   companions      RsvpCompanion[]
 
+  @@unique([weddingId, guestId])
   @@index([weddingId, attendance, submittedAt])
 }
 
@@ -635,7 +607,6 @@ model RsvpCompanion {
 model Wish {
   id              String               @id @default(uuid()) @db.Uuid
   weddingId       String               @db.Uuid
-  invitationId    String?              @db.Uuid
   guestId         String?              @db.Uuid
   authorName      String               @db.VarChar(160)
   content         String               @db.Text
@@ -645,7 +616,6 @@ model Wish {
   moderatedAt     DateTime?            @db.Timestamptz(3)
   deletedAt       DateTime?            @db.Timestamptz(3)
   wedding         Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  invitation      Invitation?          @relation(fields: [invitationId], references: [id], onDelete: SetNull)
   guest           Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
   recapSelections RecapWishSelection[]
 

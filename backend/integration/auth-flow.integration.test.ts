@@ -179,6 +179,7 @@ describe.sequential('authentication journey', () => {
     const dashboard = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}/dashboard`, {
       headers: { cookie: cookie as string },
     })
+    console.log('DASHBOARD_BODY', await dashboard.clone().text())
     expect(dashboard.status).toBe(200)
     const dashboardBody = (await dashboard.json()) as {
       dashboard: {
