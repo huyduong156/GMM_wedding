@@ -1,6 +1,6 @@
+import { newGuestSlug } from "@/shared/domain/guest-slug"
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { createHash, randomUUID } from 'node:crypto'
-
 import type {
   CreateWeddingData,
   CreateWeddingEventData,
@@ -23,7 +23,6 @@ import type {
 import type { GuestView } from '@/modules/guests/application/ports'
 import { WeddingError } from '../domain/wedding-error'
 import { SlugService } from '@/shared/slug/slug-service'
-
 const legacyTemplateSections: Record<string, string[]> = {
   'modern-luxe': [
     'cover',
@@ -143,10 +142,8 @@ const legacyTemplateSections: Record<string, string[]> = {
     'footer',
   ],
 }
-
 type TemplateSection = { sectionKey?: unknown; key?: unknown; required?: unknown }
 type SectionConfig = { enabled?: unknown; order?: unknown }
-
 function sectionKey(item: unknown) {
   if (typeof item === 'string') return item
   if (!item || typeof item !== 'object') return ''
@@ -157,7 +154,6 @@ function sectionKey(item: unknown) {
       ? section.key
       : ''
 }
-
 function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig) {
   const sections = rawSections.map(sectionKey).filter(Boolean)
   const supported = new Set(sections)
@@ -197,7 +193,6 @@ function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig
   for (const key of enabled) if (!order.includes(key)) order.push(key)
   return { enabled: [...enabled], order, supported, required }
 }
-
 function effectiveTemplateConfig(templateKey: string, config: unknown) {
   const objectConfig =
     config && typeof config === 'object' && !Array.isArray(config)
@@ -215,11 +210,11 @@ function effectiveTemplateConfig(templateKey: string, config: unknown) {
     : configuredSections
   return { ...objectConfig, sections }
 }
-
 const weddingSelect = {
   id: true,
   slug: true,
   name: true,
+
   status: true,
   visibility: true,
   timezone: true,
@@ -231,7 +226,6 @@ const weddingSelect = {
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.WeddingSelect
-
 const eventSelect = {
   id: true,
   weddingId: true,
@@ -254,6 +248,7 @@ const eventSelect = {
 const guestSelect = {
   id: true,
   name: true,
+  slug: true,
   weddingId: true,
   categoryId: true,
   groupId: true,
@@ -282,12 +277,10 @@ function decodeWishCursor(cursor?: string) {
     return undefined
   }
 }
-
 type WeddingRow = Prisma.WeddingGetPayload<{ select: typeof weddingSelect }>
 type EventRow = Prisma.WeddingEventGetPayload<{ select: typeof eventSelect }>
 class WeddingPublishConflictError extends Error {}
 class WeddingContentConflictError extends Error {}
-
 function weddingView(row: WeddingRow): WeddingView {
   return row
 }
@@ -298,7 +291,6 @@ function eventView(row: EventRow): WeddingEventView {
     longitude: row.longitude?.toString() ?? null,
   }
 }
-
 function collectMediaIds(value: unknown, key = '', result = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
     for (const item of value) collectMediaIds(item, key, result)
@@ -312,12 +304,9 @@ function collectMediaIds(value: unknown, key = '', result = new Set<string>()): 
     collectMediaIds(childValue, childKey, result)
   return result
 }
-
 export class PrismaWeddingRepository implements WeddingRepository {
   private readonly slugService = new SlugService()
-
   constructor(private readonly prisma: PrismaClient) {}
-
   async create(userId: string, data: CreateWeddingData): Promise<WeddingView> {
     for (;;) {
       const slug = await this.slugService.unique(data.name, async (candidate) =>
@@ -359,7 +348,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return rows.map(weddingView)
   }
-
   async findOwned(userId: string, weddingId: string): Promise<WeddingView | null> {
     const row = await this.prisma.wedding.findFirst({
       where: this.ownedWhere(userId, weddingId),
@@ -367,7 +355,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return row ? weddingView(row) : null
   }
-
   async updateOwned(
     userId: string,
     weddingId: string,
@@ -397,7 +384,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     if (result.count === 0) return 'conflict'
     return this.findOwned(userId, weddingId)
   }
-
   async softDeleteOwned(userId: string, weddingId: string): Promise<boolean> {
     const result = await this.prisma.wedding.updateMany({
       where: this.ownedWhere(userId, weddingId),
@@ -411,7 +397,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return result.count === 1
   }
-
   async listEventsOwned(userId: string, weddingId: string): Promise<WeddingEventView[] | null> {
     if (!(await this.isOwned(userId, weddingId))) return null
     const rows = await this.prisma.weddingEvent.findMany({
@@ -421,7 +406,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return rows.map(eventView)
   }
-
   async createEventOwned(
     userId: string,
     weddingId: string,
@@ -459,7 +443,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       throw error
     }
   }
-
   async findEventOwned(
     userId: string,
     weddingId: string,
@@ -472,7 +455,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return row ? eventView(row) : null
   }
-
   async updateEventOwned(
     userId: string,
     weddingId: string,
@@ -509,7 +491,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     }
     return this.findEventOwned(userId, weddingId, eventId)
   }
-
   async deleteEventOwned(
     userId: string,
     weddingId: string,
@@ -527,7 +508,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return result.count === 1
   }
-
   async dashboardOwned(
     userId: string,
     weddingId: string,
@@ -557,20 +537,20 @@ export class PrismaWeddingRepository implements WeddingRepository {
       trendRows,
     ] = await Promise.all([
       this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
-      this.prisma.invitation.count({ where: { weddingId } }),
-      this.prisma.invitation.count({ where: { weddingId, status: 'ACTIVE' } }),
-      this.prisma.rsvpResponse.count({ where: { weddingId, invitation: { status: 'ACTIVE' } } }),
+      this.prisma.guest.count({where:{weddingId}}),
+      this.prisma.guest.count({where:{weddingId,deletedAt:null}}),
+      this.prisma.rsvpResponse.count({ where: { weddingId,  } }),
       this.prisma.rsvpResponse.groupBy({
         by: ['attendance'],
-        where: { weddingId, invitation: { status: 'ACTIVE' } },
+        where: { weddingId,  },
         _count: { _all: true },
       }),
       this.prisma.rsvpResponse.aggregate({
-        where: { weddingId, attendance: 'ATTENDING', invitation: { status: 'ACTIVE' } },
+        where: { weddingId, attendance: 'ATTENDING',  },
         _sum: { partySize: true },
       }),
       this.prisma.rsvpCompanion.count({
-        where: { rsvpResponse: { weddingId, invitation: { status: 'ACTIVE' } } },
+        where: { rsvpResponse: { weddingId,  } },
       }),
       this.prisma.wish.groupBy({
         by: ['status'],
@@ -603,10 +583,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
         orderBy: { version: 'desc' },
       }),
       this.prisma.rsvpResponse.findMany({
-        where: { weddingId, invitation: { status: 'ACTIVE' } },
+        where: { weddingId,  },
         take: 10,
         orderBy: { submittedAt: 'desc' },
-        include: { invitation: { include: { guest: true } } },
+        include: { guest: true },
       }),
       this.prisma.wish.findMany({
         where: { weddingId, deletedAt: null },
@@ -614,7 +594,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         orderBy: { submittedAt: 'desc' },
       }),
       this.prisma.rsvpResponse.findMany({
-        where: { weddingId, submittedAt: { gte: since }, invitation: { status: 'ACTIVE' } },
+        where: { weddingId, submittedAt: { gte: since },  },
         select: { submittedAt: true },
       }),
     ])
@@ -629,7 +609,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       ...recentRsvps.map((item) => ({
         id: item.id,
         type: 'RSVP_SUBMITTED' as const,
-        displayName: item.invitation.guest?.displayName ?? item.invitation.label ?? 'Khách mời',
+        displayName: item.guest?.displayName ?? 'Khách mời',
         attendance: item.attendance,
         partySize: item.partySize,
         occurredAt: item.submittedAt,
@@ -693,7 +673,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       recentActivity: activity,
     }
   }
-
   async analyticsOwned(userId: string, weddingId: string): Promise<WeddingAnalyticsView | null> {
     if (!(await this.isOwned(userId, weddingId))) return null
     const [
@@ -708,7 +687,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
     ] = await Promise.all([
       this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
       this.prisma.rsvpResponse.count({
-        where: { weddingId, attendance: 'ATTENDING', invitation: { status: 'ACTIVE' } },
+        where: { weddingId, attendance: 'ATTENDING',  },
       }),
       this.prisma.weddingTask.groupBy({
         by: ['status'],
@@ -787,7 +766,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       },
     }
   }
-
   async listTemplates(
     productType?: 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP',
     styleKey?: string,
@@ -813,7 +791,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       versions: row.versions,
     }))
   }
-
   async getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null> {
     const row = await this.prisma.template.findFirst({
       where: { key: templateKey, status: 'ACTIVE' },
@@ -830,7 +807,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       versions: row.versions,
     }
   }
-
   async getContentOwned(
     userId: string,
     weddingId: string,
@@ -880,7 +856,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       publishedAt: content?.publishedAt ?? null,
     }
   }
-
   async saveContentOwned(
     userId: string,
     weddingId: string,
@@ -975,7 +950,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     }
     return this.getContentOwned(userId, weddingId, data.surface) as Promise<WeddingContentView>
   }
-
   async publishOwned(
     userId: string,
     weddingId: string,
@@ -1116,7 +1090,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       throw error
     }
   }
-
   async unpublishOwned(
     userId: string,
     weddingId: string,
@@ -1150,7 +1123,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return true
   }
-
   async slugAvailable(userId: string, slug: string, weddingId?: string): Promise<boolean> {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 64) return false
     const row = await this.prisma.wedding.findFirst({
@@ -1159,7 +1131,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return !row
   }
-
   async getPublicSnapshot(
     slug: string,
     surface: WeddingSurfaceValue,
@@ -1175,7 +1146,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     })
     return row ? this.snapshotView(row) : null
   }
-
   private snapshotView(
     row: Prisma.PublishedWeddingSnapshotGetPayload<{
       include: { templateVersion: { include: { template: true } } }
@@ -1195,7 +1165,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       },
     }
   }
-
   private wishView(row: {
     id: string
     authorName: string
@@ -1204,7 +1173,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     isPinned: boolean
     submittedAt: Date
     moderatedAt: Date | null
-    invitationId: string | null
     guestId: string | null
     guest: { name: string; displayName: string | null } | null
   }): WishView {
@@ -1213,7 +1181,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       authorName: row.authorName,
       guestName: (row.guest ? (row.guest.displayName ?? row.guest.name) : null) ?? row.authorName,
       guestId: row.guestId,
-      invitationId: row.invitationId,
       content: row.content,
       status: row.status,
       isPinned: row.isPinned,
@@ -1221,7 +1188,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       moderatedAt: row.moderatedAt,
     }
   }
-
   async listWishesOwned(
     userId: string,
     weddingId: string,
@@ -1276,7 +1242,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
         isPinned: true,
         submittedAt: true,
         moderatedAt: true,
-        invitationId: true,
         guestId: true,
         guest: { select: { name: true, displayName: true } },
       },
@@ -1290,7 +1255,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
       nextCursor: hasNextPage && items.length ? encodeWishCursor(items[items.length - 1]!) : null,
     }
   }
-
   async moderateWishOwned(
     userId: string,
     weddingId: string,
@@ -1323,14 +1287,12 @@ export class PrismaWeddingRepository implements WeddingRepository {
         isPinned: true,
         submittedAt: true,
         moderatedAt: true,
-        invitationId: true,
         guestId: true,
         guest: { select: { name: true, displayName: true } },
       },
     })
     return this.wishView(row)
   }
-
   private async validateWishGuestReferences(
     tx: Prisma.TransactionClient,
     weddingId: string,
@@ -1353,7 +1315,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
     )
       throw new WeddingError('WEDDING_GUEST_GROUP_NOT_FOUND', 404, 'Guest group not found')
   }
-
   async promoteWishToGuest(
     userId: string,
     weddingId: string,
@@ -1369,7 +1330,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       async (
         tx,
       ): Promise<
-        { guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null
+        { guest: GuestView; wishId: string; guestId: string | null } | 'conflict' | null
       > => {
         const wish = await tx.wish.findFirst({
           where: { id: wishId, weddingId, deletedAt: null },
@@ -1377,24 +1338,23 @@ export class PrismaWeddingRepository implements WeddingRepository {
             id: true,
             authorName: true,
             guestId: true,
-            invitationId: true,
-            invitation: { select: { id: true, guestId: true, label: true } },
           },
         })
         if (!wish) return null
-        const linkedGuestId = wish.guestId ?? wish.invitation?.guestId ?? null
+        const linkedGuestId = wish.guestId ?? null
         if (linkedGuestId) {
           const guest = await tx.guest.findFirst({
             where: { id: linkedGuestId, weddingId },
             select: guestSelect,
           })
-          return guest ? { guest, wishId: wish.id, invitationId: wish.invitationId } : null
+          return guest ? { guest, wishId: wish.id, guestId: wish.guestId } : null
         }
         const displayName = data.displayName ?? wish.authorName
         await this.validateWishGuestReferences(tx, weddingId, data)
         const guest = await tx.guest.create({
           data: {
             weddingId,
+            slug: await newGuestSlug(displayName, async slug => Boolean(await tx.guest.findFirst({ where: { weddingId, slug }, select: { id: true } }))),
             name: displayName,
             maxPartySize: 1,
             tags: [],
@@ -1407,44 +1367,35 @@ export class PrismaWeddingRepository implements WeddingRepository {
           where: { id: wish.id, weddingId, guestId: null },
           data: { guestId: guest.id },
         })
-        const updatedInvitation = wish.invitationId
-          ? await tx.invitation.updateMany({
-              where: { id: wish.invitationId, weddingId, guestId: null },
-              data: { guestId: guest.id },
-            })
-          : { count: 0 }
-        if (!updatedWish.count || (wish.invitationId && !updatedInvitation.count)) {
+        if (!updatedWish.count) {
           await tx.guest.delete({ where: { id: guest.id } })
           const current = await tx.wish.findFirst({
             where: { id: wish.id, weddingId },
             select: {
               guestId: true,
-              invitationId: true,
-              invitation: { select: { guestId: true } },
             },
           })
-          const currentGuestId = current?.guestId ?? current?.invitation?.guestId
+          const currentGuestId = current?.guestId
           if (!currentGuestId) return 'conflict'
           const currentGuest = await tx.guest.findFirst({
             where: { id: currentGuestId, weddingId },
             select: guestSelect,
           })
           return currentGuest
-            ? { guest: currentGuest, wishId: wish.id, invitationId: current?.invitationId ?? null }
+            ? { guest: currentGuest, wishId: wish.id, guestId: current?.guestId ?? null }
             : 'conflict'
         }
-        return { guest, wishId: wish.id, invitationId: wish.invitationId }
+        return { guest, wishId: wish.id, guestId: wish.guestId }
       },
     )
   }
-
   async linkWishGuest(userId: string, weddingId: string, wishId: string, guestId: string) {
     if (!(await this.isOwned(userId, weddingId))) return null
     return this.prisma.$transaction(
       async (
         tx,
       ): Promise<
-        { guest: GuestView; wishId: string; invitationId: string | null } | 'conflict' | null
+        { guest: GuestView; wishId: string; guestId: string | null } | 'conflict' | null
       > => {
         const guest = await tx.guest.findFirst({
           where: { id: guestId, weddingId, deletedAt: null },
@@ -1456,31 +1407,22 @@ export class PrismaWeddingRepository implements WeddingRepository {
           select: {
             id: true,
             guestId: true,
-            invitationId: true,
-            invitation: { select: { id: true, guestId: true } },
           },
         })
         if (!wish) return null
-        const existingGuestId = wish.guestId ?? wish.invitation?.guestId
+        const existingGuestId = wish.guestId ?? null
         if (existingGuestId === guestId)
-          return { guest, wishId: wish.id, invitationId: wish.invitationId }
+          return { guest, wishId: wish.id, guestId: wish.guestId }
         if (existingGuestId) return 'conflict'
         const updatedWish = await tx.wish.updateMany({
           where: { id: wish.id, weddingId, guestId: null },
           data: { guestId },
         })
-        const updatedInvitation = wish.invitationId
-          ? await tx.invitation.updateMany({
-              where: { id: wish.invitationId, weddingId, guestId: null },
-              data: { guestId },
-            })
-          : { count: 1 }
-        if (!updatedWish.count || !updatedInvitation.count) return 'conflict'
-        return { guest, wishId: wish.id, invitationId: wish.invitationId }
+        if (!updatedWish.count) return 'conflict'
+        return { guest, wishId: wish.id, guestId: wish.guestId }
       },
     )
   }
-
   private ownedWhere(userId: string, weddingId: string) {
     return { id: weddingId, createdById: userId, deletedAt: null } as const
   }

@@ -40,4 +40,4 @@ Không đánh dấu planned route là implemented và không thêm mock handler 
 
 ## Bước sau base branch
 
-Vertical slice đầu tiên là identity/auth: chọn adapter qua ADR, triển khai register → verify → login → `/me` → logout cùng integration tests. Sau đó triển khai wedding CRUD và membership authorization trước các module guest/invitation/RSVP.
+Vertical slice đầu tiên là identity/auth: chọn adapter qua ADR, triển khai register → verify → login → `/me` → logout cùng integration tests. Sau đó triển khai wedding CRUD và membership authorization trước các module guest/RSVP.

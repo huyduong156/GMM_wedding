@@ -1,18 +1,16 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { createHash, randomBytes } from 'node:crypto'
+import { newGuestSlug } from '@/shared/domain/guest-slug'
 import type {
   CreateCategoryData,
   CreateGuestData,
   CreateGroupData,
-  CreateInvitationData,
   GuestRepository,
   UpdateGuestData,
-  PublicInvitationView,
   UpdateCategoryData,
   UpdateGroupData,
-  UpdateInvitationData,
   GuestExportRow,
   GuestImportRow,
+  PublicGuestLinkView,
 } from '../application/ports'
 import { GuestError } from '../domain/guest-error'
 
@@ -22,6 +20,7 @@ const guestSelect = {
   categoryId: true,
   groupId: true,
   name: true,
+  slug: true,
   displayName: true,
   phone: true,
   email: true,
@@ -37,6 +36,7 @@ const categorySelect = {
   weddingId: true,
   parentId: true,
   name: true,
+
   depth: true,
   sortOrder: true,
   createdAt: true,
@@ -46,24 +46,11 @@ const groupSelect = {
   id: true,
   weddingId: true,
   name: true,
+
   note: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.GuestGroupSelect
-const invitationSelect = {
-  id: true,
-  weddingId: true,
-  guestId: true,
-  label: true,
-  publicSlug: true,
-  status: true,
-  maxPartySize: true,
-  expiresAt: true,
-  revokedAt: true,
-  lastViewedAt: true,
-  createdAt: true,
-  updatedAt: true,
-} satisfies Prisma.InvitationSelect
 const encode = (value: { createdAt: Date; id: string }) =>
   Buffer.from(JSON.stringify([value.createdAt.toISOString(), value.id])).toString('base64url')
 function decode(cursor?: string) {
@@ -78,24 +65,7 @@ function decode(cursor?: string) {
     return undefined
   }
 }
-function token() {
-  return randomBytes(32).toString('base64url')
-}
-function tokenHash(value: string) {
-  return createHash('sha256').update(value).digest('hex')
-}
-function slugBase(value: string) {
-  return (
-    value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/gi, 'd')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 140) || 'guest'
-  )
-}
+
 export class PrismaGuestRepository implements GuestRepository {
   constructor(private readonly prisma: PrismaClient) {}
   private ownedWhere(userId: string, weddingId: string) {
@@ -187,7 +157,7 @@ export class PrismaGuestRepository implements GuestRepository {
         data: {
           weddingId,
           name: data.name,
-          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
+          slug: await newGuestSlug(data.name, async (slug) => Boolean(await this.prisma.guest.findFirst({ where: { weddingId: weddingId, slug }, select: { id: true } }))),          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
           maxPartySize: data.maxPartySize,
           tags: data.tags,
           ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
@@ -447,50 +417,6 @@ export class PrismaGuestRepository implements GuestRepository {
     })
     return result.count === 1
   }
-  async listInvitations(
-    userId: string,
-    weddingId: string,
-    filter: {
-      guestId?: string | undefined
-      status?: 'ACTIVE' | 'REVOKED' | undefined
-      limit: number
-      cursor?: string | undefined
-    },
-  ) {
-    if (!(await this.owns(userId, weddingId))) return null
-    const cursor = decode(filter.cursor)
-    const rows = await this.prisma.invitation.findMany({
-      where: {
-        weddingId,
-        ...(filter.guestId ? { guestId: filter.guestId } : {}),
-        ...(filter.status ? { status: filter.status } : {}),
-        ...(cursor
-          ? {
-              OR: [
-                { createdAt: { lt: cursor.createdAt } },
-                { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-              ],
-            }
-          : {}),
-      },
-      select: invitationSelect,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: filter.limit + 1,
-    })
-    const hasNextPage = rows.length > filter.limit
-    const items = rows.slice(0, filter.limit)
-    return {
-      items,
-      nextCursor: hasNextPage && items.length ? encode(items[items.length - 1]!) : null,
-    }
-  }
-  async findInvitation(userId: string, weddingId: string, invitationId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
-    return this.prisma.invitation.findFirst({
-      where: { id: invitationId, weddingId },
-      select: invitationSelect,
-    })
-  }
   async exportOwned(userId: string, weddingId: string): Promise<GuestExportRow[] | null> {
     if (!(await this.owns(userId, weddingId))) return null
     const rows = await this.prisma.guest.findMany({
@@ -501,6 +427,7 @@ export class PrismaGuestRepository implements GuestRepository {
         category: {
           select: {
             name: true,
+
             parent: { select: { name: true, parent: { select: { name: true } } } },
           },
         },
@@ -600,7 +527,7 @@ export class PrismaGuestRepository implements GuestRepository {
         }
         const saved = existing
           ? await tx.guest.update({ where: { id: existing.id }, data, select: guestSelect })
-          : await tx.guest.create({ data: { weddingId, ...data }, select: guestSelect })
+          : await tx.guest.create({ data: { weddingId, slug: await newGuestSlug(data.name, async (slug) => Boolean(await tx.guest.findFirst({ where: { weddingId: weddingId, slug }, select: { id: true } }))) , ...data }, select: guestSelect })
         result.push({
           ...saved,
           categoryPath: row.categoryPath ?? '',
@@ -610,107 +537,12 @@ export class PrismaGuestRepository implements GuestRepository {
       return result
     })
   }
-  async createInvitation(userId: string, weddingId: string, data: CreateInvitationData) {
-    if (!(await this.owns(userId, weddingId))) return null
-    const guest = data.guestId ? await this.findOwned(userId, weddingId, data.guestId) : null
-    if (data.guestId && !guest) return null
-    const raw = token()
-    const base = slugBase(guest?.name ?? data.label ?? 'guest')
-    let publicSlug = base
-    for (
-      let suffix = 2;
-      await this.prisma.invitation.findFirst({
-        where: { weddingId, publicSlug },
-        select: { id: true },
-      });
-      suffix += 1
-    )
-      publicSlug = `${base}-${suffix}`
-    const invitation = await this.prisma.invitation.create({
-      data: {
-        weddingId,
-        publicSlug,
-        maxPartySize: data.maxPartySize,
-        tokenHash: tokenHash(raw),
-        ...(data.guestId !== undefined ? { guestId: data.guestId } : {}),
-        ...(data.label !== undefined ? { label: data.label } : {}),
-        ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
-      },
-      select: invitationSelect,
+  async resolvePublicGuestLink(weddingSlug: string, guestSlug: string): Promise<PublicGuestLinkView | null> {
+    const row = await this.prisma.guest.findFirst({
+      where: { slug: guestSlug, deletedAt: null, wedding: { slug: weddingSlug, status: 'PUBLISHED', deletedAt: null, snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } } } },
+      select: { slug: true, maxPartySize: true, name: true, displayName: true },
     })
-    return { invitation, token: raw }
-  }
-  async updateInvitation(
-    userId: string,
-    weddingId: string,
-    invitationId: string,
-    data: UpdateInvitationData,
-  ) {
-    if (!(await this.owns(userId, weddingId))) return null
-    const result = await this.prisma.invitation.updateMany({
-      where: { id: invitationId, weddingId },
-      data: {
-        ...(data.label !== undefined ? { label: data.label } : {}),
-        ...(data.maxPartySize !== undefined ? { maxPartySize: data.maxPartySize } : {}),
-        ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
-      },
-    })
-    return result.count
-      ? this.prisma.invitation.findUnique({ where: { id: invitationId }, select: invitationSelect })
-      : null
-  }
-  async rotateInvitation(userId: string, weddingId: string, invitationId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
-    const raw = token()
-    const result = await this.prisma.invitation.updateMany({
-      where: { id: invitationId, weddingId, status: 'ACTIVE' },
-      data: { tokenHash: tokenHash(raw), updatedAt: new Date() },
-    })
-    if (!result.count) return null
-    const invitation = await this.prisma.invitation.findUnique({
-      where: { id: invitationId },
-      select: invitationSelect,
-    })
-    return invitation ? { invitation, token: raw } : null
-  }
-  async revokeInvitation(userId: string, weddingId: string, invitationId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
-    const result = await this.prisma.invitation.updateMany({
-      where: { id: invitationId, weddingId, status: 'ACTIVE' },
-      data: { status: 'REVOKED', revokedAt: new Date() },
-    })
-    return result.count === 1
-  }
-  async resolvePublicInvitation(
-    weddingSlug: string,
-    guestSlug: string,
-  ): Promise<PublicInvitationView | null> {
-    const row = await this.prisma.invitation.findFirst({
-      where: {
-        publicSlug: guestSlug,
-        status: 'ACTIVE',
-        wedding: {
-          slug: weddingSlug,
-          status: 'PUBLISHED',
-          deletedAt: null,
-          snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } },
-        },
-      },
-      select: {
-        publicSlug: true,
-        maxPartySize: true,
-        expiresAt: true,
-        guest: { select: { name: true, displayName: true } },
-      },
-    })
-    if (!row?.publicSlug) return null
-    if (row.expiresAt && row.expiresAt <= new Date()) return null
-    return {
-      weddingSlug,
-      invitationSlug: row.publicSlug,
-      guestName: row.guest ? (row.guest.displayName ?? row.guest.name) : null,
-      maxPartySize: row.maxPartySize,
-      expiresAt: row.expiresAt,
-    }
+    if (!row) return null
+    return { weddingSlug, guestSlug: row.slug, guestName: row.displayName ?? row.name, maxPartySize: row.maxPartySize, expiresAt: null }
   }
 }

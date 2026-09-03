@@ -370,6 +370,15 @@ async function seedTestFixtures({ prisma }) {
     name: 'Bạn đại học',
     note: 'Fixture nhóm bạn.',
   })
+  const seededGuestSlugs = new Set()
+  const guestSlugFor = (name) => {
+    const base = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'guest'
+    let slug = base
+    let suffix = 1
+    while (seededGuestSlugs.has(slug)) slug = base + '-' + suffix++
+    seededGuestSlugs.add(slug)
+    return slug
+  }
   const guests = [
     {
       id: 'aa000000-0000-4000-8000-000000000001',
@@ -436,23 +445,11 @@ async function seedTestFixtures({ prisma }) {
       }
     }),
   ]
-  for (const guest of guests) await upsert('guest', guest.id, { weddingId: ids.wedding, ...guest })
-  const invitations = guests.slice(0, 20).map((guest, index) => ({
-    id: `ab000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
-    guestId: guest.id,
-    label: `Thiệp test ${index + 1}`,
-    publicSlug: `minh-an-test-${index + 1}`,
-    tokenHash: `seed-test-token-hash-${index + 1}`,
-    status: 'ACTIVE',
-    maxPartySize: guest.maxPartySize,
-  }))
-  for (const invitation of invitations)
-    await upsert('invitation', invitation.id, { weddingId: ids.wedding, ...invitation })
-
+  for (const guest of guests) await upsert('guest', guest.id, { weddingId: ids.wedding, slug: guestSlugFor(guest.name), ...guest })
   const rsvps = [
     {
       id: 'ac000000-0000-4000-8000-000000000001',
-      invitationId: invitations[0].id,
+      guestId: guests[0].id,
       attendance: 'ATTENDING',
       partySize: 2,
       mealPreference: 'Không dị ứng',
@@ -461,7 +458,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'ac000000-0000-4000-8000-000000000002',
-      invitationId: invitations[1].id,
+      guestId: guests[1].id,
       attendance: 'DECLINED',
       partySize: 1,
       mealPreference: null,
@@ -470,7 +467,7 @@ async function seedTestFixtures({ prisma }) {
     },
     {
       id: 'ac000000-0000-4000-8000-000000000003',
-      invitationId: invitations[2].id,
+      guestId: guests[2].id,
       attendance: 'MAYBE',
       partySize: 1,
       mealPreference: 'Món chay',
@@ -481,7 +478,7 @@ async function seedTestFixtures({ prisma }) {
   for (const rsvp of rsvps) {
     await upsert('rsvpResponse', rsvp.id, {
       weddingId: ids.wedding,
-      invitationId: rsvp.invitationId,
+      guestId: rsvp.guestId,
       attendance: rsvp.attendance,
       partySize: rsvp.partySize,
       mealPreference: rsvp.mealPreference,
@@ -501,7 +498,7 @@ async function seedTestFixtures({ prisma }) {
       status: 'PENDING',
       isPinned: false,
       guestId: guests[2].id,
-      invitationId: invitations[2].id,
+      guestId: guests[2].id,
     },
     {
       id: 'ad000000-0000-4000-8000-000000000002',
@@ -510,7 +507,7 @@ async function seedTestFixtures({ prisma }) {
       status: 'APPROVED',
       isPinned: true,
       guestId: guests[3].id,
-      invitationId: invitations[3].id,
+      guestId: guests[3].id,
     },
     {
       id: 'ad000000-0000-4000-8000-000000000003',
@@ -519,7 +516,6 @@ async function seedTestFixtures({ prisma }) {
       status: 'HIDDEN',
       isPinned: false,
       guestId: null,
-      invitationId: null,
     },
   ]
   for (const wish of wishes) await upsert('wish', wish.id, { weddingId: ids.wedding, ...wish })

@@ -19,22 +19,21 @@ Client
 - Validation error là `400/422`; unauthenticated `401`; không đủ quyền `403`; resource không tồn tại hoặc cần chống enumeration có thể trả `404` theo policy.
 - RequestId đi xuyên log, trace, error response và job được enqueue.
 
-## Public invitation và RSVP
+## Public wedding, guest link và RSVP
 
 ```text
-public mode (wedding slug + entered name) OR personalized mode (wedding slug + guest slug, or opaque invite token)
-  -> resolve published wedding / active invitation
-  -> hash token when token mode is used
+public mode (wedding slug + entered name) OR personalized mode (wedding slug + guest slug)
+  -> resolve published wedding / active guest by wedding + guest slug
   -> rate limit + abuse checks
-  -> minimal public invitation DTO (never contact/note)
+  -> minimal public wedding/guest DTO (never contact/note)
   -> RSVP validation
   -> idempotent upsert/append policy
   -> audit-safe event
   -> response without private guest fields
 ```
 
-- Không log raw token hoặc PII.
-- Rotate/revoke phải vô hiệu token cũ ngay.
+- Không log guest slug hoặc PII.
+Guest slug được sinh ổn định từ tên đã normalize, unique trong phạm vi Wedding; URL không chứa thông tin nhạy cảm.
 - Public RSVP có idempotency strategy để retry mạng không tạo phản hồi trùng.
 
 ## Publish wedding/recap

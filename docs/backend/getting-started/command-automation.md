@@ -81,7 +81,7 @@ Fixture tạo hoặc cập nhật idempotent các tài khoản test và dữ li�
 | `user@gmail.com` | `mytester123@` | Wedding owner |
 
 | `user2@gmail.com` | `mytester123@` | Wedding viewer |
-Dữ liệu gồm wedding/events, guest category/group, guests, invitations, RSVP, wishes, tasks/todolist và gift ledger. Đây là credentials/dữ liệu local-only; không dùng hoặc seed vào staging/production. Có thể đổi mật khẩu fixture qua biến môi trường `SEED_TEST_PASSWORD`.
+Dữ liệu gồm wedding/events, guest category/group, guests, RSVP, wishes, tasks/todolist và gift ledger. Đây là credentials/dữ liệu local-only; không dùng hoặc seed vào staging/production. Có thể đổi mật khẩu fixture qua biến môi trường `SEED_TEST_PASSWORD`.
 
 ## `install`, `sync` và `update` khác nhau
 

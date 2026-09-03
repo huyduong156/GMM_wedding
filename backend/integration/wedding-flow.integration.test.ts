@@ -200,58 +200,6 @@ describe.sequential('wedding API contract and persistence', () => {
     expect((await body(stale)).error.code).toBe('WEDDING_EVENT_REVISION_CONFLICT')
   })
 
-  it('excludes revoked invitations from all current dashboard RSVP metrics and activity', async () => {
-    const active = await prisma.invitation.create({
-      data: {
-        weddingId,
-        label: 'Active guest',
-        tokenHash: `active-${randomBytes(16).toString('hex')}`,
-      },
-    })
-    const revoked = await prisma.invitation.create({
-      data: {
-        weddingId,
-        label: 'Revoked guest',
-        tokenHash: `revoked-${randomBytes(16).toString('hex')}`,
-        status: 'REVOKED',
-        revokedAt: new Date(),
-      },
-    })
-    const activeResponse = await prisma.rsvpResponse.create({
-      data: { weddingId, invitationId: active.id, attendance: 'ATTENDING', partySize: 2 },
-    })
-    const revokedResponse = await prisma.rsvpResponse.create({
-      data: { weddingId, invitationId: revoked.id, attendance: 'DECLINED', partySize: 1 },
-    })
-    await prisma.rsvpCompanion.createMany({
-      data: [
-        { rsvpResponseId: activeResponse.id, displayName: 'Active companion' },
-        { rsvpResponseId: revokedResponse.id, displayName: 'Revoked companion' },
-      ],
-    })
-
-    const dashboard = await fetch(`${apiBase}/weddings/${weddingId}/dashboard`, {
-      headers: { cookie: owner.cookie },
-    })
-    expect(dashboard.status).toBe(200)
-    const result = (await body(dashboard)).dashboard
-    expect(result.metrics).toMatchObject({
-      invitations: 2,
-      activeInvitations: 1,
-      responses: 1,
-      attending: 1,
-      declined: 0,
-      pendingResponses: 0,
-      attendingPartySize: 2,
-      companions: 1,
-    })
-    expect(
-      result.responseTrend.reduce((sum: number, item: { count: number }) => sum + item.count, 0),
-    ).toBe(1)
-    expect(
-      result.recentActivity.filter((item: { type: string }) => item.type === 'RSVP_SUBMITTED'),
-    ).toHaveLength(1)
-  })
 
   it('soft-delete is terminal and prevents subsequent reads and event creation', async () => {
     const remove = await fetch(`${apiBase}/weddings/${weddingId}`, {

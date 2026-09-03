@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
+import { optionsResponse } from '@/modules/identity/interface/auth-http'
 export const dynamic = 'force-dynamic'
 export const OPTIONS = optionsResponse
 type Context = { params: Promise<{ slug: string }> }

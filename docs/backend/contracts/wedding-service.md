@@ -32,14 +32,14 @@ Event là dữ liệu dùng lại bởi thiệp online, website cưới, countdo
 
 - Wedding name/date/status/revision.
 - Trạng thái cấu hình/publish, slug và template của thiệp online, website cưới và recap.
-- Tổng guest, invitation/active invitation, RSVP `attending|declined|maybe|pending`, party size tham dự, companion và wish pending/approved.
+- Tổng guest, RSVP `attending|declined|maybe|pending`, party size tham dự, companion và wish pending/approved.
 - Event tương lai gần nhất.
 - Số RSVP theo từng ngày trong 30 ngày UTC gần nhất.
 - Tối đa 10 hoạt động RSVP/lời chúc mới nhất.
 
 Không có bảng analytics/page-view trong schema hiện tại nên `views` trả `null`. Khi có tracking module, contract có thể điền số mà không đổi shape.
 
-Dashboard là private `no-store` read model. Nó không trả contact/note của guest, raw invitation token, wish content, gift ledger hay dữ liệu ngân sách.
+Dashboard là private `no-store` read model. Nó không trả contact/note của guest, wish content, gift ledger hay dữ liệu ngân sách.
 
 ## Error contract
 

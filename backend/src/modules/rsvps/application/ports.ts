@@ -4,15 +4,15 @@ import type { GuestView } from '@/modules/guests/application/ports'
 export interface RsvpView {
   id: string
   weddingId: string
-  invitationId: string
+
   guestId: string | null
   guestName: string
   guestPhone: string | null
   guestEmail: string | null
   categoryId: string | null
   groupId: string | null
-  invitationLabel: string | null
-  invitationStatus: string
+
+
   attendance: RsvpAttendance
   partySize: number
   mealPreference: string | null
@@ -55,11 +55,11 @@ export interface RsvpRepository {
       categoryId?: string | undefined
       groupId?: string | undefined
     },
-  ): Promise<{ guest: GuestView; invitationId: string } | 'conflict' | null>
+  ): Promise<{ guest: GuestView } | 'conflict' | null>
   linkGuest(
     userId: string,
     weddingId: string,
     rsvpId: string,
     guestId: string,
-  ): Promise<{ guest: GuestView; invitationId: string } | 'conflict' | null>
+  ): Promise<{ guest: GuestView } | 'conflict' | null>
 }

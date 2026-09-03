@@ -112,39 +112,35 @@ Biến thể tối ưu. Trường: `id`, `mediaAssetId`, `variantKey`, `storageK
 
 Catalog nhạc nền dùng chung do platform admin quản lý. Trường dự kiến: `id`, `mediaAssetId` unique, `displayName`, `artistName?`, `durationSeconds`, `mimeType`, `sizeBytes`, `status`, `licenseType`, `licenseReference`, `creditText?`, `sortOrder`, `revision`, `createdById`, `createdAt`, `updatedAt`, `retiredAt?`. Database lưu metadata/reference, không lưu binary/base64 audio. Track chỉ `ACTIVE` khi asset `READY` và license metadata hợp lệ; retire không cascade xóa snapshot đang tham chiếu.
 
-## Guest, invitation, RSVP và wish
+## Guest, guest link, RSVP và wish
 
 ### `GuestCategory`
 
-Danh mục cây tối đa ba cấp. Trường: `id`, `weddingId`, `parentId?`, `name`, `depth`, `sortOrder`, timestamps và `deletedAt?`. Root có `depth=1`; child có depth 2–3. Kiểm tra parent cùng wedding, depth liên tiếp và chống cycle nằm trong transaction/application service.
+Danh mục cây tối đa ba cấp. Trường: `id`, `weddingId`, `parentId?`, `name`, `depth`, `sortOrder`, timestamps và `deletedAt?`.
 
 ### `GuestGroup`
 
-Nhóm khách phục vụ lọc/gửi lời mời. Trường: `id`, `weddingId`, `name`, `note?`, timestamps và `deletedAt?`.
+Nhóm khách. Trường: `id`, `weddingId`, `name`, `note?`, timestamps và `deletedAt?`.
 
 ### `Guest`
 
-Hồ sơ khách riêng tư. Trường: `id`, `weddingId`, `categoryId?`, `groupId?`, `displayName`, `phone?`, `email?`, `note?`, `tableName?`, `maxPartySize`, `tags[]`, timestamps và `deletedAt?`. Contact/note/group không được đưa vào public snapshot.
-
-### `Invitation`
-
-Danh tính lời mời public. Trường: `id`, `weddingId`, `guestId?`, `label?`, `publicSlug?`, `tokenHash` unique, `status`, `maxPartySize`, `expiresAt?`, `revokedAt?`, `lastViewedAt?`, timestamps. `publicSlug` ổn định trong wedding và unique theo `(weddingId, publicSlug)`, được sinh từ tên khách với hậu tố khi trùng; token raw chỉ trả một lần khi tạo và không log.
+Hồ sơ khách riêng tư. Trường: `id`, `weddingId`, `slug`, `categoryId?`, `groupId?`, `name`, `displayName?`, `phone?`, `email?`, `note?`, `tableName?`, `maxPartySize`, `tags[]`, timestamps và `deletedAt?`. `slug` được sinh server-side từ `name` sau khi normalize, ổn định, unique theo `(weddingId, slug)`; nếu trùng thì thêm hậu tố `-1`, `-2`, ...; public chỉ trả `displayName ?? name`.
 
 ### `RsvpResponse`
 
-Một phản hồi hiện hành cho invitation. Trường: `id`, `weddingId`, `invitationId` unique, `attendance`, `partySize`, `mealPreference?`, `specialRequest?`, `message?`, `submittedAt`, `updatedAt`, `revision`. Service kiểm tra party size không vượt giới hạn invitation trừ owner override.
+Một phản hồi hiện hành. Trường: `id`, `weddingId`, `guestId?`, `attendance`, `partySize`, `mealPreference?`, `specialRequest?`, `message?`, `submittedAt`, `updatedAt`, `revision`. URL cá nhân có `guestId`; URL chung để `guestId = null`. Party size cá nhân không vượt `Guest.maxPartySize`.
 
 ### `RsvpEventSelection`
 
-Sự kiện khách chọn tham dự. Trường: `id`, `rsvpResponseId`, `weddingEventId`, `attending`. Cặp `(rsvpResponseId, weddingEventId)` unique; service phải chứng minh event và RSVP cùng wedding.
+Sự kiện khách chọn tham dự: `id`, `rsvpResponseId`, `weddingEventId`, `attending`; cặp `(rsvpResponseId, weddingEventId)` unique.
 
 ### `RsvpCompanion`
 
-Người đi cùng. Trường: `id`, `rsvpResponseId`, `displayName`, `mealPreference?`, `sortOrder`.
+Người đi cùng: `id`, `rsvpResponseId`, `displayName`, `mealPreference?`, `sortOrder`.
 
 ### `Wish`
 
-Lời chúc và moderation. Trường: `id`, `weddingId`, `invitationId?`, `guestId?`, `authorName`, `content`, `status`, `isPinned`, `submittedAt`, `moderatedAt?`, `deletedAt?`. Chỉ wish approved và được owner chọn mới vào recap/public payload.
+Lời chúc và moderation. Trường: `id`, `weddingId`, `guestId?`, `authorName`, `content`, `status`, `isPinned`, timestamps và `deletedAt?`. URL cá nhân gắn guest trực tiếp; URL chung không gắn guest.
 
 ## Planning và dữ liệu riêng tư
 
@@ -206,10 +202,10 @@ Chống mutation lặp: `id`, `scope`, `keyHash`, `requestHash`, `status`, `resp
 
 PostgreSQL bảo vệ type, FK, unique, range và các check cục bộ. Các invariant xuyên bảng sau bắt buộc được kiểm tra trong transaction/use case và có test:
 
-- Resource/member/category/group/event/invitation/RSVP/recap item thuộc cùng wedding.
+- Resource/member/category/group/event/guest/RSVP/wish/recap item thuộc cùng wedding.
 - Wedding luôn có ít nhất một active owner; không revoke owner cuối cùng.
 - Guest category không cycle và child depth bằng parent + 1.
-- RSVP party size không vượt invitation/guest limit nếu không có owner override.
+- RSVP party size không vượt `Guest.maxPartySize` trong URL cá nhân; URL chung dùng giới hạn policy riêng.
 - Template version đúng product type của surface/recap và đã released.
 - Media recap/publish ở trạng thái ready; wish recap ở trạng thái approved.
 - Snapshot/public payload không chứa guest PII, token hoặc gift ledger.

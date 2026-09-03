@@ -1,3 +1,4 @@
+import { newGuestSlug } from "@/shared/domain/guest-slug"
 import { Prisma, type PrismaClient } from '@prisma/client'
 import type {
   CreateGiftData,
@@ -414,7 +415,7 @@ export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
           'Gift entry is already linked to a guest',
         )
       const guest = await tx.guest.create({
-        data: { weddingId, name: displayName, maxPartySize: 1, tags: [] },
+        data: { weddingId, slug: await newGuestSlug(displayName, async slug => Boolean(await tx.guest.findFirst({ where: { weddingId, slug }, select: { id: true } }))), name: displayName, maxPartySize: 1, tags: [] },
         select: { id: true, name: true, displayName: true },
       })
       const row = await tx.giftLedgerEntry.update({

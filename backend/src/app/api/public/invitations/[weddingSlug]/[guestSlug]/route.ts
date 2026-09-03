@@ -11,11 +11,11 @@ export const OPTIONS = optionsResponse
 export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   const { weddingSlug, guestSlug } = await context.params
-  const invitation = await getGuestService().resolvePublicInvitation(weddingSlug, guestSlug)
+  const invitation = await getGuestService().resolvePublicGuestLink(weddingSlug, guestSlug)
   if (!invitation)
     return withApiHeaders(
       jsonResponse(
-        { error: { code: 'RESOURCE_NOT_FOUND', message: 'Invitation not found', requestId } },
+        { error: { code: 'RESOURCE_NOT_FOUND', message: 'Guest link not found', requestId } },
         { status: 404 },
       ),
       requestId,

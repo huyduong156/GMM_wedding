@@ -2,18 +2,18 @@
 
 ## Phạm vi
 
-Wish là lời chúc do khách gửi từ invitation chung hoặc invitation cá nhân. Dữ liệu
+Wish là lời chúc do khách gửi từ URL chung hoặc URL cá nhân theo guest-slug. Dữ liệu
 được lưu owner-private cho tới khi owner duyệt; chỉ wish `APPROVED` mới được đưa vào
 public snapshot hoặc recap.
 
 ## Public flow
 
 - `POST /public/weddings/{slug}/wishes`: URL chung, bắt buộc `guestName` và `content`.
-- `POST /public/invitations/{weddingSlug}/{guestSlug}/wishes`: URL cá nhân, lấy danh tính từ invitation và không yêu cầu nhập tên.
+- `POST /public/invitations/{weddingSlug}/{guestSlug}/wishes`: URL cá nhân, resolve Guest trực tiếp và không yêu cầu nhập tên.
 - `GET /public/weddings/{slug}/wishes`: chỉ trả wish đã `APPROVED`, không trả contact hoặc guest metadata.
 
-URL cá nhân gắn `Wish.guestId` theo invitation. URL chung tạo invitation anonymous
-với `guestId = null`, lưu tên hiển thị trong `Wish.authorName` và `Invitation.label`.
+URL cá nhân gắn `Wish.guestId` trực tiếp. `authorName` là `Guest.displayName ?? Guest.name`. URL chung
+lưu `guestId = null` và lấy tên từ request; không tạo bản ghi trung gian.
 
 ## Owner API
 
@@ -25,7 +25,7 @@ với `guestId = null`, lưu tên hiển thị trong `Wish.authorName` và `Invi
 | POST | `/weddings/{weddingId}/wishes/{wishId}/link-guest` | Liên kết với Guest đã có |
 
 Mọi owner route đều kiểm tra `Wedding.createdById` và `deletedAt = null`. Promote
-tạo Guest, cập nhật Wish và invitation liên quan trong cùng transaction. Link cùng
+tạo Guest và cập nhật `Wish.guestId` trong cùng transaction. Link cùng
 Guest nhiều lần là idempotent; link sang Guest khác khi đã có liên kết trả `409`.
 
 ## Moderation
