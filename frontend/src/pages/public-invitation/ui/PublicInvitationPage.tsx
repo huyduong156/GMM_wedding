@@ -10,6 +10,7 @@ import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
 import { usePublicWishes } from '../../../shared/lib/navigation/usePublicWishes'
+import { usePublicGuest } from '../../../shared/lib/navigation/usePublicGuest'
 
 type Props = { weddingSlug: string; guestSlug?: string }
 type Snapshot = PublishedWeddingSnapshot
@@ -17,6 +18,7 @@ type Snapshot = PublishedWeddingSnapshot
 export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
   const auth = useOptionalAuth()
   const checkUserSession = auth?.checkUserSession
+  const guest = usePublicGuest({ weddingSlug, guestSlug })
   const [snapshot, setSnapshot] = useState<Snapshot>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
@@ -27,8 +29,8 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
       setNotFound(false)
       try {
         if (guestSlug) {
-          const result = await Promise.all([weddingApi.publicInvitation(weddingSlug), weddingApi.publicInvitationGuest(weddingSlug, guestSlug)])
-          if (active) setSnapshot(result[0].snapshot)
+          const result = await weddingApi.publicInvitation(weddingSlug)
+          if (active) setSnapshot(result.snapshot)
           return
         }
 
@@ -73,17 +75,17 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
     void load()
     return () => { active = false }
   }, [checkUserSession, guestSlug, weddingSlug])
-  if (notFound) return <StatusPage kind="not-found" />
+  if (notFound || guest.notFound) return <StatusPage kind="not-found" />
   if (error) return <main style={{ padding: 32 }}><h1>Không thể mở thiệp</h1><p>{error}</p></main>
   if (!snapshot) return <PageLoading label="Đang chuẩn bị thiệp cưới" detail="Một chút nữa thôi, thiệp của bạn đang được mở ra." />
-  return <InvitationSnapshot snapshot={snapshot} weddingSlug={weddingSlug} guestSlug={guestSlug} />
+  return <InvitationSnapshot snapshot={snapshot} weddingSlug={weddingSlug} guestSlug={guestSlug} guestName={guest.guestName} />
 }
 
-function InvitationSnapshot({ snapshot, weddingSlug, guestSlug }: { snapshot: Snapshot; weddingSlug: string; guestSlug?: string }) {
+function InvitationSnapshot({ snapshot, weddingSlug, guestSlug, guestName }: { snapshot: Snapshot; weddingSlug: string; guestSlug?: string; guestName: string | null }) {
   const enabled = !snapshot.id.startsWith('draft-')
   const rsvp = usePublicRsvp({ weddingSlug, guestSlug })
   const wishes = usePublicWishes({ weddingSlug, guestSlug, enabled })
-  const interactions = { isPersonalized: Boolean(guestSlug), rsvp, wishes }
+  const interactions = { isPersonalized: Boolean(guestSlug), guestName, rsvp, wishes }
   const payload = snapshot.payload as { template: { key: string }; content?: unknown; theme?: { themeConfig?: Record<string, unknown>; sectionConfig?: unknown } }
   const content = payload.content ?? {}
   const theme = payload.theme ?? {}
