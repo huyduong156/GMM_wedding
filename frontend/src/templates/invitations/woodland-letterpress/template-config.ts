@@ -1,0 +1,41 @@
+import type { TemplateConfig } from '../../template-config'
+
+export const woodlandLetterpressTemplateConfig = {
+  templateKey: 'woodland-letterpress',
+  displayName: 'Woodland Letterpress',
+  templateVersion: '0.1.0',
+  templateConfigVersion: '1.0',
+  contentSchemaVersion: '1.0',
+  rendererApiVersion: '1.0',
+  status: 'draft',
+  productType: 'ONLINE_INVITATION',
+  type: 'invitation',
+  previewPath: '/templates/invitations/woodland-letterpress/preview',
+  presentation: {
+    canvasMaxWidth: 450,
+    outerGutterToken: 'desktop-gutter',
+    mobileOnlyComposition: true,
+  },
+  palettes: [{ key: 'woodland', label: 'Woodland Letterpress', default: true }],
+  capabilities: {
+    gallery: ['3d-slide', '2d-slider', 'scroll-snap'],
+    timeline: ['vertical-parallax', 'static-trail'],
+    activities: ['vertical-parallax', 'static-notes'],
+    smoothScroll: ['lenis-desktop', 'native-mobile'],
+  },
+  sections: [
+    { sectionKey: 'cover', label: 'Cover', required: true, canToggle: false, canReorder: false, layout: 'interactive-folio', fields: { brideName: { type: 'string', required: true, maxLength: 80 }, groomName: { type: 'string', required: true, maxLength: 80 }, weddingDate: { type: 'date', required: true }, eyebrow: { type: 'string', maxLength: 80 } } },
+    { sectionKey: 'banner', label: 'Banner', required: true, canToggle: false, canReorder: false, layout: 'editorial-nameplate', fields: { brideName: { type: 'string', required: true, maxLength: 80 }, groomName: { type: 'string', required: true, maxLength: 80 }, weddingDate: { type: 'date', required: true } } },
+    { sectionKey: 'invitation-letter', label: 'Invitation letter', required: true, canToggle: false, canReorder: false, layout: 'layered-paper-letter', fields: { title: { type: 'string', contentKey: 'invitationTitle', maxLength: 120 }, message: { type: 'text', contentKey: 'invitationMessage', maxLength: 500 }, guestGreeting: { type: 'string', contentKey: 'guestGreeting', maxLength: 160 }, families: { type: 'families', contentKey: 'families' } } },
+    { sectionKey: 'event-countdown', label: 'Event and countdown', required: true, canToggle: false, canReorder: false, layout: 'date-plaque', fields: { ceremonyDate: { type: 'date', contentKey: 'ceremonyDate', required: true }, ceremonyTime: { type: 'time', contentKey: 'ceremonyTime', required: true } } },
+    { sectionKey: 'calendar', label: 'Calendar', canToggle: true, canReorder: true, layout: 'woodcut-month-card', fields: {} },
+    { sectionKey: 'venue', label: 'Venue', canToggle: true, canReorder: true, layout: 'signpost-address-card', fields: { venueName: { type: 'string', contentKey: 'venueName', required: true, maxLength: 120 }, venueAddress: { type: 'string', contentKey: 'venueAddress', required: true, maxLength: 240 }, mapUrl: { type: 'url', contentKey: 'mapUrl' } } },
+    { sectionKey: 'timeline', label: 'Timeline', canToggle: true, canReorder: true, layout: 'vertical-parallax-trail', fields: { items: { type: 'items', contentKey: 'timelineItems', maxItems: 10, itemFields: { time: { type: 'time', required: true }, title: { type: 'string', required: true, maxLength: 80 }, detail: { type: 'text', maxLength: 240 } } } } },
+    { sectionKey: 'activities', label: 'Activities', canToggle: true, canReorder: true, layout: 'vertical-parallax-notes', fields: { items: { type: 'items', contentKey: 'activityItems', maxItems: 8, itemFields: { title: { type: 'string', required: true, maxLength: 80 }, image: { type: 'image', required: true, mediaRole: 'activity' } } } } },
+    { sectionKey: 'gallery', label: 'Gallery', canToggle: true, canReorder: true, layout: '3d-slide', fields: { images: { type: 'images', contentKey: 'galleryImages', mediaRole: 'gallery', maxItems: 12 } } },
+    { sectionKey: 'rsvp', label: 'RSVP', canToggle: true, canReorder: true, layout: 'folded-response-card', fields: { deadline: { type: 'date', contentKey: 'rsvpDeadline' }, message: { type: 'text', contentKey: 'rsvpMessage', maxLength: 300 } } },
+    { sectionKey: 'guestbook', label: 'Guestbook', canToggle: true, canReorder: true, layout: 'hanging-note-stack', fields: {} },
+    { sectionKey: 'gift', label: 'Gift', canToggle: true, canReorder: true, layout: 'paper-qr-card', fields: { message: { type: 'text', contentKey: 'giftMessage', maxLength: 300 }, qrMedia: { type: 'image', contentKey: 'giftQrMedia', mediaRole: 'gift-qr' } } },
+    { sectionKey: 'footer', label: 'Footer', required: true, canToggle: false, canReorder: false, layout: 'closing-paper-leaf', fields: { message: { type: 'text', contentKey: 'footerMessage', maxLength: 300 }, media: { type: 'image', contentKey: 'footerMedia', mediaRole: 'footer' } } },
+  ],
+} as const satisfies TemplateConfig
