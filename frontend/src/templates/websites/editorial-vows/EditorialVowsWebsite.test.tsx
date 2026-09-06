@@ -12,9 +12,11 @@ describe('EditorialVowsWebsite', () => {
   })
 
   it('removes disabled optional sections from the DOM', () => {
-    const sectionConfig = { ...editorialVowsSections, enabled: editorialVowsSections.enabled.filter((key) => key !== 'gift') }
+    const sectionConfig = {
+      ...editorialVowsSections,
+      enabled: editorialVowsSections.enabled.filter((key) => key !== 'gift'),
+    }
     const { container } = render(<EditorialVowsWebsite sectionConfig={sectionConfig} />)
     expect(container.querySelector('[data-editor-section="gift"]')).not.toBeInTheDocument()
   })
 })
-

@@ -10,24 +10,171 @@ export const verdantPromiseTemplateConfig = {
   productType: 'ONLINE_INVITATION',
   type: 'invitation',
   previewPath: '/templates/invitations/verdant-promise/preview',
-  quickEdit: [{ contentKey: 'brideName', label: 'Tên cô dâu' }, { contentKey: 'groomName', label: 'Tên chú rể' }],
+  quickEdit: [
+    { contentKey: 'brideName', label: 'Tên cô dâu' },
+    { contentKey: 'groomName', label: 'Tên chú rể' },
+  ],
   palettes: [{ key: 'greenhouse', label: 'Vườn kính', default: true }],
   sections: [
-    { sectionKey: 'cover', label: 'Bìa thiệp', required: true, canToggle: false, canReorder: false, fields: { brideName: { type: 'string', label: 'Tên cô dâu', required: true, maxLength: 80 }, groomName: { type: 'string', label: 'Tên chú rể', required: true, maxLength: 80 }, weddingDate: { type: 'date', label: 'Ngày cưới', required: true }, eyebrow: { type: 'string', label: 'Dòng giới thiệu', maxLength: 80 } } },
-    { sectionKey: 'invitation', label: 'Lời mời', required: true, canToggle: false, canReorder: false, fields: { title: { type: 'string', contentKey: 'invitationTitle', label: 'Tiêu đề lời mời', maxLength: 120 }, message: { type: 'text', contentKey: 'invitationMessage', label: 'Nội dung lời mời', maxLength: 500 } } },
-    { sectionKey: 'families', label: 'Thông tin hai gia đình', required: true, canToggle: false, canReorder: false, fields: { brideFatherTitle: { type: 'string', label: 'Danh xưng bố cô dâu', maxLength: 30 }, brideFather: { type: 'string', label: 'Tên bố cô dâu', maxLength: 80 }, brideMotherTitle: { type: 'string', label: 'Danh xưng mẹ cô dâu', maxLength: 30 }, brideMother: { type: 'string', label: 'Tên mẹ cô dâu', maxLength: 80 }, groomFatherTitle: { type: 'string', label: 'Danh xưng bố chú rể', maxLength: 30 }, groomFather: { type: 'string', label: 'Tên bố chú rể', maxLength: 80 }, groomMotherTitle: { type: 'string', label: 'Danh xưng mẹ chú rể', maxLength: 30 }, groomMother: { type: 'string', label: 'Tên mẹ chú rể', maxLength: 80 } } },
-    { sectionKey: 'eventDetails', label: 'Ngày và giờ', required: true, canToggle: false, canReorder: false, fields: { ceremonyTime: { type: 'time', label: 'Thời gian làm lễ' }, receptionTime: { type: 'time', label: 'Thời gian đãi tiệc' } } },
+    {
+      sectionKey: 'cover',
+      label: 'Bìa thiệp',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      fields: {
+        brideName: { type: 'string', label: 'Tên cô dâu', required: true, maxLength: 80 },
+        groomName: { type: 'string', label: 'Tên chú rể', required: true, maxLength: 80 },
+        weddingDate: { type: 'date', label: 'Ngày cưới', required: true },
+        eyebrow: { type: 'string', label: 'Dòng giới thiệu', maxLength: 80 },
+      },
+    },
+    {
+      sectionKey: 'invitation',
+      label: 'Lời mời',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      fields: {
+        title: {
+          type: 'string',
+          contentKey: 'invitationTitle',
+          label: 'Tiêu đề lời mời',
+          maxLength: 120,
+        },
+        message: {
+          type: 'text',
+          contentKey: 'invitationMessage',
+          label: 'Nội dung lời mời',
+          maxLength: 500,
+        },
+      },
+    },
+    {
+      sectionKey: 'families',
+      label: 'Thông tin hai gia đình',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      fields: {
+        brideFatherTitle: { type: 'string', label: 'Danh xưng bố cô dâu', maxLength: 30 },
+        brideFather: { type: 'string', label: 'Tên bố cô dâu', maxLength: 80 },
+        brideMotherTitle: { type: 'string', label: 'Danh xưng mẹ cô dâu', maxLength: 30 },
+        brideMother: { type: 'string', label: 'Tên mẹ cô dâu', maxLength: 80 },
+        groomFatherTitle: { type: 'string', label: 'Danh xưng bố chú rể', maxLength: 30 },
+        groomFather: { type: 'string', label: 'Tên bố chú rể', maxLength: 80 },
+        groomMotherTitle: { type: 'string', label: 'Danh xưng mẹ chú rể', maxLength: 30 },
+        groomMother: { type: 'string', label: 'Tên mẹ chú rể', maxLength: 80 },
+      },
+    },
+    {
+      sectionKey: 'eventDetails',
+      label: 'Ngày và giờ',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      fields: {
+        ceremonyTime: { type: 'time', label: 'Thời gian làm lễ' },
+        receptionTime: { type: 'time', label: 'Thời gian đãi tiệc' },
+      },
+    },
     { sectionKey: 'countdown', label: 'Đếm ngược', canToggle: true, canReorder: true, fields: {} },
-    { sectionKey: 'timeline', label: 'Lịch trình', canToggle: true, canReorder: true, fields: { items: { type: 'items', recommendedMinItems: 3, contentKey: 'timelineItems', label: 'Các mốc thời gian', maxItems: 10, itemFields: { time: { type: 'time', label: 'Thời gian', required: true }, title: { type: 'string', label: 'Tiêu đề', required: true, maxLength: 80 }, detail: { type: 'text', label: 'Mô tả chi tiết', maxLength: 240 } } } } },
-    { sectionKey: 'venue', label: 'Địa điểm và bản đồ', canToggle: true, canReorder: true, fields: { venueName: { type: 'string', label: 'Tên địa điểm', required: true, maxLength: 120 }, venueAddress: { type: 'string', label: 'Địa chỉ', required: true, maxLength: 240 }, mapUrl: { type: 'url', label: 'Đường dẫn bản đồ' } } },
-    { sectionKey: 'gallery', label: 'Album ảnh', canToggle: true, canReorder: true, fields: { images: { type: 'images', contentKey: 'galleryImages', label: 'Ảnh trong album', mediaRole: 'gallery', maxItems: 12 } } },
-    { sectionKey: 'rsvp', label: 'Xác nhận tham dự', canToggle: true, canReorder: true, fields: { deadline: { type: 'date', contentKey: 'rsvpDeadline', label: 'Hạn phản hồi' }, message: { type: 'text', contentKey: 'rsvpMessage', label: 'Lời nhắn RSVP', maxLength: 300 } } },
+    {
+      sectionKey: 'timeline',
+      label: 'Lịch trình',
+      canToggle: true,
+      canReorder: true,
+      fields: {
+        items: {
+          type: 'items',
+          recommendedMinItems: 3,
+          contentKey: 'timelineItems',
+          label: 'Các mốc thời gian',
+          maxItems: 10,
+          itemFields: {
+            time: { type: 'time', label: 'Thời gian', required: true },
+            title: { type: 'string', label: 'Tiêu đề', required: true, maxLength: 80 },
+            detail: { type: 'text', label: 'Mô tả chi tiết', maxLength: 240 },
+          },
+        },
+      },
+    },
+    {
+      sectionKey: 'venue',
+      label: 'Địa điểm và bản đồ',
+      canToggle: true,
+      canReorder: true,
+      fields: {
+        venueName: { type: 'string', label: 'Tên địa điểm', required: true, maxLength: 120 },
+        venueAddress: { type: 'string', label: 'Địa chỉ', required: true, maxLength: 240 },
+        mapUrl: { type: 'url', label: 'Đường dẫn bản đồ' },
+      },
+    },
+    {
+      sectionKey: 'gallery',
+      label: 'Album ảnh',
+      canToggle: true,
+      canReorder: true,
+      fields: {
+        images: {
+          type: 'images',
+          contentKey: 'galleryImages',
+          label: 'Ảnh trong album',
+          mediaRole: 'gallery',
+          maxItems: 12,
+        },
+      },
+    },
+    {
+      sectionKey: 'rsvp',
+      label: 'Xác nhận tham dự',
+      canToggle: true,
+      canReorder: true,
+      fields: {
+        deadline: { type: 'date', contentKey: 'rsvpDeadline', label: 'Hạn phản hồi' },
+        message: {
+          type: 'text',
+          contentKey: 'rsvpMessage',
+          label: 'Lời nhắn RSVP',
+          maxLength: 300,
+        },
+      },
+    },
     { sectionKey: 'guestbook', label: 'Sổ lưu bút', canToggle: true, canReorder: true, fields: {} },
-    { sectionKey: 'gift', label: 'Thông tin mừng cưới', canToggle: true, canReorder: true, fields: { message: { type: 'text', contentKey: 'giftMessage', label: 'Lời nhắn mừng cưới', maxLength: 300 } } },
-    { sectionKey: 'footer', label: 'Lời cảm ơn', required: true, canToggle: false, canReorder: false, fields: { message: { type: 'text', contentKey: 'footerMessage', label: 'Lời nhắn cuối thiệp', maxLength: 300 }, media: { type: 'image', contentKey: 'footerMedia', label: 'Ảnh cuối thiệp', mediaRole: 'footer' } } },
+    {
+      sectionKey: 'gift',
+      label: 'Thông tin mừng cưới',
+      canToggle: true,
+      canReorder: true,
+      fields: {
+        message: {
+          type: 'text',
+          contentKey: 'giftMessage',
+          label: 'Lời nhắn mừng cưới',
+          maxLength: 300,
+        },
+      },
+    },
+    {
+      sectionKey: 'footer',
+      label: 'Lời cảm ơn',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      fields: {
+        message: {
+          type: 'text',
+          contentKey: 'footerMessage',
+          label: 'Lời nhắn cuối thiệp',
+          maxLength: 300,
+        },
+        media: {
+          type: 'image',
+          contentKey: 'footerMedia',
+          label: 'Ảnh cuối thiệp',
+          mediaRole: 'footer',
+        },
+      },
+    },
   ],
 } as const satisfies TemplateConfig
-
-
-
-

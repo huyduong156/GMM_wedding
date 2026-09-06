@@ -16,7 +16,12 @@ export function useSmoothInvitationScroll(enabled: boolean) {
 
     void import('lenis').then(({ default: Lenis }) => {
       if (!active || document.hidden) return
-      smoothScroll = new Lenis({ autoRaf: true, lerp: 0.12, smoothWheel: true, wheelMultiplier: 0.8 })
+      smoothScroll = new Lenis({
+        autoRaf: true,
+        lerp: 0.12,
+        smoothWheel: true,
+        wheelMultiplier: 0.8,
+      })
     })
 
     const onVisibilityChange = () => {
@@ -24,6 +29,10 @@ export function useSmoothInvitationScroll(enabled: boolean) {
       else smoothScroll?.start?.()
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => { active = false; document.removeEventListener('visibilitychange', onVisibilityChange); smoothScroll?.destroy() }
+    return () => {
+      active = false
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      smoothScroll?.destroy()
+    }
   }, [enabled])
 }

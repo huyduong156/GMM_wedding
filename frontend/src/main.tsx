@@ -9,7 +9,9 @@ import './app/styles/fonts.css'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <NavigationProvider>
-      <AuthProvider><App /></AuthProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </NavigationProvider>
   </React.StrictMode>,
 )

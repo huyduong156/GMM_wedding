@@ -10,15 +10,28 @@ type SectionConfig = { enabled: string[]; order: string[] }
 type DraftPayload = { content?: unknown; theme?: unknown }
 
 const cloneRecap = <T,>(value: T): T => structuredClone(value)
-const mergeRecapRecords = (base: Record<string, unknown>, override: Record<string, unknown>): Record<string, unknown> => Object.entries(override).reduce((result, [key, value]) => {
-  const baseValue = result[key]
-  result[key] = value && typeof value === 'object' && !Array.isArray(value) && baseValue && typeof baseValue === 'object' && !Array.isArray(baseValue)
-    ? mergeRecapRecords(baseValue as Record<string, unknown>, value as Record<string, unknown>)
-    : value
-  return result
-}, cloneRecap(base))
+const mergeRecapRecords = (
+  base: Record<string, unknown>,
+  override: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.entries(override).reduce((result, [key, value]) => {
+    const baseValue = result[key]
+    result[key] =
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      baseValue &&
+      typeof baseValue === 'object' &&
+      !Array.isArray(baseValue)
+        ? mergeRecapRecords(baseValue as Record<string, unknown>, value as Record<string, unknown>)
+        : value
+    return result
+  }, cloneRecap(base))
 const mergeRecapContent = (stored: Record<string, unknown>): RedSpiderLilyRecapContent =>
-  mergeRecapRecords(cloneRecap(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>, stored) as unknown as RedSpiderLilyRecapContent
+  mergeRecapRecords(
+    cloneRecap(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>,
+    stored,
+  ) as unknown as RedSpiderLilyRecapContent
 
 export function PublicRecapPage({ slug }: { slug: string }) {
   const auth = useOptionalAuth()
@@ -48,7 +61,8 @@ export function PublicRecapPage({ slug }: { slug: string }) {
         const signedIn = auth?.checkUserSession ? await auth.checkUserSession() : false
 
         if (signedIn) payload = await loadOwnerDraft()
-        if (!payload) payload = (await weddingApi.publicRecap(slug)).snapshot.payload as DraftPayload
+        if (!payload)
+          payload = (await weddingApi.publicRecap(slug)).snapshot.payload as DraftPayload
 
         if (!active) return
         if (!payload.content || typeof payload.content !== 'object') {
@@ -71,11 +85,18 @@ export function PublicRecapPage({ slug }: { slug: string }) {
     }
 
     void load()
-    return () => { active = false }
+    return () => {
+      active = false
+    }
   }, [auth?.checkUserSession, slug])
 
   if (notFound) return <StatusPage kind="not-found" />
   if (error) return <StatusPage kind="server-error" />
-  if (!content) return <main style={{ padding: 32 }}><p>Loading recap...</p></main>
+  if (!content)
+    return (
+      <main style={{ padding: 32 }}>
+        <p>Loading recap...</p>
+      </main>
+    )
   return <RedSpiderLilyRecap data={content} sectionConfig={sectionConfig} />
 }

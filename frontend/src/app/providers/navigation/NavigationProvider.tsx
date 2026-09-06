@@ -1,5 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
-import { NavigationContext, type NavigationContextValue } from '../../../shared/lib/navigation/navigation-context'
+import {
+  NavigationContext,
+  type NavigationContextValue,
+} from '../../../shared/lib/navigation/navigation-context'
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [pathname, setPathname] = useState(() => window.location.pathname)
@@ -10,15 +13,18 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
-  const value = useMemo<NavigationContextValue>(() => ({
-    pathname,
-    navigate(to, replace = false) {
-      if (replace) window.history.replaceState(null, '', to)
-      else window.history.pushState(null, '', to)
-      setPathname(to)
-      window.scrollTo({ top: 0, behavior: 'auto' })
-    },
-  }), [pathname])
+  const value = useMemo<NavigationContextValue>(
+    () => ({
+      pathname,
+      navigate(to, replace = false) {
+        if (replace) window.history.replaceState(null, '', to)
+        else window.history.pushState(null, '', to)
+        setPathname(to)
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      },
+    }),
+    [pathname],
+  )
 
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>
 }

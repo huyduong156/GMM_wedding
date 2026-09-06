@@ -15,18 +15,38 @@ describe('usePublicGuest', () => {
   })
 
   it('loads and exposes the guest display name outside template content', async () => {
-    const request = vi.spyOn(weddingApi, 'publicInvitationGuest').mockResolvedValue({ invitation: { weddingSlug: 'mai-duc', invitationSlug: 'anh-ba-hung', guestName: 'Anh Ba Hưng', maxPartySize: 2, expiresAt: null } })
-    const { result } = renderHook(() => usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'anh-ba-hung' }))
+    const request = vi.spyOn(weddingApi, 'publicInvitationGuest').mockResolvedValue({
+      invitation: {
+        weddingSlug: 'mai-duc',
+        invitationSlug: 'anh-ba-hung',
+        guestName: 'Anh Ba Hưng',
+        maxPartySize: 2,
+        expiresAt: null,
+      },
+    })
+    const { result } = renderHook(() =>
+      usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'anh-ba-hung' }),
+    )
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(request).toHaveBeenCalledWith('mai-duc', 'anh-ba-hung')
-    expect(result.current).toMatchObject({ guestName: 'Anh Ba Hưng', guestSlug: 'anh-ba-hung', maxPartySize: 2, notFound: false, error: '' })
+    expect(result.current).toMatchObject({
+      guestName: 'Anh Ba Hưng',
+      guestSlug: 'anh-ba-hung',
+      maxPartySize: 2,
+      notFound: false,
+      error: '',
+    })
     request.mockRestore()
   })
 
   it('marks a missing guest slug as not found', async () => {
-    const request = vi.spyOn(weddingApi, 'publicInvitationGuest').mockRejectedValue(new WeddingApiError(404, 'RESOURCE_NOT_FOUND', 'Guest link not found'))
-    const { result } = renderHook(() => usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'missing' }))
+    const request = vi
+      .spyOn(weddingApi, 'publicInvitationGuest')
+      .mockRejectedValue(new WeddingApiError(404, 'RESOURCE_NOT_FOUND', 'Guest link not found'))
+    const { result } = renderHook(() =>
+      usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'missing' }),
+    )
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.notFound).toBe(true)
@@ -35,8 +55,12 @@ describe('usePublicGuest', () => {
   })
 
   it('keeps the invitation renderable when guest lookup has a non-404 error', async () => {
-    const request = vi.spyOn(weddingApi, 'publicInvitationGuest').mockRejectedValue(new Error('Network error'))
-    const { result } = renderHook(() => usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'anh-ba-hung' }))
+    const request = vi
+      .spyOn(weddingApi, 'publicInvitationGuest')
+      .mockRejectedValue(new Error('Network error'))
+    const { result } = renderHook(() =>
+      usePublicGuest({ weddingSlug: 'mai-duc', guestSlug: 'anh-ba-hung' }),
+    )
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.error).toBe('Network error')

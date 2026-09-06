@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { RedSpiderLilyRecap } from '../../../templates/recaps/red-spider-lily/RedSpiderLilyRecap'
 import type { RedSpiderLilyRecapContent } from '../../../templates/recaps/red-spider-lily/content'
 
-type PreviewState = { data?: RedSpiderLilyRecapContent; sectionConfig?: { enabled: string[]; order: string[] } }
+type PreviewState = {
+  data?: RedSpiderLilyRecapContent
+  sectionConfig?: { enabled: string[]; order: string[] }
+}
 
 export function RedSpiderLilyRecapPreviewPage() {
   const params = new URLSearchParams(window.location.search)
@@ -14,5 +17,11 @@ export function RedSpiderLilyRecapPreviewPage() {
 }
 
 function readPreviewState(templateKey: string): PreviewState | null {
-  try { return JSON.parse(sessionStorage.getItem('gmm-recap-preview:' + templateKey) ?? 'null') as PreviewState | null } catch { return null }
+  try {
+    return JSON.parse(
+      sessionStorage.getItem('gmm-recap-preview:' + templateKey) ?? 'null',
+    ) as PreviewState | null
+  } catch {
+    return null
+  }
 }

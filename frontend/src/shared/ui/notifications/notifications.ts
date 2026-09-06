@@ -5,31 +5,43 @@ const DEFAULT_TIMER = 2200
 const alertInstance = Swal.mixin({})
 
 function fire(options: SweetAlertOptions): Promise<SweetAlertResult> {
-  if (import.meta.env.MODE === 'test') return Promise.resolve({ isDismissed: true } as SweetAlertResult)
-  return Promise.resolve(alertInstance.fire({
-    ...(options.toast ? {} : { heightAuto: false }),
-    ...options,
-  })).catch(() => ({ isDismissed: true } as SweetAlertResult))
+  if (import.meta.env.MODE === 'test')
+    return Promise.resolve({ isDismissed: true } as SweetAlertResult)
+  return Promise.resolve(
+    alertInstance.fire({
+      ...(options.toast ? {} : { heightAuto: false }),
+      ...options,
+    }),
+  ).catch(() => ({ isDismissed: true }) as SweetAlertResult)
 }
 
 let timedQueue: Promise<unknown> = Promise.resolve()
 
 function timed(options: SweetAlertOptions): Promise<SweetAlertResult> {
-  const next = timedQueue.then(() => fire({
-    toast: true,
-    position: 'top-end',
-    timer: DEFAULT_TIMER,
-    timerProgressBar: true,
-    showConfirmButton: false,
-    ...options,
-  }))
-  timedQueue = next.then(() => undefined, () => undefined)
+  const next = timedQueue.then(() =>
+    fire({
+      toast: true,
+      position: 'top-end',
+      timer: DEFAULT_TIMER,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      ...options,
+    }),
+  )
+  timedQueue = next.then(
+    () => undefined,
+    () => undefined,
+  )
   return next
 }
 
 export const notifications = {
   fire(options: SweetAlertOptions) {
-    return options.showCancelButton ? this.confirm(options) : options.toast === false ? this.alert(options) : timed(options)
+    return options.showCancelButton
+      ? this.confirm(options)
+      : options.toast === false
+        ? this.alert(options)
+        : timed(options)
   },
   close() {
     alertInstance.close()

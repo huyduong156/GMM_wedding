@@ -75,6 +75,9 @@ export const marketingRoutes = {
   resetPassword: '/reset-password',
 } as const
 
-export const statusRoutes = { unauthorized: '/401', forbidden: '/403', notFound: '/404', serverError: '/500' } as const
-
-
+export const statusRoutes = {
+  unauthorized: '/401',
+  forbidden: '/403',
+  notFound: '/404',
+  serverError: '/500',
+} as const

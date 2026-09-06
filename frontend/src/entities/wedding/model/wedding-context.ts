@@ -19,4 +19,6 @@ export function useWeddingWorkspace() {
   if (!value) throw new Error('useWeddingWorkspace must be used inside WeddingProvider')
   return value
 }
-export function useOptionalWeddingWorkspace() { return useContext(WeddingContext) }
+export function useOptionalWeddingWorkspace() {
+  return useContext(WeddingContext)
+}
