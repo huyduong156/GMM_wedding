@@ -13,6 +13,7 @@ vi.mock('../../../shared/lib/navigation/usePublicWishes', () => ({ usePublicWish
 vi.mock('../../../templates/invitations/modern-luxe/ModernLuxeInvitation', () => ({ ModernLuxeInvitation: ({ interactions }: { interactions?: { guestName: string | null } }) => createElement('div', { 'data-testid': 'renderer' }, interactions?.guestName ?? 'no-guest-name') }))
 vi.mock('../../../templates/invitations/verdant-promise/VerdantPromiseInvitation', () => ({ VerdantPromiseInvitation: () => createElement('div', { 'data-testid': 'renderer' }, 'verdant') }))
 vi.mock('../../../templates/invitations/chibi-daydream/ChibiDaydreamInvitation', () => ({ ChibiDaydreamInvitation: () => createElement('div', { 'data-testid': 'renderer' }, 'chibi') }))
+vi.mock('../../../templates/invitations/peony-veranda/PeonyVerandaInvitation', () => ({ PeonyVerandaInvitation: () => createElement('div', { 'data-testid': 'renderer' }, 'peony') }))
 
 import { PublicInvitationPage } from './PublicInvitationPage'
 
@@ -27,6 +28,13 @@ function renderPage(props: { weddingSlug: string; guestSlug?: string }) {
 }
 
 describe('PublicInvitationPage guest identity flow', () => {
+  it('renders the Peony Veranda invitation renderer', async () => {
+    const invitation = vi.spyOn(weddingApi, 'publicInvitation').mockResolvedValue({ snapshot: { ...snapshot, payload: { ...snapshot.payload, template: { key: 'peony-veranda' } }, templateVersion: { key: 'peony-veranda', version: '1.0.0' } } })
+    renderPage({ weddingSlug: 'mai-duc' })
+    expect(await screen.findByTestId('renderer')).toHaveTextContent('peony')
+    invitation.mockRestore()
+  })
+
   it('loads the common invitation without calling the guest endpoint', async () => {
     const invitation = vi.spyOn(weddingApi, 'publicInvitation').mockResolvedValue({ snapshot })
     const guest = vi.spyOn(weddingApi, 'publicInvitationGuest')

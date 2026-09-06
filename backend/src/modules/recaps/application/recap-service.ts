@@ -187,6 +187,25 @@ export class RecapService {
             data: { weddingId, ...recapData },
           })
         }
+
+        // A saved edit is a draft, so the previously published recap must no
+        // longer be reachable. Publishing later creates the next snapshot.
+        const unpublished = await tx.publishedRecapSnapshot.updateMany({
+          where: {
+            content: { weddingId, surface: 'RECAP' },
+            unpublishedAt: null,
+          },
+          data: { unpublishedAt: new Date() },
+        })
+        const liveWedding = await tx.publishedWeddingSnapshot.count({
+          where: { weddingId, unpublishedAt: null },
+        })
+        if (unpublished.count > 0 && liveWedding === 0) {
+          await tx.wedding.update({
+            where: { id: weddingId },
+            data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
+          })
+        }
         await tx.recapMediaItem.deleteMany({
           where: {
             contentId:

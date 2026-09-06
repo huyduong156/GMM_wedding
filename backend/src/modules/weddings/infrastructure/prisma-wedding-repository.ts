@@ -69,6 +69,24 @@ const legacyTemplateSections: Record<string, string[]> = {
     'gift',
     'thanks',
   ],
+  'peony-veranda': [
+    'cover',
+    'banner',
+    'announcement',
+    'families',
+    'couple',
+    'countdown',
+    'venue',
+    'calendar',
+    'timeline',
+    'activities',
+    'rsvp',
+    'gallery',
+    'guestbook',
+    'gift',
+    'music',
+    'footer',
+  ],
   'editorial-vows': [
     'navigation',
     'hero',
@@ -166,21 +184,24 @@ function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig
       .map(sectionKey)
       .filter(Boolean),
   )
-  const requestedEnabled = Array.isArray(rawConfig.enabled)
-    ? rawConfig.enabled.filter(
-        (key): key is string => typeof key === 'string' && supported.has(key),
-      )
-    : []
-  const rawOrder = Array.isArray(rawConfig.order)
-    ? rawConfig.order.filter((key): key is string => typeof key === 'string' && supported.has(key))
-    : []
+  const rawEnabledValues = Array.isArray(rawConfig.enabled) ? rawConfig.enabled : []
+  const rawOrderValues = Array.isArray(rawConfig.order) ? rawConfig.order : []
+  const hasUnknownSectionKeys = [...rawEnabledValues, ...rawOrderValues].some(
+    (key) => typeof key !== 'string' || !supported.has(key),
+  )
+  const requestedEnabled = rawEnabledValues.filter(
+    (key): key is string => typeof key === 'string' && supported.has(key),
+  )
+  const rawOrder = rawOrderValues.filter(
+    (key): key is string => typeof key === 'string' && supported.has(key),
+  )
   const knownSections = new Set([...requestedEnabled, ...rawOrder])
   const newlyDiscovered = sections.filter((key) => !knownSections.has(key))
   const enabled = new Set(
-    requestedEnabled.length ? [...requestedEnabled, ...newlyDiscovered] : sections,
+    !hasUnknownSectionKeys && requestedEnabled.length ? [...requestedEnabled, ...newlyDiscovered] : sections,
   )
   for (const key of required) enabled.add(key)
-  const requestedOrder = rawOrder
+  const requestedOrder = hasUnknownSectionKeys ? [] : rawOrder
   const order = requestedOrder.length ? [...requestedOrder] : [...sections]
   for (const key of sections) {
     if (order.includes(key)) continue
@@ -191,7 +212,7 @@ function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig
     order.splice(insertionIndex, 0, key)
   }
   for (const key of enabled) if (!order.includes(key)) order.push(key)
-  return { enabled: [...enabled], order, supported, required }
+  return { enabled: sections.filter((key) => enabled.has(key)), order, supported, required }
 }
 function effectiveTemplateConfig(templateKey: string, config: unknown) {
   const objectConfig =
@@ -205,7 +226,9 @@ function effectiveTemplateConfig(templateKey: string, config: unknown) {
   const sections = fallbackSections.length
     ? [
         ...fallbackSections.map((key) => configuredByKey.get(key) ?? key),
-        ...configuredSections.filter((item) => !fallbackKeys.has(sectionKey(item))),
+        ...configuredSections.filter(
+          (item) => !fallbackKeys.has(sectionKey(item)) && templateKey !== 'peony-veranda',
+        ),
       ]
     : configuredSections
   return { ...objectConfig, sections }
@@ -841,8 +864,19 @@ export class PrismaWeddingRepository implements WeddingRepository {
       effectiveConfig && Array.isArray(effectiveConfig.sections) ? effectiveConfig.sections : []
     const storedThemeConfig = content?.themeConfig
     const storedSectionConfig = content?.sectionConfig
+    const draftContent = content?.content
+    const hasSavedContent = Boolean(
+      draftContent &&
+        typeof draftContent === 'object' &&
+        !Array.isArray(draftContent) &&
+        Object.keys(draftContent as Record<string, unknown>).length > 0,
+    )
+    // A content row may exist before the invitation has been saved. Its
+    // sectionConfig can be stale, so the template order is authoritative until
+    // there is an actual saved content payload.
+    const effectiveSectionConfig = hasSavedContent ? storedSectionConfig : {}
     const sectionConfig = rawSections.length
-      ? reconcileSectionConfig(rawSections, (storedSectionConfig ?? {}) as SectionConfig)
+      ? reconcileSectionConfig(rawSections, (effectiveSectionConfig ?? {}) as SectionConfig)
       : { enabled: [], order: [] }
     return {
       content: content?.content ?? {},
@@ -924,6 +958,25 @@ export class PrismaWeddingRepository implements WeddingRepository {
             },
           })
           if (claimed.count !== 1) throw new WeddingContentConflictError()
+
+          // Editing a published surface creates a new draft. The old immutable
+          // snapshot must stop being reachable until the next publish.
+          const unpublished = await tx.publishedWeddingSnapshot.updateMany({
+            where: { weddingId, surface: data.surface, unpublishedAt: null },
+            data: { unpublishedAt: new Date() },
+          })
+          const otherLive = await tx.publishedWeddingSnapshot.count({
+            where: { weddingId, surface: { not: data.surface }, unpublishedAt: null },
+          })
+          const liveRecap = await tx.publishedRecapSnapshot.count({
+            where: { content: { weddingId }, unpublishedAt: null },
+          })
+          if (unpublished.count > 0 && otherLive === 0 && liveRecap === 0) {
+            await tx.wedding.update({
+              where: { id: weddingId },
+              data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
+            })
+          }
         } else {
           await tx.weddingContent.create({
             data: {

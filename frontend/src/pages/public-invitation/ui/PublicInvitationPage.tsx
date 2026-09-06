@@ -6,6 +6,7 @@ import { VerdantPromiseInvitation } from '../../../templates/invitations/verdant
 import type { ModernLuxeData as VerdantPromiseData, ModernLuxeSectionConfig as VerdantPromiseSectionConfig } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { ChibiDaydreamInvitation } from '../../../templates/invitations/chibi-daydream/ChibiDaydreamInvitation'
 import type { ChibiDaydreamData } from '../../../templates/invitations/chibi-daydream/ChibiDaydreamInvitation'
+import { PeonyVerandaInvitation, type PeonyVerandaData, type PeonyVerandaSectionConfig } from '../../../templates/invitations/peony-veranda/PeonyVerandaInvitation'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -97,6 +98,8 @@ function InvitationSnapshot({ snapshot, weddingSlug, guestSlug, guestName }: { s
       return <VerdantPromiseInvitation data={content as VerdantPromiseData} sectionConfig={sectionConfig as VerdantPromiseSectionConfig | undefined} interactions={interactions} />
     case 'chibi-daydream':
       return <ChibiDaydreamInvitation data={content as ChibiDaydreamData} sectionConfig={sectionConfig as { enabled: string[]; order: string[] } | undefined} interactions={interactions} />
+    case 'peony-veranda':
+      return <PeonyVerandaInvitation data={content as PeonyVerandaData} sectionConfig={sectionConfig as PeonyVerandaSectionConfig | undefined} interactions={interactions} />
     default:
       return <main style={{ padding: 32 }}><h1>Template chưa được hỗ trợ</h1><p>Template {payload.template.key} chưa có renderer trên phiên bản frontend này.</p></main>
   }

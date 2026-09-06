@@ -8,6 +8,7 @@ import { publicTemplateRoutes, studioRoutes as baseStudioRoutes } from '../../..
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { getInvitationTemplate } from '../../../templates/template-registry'
 
 type Theme = {
   key: string; versionId: string; version: string; name: string; description: string
@@ -18,25 +19,28 @@ const previewPaths: Record<string, string> = {
   'modern-luxe': publicTemplateRoutes.modernLuxePreview,
   'verdant-promise': publicTemplateRoutes.verdantPromisePreview,
   'chibi-daydream': publicTemplateRoutes.chibiDaydreamPreview,
+  'peony-veranda': publicTemplateRoutes.peonyVerandaPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
   'verdant-promise': { style: 'Lãng mạn', palette: 'Vườn xanh & ivory' },
   'chibi-daydream': { style: 'Lãng mạn', palette: 'Coral & powder blue' },
+  'peony-veranda': { style: 'Botanical editorial', palette: 'Peony & veranda ivory' },
 }
-const localNames: Record<string, string> = { 'modern-luxe': 'Élan d’Amour', 'verdant-promise': 'Verdant Promise', 'chibi-daydream': 'Mây Hồng Có Đôi' }
+const localNames: Record<string, string> = { 'modern-luxe': 'Élan d’Amour', 'verdant-promise': 'Verdant Promise', 'chibi-daydream': 'Mây Hồng Có Đôi', 'peony-veranda': 'Peony Veranda' }
 
 function toTheme(template: WeddingTemplate): Theme | null {
   const version = template.versions.find((item) => !item.deprecatedAt) ?? template.versions[0]
   if (!version) return null
   const meta = localMeta[template.key]
+  const localConfig = template.key === 'peony-veranda' ? getInvitationTemplate(template.key)?.config : undefined
   return {
     key: template.key, versionId: version.id, version: version.version, name: template.name,
     description: template.description ?? `Template ${template.name} phiên bản ${version.version}.`,
     style: template.styles?.[0]?.name ?? (typeof version.config.style === 'string' ? version.config.style : meta?.style ?? 'Hiện đại'),
     styles: template.styles ?? [],
     palette: typeof version.config.palette === 'string' ? version.config.palette : meta?.palette ?? 'Theo cấu hình mẫu',
-    sections: version.config.sections ?? [], previewPath: previewPaths[template.key],
+    sections: localConfig ? [...localConfig.sections] : version.config.sections ?? [], previewPath: previewPaths[template.key],
   }
 }
 
@@ -105,8 +109,9 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     const selected = content?.templateVersion
     if (!selected || themes.some((theme) => theme.versionId === selected.id)) return null
     const meta = localMeta[selected.key]
+    const localConfig = selected.key === 'peony-veranda' ? getInvitationTemplate(selected.key)?.config : undefined
     const sections = Array.isArray(selected.config.sections) ? selected.config.sections as TemplateSectionConfig[] : []
-    return { key: selected.key, versionId: selected.id, version: selected.version, name: localNames[selected.key] ?? selected.key, description: 'Version này đã ngừng phân phối. Bạn vẫn có thể tiếp tục chỉnh sửa thiệp hiện tại.', style: meta?.style ?? 'Theo cấu hình mẫu', styles: [], palette: meta?.palette ?? 'Theo cấu hình mẫu', sections, previewPath: previewPaths[selected.key], unavailable: true }
+    return { key: selected.key, versionId: selected.id, version: selected.version, name: localNames[selected.key] ?? selected.key, description: 'Version này đã ngừng phân phối. Bạn vẫn có thể tiếp tục chỉnh sửa thiệp hiện tại.', style: meta?.style ?? 'Theo cấu hình mẫu', styles: [], palette: meta?.palette ?? 'Theo cấu hình mẫu', sections: localConfig ? [...localConfig.sections] : sections, previewPath: previewPaths[selected.key], unavailable: true }
   }, [content, themes])
   const visible = useMemo(() => {
     const value = deferredQuery.trim().toLocaleLowerCase('vi')

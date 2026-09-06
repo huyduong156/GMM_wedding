@@ -3,6 +3,8 @@ import type { TemplateConfig } from './template-config'
 import { modernLuxeTemplateConfig } from './invitations/modern-luxe/template-config'
 import { verdantPromiseTemplateConfig } from './invitations/verdant-promise/template-config'
 import { chibiDaydreamTemplateConfig } from './invitations/chibi-daydream/template-config'
+import { peonyVerandaTemplateConfig } from './invitations/peony-veranda/template-config'
+import { peonyVerandaFixture } from './invitations/peony-veranda/fixture'
 import type { ModernLuxeData } from './invitations/modern-luxe/ModernLuxeInvitation'
 import { editorialVowsFixture } from './websites/editorial-vows/fixture'
 import { editorialVowsTemplateConfig } from './websites/editorial-vows/template-config'
@@ -28,6 +30,7 @@ export const invitationTemplateRegistry: Record<string, { config: TemplateConfig
   'modern-luxe': { config: modernLuxeTemplateConfig, fixture: modernLuxeEditorFixture },
   'verdant-promise': { config: verdantPromiseTemplateConfig, fixture: modernLuxeEditorFixture },
   'chibi-daydream': { config: chibiDaydreamTemplateConfig, fixture: modernLuxeEditorFixture },
+  'peony-veranda': { config: peonyVerandaTemplateConfig, fixture: peonyVerandaFixture as ModernLuxeData },
 }
 
 export const websiteTemplateRegistry: Record<string, { config: TemplateConfig; fixture: Record<string, unknown>; previewPath: string }> = {

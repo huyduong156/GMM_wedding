@@ -56,4 +56,11 @@ describe('InvitationEditorLivePage', () => {
     await waitFor(() => expect(save).toHaveBeenCalledWith(wedding.id, expect.objectContaining({ revision: 4, templateVersionId: '22222222-2222-4222-8222-222222222222', content: expect.objectContaining({ brideName: 'Lan Anh' }), themeConfig: { palette: 'sage' } })))
     expect((await screen.findAllByText('Đã lưu thay đổi.')).length).toBeGreaterThan(0)
   })
+  it('hydrates Peony Veranda sections and preview route for the live editor', async () => {
+    vi.spyOn(weddingApi, 'content').mockResolvedValue({ content: { content: {}, schemaVersion: 1, revision: 2, surface: 'ONLINE_INVITATION', themeConfig: { palette: 'peony-veranda' }, sectionConfig: { enabled: ['cover'], order: ['cover'] }, templateVersion: { id: '44444444-4444-4444-8444-444444444444', key: 'peony-veranda', version: '1.0.0', config: { sections: ['cover'] } } } })
+    render(<NavigationProvider><WeddingContext.Provider value={workspace}><InvitationEditorLivePage /></WeddingContext.Provider></NavigationProvider>)
+    expect(await screen.findByRole('button', { name: /^Banner cặp đôi/ })).toBeInTheDocument()
+    expect(screen.getByTitle(/Bản xem trước thiệp/)).toHaveAttribute('src', '/templates/invitations/peony-veranda/preview?editor=1')
+  })
+
 })

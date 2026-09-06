@@ -34,6 +34,7 @@ import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
 import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
 import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
+import { PeonyVerandaPreviewPage } from '../pages/public-invitation/ui/PeonyVerandaPreviewPage'
 import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVowsPreviewPage'
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
@@ -109,6 +110,7 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
+  if (pathname === publicTemplateRoutes.peonyVerandaPreview) return <PeonyVerandaPreviewPage />
   if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
   if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
   if (pathname === publicTemplateRoutes.enchantedForestPreview) return <EnchantedForestPreviewPage />
