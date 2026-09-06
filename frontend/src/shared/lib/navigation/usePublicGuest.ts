@@ -28,11 +28,14 @@ export function usePublicGuest({ weddingSlug, guestSlug }: Props): PublicGuestCo
 
     if (!guestSlug) {
       setLoading(false)
-      return () => { active = false }
+      return () => {
+        active = false
+      }
     }
 
     setLoading(true)
-    void weddingApi.publicInvitationGuest(weddingSlug, guestSlug)
+    void weddingApi
+      .publicInvitationGuest(weddingSlug, guestSlug)
       .then((result) => {
         if (!active) return
         setGuestName(result.invitation.guestName)
@@ -43,9 +46,13 @@ export function usePublicGuest({ weddingSlug, guestSlug }: Props): PublicGuestCo
         if (cause instanceof WeddingApiError && cause.status === 404) setNotFound(true)
         else setError(cause instanceof Error ? cause.message : 'Không thể tải thông tin khách mời.')
       })
-      .finally(() => { if (active) setLoading(false) })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
 
-    return () => { active = false }
+    return () => {
+      active = false
+    }
   }, [guestSlug, weddingSlug])
 
   return { guestName, guestSlug: guestSlug ?? null, maxPartySize, loading, notFound, error }

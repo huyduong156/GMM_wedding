@@ -58,6 +58,7 @@ export const publicTemplateRoutes = {
   modernLuxePreview: '/templates/invitations/modern-luxe/preview',
   verdantPromisePreview: '/templates/invitations/verdant-promise/preview',
   chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
+  peonyVerandaPreview: '/templates/invitations/peony-veranda/preview',
   editorialVowsPreview: '/templates/websites/editorial-vows/preview',
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
@@ -74,6 +75,9 @@ export const marketingRoutes = {
   resetPassword: '/reset-password',
 } as const
 
-export const statusRoutes = { unauthorized: '/401', forbidden: '/403', notFound: '/404', serverError: '/500' } as const
-
-
+export const statusRoutes = {
+  unauthorized: '/401',
+  forbidden: '/403',
+  notFound: '/404',
+  serverError: '/500',
+} as const

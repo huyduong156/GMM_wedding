@@ -1,7 +1,21 @@
 import { redSpiderLilyMediaContract } from './media-contract'
 
-const requiredSections = ['hero', 'ourStory', 'chapters', 'moments', 'photoDelivery', 'thankYou'] as const
-const optionalSections = ['guestbook', 'peopleBehindTheDay', 'weddingFilm', 'soundtrack', 'behindTheScenes', 'memoryCapsule'] as const
+const requiredSections = [
+  'hero',
+  'ourStory',
+  'chapters',
+  'moments',
+  'photoDelivery',
+  'thankYou',
+] as const
+const optionalSections = [
+  'guestbook',
+  'peopleBehindTheDay',
+  'weddingFilm',
+  'soundtrack',
+  'behindTheScenes',
+  'memoryCapsule',
+] as const
 const sectionLabels = {
   hero: 'Trang bìa recap',
   ourStory: 'Lời dẫn',
@@ -45,10 +59,42 @@ const sectionMediaRoles = {
   memoryCapsule: ['capsule', 'gallery'],
 } as const
 const repeatableSectionRules = {
-  chapters: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'editorial-timeline' },
-  moments: { repeatable: true, minItems: 1, maxItems: 12, itemMediaField: 'cover', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'asymmetric-grid' },
-  peopleBehindTheDay: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
-  behindTheScenes: { repeatable: true, minItems: 0, maxItems: 24, itemMediaField: 'media', galleryField: 'gallery', maxMediaPerItem: 12, interaction: 'horizontal-snap-rail-lightbox' },
+  chapters: {
+    repeatable: true,
+    minItems: 1,
+    maxItems: 12,
+    itemMediaField: 'cover',
+    galleryField: 'gallery',
+    maxMediaPerItem: 12,
+    interaction: 'editorial-timeline',
+  },
+  moments: {
+    repeatable: true,
+    minItems: 1,
+    maxItems: 12,
+    itemMediaField: 'cover',
+    galleryField: 'gallery',
+    maxMediaPerItem: 12,
+    interaction: 'asymmetric-grid',
+  },
+  peopleBehindTheDay: {
+    repeatable: true,
+    minItems: 0,
+    maxItems: 24,
+    itemMediaField: 'media',
+    galleryField: 'gallery',
+    maxMediaPerItem: 12,
+    interaction: 'horizontal-snap-rail-lightbox',
+  },
+  behindTheScenes: {
+    repeatable: true,
+    minItems: 0,
+    maxItems: 24,
+    itemMediaField: 'media',
+    galleryField: 'gallery',
+    maxMediaPerItem: 12,
+    interaction: 'horizontal-snap-rail-lightbox',
+  },
 } as const
 const photoDeliveryFields = {
   eyebrow: { type: 'string', label: 'Dong mo dau' },
@@ -70,20 +116,69 @@ export const redSpiderLilyRecapTemplateConfig = {
   type: 'recap',
   description: 'Wedding recap editorial về những ký ức còn nở lại sau ngày cưới.',
   previewPath: '/templates/recaps/red-spider-lily/preview',
-  capabilities: { seo: true, share: true, download: true, externalAlbumLinks: true, soundtrack: true, weddingFilm: true },
+  capabilities: {
+    seo: true,
+    share: true,
+    download: true,
+    externalAlbumLinks: true,
+    soundtrack: true,
+    weddingFilm: true,
+  },
   theme: {
     palettes: ['vermilion-paper', 'ink-ivory'],
-    default: { palette: 'vermilion-paper', motionLevel: 'EXPRESSIVE', galleryStyle: 'editorial-album-portal' },
-    identity: ['red-spider-lily', 'paper-grain', 'botanical-frame', 'chapter-bloom', 'floating-decor-set'],
+    default: {
+      palette: 'vermilion-paper',
+      motionLevel: 'EXPRESSIVE',
+      galleryStyle: 'editorial-album-portal',
+    },
+    identity: [
+      'red-spider-lily',
+      'paper-grain',
+      'botanical-frame',
+      'chapter-bloom',
+      'floating-decor-set',
+    ],
     artworkManifest: [
-      { file: 'red-spider-lily-botanical-cluster.png', role: 'organic-floating-decor', sections: ['hero', 'peopleBehindTheDay', 'behindTheScenes', 'thankYou'] },
-      { file: 'red-spider-lily-vow-prop.png', role: 'vow-supporting-prop', sections: ['ourStory', 'guestbook', 'memoryCapsule'] },
-      { file: 'red-spider-lily-petal-sprite.png', role: 'ambient-sprite-source-only', sections: ['backgroundAtmosphere'] },
-      { file: 'red-spider-lily-ring-prop-v2.png', role: 'ring-standalone-prop', sections: ['chapters', 'photoDelivery', 'soundtrack'] },
-      { file: 'red-spider-lily-film-ribbon-v2.png', role: 'film-ribbon-divider', sections: ['moments', 'weddingFilm', 'behindTheScenes'] },
-      { file: 'red-spider-lily-divider-thread-v2.png', role: 'section-transition-divider', sections: ['ourStory', 'chapters', 'peopleBehindTheDay', 'thankYou'] },
-      { file: 'red-spider-lily-light-leak-v2.png', role: 'light-atmosphere-overlay', sections: ['hero', 'photoDelivery', 'weddingFilm', 'memoryCapsule'] },
-      { file: 'red-spider-lily-topdown-bloom.png', role: 'top-down-floating-bloom', sections: ['hero', 'photoDelivery', 'behindTheScenes'] },
+      {
+        file: 'red-spider-lily-botanical-cluster.png',
+        role: 'organic-floating-decor',
+        sections: ['hero', 'peopleBehindTheDay', 'behindTheScenes', 'thankYou'],
+      },
+      {
+        file: 'red-spider-lily-vow-prop.png',
+        role: 'vow-supporting-prop',
+        sections: ['ourStory', 'guestbook', 'memoryCapsule'],
+      },
+      {
+        file: 'red-spider-lily-petal-sprite.png',
+        role: 'ambient-sprite-source-only',
+        sections: ['backgroundAtmosphere'],
+      },
+      {
+        file: 'red-spider-lily-ring-prop-v2.png',
+        role: 'ring-standalone-prop',
+        sections: ['chapters', 'photoDelivery', 'soundtrack'],
+      },
+      {
+        file: 'red-spider-lily-film-ribbon-v2.png',
+        role: 'film-ribbon-divider',
+        sections: ['moments', 'weddingFilm', 'behindTheScenes'],
+      },
+      {
+        file: 'red-spider-lily-divider-thread-v2.png',
+        role: 'section-transition-divider',
+        sections: ['ourStory', 'chapters', 'peopleBehindTheDay', 'thankYou'],
+      },
+      {
+        file: 'red-spider-lily-light-leak-v2.png',
+        role: 'light-atmosphere-overlay',
+        sections: ['hero', 'photoDelivery', 'weddingFilm', 'memoryCapsule'],
+      },
+      {
+        file: 'red-spider-lily-topdown-bloom.png',
+        role: 'top-down-floating-bloom',
+        sections: ['hero', 'photoDelivery', 'behindTheScenes'],
+      },
     ],
   },
   mediaContract: redSpiderLilyMediaContract,
@@ -118,8 +213,34 @@ export const redSpiderLilyRecapTemplateConfig = {
     },
   },
   sections: [
-    ...requiredSections.map((sectionKey, index) => ({ sectionKey, label: sectionLabels[sectionKey], required: true, canToggle: false, canReorder: index > 0 && index < requiredSections.length - 1, layouts: sectionLayoutOptions[sectionKey], defaultLayout: sectionLayoutOptions[sectionKey][0], mediaRoles: sectionMediaRoles[sectionKey], ...(sectionKey === 'photoDelivery' ? { fields: photoDeliveryFields } : {}), ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? { repeatable: false }) })),
-    ...optionalSections.map((sectionKey) => ({ sectionKey, label: sectionLabels[sectionKey], required: false, canToggle: true, canReorder: true, defaultEnabled: false, layouts: sectionLayoutOptions[sectionKey], defaultLayout: sectionLayoutOptions[sectionKey][0], mediaRoles: sectionMediaRoles[sectionKey], ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? { repeatable: false }) })),
+    ...requiredSections.map((sectionKey, index) => ({
+      sectionKey,
+      label: sectionLabels[sectionKey],
+      required: true,
+      canToggle: false,
+      canReorder: index > 0 && index < requiredSections.length - 1,
+      layouts: sectionLayoutOptions[sectionKey],
+      defaultLayout: sectionLayoutOptions[sectionKey][0],
+      mediaRoles: sectionMediaRoles[sectionKey],
+      ...(sectionKey === 'photoDelivery' ? { fields: photoDeliveryFields } : {}),
+      ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? {
+        repeatable: false,
+      }),
+    })),
+    ...optionalSections.map((sectionKey) => ({
+      sectionKey,
+      label: sectionLabels[sectionKey],
+      required: false,
+      canToggle: true,
+      canReorder: true,
+      defaultEnabled: false,
+      layouts: sectionLayoutOptions[sectionKey],
+      defaultLayout: sectionLayoutOptions[sectionKey][0],
+      mediaRoles: sectionMediaRoles[sectionKey],
+      ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? {
+        repeatable: false,
+      }),
+    })),
   ],
   authoring: {
     phase: 5,

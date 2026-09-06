@@ -1,0 +1,7 @@
+node_modules
+.next
+coverage
+dist
+public/swagger-ui-assets
+*.min.js
+next-env.d.ts

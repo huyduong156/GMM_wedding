@@ -1,1 +1,108 @@
-.recap-repeatable-panel{margin-top:28px;border:1px solid #d7e1e3;background:#f7faf9;padding:16px}.recap-repeatable-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.recap-repeatable-heading div{display:grid;gap:5px}.recap-repeatable-heading strong{font-size:13px;color:#243946}.recap-repeatable-heading small,.recap-count-control small,.recap-repeatable-overflow{color:#83939a;font-size:11px}.recap-add-button,.recap-media-control{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbdadd;background:#fff;padding:9px 10px;color:#536c75;font-size:11px;cursor:pointer}.recap-add-button{color:#8b5e26;border-color:#d6bb96}.recap-count-control{display:flex;align-items:center;gap:8px;margin:16px 0 10px;color:#43565f;font-size:12px}.recap-count-control span{margin-right:auto;font-weight:700}.recap-count-control button,.recap-gallery-control button{display:grid;width:30px;height:30px;place-items:center;border:1px solid #ccdadd;background:#fff;color:#536c75;cursor:pointer}.recap-repeatable-list{display:grid;gap:8px}.recap-repeatable-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px;background:#fff;border:1px solid #e0e8e8}.recap-repeatable-item>div:first-child{display:grid;gap:3px}.recap-repeatable-item small{color:#83939a;font-size:10px}.recap-gallery-control{grid-column:1/-1;display:flex;align-items:center;gap:6px;color:#61727a;font-size:11px}.recap-gallery-control span{margin-right:auto}.recap-repeatable-overflow{display:block;margin-top:10px}.recap-add-button:focus-visible,.recap-media-control:focus-visible,.recap-count-control button:focus-visible,.recap-gallery-control button:focus-visible{outline:2px solid #b18046;outline-offset:2px}
+.recap-repeatable-panel {
+  margin-top: 28px;
+  border: 1px solid #d7e1e3;
+  background: #f7faf9;
+  padding: 16px;
+}
+.recap-repeatable-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.recap-repeatable-heading div {
+  display: grid;
+  gap: 5px;
+}
+.recap-repeatable-heading strong {
+  font-size: 13px;
+  color: #243946;
+}
+.recap-repeatable-heading small,
+.recap-count-control small,
+.recap-repeatable-overflow {
+  color: #83939a;
+  font-size: 11px;
+}
+.recap-add-button,
+.recap-media-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cbdadd;
+  background: #fff;
+  padding: 9px 10px;
+  color: #536c75;
+  font-size: 11px;
+  cursor: pointer;
+}
+.recap-add-button {
+  color: #8b5e26;
+  border-color: #d6bb96;
+}
+.recap-count-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 10px;
+  color: #43565f;
+  font-size: 12px;
+}
+.recap-count-control span {
+  margin-right: auto;
+  font-weight: 700;
+}
+.recap-count-control button,
+.recap-gallery-control button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #ccdadd;
+  background: #fff;
+  color: #536c75;
+  cursor: pointer;
+}
+.recap-repeatable-list {
+  display: grid;
+  gap: 8px;
+}
+.recap-repeatable-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #e0e8e8;
+}
+.recap-repeatable-item > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+.recap-repeatable-item small {
+  color: #83939a;
+  font-size: 10px;
+}
+.recap-gallery-control {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #61727a;
+  font-size: 11px;
+}
+.recap-gallery-control span {
+  margin-right: auto;
+}
+.recap-repeatable-overflow {
+  display: block;
+  margin-top: 10px;
+}
+.recap-add-button:focus-visible,
+.recap-media-control:focus-visible,
+.recap-count-control button:focus-visible,
+.recap-gallery-control button:focus-visible {
+  outline: 2px solid #b18046;
+  outline-offset: 2px;
+}

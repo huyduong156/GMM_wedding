@@ -9,7 +9,13 @@ export type AuthContextValue = {
   checkUserSession: () => Promise<boolean>
   checkAdminSession: () => Promise<boolean>
   logout: () => Promise<void>
-  updateProfile: (input: { displayName?: string | null; phone?: string | null; avatarUrl?: string | null; locale?: string; timezone?: string }) => Promise<void>
+  updateProfile: (input: {
+    displayName?: string | null
+    phone?: string | null
+    avatarUrl?: string | null
+    locale?: string
+    timezone?: string
+  }) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
@@ -18,4 +24,6 @@ export function useAuth() {
   if (!context) throw new Error('useAuth must be used inside AuthProvider')
   return context
 }
-export function useOptionalAuth() { return useContext(AuthContext) }
+export function useOptionalAuth() {
+  return useContext(AuthContext)
+}

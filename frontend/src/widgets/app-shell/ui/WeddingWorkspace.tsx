@@ -7,8 +7,23 @@ import { AppShell } from './AppShell'
 
 function ConnectedWorkspace({ children }: { children: ReactNode }) {
   const { activeWedding, loading, error, refresh } = useWeddingWorkspace()
-  if (loading) return <main className="workspace-boot" role="status"><span /><p>Đang chuẩn bị không gian cưới…</p></main>
-  if (error) return <main className="workspace-boot"><h1>Chưa thể mở không gian cưới</h1><p>{error}</p><button className="button button-primary" onClick={() => void refresh()}>Thử lại</button></main>
+  if (loading)
+    return (
+      <main className="workspace-boot" role="status">
+        <span />
+        <p>Đang chuẩn bị không gian cưới…</p>
+      </main>
+    )
+  if (error)
+    return (
+      <main className="workspace-boot">
+        <h1>Chưa thể mở không gian cưới</h1>
+        <p>{error}</p>
+        <button className="button button-primary" onClick={() => void refresh()}>
+          Thử lại
+        </button>
+      </main>
+    )
   if (!activeWedding) return <WeddingOnboardingPage />
   return <AppShell>{children}</AppShell>
 }
@@ -16,5 +31,9 @@ function ConnectedWorkspace({ children }: { children: ReactNode }) {
 export function WeddingWorkspace({ children }: { children: ReactNode }) {
   const auth = useOptionalAuth()
   if (!auth) return <AppShell>{children}</AppShell>
-  return <WeddingProvider><ConnectedWorkspace>{children}</ConnectedWorkspace></WeddingProvider>
+  return (
+    <WeddingProvider>
+      <ConnectedWorkspace>{children}</ConnectedWorkspace>
+    </WeddingProvider>
+  )
 }

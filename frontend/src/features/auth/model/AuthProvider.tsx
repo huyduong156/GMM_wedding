@@ -9,7 +9,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const adminSessionCheck = useRef<Promise<boolean> | null>(null)
   const login = useCallback(async (email: string, password: string) => {
     const result = await authApi.login(email, password)
-    setUser(result.user); setAdminActor(null)
+    setUser(result.user)
+    setAdminActor(null)
   }, [])
   const loginAdmin = useCallback(async (email: string, password: string) => {
     const result = await authApi.loginAdmin(email, password)
@@ -18,28 +19,80 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkUserSession = useCallback(() => {
     if (!userSessionCheck.current) {
       userSessionCheck.current = (async () => {
-        try { const result = await authApi.me(); setUser(result.user); return true }
-        catch { setUser(null); return false }
-      })().finally(() => { userSessionCheck.current = null })
+        try {
+          const result = await authApi.me()
+          setUser(result.user)
+          return true
+        } catch {
+          setUser(null)
+          return false
+        }
+      })().finally(() => {
+        userSessionCheck.current = null
+      })
     }
     return userSessionCheck.current
   }, [])
   const checkAdminSession = useCallback(() => {
     if (!adminSessionCheck.current) {
       adminSessionCheck.current = (async () => {
-        try { const result = await authApi.adminMe(); setUser(result.user); setAdminActor(result.actor); return true }
-        catch { setAdminActor(null); return false }
-      })().finally(() => { adminSessionCheck.current = null })
+        try {
+          const result = await authApi.adminMe()
+          setUser(result.user)
+          setAdminActor(result.actor)
+          return true
+        } catch {
+          setAdminActor(null)
+          return false
+        }
+      })().finally(() => {
+        adminSessionCheck.current = null
+      })
     }
     return adminSessionCheck.current
   }, [])
   const logout = useCallback(async () => {
-    try { await authApi.logout() } finally { setUser(null); setAdminActor(null) }
+    try {
+      await authApi.logout()
+    } finally {
+      setUser(null)
+      setAdminActor(null)
+    }
   }, [])
-  const updateProfile = useCallback(async (input: { displayName?: string | null; phone?: string | null; avatarUrl?: string | null; locale?: string; timezone?: string }) => {
-    const result = await authApi.updateProfile(input)
-    setUser(result.user)
-  }, [])
-  const value = useMemo<AuthContextValue>(() => ({ user, adminActor, login, loginAdmin, checkUserSession, checkAdminSession, logout, updateProfile }), [adminActor, checkAdminSession, checkUserSession, login, loginAdmin, logout, updateProfile, user])
+  const updateProfile = useCallback(
+    async (input: {
+      displayName?: string | null
+      phone?: string | null
+      avatarUrl?: string | null
+      locale?: string
+      timezone?: string
+    }) => {
+      const result = await authApi.updateProfile(input)
+      setUser(result.user)
+    },
+    [],
+  )
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      adminActor,
+      login,
+      loginAdmin,
+      checkUserSession,
+      checkAdminSession,
+      logout,
+      updateProfile,
+    }),
+    [
+      adminActor,
+      checkAdminSession,
+      checkUserSession,
+      login,
+      loginAdmin,
+      logout,
+      updateProfile,
+      user,
+    ],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -28,12 +28,18 @@ import { RsvpsPageConnected } from '../pages/rsvps/ui/RsvpsPageConnected'
 import { WishesPageConnected } from '../pages/wishes/ui/WishesPageConnected'
 import { AnalyticsPage } from '../pages/analytics/ui/AnalyticsPage'
 import { useNavigation } from '../shared/lib/navigation/navigation-context'
-import { adminRoutes, legacyStudioRoutes, marketingRoutes, studioRoutes } from '../shared/config/routes'
+import {
+  adminRoutes,
+  legacyStudioRoutes,
+  marketingRoutes,
+  studioRoutes,
+} from '../shared/config/routes'
 import { WeddingWorkspace } from '../widgets/app-shell/ui/WeddingWorkspace'
 import { AdminShell } from '../widgets/admin-shell/ui/AdminShell'
 import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxePreviewPage'
 import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
 import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
+import { PeonyVerandaPreviewPage } from '../pages/public-invitation/ui/PeonyVerandaPreviewPage'
 import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVowsPreviewPage'
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
@@ -83,9 +89,20 @@ const adminPageNames: Record<string, string> = {
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false }
-  static getDerivedStateFromError() { return { hasError: true } }
-  componentDidCatch(error: Error, info: ErrorInfo) { void error; void info }
-  render() { return this.state.hasError ? <StatusPage kind="server-error" onRetry={() => window.location.reload()} /> : this.props.children }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    void error
+    void info
+  }
+  render() {
+    return this.state.hasError ? (
+      <StatusPage kind="server-error" onRetry={() => window.location.reload()} />
+    ) : (
+      this.props.children
+    )
+  }
 }
 
 function AppContent() {
@@ -109,17 +126,31 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
+  if (pathname === publicTemplateRoutes.peonyVerandaPreview) return <PeonyVerandaPreviewPage />
   if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
   if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
-  if (pathname === publicTemplateRoutes.enchantedForestPreview) return <EnchantedForestPreviewPage />
-  if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview) return <CherryBlossomGardenPreviewPage />
-  if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview) return <RedSpiderLilyRecapPreviewPage />
+  if (pathname === publicTemplateRoutes.enchantedForestPreview)
+    return <EnchantedForestPreviewPage />
+  if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview)
+    return <CherryBlossomGardenPreviewPage />
+  if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview)
+    return <RedSpiderLilyRecapPreviewPage />
   const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
-  if (publicInvitationMatch) return <PublicInvitationPage weddingSlug={decodeURIComponent(publicInvitationMatch[1])} guestSlug={publicInvitationMatch[2] ? decodeURIComponent(publicInvitationMatch[2]) : undefined} />
+  if (publicInvitationMatch)
+    return (
+      <PublicInvitationPage
+        weddingSlug={decodeURIComponent(publicInvitationMatch[1])}
+        guestSlug={
+          publicInvitationMatch[2] ? decodeURIComponent(publicInvitationMatch[2]) : undefined
+        }
+      />
+    )
   const publicWebsiteMatch = pathname.match(/^\/([^/]+)\/website\/?$/)
-  if (publicWebsiteMatch) return <PublicWebsitePage weddingSlug={decodeURIComponent(publicWebsiteMatch[1])} />
+  if (publicWebsiteMatch)
+    return <PublicWebsitePage weddingSlug={decodeURIComponent(publicWebsiteMatch[1])} />
   const publicWeddingRecapMatch = pathname.match(/^\/([^/]+)\/recaps\/?$/)
-  if (publicWeddingRecapMatch) return <PublicRecapPage slug={decodeURIComponent(publicWeddingRecapMatch[1])} />
+  if (publicWeddingRecapMatch)
+    return <PublicRecapPage slug={decodeURIComponent(publicWeddingRecapMatch[1])} />
   const publicRecapMatch = pathname.match(/^\/public\/recaps\/([^/]+)\/?$/)
   if (publicRecapMatch) return <PublicRecapPage slug={decodeURIComponent(publicRecapMatch[1])} />
   if (pathname === adminRoutes.login) return <AdminLoginPage />
@@ -127,36 +158,49 @@ function AppContent() {
   if (statusKind) return <StatusPage kind={statusKind} />
 
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {
-    const content = pathname === adminRoutes.home
-      ? <AdminDashboardPage />
-      : pathname === adminRoutes.users
-        ? <AdminUsersPage />
-      : pathname === adminRoutes.inviteLibrary
-        ? <AdminTemplatesApiPage kind="invitation" />
-        : pathname === adminRoutes.websiteLibrary
-          ? <AdminTemplatesApiPage kind="website" />
-        : pathname === adminRoutes.recapLibrary
-          ? <AdminTemplatesApiPage kind="recap" />
-        : pathname === adminRoutes.music
-          ? <AdminMusicPage />
-        : pathname === adminRoutes.styles
-          ? <AdminStylesPage />
-        : <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
-    return <AuthGate surface="admin"><AdminShell>{content}</AdminShell></AuthGate>
+    const content =
+      pathname === adminRoutes.home ? (
+        <AdminDashboardPage />
+      ) : pathname === adminRoutes.users ? (
+        <AdminUsersPage />
+      ) : pathname === adminRoutes.inviteLibrary ? (
+        <AdminTemplatesApiPage kind="invitation" />
+      ) : pathname === adminRoutes.websiteLibrary ? (
+        <AdminTemplatesApiPage kind="website" />
+      ) : pathname === adminRoutes.recapLibrary ? (
+        <AdminTemplatesApiPage kind="recap" />
+      ) : pathname === adminRoutes.music ? (
+        <AdminMusicPage />
+      ) : pathname === adminRoutes.styles ? (
+        <AdminStylesPage />
+      ) : (
+        <AdminPlaceholderPage title={adminPageNames[pathname] ?? 'Không tìm thấy trang'} />
+      )
+    return (
+      <AuthGate surface="admin">
+        <AdminShell>{content}</AdminShell>
+      </AuthGate>
+    )
   }
 
   const content = studioPages[pathname]
   if (content) {
-    const connectedContent = pathname === studioRoutes.home && auth ? <WeddingDashboardPage /> : content
-    return <AuthGate surface="studio"><WeddingWorkspace>{connectedContent}</WeddingWorkspace></AuthGate>
+    const connectedContent =
+      pathname === studioRoutes.home && auth ? <WeddingDashboardPage /> : content
+    return (
+      <AuthGate surface="studio">
+        <WeddingWorkspace>{connectedContent}</WeddingWorkspace>
+      </AuthGate>
+    )
   }
 
   return <StatusPage kind="not-found" />
 }
 
 export function App() {
-  return <AppErrorBoundary><AppContent /></AppErrorBoundary>
+  return (
+    <AppErrorBoundary>
+      <AppContent />
+    </AppErrorBoundary>
+  )
 }
-
-
-

@@ -1,3 +1,29 @@
-export type CherrySectionKey='navigation'|'hero'|'announcement'|'couple'|'story'|'events'|'countdown'|'venues'|'gallery'|'schedule'|'dressCode'|'faq'|'rsvp'|'guestbook'|'footer'
-export type CherrySectionConfig={enabled:CherrySectionKey[];order:CherrySectionKey[]}
-export type CherryBlossomData={hero:{brideName:string;groomName:string;date:string;venue:string};announcement:{title:string;message:string};couple:Array<{name:string;role:string;bio:string;image:string}>;story:Array<{year:string;title:string;body:string;image:string}>;events:Array<{date:string;time:string;title:string;venue:string;address:string}>;gallery:Array<{src:string;alt:string}>;schedule:Array<{time:string;title:string;detail:string}>;faq:Array<{question:string;answer:string}>;guestbook:Array<{author:string;message:string}>;footer:{message:string;signature:string}}
+export type CherrySectionKey =
+  | 'navigation'
+  | 'hero'
+  | 'announcement'
+  | 'couple'
+  | 'story'
+  | 'events'
+  | 'countdown'
+  | 'venues'
+  | 'gallery'
+  | 'schedule'
+  | 'dressCode'
+  | 'faq'
+  | 'rsvp'
+  | 'guestbook'
+  | 'footer'
+export type CherrySectionConfig = { enabled: CherrySectionKey[]; order: CherrySectionKey[] }
+export type CherryBlossomData = {
+  hero: { brideName: string; groomName: string; date: string; venue: string }
+  announcement: { title: string; message: string }
+  couple: Array<{ name: string; role: string; bio: string; image: string }>
+  story: Array<{ year: string; title: string; body: string; image: string }>
+  events: Array<{ date: string; time: string; title: string; venue: string; address: string }>
+  gallery: Array<{ src: string; alt: string }>
+  schedule: Array<{ time: string; title: string; detail: string }>
+  faq: Array<{ question: string; answer: string }>
+  guestbook: Array<{ author: string; message: string }>
+  footer: { message: string; signature: string }
+}

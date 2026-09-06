@@ -1,53 +1,739 @@
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowClockwise, CheckCircle, DotsThree, MagnifyingGlass, ShieldCheck, UserPlus, UsersThree, WarningCircle, X } from '@phosphor-icons/react'
+import {
+  ArrowClockwise,
+  CheckCircle,
+  DotsThree,
+  MagnifyingGlass,
+  ShieldCheck,
+  UserPlus,
+  UsersThree,
+  WarningCircle,
+  X,
+} from '@phosphor-icons/react'
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { AdminUserApiError, adminUserApi, type AdminAuditLog, type AdminUser, type AdminUserRole, type AdminUserStatus } from '../../../shared/api/admin-users'
+import {
+  AdminUserApiError,
+  adminUserApi,
+  type AdminAuditLog,
+  type AdminUser,
+  type AdminUserRole,
+  type AdminUserStatus,
+} from '../../../shared/api/admin-users'
 
-const statusLabels: Record<AdminUserStatus, string> = { ACTIVE: 'Hoạt động', PENDING_VERIFICATION: 'Chờ xác minh', SUSPENDED: 'Tạm khóa' }
-const roleLabels: Record<AdminUserRole, string> = { ADMIN: 'Quản trị viên', SUPPORT: 'Hỗ trợ', MODERATOR: 'Kiểm duyệt' }
-const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '—'
-const initials = (user: AdminUser) => (user.displayName ?? user.email).split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()
-const errorText = (error: unknown) => error instanceof AdminUserApiError ? error.message : 'Không thể kết nối đến máy chủ. Vui lòng thử lại.'
+const statusLabels: Record<AdminUserStatus, string> = {
+  ACTIVE: 'Hoạt động',
+  PENDING_VERIFICATION: 'Chờ xác minh',
+  SUSPENDED: 'Tạm khóa',
+}
+const roleLabels: Record<AdminUserRole, string> = {
+  ADMIN: 'Quản trị viên',
+  SUPPORT: 'Hỗ trợ',
+  MODERATOR: 'Kiểm duyệt',
+}
+const dateLabel = (value: string | null) =>
+  value
+    ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(
+        new Date(value),
+      )
+    : '—'
+const initials = (user: AdminUser) =>
+  (user.displayName ?? user.email)
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+const errorText = (error: unknown) =>
+  error instanceof AdminUserApiError
+    ? error.message
+    : 'Không thể kết nối đến máy chủ. Vui lòng thử lại.'
 
 export function AdminUsersPage() {
-  const [query, setQuery] = useState(''), [status, setStatus] = useState<AdminUserStatus | 'ALL'>('ALL'), [role, setRole] = useState<AdminUserRole | 'ALL'>('ALL')
-  const [data, setData] = useState<{ items: AdminUser[]; nextCursor: string | null; summary: { total: number; active: number; pendingVerification: number; suspended: number } } | null>(null)
-  const [loading, setLoading] = useState(true), [error, setError] = useState(''), [selected, setSelected] = useState<string[]>([]), [cursorStack, setCursorStack] = useState<string[]>([])
-  const [detail, setDetail] = useState<AdminUser | null>(null), [audit, setAudit] = useState<AdminAuditLog[]>([]), [detailLoading, setDetailLoading] = useState(false), [working, setWorking] = useState('')
-  const [inviteOpen, setInviteOpen] = useState(false), [inviteEmail, setInviteEmail] = useState(''), [inviteName, setInviteName] = useState(''), [inviteError, setInviteError] = useState('')
+  const [query, setQuery] = useState(''),
+    [status, setStatus] = useState<AdminUserStatus | 'ALL'>('ALL'),
+    [role, setRole] = useState<AdminUserRole | 'ALL'>('ALL')
+  const [data, setData] = useState<{
+    items: AdminUser[]
+    nextCursor: string | null
+    summary: { total: number; active: number; pendingVerification: number; suspended: number }
+  } | null>(null)
+  const [loading, setLoading] = useState(true),
+    [error, setError] = useState(''),
+    [selected, setSelected] = useState<string[]>([]),
+    [cursorStack, setCursorStack] = useState<string[]>([])
+  const [detail, setDetail] = useState<AdminUser | null>(null),
+    [audit, setAudit] = useState<AdminAuditLog[]>([]),
+    [detailLoading, setDetailLoading] = useState(false),
+    [working, setWorking] = useState('')
+  const [inviteOpen, setInviteOpen] = useState(false),
+    [inviteEmail, setInviteEmail] = useState(''),
+    [inviteName, setInviteName] = useState(''),
+    [inviteError, setInviteError] = useState('')
   const searchTimer = useRef<number | undefined>(undefined)
-  const load = useCallback(async (cursor?: string) => { setLoading(true); setError(''); try { const result = await adminUserApi.list({ q: query.trim() || undefined, status: status === 'ALL' ? undefined : status, role: role === 'ALL' ? undefined : role, cursor }); setData(result); setSelected([]) } catch (cause) { setError(errorText(cause)) } finally { setLoading(false) } }, [query, role, status])
-  useEffect(() => { window.clearTimeout(searchTimer.current); searchTimer.current = window.setTimeout(() => { setCursorStack([]); void load() }, 260); return () => window.clearTimeout(searchTimer.current) }, [load])
+  const load = useCallback(
+    async (cursor?: string) => {
+      setLoading(true)
+      setError('')
+      try {
+        const result = await adminUserApi.list({
+          q: query.trim() || undefined,
+          status: status === 'ALL' ? undefined : status,
+          role: role === 'ALL' ? undefined : role,
+          cursor,
+        })
+        setData(result)
+        setSelected([])
+      } catch (cause) {
+        setError(errorText(cause))
+      } finally {
+        setLoading(false)
+      }
+    },
+    [query, role, status],
+  )
+  useEffect(() => {
+    window.clearTimeout(searchTimer.current)
+    searchTimer.current = window.setTimeout(() => {
+      setCursorStack([])
+      void load()
+    }, 260)
+    return () => window.clearTimeout(searchTimer.current)
+  }, [load])
   const users = data?.items ?? []
   const allSelected = users.length > 0 && users.every((user) => selected.includes(user.id))
-  const toggleAll = () => setSelected((current) => allSelected ? current.filter((id) => !users.some((user) => user.id === id)) : [...new Set([...current, ...users.map((user) => user.id)])])
-  const toggleUser = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
-  const openDetail = async (user: AdminUser) => { setDetail(user); setAudit([]); setDetailLoading(true); try { const [userResult, auditResult] = await Promise.all([adminUserApi.detail(user.id), adminUserApi.audit(user.id)]); setDetail(userResult.user); setAudit(auditResult.items) } catch (cause) { setError(errorText(cause)) } finally { setDetailLoading(false) } }
-  const mutate = async (key: string, action: () => Promise<unknown>) => { setWorking(key); try { await action(); await load(cursorStack.at(-1)); await notifications.success('Đã cập nhật tài khoản'); if (detail?.id === key) { const updated = await adminUserApi.detail(key); setDetail(updated.user) } } catch (cause) { setError(errorText(cause)) } finally { setWorking('') } }
-  const bulk = async (nextStatus: AdminUserStatus) => { if (!selected.length || !window.confirm(`Xác nhận chuyển ${selected.length} tài khoản sang “${statusLabels[nextStatus]}”?`)) return; await mutate('bulk', () => adminUserApi.bulkStatus(selected, nextStatus)) }
-  const invite = async (event: React.FormEvent) => { event.preventDefault(); setInviteError(''); setWorking('invite'); try { await adminUserApi.invite({ email: inviteEmail.trim(), ...(inviteName.trim() ? { displayName: inviteName.trim() } : {}) }); setInviteOpen(false); setInviteEmail(''); setInviteName(''); await load(cursorStack.at(-1)); await notifications.success('Đã gửi lời mời người dùng') } catch (cause) { setInviteError(errorText(cause)) } finally { setWorking('') } }
+  const toggleAll = () =>
+    setSelected((current) =>
+      allSelected
+        ? current.filter((id) => !users.some((user) => user.id === id))
+        : [...new Set([...current, ...users.map((user) => user.id)])],
+    )
+  const toggleUser = (id: string) =>
+    setSelected((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    )
+  const openDetail = async (user: AdminUser) => {
+    setDetail(user)
+    setAudit([])
+    setDetailLoading(true)
+    try {
+      const [userResult, auditResult] = await Promise.all([
+        adminUserApi.detail(user.id),
+        adminUserApi.audit(user.id),
+      ])
+      setDetail(userResult.user)
+      setAudit(auditResult.items)
+    } catch (cause) {
+      setError(errorText(cause))
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+  const mutate = async (key: string, action: () => Promise<unknown>) => {
+    setWorking(key)
+    try {
+      await action()
+      await load(cursorStack.at(-1))
+      await notifications.success('Đã cập nhật tài khoản')
+      if (detail?.id === key) {
+        const updated = await adminUserApi.detail(key)
+        setDetail(updated.user)
+      }
+    } catch (cause) {
+      setError(errorText(cause))
+    } finally {
+      setWorking('')
+    }
+  }
+  const bulk = async (nextStatus: AdminUserStatus) => {
+    if (
+      !selected.length ||
+      !window.confirm(
+        `Xác nhận chuyển ${selected.length} tài khoản sang “${statusLabels[nextStatus]}”?`,
+      )
+    )
+      return
+    await mutate('bulk', () => adminUserApi.bulkStatus(selected, nextStatus))
+  }
+  const invite = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setInviteError('')
+    setWorking('invite')
+    try {
+      await adminUserApi.invite({
+        email: inviteEmail.trim(),
+        ...(inviteName.trim() ? { displayName: inviteName.trim() } : {}),
+      })
+      setInviteOpen(false)
+      setInviteEmail('')
+      setInviteName('')
+      await load(cursorStack.at(-1))
+      await notifications.success('Đã gửi lời mời người dùng')
+    } catch (cause) {
+      setInviteError(errorText(cause))
+    } finally {
+      setWorking('')
+    }
+  }
   const pageLabel = cursorStack.length + 1
   const summary = data?.summary ?? { total: 0, active: 0, pendingVerification: 0, suspended: 0 }
 
-  return <div className="admin-dashboard admin-users-page">
-    <header className="admin-page-heading"><div><p>Quản lý nền tảng <span>/</span> Người dùng</p><h1>Quản lý người dùng</h1><span>Tìm kiếm tài khoản, kiểm tra trạng thái và xử lý quyền truy cập.</span></div><button className="button button-primary" type="button" onClick={() => setInviteOpen(true)}><UserPlus size={18} /> Mời người dùng</button></header>
-    <section className="admin-user-summary" aria-label="Tổng quan người dùng"><div><strong>{summary.total.toLocaleString('vi-VN')}</strong><span>Tổng tài khoản</span></div><div><strong>{summary.active.toLocaleString('vi-VN')}</strong><span>Đang hoạt động</span></div><div><strong>{summary.pendingVerification.toLocaleString('vi-VN')}</strong><span>Chờ xác minh</span></div><div><strong>{summary.suspended.toLocaleString('vi-VN')}</strong><span>Đang tạm khóa</span></div></section>
-    <section className="admin-panel admin-users-panel">
-      <div className="admin-users-toolbar"><label className="admin-users-search"><span className="sr-only">Tìm người dùng</span><MagnifyingGlass size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên hoặc email" /></label><label className="admin-filter-select"><span className="sr-only">Lọc trạng thái</span><NativeSelectField value={status} onChange={(event) => setStatus(event.target.value as AdminUserStatus | 'ALL')}><option value="ALL">Tất cả trạng thái</option><option value="ACTIVE">Hoạt động</option><option value="PENDING_VERIFICATION">Chờ xác minh</option><option value="SUSPENDED">Tạm khóa</option></NativeSelectField></label><label className="admin-filter-select"><span className="sr-only">Lọc vai trò</span><NativeSelectField value={role} onChange={(event) => setRole(event.target.value as AdminUserRole | 'ALL')}><option value="ALL">Tất cả vai trò</option>{Object.entries(roleLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</NativeSelectField></label></div>
-      {selected.length > 0 && <div className="admin-bulk-bar" role="status"><strong>{selected.length} người dùng đã chọn</strong><div><button type="button" disabled={working === 'bulk'} onClick={() => void bulk('SUSPENDED')}>Tạm khóa</button><button type="button" disabled={working === 'bulk'} onClick={() => void bulk('ACTIVE')}>Mở khóa</button><button type="button" onClick={() => setSelected([])}>Bỏ chọn</button></div></div>}
-      {loading ? <div className="admin-users-state" role="status">Đang tải danh sách người dùng…</div> : error ? <div className="admin-users-state"><WarningCircle size={28} /><h2>Chưa tải được danh sách</h2><p>{error}</p><button type="button" onClick={() => void load(cursorStack.at(-1))}><ArrowClockwise /> Thử lại</button></div> : users.length ? <><div className="admin-table-wrap admin-users-table"><table aria-label="Danh sách người dùng"><thead><tr><th className="admin-check-cell"><input type="checkbox" aria-label="Chọn tất cả người dùng đang hiển thị" checked={allSelected} onChange={toggleAll} /></th><th>Người dùng</th><th>Vai trò</th><th>Wedding</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th><span className="sr-only">Thao tác</span></th></tr></thead><tbody>{users.map((user) => <UserRow key={user.id} user={user} checked={selected.includes(user.id)} onToggle={() => toggleUser(user.id)} onOpen={() => void openDetail(user)} />)}</tbody></table></div><div className="admin-user-cards" aria-label="Danh sách người dùng trên di động">{users.map((user) => <UserCard key={user.id} user={user} checked={selected.includes(user.id)} onToggle={() => toggleUser(user.id)} onOpen={() => void openDetail(user)} />)}</div><footer className="admin-users-footer"><span>Hiển thị {users.length} tài khoản</span><div><button type="button" disabled={!cursorStack.length || loading} onClick={() => { const next = [...cursorStack]; next.pop(); setCursorStack(next); void load(next.at(-1)) }}>Trước</button><strong>Trang {pageLabel}</strong><button type="button" disabled={!data?.nextCursor || loading} onClick={() => { if (!data?.nextCursor) return; setCursorStack([...cursorStack, data.nextCursor]); void load(data.nextCursor) }}>Sau</button></div></footer></> : <div className="admin-users-state"><UsersThree size={28} /><h2>Không tìm thấy người dùng</h2><p>Thử đổi từ khóa hoặc bộ lọc đang áp dụng.</p><button type="button" onClick={() => { setQuery(''); setStatus('ALL'); setRole('ALL') }}>Xóa bộ lọc</button></div>}
-    </section>
-    {detail && <UserDrawer user={detail} audit={audit} loading={detailLoading} working={working} close={() => setDetail(null)} onStatus={(next) => void mutate(detail.id, () => adminUserApi.update(detail.id, { status: next }))} onRoles={(roles) => void mutate(detail.id, () => adminUserApi.update(detail.id, { roles }))} onResend={() => void mutate(detail.id, () => adminUserApi.resendVerification(detail.id))} onRevoke={() => { if (window.confirm('Thu hồi toàn bộ phiên đăng nhập của tài khoản này?')) void mutate(detail.id, () => adminUserApi.revokeSessions(detail.id)) }} />}
-    {inviteOpen && <div className="admin-user-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setInviteOpen(false) }}><form className="admin-user-modal" onSubmit={(event) => void invite(event)}><header><div><h2>Mời người dùng</h2><p>Gửi email xác minh để tạo tài khoản mới.</p></div><button type="button" aria-label="Đóng" onClick={() => setInviteOpen(false)}><X /></button></header><label>Email<input required type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="ten@example.com" /></label><label>Tên hiển thị <span>(không bắt buộc)</span><input value={inviteName} onChange={(event) => setInviteName(event.target.value)} placeholder="Nguyễn Minh Anh" /></label>{inviteError && <p className="admin-form-error" role="alert">{inviteError}</p>}<footer><button className="button button-secondary" type="button" onClick={() => setInviteOpen(false)}>Hủy</button><button className="button button-primary" type="submit" disabled={working === 'invite'}>{working === 'invite' ? 'Đang gửi…' : 'Gửi lời mời'}</button></footer></form></div>}
-  </div>
+  return (
+    <div className="admin-dashboard admin-users-page">
+      <header className="admin-page-heading">
+        <div>
+          <p>
+            Quản lý nền tảng <span>/</span> Người dùng
+          </p>
+          <h1>Quản lý người dùng</h1>
+          <span>Tìm kiếm tài khoản, kiểm tra trạng thái và xử lý quyền truy cập.</span>
+        </div>
+        <button className="button button-primary" type="button" onClick={() => setInviteOpen(true)}>
+          <UserPlus size={18} /> Mời người dùng
+        </button>
+      </header>
+      <section className="admin-user-summary" aria-label="Tổng quan người dùng">
+        <div>
+          <strong>{summary.total.toLocaleString('vi-VN')}</strong>
+          <span>Tổng tài khoản</span>
+        </div>
+        <div>
+          <strong>{summary.active.toLocaleString('vi-VN')}</strong>
+          <span>Đang hoạt động</span>
+        </div>
+        <div>
+          <strong>{summary.pendingVerification.toLocaleString('vi-VN')}</strong>
+          <span>Chờ xác minh</span>
+        </div>
+        <div>
+          <strong>{summary.suspended.toLocaleString('vi-VN')}</strong>
+          <span>Đang tạm khóa</span>
+        </div>
+      </section>
+      <section className="admin-panel admin-users-panel">
+        <div className="admin-users-toolbar">
+          <label className="admin-users-search">
+            <span className="sr-only">Tìm người dùng</span>
+            <MagnifyingGlass size={18} />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Tìm theo tên hoặc email"
+            />
+          </label>
+          <label className="admin-filter-select">
+            <span className="sr-only">Lọc trạng thái</span>
+            <NativeSelectField
+              value={status}
+              onChange={(event) => setStatus(event.target.value as AdminUserStatus | 'ALL')}
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="PENDING_VERIFICATION">Chờ xác minh</option>
+              <option value="SUSPENDED">Tạm khóa</option>
+            </NativeSelectField>
+          </label>
+          <label className="admin-filter-select">
+            <span className="sr-only">Lọc vai trò</span>
+            <NativeSelectField
+              value={role}
+              onChange={(event) => setRole(event.target.value as AdminUserRole | 'ALL')}
+            >
+              <option value="ALL">Tất cả vai trò</option>
+              {Object.entries(roleLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </NativeSelectField>
+          </label>
+        </div>
+        {selected.length > 0 && (
+          <div className="admin-bulk-bar" role="status">
+            <strong>{selected.length} người dùng đã chọn</strong>
+            <div>
+              <button
+                type="button"
+                disabled={working === 'bulk'}
+                onClick={() => void bulk('SUSPENDED')}
+              >
+                Tạm khóa
+              </button>
+              <button
+                type="button"
+                disabled={working === 'bulk'}
+                onClick={() => void bulk('ACTIVE')}
+              >
+                Mở khóa
+              </button>
+              <button type="button" onClick={() => setSelected([])}>
+                Bỏ chọn
+              </button>
+            </div>
+          </div>
+        )}
+        {loading ? (
+          <div className="admin-users-state" role="status">
+            Đang tải danh sách người dùng…
+          </div>
+        ) : error ? (
+          <div className="admin-users-state">
+            <WarningCircle size={28} />
+            <h2>Chưa tải được danh sách</h2>
+            <p>{error}</p>
+            <button type="button" onClick={() => void load(cursorStack.at(-1))}>
+              <ArrowClockwise /> Thử lại
+            </button>
+          </div>
+        ) : users.length ? (
+          <>
+            <div className="admin-table-wrap admin-users-table">
+              <table aria-label="Danh sách người dùng">
+                <thead>
+                  <tr>
+                    <th className="admin-check-cell">
+                      <input
+                        type="checkbox"
+                        aria-label="Chọn tất cả người dùng đang hiển thị"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                      />
+                    </th>
+                    <th>Người dùng</th>
+                    <th>Vai trò</th>
+                    <th>Wedding</th>
+                    <th>Trạng thái</th>
+                    <th>Đăng nhập gần nhất</th>
+                    <th>
+                      <span className="sr-only">Thao tác</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <UserRow
+                      key={user.id}
+                      user={user}
+                      checked={selected.includes(user.id)}
+                      onToggle={() => toggleUser(user.id)}
+                      onOpen={() => void openDetail(user)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="admin-user-cards" aria-label="Danh sách người dùng trên di động">
+              {users.map((user) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  checked={selected.includes(user.id)}
+                  onToggle={() => toggleUser(user.id)}
+                  onOpen={() => void openDetail(user)}
+                />
+              ))}
+            </div>
+            <footer className="admin-users-footer">
+              <span>Hiển thị {users.length} tài khoản</span>
+              <div>
+                <button
+                  type="button"
+                  disabled={!cursorStack.length || loading}
+                  onClick={() => {
+                    const next = [...cursorStack]
+                    next.pop()
+                    setCursorStack(next)
+                    void load(next.at(-1))
+                  }}
+                >
+                  Trước
+                </button>
+                <strong>Trang {pageLabel}</strong>
+                <button
+                  type="button"
+                  disabled={!data?.nextCursor || loading}
+                  onClick={() => {
+                    if (!data?.nextCursor) return
+                    setCursorStack([...cursorStack, data.nextCursor])
+                    void load(data.nextCursor)
+                  }}
+                >
+                  Sau
+                </button>
+              </div>
+            </footer>
+          </>
+        ) : (
+          <div className="admin-users-state">
+            <UsersThree size={28} />
+            <h2>Không tìm thấy người dùng</h2>
+            <p>Thử đổi từ khóa hoặc bộ lọc đang áp dụng.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('')
+                setStatus('ALL')
+                setRole('ALL')
+              }}
+            >
+              Xóa bộ lọc
+            </button>
+          </div>
+        )}
+      </section>
+      {detail && (
+        <UserDrawer
+          user={detail}
+          audit={audit}
+          loading={detailLoading}
+          working={working}
+          close={() => setDetail(null)}
+          onStatus={(next) =>
+            void mutate(detail.id, () => adminUserApi.update(detail.id, { status: next }))
+          }
+          onRoles={(roles) =>
+            void mutate(detail.id, () => adminUserApi.update(detail.id, { roles }))
+          }
+          onResend={() => void mutate(detail.id, () => adminUserApi.resendVerification(detail.id))}
+          onRevoke={() => {
+            if (window.confirm('Thu hồi toàn bộ phiên đăng nhập của tài khoản này?'))
+              void mutate(detail.id, () => adminUserApi.revokeSessions(detail.id))
+          }}
+        />
+      )}
+      {inviteOpen && (
+        <div
+          className="admin-user-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setInviteOpen(false)
+          }}
+        >
+          <form className="admin-user-modal" onSubmit={(event) => void invite(event)}>
+            <header>
+              <div>
+                <h2>Mời người dùng</h2>
+                <p>Gửi email xác minh để tạo tài khoản mới.</p>
+              </div>
+              <button type="button" aria-label="Đóng" onClick={() => setInviteOpen(false)}>
+                <X />
+              </button>
+            </header>
+            <label>
+              Email
+              <input
+                required
+                type="email"
+                value={inviteEmail}
+                onChange={(event) => setInviteEmail(event.target.value)}
+                placeholder="ten@example.com"
+              />
+            </label>
+            <label>
+              Tên hiển thị <span>(không bắt buộc)</span>
+              <input
+                value={inviteName}
+                onChange={(event) => setInviteName(event.target.value)}
+                placeholder="Nguyễn Minh Anh"
+              />
+            </label>
+            {inviteError && (
+              <p className="admin-form-error" role="alert">
+                {inviteError}
+              </p>
+            )}
+            <footer>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => setInviteOpen(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="button button-primary"
+                type="submit"
+                disabled={working === 'invite'}
+              >
+                {working === 'invite' ? 'Đang gửi…' : 'Gửi lời mời'}
+              </button>
+            </footer>
+          </form>
+        </div>
+      )}
+    </div>
+  )
 }
 
-function UserRow({ user, checked, onToggle, onOpen }: { user: AdminUser; checked: boolean; onToggle: () => void; onOpen: () => void }) { return <tr><td className="admin-check-cell"><input type="checkbox" aria-label={`Chọn ${user.displayName ?? user.email}`} checked={checked} onChange={onToggle} /></td><td><button className="admin-user-identity admin-user-link" type="button" onClick={onOpen}><span className="admin-user-avatar">{initials(user)}</span><span><strong>{user.displayName ?? 'Chưa đặt tên'}</strong><small>{user.email} · Tham gia {dateLabel(user.createdAt)}</small></span></button></td><td>{user.roles.length ? user.roles.map((item) => roleLabels[item]).join(', ') : 'Người dùng'}</td><td><strong className="admin-number">{user.weddingCount}</strong></td><td><span className={`admin-status user-${user.status.toLowerCase()}`}>{statusLabels[user.status]}</span></td><td>{dateLabel(user.lastLoginAt)}</td><td><button className="admin-row-action" type="button" aria-label={`Mở chi tiết cho ${user.displayName ?? user.email}`} onClick={onOpen}><DotsThree size={20} weight="bold" /></button></td></tr> }
-function UserCard({ user, checked, onToggle, onOpen }: { user: AdminUser; checked: boolean; onToggle: () => void; onOpen: () => void }) { return <article><header><label><input type="checkbox" aria-label={`Chọn ${user.displayName ?? user.email}`} checked={checked} onChange={onToggle} /><span className="admin-user-avatar">{initials(user)}</span><span><strong>{user.displayName ?? 'Chưa đặt tên'}</strong><small>{user.email}</small></span></label><button className="admin-row-action" type="button" aria-label="Mở chi tiết" onClick={onOpen}><DotsThree size={20} weight="bold" /></button></header><dl><div><dt>Vai trò</dt><dd>{user.roles.length ? user.roles.map((item) => roleLabels[item]).join(', ') : 'Người dùng'}</dd></div><div><dt>Wedding</dt><dd>{user.weddingCount}</dd></div><div><dt>Trạng thái</dt><dd><span className={`admin-status user-${user.status.toLowerCase()}`}>{statusLabels[user.status]}</span></dd></div><div><dt>Gần nhất</dt><dd>{dateLabel(user.lastLoginAt)}</dd></div></dl></article> }
+function UserRow({
+  user,
+  checked,
+  onToggle,
+  onOpen,
+}: {
+  user: AdminUser
+  checked: boolean
+  onToggle: () => void
+  onOpen: () => void
+}) {
+  return (
+    <tr>
+      <td className="admin-check-cell">
+        <input
+          type="checkbox"
+          aria-label={`Chọn ${user.displayName ?? user.email}`}
+          checked={checked}
+          onChange={onToggle}
+        />
+      </td>
+      <td>
+        <button className="admin-user-identity admin-user-link" type="button" onClick={onOpen}>
+          <span className="admin-user-avatar">{initials(user)}</span>
+          <span>
+            <strong>{user.displayName ?? 'Chưa đặt tên'}</strong>
+            <small>
+              {user.email} · Tham gia {dateLabel(user.createdAt)}
+            </small>
+          </span>
+        </button>
+      </td>
+      <td>
+        {user.roles.length ? user.roles.map((item) => roleLabels[item]).join(', ') : 'Người dùng'}
+      </td>
+      <td>
+        <strong className="admin-number">{user.weddingCount}</strong>
+      </td>
+      <td>
+        <span className={`admin-status user-${user.status.toLowerCase()}`}>
+          {statusLabels[user.status]}
+        </span>
+      </td>
+      <td>{dateLabel(user.lastLoginAt)}</td>
+      <td>
+        <button
+          className="admin-row-action"
+          type="button"
+          aria-label={`Mở chi tiết cho ${user.displayName ?? user.email}`}
+          onClick={onOpen}
+        >
+          <DotsThree size={20} weight="bold" />
+        </button>
+      </td>
+    </tr>
+  )
+}
+function UserCard({
+  user,
+  checked,
+  onToggle,
+  onOpen,
+}: {
+  user: AdminUser
+  checked: boolean
+  onToggle: () => void
+  onOpen: () => void
+}) {
+  return (
+    <article>
+      <header>
+        <label>
+          <input
+            type="checkbox"
+            aria-label={`Chọn ${user.displayName ?? user.email}`}
+            checked={checked}
+            onChange={onToggle}
+          />
+          <span className="admin-user-avatar">{initials(user)}</span>
+          <span>
+            <strong>{user.displayName ?? 'Chưa đặt tên'}</strong>
+            <small>{user.email}</small>
+          </span>
+        </label>
+        <button
+          className="admin-row-action"
+          type="button"
+          aria-label="Mở chi tiết"
+          onClick={onOpen}
+        >
+          <DotsThree size={20} weight="bold" />
+        </button>
+      </header>
+      <dl>
+        <div>
+          <dt>Vai trò</dt>
+          <dd>
+            {user.roles.length
+              ? user.roles.map((item) => roleLabels[item]).join(', ')
+              : 'Người dùng'}
+          </dd>
+        </div>
+        <div>
+          <dt>Wedding</dt>
+          <dd>{user.weddingCount}</dd>
+        </div>
+        <div>
+          <dt>Trạng thái</dt>
+          <dd>
+            <span className={`admin-status user-${user.status.toLowerCase()}`}>
+              {statusLabels[user.status]}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt>Gần nhất</dt>
+          <dd>{dateLabel(user.lastLoginAt)}</dd>
+        </div>
+      </dl>
+    </article>
+  )
+}
 
-function UserDrawer({ user, audit, loading, working, close, onStatus, onRoles, onResend, onRevoke }: { user: AdminUser; audit: AdminAuditLog[]; loading: boolean; working: string; close: () => void; onStatus: (status: AdminUserStatus) => void; onRoles: (roles: AdminUserRole[]) => void; onResend: () => void; onRevoke: () => void }) {
+function UserDrawer({
+  user,
+  audit,
+  loading,
+  working,
+  close,
+  onStatus,
+  onRoles,
+  onResend,
+  onRevoke,
+}: {
+  user: AdminUser
+  audit: AdminAuditLog[]
+  loading: boolean
+  working: string
+  close: () => void
+  onStatus: (status: AdminUserStatus) => void
+  onRoles: (roles: AdminUserRole[]) => void
+  onResend: () => void
+  onRevoke: () => void
+}) {
   const [roles, setRoles] = useState(user.roles)
   useEffect(() => setRoles(user.roles), [user.roles])
-  return <div className="admin-user-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) close() }}><aside className="admin-user-drawer" role="dialog" aria-modal="true" aria-label="Chi tiết người dùng"><header><div><span className="admin-user-avatar admin-user-avatar-large">{initials(user)}</span><div><h2>{user.displayName ?? 'Chưa đặt tên'}</h2><p>{user.email}</p></div></div><button type="button" aria-label="Đóng" onClick={close}><X /></button></header><div className="admin-user-drawer-body"><div className="admin-user-detail-status"><span className={`admin-status user-${user.status.toLowerCase()}`}>{statusLabels[user.status]}</span><small>Tham gia {dateLabel(user.createdAt)}</small></div><section><h3>Trạng thái tài khoản</h3><NativeSelectField value={user.status} disabled={Boolean(working)} onChange={(event) => onStatus(event.target.value as AdminUserStatus)}><option value="ACTIVE">Hoạt động</option><option value="SUSPENDED">Tạm khóa</option><option value="PENDING_VERIFICATION">Chờ xác minh</option></NativeSelectField></section><section><h3>Quyền hệ thống</h3><div className="admin-role-checks">{(Object.keys(roleLabels) as AdminUserRole[]).map((item) => <label key={item}><input type="checkbox" checked={roles.includes(item)} onChange={() => setRoles((current) => current.includes(item) ? current.filter((role) => role !== item) : [...current, item])} />{roleLabels[item]}</label>)}</div><button className="button button-secondary" type="button" disabled={Boolean(working)} onClick={() => onRoles(roles)}>Lưu quyền</button></section><section><h3>Thông tin</h3><dl className="admin-user-detail-list"><div><dt>Email xác minh</dt><dd>{dateLabel(user.emailVerifiedAt)}</dd></div><div><dt>Đăng nhập gần nhất</dt><dd>{dateLabel(user.lastLoginAt)}</dd></div><div><dt>Wedding đang sở hữu</dt><dd>{user.weddingCount}</dd></div></dl></section><section><h3>Lịch sử thao tác</h3>{loading ? <p>Đang tải lịch sử…</p> : audit.length ? <ol className="admin-user-audit">{audit.map((entry) => <li key={entry.id}><strong>{entry.action}</strong><span>{entry.actorUser?.displayName ?? entry.actorUser?.email ?? 'Hệ thống'} · {dateLabel(entry.occurredAt)}</span></li>)}</ol> : <p>Chưa có thao tác được ghi nhận.</p>}</section><section className="admin-user-danger-actions"><button type="button" onClick={onResend} disabled={Boolean(working) || user.status !== 'PENDING_VERIFICATION'}><CheckCircle /> Gửi lại email xác minh</button><button type="button" onClick={onRevoke} disabled={Boolean(working)}><ShieldCheck /> Thu hồi phiên đăng nhập</button></section></div></aside></div>
+  return (
+    <div
+      className="admin-user-drawer-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) close()
+      }}
+    >
+      <aside
+        className="admin-user-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Chi tiết người dùng"
+      >
+        <header>
+          <div>
+            <span className="admin-user-avatar admin-user-avatar-large">{initials(user)}</span>
+            <div>
+              <h2>{user.displayName ?? 'Chưa đặt tên'}</h2>
+              <p>{user.email}</p>
+            </div>
+          </div>
+          <button type="button" aria-label="Đóng" onClick={close}>
+            <X />
+          </button>
+        </header>
+        <div className="admin-user-drawer-body">
+          <div className="admin-user-detail-status">
+            <span className={`admin-status user-${user.status.toLowerCase()}`}>
+              {statusLabels[user.status]}
+            </span>
+            <small>Tham gia {dateLabel(user.createdAt)}</small>
+          </div>
+          <section>
+            <h3>Trạng thái tài khoản</h3>
+            <NativeSelectField
+              value={user.status}
+              disabled={Boolean(working)}
+              onChange={(event) => onStatus(event.target.value as AdminUserStatus)}
+            >
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="SUSPENDED">Tạm khóa</option>
+              <option value="PENDING_VERIFICATION">Chờ xác minh</option>
+            </NativeSelectField>
+          </section>
+          <section>
+            <h3>Quyền hệ thống</h3>
+            <div className="admin-role-checks">
+              {(Object.keys(roleLabels) as AdminUserRole[]).map((item) => (
+                <label key={item}>
+                  <input
+                    type="checkbox"
+                    checked={roles.includes(item)}
+                    onChange={() =>
+                      setRoles((current) =>
+                        current.includes(item)
+                          ? current.filter((role) => role !== item)
+                          : [...current, item],
+                      )
+                    }
+                  />
+                  {roleLabels[item]}
+                </label>
+              ))}
+            </div>
+            <button
+              className="button button-secondary"
+              type="button"
+              disabled={Boolean(working)}
+              onClick={() => onRoles(roles)}
+            >
+              Lưu quyền
+            </button>
+          </section>
+          <section>
+            <h3>Thông tin</h3>
+            <dl className="admin-user-detail-list">
+              <div>
+                <dt>Email xác minh</dt>
+                <dd>{dateLabel(user.emailVerifiedAt)}</dd>
+              </div>
+              <div>
+                <dt>Đăng nhập gần nhất</dt>
+                <dd>{dateLabel(user.lastLoginAt)}</dd>
+              </div>
+              <div>
+                <dt>Wedding đang sở hữu</dt>
+                <dd>{user.weddingCount}</dd>
+              </div>
+            </dl>
+          </section>
+          <section>
+            <h3>Lịch sử thao tác</h3>
+            {loading ? (
+              <p>Đang tải lịch sử…</p>
+            ) : audit.length ? (
+              <ol className="admin-user-audit">
+                {audit.map((entry) => (
+                  <li key={entry.id}>
+                    <strong>{entry.action}</strong>
+                    <span>
+                      {entry.actorUser?.displayName ?? entry.actorUser?.email ?? 'Hệ thống'} ·{' '}
+                      {dateLabel(entry.occurredAt)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>Chưa có thao tác được ghi nhận.</p>
+            )}
+          </section>
+          <section className="admin-user-danger-actions">
+            <button
+              type="button"
+              onClick={onResend}
+              disabled={Boolean(working) || user.status !== 'PENDING_VERIFICATION'}
+            >
+              <CheckCircle /> Gửi lại email xác minh
+            </button>
+            <button type="button" onClick={onRevoke} disabled={Boolean(working)}>
+              <ShieldCheck /> Thu hồi phiên đăng nhập
+            </button>
+          </section>
+        </div>
+      </aside>
+    </div>
+  )
 }

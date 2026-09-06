@@ -1,9 +1,37 @@
-export type GreenHydrangeaSectionKey = 'navigation' | 'hero' | 'announcement' | 'couple' | 'story' | 'events' | 'countdown' | 'venues' | 'gallery' | 'schedule' | 'dressCode' | 'faq' | 'rsvp' | 'guestbook' | 'footer'
-export type GreenHydrangeaSectionConfig = { enabled: GreenHydrangeaSectionKey[]; order: GreenHydrangeaSectionKey[] }
+export type GreenHydrangeaSectionKey =
+  | 'navigation'
+  | 'hero'
+  | 'announcement'
+  | 'couple'
+  | 'story'
+  | 'events'
+  | 'countdown'
+  | 'venues'
+  | 'gallery'
+  | 'schedule'
+  | 'dressCode'
+  | 'faq'
+  | 'rsvp'
+  | 'guestbook'
+  | 'footer'
+export type GreenHydrangeaSectionConfig = {
+  enabled: GreenHydrangeaSectionKey[]
+  order: GreenHydrangeaSectionKey[]
+}
 export type GreenHydrangeaData = {
-  hero: { brideName: string; groomName: string; eyebrow: string; date: string; venue: string; image: string }
+  hero: {
+    brideName: string
+    groomName: string
+    eyebrow: string
+    date: string
+    venue: string
+    image: string
+  }
   announcement: { title: string; message: string }
-  couple: { bride: { name: string; role: string; bio: string; image: string }; groom: { name: string; role: string; bio: string; image: string } }
+  couple: {
+    bride: { name: string; role: string; bio: string; image: string }
+    groom: { name: string; role: string; bio: string; image: string }
+  }
   story: Array<{ year: string; title: string; body: string; image: string }>
   events: Array<{ date: string; time: string; title: string; venue: string; address: string }>
   venues?: { title: string; address: string; mapUrl: string }

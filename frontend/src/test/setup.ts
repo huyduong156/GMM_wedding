@@ -11,15 +11,20 @@ class IntersectionObserverMock implements IntersectionObserver {
 
   observe(target: Element) {
     const bounds = target.getBoundingClientRect()
-    this.callback([{
-      boundingClientRect: bounds,
-      intersectionRatio: 1,
-      intersectionRect: bounds,
-      isIntersecting: true,
-      rootBounds: null,
-      target,
-      time: 0,
-    }], this)
+    this.callback(
+      [
+        {
+          boundingClientRect: bounds,
+          intersectionRatio: 1,
+          intersectionRect: bounds,
+          isIntersecting: true,
+          rootBounds: null,
+          target,
+          time: 0,
+        },
+      ],
+      this,
+    )
   }
 
   takeRecords() {

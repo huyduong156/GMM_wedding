@@ -20,7 +20,7 @@ Theme không được dừng ở mức layout cơ bản như hero ảnh + text, 
 
 ## 1.1. Phased authoring flow bắt buộc cho mọi template
 
-Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự qua năm phase dưới đây. Agent phải đọc lại common contract và tài liệu domain liên quan ở mỗi phase, đối chiếu checklist trước khi chuyển phase tiếp theo. Không được gộp toàn bộ phase vào một lượt code, không được bắt đầu từ fixture hoặc asset, và không được đánh dấu hoàn tất nếu thiếu artifact của bất kỳ phase nào.
+Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự qua sáu phase dưới đây. Agent phải đọc lại common contract và tài liệu domain liên quan ở mỗi phase, đối chiếu checklist trước khi chuyển phase tiếp theo. Không được gộp toàn bộ phase vào một lượt code, không được bắt đầu từ fixture hoặc asset, và không được đánh dấu hoàn tất nếu thiếu artifact của bất kỳ phase nào.
 
 ### Phase 1 — Product meaning, chủ đề và content system
 
@@ -51,6 +51,25 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 
 Đầu ra bắt buộc: media matrix, upload/editability matrix, crop/focal-point rules, fallback/error/empty states, external album behavior, media field schema, media-independence checklist và mapping media vào `template-config.ts`.
 
+
+### Phase 2.5 — Decor asset pre-production và duyệt artwork
+
+Đây là bước tạo asset riêng trước khi bắt đầu thiết kế section hoặc viết renderer. Chỉ tạo artwork renderer-owned/decor; không tạo hoặc xử lý ảnh content của user thay cho media contract.
+
+Agent phải lập asset brief và asset matrix, trong đó ghi rõ:
+
+- vai trò: key artwork, corner decoration, divider, frame/mask, background, overlay, watermark, cluster, floating element hoặc standalone prop;
+- visual metaphor, palette, chất liệu, ánh sáng, phong cách và mối liên hệ với theme brief;
+- kích thước, tỉ lệ, nền trong suốt, vùng an toàn, breakpoint và biến thể desktop/mobile;
+- tên file, thư mục bundle, format, kích thước file dự kiến và cách tối ưu;
+- asset nào đi cùng section nào, asset nào dùng xuyên trang và asset nào không được lặp;
+- prompt/provenance/license và tiêu chí đạt để review.
+
+Artwork được tạo theo batch và phải có preview sheet để duyệt trước. Không được đưa asset chưa duyệt vào composition chính hoặc renderer. Nếu asset bị từ chối, sửa/generate lại trong phase này trước khi chuyển sang Phase 3.
+
+Đầu ra bắt buộc: asset brief, asset matrix, preview sheet, asset manifest/provenance, prompt record, desktop/mobile variants nếu cần và approval checklist. Sau khi duyệt, asset set được xem là đầu vào đã khóa cho các phase tiếp theo; thay đổi lớn về art direction phải quay lại phase này.
+
+
 ### Phase 3 — Section architecture và visual composition
 
 Đọc lại section catalog/domain rules và đối chiếu section/content matrix của Phase 1. Agent phải thiết kế bộ xương của theme trước khi thêm motion:
@@ -69,7 +88,7 @@ Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn b�
 
 ### Phase 4 — Advanced visual experience, interaction và motion
 Đây là pharse quan trọng nhất bắt buộc áp dụng mọi hiệu ứng có thể vào template
-- sử dụng `.agents/agents/image-generation-agent/AGENT.md` để generate các artwork renderer-owned (Floating decorative element, Corner Decoration, Divider Decoration, Background Decoration, Overlay Decoration, Watermark Decoration, Cluster Decoration, Standalone Element) và sắp xếp hợp lý dựa theo ý nghĩa/vị trí của từng loại ảnh decor
+- sử dụng bộ artwork đã được duyệt ở Phase 2.5 và sắp xếp hợp lý dựa theo ý nghĩa/vị trí của từng loại ảnh decor
 - thêm các hiệu ứng auto animation cho các artwork hoặc các thành phần nhỏ trong template
 - thêm các hiệu ứng xuất hiện khi scroll tới section
 - tăng độ nhận diện bằng cách sử dụng các css sáng tạo và hiệu ứng 3D
@@ -89,16 +108,16 @@ Mỗi technique phải ghi UX purpose, trigger, duration/easing hoặc spring, d
 Đầu ra bắt buộc: technique map, motion choreography, interaction map, responsive/reduced-motion map và implementation plan trước khi code effect, các hiệu ứng và animation
 => Luôn ưu tiên độ mooth cho toàn bộ trang nên cần hiệu ứng chuyển giao giữa các thao tác, hover, section....
 
-### Phase 5 — Artwork, atmosphere, system effects, review và release
+### Phase 5 — Asset integration, atmosphere, system effects, review và release
 
 Đọc lại asset/provenance, motion performance, accessibility và quality gate trong common contract. Sau khi content/layout đã ổn định, agent mới:
 
-- generate artwork/decor renderer-owned như hoa lá, frame, paper, ribbon, stamp, texture, grain, light leak và props;
+- tích hợp bộ artwork renderer-owned đã được duyệt ở Phase 2.5; chỉ tạo bổ sung nếu review phát hiện thiếu asset và phải quay lại approval gate của Phase 2.5;
 - bố trí asset theo composition, z-index, crop, density, breakpoint; không che content/CTA;
 - thêm background atmosphere như lá/petal bay, dust, mist, ambient particle hoặc light movement;
 - thêm entrance/reveal, auto-animation khi section vào viewport, hover/focus/press và interaction fallback;
 - kiểm tra visibility pause, density, CPU/GPU, asset size, mobile và reduced-motion.
-- Sử dụng `.agents/agents/image-generation-agent/AGENT.md` để tạo các hình ảnh phù hợp với template đang thiết kế, bao gồm decor phụ như sao rơi/lá nhỏ và decor chính như cụm hoa, vật trang trí, thiệp, vows.
+- cập nhật asset manifest/provenance sau khi asset được tích hợp và xác nhận mọi asset trong bundle đúng với approval checklist.
 
 Sau đó bắt buộc render/review toàn bộ screen bằng design review skill/agent ở desktop, tablet, mobile và reduced-motion. Kiểm tra toàn bộ required/optional sections, toggle, reorder, repeatable, empty/loading/error, internal/external media, section seam, overflow, accessibility và media independence. Chạy typecheck, lint, test, build; cuối cùng audit `template-config.ts` với renderer, editor, catalog, preview path và admin publish/sync.
 

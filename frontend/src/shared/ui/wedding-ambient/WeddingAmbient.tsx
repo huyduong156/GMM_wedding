@@ -24,12 +24,36 @@ const petals = Array.from({ length: 10 }, (_, index) => ({
   } as CSSProperties,
 }))
 const ambientObjects = [
-  { id: 'envelope-one', kind: 'envelope', Icon: EnvelopeSimple, size: 34, duration: 34, delay: -8, y: 18 },
+  {
+    id: 'envelope-one',
+    kind: 'envelope',
+    Icon: EnvelopeSimple,
+    size: 34,
+    duration: 34,
+    delay: -8,
+    y: 18,
+  },
   { id: 'feather-one', kind: 'feather', Icon: Feather, size: 29, duration: 27, delay: -19, x: 76 },
   { id: 'balloon-one', kind: 'balloon', Icon: Balloon, size: 30, duration: 38, delay: -25, x: 18 },
-  { id: 'dandelion-one', kind: 'dandelion', Icon: FlowerLotus, size: 25, duration: 31, delay: -13, y: 67 },
+  {
+    id: 'dandelion-one',
+    kind: 'dandelion',
+    Icon: FlowerLotus,
+    size: 25,
+    duration: 31,
+    delay: -13,
+    y: 67,
+  },
   { id: 'feather-two', kind: 'feather', Icon: Feather, size: 22, duration: 39, delay: -31, x: 39 },
-  { id: 'envelope-two', kind: 'envelope', Icon: EnvelopeSimple, size: 25, duration: 43, delay: -29, y: 81 },
+  {
+    id: 'envelope-two',
+    kind: 'envelope',
+    Icon: EnvelopeSimple,
+    size: 25,
+    duration: 43,
+    delay: -29,
+    y: 81,
+  },
   { id: 'balloon-two', kind: 'balloon', Icon: Balloon, size: 22, duration: 46, delay: -7, x: 87 },
 ]
 
@@ -59,13 +83,15 @@ export function WeddingAmbient({ variant = 'workspace' }: WeddingAmbientProps) {
           <span
             className={`ambient-object ambient-${kind}`}
             key={id}
-            style={{
-              '--object-size': `${size}px`,
-              '--object-duration': `${duration}s`,
-              '--object-delay': `${delay}s`,
-              '--object-x': `${x ?? 0}%`,
-              '--object-y': `${y ?? 0}%`,
-            } as CSSProperties}
+            style={
+              {
+                '--object-size': `${size}px`,
+                '--object-duration': `${duration}s`,
+                '--object-delay': `${delay}s`,
+                '--object-x': `${x ?? 0}%`,
+                '--object-y': `${y ?? 0}%`,
+              } as CSSProperties
+            }
           >
             <Icon size={size} weight="thin" />
           </span>
@@ -74,12 +100,20 @@ export function WeddingAmbient({ variant = 'workspace' }: WeddingAmbientProps) {
       {isLogin && (
         <div className="ambient-art-field">
           {loginArtwork.map(({ id, src }) => (
-            <img className={`ambient-art ambient-art-${id}`} key={id} src={src} alt="" decoding="async" />
+            <img
+              className={`ambient-art ambient-art-${id}`}
+              key={id}
+              src={src}
+              alt=""
+              decoding="async"
+            />
           ))}
         </div>
       )}
       <div className="petal-field">
-        {petals.slice(0, isLogin ? 7 : petals.length).map((petal) => <i key={petal.id} style={petal.style} />)}
+        {petals.slice(0, isLogin ? 7 : petals.length).map((petal) => (
+          <i key={petal.id} style={petal.style} />
+        ))}
       </div>
     </div>
   )

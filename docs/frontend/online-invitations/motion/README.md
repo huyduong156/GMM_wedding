@@ -12,6 +12,7 @@ Tham khảo pattern xuyên sản phẩm cho thiệp online, website cưới và 
 - [Gallery motion](./gallery-motion.md)
 - [Romantic interactions](./romantic-interactions.md)
 - [Cinematic effects](./cinematic-effects.md)
+- [Smooth / inertia scrolling](./smooth-scroll.md)
 - [Mobile performance](./mobile-performance.md)
 - [Reduced motion](./reduced-motion.md)
 

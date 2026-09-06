@@ -12,8 +12,18 @@ import {
   NavigationArrow,
   Sparkle,
 } from '@phosphor-icons/react'
-import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
-import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import {
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'motion/react'
+import {
+  formatCountdownUnit,
+  useWeddingCountdown,
+} from '../../../shared/lib/date/useWeddingCountdown'
 import type { ModernLuxeData, ModernLuxeSectionConfig } from '../modern-luxe/ModernLuxeInvitation'
 import './verdant-promise.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
@@ -51,9 +61,24 @@ const defaultFamilies = [
 ]
 
 const defaultTimeline = [
-  { time: '10:30', title: 'Đón khách', detail: 'Chụp ảnh và lưu lại những lời chúc đầu tiên.', Icon: Clock },
-  { time: '11:00', title: 'Lễ thành hôn', detail: 'Chứng kiến lời hẹn trăm năm trước hai gia đình.', Icon: Heart },
-  { time: '11:30', title: 'Tiệc chung vui', detail: 'Khai tiệc trong không gian nhà kính ngập nắng.', Icon: Gift },
+  {
+    time: '10:30',
+    title: 'Đón khách',
+    detail: 'Chụp ảnh và lưu lại những lời chúc đầu tiên.',
+    Icon: Clock,
+  },
+  {
+    time: '11:00',
+    title: 'Lễ thành hôn',
+    detail: 'Chứng kiến lời hẹn trăm năm trước hai gia đình.',
+    Icon: Heart,
+  },
+  {
+    time: '11:30',
+    title: 'Tiệc chung vui',
+    detail: 'Khai tiệc trong không gian nhà kính ngập nắng.',
+    Icon: Gift,
+  },
 ]
 
 const edgePetals = Array.from({ length: 8 }, (_, index) => index + 1)
@@ -68,21 +93,46 @@ function EdgeAtmosphere() {
         <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
       </div>
       <div className="vp-edge-petals">
-        {edgePetals.map((petal) => <i key={petal} className={`vp-edge-petal vp-edge-petal-${petal}`} />)}
+        {edgePetals.map((petal) => (
+          <i key={petal} className={`vp-edge-petal vp-edge-petal-${petal}`} />
+        ))}
       </div>
     </div>
   )
 }
 
-function SectionReveal({ children, className, sectionKey, sectionConfig }: { children: ReactNode; className: string; sectionKey?: string; sectionConfig?: ModernLuxeSectionConfig }) {
+function SectionReveal({
+  children,
+  className,
+  sectionKey,
+  sectionConfig,
+}: {
+  children: ReactNode
+  className: string
+  sectionKey?: string
+  sectionConfig?: ModernLuxeSectionConfig
+}) {
   const reduceMotion = useReducedMotion()
-  if (sectionKey && sectionConfig && !sectionConfig.enabled.includes(sectionKey as ModernLuxeSectionConfig['enabled'][number])) return null
+  if (
+    sectionKey &&
+    sectionConfig &&
+    !sectionConfig.enabled.includes(sectionKey as ModernLuxeSectionConfig['enabled'][number])
+  )
+    return null
 
   return (
     <motion.section
       className={className}
       data-editor-section={sectionKey ?? className.replace(/^vp-/, '')}
-      style={sectionKey && sectionConfig ? { order: sectionConfig.order.indexOf(sectionKey as ModernLuxeSectionConfig['order'][number]) } : undefined}
+      style={
+        sectionKey && sectionConfig
+          ? {
+              order: sectionConfig.order.indexOf(
+                sectionKey as ModernLuxeSectionConfig['order'][number],
+              ),
+            }
+          : undefined
+      }
       initial={reduceMotion ? false : { opacity: 0, y: 72 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ amount: 0.12, once: true }}
@@ -93,16 +143,52 @@ function SectionReveal({ children, className, sectionKey, sectionConfig }: { chi
   )
 }
 
-export function VerdantPromiseInvitation({ preview = false, data, sectionConfig, interactions }: { preview?: boolean; data?: ModernLuxeData; sectionConfig?: ModernLuxeSectionConfig; interactions?: PublicInteractions }) {
+export function VerdantPromiseInvitation({
+  preview = false,
+  data,
+  sectionConfig,
+  interactions,
+}: {
+  preview?: boolean
+  data?: ModernLuxeData
+  sectionConfig?: ModernLuxeSectionConfig
+  interactions?: PublicInteractions
+}) {
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
   const weddingDate = data?.weddingDate || '18 · 10 · 2026'
   const gallery = data?.galleryImages?.length
-    ? data.galleryImages.map((item) => typeof item === 'string' ? item : (item as unknown as { src?: string })?.src).filter((item): item is string => Boolean(item))
+    ? data.galleryImages
+        .map((item) =>
+          typeof item === 'string' ? item : (item as unknown as { src?: string })?.src,
+        )
+        .filter((item): item is string => Boolean(item))
     : defaultGallery
-  const families = data ? [{ ...defaultFamilies[0], father: data.brideFather || defaultFamilies[0].father, mother: data.brideMother || defaultFamilies[0].mother, child: brideName }, { ...defaultFamilies[1], father: data.groomFather || defaultFamilies[1].father, mother: data.groomMother || defaultFamilies[1].mother, child: groomName }] : defaultFamilies
-  const timeline = data?.timelineItems?.length ? data.timelineItems.map((item, index) => ({ ...item, Icon: index === 1 ? Heart : index === 2 ? Gift : Clock })) : defaultTimeline
-  const enabledSectionKeys = sectionConfig?.enabled.join(' ') ?? 'cover invitation families eventDetails countdown timeline venue gallery rsvp guestbook gift'
+  const families = data
+    ? [
+        {
+          ...defaultFamilies[0],
+          father: data.brideFather || defaultFamilies[0].father,
+          mother: data.brideMother || defaultFamilies[0].mother,
+          child: brideName,
+        },
+        {
+          ...defaultFamilies[1],
+          father: data.groomFather || defaultFamilies[1].father,
+          mother: data.groomMother || defaultFamilies[1].mother,
+          child: groomName,
+        },
+      ]
+    : defaultFamilies
+  const timeline = data?.timelineItems?.length
+    ? data.timelineItems.map((item, index) => ({
+        ...item,
+        Icon: index === 1 ? Heart : index === 2 ? Gift : Clock,
+      }))
+    : defaultTimeline
+  const enabledSectionKeys =
+    sectionConfig?.enabled.join(' ') ??
+    'cover invitation families eventDetails countdown timeline venue gallery rsvp guestbook gift'
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(false)
   const [slide, setSlide] = useState(0)
@@ -113,8 +199,14 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
   const [wishes, setWishes] = useState([
-    { name: 'Gia đình bác Hùng', message: 'Chúc hai con trăm năm hạnh phúc, mãi bình an bên nhau.' },
-    { name: 'Thanh An', message: 'Ngày vui thật trọn vẹn và hành trình phía trước luôn ngập tiếng cười nhé!' },
+    {
+      name: 'Gia đình bác Hùng',
+      message: 'Chúc hai con trăm năm hạnh phúc, mãi bình an bên nhau.',
+    },
+    {
+      name: 'Thanh An',
+      message: 'Ngày vui thật trọn vẹn và hành trình phía trước luôn ngập tiếng cười nhé!',
+    },
   ])
   const mainRef = useRef<HTMLElement>(null)
   const openingTimerRef = useRef<number | undefined>(undefined)
@@ -127,14 +219,25 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
   const heroContentOpacity = useTransform(scrollY, [0, 560], [1, 0])
 
   useEffect(() => {
-    if (!opened || reduceMotion || typeof window.matchMedia !== 'function' || !window.matchMedia('(pointer: fine) and (min-width: 701px)').matches) return
+    if (
+      !opened ||
+      reduceMotion ||
+      typeof window.matchMedia !== 'function' ||
+      !window.matchMedia('(pointer: fine) and (min-width: 701px)').matches
+    )
+      return
 
     let active = true
     let smoothScroll: { destroy: () => void } | undefined
 
     void import('lenis').then(({ default: Lenis }) => {
       if (!active) return
-      smoothScroll = new Lenis({ autoRaf: true, lerp: 0.085, smoothWheel: true, wheelMultiplier: 0.85 })
+      smoothScroll = new Lenis({
+        autoRaf: true,
+        lerp: 0.085,
+        smoothWheel: true,
+        wheelMultiplier: 0.85,
+      })
     })
 
     return () => {
@@ -145,7 +248,10 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
 
   useEffect(() => {
     if (!opened || galleryPaused || reduceMotion) return
-    const timer = window.setInterval(() => setSlide((current) => (current + 1) % gallery.length), 5200)
+    const timer = window.setInterval(
+      () => setSlide((current) => (current + 1) % gallery.length),
+      5200,
+    )
     return () => window.clearInterval(timer)
   }, [gallery.length, galleryPaused, opened, reduceMotion])
 
@@ -155,10 +261,13 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [])
 
-  useEffect(() => () => {
-    if (openingTimerRef.current !== undefined) window.clearTimeout(openingTimerRef.current)
-    if (focusFrameRef.current !== undefined) window.cancelAnimationFrame(focusFrameRef.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (openingTimerRef.current !== undefined) window.clearTimeout(openingTimerRef.current)
+      if (focusFrameRef.current !== undefined) window.cancelAnimationFrame(focusFrameRef.current)
+    },
+    [],
+  )
 
   const openInvitation = () => {
     if (opening || opened) return
@@ -171,7 +280,13 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
   const sendWish = async () => {
     if (!wishName.trim() || !wish.trim()) return
     if (interactions) {
-      if (!await interactions.wishes.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), content: wish.trim() })) return
+      if (
+        !(await interactions.wishes.submit({
+          guestName: interactions.isPersonalized ? undefined : wishName.trim(),
+          content: wish.trim(),
+        }))
+      )
+        return
     } else setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
     setWishName('')
     setWish('')
@@ -180,311 +295,600 @@ export function VerdantPromiseInvitation({ preview = false, data, sectionConfig,
   useEffect(() => {
     if (!interactions || !rsvp || submittedRsvpRef.current === rsvp) return
     submittedRsvpRef.current = rsvp
-    void interactions.rsvp.submit({ guestName: interactions.isPersonalized ? undefined : wishName.trim(), attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED', partySize: 1 })
+    void interactions.rsvp.submit({
+      guestName: interactions.isPersonalized ? undefined : wishName.trim(),
+      attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED',
+      partySize: 1,
+    })
   }, [interactions?.isPersonalized, interactions?.rsvp.submit, rsvp])
 
   useEffect(() => {
-    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
+    if (interactions)
+      setWishes(
+        interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
+      )
   }, [interactions?.wishes.items])
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className={`vp-wrap ${opened ? 'is-opened' : ''}`} data-enabled-sections={enabledSectionKeys}>
-      <AnimatePresence>
-        {!opened || opening ? (
-          <motion.section
-            className="vp-opening"
-            aria-label="Mở thiệp Verdant Promise"
-            aria-hidden={opened}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: reduceMotion ? 1 : 1.04 }}
-            transition={{ duration: reduceMotion ? 0.08 : 0.38 }}
-          >
-            <div className="vp-opening-photo" aria-hidden="true" />
-            <div className="vp-opening-mist" aria-hidden="true" />
-            {!reduceMotion ? (
-              <Suspense fallback={null}>
-                <VerdantParticles id="vp-opening-particles" dense />
-              </Suspense>
-            ) : null}
-            <div className="vp-opening-orbit vp-opening-orbit-a" aria-hidden="true" />
-            <div className="vp-opening-orbit vp-opening-orbit-b" aria-hidden="true" />
-            <motion.div
-              className="vp-opening-aperture"
-              aria-hidden="true"
-              animate={opening && !reduceMotion ? { opacity: 0, scale: 8 } : { opacity: 0.72, scale: 1 }}
-              transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
-            />
-            <motion.button
-              className={`vp-cover ${opening ? 'is-opening' : ''}`}
-              type="button"
-              onClick={openInvitation}
-              disabled={opening}
-              aria-label={`Mở thiệp cưới của ${brideName} và ${groomName}`}
-              initial={reduceMotion ? false : { opacity: 0, rotateX: 8, y: 34 }}
-              animate={opening && !reduceMotion
-                ? { opacity: 0, rotateY: -16, scale: 0.9, y: -24 }
-                : { opacity: 1, rotateX: 0, rotateY: 0, scale: 1, y: 0 }}
-              transition={{ duration: opening ? 0.82 : 1, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={reduceMotion ? undefined : { rotateX: 2, rotateY: -2, y: -9 }}
-              whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+      <div
+        className={`vp-wrap ${opened ? 'is-opened' : ''}`}
+        data-enabled-sections={enabledSectionKeys}
+      >
+        <AnimatePresence>
+          {!opened || opening ? (
+            <motion.section
+              className="vp-opening"
+              aria-label="Mở thiệp Verdant Promise"
+              aria-hidden={opened}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: reduceMotion ? 1 : 1.04 }}
+              transition={{ duration: reduceMotion ? 0.08 : 0.38 }}
             >
-              <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
-              <span className="vp-cover-kicker">Wedding invitation</span>
-              <span className="vp-cover-monogram" aria-hidden="true">A · K</span>
-              <h1>{brideName} <i>&amp;</i> {groomName}</h1>
-              <time>{weddingDate}</time>
-              <strong><Leaf weight="fill" /> {opening ? 'Khu vườn đang mở' : 'Chạm để mở thiệp'}</strong>
-            </motion.button>
-            <p className="vp-opening-note">Một lời mời được ươm bằng yêu thương</p>
-          </motion.section>
-        ) : null}
-      </AnimatePresence>
+              <div className="vp-opening-photo" aria-hidden="true" />
+              <div className="vp-opening-mist" aria-hidden="true" />
+              {!reduceMotion ? (
+                <Suspense fallback={null}>
+                  <VerdantParticles id="vp-opening-particles" dense />
+                </Suspense>
+              ) : null}
+              <div className="vp-opening-orbit vp-opening-orbit-a" aria-hidden="true" />
+              <div className="vp-opening-orbit vp-opening-orbit-b" aria-hidden="true" />
+              <motion.div
+                className="vp-opening-aperture"
+                aria-hidden="true"
+                animate={
+                  opening && !reduceMotion ? { opacity: 0, scale: 8 } : { opacity: 0.72, scale: 1 }
+                }
+                transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.button
+                className={`vp-cover ${opening ? 'is-opening' : ''}`}
+                type="button"
+                onClick={openInvitation}
+                disabled={opening}
+                aria-label={`Mở thiệp cưới của ${brideName} và ${groomName}`}
+                initial={reduceMotion ? false : { opacity: 0, rotateX: 8, y: 34 }}
+                animate={
+                  opening && !reduceMotion
+                    ? { opacity: 0, rotateY: -16, scale: 0.9, y: -24 }
+                    : { opacity: 1, rotateX: 0, rotateY: 0, scale: 1, y: 0 }
+                }
+                transition={{ duration: opening ? 0.82 : 1, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={reduceMotion ? undefined : { rotateX: 2, rotateY: -2, y: -9 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+              >
+                <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                <span className="vp-cover-kicker">Wedding invitation</span>
+                <span className="vp-cover-monogram" aria-hidden="true">
+                  A · K
+                </span>
+                <h1>
+                  {brideName} <i>&amp;</i> {groomName}
+                </h1>
+                <time>{weddingDate}</time>
+                <strong>
+                  <Leaf weight="fill" /> {opening ? 'Khu vườn đang mở' : 'Chạm để mở thiệp'}
+                </strong>
+              </motion.button>
+              <p className="vp-opening-note">Một lời mời được ươm bằng yêu thương</p>
+            </motion.section>
+          ) : null}
+        </AnimatePresence>
 
-      {opened ? (
-        <main ref={mainRef} className="vp-invitation" tabIndex={-1}>
-          <EdgeAtmosphere />
-          {preview ? <div className="vp-preview-note">Bản xem trước · Dữ liệu mẫu</div> : null}
-          <section className="vp-hero" data-editor-section="invitation" style={sectionConfig ? { order: sectionConfig.order.indexOf('invitation') } : undefined}>
-            <motion.div className="vp-hero-photo" style={reduceMotion ? undefined : { y: heroImageY }} aria-hidden="true" />
-            <div className="vp-hero-vignette" aria-hidden="true" />
-            <motion.div
-              className="vp-hero-aperture"
-              aria-hidden="true"
-              initial={reduceMotion ? false : { opacity: 0, scale: 0.45 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.08, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            />
-            {!reduceMotion ? (
-              <Suspense fallback={null}>
-                <VerdantParticles id="vp-hero-particles" />
-              </Suspense>
-            ) : null}
-            <motion.div
-              className="vp-hero-content"
-              style={reduceMotion ? undefined : { y: heroContentY, opacity: heroContentOpacity }}
-              initial={reduceMotion ? false : { opacity: 0, y: 42 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.12, duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+        {opened ? (
+          <main ref={mainRef} className="vp-invitation" tabIndex={-1}>
+            <EdgeAtmosphere />
+            {preview ? <div className="vp-preview-note">Bản xem trước · Dữ liệu mẫu</div> : null}
+            <section
+              className="vp-hero"
+              data-editor-section="invitation"
+              style={
+                sectionConfig ? { order: sectionConfig.order.indexOf('invitation') } : undefined
+              }
             >
-              <span className="vp-eyebrow vp-eyebrow-light">{data?.eyebrow || 'Trân trọng báo tin lễ thành hôn'}</span>
-              <p className="vp-hero-script">{data?.invitationTitle || 'Our verdant promise'}</p>
-              <h1>
-                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{brideName}</motion.span></span>
-                <motion.i initial={reduceMotion ? false : { opacity: 0, rotate: -18, scale: 0.7 }} animate={{ opacity: 1, rotate: 0, scale: 1 }} transition={{ delay: 0.62, duration: 0.72 }}>&amp;</motion.i>
-                <span className="vp-name-mask"><motion.span initial={reduceMotion ? false : { y: '110%' }} animate={{ y: 0 }} transition={{ delay: 0.38, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{groomName}</motion.span></span>
-              </h1>
-              <div className="vp-hero-date"><span>Ngày cưới</span><time>{weddingDate}</time><span>{data?.venueAddress || 'Hà Nội'}</span></div>
-              <p className="vp-hero-copy">{data?.invitationMessage || 'Thân mời bạn bước vào khu vườn của chúng mình, cùng chứng kiến khoảnh khắc hai hành trình nở thành một lời hẹn trăm năm.'}</p>
-            </motion.div>
-            <div className="vp-scroll-cue" aria-hidden="true"><span>Cuộn để bước vào vườn</span><i /></div>
-          </section>
-
-          <SectionReveal className="vp-families" sectionKey="families" sectionConfig={sectionConfig}>
-            <div className="vp-botanical-shadow vp-botanical-shadow-left" aria-hidden="true" />
-            <div className="vp-botanical-shadow vp-botanical-shadow-right" aria-hidden="true" />
-            <header className="vp-section-heading">
-              <span className="vp-eyebrow">Song hỷ lâm môn</span>
-              <h2>Hai gia đình trân trọng báo tin</h2>
-              <p>Lễ thành hôn của các con chúng tôi</p>
-            </header>
-            <div className="vp-family-grid">
-              {families.map((family, index) => (
-                <motion.article
-                  key={family.side}
-                  initial={reduceMotion ? false : { opacity: 0, x: index === 0 ? -40 : 40 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ amount: 0.35, once: true }}
-                  transition={{ delay: index * 0.12, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <span className="vp-family-side">{family.side}</span>
-                  <div className="vp-family-parents">
-                    <div className="vp-family-person"><small>Ông</small><strong>{family.father}</strong></div>
-                    <span>&amp;</span>
-                    <div className="vp-family-person"><small>Bà</small><strong>{family.mother}</strong></div>
-                  </div>
-                  <div className="vp-family-rule" aria-hidden="true"><i /><Leaf weight="fill" /><i /></div>
-                  <small>{family.role}</small>
-                  <h3>{family.child}</h3>
-                  <address>{family.home}</address>
-                  <p>{family.origin}</p>
-                </motion.article>
-              ))}
-              <div className="vp-family-seal" aria-hidden="true"><span>A</span><i>&amp;</i><span>K</span></div>
-            </div>
-            <p className="vp-family-invitation">Kính mời <strong>Quý khách</strong> đến dự bữa tiệc thân mật, chung vui cùng gia đình chúng tôi.</p>
-          </SectionReveal>
-
-          <SectionReveal className="vp-date" sectionKey="eventDetails" sectionConfig={sectionConfig}>
-            <div className="vp-date-card">
-              <div className="vp-date-calendar">
-                <span>Ngày thành hôn</span>
-                <strong>{weddingDate}</strong>
-                <span>{data?.venueAddress || 'Hà Nội'}</span>
+              <motion.div
+                className="vp-hero-photo"
+                style={reduceMotion ? undefined : { y: heroImageY }}
+                aria-hidden="true"
+              />
+              <div className="vp-hero-vignette" aria-hidden="true" />
+              <motion.div
+                className="vp-hero-aperture"
+                aria-hidden="true"
+                initial={reduceMotion ? false : { opacity: 0, scale: 0.45 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.08, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              />
+              {!reduceMotion ? (
+                <Suspense fallback={null}>
+                  <VerdantParticles id="vp-hero-particles" />
+                </Suspense>
+              ) : null}
+              <motion.div
+                className="vp-hero-content"
+                style={reduceMotion ? undefined : { y: heroContentY, opacity: heroContentOpacity }}
+                initial={reduceMotion ? false : { opacity: 0, y: 42 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12, duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <span className="vp-eyebrow vp-eyebrow-light">
+                  {data?.eyebrow || 'Trân trọng báo tin lễ thành hôn'}
+                </span>
+                <p className="vp-hero-script">{data?.invitationTitle || 'Our verdant promise'}</p>
+                <h1>
+                  <span className="vp-name-mask">
+                    <motion.span
+                      initial={reduceMotion ? false : { y: '110%' }}
+                      animate={{ y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {brideName}
+                    </motion.span>
+                  </span>
+                  <motion.i
+                    initial={reduceMotion ? false : { opacity: 0, rotate: -18, scale: 0.7 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    transition={{ delay: 0.62, duration: 0.72 }}
+                  >
+                    &amp;
+                  </motion.i>
+                  <span className="vp-name-mask">
+                    <motion.span
+                      initial={reduceMotion ? false : { y: '110%' }}
+                      animate={{ y: 0 }}
+                      transition={{ delay: 0.38, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {groomName}
+                    </motion.span>
+                  </span>
+                </h1>
+                <div className="vp-hero-date">
+                  <span>Ngày cưới</span>
+                  <time>{weddingDate}</time>
+                  <span>{data?.venueAddress || 'Hà Nội'}</span>
+                </div>
+                <p className="vp-hero-copy">
+                  {data?.invitationMessage ||
+                    'Thân mời bạn bước vào khu vườn của chúng mình, cùng chứng kiến khoảnh khắc hai hành trình nở thành một lời hẹn trăm năm.'}
+                </p>
+              </motion.div>
+              <div className="vp-scroll-cue" aria-hidden="true">
+                <span>Cuộn để bước vào vườn</span>
+                <i />
               </div>
-              <div className="vp-ceremony-copy">
-                <span className="vp-eyebrow">Hôn lễ &amp; tiệc cưới</span>
-                <h2>Một ngày thu dành cho lời hẹn trăm năm</h2>
-                <dl>
-                  <div><dt>Đón khách</dt><dd>{data?.ceremonyTime || '10:30'}</dd></div>
-                  <div><dt>Cử hành hôn lễ</dt><dd>{data?.receptionTime || '11:00'}</dd></div>
-                  <div><dt>Khai tiệc</dt><dd>{data?.timelineItems?.at(-1)?.time || data?.receptionTime || '11:30'}</dd></div>
-                </dl>
-                <p>Nhằm ngày 08 tháng 09 năm Bính Ngọ</p>
-                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20An%20Nhien%20va%20Minh%20Khang" target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch</a>
-              </div>
-            </div>
-          </SectionReveal>
+            </section>
 
-          <SectionReveal className="vp-countdown" sectionKey="countdown" sectionConfig={sectionConfig}>
-            <div className="vp-countdown-orbit" aria-hidden="true" />
-            <span>Chỉ còn</span>
-            <div className="vp-countdown-units" role="timer" aria-live="off" aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}><div><strong>{weddingCountdown.days}</strong><small>Ngày</small></div><div><strong>{formatCountdownUnit(weddingCountdown.hours)}</strong><small>Giờ</small></div><div><strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong><small>Phút</small></div><div><strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong><small>Giây</small></div></div>
-            <p>để cùng gặp nhau trong khu vườn ngập nắng</p>
-          </SectionReveal>
-
-          <SectionReveal className="vp-timeline" sectionKey="timeline" sectionConfig={sectionConfig}>
-            <header className="vp-section-heading vp-section-heading-left">
-              <span className="vp-eyebrow">Lịch trình</span>
-              <h2>Những khoảnh khắc trong ngày vui</h2>
-            </header>
-            <ol>
-              {timeline.map(({ time, title, detail, Icon }, index) => (
-                <motion.li
-                  key={time}
-                  initial={reduceMotion ? false : { opacity: 0, x: -34 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ amount: 0.45, once: true }}
-                  transition={{ delay: index * 0.12, duration: 0.62 }}
-                >
-                  <time>{time}</time>
-                  <div className="vp-timeline-icon"><Icon weight={index === 1 ? 'fill' : 'regular'} /></div>
-                  <div><strong>{title}</strong><p>{detail}</p></div>
-                </motion.li>
-              ))}
-            </ol>
-          </SectionReveal>
-
-          <SectionReveal className="vp-map" sectionKey="venue" sectionConfig={sectionConfig}>
-            <div className="vp-map-copy">
-              <MapPin weight="fill" />
-              <span className="vp-eyebrow">Địa điểm</span>
-              <h2>{data?.venueName || 'Glass Garden Ballroom'}</h2>
-              <p>{data?.venueAddress || 'Hà Nội'}</p>
-              <small>Sảnh kính tầng 2 · Trang phục: thanh lịch, tông màu tự nhiên</small>
-              <a href={data?.mapUrl || 'https://maps.google.com'} target="_blank" rel="noreferrer"><NavigationArrow /> Xem đường đi</a>
-            </div>
-            <div className="vp-map-frame">
-              <iframe title={`Bản đồ ${data?.venueName || 'địa điểm cưới'}`} src={`https://www.google.com/maps?q=${encodeURIComponent(data?.venueAddress || data?.venueName || 'Ha Noi')}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-            </div>
-          </SectionReveal>
-
-          <SectionReveal className="vp-gallery" sectionKey="gallery" sectionConfig={sectionConfig}>
-            <span className="vp-eyebrow">Our moments</span>
-            <h2>Chuyện của chúng mình, qua những khung hình</h2>
-            <div
-              className="vp-slider"
-              onMouseEnter={() => setGalleryPaused(true)}
-              onMouseLeave={() => setGalleryPaused(false)}
-              onFocus={() => setGalleryPaused(true)}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) setGalleryPaused(false)
-              }}
+            <SectionReveal
+              className="vp-families"
+              sectionKey="families"
+              sectionConfig={sectionConfig}
             >
-              {gallery.map((src, index) => (
-                <motion.img
-                  key={src}
-                  className={index === slide ? 'is-active' : ''}
-                  src={src}
-                  alt={`Khoảnh khắc của cặp đôi ${index + 1}`}
-                  animate={index === slide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.08 }}
-                  transition={{ opacity: { duration: 0.9 }, scale: { duration: reduceMotion ? 0 : 5.4 } }}
+              <div className="vp-botanical-shadow vp-botanical-shadow-left" aria-hidden="true" />
+              <div className="vp-botanical-shadow vp-botanical-shadow-right" aria-hidden="true" />
+              <header className="vp-section-heading">
+                <span className="vp-eyebrow">Song hỷ lâm môn</span>
+                <h2>Hai gia đình trân trọng báo tin</h2>
+                <p>Lễ thành hôn của các con chúng tôi</p>
+              </header>
+              <div className="vp-family-grid">
+                {families.map((family, index) => (
+                  <motion.article
+                    key={family.side}
+                    initial={reduceMotion ? false : { opacity: 0, x: index === 0 ? -40 : 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ amount: 0.35, once: true }}
+                    transition={{ delay: index * 0.12, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <span className="vp-family-side">{family.side}</span>
+                    <div className="vp-family-parents">
+                      <div className="vp-family-person">
+                        <small>Ông</small>
+                        <strong>{family.father}</strong>
+                      </div>
+                      <span>&amp;</span>
+                      <div className="vp-family-person">
+                        <small>Bà</small>
+                        <strong>{family.mother}</strong>
+                      </div>
+                    </div>
+                    <div className="vp-family-rule" aria-hidden="true">
+                      <i />
+                      <Leaf weight="fill" />
+                      <i />
+                    </div>
+                    <small>{family.role}</small>
+                    <h3>{family.child}</h3>
+                    <address>{family.home}</address>
+                    <p>{family.origin}</p>
+                  </motion.article>
+                ))}
+                <div className="vp-family-seal" aria-hidden="true">
+                  <span>A</span>
+                  <i>&amp;</i>
+                  <span>K</span>
+                </div>
+              </div>
+              <p className="vp-family-invitation">
+                Kính mời <strong>Quý khách</strong> đến dự bữa tiệc thân mật, chung vui cùng gia
+                đình chúng tôi.
+              </p>
+            </SectionReveal>
+
+            <SectionReveal
+              className="vp-date"
+              sectionKey="eventDetails"
+              sectionConfig={sectionConfig}
+            >
+              <div className="vp-date-card">
+                <div className="vp-date-calendar">
+                  <span>Ngày thành hôn</span>
+                  <strong>{weddingDate}</strong>
+                  <span>{data?.venueAddress || 'Hà Nội'}</span>
+                </div>
+                <div className="vp-ceremony-copy">
+                  <span className="vp-eyebrow">Hôn lễ &amp; tiệc cưới</span>
+                  <h2>Một ngày thu dành cho lời hẹn trăm năm</h2>
+                  <dl>
+                    <div>
+                      <dt>Đón khách</dt>
+                      <dd>{data?.ceremonyTime || '10:30'}</dd>
+                    </div>
+                    <div>
+                      <dt>Cử hành hôn lễ</dt>
+                      <dd>{data?.receptionTime || '11:00'}</dd>
+                    </div>
+                    <div>
+                      <dt>Khai tiệc</dt>
+                      <dd>{data?.timelineItems?.at(-1)?.time || data?.receptionTime || '11:30'}</dd>
+                    </div>
+                  </dl>
+                  <p>Nhằm ngày 08 tháng 09 năm Bính Ngọ</p>
+                  <a
+                    href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20An%20Nhien%20va%20Minh%20Khang"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <CalendarBlank /> Thêm vào lịch
+                  </a>
+                </div>
+              </div>
+            </SectionReveal>
+
+            <SectionReveal
+              className="vp-countdown"
+              sectionKey="countdown"
+              sectionConfig={sectionConfig}
+            >
+              <div className="vp-countdown-orbit" aria-hidden="true" />
+              <span>Chỉ còn</span>
+              <div
+                className="vp-countdown-units"
+                role="timer"
+                aria-live="off"
+                aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
+              >
+                <div>
+                  <strong>{weddingCountdown.days}</strong>
+                  <small>Ngày</small>
+                </div>
+                <div>
+                  <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
+                  <small>Giờ</small>
+                </div>
+                <div>
+                  <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
+                  <small>Phút</small>
+                </div>
+                <div>
+                  <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
+                  <small>Giây</small>
+                </div>
+              </div>
+              <p>để cùng gặp nhau trong khu vườn ngập nắng</p>
+            </SectionReveal>
+
+            <SectionReveal
+              className="vp-timeline"
+              sectionKey="timeline"
+              sectionConfig={sectionConfig}
+            >
+              <header className="vp-section-heading vp-section-heading-left">
+                <span className="vp-eyebrow">Lịch trình</span>
+                <h2>Những khoảnh khắc trong ngày vui</h2>
+              </header>
+              <ol>
+                {timeline.map(({ time, title, detail, Icon }, index) => (
+                  <motion.li
+                    key={time}
+                    initial={reduceMotion ? false : { opacity: 0, x: -34 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ amount: 0.45, once: true }}
+                    transition={{ delay: index * 0.12, duration: 0.62 }}
+                  >
+                    <time>{time}</time>
+                    <div className="vp-timeline-icon">
+                      <Icon weight={index === 1 ? 'fill' : 'regular'} />
+                    </div>
+                    <div>
+                      <strong>{title}</strong>
+                      <p>{detail}</p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ol>
+            </SectionReveal>
+
+            <SectionReveal className="vp-map" sectionKey="venue" sectionConfig={sectionConfig}>
+              <div className="vp-map-copy">
+                <MapPin weight="fill" />
+                <span className="vp-eyebrow">Địa điểm</span>
+                <h2>{data?.venueName || 'Glass Garden Ballroom'}</h2>
+                <p>{data?.venueAddress || 'Hà Nội'}</p>
+                <small>Sảnh kính tầng 2 · Trang phục: thanh lịch, tông màu tự nhiên</small>
+                <a
+                  href={data?.mapUrl || 'https://maps.google.com'}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <NavigationArrow /> Xem đường đi
+                </a>
+              </div>
+              <div className="vp-map-frame">
+                <iframe
+                  title={`Bản đồ ${data?.venueName || 'địa điểm cưới'}`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(data?.venueAddress || data?.venueName || 'Ha Noi')}&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
-              ))}
-              <div className="vp-gallery-matte" aria-hidden="true">
-                <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
-                <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
               </div>
-              <div className="vp-gallery-caption"><span>0{slide + 1}</span><p>Grow wild, love deeply.</p></div>
-              <button type="button" className="is-prev" onClick={() => setSlide((slide - 1 + gallery.length) % gallery.length)} aria-label="Ảnh trước"><CaretLeft /></button>
-              <button type="button" className="is-next" onClick={() => setSlide((slide + 1) % gallery.length)} aria-label="Ảnh tiếp theo"><CaretRight /></button>
-            </div>
-            <div className="vp-dots" aria-label="Chọn ảnh trong album">
-              {gallery.map((_, index) => <button key={index} type="button" className={index === slide ? 'is-active' : ''} onClick={() => setSlide(index)} aria-label={`Xem ảnh ${index + 1}`} />)}
-            </div>
-          </SectionReveal>
+            </SectionReveal>
 
-          <SectionReveal className="vp-rsvp" sectionKey="rsvp" sectionConfig={sectionConfig}>
-            <div className="vp-rsvp-glow" aria-hidden="true" />
-            <span className="vp-eyebrow vp-eyebrow-light">RSVP{data?.rsvpDeadline ? ` · Trước ${data.rsvpDeadline}` : ''}</span>
-            <Sparkle weight="fill" />
-            <h2>Bạn sẽ đến chung vui cùng chúng mình chứ?</h2>
-            <p>{data?.rsvpMessage || 'Sự hiện diện của bạn sẽ làm khu vườn ngày ấy thêm trọn vẹn.'}</p>
-            <div className="vp-rsvp-actions">
-              <button type="button" className={rsvp === 'attending' ? 'is-selected' : ''} onClick={() => setRsvp('attending')}>Mình sẽ tham dự</button>
-              <button type="button" className={rsvp === 'declined' ? 'is-selected' : ''} onClick={() => setRsvp('declined')}>Mình chưa thể tham dự</button>
-            </div>
-            <AnimatePresence>
-              {rsvp === 'attending' && !reduceMotion ? (
-                <motion.div className="vp-rsvp-bloom" aria-hidden="true" initial={{ opacity: 0, scale: 0.72 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.72 }}>
-                  {Array.from({ length: 6 }, (_, index) => <Leaf key={index} weight="fill" />)}
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-            <AnimatePresence mode="wait">
-              {rsvp ? (
-                <motion.p key={rsvp} className="vp-rsvp-feedback" role="status" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  {rsvp === 'attending' ? 'Thật vui vì sẽ được gặp bạn trong ngày đặc biệt này.' : 'Cảm ơn bạn đã phản hồi. Chúng mình vẫn luôn trân quý lời chúc của bạn.'}
-                </motion.p>
-              ) : null}
-            </AnimatePresence>
-          </SectionReveal>
+            <SectionReveal
+              className="vp-gallery"
+              sectionKey="gallery"
+              sectionConfig={sectionConfig}
+            >
+              <span className="vp-eyebrow">Our moments</span>
+              <h2>Chuyện của chúng mình, qua những khung hình</h2>
+              <div
+                className="vp-slider"
+                onMouseEnter={() => setGalleryPaused(true)}
+                onMouseLeave={() => setGalleryPaused(false)}
+                onFocus={() => setGalleryPaused(true)}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) setGalleryPaused(false)
+                }}
+              >
+                {gallery.map((src, index) => (
+                  <motion.img
+                    key={src}
+                    className={index === slide ? 'is-active' : ''}
+                    src={src}
+                    alt={`Khoảnh khắc của cặp đôi ${index + 1}`}
+                    animate={
+                      index === slide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.08 }
+                    }
+                    transition={{
+                      opacity: { duration: 0.9 },
+                      scale: { duration: reduceMotion ? 0 : 5.4 },
+                    }}
+                  />
+                ))}
+                <div className="vp-gallery-matte" aria-hidden="true">
+                  <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                  <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                </div>
+                <div className="vp-gallery-caption">
+                  <span>0{slide + 1}</span>
+                  <p>Grow wild, love deeply.</p>
+                </div>
+                <button
+                  type="button"
+                  className="is-prev"
+                  onClick={() => setSlide((slide - 1 + gallery.length) % gallery.length)}
+                  aria-label="Ảnh trước"
+                >
+                  <CaretLeft />
+                </button>
+                <button
+                  type="button"
+                  className="is-next"
+                  onClick={() => setSlide((slide + 1) % gallery.length)}
+                  aria-label="Ảnh tiếp theo"
+                >
+                  <CaretRight />
+                </button>
+              </div>
+              <div className="vp-dots" aria-label="Chọn ảnh trong album">
+                {gallery.map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={index === slide ? 'is-active' : ''}
+                    onClick={() => setSlide(index)}
+                    aria-label={`Xem ảnh ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </SectionReveal>
 
-          <SectionReveal className="vp-guestbook" sectionKey="guestbook" sectionConfig={sectionConfig}>
-            <header className="vp-section-heading">
-              <span className="vp-eyebrow">Sổ lưu bút</span>
-              <h2>Gửi một lời chúc thật xanh</h2>
-            </header>
-            <div className="vp-wish-form">
-              <label><span>Tên của bạn</span><input value={wishName} onChange={(event) => setWishName(event.target.value)} placeholder="Ví dụ: Thanh An" /></label>
-              <label><span>Lời chúc</span><textarea value={wish} onChange={(event) => setWish(event.target.value)} placeholder="Viết điều bạn muốn gửi đến cô dâu chú rể..." /></label>
-              <button type="button" onClick={sendWish} disabled={!wishName.trim() || !wish.trim()}>Gửi lời chúc <Heart weight="fill" /></button>
-            </div>
-            <div className="vp-wishes" aria-live="polite">
-              {wishes.map((item, index) => (
-                <motion.article key={`${item.name}-${index}`} initial={reduceMotion ? false : { opacity: 0, rotate: index % 2 ? 1.5 : -1.5, y: 16 }} whileInView={{ opacity: 1, rotate: 0, y: 0 }} viewport={{ once: true }}>
-                  <Heart weight="fill" /><p>{item.message}</p><strong>{item.name}</strong>
-                </motion.article>
-              ))}
-            </div>
-          </SectionReveal>
+            <SectionReveal className="vp-rsvp" sectionKey="rsvp" sectionConfig={sectionConfig}>
+              <div className="vp-rsvp-glow" aria-hidden="true" />
+              <span className="vp-eyebrow vp-eyebrow-light">
+                RSVP{data?.rsvpDeadline ? ` · Trước ${data.rsvpDeadline}` : ''}
+              </span>
+              <Sparkle weight="fill" />
+              <h2>Bạn sẽ đến chung vui cùng chúng mình chứ?</h2>
+              <p>
+                {data?.rsvpMessage || 'Sự hiện diện của bạn sẽ làm khu vườn ngày ấy thêm trọn vẹn.'}
+              </p>
+              <div className="vp-rsvp-actions">
+                <button
+                  type="button"
+                  className={rsvp === 'attending' ? 'is-selected' : ''}
+                  onClick={() => setRsvp('attending')}
+                >
+                  Mình sẽ tham dự
+                </button>
+                <button
+                  type="button"
+                  className={rsvp === 'declined' ? 'is-selected' : ''}
+                  onClick={() => setRsvp('declined')}
+                >
+                  Mình chưa thể tham dự
+                </button>
+              </div>
+              <AnimatePresence>
+                {rsvp === 'attending' && !reduceMotion ? (
+                  <motion.div
+                    className="vp-rsvp-bloom"
+                    aria-hidden="true"
+                    initial={{ opacity: 0, scale: 0.72 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.72 }}
+                  >
+                    {Array.from({ length: 6 }, (_, index) => (
+                      <Leaf key={index} weight="fill" />
+                    ))}
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                {rsvp ? (
+                  <motion.p
+                    key={rsvp}
+                    className="vp-rsvp-feedback"
+                    role="status"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {rsvp === 'attending'
+                      ? 'Thật vui vì sẽ được gặp bạn trong ngày đặc biệt này.'
+                      : 'Cảm ơn bạn đã phản hồi. Chúng mình vẫn luôn trân quý lời chúc của bạn.'}
+                  </motion.p>
+                ) : null}
+              </AnimatePresence>
+            </SectionReveal>
 
-          <SectionReveal className="vp-gift" sectionKey="gift" sectionConfig={sectionConfig}>
-            <Gift weight="fill" />
-            <span className="vp-eyebrow">Quà mừng</span>
-            <p>{data?.giftMessage || 'Sự hiện diện và lời chúc của bạn đã là món quà quý giá nhất.'}</p>
-            <button type="button" onClick={() => setGiftOpen((current) => !current)} aria-expanded={giftOpen}>{giftOpen ? 'Khép lại' : 'Xem lời nhắn mừng cưới'}</button>
-            <AnimatePresence>
-              {giftOpen ? (
-                <motion.div className="vp-gift-note" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                  <Leaf weight="fill" />
-                  <p>Nếu muốn gửi một món quà nhỏ, bạn có thể trao trực tiếp trong ngày vui. Thông tin chuyển khoản chỉ hiển thị khi chủ thiệp chủ động bật.</p>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </SectionReveal>
+            <SectionReveal
+              className="vp-guestbook"
+              sectionKey="guestbook"
+              sectionConfig={sectionConfig}
+            >
+              <header className="vp-section-heading">
+                <span className="vp-eyebrow">Sổ lưu bút</span>
+                <h2>Gửi một lời chúc thật xanh</h2>
+              </header>
+              <div className="vp-wish-form">
+                <label>
+                  <span>Tên của bạn</span>
+                  <input
+                    value={wishName}
+                    onChange={(event) => setWishName(event.target.value)}
+                    placeholder="Ví dụ: Thanh An"
+                  />
+                </label>
+                <label>
+                  <span>Lời chúc</span>
+                  <textarea
+                    value={wish}
+                    onChange={(event) => setWish(event.target.value)}
+                    placeholder="Viết điều bạn muốn gửi đến cô dâu chú rể..."
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={sendWish}
+                  disabled={!wishName.trim() || !wish.trim()}
+                >
+                  Gửi lời chúc <Heart weight="fill" />
+                </button>
+              </div>
+              <div className="vp-wishes" aria-live="polite">
+                {wishes.map((item, index) => (
+                  <motion.article
+                    key={`${item.name}-${index}`}
+                    initial={
+                      reduceMotion ? false : { opacity: 0, rotate: index % 2 ? 1.5 : -1.5, y: 16 }
+                    }
+                    whileInView={{ opacity: 1, rotate: 0, y: 0 }}
+                    viewport={{ once: true }}
+                  >
+                    <Heart weight="fill" />
+                    <p>{item.message}</p>
+                    <strong>{item.name}</strong>
+                  </motion.article>
+                ))}
+              </div>
+            </SectionReveal>
 
-          <motion.footer className="vp-footer" data-editor-section="footer" style={sectionConfig ? { order: sectionConfig.order.indexOf('footer') } : undefined} initial={reduceMotion ? false : { opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }}>
-            <div className="vp-footer-photo" aria-hidden="true" style={data?.footerMedia?.src ? { backgroundImage: `url(${data.footerMedia.src})` } : undefined} />
-            <span>With love</span>
-            <strong>{brideName} &amp; {groomName}</strong>
-            <p>{data?.footerMessage || 'Cảm ơn bạn đã dành thời gian bước vào khu vườn và trở thành một phần trong ngày thật đẹp của chúng mình.'}</p>
-            <small>{weddingDate}</small>
-          </motion.footer>
-        </main>
-      ) : null}
-    </div>
+            <SectionReveal className="vp-gift" sectionKey="gift" sectionConfig={sectionConfig}>
+              <Gift weight="fill" />
+              <span className="vp-eyebrow">Quà mừng</span>
+              <p>
+                {data?.giftMessage ||
+                  'Sự hiện diện và lời chúc của bạn đã là món quà quý giá nhất.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setGiftOpen((current) => !current)}
+                aria-expanded={giftOpen}
+              >
+                {giftOpen ? 'Khép lại' : 'Xem lời nhắn mừng cưới'}
+              </button>
+              <AnimatePresence>
+                {giftOpen ? (
+                  <motion.div
+                    className="vp-gift-note"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <Leaf weight="fill" />
+                    <p>
+                      Nếu muốn gửi một món quà nhỏ, bạn có thể trao trực tiếp trong ngày vui. Thông
+                      tin chuyển khoản chỉ hiển thị khi chủ thiệp chủ động bật.
+                    </p>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </SectionReveal>
+
+            <motion.footer
+              className="vp-footer"
+              data-editor-section="footer"
+              style={sectionConfig ? { order: sectionConfig.order.indexOf('footer') } : undefined}
+              initial={reduceMotion ? false : { opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+            >
+              <div
+                className="vp-footer-photo"
+                aria-hidden="true"
+                style={
+                  data?.footerMedia?.src
+                    ? { backgroundImage: `url(${data.footerMedia.src})` }
+                    : undefined
+                }
+              />
+              <span>With love</span>
+              <strong>
+                {brideName} &amp; {groomName}
+              </strong>
+              <p>
+                {data?.footerMessage ||
+                  'Cảm ơn bạn đã dành thời gian bước vào khu vườn và trở thành một phần trong ngày thật đẹp của chúng mình.'}
+              </p>
+              <small>{weddingDate}</small>
+            </motion.footer>
+          </main>
+        ) : null}
+      </div>
     </MotionConfig>
   )
 }
