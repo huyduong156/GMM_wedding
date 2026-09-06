@@ -11,16 +11,26 @@
   content: '';
   border: 1px solid currentColor;
   border-radius: inherit;
-  opacity: .55;
+  opacity: 0.55;
   pointer-events: none;
   animation: interaction-ripple-expand 2.6s ease-out infinite;
 }
 
 @keyframes interaction-ripple-expand {
-  0% { opacity: .55; transform: scale(.9); }
-  70%, 100% { opacity: 0; transform: scale(1.45); }
+  0% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .interaction-ripple::before { animation: none; opacity: 0; }
+  .interaction-ripple::before {
+    animation: none;
+    opacity: 0;
+  }
 }

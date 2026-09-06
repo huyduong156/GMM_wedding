@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'Cormorant Garamond GMM';
-  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Variable.ttf') format('truetype-variations');
+  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Variable.ttf')
+    format('truetype-variations');
   font-style: normal;
   font-weight: 300 700;
   font-display: swap;
@@ -8,7 +9,8 @@
 
 @font-face {
   font-family: 'Cormorant Garamond GMM';
-  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Italic-Variable.ttf') format('truetype-variations');
+  src: url('/assets/fonts/cormorant-garamond/CormorantGaramond-Italic-Variable.ttf')
+    format('truetype-variations');
   font-style: italic;
   font-weight: 300 700;
   font-display: swap;
@@ -30,14 +32,63 @@
   font-display: swap;
 }
 
-@font-face { font-family: 'Playfair Display GMM'; src: url('/assets/fonts/playfair-display/PlayfairDisplay-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 400 900; font-display: swap; }
-@font-face { font-family: 'Lora GMM'; src: url('/assets/fonts/lora/Lora-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 400 700; font-display: swap; }
-@font-face { font-family: 'Fraunces GMM'; src: url('/assets/fonts/fraunces/Fraunces-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
-@font-face { font-family: 'Phudu GMM'; src: url('/assets/fonts/phudu/Phudu-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 300 900; font-display: swap; }
-@font-face { font-family: 'Montserrat GMM'; src: url('/assets/fonts/montserrat/Montserrat-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 100 900; font-display: swap; }
-@font-face { font-family: 'Nunito Sans GMM'; src: url('/assets/fonts/nunito-sans/NunitoSans-Variable.ttf') format('truetype-variations'); font-style: normal; font-weight: 200 1000; font-display: swap; }
-@font-face { font-family: 'Patrick Hand GMM'; src: url('/assets/fonts/patrick-hand/PatrickHand-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
-@font-face { font-family: 'Tapestry GMM'; src: url('/assets/fonts/tapestry/Tapestry-Regular.ttf') format('truetype'); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face {
+  font-family: 'Playfair Display GMM';
+  src: url('/assets/fonts/playfair-display/PlayfairDisplay-Variable.ttf')
+    format('truetype-variations');
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lora GMM';
+  src: url('/assets/fonts/lora/Lora-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fraunces GMM';
+  src: url('/assets/fonts/fraunces/Fraunces-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Phudu GMM';
+  src: url('/assets/fonts/phudu/Phudu-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat GMM';
+  src: url('/assets/fonts/montserrat/Montserrat-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nunito Sans GMM';
+  src: url('/assets/fonts/nunito-sans/NunitoSans-Variable.ttf') format('truetype-variations');
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Patrick Hand GMM';
+  src: url('/assets/fonts/patrick-hand/PatrickHand-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Tapestry GMM';
+  src: url('/assets/fonts/tapestry/Tapestry-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Be Vietnam Pro GMM';

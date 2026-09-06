@@ -1,8 +1,120 @@
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')).replace(/\/$/, '')
+const apiBaseUrl = (
+  import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
+).replace(/\/$/, '')
 export type MusicTrackStatus = 'DRAFT' | 'PROCESSING' | 'FAILED' | 'READY' | 'RETIRED'
-export type MusicTrack = { id: string; scope: 'SYSTEM' | 'PERSONAL'; status: MusicTrackStatus; displayName: string; artistName: string | null; durationSeconds: number | null; mimeType: string; sizeBytes: number; licenseType: string | null; licenseReference: string | null; creditText: string | null; revision: number; playbackUrl: string | null; createdAt: string; updatedAt: string }
-export type MusicUploadIntent = { track: MusicTrack; upload: { uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string } }
-export class AdminMusicApiError extends Error { constructor(public readonly status: number, public readonly code: string, message: string) { super(message); this.name = 'AdminMusicApiError' } }
-async function request<T>(path: string, init?: RequestInit): Promise<T> { const response = await fetch(`${apiBaseUrl}${path}`, { ...init, credentials: 'include', headers: { ...(init?.body ? { 'content-type': 'application/json' } : {}), ...(init?.method && init.method !== 'GET' ? { 'x-csrf-protection': '1' } : {}), ...init?.headers } }); if (!response.ok) { let body: { error?: { code?: string; message?: string } } = {}; try { body = await response.json() as typeof body } catch { /* gateway response */ } throw new AdminMusicApiError(response.status, body.error?.code ?? 'ADMIN_MUSIC_REQUEST_FAILED', body.error?.message ?? 'Không thể thực hiện thao tác với kho nhạc.') } return response.status === 204 ? undefined as T : response.json() as Promise<T> }
+export type MusicTrack = {
+  id: string
+  scope: 'SYSTEM' | 'PERSONAL'
+  status: MusicTrackStatus
+  displayName: string
+  artistName: string | null
+  durationSeconds: number | null
+  mimeType: string
+  sizeBytes: number
+  licenseType: string | null
+  licenseReference: string | null
+  creditText: string | null
+  revision: number
+  playbackUrl: string | null
+  createdAt: string
+  updatedAt: string
+}
+export type MusicUploadIntent = {
+  track: MusicTrack
+  upload: { uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string }
+}
+export class AdminMusicApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'AdminMusicApiError'
+  }
+}
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    credentials: 'include',
+    headers: {
+      ...(init?.body ? { 'content-type': 'application/json' } : {}),
+      ...(init?.method && init.method !== 'GET' ? { 'x-csrf-protection': '1' } : {}),
+      ...init?.headers,
+    },
+  })
+  if (!response.ok) {
+    let body: { error?: { code?: string; message?: string } } = {}
+    try {
+      body = (await response.json()) as typeof body
+    } catch {
+      /* gateway response */
+    }
+    throw new AdminMusicApiError(
+      response.status,
+      body.error?.code ?? 'ADMIN_MUSIC_REQUEST_FAILED',
+      body.error?.message ?? 'Không thể thực hiện thao tác với kho nhạc.',
+    )
+  }
+  return response.status === 204 ? (undefined as T) : (response.json() as Promise<T>)
+}
 const trackPath = (id: string) => `/admin/music-tracks/${encodeURIComponent(id)}`
-export const adminMusicApi = { list: (q?: string) => request<{ items: MusicTrack[] }>(`/admin/music-tracks${q ? `?q=${encodeURIComponent(q)}` : ''}`), createIntent: (input: { displayName: string; artistName?: string; mimeType: string; sizeBytes: number; licenseType: string; licenseReference: string; creditText?: string }) => request<MusicUploadIntent>('/admin/music-tracks/upload-intents', { method: 'POST', body: JSON.stringify(input) }), complete: (id: string) => request<{ track: MusicTrack }>(`${trackPath(id)}/complete`, { method: 'POST', body: '{}' }), activate: (id: string) => request<{ track: MusicTrack }>(`${trackPath(id)}/activate`, { method: 'POST', body: '{}' }), retire: (id: string) => request<{ track: MusicTrack }>(`${trackPath(id)}/retire`, { method: 'POST', body: '{}' }), update: (id: string, input: { displayName?: string; artistName?: string | null; licenseType?: string | null; licenseReference?: string | null; creditText?: string | null; sortOrder?: number; revision: number }) => request<{ track: MusicTrack }>(trackPath(id), { method: 'PATCH', body: JSON.stringify(input) }), uploadBytes: async (intent: MusicUploadIntent, file: File) => { const backendUpload = intent.upload.uploadUrl === 'backend-upload'; const response = await fetch(backendUpload ? `${apiBaseUrl}${trackPath(intent.track.id)}/upload` : intent.upload.uploadUrl, { method: intent.upload.method, body: file, credentials: backendUpload ? 'include' : 'omit', headers: { ...intent.upload.headers, ...(backendUpload ? { 'x-csrf-protection': '1' } : {}) } }); if (!response.ok) throw new AdminMusicApiError(response.status, 'MUSIC_UPLOAD_FAILED', 'Không thể tải file nhạc lên kho lưu trữ.') } }
+export const adminMusicApi = {
+  list: (q?: string) =>
+    request<{ items: MusicTrack[] }>(
+      `/admin/music-tracks${q ? `?q=${encodeURIComponent(q)}` : ''}`,
+    ),
+  createIntent: (input: {
+    displayName: string
+    artistName?: string
+    mimeType: string
+    sizeBytes: number
+    licenseType: string
+    licenseReference: string
+    creditText?: string
+  }) =>
+    request<MusicUploadIntent>('/admin/music-tracks/upload-intents', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  complete: (id: string) =>
+    request<{ track: MusicTrack }>(`${trackPath(id)}/complete`, { method: 'POST', body: '{}' }),
+  activate: (id: string) =>
+    request<{ track: MusicTrack }>(`${trackPath(id)}/activate`, { method: 'POST', body: '{}' }),
+  retire: (id: string) =>
+    request<{ track: MusicTrack }>(`${trackPath(id)}/retire`, { method: 'POST', body: '{}' }),
+  update: (
+    id: string,
+    input: {
+      displayName?: string
+      artistName?: string | null
+      licenseType?: string | null
+      licenseReference?: string | null
+      creditText?: string | null
+      sortOrder?: number
+      revision: number
+    },
+  ) =>
+    request<{ track: MusicTrack }>(trackPath(id), { method: 'PATCH', body: JSON.stringify(input) }),
+  uploadBytes: async (intent: MusicUploadIntent, file: File) => {
+    const backendUpload = intent.upload.uploadUrl === 'backend-upload'
+    const response = await fetch(
+      backendUpload ? `${apiBaseUrl}${trackPath(intent.track.id)}/upload` : intent.upload.uploadUrl,
+      {
+        method: intent.upload.method,
+        body: file,
+        credentials: backendUpload ? 'include' : 'omit',
+        headers: {
+          ...intent.upload.headers,
+          ...(backendUpload ? { 'x-csrf-protection': '1' } : {}),
+        },
+      },
+    )
+    if (!response.ok)
+      throw new AdminMusicApiError(
+        response.status,
+        'MUSIC_UPLOAD_FAILED',
+        'Không thể tải file nhạc lên kho lưu trữ.',
+      )
+  },
+}

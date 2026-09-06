@@ -1,7 +1,20 @@
 import type { RsvpAttendance } from '../../api/weddings'
 
-export type PublicRsvpInput = { guestName?: string; attendance: RsvpAttendance; partySize: number; mealPreference?: string; specialRequest?: string; message?: string }
-export type PublicWish = { id: string; authorName: string; content: string; submittedAt: string; isPinned: boolean }
+export type PublicRsvpInput = {
+  guestName?: string
+  attendance: RsvpAttendance
+  partySize: number
+  mealPreference?: string
+  specialRequest?: string
+  message?: string
+}
+export type PublicWish = {
+  id: string
+  authorName: string
+  content: string
+  submittedAt: string
+  isPinned: boolean
+}
 export type PublicRsvpController = {
   isPersonalized: boolean
   submit: (input: PublicRsvpInput) => Promise<boolean>

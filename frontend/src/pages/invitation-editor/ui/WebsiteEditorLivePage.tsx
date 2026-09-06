@@ -1,8 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowClockwise, ArrowDown, ArrowLeft, ArrowUUpLeft, ArrowUUpRight, ArrowUp, ArrowsOut, Desktop, DeviceMobile, Eye, FloppyDisk, Image, Plus, Trash, X } from '@phosphor-icons/react'
+import {
+  ArrowClockwise,
+  ArrowDown,
+  ArrowLeft,
+  ArrowUUpLeft,
+  ArrowUUpRight,
+  ArrowUp,
+  ArrowsOut,
+  Desktop,
+  DeviceMobile,
+  Eye,
+  FloppyDisk,
+  Image,
+  Plus,
+  Trash,
+  X,
+} from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { WeddingApiError, weddingApi, type TemplateSectionConfig, type TemplateFieldConfig } from '../../../shared/api/weddings'
+import {
+  WeddingApiError,
+  weddingApi,
+  type TemplateSectionConfig,
+  type TemplateFieldConfig,
+} from '../../../shared/api/weddings'
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { EditorPreviewModal } from '../../../shared/ui/EditorPreviewModal'
@@ -16,33 +37,156 @@ import type { MediaAsset } from '../../../shared/api/weddings'
 import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import { getWebsiteTemplate } from '../../../templates/template-registry'
 
-type Section = { sectionKey: string; label?: string; required?: boolean; canToggle?: boolean; canReorder?: boolean }
+type Section = {
+  sectionKey: string
+  label?: string
+  required?: boolean
+  canToggle?: boolean
+  canReorder?: boolean
+}
 type WebsiteData = Record<string, unknown>
-type HistoryState = { data: WebsiteData; order: string[]; enabled: string[]; theme: Record<string, unknown> }
+type HistoryState = {
+  data: WebsiteData
+  order: string[]
+  enabled: string[]
+  theme: Record<string, unknown>
+}
 type MediaTarget = { path: string; multiple: boolean; role: string; mediaValue?: 'url' | 'object' }
 const initialTemplate = getWebsiteTemplate('editorial-vows')!
-const keyOf = (value: unknown) => typeof value === 'string' ? value : typeof value === 'object' && value !== null && typeof (value as Section).sectionKey === 'string' ? (value as Section).sectionKey : ''
-const localSections = (key: string): Section[] => ((getWebsiteTemplate(key)?.config.sections ?? []) as unknown[]).map((item) => typeof item === 'string' ? { sectionKey: item } : item as Section).filter((item) => item.sectionKey)
-const mergeSections = (key: string, remote?: TemplateSectionConfig[]) => { const local = localSections(key); const remoteByKey = new Map((remote ?? []).map((item) => [keyOf(item), item])); const source: Section[] = [...local, ...(remote ?? []).filter((item) => !local.some((localItem) => localItem.sectionKey === keyOf(item)))].map((item) => typeof item === 'string' ? { sectionKey: item } : item as Section); return source.map((item) => { const remoteItem = remoteByKey.get(keyOf(item)); const remoteConfig = (typeof remoteItem === 'object' && remoteItem !== null ? remoteItem : {}) as Partial<Section>; return { ...item, ...remoteConfig, sectionKey: keyOf(remoteItem) || keyOf(item), label: remoteConfig.label ?? item.label ?? keyOf(item) } }) }
+const keyOf = (value: unknown) =>
+  typeof value === 'string'
+    ? value
+    : typeof value === 'object' &&
+        value !== null &&
+        typeof (value as Section).sectionKey === 'string'
+      ? (value as Section).sectionKey
+      : ''
+const localSections = (key: string): Section[] =>
+  ((getWebsiteTemplate(key)?.config.sections ?? []) as unknown[])
+    .map((item) => (typeof item === 'string' ? { sectionKey: item } : (item as Section)))
+    .filter((item) => item.sectionKey)
+const mergeSections = (key: string, remote?: TemplateSectionConfig[]) => {
+  const local = localSections(key)
+  const remoteByKey = new Map((remote ?? []).map((item) => [keyOf(item), item]))
+  const source: Section[] = [
+    ...local,
+    ...(remote ?? []).filter(
+      (item) => !local.some((localItem) => localItem.sectionKey === keyOf(item)),
+    ),
+  ].map((item) => (typeof item === 'string' ? { sectionKey: item } : (item as Section)))
+  return source.map((item) => {
+    const remoteItem = remoteByKey.get(keyOf(item))
+    const remoteConfig = (
+      typeof remoteItem === 'object' && remoteItem !== null ? remoteItem : {}
+    ) as Partial<Section>
+    return {
+      ...item,
+      ...remoteConfig,
+      sectionKey: keyOf(remoteItem) || keyOf(item),
+      label: remoteConfig.label ?? item.label ?? keyOf(item),
+    }
+  })
+}
 const clone = <T,>(value: T): T => structuredClone(value)
-const getPath = (data: WebsiteData, path: string) => path.split('.').reduce<unknown>((value, part) => value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined, data)
-const setPath = (data: WebsiteData, path: string, value: unknown) => { const next = clone(data); const parts = path.split('.'); let cursor: Record<string, unknown> = next; parts.slice(0, -1).forEach((part) => { cursor[part] = cursor[part] && typeof cursor[part] === 'object' ? cursor[part] : {}; cursor = cursor[part] as Record<string, unknown> }); cursor[parts.at(-1)!] = value; return next }
-const mergeData = (base: WebsiteData, stored: WebsiteData): WebsiteData => { const next = clone(base); for (const [key, value] of Object.entries(stored ?? {})) next[key] = value && typeof value === 'object' && !Array.isArray(value) && next[key] && typeof next[key] === 'object' && !Array.isArray(next[key]) ? mergeData(next[key] as WebsiteData, value as WebsiteData) : value; return next }
-const sectionDefaults = (sections: Section[], previous?: { enabled: string[]; order: string[] }) => { const keys = sections.map((item) => item.sectionKey); const oldOrder = previous?.order.filter((key) => keys.includes(key)) ?? []; const added = keys.filter((key) => !oldOrder.includes(key)); const required = sections.filter((item) => item.required).map((item) => item.sectionKey); return { order: [...oldOrder, ...added], enabled: [...new Set([...(previous?.enabled ?? []).filter((key) => keys.includes(key)), ...added, ...required])] } }
+const getPath = (data: WebsiteData, path: string) =>
+  path
+    .split('.')
+    .reduce<unknown>(
+      (value, part) =>
+        value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined,
+      data,
+    )
+const setPath = (data: WebsiteData, path: string, value: unknown) => {
+  const next = clone(data)
+  const parts = path.split('.')
+  let cursor: Record<string, unknown> = next
+  parts.slice(0, -1).forEach((part) => {
+    cursor[part] = cursor[part] && typeof cursor[part] === 'object' ? cursor[part] : {}
+    cursor = cursor[part] as Record<string, unknown>
+  })
+  cursor[parts.at(-1)!] = value
+  return next
+}
+const mergeData = (base: WebsiteData, stored: WebsiteData): WebsiteData => {
+  const next = clone(base)
+  for (const [key, value] of Object.entries(stored ?? {}))
+    next[key] =
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      next[key] &&
+      typeof next[key] === 'object' &&
+      !Array.isArray(next[key])
+        ? mergeData(next[key] as WebsiteData, value as WebsiteData)
+        : value
+  return next
+}
+const sectionDefaults = (
+  sections: Section[],
+  previous?: { enabled: string[]; order: string[] },
+) => {
+  const keys = sections.map((item) => item.sectionKey)
+  const oldOrder = previous?.order.filter((key) => keys.includes(key)) ?? []
+  const added = keys.filter((key) => !oldOrder.includes(key))
+  const required = sections.filter((item) => item.required).map((item) => item.sectionKey)
+  return {
+    order: [...oldOrder, ...added],
+    enabled: [
+      ...new Set([
+        ...(previous?.enabled ?? []).filter((key) => keys.includes(key)),
+        ...added,
+        ...required,
+      ]),
+    ],
+  }
+}
 
 export function WebsiteEditorLivePage() {
-  const workspace = useOptionalWeddingWorkspace(); const weddingId = workspace?.activeWedding?.id ?? null
-  const [loading, setLoading] = useState(Boolean(weddingId)), [saving, setSaving] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState(''), [missing, setMissing] = useState(false)
-  const [templateKey, setTemplateKey] = useState(''), [templatePreviewPath, setTemplatePreviewPath] = useState(initialTemplate.previewPath), [templateVersionId, setTemplateVersionId] = useState<string | null>(null), [revision, setRevision] = useState<number | null>(null), [data, setData] = useState<WebsiteData>(clone(initialTemplate.fixture)), [theme, setTheme] = useState<Record<string, unknown>>({}), [definitions, setDefinitions] = useState<Section[]>(localSections('editorial-vows')), [selectedSection, setSelectedSection] = useState<string | null>('hero'), [device, setDevice] = useState<'desktop' | 'mobile'>('desktop'), [mobilePreviewOpen, setMobilePreviewOpen] = useState(false), [dirty, setDirty] = useState(false), [historyVersion, setHistoryVersion] = useState(0)
-  const history = useRef<HistoryState[]>([]), future = useRef<HistoryState[]>([]), serverKeys = useRef<string[]>([])
-  const [publishOpen, setPublishOpen] = useState(false), [unpublishOpen, setUnpublishOpen] = useState(false), [publishing, setPublishing] = useState(false), [pendingAction, setPendingAction] = useState<'website' | 'publish' | null>(null)
+  const workspace = useOptionalWeddingWorkspace()
+  const weddingId = workspace?.activeWedding?.id ?? null
+  const [loading, setLoading] = useState(Boolean(weddingId)),
+    [saving, setSaving] = useState(false),
+    [error, setError] = useState(''),
+    [notice, setNotice] = useState(''),
+    [missing, setMissing] = useState(false)
+  const [templateKey, setTemplateKey] = useState(''),
+    [templatePreviewPath, setTemplatePreviewPath] = useState(initialTemplate.previewPath),
+    [templateVersionId, setTemplateVersionId] = useState<string | null>(null),
+    [revision, setRevision] = useState<number | null>(null),
+    [data, setData] = useState<WebsiteData>(clone(initialTemplate.fixture)),
+    [theme, setTheme] = useState<Record<string, unknown>>({}),
+    [definitions, setDefinitions] = useState<Section[]>(localSections('editorial-vows')),
+    [selectedSection, setSelectedSection] = useState<string | null>('hero'),
+    [device, setDevice] = useState<'desktop' | 'mobile'>('desktop'),
+    [mobilePreviewOpen, setMobilePreviewOpen] = useState(false),
+    [dirty, setDirty] = useState(false),
+    [historyVersion, setHistoryVersion] = useState(0)
+  const history = useRef<HistoryState[]>([]),
+    future = useRef<HistoryState[]>([]),
+    serverKeys = useRef<string[]>([])
+  const [publishOpen, setPublishOpen] = useState(false),
+    [unpublishOpen, setUnpublishOpen] = useState(false),
+    [publishing, setPublishing] = useState(false),
+    [pendingAction, setPendingAction] = useState<'website' | 'publish' | null>(null)
   const siteOrigin = typeof window === 'undefined' ? '' : window.location.origin
-  const websiteUrl = workspace?.activeWedding?.slug ? `${siteOrigin}/${encodeURIComponent(workspace.activeWedding.slug)}/website` : ''
-  const [mediaManagerOpen, setMediaManagerOpen] = useState(false); const [mediaTarget, setMediaTarget] = useState<MediaTarget | null>(null)
-  const { assets: mediaAssets, loading: mediaLoading, uploading: mediaUploading, error: mediaError, setError: setMediaError, upload: uploadMedia } = useMediaLibrary({ weddingId })
+  const websiteUrl = workspace?.activeWedding?.slug
+    ? `${siteOrigin}/${encodeURIComponent(workspace.activeWedding.slug)}/website`
+    : ''
+  const [mediaManagerOpen, setMediaManagerOpen] = useState(false)
+  const [mediaTarget, setMediaTarget] = useState<MediaTarget | null>(null)
+  const {
+    assets: mediaAssets,
+    loading: mediaLoading,
+    uploading: mediaUploading,
+    error: mediaError,
+    setError: setMediaError,
+    upload: uploadMedia,
+  } = useMediaLibrary({ weddingId })
   useEditorPreviewScrollLock(mobilePreviewOpen)
   const draggablePreview = useDraggablePreviewPosition()
-  useEffect(() => { if (!mobilePreviewOpen) setDevice('desktop') }, [mobilePreviewOpen])
+  useEffect(() => {
+    if (!mobilePreviewOpen) setDevice('desktop')
+  }, [mobilePreviewOpen])
   useEffect(() => {
     const receiveDeviceChange = (event: Event) => {
       const next = (event as CustomEvent<'desktop' | 'mobile'>).detail
@@ -51,33 +195,598 @@ export function WebsiteEditorLivePage() {
     window.addEventListener('gmm-editor-preview-device-change', receiveDeviceChange)
     return () => window.removeEventListener('gmm-editor-preview-device-change', receiveDeviceChange)
   }, [])
-  const required = useMemo(() => definitions.filter((item) => item.required).map((item) => item.sectionKey), [definitions]); const { order, enabled, reset, move, toggle } = useEditorSections(definitions.map((item) => item.sectionKey), required, (key) => definitions.find((item) => item.sectionKey === key)?.canReorder !== false)
-  const route = templatePreviewPath || getWebsiteTemplate(templateKey)?.previewPath || initialTemplate.previewPath; const frame = useLiveEditorBridge<{ data: WebsiteData; themeConfig: Record<string, unknown>; sectionConfig: { enabled: string[]; order: string[] } }, string>({ data, themeConfig: theme, sectionConfig: { enabled, order } })
-  const load = useCallback(async () => { if (!weddingId) return; setLoading(true); setError(''); try { const result = (await weddingApi.content(weddingId, 'WEDDING_WEBSITE')).content; if (!result.templateVersion) { setMissing(true); return } const key = result.templateVersion.key; const nextDefinitions = mergeSections(key, result.templateVersion.config.sections as TemplateSectionConfig[] | undefined); const defaults = sectionDefaults(nextDefinitions, result.sectionConfig); setMissing(false); setTemplateKey(key); setTemplatePreviewPath(typeof result.templateVersion.config.previewPath === 'string' ? result.templateVersion.config.previewPath : getWebsiteTemplate(key)?.previewPath ?? initialTemplate.previewPath); setTemplateVersionId(result.templateVersion.id); setRevision(result.revision); setDefinitions(nextDefinitions); setSelectedSection(defaults.order[0] ?? 'hero'); serverKeys.current = (result.templateVersion.config.sections as unknown[] ?? []).map(keyOf).filter(Boolean); setData(mergeData(clone(getWebsiteTemplate(key)?.fixture ?? initialTemplate.fixture), result.content)); setTheme(result.themeConfig ?? {}); reset(defaults.order, defaults.enabled); setDirty(false) } catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tải nội dung website.') } finally { setLoading(false) } }, [reset, weddingId])
-  useEffect(() => { void load() }, [load])
-  const snapshot = () => ({ data: clone(data), order: [...order], enabled: [...enabled], theme: clone(theme) }); const record = () => { history.current.push(snapshot()); future.current = []; setHistoryVersion((value) => value + 1) }; const update = (path: string, value: unknown) => { record(); setData((current) => setPath(current, path, value)); setDirty(true) }
-  const openMediaManager = (target: MediaTarget) => { setMediaError(''); setMediaTarget(target); setMediaManagerOpen(true) }
-  const confirmMedia = (selected: MediaAsset[]) => { if (!mediaTarget || !selected.length) { setMediaManagerOpen(false); return }; const values = selected.map((asset) => ({ src: asset.publicUrl, alt: asset.originalName ?? 'Ảnh đã tải lên', mediaAssetId: asset.id, role: mediaTarget.role })); update(mediaTarget.path, mediaTarget.multiple ? values : mediaTarget.mediaValue === 'object' ? values[0] : values[0].src); setMediaManagerOpen(false) }
-  const restore = (item: HistoryState) => { setData(item.data); setTheme(item.theme); reset(item.order, item.enabled); setDirty(true); setHistoryVersion((value) => value + 1) }; const undo = () => { const item = history.current.pop(); if (item) { future.current.push(snapshot()); restore(item) } }; const redo = () => { const item = future.current.pop(); if (item) { history.current.push(snapshot()); restore(item) } }
-  const save = async () => { if (!weddingId || !templateVersionId || revision === null) return; setSaving(true); setError(''); try { const allowed = new Set(serverKeys.current.length ? serverKeys.current : definitions.map((item) => item.sectionKey)); const sectionConfig = { enabled: enabled.filter((key) => allowed.has(key)), order: order.filter((key) => allowed.has(key)) }; const result = await weddingApi.saveContent(weddingId, { surface: 'WEDDING_WEBSITE', templateVersionId, content: data, themeConfig: theme, sectionConfig, revision }); setRevision(result.content.revision); setDirty(false); setNotice('Đã lưu thay đổi website.'); await notifications.success('Đã lưu website') } catch (cause) { setError(cause instanceof WeddingApiError && cause.status === 409 ? 'Nội dung vừa thay đổi ở nơi khác. Hãy tải lại để tiếp tục.' : cause instanceof Error ? cause.message : 'Không thể lưu website.') } finally { setSaving(false) } }
-  const fullPreview = () => { sessionStorage.setItem(`gmm-website-preview:${templateKey}`, JSON.stringify({ data, sectionConfig: { enabled, order } })); window.open(`${route}?editor=0`, '_blank', 'noopener,noreferrer') }
+  const required = useMemo(
+    () => definitions.filter((item) => item.required).map((item) => item.sectionKey),
+    [definitions],
+  )
+  const { order, enabled, reset, move, toggle } = useEditorSections(
+    definitions.map((item) => item.sectionKey),
+    required,
+    (key) => definitions.find((item) => item.sectionKey === key)?.canReorder !== false,
+  )
+  const route =
+    templatePreviewPath ||
+    getWebsiteTemplate(templateKey)?.previewPath ||
+    initialTemplate.previewPath
+  const frame = useLiveEditorBridge<
+    {
+      data: WebsiteData
+      themeConfig: Record<string, unknown>
+      sectionConfig: { enabled: string[]; order: string[] }
+    },
+    string
+  >({ data, themeConfig: theme, sectionConfig: { enabled, order } })
+  const load = useCallback(async () => {
+    if (!weddingId) return
+    setLoading(true)
+    setError('')
+    try {
+      const result = (await weddingApi.content(weddingId, 'WEDDING_WEBSITE')).content
+      if (!result.templateVersion) {
+        setMissing(true)
+        return
+      }
+      const key = result.templateVersion.key
+      const nextDefinitions = mergeSections(
+        key,
+        result.templateVersion.config.sections as TemplateSectionConfig[] | undefined,
+      )
+      const defaults = sectionDefaults(nextDefinitions, result.sectionConfig)
+      setMissing(false)
+      setTemplateKey(key)
+      setTemplatePreviewPath(
+        typeof result.templateVersion.config.previewPath === 'string'
+          ? result.templateVersion.config.previewPath
+          : (getWebsiteTemplate(key)?.previewPath ?? initialTemplate.previewPath),
+      )
+      setTemplateVersionId(result.templateVersion.id)
+      setRevision(result.revision)
+      setDefinitions(nextDefinitions)
+      setSelectedSection(defaults.order[0] ?? 'hero')
+      serverKeys.current = ((result.templateVersion.config.sections as unknown[]) ?? [])
+        .map(keyOf)
+        .filter(Boolean)
+      setData(
+        mergeData(
+          clone(getWebsiteTemplate(key)?.fixture ?? initialTemplate.fixture),
+          result.content,
+        ),
+      )
+      setTheme(result.themeConfig ?? {})
+      reset(defaults.order, defaults.enabled)
+      setDirty(false)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể tải nội dung website.')
+    } finally {
+      setLoading(false)
+    }
+  }, [reset, weddingId])
+  useEffect(() => {
+    void load()
+  }, [load])
+  const snapshot = () => ({
+    data: clone(data),
+    order: [...order],
+    enabled: [...enabled],
+    theme: clone(theme),
+  })
+  const record = () => {
+    history.current.push(snapshot())
+    future.current = []
+    setHistoryVersion((value) => value + 1)
+  }
+  const update = (path: string, value: unknown) => {
+    record()
+    setData((current) => setPath(current, path, value))
+    setDirty(true)
+  }
+  const openMediaManager = (target: MediaTarget) => {
+    setMediaError('')
+    setMediaTarget(target)
+    setMediaManagerOpen(true)
+  }
+  const confirmMedia = (selected: MediaAsset[]) => {
+    if (!mediaTarget || !selected.length) {
+      setMediaManagerOpen(false)
+      return
+    }
+    const values = selected.map((asset) => ({
+      src: asset.publicUrl,
+      alt: asset.originalName ?? 'Ảnh đã tải lên',
+      mediaAssetId: asset.id,
+      role: mediaTarget.role,
+    }))
+    update(
+      mediaTarget.path,
+      mediaTarget.multiple
+        ? values
+        : mediaTarget.mediaValue === 'object'
+          ? values[0]
+          : values[0].src,
+    )
+    setMediaManagerOpen(false)
+  }
+  const restore = (item: HistoryState) => {
+    setData(item.data)
+    setTheme(item.theme)
+    reset(item.order, item.enabled)
+    setDirty(true)
+    setHistoryVersion((value) => value + 1)
+  }
+  const undo = () => {
+    const item = history.current.pop()
+    if (item) {
+      future.current.push(snapshot())
+      restore(item)
+    }
+  }
+  const redo = () => {
+    const item = future.current.pop()
+    if (item) {
+      history.current.push(snapshot())
+      restore(item)
+    }
+  }
+  const save = async () => {
+    if (!weddingId || !templateVersionId || revision === null) return
+    setSaving(true)
+    setError('')
+    try {
+      const allowed = new Set(
+        serverKeys.current.length ? serverKeys.current : definitions.map((item) => item.sectionKey),
+      )
+      const sectionConfig = {
+        enabled: enabled.filter((key) => allowed.has(key)),
+        order: order.filter((key) => allowed.has(key)),
+      }
+      const result = await weddingApi.saveContent(weddingId, {
+        surface: 'WEDDING_WEBSITE',
+        templateVersionId,
+        content: data,
+        themeConfig: theme,
+        sectionConfig,
+        revision,
+      })
+      setRevision(result.content.revision)
+      setDirty(false)
+      setNotice('Đã lưu thay đổi website.')
+      await notifications.success('Đã lưu website')
+    } catch (cause) {
+      setError(
+        cause instanceof WeddingApiError && cause.status === 409
+          ? 'Nội dung vừa thay đổi ở nơi khác. Hãy tải lại để tiếp tục.'
+          : cause instanceof Error
+            ? cause.message
+            : 'Không thể lưu website.',
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+  const fullPreview = () => {
+    sessionStorage.setItem(
+      `gmm-website-preview:${templateKey}`,
+      JSON.stringify({ data, sectionConfig: { enabled, order } }),
+    )
+    window.open(`${route}?editor=0`, '_blank', 'noopener,noreferrer')
+  }
   const hasUnsavedChanges = useCallback(() => dirty, [dirty])
-  const openMyWebsite = () => { if (websiteUrl) window.open(websiteUrl, '_blank', 'noopener,noreferrer') }
-  const requestAction = (action: 'website' | 'publish') => { if (hasUnsavedChanges()) setPendingAction(action); else action === 'website' ? openMyWebsite() : setPublishOpen(true) }
-  const continueAction = async () => { if (!pendingAction) return; const action = pendingAction; await save(); setPendingAction(null); action === 'website' ? openMyWebsite() : setPublishOpen(true) }
-  const publish = async () => { if (!weddingId || !workspace?.activeWedding?.slug || revision === null) return; setPublishing(true); setError(''); try { await weddingApi.publish(weddingId, { surface: 'WEDDING_WEBSITE', revision }); setPublishOpen(false); setNotice('Website đã được công khai.'); await workspace.refresh() } catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể công khai website.') } finally { setPublishing(false) } }
-  const unpublish = async () => { if (!weddingId) return; setPublishing(true); setError(''); try { await weddingApi.unpublish(weddingId, { surface: 'WEDDING_WEBSITE', revision: revision ?? undefined }); setUnpublishOpen(false); setNotice('Website đã được tạm đóng.'); await workspace?.refresh() } catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể tạm đóng website.') } finally { setPublishing(false) } }
-  if (!workspace) return null; if (missing && !loading) return <section className="invitation-editor-empty"><div className="invitation-editor-empty-card"><Eye size={48} weight="duotone" /><h1>Bạn chưa chọn giao diện website</h1><p>Hãy chọn một template trong kho giao diện trước khi bắt đầu chỉnh sửa.</p><AppLink className="button button-primary" to={studioRoutes.siteThemes}>Đi đến kho giao diện</AppLink></div></section>
-  return <section className="invitation-editor website-editor"><header className="editor-toolbar"><div className="editor-toolbar-title"><AppLink to={studioRoutes.siteThemes} ariaLabel="Quay lại kho giao diện website"><ArrowLeft /></AppLink><div><p>Website cưới · {templateKey || 'Đang tải giao diện'}</p><h1>Chỉnh sửa website</h1></div></div><div className="editor-toolbar-actions"><span className={`editor-live-status ${frame.ready ? 'is-ready' : ''}`}>{loading ? 'Đang tải nội dung…' : saving ? 'Đang lưu…' : error || notice || (dirty ? 'Có thay đổi chưa lưu' : frame.ready ? 'Bản xem trước đã sẵn sàng' : 'Đang chuẩn bị…')}</span><div className="editor-history-actions" data-history-version={historyVersion}><button type="button" disabled={!history.current.length} onClick={undo} aria-label="Hoàn tác"><ArrowUUpLeft /></button><button type="button" disabled={!future.current.length} onClick={redo} aria-label="Làm lại"><ArrowUUpRight /></button></div><button className="button button-secondary" type="button" disabled={loading || saving} onClick={() => void load()}><ArrowClockwise /> Tải lại</button><div className="editor-device-toggle"><button type="button" aria-label="Xem dạng máy tính" aria-pressed={device === 'desktop'} className={device === 'desktop' ? 'is-active' : ''} onClick={() => setDevice('desktop')}><Desktop /></button><button type="button" aria-label="Xem dạng điện thoại" aria-pressed={device === 'mobile'} className={device === 'mobile' ? 'is-active' : ''} onClick={() => setDevice('mobile')}><DeviceMobile /></button></div><button className="button button-secondary" type="button" onClick={fullPreview}><Eye /> Toàn màn hình</button><button className="button button-primary" type="button" disabled={!dirty || saving} onClick={() => void save()}><FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu website'}</button></div></header><div className="editor-workspace editor-workspace-two-column"><aside className="editor-sections editor-section-accordion" aria-label="Cấu trúc và nội dung website" aria-busy={loading}><header><div><strong>Cấu trúc website</strong><small>{loading ? 'Đang tải nội dung đã lưu…' : 'Mở từng phần để chỉnh sửa nội dung website'}</small></div></header><ol>{order.map((key, index) => { const definition = definitions.find((item) => item.sectionKey === key); return <WebsiteSectionCard key={key} index={index} label={definition?.label ?? key} required={Boolean(definition?.required)} shown={enabled.includes(key)} expanded={selectedSection === key} canMoveUp={index > 0} canMoveDown={index < order.length - 1} onSelect={() => { setSelectedSection((current) => current === key ? null : key); frame.scrollToSection(key) }} onMove={(step) => { move(key, step); setDirty(true) }} onToggle={() => { toggle(key); setDirty(true) }}><WebsiteFields definition={definition} data={data} update={update} openMediaManager={openMediaManager} /></WebsiteSectionCard> })}</ol></aside><main className={`editor-iframe-canvas ${mobilePreviewOpen ? 'is-mobile-preview-open' : ''}`} aria-label="Bản xem trước website" style={mobilePreviewOpen ? undefined : draggablePreview.style} {...draggablePreview.dragHandlers}><span className="editor-preview-device-note">Giao diện desktop</span><button className="editor-mobile-preview-toggle" type="button" onClick={() => setMobilePreviewOpen((current) => !current)} aria-expanded={mobilePreviewOpen}><span className="editor-preview-drag-handle" data-preview-drag-handle>{mobilePreviewOpen ? <X /> : <ArrowsOut />}</span><span>{mobilePreviewOpen ? 'Thu nhỏ' : 'Xem desktop'}</span></button><WebsitePreviewFrame frameRef={frame.frameRef} route={`${route}?editor=1`} device={device} ready={frame.ready} templateKey={templateKey} onLoad={frame.sendState} /><button className="editor-mobile-preview-hitbox" type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Mở rộng bản xem trước website" /></main></div>{weddingId ? <MediaManagerModal selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'} open={mediaManagerOpen} assets={mediaAssets} selectedIds={new Set()} loading={mediaLoading} uploading={mediaUploading} error={mediaError} onClose={() => setMediaManagerOpen(false)} onUpload={uploadMedia} onConfirm={confirmMedia} /> : null}</section>
+  const openMyWebsite = () => {
+    if (websiteUrl) window.open(websiteUrl, '_blank', 'noopener,noreferrer')
+  }
+  const requestAction = (action: 'website' | 'publish') => {
+    if (hasUnsavedChanges()) setPendingAction(action)
+    else action === 'website' ? openMyWebsite() : setPublishOpen(true)
+  }
+  const continueAction = async () => {
+    if (!pendingAction) return
+    const action = pendingAction
+    await save()
+    setPendingAction(null)
+    action === 'website' ? openMyWebsite() : setPublishOpen(true)
+  }
+  const publish = async () => {
+    if (!weddingId || !workspace?.activeWedding?.slug || revision === null) return
+    setPublishing(true)
+    setError('')
+    try {
+      await weddingApi.publish(weddingId, { surface: 'WEDDING_WEBSITE', revision })
+      setPublishOpen(false)
+      setNotice('Website đã được công khai.')
+      await workspace.refresh()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể công khai website.')
+    } finally {
+      setPublishing(false)
+    }
+  }
+  const unpublish = async () => {
+    if (!weddingId) return
+    setPublishing(true)
+    setError('')
+    try {
+      await weddingApi.unpublish(weddingId, {
+        surface: 'WEDDING_WEBSITE',
+        revision: revision ?? undefined,
+      })
+      setUnpublishOpen(false)
+      setNotice('Website đã được tạm đóng.')
+      await workspace?.refresh()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể tạm đóng website.')
+    } finally {
+      setPublishing(false)
+    }
+  }
+  if (!workspace) return null
+  if (missing && !loading)
+    return (
+      <section className="invitation-editor-empty">
+        <div className="invitation-editor-empty-card">
+          <Eye size={48} weight="duotone" />
+          <h1>Bạn chưa chọn giao diện website</h1>
+          <p>Hãy chọn một template trong kho giao diện trước khi bắt đầu chỉnh sửa.</p>
+          <AppLink className="button button-primary" to={studioRoutes.siteThemes}>
+            Đi đến kho giao diện
+          </AppLink>
+        </div>
+      </section>
+    )
+  return (
+    <section className="invitation-editor website-editor">
+      <header className="editor-toolbar">
+        <div className="editor-toolbar-title">
+          <AppLink to={studioRoutes.siteThemes} ariaLabel="Quay lại kho giao diện website">
+            <ArrowLeft />
+          </AppLink>
+          <div>
+            <p>Website cưới · {templateKey || 'Đang tải giao diện'}</p>
+            <h1>Chỉnh sửa website</h1>
+          </div>
+        </div>
+        <div className="editor-toolbar-actions">
+          <span className={`editor-live-status ${frame.ready ? 'is-ready' : ''}`}>
+            {loading
+              ? 'Đang tải nội dung…'
+              : saving
+                ? 'Đang lưu…'
+                : error ||
+                  notice ||
+                  (dirty
+                    ? 'Có thay đổi chưa lưu'
+                    : frame.ready
+                      ? 'Bản xem trước đã sẵn sàng'
+                      : 'Đang chuẩn bị…')}
+          </span>
+          <div className="editor-history-actions" data-history-version={historyVersion}>
+            <button
+              type="button"
+              disabled={!history.current.length}
+              onClick={undo}
+              aria-label="Hoàn tác"
+            >
+              <ArrowUUpLeft />
+            </button>
+            <button
+              type="button"
+              disabled={!future.current.length}
+              onClick={redo}
+              aria-label="Làm lại"
+            >
+              <ArrowUUpRight />
+            </button>
+          </div>
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={loading || saving}
+            onClick={() => void load()}
+          >
+            <ArrowClockwise /> Tải lại
+          </button>
+          <div className="editor-device-toggle">
+            <button
+              type="button"
+              aria-label="Xem dạng máy tính"
+              aria-pressed={device === 'desktop'}
+              className={device === 'desktop' ? 'is-active' : ''}
+              onClick={() => setDevice('desktop')}
+            >
+              <Desktop />
+            </button>
+            <button
+              type="button"
+              aria-label="Xem dạng điện thoại"
+              aria-pressed={device === 'mobile'}
+              className={device === 'mobile' ? 'is-active' : ''}
+              onClick={() => setDevice('mobile')}
+            >
+              <DeviceMobile />
+            </button>
+          </div>
+          <button className="button button-secondary" type="button" onClick={fullPreview}>
+            <Eye /> Toàn màn hình
+          </button>
+          <button
+            className="button button-primary"
+            type="button"
+            disabled={!dirty || saving}
+            onClick={() => void save()}
+          >
+            <FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu website'}
+          </button>
+        </div>
+      </header>
+      <div className="editor-workspace editor-workspace-two-column">
+        <aside
+          className="editor-sections editor-section-accordion"
+          aria-label="Cấu trúc và nội dung website"
+          aria-busy={loading}
+        >
+          <header>
+            <div>
+              <strong>Cấu trúc website</strong>
+              <small>
+                {loading
+                  ? 'Đang tải nội dung đã lưu…'
+                  : 'Mở từng phần để chỉnh sửa nội dung website'}
+              </small>
+            </div>
+          </header>
+          <ol>
+            {order.map((key, index) => {
+              const definition = definitions.find((item) => item.sectionKey === key)
+              return (
+                <WebsiteSectionCard
+                  key={key}
+                  index={index}
+                  label={definition?.label ?? key}
+                  required={Boolean(definition?.required)}
+                  shown={enabled.includes(key)}
+                  expanded={selectedSection === key}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < order.length - 1}
+                  onSelect={() => {
+                    setSelectedSection((current) => (current === key ? null : key))
+                    frame.scrollToSection(key)
+                  }}
+                  onMove={(step) => {
+                    move(key, step)
+                    setDirty(true)
+                  }}
+                  onToggle={() => {
+                    toggle(key)
+                    setDirty(true)
+                  }}
+                >
+                  <WebsiteFields
+                    definition={definition}
+                    data={data}
+                    update={update}
+                    openMediaManager={openMediaManager}
+                  />
+                </WebsiteSectionCard>
+              )
+            })}
+          </ol>
+        </aside>
+        <main
+          className={`editor-iframe-canvas ${mobilePreviewOpen ? 'is-mobile-preview-open' : ''}`}
+          aria-label="Bản xem trước website"
+          style={mobilePreviewOpen ? undefined : draggablePreview.style}
+          {...draggablePreview.dragHandlers}
+        >
+          <span className="editor-preview-device-note">Giao diện desktop</span>
+          <button
+            className="editor-mobile-preview-toggle"
+            type="button"
+            onClick={() => setMobilePreviewOpen((current) => !current)}
+            aria-expanded={mobilePreviewOpen}
+          >
+            <span className="editor-preview-drag-handle" data-preview-drag-handle>
+              {mobilePreviewOpen ? <X /> : <ArrowsOut />}
+            </span>
+            <span>{mobilePreviewOpen ? 'Thu nhỏ' : 'Xem desktop'}</span>
+          </button>
+          <WebsitePreviewFrame
+            frameRef={frame.frameRef}
+            route={`${route}?editor=1`}
+            device={device}
+            ready={frame.ready}
+            templateKey={templateKey}
+            onLoad={frame.sendState}
+          />
+          <button
+            className="editor-mobile-preview-hitbox"
+            type="button"
+            onClick={() => setMobilePreviewOpen(true)}
+            aria-label="Mở rộng bản xem trước website"
+          />
+        </main>
+      </div>
+      {weddingId ? (
+        <MediaManagerModal
+          selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'}
+          open={mediaManagerOpen}
+          assets={mediaAssets}
+          selectedIds={new Set()}
+          loading={mediaLoading}
+          uploading={mediaUploading}
+          error={mediaError}
+          onClose={() => setMediaManagerOpen(false)}
+          onUpload={uploadMedia}
+          onConfirm={confirmMedia}
+        />
+      ) : null}
+    </section>
+  )
 }
 
-function WebsiteSectionCard({ index, label, required, shown, expanded, canMoveUp, canMoveDown, onSelect, onMove, onToggle, children }: { index: number; label: string; required: boolean; shown: boolean; expanded: boolean; canMoveUp: boolean; canMoveDown: boolean; onSelect: () => void; onMove: (step: -1 | 1) => void; onToggle: () => void; children: React.ReactNode }) { return <li className={`editor-accordion-card ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}><header><button type="button" className="editor-accordion-trigger" onClick={onSelect}><span><strong>{String(index + 1).padStart(2, '0')} · {label}</strong><small>{required ? 'Bắt buộc' : shown ? 'Đang hiển thị' : 'Đang ẩn'}</small></span><ArrowDown /></button><div className="editor-section-tools"><button type="button" disabled={!canMoveUp} onClick={() => onMove(-1)} aria-label={`Đưa ${label} lên`}><ArrowUp /></button><button type="button" disabled={!canMoveDown} onClick={() => onMove(1)} aria-label={`Đưa ${label} xuống`}><ArrowDown /></button><button type="button" role="switch" aria-checked={shown} disabled={required} className={`editor-switch ${shown ? 'is-on' : ''}`} onClick={onToggle} aria-label={`${shown ? 'Ẩn' : 'Hiện'} ${label}`}><span /></button></div></header><div className={`editor-accordion-content ${expanded ? 'is-open' : ''}`} aria-hidden={!expanded}><div className="editor-accordion-content-inner">{children}</div></div></li> }
-function Input({ label, value, onChange, area = false, type = 'text' }: { label: string; value: unknown; onChange: (value: string) => void; area?: boolean; type?: 'text' | 'date' }) { return <label className="editor-field"><span>{label}</span>{type === 'date' ? <NativeDateField value={String(value ?? '')} onChange={(event) => onChange(event.target.value)} aria-label={label} /> : area ? <textarea rows={4} value={String(value ?? '')} onChange={(event) => onChange(event.target.value)} /> : <input value={String(value ?? '')} onChange={(event) => onChange(event.target.value)} />}</label> }
-function WebsiteFields({ definition, data, update, openMediaManager }: { definition?: Section & { fields?: Record<string, TemplateFieldConfig> }; data: WebsiteData; update: (path: string, value: unknown) => void; openMediaManager: (target: MediaTarget) => void }) {
-  return <TemplateSchemaFields fields={definition?.fields ?? {}} data={data} update={update} openMediaManager={openMediaManager} mediaEnabled />
+function WebsiteSectionCard({
+  index,
+  label,
+  required,
+  shown,
+  expanded,
+  canMoveUp,
+  canMoveDown,
+  onSelect,
+  onMove,
+  onToggle,
+  children,
+}: {
+  index: number
+  label: string
+  required: boolean
+  shown: boolean
+  expanded: boolean
+  canMoveUp: boolean
+  canMoveDown: boolean
+  onSelect: () => void
+  onMove: (step: -1 | 1) => void
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <li
+      className={`editor-accordion-card ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}
+    >
+      <header>
+        <button type="button" className="editor-accordion-trigger" onClick={onSelect}>
+          <span>
+            <strong>
+              {String(index + 1).padStart(2, '0')} · {label}
+            </strong>
+            <small>{required ? 'Bắt buộc' : shown ? 'Đang hiển thị' : 'Đang ẩn'}</small>
+          </span>
+          <ArrowDown />
+        </button>
+        <div className="editor-section-tools">
+          <button
+            type="button"
+            disabled={!canMoveUp}
+            onClick={() => onMove(-1)}
+            aria-label={`Đưa ${label} lên`}
+          >
+            <ArrowUp />
+          </button>
+          <button
+            type="button"
+            disabled={!canMoveDown}
+            onClick={() => onMove(1)}
+            aria-label={`Đưa ${label} xuống`}
+          >
+            <ArrowDown />
+          </button>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={shown}
+            disabled={required}
+            className={`editor-switch ${shown ? 'is-on' : ''}`}
+            onClick={onToggle}
+            aria-label={`${shown ? 'Ẩn' : 'Hiện'} ${label}`}
+          >
+            <span />
+          </button>
+        </div>
+      </header>
+      <div
+        className={`editor-accordion-content ${expanded ? 'is-open' : ''}`}
+        aria-hidden={!expanded}
+      >
+        <div className="editor-accordion-content-inner">{children}</div>
+      </div>
+    </li>
+  )
+}
+function Input({
+  label,
+  value,
+  onChange,
+  area = false,
+  type = 'text',
+}: {
+  label: string
+  value: unknown
+  onChange: (value: string) => void
+  area?: boolean
+  type?: 'text' | 'date'
+}) {
+  return (
+    <label className="editor-field">
+      <span>{label}</span>
+      {type === 'date' ? (
+        <NativeDateField
+          value={String(value ?? '')}
+          onChange={(event) => onChange(event.target.value)}
+          aria-label={label}
+        />
+      ) : area ? (
+        <textarea
+          rows={4}
+          value={String(value ?? '')}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      ) : (
+        <input value={String(value ?? '')} onChange={(event) => onChange(event.target.value)} />
+      )}
+    </label>
+  )
+}
+function WebsiteFields({
+  definition,
+  data,
+  update,
+  openMediaManager,
+}: {
+  definition?: Section & { fields?: Record<string, TemplateFieldConfig> }
+  data: WebsiteData
+  update: (path: string, value: unknown) => void
+  openMediaManager: (target: MediaTarget) => void
+}) {
+  return (
+    <TemplateSchemaFields
+      fields={definition?.fields ?? {}}
+      data={data}
+      update={update}
+      openMediaManager={openMediaManager}
+      mediaEnabled
+    />
+  )
 }
 
-function WebsitePreviewFrame({ frameRef, route, device, ready, templateKey, onLoad }: { frameRef: React.Ref<HTMLIFrameElement>; route: string; device: 'desktop' | 'mobile'; ready: boolean; templateKey: string; onLoad: () => void }) {
-  return <EditorPreviewModal frameRef={frameRef} route={route} device={device} defaultDevice="desktop" ready={ready} templateKey={templateKey} title="Bản xem trước website" open={false} onToggleOpen={() => undefined} onDeviceChange={(next) => window.dispatchEvent(new CustomEvent('gmm-editor-preview-device-change', { detail: next }))} onLoad={onLoad} embedded />
+function WebsitePreviewFrame({
+  frameRef,
+  route,
+  device,
+  ready,
+  templateKey,
+  onLoad,
+}: {
+  frameRef: React.Ref<HTMLIFrameElement>
+  route: string
+  device: 'desktop' | 'mobile'
+  ready: boolean
+  templateKey: string
+  onLoad: () => void
+}) {
+  return (
+    <EditorPreviewModal
+      frameRef={frameRef}
+      route={route}
+      device={device}
+      defaultDevice="desktop"
+      ready={ready}
+      templateKey={templateKey}
+      title="Bản xem trước website"
+      open={false}
+      onToggleOpen={() => undefined}
+      onDeviceChange={(next) =>
+        window.dispatchEvent(new CustomEvent('gmm-editor-preview-device-change', { detail: next }))
+      }
+      onLoad={onLoad}
+      embedded
+    />
+  )
 }
-

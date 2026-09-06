@@ -1,24 +1,482 @@
-import { useEffect,useMemo,useRef,useState } from 'react'
-import { motion,useInView,useReducedMotion,useScroll,useTransform } from 'motion/react'
-import { ArrowLeft,ArrowRight,CalendarBlank,Check,Heart,MapPin,PaperPlaneTilt,Pause,Play } from '@phosphor-icons/react'
-import type { EnchantedForestData,EnchantedForestSectionConfig,EnchantedForestSectionKey } from './content'
-import { enchantedForestFixture,enchantedForestSections } from './fixture'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarBlank,
+  Check,
+  Heart,
+  MapPin,
+  PaperPlaneTilt,
+  Pause,
+  Play,
+} from '@phosphor-icons/react'
+import type {
+  EnchantedForestData,
+  EnchantedForestSectionConfig,
+  EnchantedForestSectionKey,
+} from './content'
+import { enchantedForestFixture, enchantedForestSections } from './fixture'
 import './enchanted-forest.css'
-type Props={data?:EnchantedForestData;sectionConfig?:EnchantedForestSectionConfig}
-const root='/assets/images/templates/enchanted-forest'
-function Reveal({children,className='',delay=0}:{children:React.ReactNode;className?:string;delay?:number}){const ref=useRef<HTMLDivElement>(null),reduced=useReducedMotion(),visible=useInView(ref,{once:true,margin:'0px 0px -20% 0px'});return <motion.div ref={ref} className={className} initial={reduced?false:{opacity:0,y:30,filter:'blur(5px)'}} animate={visible||reduced?{opacity:1,y:0,filter:'blur(0px)'}:{}} transition={{duration:.9,delay,ease:[.22,1,.36,1]}}>{children}</motion.div>}
-function Title({label,children}:{label:string;children:React.ReactNode}){return <Reveal className="ef-title"><img src={`${root}/forest-leaves.png`} alt=""/><span>{label}</span><h2>{children}</h2></Reveal>}
-export function EnchantedForestWebsite({data=enchantedForestFixture,sectionConfig=enchantedForestSections}:Props){const enabled=new Set(sectionConfig.enabled),reduced=useReducedMotion(),[sent,setSent]=useState(false),[slide,setSlide]=useState(0),[playing,setPlaying]=useState(true),heroRef=useRef<HTMLElement>(null),{scrollYProgress}=useScroll({target:heroRef,offset:['start start','end start']}),treeY=useTransform(scrollYProgress,[0,1],[0,reduced?0:75]),mistY=useTransform(scrollYProgress,[0,1],[0,reduced?0:35]);const eventDate=useMemo(()=>new Date('2027-11-06T16:00:00+07:00'),[]),[remaining,setRemaining]=useState(()=>Math.max(0,eventDate.getTime()-Date.now()));useEffect(()=>{const timer=window.setInterval(()=>setRemaining(Math.max(0,eventDate.getTime()-Date.now())),1000);return()=>window.clearInterval(timer)},[eventDate]);useEffect(()=>{if(reduced||!playing||data.gallery.length<2)return;const timer=window.setInterval(()=>setSlide(value=>(value+1)%data.gallery.length),5000);return()=>window.clearInterval(timer)},[data.gallery.length,playing,reduced]);const moveSlide=(step:number)=>setSlide(value=>(value+step+data.gallery.length)%data.gallery.length);const time=[Math.floor(remaining/86400000),Math.floor(remaining/3600000)%24,Math.floor(remaining/60000)%60,Math.floor(remaining/1000)%60],units=['ngày','giờ','phút','giây'];const sections:Partial<Record<EnchantedForestSectionKey,React.ReactNode>>={
-hero:<section ref={heroRef} id="top" className="ef-hero" data-editor-section="hero"><motion.div className="ef-forest-bg" style={{y:mistY}}/><div className="ef-rays"/><div className="ef-mist"/><div className="ef-portal" aria-hidden="true"><i/><i/><i/></div><motion.div className="ef-hero-stack" initial={reduced?false:{opacity:0,rotateY:-8,scale:.92}} animate={{opacity:1,rotateY:0,scale:1}} transition={{duration:1.35,delay:.25,ease:[.22,1,.36,1]}}><figure><img src={data.hero.image} alt={`Ảnh cưới của ${data.hero.brideName} và ${data.hero.groomName}`}/></figure><img className="ef-stack-memory ef-stack-memory-one" src={data.gallery[0]?.src} alt=""/><img className="ef-stack-memory ef-stack-memory-two" src={data.gallery[2]?.src??data.hero.image} alt=""/><span className="ef-stack-caption">A woodland chapter<br/>begins here</span></motion.div><motion.img className="ef-tree" src={`${root}/ancient-tree.png`} alt="" style={{y:treeY}}/><motion.img className="ef-canopy" src={`${root}/forest-garland.png`} alt="" animate={reduced?undefined:{y:[0,7,0],rotate:[0,.5,0]}} transition={{duration:9,repeat:Infinity}}/><motion.div className="ef-hero-copy" initial={reduced?false:{opacity:0,y:28}} animate={{opacity:1,y:0}} transition={{duration:1,delay:.2}}><span>ENCHANTED FOREST WEDDING</span><h1>{data.hero.brideName}<i>&</i>{data.hero.groomName}</h1><p>{data.hero.date} · {data.hero.venue}</p><small>Một buổi chiều giữa rêu xanh, ánh nến và những tán cây đã chứng kiến nhiều mùa đi qua.</small><a href="#events">Bước vào khu rừng <ArrowRight/></a></motion.div><div className="ef-dust" aria-hidden="true">{Array.from({length:14},(_,i)=><i key={i}/>)}</div></section>,
-announcement:<section className="ef-announcement" data-editor-section="announcement"><img src={`${root}/vine-wreath.png`} alt=""/><Reveal><span>{data.announcement.title}</span><p>{data.announcement.message}</p></Reveal><img src={`${root}/vows-book.png`} alt=""/></section>,
-couple:<section id="couple" className="ef-section ef-couple" data-editor-section="couple"><Title label="Two souls, one path">Chúng mình</Title><div>{[data.couple.bride,data.couple.groom].map((person,index)=><Reveal className="ef-person" key={person.name} delay={index*.12}><figure><img src={person.image} alt={person.name}/><i/></figure><h3>{person.name}</h3><p>{person.bio}</p></Reveal>)}</div></section>,
-story:<section id="story" className="ef-story" data-editor-section="story"><Title label="Our woodland chapters">Những mùa cây<br/>đã nhớ</Title>{data.story.map((item,index)=><Reveal className="ef-story-row" key={item.year}><figure><img src={item.image} alt=""/></figure><div><span>{item.year}</span><h3>{item.title}</h3><p>{item.body}</p></div>{index===1?<img className="ef-story-prop" src={`${root}/champagne-coupes.png`} alt=""/>:null}</Reveal>)}</section>,
-events:<section id="events" className="ef-section ef-events" data-editor-section="events"><Title label="Save the date">Gặp nhau dưới tán rừng</Title><div>{data.events.map((event,index)=><Reveal className="ef-event" key={event.title}><span>0{index+1}</span><div><small>{event.date} · {event.time}</small><h3>{event.title}</h3><p>{event.venue}<br/>{event.address}</p></div><button aria-label={`Thêm ${event.title} vào lịch`}><CalendarBlank/></button></Reveal>)}</div></section>,
-countdown:<section className="ef-countdown" data-editor-section="countdown"><img src={`${root}/vine-wreath.png`} alt=""/><Reveal><span>Until the forest gathers us</span><div>{time.map((value,index)=><p key={units[index]}><strong>{String(value).padStart(2,'0')}</strong><small>{units[index]}</small></p>)}</div></Reveal></section>,
-venues:<section className="ef-section ef-venue" data-editor-section="venues"><Title label="The sacred grove">Nơi lời hẹn vang lên</Title><Reveal><MapPin weight="thin"/><span>{data.events[0].date} · {data.events[0].time}</span><h3>{data.events[0].venue}</h3><p>{data.events[0].address}</p><a href="https://maps.google.com" target="_blank" rel="noreferrer">Mở chỉ đường <ArrowRight/></a></Reveal></section>,
-gallery:<section id="gallery" className="ef-gallery" data-editor-section="gallery"><div className="ef-section ef-gallery-heading"><Title label="Forest memories">Những khung hình<br/>giữa màu xanh</Title><p>Mỗi tấm hình là một ô cửa nhỏ nhìn lại những ngày chúng mình đã cùng lớn lên — từ chuyến đi đầu tiên đến khoảnh khắc chọn nơi này làm điểm bắt đầu.</p></div><div className="ef-slider" role="region" aria-roledescription="carousel" aria-label="Album ảnh cưới"><div className="ef-slider-stage">{data.gallery.map((image,index)=>{const offset=(index-slide+data.gallery.length)%data.gallery.length;return <motion.figure key={`${image.src}-${index}`} className={`ef-slide ef-slide-${offset}`} aria-hidden={index!==slide} animate={reduced?undefined:{opacity:offset<3?1:0,scale:offset===0?1:.86,x:`${offset*52}%`,rotateY:offset*7-4}} transition={{duration:.75,ease:[.22,1,.36,1]}}><img src={image.src} alt={image.alt} loading={index?'lazy':undefined}/><figcaption><span>0{index+1}</span>{image.alt}</figcaption></motion.figure>})}<img className="ef-slider-branch" src={`${root}/forest-garland.png`} alt=""/></div><div className="ef-slider-controls"><button type="button" onClick={()=>moveSlide(-1)} aria-label="Ảnh trước"><ArrowLeft/></button><span><strong>{String(slide+1).padStart(2,'0')}</strong> / {String(data.gallery.length).padStart(2,'0')}</span><button type="button" onClick={()=>setPlaying(value=>!value)} aria-label={playing?'Tạm dừng slide':'Tiếp tục slide'}>{playing?<Pause/>:<Play/>}</button><button type="button" onClick={()=>moveSlide(1)} aria-label="Ảnh tiếp theo"><ArrowRight/></button></div></div></section>,
-schedule:<section className="ef-section ef-schedule" data-editor-section="schedule"><Title label="A slow evening">Lịch trình</Title><div>{data.schedule.map(item=><Reveal key={item.time}><strong>{item.time}</strong><i/><div><h3>{item.title}</h3><p>{item.detail}</p></div></Reveal>)}</div></section>,
-dressCode:<section className="ef-dress" data-editor-section="dressCode"><img src={`${root}/vows-book.png`} alt=""/><Reveal><span>Dress note</span><h2>{data.dressCode.title}</h2><p>{data.dressCode.message}</p><div>{data.dressCode.colors.map(color=><i key={color} style={{background:color}}/>)}</div></Reveal></section>,
-faq:<section className="ef-section ef-faq" data-editor-section="faq"><Title label="Before the journey">Một vài điều nhỏ</Title><div>{data.faq.map(item=><details key={item.question}><summary>{item.question}<span>+</span></summary><p>{item.answer}</p></details>)}</div></section>,
-rsvp:<section id="rsvp" className="ef-rsvp" data-editor-section="rsvp"><img src={`${root}/ancient-tree.png`} alt=""/><Reveal><span>RSVP</span><h2>{sent?'Khu rừng đang chờ bạn':'Bạn sẽ đến chứ?'}</h2>{sent?<div className="ef-success"><Check/>Cảm ơn bạn đã phản hồi.</div>:<form onSubmit={event=>{event.preventDefault();setSent(true)}}><label>Họ và tên<input required placeholder="Tên của bạn"/></label><label>Lời nhắn<textarea rows={3} placeholder="Gửi đôi lời đến chúng mình"/></label><button>Gửi phản hồi <PaperPlaneTilt/></button></form>}</Reveal></section>,
-guestbook:<section className="ef-section ef-guestbook" data-editor-section="guestbook"><Title label="Whispers from our people">Lời thương trong rừng</Title><div>{data.guestbook.map(note=><Reveal key={note.author}><Heart weight="thin"/><p>“{note.message}”</p><span>{note.author}</span></Reveal>)}</div></section>,footer:<footer className="ef-footer" data-editor-section="footer"><img src={`${root}/forest-garland.png`} alt=""/><Reveal><span>06 · 11 · 2027</span><p>{data.footer.message}</p><strong>{data.footer.signature}</strong></Reveal></footer>};return <main className="enchanted-forest">{enabled.has('navigation')?<nav className="ef-nav" data-editor-section="navigation"><a href="#top">L <i>&</i> A</a><div><a href="#couple">Chúng mình</a><a href="#story">Câu chuyện</a><a href="#events">Ngày cưới</a><a href="#gallery">Album</a></div><a href="#rsvp">Xác nhận</a></nav>:null}{sectionConfig.order.filter(key=>enabled.has(key)&&key!=='navigation').map(key=><div key={key}>{sections[key]}</div>)}</main>}
+type Props = { data?: EnchantedForestData; sectionConfig?: EnchantedForestSectionConfig }
+const root = '/assets/images/templates/enchanted-forest'
+function Reveal({
+  children,
+  className = '',
+  delay = 0,
+}: {
+  children: React.ReactNode
+  className?: string
+  delay?: number
+}) {
+  const ref = useRef<HTMLDivElement>(null),
+    reduced = useReducedMotion(),
+    visible = useInView(ref, { once: true, margin: '0px 0px -20% 0px' })
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 30, filter: 'blur(5px)' }}
+      animate={visible || reduced ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+function Title({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Reveal className="ef-title">
+      <img src={`${root}/forest-leaves.png`} alt="" />
+      <span>{label}</span>
+      <h2>{children}</h2>
+    </Reveal>
+  )
+}
+export function EnchantedForestWebsite({
+  data = enchantedForestFixture,
+  sectionConfig = enchantedForestSections,
+}: Props) {
+  const enabled = new Set(sectionConfig.enabled),
+    reduced = useReducedMotion(),
+    [sent, setSent] = useState(false),
+    [slide, setSlide] = useState(0),
+    [playing, setPlaying] = useState(true),
+    heroRef = useRef<HTMLElement>(null),
+    { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] }),
+    treeY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 75]),
+    mistY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 35])
+  const eventDate = useMemo(() => new Date('2027-11-06T16:00:00+07:00'), []),
+    [remaining, setRemaining] = useState(() => Math.max(0, eventDate.getTime() - Date.now()))
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setRemaining(Math.max(0, eventDate.getTime() - Date.now())),
+      1000,
+    )
+    return () => window.clearInterval(timer)
+  }, [eventDate])
+  useEffect(() => {
+    if (reduced || !playing || data.gallery.length < 2) return
+    const timer = window.setInterval(
+      () => setSlide((value) => (value + 1) % data.gallery.length),
+      5000,
+    )
+    return () => window.clearInterval(timer)
+  }, [data.gallery.length, playing, reduced])
+  const moveSlide = (step: number) =>
+    setSlide((value) => (value + step + data.gallery.length) % data.gallery.length)
+  const time = [
+      Math.floor(remaining / 86400000),
+      Math.floor(remaining / 3600000) % 24,
+      Math.floor(remaining / 60000) % 60,
+      Math.floor(remaining / 1000) % 60,
+    ],
+    units = ['ngày', 'giờ', 'phút', 'giây']
+  const sections: Partial<Record<EnchantedForestSectionKey, React.ReactNode>> = {
+    hero: (
+      <section ref={heroRef} id="top" className="ef-hero" data-editor-section="hero">
+        <motion.div className="ef-forest-bg" style={{ y: mistY }} />
+        <div className="ef-rays" />
+        <div className="ef-mist" />
+        <div className="ef-portal" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+        <motion.div
+          className="ef-hero-stack"
+          initial={reduced ? false : { opacity: 0, rotateY: -8, scale: 0.92 }}
+          animate={{ opacity: 1, rotateY: 0, scale: 1 }}
+          transition={{ duration: 1.35, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <figure>
+            <img
+              src={data.hero.image}
+              alt={`Ảnh cưới của ${data.hero.brideName} và ${data.hero.groomName}`}
+            />
+          </figure>
+          <img className="ef-stack-memory ef-stack-memory-one" src={data.gallery[0]?.src} alt="" />
+          <img
+            className="ef-stack-memory ef-stack-memory-two"
+            src={data.gallery[2]?.src ?? data.hero.image}
+            alt=""
+          />
+          <span className="ef-stack-caption">
+            A woodland chapter
+            <br />
+            begins here
+          </span>
+        </motion.div>
+        <motion.img
+          className="ef-tree"
+          src={`${root}/ancient-tree.png`}
+          alt=""
+          style={{ y: treeY }}
+        />
+        <motion.img
+          className="ef-canopy"
+          src={`${root}/forest-garland.png`}
+          alt=""
+          animate={reduced ? undefined : { y: [0, 7, 0], rotate: [0, 0.5, 0] }}
+          transition={{ duration: 9, repeat: Infinity }}
+        />
+        <motion.div
+          className="ef-hero-copy"
+          initial={reduced ? false : { opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        >
+          <span>ENCHANTED FOREST WEDDING</span>
+          <h1>
+            {data.hero.brideName}
+            <i>&</i>
+            {data.hero.groomName}
+          </h1>
+          <p>
+            {data.hero.date} · {data.hero.venue}
+          </p>
+          <small>
+            Một buổi chiều giữa rêu xanh, ánh nến và những tán cây đã chứng kiến nhiều mùa đi qua.
+          </small>
+          <a href="#events">
+            Bước vào khu rừng <ArrowRight />
+          </a>
+        </motion.div>
+        <div className="ef-dust" aria-hidden="true">
+          {Array.from({ length: 14 }, (_, i) => (
+            <i key={i} />
+          ))}
+        </div>
+      </section>
+    ),
+    announcement: (
+      <section className="ef-announcement" data-editor-section="announcement">
+        <img src={`${root}/vine-wreath.png`} alt="" />
+        <Reveal>
+          <span>{data.announcement.title}</span>
+          <p>{data.announcement.message}</p>
+        </Reveal>
+        <img src={`${root}/vows-book.png`} alt="" />
+      </section>
+    ),
+    couple: (
+      <section id="couple" className="ef-section ef-couple" data-editor-section="couple">
+        <Title label="Two souls, one path">Chúng mình</Title>
+        <div>
+          {[data.couple.bride, data.couple.groom].map((person, index) => (
+            <Reveal className="ef-person" key={person.name} delay={index * 0.12}>
+              <figure>
+                <img src={person.image} alt={person.name} />
+                <i />
+              </figure>
+              <h3>{person.name}</h3>
+              <p>{person.bio}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    ),
+    story: (
+      <section id="story" className="ef-story" data-editor-section="story">
+        <Title label="Our woodland chapters">
+          Những mùa cây
+          <br />
+          đã nhớ
+        </Title>
+        {data.story.map((item, index) => (
+          <Reveal className="ef-story-row" key={item.year}>
+            <figure>
+              <img src={item.image} alt="" />
+            </figure>
+            <div>
+              <span>{item.year}</span>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </div>
+            {index === 1 ? (
+              <img className="ef-story-prop" src={`${root}/champagne-coupes.png`} alt="" />
+            ) : null}
+          </Reveal>
+        ))}
+      </section>
+    ),
+    events: (
+      <section id="events" className="ef-section ef-events" data-editor-section="events">
+        <Title label="Save the date">Gặp nhau dưới tán rừng</Title>
+        <div>
+          {data.events.map((event, index) => (
+            <Reveal className="ef-event" key={event.title}>
+              <span>0{index + 1}</span>
+              <div>
+                <small>
+                  {event.date} · {event.time}
+                </small>
+                <h3>{event.title}</h3>
+                <p>
+                  {event.venue}
+                  <br />
+                  {event.address}
+                </p>
+              </div>
+              <button aria-label={`Thêm ${event.title} vào lịch`}>
+                <CalendarBlank />
+              </button>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    ),
+    countdown: (
+      <section className="ef-countdown" data-editor-section="countdown">
+        <img src={`${root}/vine-wreath.png`} alt="" />
+        <Reveal>
+          <span>Until the forest gathers us</span>
+          <div>
+            {time.map((value, index) => (
+              <p key={units[index]}>
+                <strong>{String(value).padStart(2, '0')}</strong>
+                <small>{units[index]}</small>
+              </p>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+    ),
+    venues: (
+      <section className="ef-section ef-venue" data-editor-section="venues">
+        <Title label="The sacred grove">Nơi lời hẹn vang lên</Title>
+        <Reveal>
+          <MapPin weight="thin" />
+          <span>
+            {data.events[0].date} · {data.events[0].time}
+          </span>
+          <h3>{data.events[0].venue}</h3>
+          <p>{data.events[0].address}</p>
+          <a href="https://maps.google.com" target="_blank" rel="noreferrer">
+            Mở chỉ đường <ArrowRight />
+          </a>
+        </Reveal>
+      </section>
+    ),
+    gallery: (
+      <section id="gallery" className="ef-gallery" data-editor-section="gallery">
+        <div className="ef-section ef-gallery-heading">
+          <Title label="Forest memories">
+            Những khung hình
+            <br />
+            giữa màu xanh
+          </Title>
+          <p>
+            Mỗi tấm hình là một ô cửa nhỏ nhìn lại những ngày chúng mình đã cùng lớn lên — từ chuyến
+            đi đầu tiên đến khoảnh khắc chọn nơi này làm điểm bắt đầu.
+          </p>
+        </div>
+        <div
+          className="ef-slider"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Album ảnh cưới"
+        >
+          <div className="ef-slider-stage">
+            {data.gallery.map((image, index) => {
+              const offset = (index - slide + data.gallery.length) % data.gallery.length
+              return (
+                <motion.figure
+                  key={`${image.src}-${index}`}
+                  className={`ef-slide ef-slide-${offset}`}
+                  aria-hidden={index !== slide}
+                  animate={
+                    reduced
+                      ? undefined
+                      : {
+                          opacity: offset < 3 ? 1 : 0,
+                          scale: offset === 0 ? 1 : 0.86,
+                          x: `${offset * 52}%`,
+                          rotateY: offset * 7 - 4,
+                        }
+                  }
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <img src={image.src} alt={image.alt} loading={index ? 'lazy' : undefined} />
+                  <figcaption>
+                    <span>0{index + 1}</span>
+                    {image.alt}
+                  </figcaption>
+                </motion.figure>
+              )
+            })}
+            <img className="ef-slider-branch" src={`${root}/forest-garland.png`} alt="" />
+          </div>
+          <div className="ef-slider-controls">
+            <button type="button" onClick={() => moveSlide(-1)} aria-label="Ảnh trước">
+              <ArrowLeft />
+            </button>
+            <span>
+              <strong>{String(slide + 1).padStart(2, '0')}</strong> /{' '}
+              {String(data.gallery.length).padStart(2, '0')}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPlaying((value) => !value)}
+              aria-label={playing ? 'Tạm dừng slide' : 'Tiếp tục slide'}
+            >
+              {playing ? <Pause /> : <Play />}
+            </button>
+            <button type="button" onClick={() => moveSlide(1)} aria-label="Ảnh tiếp theo">
+              <ArrowRight />
+            </button>
+          </div>
+        </div>
+      </section>
+    ),
+    schedule: (
+      <section className="ef-section ef-schedule" data-editor-section="schedule">
+        <Title label="A slow evening">Lịch trình</Title>
+        <div>
+          {data.schedule.map((item) => (
+            <Reveal key={item.time}>
+              <strong>{item.time}</strong>
+              <i />
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    ),
+    dressCode: (
+      <section className="ef-dress" data-editor-section="dressCode">
+        <img src={`${root}/vows-book.png`} alt="" />
+        <Reveal>
+          <span>Dress note</span>
+          <h2>{data.dressCode.title}</h2>
+          <p>{data.dressCode.message}</p>
+          <div>
+            {data.dressCode.colors.map((color) => (
+              <i key={color} style={{ background: color }} />
+            ))}
+          </div>
+        </Reveal>
+      </section>
+    ),
+    faq: (
+      <section className="ef-section ef-faq" data-editor-section="faq">
+        <Title label="Before the journey">Một vài điều nhỏ</Title>
+        <div>
+          {data.faq.map((item) => (
+            <details key={item.question}>
+              <summary>
+                {item.question}
+                <span>+</span>
+              </summary>
+              <p>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    ),
+    rsvp: (
+      <section id="rsvp" className="ef-rsvp" data-editor-section="rsvp">
+        <img src={`${root}/ancient-tree.png`} alt="" />
+        <Reveal>
+          <span>RSVP</span>
+          <h2>{sent ? 'Khu rừng đang chờ bạn' : 'Bạn sẽ đến chứ?'}</h2>
+          {sent ? (
+            <div className="ef-success">
+              <Check />
+              Cảm ơn bạn đã phản hồi.
+            </div>
+          ) : (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault()
+                setSent(true)
+              }}
+            >
+              <label>
+                Họ và tên
+                <input required placeholder="Tên của bạn" />
+              </label>
+              <label>
+                Lời nhắn
+                <textarea rows={3} placeholder="Gửi đôi lời đến chúng mình" />
+              </label>
+              <button>
+                Gửi phản hồi <PaperPlaneTilt />
+              </button>
+            </form>
+          )}
+        </Reveal>
+      </section>
+    ),
+    guestbook: (
+      <section className="ef-section ef-guestbook" data-editor-section="guestbook">
+        <Title label="Whispers from our people">Lời thương trong rừng</Title>
+        <div>
+          {data.guestbook.map((note) => (
+            <Reveal key={note.author}>
+              <Heart weight="thin" />
+              <p>“{note.message}”</p>
+              <span>{note.author}</span>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    ),
+    footer: (
+      <footer className="ef-footer" data-editor-section="footer">
+        <img src={`${root}/forest-garland.png`} alt="" />
+        <Reveal>
+          <span>06 · 11 · 2027</span>
+          <p>{data.footer.message}</p>
+          <strong>{data.footer.signature}</strong>
+        </Reveal>
+      </footer>
+    ),
+  }
+  return (
+    <main className="enchanted-forest">
+      {enabled.has('navigation') ? (
+        <nav className="ef-nav" data-editor-section="navigation">
+          <a href="#top">
+            L <i>&</i> A
+          </a>
+          <div>
+            <a href="#couple">Chúng mình</a>
+            <a href="#story">Câu chuyện</a>
+            <a href="#events">Ngày cưới</a>
+            <a href="#gallery">Album</a>
+          </div>
+          <a href="#rsvp">Xác nhận</a>
+        </nav>
+      ) : null}
+      {sectionConfig.order
+        .filter((key) => enabled.has(key) && key !== 'navigation')
+        .map((key) => (
+          <div key={key}>{sections[key]}</div>
+        ))}
+    </main>
+  )
+}

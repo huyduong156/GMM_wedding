@@ -13,10 +13,21 @@ export function AppLink({ to, children, className, ariaLabel, ariaCurrent }: App
   const { navigate } = useNavigation()
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return
     event.preventDefault()
     navigate(to)
   }
 
-  return <a href={to} onClick={handleClick} className={className} aria-label={ariaLabel} aria-current={ariaCurrent}>{children}</a>
+  return (
+    <a
+      href={to}
+      onClick={handleClick}
+      className={className}
+      aria-label={ariaLabel}
+      aria-current={ariaCurrent}
+    >
+      {children}
+    </a>
+  )
 }

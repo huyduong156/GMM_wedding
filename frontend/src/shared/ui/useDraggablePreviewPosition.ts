@@ -8,7 +8,13 @@ export function useDraggablePreviewPosition() {
   const [position, setPosition] = useState<PreviewPosition>(initialPosition)
   const positionRef = useRef(position)
   const suppressClickRef = useRef(false)
-  const dragRef = useRef<{ pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null)
+  const dragRef = useRef<{
+    pointerId: number
+    startX: number
+    startY: number
+    originX: number
+    originY: number
+  } | null>(null)
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLElement>) => {
     const target = event.target
@@ -17,7 +23,13 @@ export function useDraggablePreviewPosition() {
     if (event.button !== 0) return
     event.preventDefault()
     event.currentTarget.setPointerCapture?.(event.pointerId)
-    dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, originX: positionRef.current.x, originY: positionRef.current.y }
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: positionRef.current.x,
+      originY: positionRef.current.y,
+    }
   }, [])
 
   const onPointerMove = useCallback((event: ReactPointerEvent<HTMLElement>) => {
@@ -47,7 +59,13 @@ export function useDraggablePreviewPosition() {
 
   return {
     position,
-    dragHandlers: { onPointerDown, onPointerMove, onPointerUp: stopDragging, onPointerCancel: stopDragging, onClickCapture },
+    dragHandlers: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp: stopDragging,
+      onPointerCancel: stopDragging,
+      onClickCapture,
+    },
     style: { transform: `translate3d(${position.x}px, ${position.y}px, 0)` },
   }
 }

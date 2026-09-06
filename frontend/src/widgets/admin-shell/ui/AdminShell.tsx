@@ -1,4 +1,22 @@
-import { Bell, Browser, CaretDown, CirclesFour, CreditCard, EnvelopeSimple, Flag, Gear, ImagesSquare, List, MagnifyingGlass, MusicNote, Palette, SignOut, Tag, UsersThree, X } from '@phosphor-icons/react'
+import {
+  Bell,
+  Browser,
+  CaretDown,
+  CirclesFour,
+  CreditCard,
+  EnvelopeSimple,
+  Flag,
+  Gear,
+  ImagesSquare,
+  List,
+  MagnifyingGlass,
+  MusicNote,
+  Palette,
+  SignOut,
+  Tag,
+  UsersThree,
+  X,
+} from '@phosphor-icons/react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
@@ -6,26 +24,40 @@ import { adminRoutes, studioRoutes } from '../../../shared/config/routes'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 
 const adminNav = [
-  { label: 'Tổng quan', items: [
-    { to: adminRoutes.home, label: 'Bảng điều khiển', icon: CirclesFour },
-  ] },
-  { label: 'Quản lý nền tảng', items: [
-    { to: adminRoutes.users, label: 'Người dùng', icon: UsersThree },
-    { to: adminRoutes.subscriptions, label: 'Gói đăng ký', icon: CreditCard },
-  ] },
-  { label: 'Nội dung & giao diện', items: [
-    { to: adminRoutes.music, label: 'Âm nhạc', icon: MusicNote },
-    { label: 'Kho giao diện', icon: Palette, children: [
-      { to: adminRoutes.inviteLibrary, label: 'Kho thiệp online', icon: EnvelopeSimple },
-      { to: adminRoutes.websiteLibrary, label: 'Kho website online', icon: Browser },
-      { to: adminRoutes.recapLibrary, label: 'Kho Wedding Recap', icon: ImagesSquare },
-    ] },
-    { to: adminRoutes.styles, label: 'Danh mục phong cách', icon: Tag },
-  ] },
-  { label: 'Kiểm soát hệ thống', items: [
-    { to: adminRoutes.moderation, label: 'Kiểm duyệt', icon: Flag, badge: '8' },
-    { to: adminRoutes.operations, label: 'Vận hành', icon: Gear },
-  ] },
+  {
+    label: 'Tổng quan',
+    items: [{ to: adminRoutes.home, label: 'Bảng điều khiển', icon: CirclesFour }],
+  },
+  {
+    label: 'Quản lý nền tảng',
+    items: [
+      { to: adminRoutes.users, label: 'Người dùng', icon: UsersThree },
+      { to: adminRoutes.subscriptions, label: 'Gói đăng ký', icon: CreditCard },
+    ],
+  },
+  {
+    label: 'Nội dung & giao diện',
+    items: [
+      { to: adminRoutes.music, label: 'Âm nhạc', icon: MusicNote },
+      {
+        label: 'Kho giao diện',
+        icon: Palette,
+        children: [
+          { to: adminRoutes.inviteLibrary, label: 'Kho thiệp online', icon: EnvelopeSimple },
+          { to: adminRoutes.websiteLibrary, label: 'Kho website online', icon: Browser },
+          { to: adminRoutes.recapLibrary, label: 'Kho Wedding Recap', icon: ImagesSquare },
+        ],
+      },
+      { to: adminRoutes.styles, label: 'Danh mục phong cách', icon: Tag },
+    ],
+  },
+  {
+    label: 'Kiểm soát hệ thống',
+    items: [
+      { to: adminRoutes.moderation, label: 'Kiểm duyệt', icon: Flag, badge: '8' },
+      { to: adminRoutes.operations, label: 'Vận hành', icon: Gear },
+    ],
+  },
 ]
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -39,33 +71,113 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="admin-shell">
-      <aside className={`admin-sidebar ${mobileNavOpen ? 'is-mobile-open' : ''}`} aria-label="Điều hướng quản trị hệ thống">
-        <div className="admin-brand"><img src="/assets/logo/wedding_logo.png" alt="" /><div><strong>GMM Wedding</strong><span>Platform Admin</span></div></div>
+      <aside
+        className={`admin-sidebar ${mobileNavOpen ? 'is-mobile-open' : ''}`}
+        aria-label="Điều hướng quản trị hệ thống"
+      >
+        <div className="admin-brand">
+          <img src="/assets/logo/wedding_logo.png" alt="" />
+          <div>
+            <strong>GMM Wedding</strong>
+            <span>Platform Admin</span>
+          </div>
+        </div>
         <nav>
-          {adminNav.map((group) => <section className="admin-nav-group" key={group.label} aria-label={group.label}>
-            <p>{group.label}</p>
-            {group.items.map((item) => {
-              if ('children' in item) {
-                const ParentIcon = item.icon
-                return <div className="admin-nav-branch" key={item.label}>
-                  <div className="admin-nav-heading"><ParentIcon size={19} /><span>{item.label}</span></div>
-                  {(item.children ?? []).map(({ to, label, icon: ChildIcon }) => <AppLink key={to} to={to} className={`admin-nav-item is-child ${pathname === to ? 'is-active' : ''}`} ariaCurrent={pathname === to ? 'page' : undefined}><ChildIcon size={16} /><span>{label}</span></AppLink>)}
-                </div>
-              }
-              const Icon = item.icon
-              return <AppLink key={item.to} to={item.to} className={`admin-nav-item ${pathname === item.to ? 'is-active' : ''}`} ariaCurrent={pathname === item.to ? 'page' : undefined}><Icon size={19} /><span>{item.label}</span>{'badge' in item && item.badge ? <b>{item.badge}</b> : null}</AppLink>
-            })}
-          </section>)}
+          {adminNav.map((group) => (
+            <section className="admin-nav-group" key={group.label} aria-label={group.label}>
+              <p>{group.label}</p>
+              {group.items.map((item) => {
+                if ('children' in item) {
+                  const ParentIcon = item.icon
+                  return (
+                    <div className="admin-nav-branch" key={item.label}>
+                      <div className="admin-nav-heading">
+                        <ParentIcon size={19} />
+                        <span>{item.label}</span>
+                      </div>
+                      {(item.children ?? []).map(({ to, label, icon: ChildIcon }) => (
+                        <AppLink
+                          key={to}
+                          to={to}
+                          className={`admin-nav-item is-child ${pathname === to ? 'is-active' : ''}`}
+                          ariaCurrent={pathname === to ? 'page' : undefined}
+                        >
+                          <ChildIcon size={16} />
+                          <span>{label}</span>
+                        </AppLink>
+                      ))}
+                    </div>
+                  )
+                }
+                const Icon = item.icon
+                return (
+                  <AppLink
+                    key={item.to}
+                    to={item.to}
+                    className={`admin-nav-item ${pathname === item.to ? 'is-active' : ''}`}
+                    ariaCurrent={pathname === item.to ? 'page' : undefined}
+                  >
+                    <Icon size={19} />
+                    <span>{item.label}</span>
+                    {'badge' in item && item.badge ? <b>{item.badge}</b> : null}
+                  </AppLink>
+                )
+              })}
+            </section>
+          ))}
         </nav>
-        <div className="admin-sidebar-footer"><AppLink to={studioRoutes.home}>Về giao diện người dùng</AppLink><span>v0.1 prototype</span></div>
+        <div className="admin-sidebar-footer">
+          <AppLink to={studioRoutes.home}>Về giao diện người dùng</AppLink>
+          <span>v0.1 prototype</span>
+        </div>
       </aside>
       <div className="admin-workspace">
-        <header className="admin-topbar"><button className="admin-mobile-menu" type="button" aria-label={mobileNavOpen ? 'Đóng menu quản trị' : 'Mở menu quản trị'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen((open) => !open)}>{mobileNavOpen ? <X size={20} /> : <List size={20} />}</button><button className="admin-search"><MagnifyingGlass size={18} /><span>Tìm user, wedding hoặc template</span><kbd>⌘ K</kbd></button><div><button className="icon-button" aria-label="Thông báo quản trị"><Bell size={19} /></button><button className="account-button"><span className="user-avatar admin-avatar">AD</span><span className="account-copy"><strong>{auth?.user?.displayName ?? 'Admin'}</strong><small>Platform admin</small></span><CaretDown size={14} /></button><button className="icon-button" aria-label="Đăng xuất quản trị" onClick={() => void auth?.logout().then(() => navigate(adminRoutes.login, true))}><SignOut size={19} /></button></div></header>
+        <header className="admin-topbar">
+          <button
+            className="admin-mobile-menu"
+            type="button"
+            aria-label={mobileNavOpen ? 'Đóng menu quản trị' : 'Mở menu quản trị'}
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            {mobileNavOpen ? <X size={20} /> : <List size={20} />}
+          </button>
+          <button className="admin-search">
+            <MagnifyingGlass size={18} />
+            <span>Tìm user, wedding hoặc template</span>
+            <kbd>⌘ K</kbd>
+          </button>
+          <div>
+            <button className="icon-button" aria-label="Thông báo quản trị">
+              <Bell size={19} />
+            </button>
+            <button className="account-button">
+              <span className="user-avatar admin-avatar">AD</span>
+              <span className="account-copy">
+                <strong>{auth?.user?.displayName ?? 'Admin'}</strong>
+                <small>Platform admin</small>
+              </span>
+              <CaretDown size={14} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Đăng xuất quản trị"
+              onClick={() => void auth?.logout().then(() => navigate(adminRoutes.login, true))}
+            >
+              <SignOut size={19} />
+            </button>
+          </div>
+        </header>
         <main className="admin-main">{children}</main>
       </div>
-      {mobileNavOpen ? <button className="admin-mobile-overlay" type="button" aria-label="Đóng menu quản trị" onClick={() => setMobileNavOpen(false)} /> : null}
+      {mobileNavOpen ? (
+        <button
+          className="admin-mobile-overlay"
+          type="button"
+          aria-label="Đóng menu quản trị"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      ) : null}
     </div>
   )
 }
-
-
