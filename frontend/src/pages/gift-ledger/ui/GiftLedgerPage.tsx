@@ -93,11 +93,11 @@ export function GiftLedgerPage() {
       } catch (cause) { await toast(cause instanceof Error ? cause.message : 'Không thể liên kết khách mời.', 'error') } finally { setGuestLoading(false) }
       return
     }
-    setSelectedGuestId(guest.id); setGuestName(guest.displayName); closeGuestPicker()
+    setSelectedGuestId(guest.id); setGuestName(guest.displayName ?? guest.name ?? ''); closeGuestPicker()
   }
   function clearSelectedGuest() { setSelectedGuestId(null); setGuestName('') }
   function openEdit(entry: GiftEntry) {
-    setError(null); setDialogClosing(false); setEditing(entry); setLinkingEntry(null); setSelectedGuestId(entry.guestId ?? null); setGuestName(entry.guestName); setAmount(entry.amount ? String(entry.amount) : ''); setGoldWeight(entry.goldWeight ? String(entry.goldWeight) : ''); setGoldType(entry.goldType ?? 'Vàng 24K'); setGiftDescription(entry.description ?? ''); setNote(entry.note ?? ''); setKind(entry.kind); setReceiveMethod(entry.method === 'bank' ? 'bankTransfer' : entry.method === 'cash' ? 'cash' : 'physicalGift'); setDialogOpen(true)
+    setError(null); setDialogClosing(false); setEditing(entry); setLinkingEntry(null); setSelectedGuestId(entry.guestId ?? null); setGuestName(entry.guestName ?? ''); setAmount(entry.amount ? String(entry.amount) : ''); setGoldWeight(entry.goldWeight ? String(entry.goldWeight) : ''); setGoldType(entry.goldType ?? 'Vàng 24K'); setGiftDescription(entry.description ?? ''); setNote(entry.note ?? ''); setKind(entry.kind); setReceiveMethod(entry.method === 'bank' ? 'bankTransfer' : entry.method === 'cash' ? 'cash' : 'physicalGift'); setDialogOpen(true)
   }
   const removeEntry = useCallback(async (entry: GiftEntry) => {
     if (!weddingId) return

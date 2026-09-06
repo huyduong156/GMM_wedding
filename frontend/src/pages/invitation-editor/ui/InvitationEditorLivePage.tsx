@@ -43,7 +43,20 @@ const hydrateTemplateConfig = (templateKey: string, config: Record<string, unkno
     const fields = Object.fromEntries(Object.entries(fallbackFields).map(([key, field]) => [key, { ...((field ?? {}) as Record<string, unknown>), ...(configFields[key] ?? {}) }]))
     return { ...fallbackRecord, ...configSection, fields: { ...fields, ...configFields } }
   })
-  return { ...fallback, ...config, sections: sections.length ? sections : configSections }
+  return { ...fallback, ...config, previewPath: fallback.previewPath, sections: sections.length ? sections : configSections }
+}
+function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[]) {
+  const next = [...new Set(storedKeys.filter((key) => canonicalKeys.includes(key)))]
+  canonicalKeys.forEach((key, canonicalIndex) => {
+    if (next.includes(key)) return
+    let insertAt = 0
+    for (let index = canonicalIndex - 1; index >= 0; index -= 1) {
+      const previousIndex = next.indexOf(canonicalKeys[index])
+      if (previousIndex >= 0) { insertAt = previousIndex + 1; break }
+    }
+    next.splice(insertAt, 0, key)
+  })
+  return next
 }
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = initialTemplate.fixture
@@ -116,13 +129,16 @@ export function InvitationEditorLivePage() {
       const loaded = (await weddingApi.content(activeWeddingId, 'ONLINE_INVITATION')).content
       if (!loaded.templateVersion) { setTemplateMissing(true); setLoading(false); return }
       const stored = loaded.content as EditorData
+      // A newly selected template can already have a WeddingContent row, while
+      // its content payload is still empty. Ignore a stale row order in that state.
+      const hasSavedContent = Object.keys(stored).length > 0
       const storedPalette = typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
       const templateConfig = hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config)
-      const definitions = resolveEditorSections(templateConfig, loaded.sectionConfig.order)
+      const definitions = resolveEditorSections(templateConfig, hasSavedContent ? loaded.sectionConfig.order : [])
       const validKeys = definitions.map((section) => section.sectionKey)
-      const storedOrder = loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
+      const storedOrder = hasSavedContent ? loaded.sectionConfig.order.filter((key) => validKeys.includes(key)) : []
       const storedEnabled = new Set(loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)))
-      const nextOrder = [...storedOrder, ...validKeys.filter((key) => !storedOrder.includes(key))]
+      const nextOrder = mergeSectionOrder(validKeys, storedOrder)
       const nextEnabled = validKeys.filter((key) => storedEnabled.has(key) || !storedOrder.includes(key) || definitions.find((section) => section.sectionKey === key)?.required)
       setSectionDefinitions(definitions); if (Array.isArray(templateConfig.quickEdit)) setQuickEditFields(readQuickEdit(templateConfig))
       setData({ ...initialData, ...stored })
@@ -188,7 +204,7 @@ export function InvitationEditorLivePage() {
       if (localMusicOnly) { delete persistedData.backgroundMusicUrl; delete persistedData.backgroundMusicName }
       const sectionConfig = { enabled, order }
       const saved = await weddingApi.saveContent(activeWedding.id, { surface: 'ONLINE_INVITATION', templateVersionId, content: persistedData, themeConfig: { palette }, sectionConfig, revision: contentRevision })
-      setContentRevision(saved.content.revision); baselineRef.current = editorSignature(data, palette, order, enabled); setDirty(false); setSaveMessage(localMusicOnly ? 'Đã lưu nội dung thiệp. Nhạc demo chỉ được giữ trong phiên chỉnh sửa này.' : 'Đã lưu thay đổi.')
+      setContentRevision(saved.content.revision); baselineRef.current = editorSignature(data, palette, order, enabled); setDirty(false); if (surfacePublished) setSurfacePublished(false); setSaveMessage(localMusicOnly ? 'Đã lưu nội dung thiệp. Nhạc demo chỉ được giữ trong phiên chỉnh sửa này.' : 'Đã lưu thay đổi.')
       return true
     } catch (cause) {
       if (cause instanceof WeddingApiError && cause.status === 409) { setConflicted(true); setSaveMessage('Nội dung đã thay đổi ở nơi khác. Tải lại bản mới để tiếp tục.') }

@@ -96,7 +96,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
 | GET | `/weddings/{weddingId}/dashboard` | Owner | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
 | GET | `/weddings/{weddingId}/content` | Owner | Implemented | Lấy canonical content và theme/section config theo surface |
-| PUT | `/weddings/{weddingId}/content` | Owner | Implemented | Lưu canonical content, template selection và section/theme config theo revision |
+| PUT | `/weddings/{weddingId}/content` | Owner | Implemented | Lưu canonical content, template selection và section/theme config theo revision; nếu surface đang public thì chuyển về draft và thu hồi snapshot live, không tạo publication version mới |
 | POST | `/weddings/{weddingId}/publish` | Owner | Implemented | Validate config/media rồi tạo immutable snapshot; retry cùng payload trả snapshot live |
 | POST | `/weddings/{weddingId}/unpublish` | Owner | Implemented | Thu hồi public pointer của đúng surface |
 | POST | `/weddings/{weddingId}/preview-token` | Owner/editor | Planned | Tạo draft preview token |

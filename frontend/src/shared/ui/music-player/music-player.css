@@ -1,0 +1,43 @@
+.music-player {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 40;
+}
+
+.music-player button {
+  position: relative;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / .8);
+  border-radius: 50%;
+  color: #fffaf3;
+  background: #526b59;
+  box-shadow: 0 12px 28px rgb(62 41 48 / .22), 0 0 0 5px rgb(255 250 243 / .5);
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.music-player button:hover { transform: translateY(-2px); background: #415748; box-shadow: 0 16px 34px rgb(62 41 48 / .28), 0 0 0 6px rgb(255 250 243 / .58); }
+.music-player button:active { transform: scale(.96); }
+.music-player button:focus-visible { outline: 2px solid #a94f63; outline-offset: 4px; }
+.music-player button:disabled { color: #fffaf3b5; background: #899a80; cursor: not-allowed; box-shadow: 0 8px 18px rgb(62 41 48 / .12), 0 0 0 4px rgb(255 250 243 / .38); }
+.music-player-disc { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgb(255 255 255 / .55); border-radius: 50%; background: radial-gradient(circle, #f5d5c9 0 18%, #a94f63 19% 30%, #fffaf3 31% 35%, #a94f63 36% 58%, #526b59 59%); }
+.music-player.is-playing .music-player-disc { animation: music-player-spin 6s linear infinite; }
+.music-player-state { position: absolute; right: -2px; bottom: -2px; display: grid; width: 19px; height: 19px; place-items: center; border: 2px solid #fffaf3; border-radius: 50%; color: #526b59; background: #fffaf3; }
+.music-player.is-unavailable .music-player-disc { opacity: .72; }
+
+@keyframes music-player-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 700px) {
+  .music-player { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  .music-player button { width: 48px; height: 48px; }
+  .music-player-disc { width: 26px; height: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-player.is-playing .music-player-disc { animation: none; }
+  .music-player button { transition: none; }
+}
