@@ -157,6 +157,10 @@ export function VerdantPromiseInvitation({
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
   const weddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const coverBackgroundImage =
+    typeof data?.coverBackgroundMedia === 'string'
+      ? data.coverBackgroundMedia
+      : data?.coverBackgroundMedia?.src
   const gallery = data?.galleryImages?.length
     ? data.galleryImages
         .map((item) =>
@@ -349,6 +353,15 @@ export function VerdantPromiseInvitation({
                 onClick={openInvitation}
                 disabled={opening}
                 aria-label={`Mở thiệp cưới của ${brideName} và ${groomName}`}
+                style={
+                  coverBackgroundImage
+                    ? {
+                        backgroundImage: `linear-gradient(145deg, #fffef9d9, #eeeee3e6), url(${coverBackgroundImage})`,
+                        backgroundPosition: 'center',
+                        backgroundSize: 'cover',
+                      }
+                    : undefined
+                }
                 initial={reduceMotion ? false : { opacity: 0, rotateX: 8, y: 34 }}
                 animate={
                   opening && !reduceMotion
@@ -359,7 +372,10 @@ export function VerdantPromiseInvitation({
                 whileHover={reduceMotion ? undefined : { rotateX: 2, rotateY: -2, y: -9 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.985 }}
               >
-                <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                <img
+                  src="/assets/images/templates/verdant-promise/botanical-frame-transparent.png"
+                  alt=""
+                />
                 <span className="vp-cover-kicker">Wedding invitation</span>
                 <span className="vp-cover-monogram" aria-hidden="true">
                   A · K

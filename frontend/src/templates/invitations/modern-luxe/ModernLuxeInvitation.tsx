@@ -78,6 +78,7 @@ export type ModernLuxeData = {
   galleryImages?: string[]
   galleryMediaIds?: string[]
   heroMedia?: ModernLuxeMedia | null
+  coverBackgroundMedia?: ModernLuxeMedia | string | null
   loveJourney?: ModernLuxeLoveJourneyItem[]
   brideFatherTitle?: string
   brideFather?: string
@@ -135,6 +136,7 @@ const defaults: Required<ModernLuxeData> = {
   galleryImages: [],
   galleryMediaIds: [],
   heroMedia: null,
+  coverBackgroundMedia: null,
   loveJourney: defaultLoveJourney,
   brideFatherTitle: 'Ông',
   brideFather: 'Trần Văn Bình',

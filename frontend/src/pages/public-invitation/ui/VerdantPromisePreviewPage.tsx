@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { VerdantPromiseInvitation } from '../../../templates/invitations/verdant-promise/VerdantPromiseInvitation'
+import { modernLuxeEditorFixture } from '../../../templates/template-registry'
 import type {
   ModernLuxeData,
   ModernLuxeSectionConfig,
@@ -13,7 +14,13 @@ export function VerdantPromisePreviewPage() {
     data?: ModernLuxeData
     sectionConfig?: ModernLuxeSectionConfig
   }>()
-  const [data, setData] = useState<ModernLuxeData | undefined>(stored?.data)
+  const previewDefaults: Pick<ModernLuxeData, 'coverBackgroundMedia'> = {
+    coverBackgroundMedia: modernLuxeEditorFixture.coverBackgroundMedia,
+  }
+  const [data, setData] = useState<ModernLuxeData | undefined>(() => ({
+    ...previewDefaults,
+    ...stored?.data,
+  }))
   const [sectionConfig, setSectionConfig] = useState<ModernLuxeSectionConfig | undefined>(
     stored?.sectionConfig,
   )
@@ -22,7 +29,7 @@ export function VerdantPromisePreviewPage() {
     const receive = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent) return
       if (isModernLuxeEditorMessage(event.data)) {
-        setData(event.data.payload.data)
+        setData({ ...previewDefaults, ...event.data.payload.data })
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<string>(event.data))
         document

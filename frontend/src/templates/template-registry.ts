@@ -23,6 +23,11 @@ export const modernLuxeEditorFixture: ModernLuxeData = {
   invitationTitle: 'Đến chung vui trong ngày thành hôn',
   invitationMessage:
     'Sự hiện diện của bạn là niềm vui và món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.',
+  coverBackgroundMedia: {
+    src: '/assets/images/templates/verdant-promise/greenhouse-background.png',
+    alt: 'Ảnh ánh sáng trong nhà kính',
+    role: 'cover-background',
+  },
   ceremonyTime: '09:00',
   receptionTime: '11:00',
   venueName: 'The Garden Hall',

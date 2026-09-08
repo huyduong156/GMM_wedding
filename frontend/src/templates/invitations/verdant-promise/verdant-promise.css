@@ -310,8 +310,11 @@
   gap: 7px;
   margin-top: 34px;
   padding: 0 18px;
-  border: 1px solid #28533f;
+  border: 1px solid #b99754;
   border-radius: 999px;
+  color: #f8f4df;
+  background-color: var(--vp-forest-800);
+  box-shadow: 0 10px 24px #0b2f2438;
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.12em;
