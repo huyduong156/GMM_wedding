@@ -51,6 +51,20 @@
 - Long names and addresses wrap inside the paper surface without changing canvas width.
 - Reduced motion removes folio choreography, parallax, perspective, spin and autoplay while retaining geometry and controls.
 
+## Approved decor placement map
+
+Artwork đã duyệt được map theo vị trí, không đặt theo kiểu phủ đều toàn trang:
+
+| Asset | Vị trí mặc định | Xoay/định hướng | Quy tắc an toàn |
+|---|---|---|---|
+| `woodland-ceremonial-cluster-left-v1.png` | Góc trên trái của `banner` hoặc góc dưới trái của `invitation-letter` | Xoay nhẹ `-8deg` nếu cần theo flow cành | Không đặt giữa canvas; phần cành chìa vào nội dung tối đa 20–24%; luôn nằm ngoài content anchor |
+| `woodland-ceremonial-cluster-right-v1.png` | Góc trên phải của `venue` hoặc góc dưới phải của `footer` | Xoay nhẹ `8deg` hoặc lật ngang theo composition | Không dùng đồng thời hai cụm ở cùng một trục; không để mép cutout chọc vào viền đọc |
+| `woodland-folio-cover-v2.png` | Cover, lệch tâm theo folio | Giữ orientation gốc | Không crop seal/cord; CTA vẫn là focal point |
+| `woodland-folio-open-v1.png` | Cover opened state, dưới content opening | Giữ orientation gốc | Không dùng thay cho content page; không che tên/ngày/CTA |
+| `woodland-botanical-divider-v1.png` | Seam giữa các paper section | Xoay `0deg` | Không kéo vượt canvas 450px |
+| Small ornaments | Các góc/card marker/section edge | Xoay từng asset `-12deg` đến `12deg` | Không đặt ở trung tâm trang; `pointer-events: none`; giữ clear space quanh chữ và form |
+
+Decor layer phải có `position: absolute`, `transform-origin` hợp lý và breakpoint riêng cho 375/390/430/450px. Ở mobile hẹp, cụm góc được scale xuống hoặc dịch ra ngoài mép trong giới hạn overflow hidden; không dùng rotation làm cho artwork chọc ra gutter/viền viewport. Reduced motion giữ nguyên vị trí tĩnh và tắt mọi drift/float.
 ## Phase 3 gate
 
 - [x] Core and optional section order defined.
@@ -60,4 +74,4 @@
 - [x] Mobile canvas, long-content and reduced-motion fallbacks defined.
 - [x] Config skeleton mapped to these section keys.
 
-Phase 4 will define technique and motion choreography. Advanced parallax, 3D gallery behavior, ambient motion and entrance choreography should wait for that phase.
+Phase 3 chưa đóng cho tới khi skeleton renderer, fixture và test mapping được tạo. Sau đó Phase 4 mới định nghĩa technique và motion choreography; advanced parallax, 3D gallery, ambient motion và entrance choreography phải chờ tới phase đó.

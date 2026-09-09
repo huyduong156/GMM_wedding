@@ -23,6 +23,8 @@ import {
   type PeonyVerandaData,
   type PeonyVerandaSectionConfig,
 } from '../../../templates/invitations/peony-veranda/PeonyVerandaInvitation'
+import { WoodlandLetterpressInvitation } from '../../../templates/invitations/woodland-letterpress/WoodlandLetterpressInvitation'
+import type { WoodlandLetterpressData } from '../../../templates/invitations/woodland-letterpress/WoodlandLetterpressInvitation'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -178,6 +180,8 @@ function InvitationSnapshot({
           interactions={interactions}
         />
       )
+    case 'woodland-letterpress':
+      return <WoodlandLetterpressInvitation data={content as WoodlandLetterpressData} sectionConfig={sectionConfig as { enabled: string[]; order: string[] } | undefined} interactions={interactions} />
     case 'peony-veranda':
       return (
         <PeonyVerandaInvitation

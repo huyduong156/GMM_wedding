@@ -5,9 +5,9 @@ Pre-code brief riêng của template invitation `woodland-letterpress`.
 ## Trạng thái
 
 - Product type: `ONLINE_INVITATION`
-- Giai đoạn: pre-code brief, Phase 1
+- Giai đoạn: Phase 3 composition/config/artwork placement đã chốt; skeleton renderer và fixture còn thiếu, chưa chuyển Phase 4
 - Presentation mode: mobile canvas tối đa `450px`
-- Chưa tạo renderer, fixture hoặc artwork
+- Chưa tạo renderer hoặc fixture; approved artwork đã sẵn sàng làm input sau khi hoàn tất skeleton UI
 
 ## Product meaning
 
@@ -54,10 +54,11 @@ Không dùng toàn bộ page bằng nâu đậm; nội dung chính phải giữ 
 
 ### Typography
 
-- Display: `Lora`, cho tên cặp đôi, heading và ngày lớn.
-- Body/UI: `Be Vietnam Pro`, cho lời mời, địa chỉ, form, CTA và metadata.
-- Accent: `Dancing Script`, chỉ cho cụm ngắn như `With love` hoặc dấu nối tên.
-- Nội dung chính ưu tiên tiếng Việt; không dùng script cho body, địa chỉ, button hoặc text dài.
+- Display: `Lora GMM`, weight `600–700`, cho tên cặp đôi, heading và ngày lớn. Lora được chốt vì có độ ấm, nét serif rõ và cảm giác letterpress/thư tay.
+- Body/UI: `Be Vietnam Pro GMM`, weight `400–600`, cho lời mời, địa chỉ, form, CTA và metadata; ưu tiên khả năng đọc tiếng Việt trên mobile.
+- Accent: `Dancing Script GMM`, weight `500–600`, chỉ cho cụm ngắn như `With love` hoặc dấu nối tên.
+- Font pairing đã chốt: `Lora + Be Vietnam Pro + Dancing Script`. Không dùng accent cho body, địa chỉ, button hoặc nội dung dài.
+- Nội dung chính ưu tiên tiếng Việt.
 
 ## Presentation mode
 
@@ -416,4 +417,4 @@ type WoodlandMediaRole =
 
 ## Bước tiếp theo
 
-Chuyển sang Phase 3: chốt section composition map, layout/transition map và skeleton mapping cho `template-config.ts`. Chưa generate artwork hoặc viết renderer hoàn chỉnh trước khi Phase 3 hoàn tất.
+Composition map, layout/transition map, config skeleton và approved decor input đã có. Phase 3 chỉ hoàn tất sau khi có skeleton renderer, fixture và test mapping; chưa bắt đầu Phase 4.

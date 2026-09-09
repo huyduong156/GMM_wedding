@@ -1,14 +1,12 @@
 # Woodland artwork candidates
 
-Các asset trong thư mục này là ứng viên artwork renderer-owned cho Woodland Letterpress, được tạo để duyệt trước Phase 3. Chưa được import vào renderer và chưa phải release asset.
+Các asset còn lại trong thư mục này là candidate artwork renderer-owned cho Woodland Letterpress. Bộ đã duyệt được copy vào thư mục `../` để làm input cố định cho Phase 3/4; chưa import vào renderer.
 
 ## Candidate list
 
 | File | Role | Section | Alpha/background | Planned use |
 |---|---|---|---|---|
 | `woodland-folio-cover-v1.png` | Hero/cover decoration | `cover` | Transparent PNG | Bìa folio mở thiệp |
-| `woodland-seal-medallion-v1.png` | Standalone decoration | `cover`, `event-countdown`, `calendar` | Transparent PNG | Seal opening hoặc marker ngày |
-| `woodland-botanical-divider-v1.png` | Divider decoration | `invitation-letter`, `event-countdown`, `venue`, `footer` | Transparent PNG | Chuyển tiếp giữa các khối nội dung |
 
 ## Source and provenance
 
@@ -25,12 +23,15 @@ Các asset trong thư mục này là ứng viên artwork renderer-owned cho Wood
 - Botanical divider: phù hợp làm divider ngang trong canvas 450px; cần kiểm tra kích thước tải và crop khi tích hợp.
 - Ambient sprite sheet thử nghiệm bị loại khỏi candidate set vì có nền ánh sáng liền mạch, không đạt yêu cầu asset trong suốt.
 
+## New generation batch
+
+- Generated with built-in OpenAI image generation capability, 2026-09-06.
+- Cụm hoa/cỏ lớn được định hướng như bó trang trí gia tiên cưới: nhiều lớp cành, cỏ, hoa màu kem/terracotta và foliage xanh moss; không dùng người, chữ, logo hoặc couple sample.
+- Các asset mới đã được duyệt và dời trực tiếp vào thư mục `artwork/`; không còn nằm trong candidate set.
+- Các chi tiết nhỏ đã được tách thành bốn PNG độc lập để renderer điều khiển vị trí, kích thước, opacity và animation riêng.
+
 ## Additional candidates
 
-- `woodland-folio-cover-v2.png` - transparent replacement candidate for the cover folio.
-- `woodland-calendar-marker-v1.png` - small date marker.
-- `woodland-venue-signpost-v2.png` - venue signpost decoration.
-- `woodland-botanical-wreath-v1.png` - open botanical wreath for section framing.
 - `woodland-pinecone-spray-v1.png` - larger pine and pinecone spray.
 - `woodland-icon-pinecone-v1.png`, `woodland-icon-leaf-v1.png`, `woodland-icon-firefly-v1.png`, `woodland-icon-berry-v1.png` - four independent small ambient icons; no sprite sheet.
 
@@ -38,4 +39,4 @@ The requested large foliage cluster with small wildflowers is not approved yet. 
 
 ## Approval gate
 
-Chỉ sau khi duyệt candidate mới được đổi tên/copy vào asset path chính, ghi decor map cuối cùng và chuyển sang Phase 3. Candidate bị từ chối phải được thay bằng bản version mới, không ghi đè bản cũ.
+Các asset đã duyệt được copy vào asset path `artwork/` và đã có decor placement map trong `phase-3-composition.md`. Candidate bị từ chối phải được thay bằng bản version mới, không ghi đè bản cũ.

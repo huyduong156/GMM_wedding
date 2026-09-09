@@ -5,6 +5,8 @@ import { verdantPromiseTemplateConfig } from './invitations/verdant-promise/temp
 import { chibiDaydreamTemplateConfig } from './invitations/chibi-daydream/template-config'
 import { peonyVerandaTemplateConfig } from './invitations/peony-veranda/template-config'
 import { peonyVerandaFixture } from './invitations/peony-veranda/fixture'
+import { woodlandLetterpressTemplateConfig } from './invitations/woodland-letterpress/template-config'
+import { woodlandLetterpressFixture } from './invitations/woodland-letterpress/fixture'
 import type { ModernLuxeData } from './invitations/modern-luxe/ModernLuxeInvitation'
 import { editorialVowsFixture } from './websites/editorial-vows/fixture'
 import { editorialVowsTemplateConfig } from './websites/editorial-vows/template-config'
@@ -81,6 +83,10 @@ export const invitationTemplateRegistry: Record<
   'modern-luxe': { config: modernLuxeTemplateConfig, fixture: modernLuxeEditorFixture },
   'verdant-promise': { config: verdantPromiseTemplateConfig, fixture: modernLuxeEditorFixture },
   'chibi-daydream': { config: chibiDaydreamTemplateConfig, fixture: modernLuxeEditorFixture },
+  'woodland-letterpress': {
+    config: woodlandLetterpressTemplateConfig,
+    fixture: woodlandLetterpressFixture as ModernLuxeData,
+  },
   'peony-veranda': {
     config: peonyVerandaTemplateConfig,
     fixture: peonyVerandaFixture as ModernLuxeData,

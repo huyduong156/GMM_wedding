@@ -59,6 +59,7 @@ export const publicTemplateRoutes = {
   verdantPromisePreview: '/templates/invitations/verdant-promise/preview',
   chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
   peonyVerandaPreview: '/templates/invitations/peony-veranda/preview',
+  woodlandLetterpressPreview: '/templates/invitations/woodland-letterpress/preview',
   editorialVowsPreview: '/templates/websites/editorial-vows/preview',
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',

@@ -12,6 +12,7 @@ export type TemplateSectionConfig =
   | {
       sectionKey: string
       label?: string
+      layout?: string
       required?: boolean
       canToggle?: boolean
       canReorder?: boolean

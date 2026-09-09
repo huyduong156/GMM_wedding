@@ -40,6 +40,7 @@ import { ModernLuxePreviewPage } from '../pages/public-invitation/ui/ModernLuxeP
 import { VerdantPromisePreviewPage } from '../pages/public-invitation/ui/VerdantPromisePreviewPage'
 import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDaydreamPreviewPage'
 import { PeonyVerandaPreviewPage } from '../pages/public-invitation/ui/PeonyVerandaPreviewPage'
+import { WoodlandLetterpressPreviewPage } from '../pages/public-invitation/ui/WoodlandLetterpressPreviewPage'
 import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVowsPreviewPage'
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
@@ -127,6 +128,7 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
   if (pathname === publicTemplateRoutes.peonyVerandaPreview) return <PeonyVerandaPreviewPage />
+  if (pathname === publicTemplateRoutes.woodlandLetterpressPreview) return <WoodlandLetterpressPreviewPage />
   if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
   if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
   if (pathname === publicTemplateRoutes.enchantedForestPreview)

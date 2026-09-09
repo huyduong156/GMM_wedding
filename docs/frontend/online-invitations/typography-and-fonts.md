@@ -83,7 +83,8 @@ Admin/operational UI tiếp tục dùng Inter theo design system. Wedding font c
 - Editorial Luxe: Playfair Display + Montserrat + Dancing Script.
 - Vietnamese Heritage: Phudu + Be Vietnam Pro + Patrick Hand.
 - Botanical Soft: Fraunces + Nunito Sans + Dancing Script.
-- Classic Letter: Cormorant Garamond + Lora + Dancing Script.
+- Classic Letter: Cormorant Garamond + Lora + Dancing Script
+- Woodland Letterpress: Lora + Be Vietnam Pro + Dancing Script.
 - Ornamental Vow: Tapestry + Be Vietnam Pro + Patrick Hand.
 
 Registry dùng cho editor/template picker nằm tại `frontend/src/shared/config/wedding-fonts.ts`.
