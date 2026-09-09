@@ -67,6 +67,11 @@ export type ModernLuxeData = {
   eyebrow?: string
   invitationTitle?: string
   invitationMessage?: string
+  invitationMemoryImage1?: string
+  invitationMemoryImage2?: string
+  invitationMemoryImage3?: string
+  /** @deprecated Kept as a read fallback for invitations saved before the fixed slots. */
+  invitationMemoryImages?: string[]
   ceremonyTime?: string
   receptionTime?: string
   eventDetailsMedia?: ModernLuxeMedia | null
@@ -125,6 +130,10 @@ const defaults: Required<ModernLuxeData> = {
   invitationTitle: 'Đến chung vui trong ngày thành hôn',
   invitationMessage:
     'Sự hiện diện của bạn là niềm vui và là món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.',
+  invitationMemoryImage1: '',
+  invitationMemoryImage2: '',
+  invitationMemoryImage3: '',
+  invitationMemoryImages: [],
   ceremonyTime: '09:00',
   receptionTime: '11:00',
   eventDetailsMedia: null,
@@ -212,6 +221,9 @@ const resolveFamilyPerson = (
   return { honorific: defaultTitle, name: defaultName }
 }
 
+const nameInitial = (value: string) =>
+  value.trim().split(/\s+/u).filter(Boolean).at(-1)?.[0]?.toLocaleUpperCase('vi-VN') ?? ''
+
 function SectionReveal({
   children,
   className,
@@ -285,6 +297,8 @@ export function ModernLuxeInvitation({
     data?.groomMotherTitle,
     data?.groomMother,
   )
+  const brideInitial = nameInitial(content.brideName)
+  const groomInitial = nameInitial(content.groomName)
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(editorMode)
   const [activeImage, setActiveImage] = useState(0)
@@ -312,6 +326,12 @@ export function ModernLuxeInvitation({
         '/assets/images/templates/modern-luxe/wedding-detail.jpg',
         '/assets/images/login-wedding-luxury.jpg',
       ]
+  const legacyMemoryImages = content.invitationMemoryImages
+  const invitationMemoryImages = [
+    content.invitationMemoryImage1 || legacyMemoryImages[0] || gallery[0],
+    content.invitationMemoryImage2 || legacyMemoryImages[1] || gallery[1],
+    content.invitationMemoryImage3 || legacyMemoryImages[2] || gallery[2],
+  ]
   const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(content.venueAddress)}&output=embed`
   const weddingCountdown = useWeddingCountdown('2026-12-12T09:00:00+07:00')
   const { scrollY } = useScroll()
@@ -509,7 +529,7 @@ export function ModernLuxeInvitation({
                 type="button"
                 onClick={openInvitation}
                 disabled={opening}
-                aria-label="Mở thiệp mời của Minh Anh và Hoàng Nam"
+                aria-label={`Mở thiệp mời của ${content.brideName} và ${content.groomName}`}
                 initial={reduceMotion ? false : { opacity: 0, y: 38, rotateX: 8 }}
                 animate={
                   opening && !reduceMotion
@@ -523,10 +543,10 @@ export function ModernLuxeInvitation({
                 <span className="ml-folio-edge" aria-hidden="true" />
                 <span className="ml-folio-kicker">Élan d’Amour · Wedding invitation</span>
                 <span className="ml-folio-monogram">
-                  M <i>&amp;</i> N
+                  {brideInitial} <i>&amp;</i> {groomInitial}
                 </span>
                 <strong>
-                  Minh Anh <i>&amp;</i> Hoàng Nam
+                  {content.brideName} <i>&amp;</i> {content.groomName}
                 </strong>
                 <time>{content.weddingDate}</time>
                 <span className="ml-wax-seal" aria-hidden="true">
@@ -624,7 +644,7 @@ export function ModernLuxeInvitation({
                 I
               </div>
               <div className="ml-floating-memories" aria-hidden="true">
-                {gallery.slice(0, 3).map((image, index) => (
+                {invitationMemoryImages.slice(0, 3).map((image, index) => (
                   <motion.figure
                     className={`ml-floating-memory ml-floating-memory-${index + 1}`}
                     key={`floating-${image}-${index}`}
@@ -767,7 +787,7 @@ export function ModernLuxeInvitation({
                     <address>Tư gia · {content.brideFamilyAddress}</address>
                   </article>
                   <div className="ml-family-medallion" aria-hidden="true">
-                    M<i>&amp;</i>N
+                    {brideInitial}<i>&amp;</i>{groomInitial}
                   </div>
                   <article>
                     <small>Nhà trai</small>

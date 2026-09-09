@@ -59,6 +59,24 @@ export const modernLuxeTemplateConfig = {
       canToggle: false,
       canReorder: false,
       fields: {
+        memoryImage1: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage1',
+          label: 'Ảnh khung ký ức 1',
+          mediaRole: 'invitation-memory-1',
+        },
+        memoryImage2: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage2',
+          label: 'Ảnh khung ký ức 2',
+          mediaRole: 'invitation-memory-2',
+        },
+        memoryImage3: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage3',
+          label: 'Ảnh khung ký ức 3',
+          mediaRole: 'invitation-memory-3',
+        },
         title: {
           type: 'string',
           contentKey: 'invitationTitle',

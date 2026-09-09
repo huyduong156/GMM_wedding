@@ -751,20 +751,20 @@
 }
 .ml-floating-memory-1 {
   top: 190px;
-  left: 10px;
+  left: 24px;
   rotate: -8deg;
   animation: ml-memory-float-a 8.5s ease-in-out infinite alternate;
 }
 .ml-floating-memory-2 {
   top: 560px;
-  right: -18px;
+  right: 24px;
   width: 122px;
   rotate: 7deg;
   animation: ml-memory-float-b 10s ease-in-out 1s infinite alternate;
 }
 .ml-floating-memory-3 {
   top: 905px;
-  left: -12px;
+  left: 20px;
   width: 116px;
   rotate: -5deg;
   animation: ml-memory-float-c 9.2s ease-in-out 0.4s infinite alternate;
@@ -2163,19 +2163,19 @@
   .ml-floating-memory-1 {
     z-index: 5;
     top: 110px;
-    left: -54px;
+    left: 10px;
     rotate: -11deg;
   }
   .ml-floating-memory-2 {
     z-index: 5;
     top: 610px;
-    right: -50px;
+    right: 10px;
     width: 88px;
     rotate: 10deg;
   }
   .ml-floating-memory-3 {
     top: 1025px;
-    left: -40px;
+    left: 12px;
     width: 82px;
     opacity: 0.78;
   }
