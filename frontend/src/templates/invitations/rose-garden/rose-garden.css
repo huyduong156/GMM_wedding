@@ -1,0 +1,136 @@
+.rg-page {
+  --rg-ink: #33252a;
+  --rg-muted: #806b70;
+  --rg-rose: #a95768;
+  --rg-rose-deep: #713b4a;
+  --rg-paper: #fffaf8;
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  color: var(--rg-ink);
+  background:
+    radial-gradient(circle at 10% 15%, rgb(255 234 233 / 0.22), transparent 20rem),
+    radial-gradient(circle at 90% 82%, rgb(232 198 209 / 0.18), transparent 24rem),
+    #e8dfe0;
+  font-family: var(--font-wedding-body);
+}
+.rg-page *,
+.rg-page *::before,
+.rg-page *::after { box-sizing: border-box; }
+.rg-backdrop { position: fixed; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+.rg-backdrop::before,
+.rg-backdrop::after { position: absolute; inset: 0; content: ''; pointer-events: none; }
+.rg-backdrop::before {
+  background:
+    radial-gradient(ellipse at 16% 34%, rgb(255 198 214 / 0.34), transparent 22rem),
+    radial-gradient(ellipse at 84% 68%, rgb(255 224 190 / 0.3), transparent 24rem),
+    radial-gradient(circle at 18% 28%, rgb(255 248 246 / 0.5) 0 1px, transparent 2px),
+    radial-gradient(circle at 83% 64%, rgb(255 248 246 / 0.42) 0 1px, transparent 2px),
+    linear-gradient(118deg, transparent 0 38%, rgb(255 255 255 / 0.22) 49%, transparent 60%);
+  background-size: 100% 100%, 100% 100%, 170px 190px, 210px 230px, 100% 100%;
+  animation: rg-backdrop-shimmer 16s ease-in-out infinite alternate;
+}
+.rg-backdrop::after { background: radial-gradient(ellipse at center, transparent 38%, rgb(77 42 53 / 0.12)); }
+.rg-glint {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff8ef;
+  box-shadow: 0 0 12px 3px rgb(255 241 218 / 0.72);
+  opacity: 0.62;
+  animation: rg-glint-float 5.2s ease-in-out infinite alternate;
+}
+.rg-invitation {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgb(255 250 248 / 0.98), rgb(255 246 244 / 0.98));
+  box-shadow: 0 0 70px rgb(81 41 52 / 0.2);
+}
+.rg-invitation-decor {
+  position: absolute;
+  z-index: 0;
+  width: 190px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(169 87 104 / 0.16);
+  border-radius: 58% 42% 55% 45%;
+  pointer-events: none;
+}
+.rg-invitation-decor::before,
+.rg-invitation-decor::after {
+  position: absolute;
+  width: 78px;
+  height: 18px;
+  border: 1px solid rgb(169 87 104 / 0.2);
+  border-radius: 100% 0;
+  content: '';
+}
+.rg-invitation-decor-top { top: -112px; right: -92px; transform: rotate(24deg); }
+.rg-invitation-decor-top::before { top: 105px; left: -52px; transform: rotate(30deg); }
+.rg-invitation-decor-top::after { top: 140px; left: -20px; transform: rotate(58deg); }
+.rg-invitation-decor-bottom { bottom: -132px; left: -105px; transform: rotate(-22deg); }
+.rg-invitation-decor-bottom::before { top: 38px; right: -42px; transform: rotate(-42deg); }
+.rg-invitation-decor-bottom::after { top: 78px; right: -18px; transform: rotate(-72deg); }
+.rg-opening {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  padding: 72px 28px;
+  text-align: center;
+}
+.rg-kicker,
+.rg-opening-label {
+  color: var(--rg-rose-deep);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.rg-seal {
+  width: 74px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  margin: 32px 0 30px;
+  border: 1px solid rgb(169 87 104 / 0.42);
+  border-radius: 50%;
+  color: var(--rg-rose);
+  box-shadow: inset 0 0 0 7px rgb(169 87 104 / 0.06);
+}
+.rg-seal span { font-family: var(--font-wedding-display); font-size: 22px; letter-spacing: 0.04em; }
+.rg-opening-label { margin: 0; }
+.rg-opening h1 {
+  max-width: 380px;
+  margin: 20px 0 16px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(48px, 14vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+.rg-opening h1 em { color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 0.56em; font-style: normal; letter-spacing: 0; }
+.rg-date { margin: 0; color: var(--rg-rose); font-size: 10px; font-weight: 800; letter-spacing: 0.34em; }
+.rg-opening-note { max-width: 260px; margin: 34px 0 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
+@keyframes rg-backdrop-shimmer {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to { background-position: 7% -3%, -6% 5%, 40px -28px, -35px 32px, 100% 0; }
+}
+@keyframes rg-glint-float { from { opacity: 0.2; transform: translate3d(0, 8px, 0) scale(0.72); } to { opacity: 0.88; transform: translate3d(4px, -12px, 0) scale(1.2); } }
+@media (max-width: 480px) {
+  .rg-page { background: #fffaf8; }
+  .rg-backdrop { display: none; }
+  .rg-invitation { box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-backdrop::before,
+  .rg-glint { animation: none; }
+}
