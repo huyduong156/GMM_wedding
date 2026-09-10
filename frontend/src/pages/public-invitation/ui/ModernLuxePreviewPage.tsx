@@ -82,6 +82,7 @@ export function ModernLuxePreviewPage() {
         palette={palette}
         preview={!editorMode}
         editorMode={editorMode}
+        showOpeningOnLoad={editorMode}
         sectionConfig={sectionConfig}
       />
     </>

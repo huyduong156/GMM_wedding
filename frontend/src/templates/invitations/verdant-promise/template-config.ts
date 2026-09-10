@@ -2,7 +2,7 @@ import type { TemplateConfig } from '../../template-config'
 export const verdantPromiseTemplateConfig = {
   templateKey: 'verdant-promise',
   displayName: 'Verdant Promise',
-  templateVersion: '1.3.1',
+  templateVersion: '1.3.2',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',
@@ -27,6 +27,13 @@ export const verdantPromiseTemplateConfig = {
         groomName: { type: 'string', label: 'Tên chú rể', required: true, maxLength: 80 },
         weddingDate: { type: 'date', label: 'Ngày cưới', required: true },
         eyebrow: { type: 'string', label: 'Dòng giới thiệu', maxLength: 80 },
+        buttonBackground: {
+          type: 'image',
+          contentKey: 'coverBackgroundMedia',
+          label: 'Ảnh nền bìa thiệp',
+          mediaRole: 'cover-background',
+          mediaValue: 'object',
+        },
       },
     },
     {

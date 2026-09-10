@@ -87,10 +87,10 @@ function EdgeAtmosphere() {
   return (
     <div className="vp-edge-atmosphere" aria-hidden="true">
       <div className="vp-edge-rail vp-edge-rail-left">
-        <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+        <img src="/assets/images/templates/verdant-promise/vp-body-botanical-left.png" alt="" />
       </div>
       <div className="vp-edge-rail vp-edge-rail-right">
-        <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+        <img src="/assets/images/templates/verdant-promise/vp-body-botanical-right.png" alt="" />
       </div>
       <div className="vp-edge-petals">
         {edgePetals.map((petal) => (
@@ -157,6 +157,14 @@ export function VerdantPromiseInvitation({
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
   const weddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const nameInitial = (value: string) =>
+    value.trim().split(/\s+/).filter(Boolean).at(-1)?.[0]?.toUpperCase() ?? ''
+  const brideInitial = nameInitial(brideName)
+  const groomInitial = nameInitial(groomName)
+  const coverBackgroundImage =
+    typeof data?.coverBackgroundMedia === 'string'
+      ? data.coverBackgroundMedia
+      : data?.coverBackgroundMedia?.src
   const gallery = data?.galleryImages?.length
     ? data.galleryImages
         .map((item) =>
@@ -194,10 +202,14 @@ export function VerdantPromiseInvitation({
   const [slide, setSlide] = useState(0)
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [rsvp, setRsvp] = useState<'attending' | 'declined' | null>(null)
-  const submittedRsvpRef = useRef<string | null>(null)
+  const [rsvpName, setRsvpName] = useState('')
+  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
+  const [rsvpValidationError, setRsvpValidationError] = useState('')
   const [giftOpen, setGiftOpen] = useState(false)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
+  const [wishSubmitted, setWishSubmitted] = useState(false)
+  const [wishValidationError, setWishValidationError] = useState('')
   const [wishes, setWishes] = useState([
     {
       name: 'Gia đình bác Hùng',
@@ -217,6 +229,10 @@ export function VerdantPromiseInvitation({
   const heroImageY = useTransform(scrollY, [0, 720], ['0%', '18%'])
   const heroContentY = useTransform(scrollY, [0, 720], ['0%', '34%'])
   const heroContentOpacity = useTransform(scrollY, [0, 560], [1, 0])
+  const connectedGuestName = interactions?.guestName?.trim() ?? ''
+  const hasGuestName = Boolean(connectedGuestName)
+  const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
+  const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
 
   useEffect(() => {
     if (
@@ -278,36 +294,61 @@ export function VerdantPromiseInvitation({
   }
 
   const sendWish = async () => {
-    if (!wishName.trim() || !wish.trim()) return
+    if (wishLocked) return
+    const name = connectedGuestName || wishName.trim()
+    const message = wish.trim()
+    if (!name) {
+      setWishValidationError('Vui lòng nhập tên trước khi gửi lời chúc.')
+      return
+    }
+    if (!message) {
+      setWishValidationError('Vui lòng nhập lời chúc.')
+      return
+    }
+    if (interactions?.wishes.submitting) return
+    setWishValidationError('')
     if (interactions) {
       if (
         !(await interactions.wishes.submit({
-          guestName: interactions.isPersonalized ? undefined : wishName.trim(),
-          content: wish.trim(),
+          guestName: interactions.isPersonalized ? undefined : name,
+          content: message,
         }))
       )
         return
-    } else setWishes((current) => [{ name: wishName.trim(), message: wish.trim() }, ...current])
+    } else setWishes((current) => [{ name, message }, ...current])
     setWishName('')
     setWish('')
+    setWishSubmitted(true)
+  }
+
+  const sendRsvp = async () => {
+    if (!rsvp || interactions?.rsvp.submitting || rsvpLocked) return
+    const name = rsvpName.trim()
+    if (!hasGuestName && !name) {
+      setRsvpValidationError('Vui lòng nhập tên trước khi xác nhận phản hồi.')
+      return
+    }
+    setRsvpValidationError('')
+    const submitted = interactions
+      ? await interactions.rsvp.submit({
+          guestName: hasGuestName ? undefined : name,
+          attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED',
+          partySize: 1,
+        })
+      : true
+    if (submitted) setRsvpSubmitted(true)
   }
 
   useEffect(() => {
-    if (!interactions || !rsvp || submittedRsvpRef.current === rsvp) return
-    submittedRsvpRef.current = rsvp
-    void interactions.rsvp.submit({
-      guestName: interactions.isPersonalized ? undefined : wishName.trim(),
-      attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED',
-      partySize: 1,
-    })
-  }, [interactions?.isPersonalized, interactions?.rsvp.submit, rsvp])
+    if (!interactions) return
+    setWishes(
+      interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
+    )
+  }, [interactions?.wishes.items])
 
   useEffect(() => {
-    if (interactions)
-      setWishes(
-        interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
-      )
-  }, [interactions?.wishes.items])
+    if (interactions?.rsvp.submitted) setRsvpSubmitted(true)
+  }, [interactions?.rsvp.submitted])
 
   return (
     <MotionConfig reducedMotion="user">
@@ -349,6 +390,11 @@ export function VerdantPromiseInvitation({
                 onClick={openInvitation}
                 disabled={opening}
                 aria-label={`Mở thiệp cưới của ${brideName} và ${groomName}`}
+                style={{
+                  backgroundImage: `linear-gradient(145deg, rgba(255, 254, 249, 0.5), rgba(238, 238, 227, 0.2)), url(${coverBackgroundImage || '/assets/images/templates/verdant-promise/greenhouse-background.png'})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover',
+                }}
                 initial={reduceMotion ? false : { opacity: 0, rotateX: 8, y: 34 }}
                 animate={
                   opening && !reduceMotion
@@ -359,10 +405,13 @@ export function VerdantPromiseInvitation({
                 whileHover={reduceMotion ? undefined : { rotateX: 2, rotateY: -2, y: -9 }}
                 whileTap={reduceMotion ? undefined : { scale: 0.985 }}
               >
-                <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                <img
+                  src="/assets/images/templates/verdant-promise/botanical-frame-transparent.png"
+                  alt=""
+                />
                 <span className="vp-cover-kicker">Wedding invitation</span>
                 <span className="vp-cover-monogram" aria-hidden="true">
-                  A · K
+                  {brideInitial} · {groomInitial}
                 </span>
                 <h1>
                   {brideName} <i>&amp;</i> {groomName}
@@ -505,13 +554,13 @@ export function VerdantPromiseInvitation({
                   </motion.article>
                 ))}
                 <div className="vp-family-seal" aria-hidden="true">
-                  <span>A</span>
+                  <span>{brideInitial}</span>
                   <i>&amp;</i>
-                  <span>K</span>
+                  <span>{groomInitial}</span>
                 </div>
               </div>
               <p className="vp-family-invitation">
-                Kính mời <strong>Quý khách</strong> đến dự bữa tiệc thân mật, chung vui cùng gia
+                Kính mời <strong>{connectedGuestName || 'Quý khách'}</strong> đến dự bữa tiệc thân mật, chung vui cùng gia
                 đình chúng tôi.
               </p>
             </SectionReveal>
@@ -677,8 +726,8 @@ export function VerdantPromiseInvitation({
                   />
                 ))}
                 <div className="vp-gallery-matte" aria-hidden="true">
-                  <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
-                  <img src="/assets/images/templates/verdant-promise/botanical-frame.png" alt="" />
+                  <img src="/assets/images/templates/verdant-promise/vp-body-botanical-left.png" alt="" />
+                  <img src="/assets/images/templates/verdant-promise/vp-body-botanical-right.png" alt="" />
                 </div>
                 <div className="vp-gallery-caption">
                   <span>0{slide + 1}</span>
@@ -728,18 +777,64 @@ export function VerdantPromiseInvitation({
                 <button
                   type="button"
                   className={rsvp === 'attending' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('attending')}
+                  onClick={() => {
+                    setRsvp('attending')
+                    setRsvpValidationError('')
+                  }}
+                  disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình sẽ tham dự
                 </button>
                 <button
                   type="button"
                   className={rsvp === 'declined' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('declined')}
+                  onClick={() => {
+                    setRsvp('declined')
+                    setRsvpValidationError('')
+                  }}
+                  disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình chưa thể tham dự
                 </button>
               </div>
+              {!hasGuestName ? (
+                <label className="vp-rsvp-name">
+                  <span>Tên khách mời</span>
+                  <input
+                    value={rsvpName}
+                    onChange={(event) => {
+                      setRsvpName(event.target.value)
+                      setRsvpValidationError('')
+                    }}
+                    placeholder="Ví dụ: Thanh An"
+                    autoComplete="name"
+                    disabled={rsvpLocked || interactions?.rsvp.submitting}
+                  />
+                </label>
+              ) : (
+                <p className="vp-rsvp-guest">Xác nhận cho {connectedGuestName}</p>
+              )}
+              <button
+                type="button"
+                className="vp-rsvp-submit"
+                onClick={sendRsvp}
+                disabled={
+                  !rsvp ||
+                  interactions?.rsvp.submitting ||
+                  rsvpLocked
+                }
+              >
+                {interactions?.rsvp.submitting
+                  ? 'Đang gửi...'
+                  : rsvpSubmitted
+                    ? 'Đã ghi nhận phản hồi'
+                    : 'Gửi xác nhận'}
+              </button>
+              {rsvpValidationError || interactions?.rsvp.error ? (
+                <p className="vp-interaction-error" role="alert">
+                  {rsvpValidationError || interactions?.rsvp.error}
+                </p>
+              ) : null}
               <AnimatePresence>
                 {rsvp === 'attending' && !reduceMotion ? (
                   <motion.div
@@ -757,7 +852,7 @@ export function VerdantPromiseInvitation({
                 ) : null}
               </AnimatePresence>
               <AnimatePresence mode="wait">
-                {rsvp ? (
+                {rsvp && rsvpSubmitted ? (
                   <motion.p
                     key={rsvp}
                     className="vp-rsvp-feedback"
@@ -784,31 +879,60 @@ export function VerdantPromiseInvitation({
                 <h2>Gửi một lời chúc thật xanh</h2>
               </header>
               <div className="vp-wish-form">
+                {!hasGuestName ? (
                 <label>
                   <span>Tên của bạn</span>
                   <input
                     value={wishName}
-                    onChange={(event) => setWishName(event.target.value)}
+                    onChange={(event) => {
+                      setWishName(event.target.value)
+                      setWishValidationError('')
+                    }}
                     placeholder="Ví dụ: Thanh An"
+                    autoComplete="name"
+                    disabled={wishLocked || interactions?.wishes.submitting}
                   />
                 </label>
+                ) : (
+                  <p className="vp-wish-guest">Lời chúc từ {connectedGuestName}</p>
+                )}
                 <label>
                   <span>Lời chúc</span>
                   <textarea
                     value={wish}
-                    onChange={(event) => setWish(event.target.value)}
+                    onChange={(event) => {
+                      setWish(event.target.value)
+                      setWishValidationError('')
+                    }}
                     placeholder="Viết điều bạn muốn gửi đến cô dâu chú rể..."
+                    disabled={wishLocked || interactions?.wishes.submitting}
                   />
                 </label>
                 <button
                   type="button"
                   onClick={sendWish}
-                  disabled={!wishName.trim() || !wish.trim()}
+                  disabled={
+                    interactions?.wishes.submitting ||
+                    wishLocked
+                  }
                 >
-                  Gửi lời chúc <Heart weight="fill" />
+                  {interactions?.wishes.submitting ? 'Đang gửi...' : 'Gửi lời chúc'}{' '}
+                  <Heart weight="fill" />
                 </button>
+                {wishValidationError || interactions?.wishes.error ? (
+                  <p className="vp-interaction-error" role="alert">
+                    {wishValidationError || interactions?.wishes.error}
+                  </p>
+                ) : wishLocked ? (
+                  <p className="vp-interaction-success" role="status">
+                    Lời chúc đã được gửi và đang chờ duyệt.
+                  </p>
+                ) : null}
               </div>
               <div className="vp-wishes" aria-live="polite">
+                {interactions && !wishes.length ? (
+                  <p className="vp-wishes-empty">Chưa có lời chúc nào đã được duyệt.</p>
+                ) : null}
                 {wishes.map((item, index) => (
                   <motion.article
                     key={`${item.name}-${index}`}

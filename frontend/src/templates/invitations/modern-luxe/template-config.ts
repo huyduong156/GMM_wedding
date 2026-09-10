@@ -32,7 +32,37 @@ export const modernLuxeTemplateConfig = {
     { key: 'midnight', label: 'Midnight' },
     { key: 'sage', label: 'Sage' },
   ],
+  defaultData: {
+    familiesTitle: 'Hai gia đình trân trọng báo tin',
+    familiesSubtitle: 'Lễ thành hôn của các con chúng tôi',
+    giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất dành cho chúng mình.',
+    giftThankYouMessage: 'Cảm ơn bạn đã dành tình cảm và lời chúc tốt đẹp cho chúng mình.',
+  },
   sections: [
+    {
+      sectionKey: 'opening',
+      label: 'Mở thiệp',
+      required: true,
+      canToggle: false,
+      canReorder: false,
+      editorLayout: 'two-column-media',
+      fields: {
+        backImage: {
+          type: 'image',
+          contentKey: 'openingMediaBack',
+          label: 'Ảnh khung sau',
+          mediaRole: 'opening-back',
+          mediaValue: 'object',
+        },
+        frontImage: {
+          type: 'image',
+          contentKey: 'openingMediaFront',
+          label: 'Ảnh khung trước',
+          mediaRole: 'opening-front',
+          mediaValue: 'object',
+        },
+      },
+    },
     {
       sectionKey: 'cover',
       label: 'Bìa thiệp',
@@ -58,7 +88,29 @@ export const modernLuxeTemplateConfig = {
       required: true,
       canToggle: false,
       canReorder: false,
+      editorLayout: 'three-column-media',
       fields: {
+        memoryImage1: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage1',
+          label: 'Ảnh khung ký ức 1',
+          mediaRole: 'invitation-memory-1',
+          mediaValue: 'url',
+        },
+        memoryImage2: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage2',
+          label: 'Ảnh khung ký ức 2',
+          mediaRole: 'invitation-memory-2',
+          mediaValue: 'url',
+        },
+        memoryImage3: {
+          type: 'image',
+          contentKey: 'invitationMemoryImage3',
+          label: 'Ảnh khung ký ức 3',
+          mediaRole: 'invitation-memory-3',
+          mediaValue: 'url',
+        },
         title: {
           type: 'string',
           contentKey: 'invitationTitle',
@@ -102,6 +154,18 @@ export const modernLuxeTemplateConfig = {
       canToggle: false,
       canReorder: false,
       fields: {
+        familiesTitle: {
+          type: 'string',
+          contentKey: 'familiesTitle',
+          label: 'Tiêu đề thông tin gia đình',
+          maxLength: 120,
+        },
+        familiesSubtitle: {
+          type: 'string',
+          contentKey: 'familiesSubtitle',
+          label: 'Mô tả thông tin gia đình',
+          maxLength: 180,
+        },
         brideFatherTitle: { type: 'string', label: 'Danh xưng bố cô dâu', maxLength: 30 },
         brideFather: { type: 'string', label: 'Tên bố cô dâu', maxLength: 80 },
         brideMotherTitle: { type: 'string', label: 'Danh xưng mẹ cô dâu', maxLength: 30 },
@@ -118,8 +182,6 @@ export const modernLuxeTemplateConfig = {
       canToggle: false,
       canReorder: false,
       fields: {
-        ceremonyTime: { type: 'time', label: 'Thời gian làm lễ' },
-        receptionTime: { type: 'time', label: 'Thời gian đãi tiệc' },
         dateMedia: {
           type: 'image',
           contentKey: 'eventDetailsMedia',
@@ -183,6 +245,7 @@ export const modernLuxeTemplateConfig = {
           type: 'items',
           recommendedMinItems: 3,
           label: 'Các hoạt động',
+          contentKey: 'activities',
           maxItems: 8,
           itemFields: {
             title: { type: 'string', label: 'Tiêu đề', required: true, maxLength: 80 },
@@ -214,6 +277,7 @@ export const modernLuxeTemplateConfig = {
           contentKey: 'galleryImages',
           label: 'Ảnh trong album',
           mediaRole: 'gallery',
+          mediaValue: 'url',
           maxItems: 12,
         },
       },
@@ -233,7 +297,14 @@ export const modernLuxeTemplateConfig = {
         },
       },
     },
-    { sectionKey: 'guestbook', label: 'Sổ lưu bút', canToggle: true, canReorder: true, fields: {} },
+    {
+      sectionKey: 'guestbook',
+      label: 'Sổ lưu bút',
+      canToggle: true,
+      canReorder: true,
+      emptyMessage: 'Lời chúc sẽ được lấy tự động từ danh sách lời chúc đã duyệt.',
+      fields: {},
+    },
     {
       sectionKey: 'gift',
       label: 'Thông tin mừng cưới',
@@ -244,6 +315,12 @@ export const modernLuxeTemplateConfig = {
           type: 'text',
           contentKey: 'giftMessage',
           label: 'Lời nhắn mừng cưới',
+          maxLength: 300,
+        },
+        thankYouMessage: {
+          type: 'text',
+          contentKey: 'giftThankYouMessage',
+          label: 'Lời cảm ơn',
           maxLength: 300,
         },
         qrMedia: {
@@ -260,19 +337,13 @@ export const modernLuxeTemplateConfig = {
       canToggle: true,
       canReorder: false,
       fields: {
-        audio: {
+        backgroundMusicUrl: {
           type: 'audio',
           contentKey: 'backgroundMusicUrl',
           audioNameKey: 'backgroundMusicName',
           label: 'Nhạc nền',
         },
-        name: {
-          type: 'string',
-          contentKey: 'backgroundMusicName',
-          label: 'Tên bản nhạc',
-          maxLength: 120,
-        },
-        autoplay: {
+        backgroundMusicAutoplay: {
           type: 'boolean',
           contentKey: 'backgroundMusicAutoplay',
           label: 'Tự động phát',

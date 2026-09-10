@@ -9,8 +9,6 @@ import {
   Heart,
   MapPin,
   NavigationArrow,
-  Pause,
-  SpeakerHigh,
   Sparkle,
 } from '@phosphor-icons/react'
 import {
@@ -25,11 +23,14 @@ import {
   formatCountdownUnit,
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
+import { MusicPlayer } from '../../../shared/ui/music-player'
+import '../../../shared/styles/reveal-animations.css'
 import './modern-luxe.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
 export type ModernLuxePalette = 'champagne' | 'midnight' | 'sage'
 export type ModernLuxeSectionKey =
+  | 'opening'
   | 'cover'
   | 'invitation'
   | 'loveJourney'
@@ -67,6 +68,11 @@ export type ModernLuxeData = {
   eyebrow?: string
   invitationTitle?: string
   invitationMessage?: string
+  invitationMemoryImage1?: string
+  invitationMemoryImage2?: string
+  invitationMemoryImage3?: string
+  /** @deprecated Kept as a read fallback for invitations saved before the fixed slots. */
+  invitationMemoryImages?: Array<string | ModernLuxeMedia>
   ceremonyTime?: string
   receptionTime?: string
   eventDetailsMedia?: ModernLuxeMedia | null
@@ -75,10 +81,15 @@ export type ModernLuxeData = {
   mapUrl?: string
   rsvpDeadline?: string
   rsvpMessage?: string
-  galleryImages?: string[]
+  galleryImages?: Array<string | ModernLuxeMedia>
   galleryMediaIds?: string[]
   heroMedia?: ModernLuxeMedia | null
+  openingMediaBack?: ModernLuxeMedia | null
+  openingMediaFront?: ModernLuxeMedia | null
+  coverBackgroundMedia?: ModernLuxeMedia | string | null
   loveJourney?: ModernLuxeLoveJourneyItem[]
+  familiesTitle?: string
+  familiesSubtitle?: string
   brideFatherTitle?: string
   brideFather?: string
   brideMotherTitle?: string
@@ -93,6 +104,7 @@ export type ModernLuxeData = {
   groomRole?: string
   calendarUrl?: string
   giftMessage?: string
+  giftThankYouMessage?: string
   giftQrMedia?: ModernLuxeMedia | null
   timelineItems?: ModernLuxeTimelineItem[]
   activities?: ModernLuxeActivityItem[]
@@ -124,6 +136,10 @@ const defaults: Required<ModernLuxeData> = {
   invitationTitle: 'Đến chung vui trong ngày thành hôn',
   invitationMessage:
     'Sự hiện diện của bạn là niềm vui và là món quà quý giá trong ngày chúng mình bắt đầu một hành trình mới.',
+  invitationMemoryImage1: '',
+  invitationMemoryImage2: '',
+  invitationMemoryImage3: '',
+  invitationMemoryImages: [],
   ceremonyTime: '09:00',
   receptionTime: '11:00',
   eventDetailsMedia: null,
@@ -135,7 +151,12 @@ const defaults: Required<ModernLuxeData> = {
   galleryImages: [],
   galleryMediaIds: [],
   heroMedia: null,
+  openingMediaBack: null,
+  openingMediaFront: null,
+  coverBackgroundMedia: null,
   loveJourney: defaultLoveJourney,
+  familiesTitle: 'Hai gia đình trân trọng báo tin',
+  familiesSubtitle: 'Lễ thành hôn của các con chúng tôi',
   brideFatherTitle: 'Ông',
   brideFather: 'Trần Văn Bình',
   brideMotherTitle: 'Bà',
@@ -151,6 +172,7 @@ const defaults: Required<ModernLuxeData> = {
   calendarUrl:
     'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Minh%20Anh%20va%20Hoang%20Nam&dates=20261212T020000Z/20261212T060000Z',
   giftMessage: 'Tình cảm và sự hiện diện của bạn là món quà ý nghĩa nhất dành cho chúng mình.',
+  giftThankYouMessage: 'Cảm ơn bạn đã dành tình cảm và lời chúc tốt đẹp cho chúng mình.',
   giftQrMedia: null,
   timelineItems: [
     {
@@ -210,6 +232,12 @@ const resolveFamilyPerson = (
   return { honorific: defaultTitle, name: defaultName }
 }
 
+const nameInitial = (value: string) =>
+  value.trim().split(/\s+/u).filter(Boolean).at(-1)?.[0]?.toLocaleUpperCase('vi-VN') ?? ''
+
+const mediaSource = (value: string | ModernLuxeMedia | null | undefined) =>
+  typeof value === 'string' ? value : value?.src ?? ''
+
 function SectionReveal({
   children,
   className,
@@ -248,6 +276,7 @@ export function ModernLuxeInvitation({
   palette = 'champagne',
   preview = false,
   editorMode = false,
+  showOpeningOnLoad = false,
   sectionConfig,
   interactions,
 }: {
@@ -255,6 +284,7 @@ export function ModernLuxeInvitation({
   palette?: ModernLuxePalette
   preview?: boolean
   editorMode?: boolean
+  showOpeningOnLoad?: boolean
   sectionConfig?: ModernLuxeSectionConfig
   interactions?: PublicInteractions
 }) {
@@ -283,33 +313,48 @@ export function ModernLuxeInvitation({
     data?.groomMotherTitle,
     data?.groomMother,
   )
+  const brideInitial = nameInitial(content.brideName)
+  const groomInitial = nameInitial(content.groomName)
   const [opening, setOpening] = useState(false)
-  const [opened, setOpened] = useState(editorMode)
+  const [opened, setOpened] = useState(editorMode && !showOpeningOnLoad)
   const [activeImage, setActiveImage] = useState(0)
   const [galleryPaused, setGalleryPaused] = useState(false)
   const [rsvp, setRsvp] = useState<'attending' | 'declined' | null>(null)
-  const submittedRsvpRef = useRef<string | null>(null)
+  const [rsvpName, setRsvpName] = useState('')
+  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
+  const [rsvpValidationError, setRsvpValidationError] = useState('')
   const [giftOpen, setGiftOpen] = useState(false)
-  const [musicPlaying, setMusicPlaying] = useState(false)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
+  const [wishSubmitted, setWishSubmitted] = useState(false)
+  const [wishValidationError, setWishValidationError] = useState('')
   const [wishes, setWishes] = useState([
     { name: 'Ngọc Mai', message: 'Chúc hai bạn một đời bình an, luôn thương nhau như ngày đầu.' },
     { name: 'Gia đình cô Lan', message: 'Chúc mừng hạnh phúc hai con, trăm năm viên mãn.' },
   ])
   const mainRef = useRef<HTMLElement>(null)
-  const audioRef = useRef<HTMLAudioElement>(null)
   const openingTimerRef = useRef<number | undefined>(undefined)
   const focusFrameRef = useRef<number | undefined>(undefined)
   const reduceMotion = useReducedMotion()
+  const connectedGuestName = interactions?.guestName?.trim() ?? ''
+  const hasGuestName = Boolean(connectedGuestName)
+  const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
+  const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
   const journey = content.loveJourney
-  const gallery = content.galleryImages.length
-    ? content.galleryImages
+  const uploadedGallery = content.galleryImages.map(mediaSource).filter(Boolean)
+  const gallery = uploadedGallery.length
+    ? uploadedGallery
     : [
         '/assets/images/templates/modern-luxe/couple-portrait.jpg',
         '/assets/images/templates/modern-luxe/wedding-detail.jpg',
         '/assets/images/login-wedding-luxury.jpg',
       ]
+  const legacyMemoryImages = content.invitationMemoryImages
+  const invitationMemoryImages = [
+    mediaSource(content.invitationMemoryImage1 || legacyMemoryImages[0] || gallery[0]),
+    mediaSource(content.invitationMemoryImage2 || legacyMemoryImages[1] || gallery[1]),
+    mediaSource(content.invitationMemoryImage3 || legacyMemoryImages[2] || gallery[2]),
+  ]
   const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(content.venueAddress)}&output=embed`
   const weddingCountdown = useWeddingCountdown('2026-12-12T09:00:00+07:00')
   const { scrollY } = useScroll()
@@ -326,11 +371,11 @@ export function ModernLuxeInvitation({
   }, [gallery.length, galleryPaused, opened, reduceMotion])
 
   useEffect(() => {
-    if (editorMode) {
+    if (editorMode && !showOpeningOnLoad) {
       setOpened(true)
       setOpening(false)
     }
-  }, [editorMode])
+  }, [editorMode, showOpeningOnLoad])
 
   useEffect(
     () => () => {
@@ -341,33 +386,36 @@ export function ModernLuxeInvitation({
   )
 
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    audio.load()
-    setMusicPlaying(false)
-    if (editorMode || !opened || !content.backgroundMusicAutoplay || !content.backgroundMusicUrl)
-      return
-    void audio
-      .play()
-      .then(() => setMusicPlaying(true))
-      .catch(() => setMusicPlaying(false))
-  }, [content.backgroundMusicAutoplay, content.backgroundMusicUrl, opened])
-
-  const toggleMusic = async () => {
-    const audio = audioRef.current
-    if (!audio) return
-    if (!audio.paused) {
-      audio.pause()
-      setMusicPlaying(false)
+    const main = mainRef.current
+    if (!opened || !main) return
+    const sections = Array.from(
+      main.querySelectorAll<HTMLElement>('[data-editor-section]'),
+    )
+    const revealSelector =
+      'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select'
+    const markSectionDetails = (section: HTMLElement) => {
+      section.querySelectorAll<HTMLElement>(revealSelector).forEach((element, index) => {
+        element.classList.add('reveal', 'reveal--fade-only')
+        element.style.setProperty('--reveal-delay', `${Math.min(index * 0.1, 0.9).toFixed(2)}s`)
+      })
+    }
+    sections.forEach(markSectionDetails)
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      sections.forEach((section) => section.classList.add('is-visible'))
       return
     }
-    try {
-      await audio.play()
-      setMusicPlaying(true)
-    } catch {
-      setMusicPlaying(false)
-    }
-  }
+    const observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }),
+      { rootMargin: '0px 0px -33% 0px', threshold: 0.01 },
+    )
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [opened, reduceMotion])
 
   const openInvitation = () => {
     if (opened || opening) return
@@ -378,13 +426,22 @@ export function ModernLuxeInvitation({
   }
 
   const submitWish = async () => {
+    if (wishLocked || interactions?.wishes.submitting) return
     const message = wish.trim()
     const name = wishName.trim()
-    if (!message || !name) return
+    if (!hasGuestName && !name) {
+      setWishValidationError('Vui lòng nhập tên trước khi gửi lời chúc.')
+      return
+    }
+    if (!message) {
+      setWishValidationError('Vui lòng nhập lời chúc.')
+      return
+    }
+    setWishValidationError('')
     if (interactions) {
       if (
         !(await interactions.wishes.submit({
-          guestName: interactions.isPersonalized ? undefined : name,
+          guestName: hasGuestName || interactions.isPersonalized ? undefined : name,
           content: message,
         }))
       )
@@ -392,17 +449,26 @@ export function ModernLuxeInvitation({
     } else setWishes((current) => [{ name, message }, ...current])
     setWishName('')
     setWish('')
+    setWishSubmitted(true)
   }
 
-  useEffect(() => {
-    if (!interactions || !rsvp || submittedRsvpRef.current === rsvp) return
-    submittedRsvpRef.current = rsvp
-    void interactions.rsvp.submit({
-      guestName: interactions.isPersonalized ? undefined : wishName.trim(),
-      attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED',
-      partySize: 1,
-    })
-  }, [interactions?.isPersonalized, interactions?.rsvp.submit, rsvp, wishName])
+  const submitRsvp = async () => {
+    if (!rsvp || rsvpLocked || interactions?.rsvp.submitting) return
+    const name = rsvpName.trim()
+    if (!hasGuestName && !name) {
+      setRsvpValidationError('Vui lòng nhập tên trước khi xác nhận phản hồi.')
+      return
+    }
+    setRsvpValidationError('')
+    const submitted = interactions
+      ? await interactions.rsvp.submit({
+          guestName: hasGuestName || interactions.isPersonalized ? undefined : name,
+          attendance: rsvp === 'attending' ? 'ATTENDING' : 'DECLINED',
+          partySize: 1,
+        })
+      : true
+    if (submitted) setRsvpSubmitted(true)
+  }
 
   useEffect(() => {
     if (interactions)
@@ -410,6 +476,10 @@ export function ModernLuxeInvitation({
         interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
       )
   }, [interactions?.wishes.items])
+
+  useEffect(() => {
+    if (interactions?.rsvp.submitted) setRsvpSubmitted(true)
+  }, [interactions?.rsvp.submitted])
 
   const moveHeroLayers = (event: React.PointerEvent<HTMLElement>) => {
     if (reduceMotion || event.pointerType !== 'mouse') return
@@ -428,34 +498,20 @@ export function ModernLuxeInvitation({
   return (
     <MotionConfig reducedMotion="user">
       <div className={`modern-luxe-wrap palette-${palette} ${opened ? 'is-opened' : ''}`}>
-        {opened &&
-        content.backgroundMusicUrl &&
-        (!sectionConfig || sectionConfig.enabled.includes('music')) ? (
-          <div className="ml-music-control" data-editor-section="music">
-            <audio
-              ref={audioRef}
-              src={content.backgroundMusicUrl}
-              loop
-              preload="metadata"
-              onEnded={() => setMusicPlaying(false)}
-            />
-            <button
-              type="button"
-              onClick={() => {
-                void toggleMusic()
-              }}
-              aria-label={musicPlaying ? 'Tạm dừng nhạc nền' : 'Phát nhạc nền'}
-              aria-pressed={musicPlaying}
-            >
-              {musicPlaying ? <Pause weight="fill" /> : <SpeakerHigh weight="fill" />}
-            </button>
-            <span>{musicPlaying ? 'Đang phát' : content.backgroundMusicName || 'Nhạc nền'}</span>
-          </div>
+        {!sectionConfig || sectionConfig.enabled.includes('music') ? (
+          <MusicPlayer
+            src={content.backgroundMusicUrl}
+            title={content.backgroundMusicName || 'Nhạc nền'}
+            autoplay={content.backgroundMusicAutoplay}
+            active={opened && (!sectionConfig || sectionConfig.enabled.includes('music'))}
+            editorMode={editorMode}
+          />
         ) : null}
         <AnimatePresence>
           {!opened || opening ? (
             <motion.section
               className="ml-opening"
+              data-editor-section="opening"
               aria-label="Mở thiệp Élan d’Amour"
               aria-hidden={opened}
               initial={{ opacity: 0 }}
@@ -470,10 +526,12 @@ export function ModernLuxeInvitation({
                 className="ml-opening-photo ml-opening-photo-back"
                 aria-hidden="true"
                 style={
-                  content.heroMedia?.src
+                  (content.openingMediaBack?.src || content.heroMedia?.src)
                     ? {
                         backgroundImage:
-                          'linear-gradient(#0002,#0003),url(' + content.heroMedia.src + ')',
+                          'linear-gradient(#0002,#0003),url(' +
+                          (content.openingMediaBack?.src || content.heroMedia?.src) +
+                          ')',
                       }
                     : undefined
                 }
@@ -488,10 +546,12 @@ export function ModernLuxeInvitation({
                 className="ml-opening-photo ml-opening-photo-front"
                 aria-hidden="true"
                 style={
-                  content.heroMedia?.src
+                  (content.openingMediaFront?.src || content.heroMedia?.src)
                     ? {
                         backgroundImage:
-                          'linear-gradient(#0001,#0003),url(' + content.heroMedia.src + ')',
+                          'linear-gradient(#0001,#0003),url(' +
+                          (content.openingMediaFront?.src || content.heroMedia?.src) +
+                          ')',
                       }
                     : undefined
                 }
@@ -507,7 +567,7 @@ export function ModernLuxeInvitation({
                 type="button"
                 onClick={openInvitation}
                 disabled={opening}
-                aria-label="Mở thiệp mời của Minh Anh và Hoàng Nam"
+                aria-label={`Mở thiệp mời của ${content.brideName} và ${content.groomName}`}
                 initial={reduceMotion ? false : { opacity: 0, y: 38, rotateX: 8 }}
                 animate={
                   opening && !reduceMotion
@@ -521,10 +581,10 @@ export function ModernLuxeInvitation({
                 <span className="ml-folio-edge" aria-hidden="true" />
                 <span className="ml-folio-kicker">Élan d’Amour · Wedding invitation</span>
                 <span className="ml-folio-monogram">
-                  M <i>&amp;</i> N
+                  {brideInitial} <i>&amp;</i> {groomInitial}
                 </span>
                 <strong>
-                  Minh Anh <i>&amp;</i> Hoàng Nam
+                  {content.brideName} <i>&amp;</i> {content.groomName}
                 </strong>
                 <time>{content.weddingDate}</time>
                 <span className="ml-wax-seal" aria-hidden="true">
@@ -622,7 +682,7 @@ export function ModernLuxeInvitation({
                 I
               </div>
               <div className="ml-floating-memories" aria-hidden="true">
-                {gallery.slice(0, 3).map((image, index) => (
+                {invitationMemoryImages.slice(0, 3).map((image, index) => (
                   <motion.figure
                     className={`ml-floating-memory ml-floating-memory-${index + 1}`}
                     key={`floating-${image}-${index}`}
@@ -742,8 +802,8 @@ export function ModernLuxeInvitation({
               <div role="region" aria-label="Thông tin hai bên gia đình">
                 <header className="ml-family-heading">
                   <span className="ml-eyebrow">Thông tin gia đình</span>
-                  <h2>Hai gia đình trân trọng báo tin</h2>
-                  <p>Lễ thành hôn của các con chúng tôi</p>
+                  <h2>{content.familiesTitle}</h2>
+                  <p>{content.familiesSubtitle}</p>
                 </header>
                 <div className="ml-family-grid">
                   <article>
@@ -765,7 +825,7 @@ export function ModernLuxeInvitation({
                     <address>Tư gia · {content.brideFamilyAddress}</address>
                   </article>
                   <div className="ml-family-medallion" aria-hidden="true">
-                    M<i>&amp;</i>N
+                    {brideInitial}<i>&amp;</i>{groomInitial}
                   </div>
                   <article>
                     <small>Nhà trai</small>
@@ -787,7 +847,7 @@ export function ModernLuxeInvitation({
                   </article>
                 </div>
                 <p className="ml-family-invitation">
-                  Kính mời Quý khách đến chung vui và chứng kiến khoảnh khắc hai gia đình kết duyên.
+                  Kính mời {connectedGuestName || 'Quý khách'} đến chung vui và chứng kiến khoảnh khắc hai gia đình kết duyên.
                 </p>
               </div>
             </SectionReveal>
@@ -826,20 +886,6 @@ export function ModernLuxeInvitation({
                   <strong>12</strong>
                   <time>2026</time>
                 </div>
-                <dl>
-                  <div>
-                    <dt>Đón khách</dt>
-                    <dd>{content.ceremonyTime}</dd>
-                  </div>
-                  <div>
-                    <dt>Lễ thành hôn</dt>
-                    <dd>10:00</dd>
-                  </div>
-                  <div>
-                    <dt>Khai tiệc</dt>
-                    <dd>{content.receptionTime}</dd>
-                  </div>
-                </dl>
                 <a href={content.calendarUrl} target="_blank" rel="noreferrer">
                   <CalendarBlank /> Thêm vào lịch
                 </a>
@@ -1094,20 +1140,60 @@ export function ModernLuxeInvitation({
                 <button
                   type="button"
                   className={rsvp === 'attending' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('attending')}
+                  onClick={() => {
+                    setRsvp('attending')
+                    setRsvpValidationError('')
+                  }}
+                  disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình sẽ tham dự
                 </button>
                 <button
                   type="button"
                   className={rsvp === 'declined' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('declined')}
+                  onClick={() => {
+                    setRsvp('declined')
+                    setRsvpValidationError('')
+                  }}
+                  disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình chưa thể tham dự
                 </button>
               </div>
+              {!hasGuestName ? (
+                <input
+                  className="ml-rsvp-name"
+                  value={rsvpName}
+                  onChange={(event) => {
+                    setRsvpName(event.target.value)
+                    setRsvpValidationError('')
+                  }}
+                  placeholder="Nhập tên khách mời"
+                  aria-label="Tên khách mời xác nhận tham dự"
+                  disabled={rsvpLocked || interactions?.rsvp.submitting}
+                />
+              ) : (
+                <p className="ml-rsvp-identity">Xác nhận cho {connectedGuestName}</p>
+              )}
+              <button
+                type="button"
+                className="ml-rsvp-submit"
+                onClick={() => void submitRsvp()}
+                disabled={
+                  rsvpLocked ||
+                  !rsvp ||
+                  interactions?.rsvp.submitting
+                }
+              >
+                {interactions?.rsvp.submitting ? 'Đang gửi...' : 'Xác nhận phản hồi'}
+              </button>
+              {rsvpValidationError || interactions?.rsvp.error ? (
+                <p className="ml-rsvp-error" role="alert">
+                  {rsvpValidationError || interactions?.rsvp.error}
+                </p>
+              ) : null}
               <AnimatePresence mode="wait">
-                {rsvp ? (
+                {rsvp && rsvpLocked ? (
                   <motion.div
                     key={rsvp}
                     className="ml-rsvp-status"
@@ -1135,29 +1221,50 @@ export function ModernLuxeInvitation({
                 <h2 id="guestbook-title">Gửi một lời chúc đến chúng mình</h2>
               </header>
               <div className="ml-wish-form">
-                <label htmlFor="invitation-wish-name">Tên của bạn</label>
-                <input
-                  id="invitation-wish-name"
-                  value={wishName}
-                  onChange={(event) => setWishName(event.target.value)}
-                  placeholder="Nhập tên khách mời"
-                />
+                {!hasGuestName ? (
+                  <>
+                    <label htmlFor="invitation-wish-name">Tên của bạn</label>
+                    <input
+                      id="invitation-wish-name"
+                      value={wishName}
+                      onChange={(event) => {
+                        setWishName(event.target.value)
+                        setWishValidationError('')
+                      }}
+                      placeholder="Nhập tên khách mời"
+                      disabled={wishLocked || interactions?.wishes.submitting}
+                    />
+                  </>
+                ) : (
+                  <p className="ml-wish-identity">Lời chúc từ {connectedGuestName}</p>
+                )}
                 <label htmlFor="invitation-wish">Lời chúc của bạn</label>
                 <textarea
                   id="invitation-wish"
                   value={wish}
-                  onChange={(event) => setWish(event.target.value)}
+                  onChange={(event) => {
+                    setWish(event.target.value)
+                    setWishValidationError('')
+                  }}
                   placeholder="Viết một lời chúc thật đẹp..."
+                  disabled={wishLocked || interactions?.wishes.submitting}
                 />
+                {wishValidationError || interactions?.wishes.error ? (
+                  <p className="ml-wish-error" role="alert">
+                    {wishValidationError || interactions?.wishes.error}
+                  </p>
+                ) : null}
                 <button
                   type="button"
                   onClick={submitWish}
-                  disabled={!wish.trim() || !wishName.trim()}
+                  disabled={wishLocked || interactions?.wishes.submitting}
                 >
-                  Gửi lời chúc <Heart weight="fill" />
+                  {interactions?.wishes.submitting ? 'Đang gửi...' : 'Gửi lời chúc'} <Heart weight="fill" />
                 </button>
+                {wishLocked ? <p className="ml-wish-success" role="status">Cảm ơn bạn đã gửi lời chúc.</p> : null}
               </div>
               <div className="ml-wish-list" aria-live="polite">
+                {interactions && !wishes.length ? <p>Chưa có lời chúc nào được duyệt.</p> : null}
                 {wishes.map((item, index) => (
                   <motion.article
                     key={`${item.name}-${index}`}
@@ -1176,14 +1283,9 @@ export function ModernLuxeInvitation({
             </SectionReveal>
 
             <SectionReveal className="ml-gift-note" sectionKey="gift" sectionConfig={sectionConfig}>
+              <p>{content.giftMessage}</p>
               <Gift weight="thin" />
               <span className="ml-eyebrow">Quà mừng</span>
-              <p>{content.giftMessage}</p>
-              {content.giftQrMedia?.src ? (
-                <div className="ml-gift-qr">
-                  <img src={content.giftQrMedia.src} alt="Mã QR mừng cưới" loading="lazy" />
-                </div>
-              ) : null}
               <button
                 type="button"
                 onClick={() => setGiftOpen((current) => !current)}
@@ -1194,13 +1296,17 @@ export function ModernLuxeInvitation({
               <AnimatePresence>
                 {giftOpen ? (
                   <motion.div
-                    className="ml-gift-disclosure"
+                    className="ml-gift-details"
                     initial={{ opacity: 0, scaleY: 0.85 }}
                     animate={{ opacity: 1, scaleY: 1 }}
                     exit={{ opacity: 0, scaleY: 0.85 }}
                   >
-                    <Sparkle weight="fill" />
-                    <span>Thông tin chuyển khoản chỉ hiển thị khi chủ thiệp chủ động bật.</span>
+                    {content.giftQrMedia?.src ? (
+                      <div className="ml-gift-qr">
+                        <img src={content.giftQrMedia.src} alt="Mã QR mừng cưới" loading="lazy" />
+                      </div>
+                    ) : null}
+                    <p>{content.giftThankYouMessage}</p>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

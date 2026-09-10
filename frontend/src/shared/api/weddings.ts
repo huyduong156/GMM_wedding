@@ -25,6 +25,7 @@ export type TemplateSectionConfig =
       galleryField?: string
       maxMediaPerItem?: number
       interaction?: string
+      editorLayout?: string
       mediaRoles?: string[]
       itemFields?: Record<string, TemplateFieldConfig>
     }
