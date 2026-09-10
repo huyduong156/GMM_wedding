@@ -112,7 +112,10 @@ function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[]) {
   return next
 }
 const initialTemplate = getInvitationTemplate('modern-luxe')!
-const initialData: ModernLuxeData = initialTemplate.fixture
+const initialData: ModernLuxeData = {
+  ...initialTemplate.fixture,
+  ...(initialTemplate.config.defaultData as Partial<ModernLuxeData> | undefined),
+}
 
 export function InvitationEditorLivePage() {
   const { navigate } = useNavigation()
@@ -266,7 +269,9 @@ export function InvitationEditorLivePage() {
       )
       setSectionDefinitions(definitions)
       if (Array.isArray(templateConfig.quickEdit)) setQuickEditFields(readQuickEdit(templateConfig))
-      setData({ ...initialData, ...stored })
+      const templateDefaults = (templateConfig.defaultData ?? {}) as Partial<EditorData>
+      const nextData = { ...initialData, ...templateDefaults, ...stored }
+      setData(nextData)
       const configuredPalettes = ((templateConfig.palettes ?? []) as Array<{ key: string }>).map(
         (item) => item.key,
       )
@@ -284,7 +289,7 @@ export function InvitationEditorLivePage() {
       setPalette(loadedPalette)
       reset(loadedOrder, loadedEnabled)
       baselineRef.current = editorSignature(
-        { ...initialData, ...stored },
+        nextData,
         loadedPalette,
         loadedOrder,
         loadedEnabled,
@@ -1297,7 +1302,7 @@ function EditorSectionCard({
   const canMoveDown = reorderable && index < order.length - 1
   return (
     <li
-      className={`editor-accordion-card ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}
+      className={`editor-accordion-card section-${sectionKey} ${expanded ? 'is-expanded' : ''} ${shown ? '' : 'is-disabled'}`}
     >
       <header>
         <button
@@ -1512,10 +1517,10 @@ function Fields({
         />
       ) : (
         <div className="editor-fixed-section">
-          <strong>Section cố định</strong>
+          <strong>{definition?.emptyMessage ? 'Thông tin section' : 'Section cố định'}</strong>
           <p>
-            Section này không có nội dung cần nhập. Bạn có thể bật/tắt hoặc đổi vị trí theo cấu hình
-            template.
+            {definition?.emptyMessage ??
+              'Section này không có nội dung cần nhập. Bạn có thể bật/tắt hoặc đổi vị trí theo cấu hình template.'}
           </p>
         </div>
       )}
@@ -1551,6 +1556,7 @@ function SchemaFields({
       uploadAudio={uploadMusic}
       audioError={musicError}
       openMediaManager={(target) => openMediaManager({ kind: 'field', ...target })}
+      layout={definition.editorLayout}
     />
   )
 }

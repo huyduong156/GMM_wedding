@@ -35,6 +35,7 @@ describe('ModernLuxeInvitation editor renderer', () => {
   it('scrolls the iframe renderer to a requested section', () => {
     window.history.replaceState(null, '', '/templates/invitations/modern-luxe/preview?editor=1')
     render(<ModernLuxePreviewPage />)
+    fireEvent.click(screen.getByRole('button', { name: /Mở thiệp/i }))
     const gallery = document.querySelector('[data-editor-section="gallery"]') as HTMLElement
     gallery.getBoundingClientRect = () => ({ top: 420 }) as DOMRect
     fireEvent(

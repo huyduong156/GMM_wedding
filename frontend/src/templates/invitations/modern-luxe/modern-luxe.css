@@ -490,6 +490,11 @@
   background: currentColor;
 }
 
+.modern-luxe {
+  --reveal-duration: 1.85s;
+  --reveal-stagger: 0.24s;
+}
+
 .ml-hero {
   --ml-pointer-x: 0;
   --ml-pointer-y: 0;
@@ -561,6 +566,7 @@
   background:
     linear-gradient(180deg, transparent 45%, #160e0a80),
     url('/assets/images/templates/modern-luxe/couple-portrait.jpg') center 30% / cover;
+  background-size: 100% 100%;
   box-shadow: 0 24px 60px var(--ml-shadow);
   transform: translate3d(calc(var(--ml-pointer-x) * 7px), calc(var(--ml-pointer-y) * 5px), 10px)
     rotate(3deg);
@@ -687,7 +693,7 @@
 .ml-invitation-suite {
   position: relative;
   overflow: hidden;
-  padding: 118px 54px 104px;
+  padding: 118px 54px 220px;
   background: var(--ml-paper);
   isolation: isolate;
 }
@@ -1178,6 +1184,10 @@
   letter-spacing: 0.1em;
   text-decoration: none;
   text-transform: uppercase;
+}
+.ml-date-plane > a {
+  width: fit-content;
+  margin-left: auto;
 }
 .ml-date-plane > a svg,
 .ml-map a svg {
@@ -1692,6 +1702,56 @@
   color: var(--ml-ink);
   background: var(--ml-paper);
 }
+.ml-rsvp-name {
+  width: min(100%, 470px);
+  margin-top: 14px;
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid #fff7;
+  color: var(--ml-paper);
+  background: transparent;
+  font-size: 10px;
+  outline: none;
+}
+.ml-rsvp-name::placeholder {
+  color: color-mix(in srgb, var(--ml-paper) 62%, transparent);
+}
+.ml-rsvp-identity {
+  margin: 15px 0 0;
+  color: color-mix(in srgb, var(--ml-paper) 80%, transparent);
+  font-size: 10px;
+}
+.ml-rsvp-submit {
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0 20px;
+  border: 1px solid var(--ml-metal);
+  color: var(--ml-ink);
+  background: var(--ml-paper);
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ml-rsvp-submit:disabled,
+.ml-rsvp-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+.ml-rsvp-error,
+.ml-wish-error {
+  margin: 12px 0 0;
+  color: #b94232;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.ml-wish-success {
+  margin: 12px 0 0;
+  color: #527453;
+  font-size: 9px;
+  line-height: 1.5;
+}
 .ml-rsvp-status {
   max-width: 430px;
   display: flex;
@@ -1834,7 +1894,20 @@
 }
 .ml-gift-note > p {
   max-width: 440px;
-  margin: 27px auto;
+  margin: 0 auto 27px;
+  color: var(--ml-muted);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(23px, 5vw, 31px);
+  line-height: 1.35;
+}
+.ml-gift-details {
+  max-width: 480px;
+  margin: 26px auto 0;
+  transform-origin: top;
+}
+.ml-gift-details > p {
+  max-width: 440px;
+  margin: 27px auto 0;
   color: var(--ml-muted);
   font-family: var(--font-wedding-display);
   font-size: clamp(23px, 5vw, 31px);
@@ -1857,26 +1930,6 @@
 .ml-gift-note > button {
   padding-inline: 19px;
 }
-.ml-gift-disclosure {
-  max-width: 480px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 26px auto 0;
-  padding: 14px;
-  border-block: 1px solid var(--ml-line);
-  color: var(--ml-muted);
-  font-size: 9px;
-  transform-origin: top;
-}
-.ml-gift-disclosure svg {
-  width: 13px;
-  height: 13px;
-  flex: 0 0 auto;
-  color: var(--ml-accent);
-}
-
 .ml-footer {
   scroll-margin-top: 18px;
   position: relative;
@@ -2140,7 +2193,7 @@
     display: none;
   }
   .ml-invitation-suite {
-    padding: 72px 12px 87px;
+    padding: 72px 12px 260px;
   }
   .ml-suite-number {
     top: 6px;
@@ -2488,9 +2541,11 @@
   margin-top: 27px;
   color: var(--ml-accent);
   font-family: var(--font-wedding-display);
-  font-size: 14px;
+  font-size: clamp(22px, 4vw, 32px);
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-transform: none;
 }
 .ml-family-grid address {
   font-size: 9px;
@@ -2775,7 +2830,7 @@
     font-size: 22px;
   }
   .ml-family-grid article b {
-    font-size: 13px;
+    font-size: 22px;
   }
   .ml-family-medallion {
     top: 50%;

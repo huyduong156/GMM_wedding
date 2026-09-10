@@ -9304,6 +9304,43 @@ kbd {
   display: grid;
   gap: 12px;
 }
+.editor-schema-fields.is-three-column-media {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+.editor-schema-fields.is-two-column-media {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.editor-schema-fields.is-three-column-media .editor-media-field {
+  min-width: 0;
+}
+.editor-schema-fields.is-two-column-media .editor-media-field {
+  min-width: 0;
+}
+.editor-schema-fields.is-three-column-media .editor-image-picker {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+}
+.editor-schema-fields.is-two-column-media .editor-image-picker {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+}
+.editor-schema-fields.is-three-column-media > :nth-child(n + 4) {
+  grid-column: 1 / -1;
+}
+@media (max-width: 700px) {
+  .editor-schema-fields.is-three-column-media {
+    grid-template-columns: 1fr;
+  }
+  .editor-schema-fields.is-two-column-media {
+    grid-template-columns: 1fr;
+  }
+}
 .editor-published-bar {
   align-items: center;
   background: #f2faf4;
@@ -9526,6 +9563,9 @@ kbd {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
+}
+.editor-accordion-card.section-opening .editor-palette {
+  padding-bottom: 12px;
 }
 .editor-palette button {
   min-height: 38px;

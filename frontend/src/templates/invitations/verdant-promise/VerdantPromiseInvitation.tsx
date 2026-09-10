@@ -204,10 +204,12 @@ export function VerdantPromiseInvitation({
   const [rsvp, setRsvp] = useState<'attending' | 'declined' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
+  const [rsvpValidationError, setRsvpValidationError] = useState('')
   const [giftOpen, setGiftOpen] = useState(false)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
   const [wishSubmitted, setWishSubmitted] = useState(false)
+  const [wishValidationError, setWishValidationError] = useState('')
   const [wishes, setWishes] = useState([
     {
       name: 'Gia đình bác Hùng',
@@ -295,7 +297,16 @@ export function VerdantPromiseInvitation({
     if (wishLocked) return
     const name = connectedGuestName || wishName.trim()
     const message = wish.trim()
-    if (!name || !message || interactions?.wishes.submitting) return
+    if (!name) {
+      setWishValidationError('Vui lòng nhập tên trước khi gửi lời chúc.')
+      return
+    }
+    if (!message) {
+      setWishValidationError('Vui lòng nhập lời chúc.')
+      return
+    }
+    if (interactions?.wishes.submitting) return
+    setWishValidationError('')
     if (interactions) {
       if (
         !(await interactions.wishes.submit({
@@ -313,7 +324,11 @@ export function VerdantPromiseInvitation({
   const sendRsvp = async () => {
     if (!rsvp || interactions?.rsvp.submitting || rsvpLocked) return
     const name = rsvpName.trim()
-    if (!hasGuestName && !name) return
+    if (!hasGuestName && !name) {
+      setRsvpValidationError('Vui lòng nhập tên trước khi xác nhận phản hồi.')
+      return
+    }
+    setRsvpValidationError('')
     const submitted = interactions
       ? await interactions.rsvp.submit({
           guestName: hasGuestName ? undefined : name,
@@ -762,7 +777,10 @@ export function VerdantPromiseInvitation({
                 <button
                   type="button"
                   className={rsvp === 'attending' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('attending')}
+                  onClick={() => {
+                    setRsvp('attending')
+                    setRsvpValidationError('')
+                  }}
                   disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình sẽ tham dự
@@ -770,7 +788,10 @@ export function VerdantPromiseInvitation({
                 <button
                   type="button"
                   className={rsvp === 'declined' ? 'is-selected' : ''}
-                  onClick={() => setRsvp('declined')}
+                  onClick={() => {
+                    setRsvp('declined')
+                    setRsvpValidationError('')
+                  }}
                   disabled={rsvpLocked || interactions?.rsvp.submitting}
                 >
                   Mình chưa thể tham dự
@@ -781,7 +802,10 @@ export function VerdantPromiseInvitation({
                   <span>Tên khách mời</span>
                   <input
                     value={rsvpName}
-                    onChange={(event) => setRsvpName(event.target.value)}
+                    onChange={(event) => {
+                      setRsvpName(event.target.value)
+                      setRsvpValidationError('')
+                    }}
                     placeholder="Ví dụ: Thanh An"
                     autoComplete="name"
                     disabled={rsvpLocked || interactions?.rsvp.submitting}
@@ -796,7 +820,6 @@ export function VerdantPromiseInvitation({
                 onClick={sendRsvp}
                 disabled={
                   !rsvp ||
-                  (!hasGuestName && !rsvpName.trim()) ||
                   interactions?.rsvp.submitting ||
                   rsvpLocked
                 }
@@ -807,9 +830,9 @@ export function VerdantPromiseInvitation({
                     ? 'Đã ghi nhận phản hồi'
                     : 'Gửi xác nhận'}
               </button>
-              {interactions?.rsvp.error ? (
+              {rsvpValidationError || interactions?.rsvp.error ? (
                 <p className="vp-interaction-error" role="alert">
-                  {interactions.rsvp.error}
+                  {rsvpValidationError || interactions?.rsvp.error}
                 </p>
               ) : null}
               <AnimatePresence>
@@ -861,7 +884,10 @@ export function VerdantPromiseInvitation({
                   <span>Tên của bạn</span>
                   <input
                     value={wishName}
-                    onChange={(event) => setWishName(event.target.value)}
+                    onChange={(event) => {
+                      setWishName(event.target.value)
+                      setWishValidationError('')
+                    }}
                     placeholder="Ví dụ: Thanh An"
                     autoComplete="name"
                     disabled={wishLocked || interactions?.wishes.submitting}
@@ -874,7 +900,10 @@ export function VerdantPromiseInvitation({
                   <span>Lời chúc</span>
                   <textarea
                     value={wish}
-                    onChange={(event) => setWish(event.target.value)}
+                    onChange={(event) => {
+                      setWish(event.target.value)
+                      setWishValidationError('')
+                    }}
                     placeholder="Viết điều bạn muốn gửi đến cô dâu chú rể..."
                     disabled={wishLocked || interactions?.wishes.submitting}
                   />
@@ -883,8 +912,6 @@ export function VerdantPromiseInvitation({
                   type="button"
                   onClick={sendWish}
                   disabled={
-                    (!hasGuestName && !wishName.trim()) ||
-                    !wish.trim() ||
                     interactions?.wishes.submitting ||
                     wishLocked
                   }
@@ -892,9 +919,9 @@ export function VerdantPromiseInvitation({
                   {interactions?.wishes.submitting ? 'Đang gửi...' : 'Gửi lời chúc'}{' '}
                   <Heart weight="fill" />
                 </button>
-                {interactions?.wishes.error ? (
+                {wishValidationError || interactions?.wishes.error ? (
                   <p className="vp-interaction-error" role="alert">
-                    {interactions.wishes.error}
+                    {wishValidationError || interactions?.wishes.error}
                   </p>
                 ) : wishLocked ? (
                   <p className="vp-interaction-success" role="status">

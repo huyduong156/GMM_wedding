@@ -6,6 +6,8 @@ export type EditorSectionDefinition = {
   required: boolean
   canToggle: boolean
   canReorder: boolean
+  editorLayout?: string
+  emptyMessage?: string
   fields: Record<string, TemplateFieldConfig>
 }
 
@@ -25,6 +27,8 @@ export function resolveEditorSections(
       required: item.required ?? false,
       canToggle: item.canToggle ?? true,
       canReorder: item.canReorder ?? true,
+      editorLayout: item.editorLayout,
+      emptyMessage: item.emptyMessage,
       fields: Object.fromEntries(
         Object.entries(item.fields ?? {}).map(([key, field]) => [
           field.contentKey ?? key,

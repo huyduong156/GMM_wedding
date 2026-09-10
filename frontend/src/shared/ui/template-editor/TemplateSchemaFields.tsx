@@ -22,6 +22,7 @@ export type TemplateSchemaFieldsProps = {
   audioError?: string
   errors?: Record<string, string>
   emptyState?: ReactNode
+  layout?: string
 }
 
 const clone = <T,>(value: T): T => structuredClone(value)
@@ -47,6 +48,7 @@ export function TemplateSchemaFields({
   audioError = '',
   errors = {},
   emptyState,
+  layout,
 }: TemplateSchemaFieldsProps) {
   const entries = Object.entries(fields)
   if (!entries.length)
@@ -59,7 +61,7 @@ export function TemplateSchemaFields({
       )
     )
   return (
-    <div className="editor-schema-fields">
+    <div className={`editor-schema-fields${layout ? ` is-${layout}` : ''}`}>
       {entries.map(([key, field]) => (
         <TemplateField
           key={key}

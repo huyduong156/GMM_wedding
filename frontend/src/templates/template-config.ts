@@ -11,6 +11,7 @@ export type TemplateConfig = {
   status: string
   type: 'invitation' | 'website' | 'recap' | string
   previewPath: string
+  defaultData?: Record<string, unknown>
   palettes?: readonly { key: string; label: string; default?: boolean }[]
   sections: readonly TemplateSectionConfig[]
   [key: string]: unknown
