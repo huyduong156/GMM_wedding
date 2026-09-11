@@ -5,6 +5,8 @@ import { verdantPromiseTemplateConfig } from './invitations/verdant-promise/temp
 import { chibiDaydreamTemplateConfig } from './invitations/chibi-daydream/template-config'
 import { peonyVerandaTemplateConfig } from './invitations/peony-veranda/template-config'
 import { peonyVerandaFixture } from './invitations/peony-veranda/fixture'
+import { roseGardenTemplateConfig } from './invitations/rose-garden/template-config'
+import { roseGardenFixture } from './invitations/rose-garden/fixture'
 import type { ModernLuxeData } from './invitations/modern-luxe/ModernLuxeInvitation'
 import { editorialVowsFixture } from './websites/editorial-vows/fixture'
 import { editorialVowsTemplateConfig } from './websites/editorial-vows/template-config'
@@ -89,6 +91,10 @@ export const invitationTemplateRegistry: Record<
   'peony-veranda': {
     config: peonyVerandaTemplateConfig,
     fixture: peonyVerandaFixture as ModernLuxeData,
+  },
+  'rose-garden': {
+    config: roseGardenTemplateConfig,
+    fixture: roseGardenFixture as unknown as ModernLuxeData,
   },
 }
 

@@ -158,16 +158,16 @@ The section matrix is paired with this field map so editor, fixture and renderer
 
 | Section | Key/role | Owner | Count | Crop/value | Fallback |
 | --- | --- | --- | --- | --- | --- |
-| Opening | `openingMediaBack` / opening-back | User | 0–1 | Portrait, `cover`, focal center | Botanical paper |
-| Opening | `openingMediaFront` / opening-front | User | 0–1 | Portrait, `contain` or mask | Rose seal |
-| Cover | `heroMedia` / hero | User | 0–1 | 4:5 portrait, `cover`, focal center-top | Neutral garden image |
+| Opening | `openingMediaBack` / opening-back | User | 0–1 | Portrait, `cover`, focal center | Fixed opening inner-card artwork |
+| Opening | `openingMediaFront` / opening-front | User | 0–1 | Portrait, `contain` or mask | Fixed opening front-frame artwork |
+| Cover | `heroMedia` / hero | User | 0–1 | 4:5 portrait, `cover`, focal center-top | Neutral empty media frame; envelope is separate decor |
 | Invitation | `invitationMemoryImage1..3` / memory | User | 0–3 | Portrait/editorial, `cover` | Paper and typography |
-| Event | `eventDetailsMedia` / event-details | User | 0–1 | Portrait/square, `cover` | Pressed calendar |
-| Journey | `loveJourney[].image` / journey | User | 0–4 | Portrait, `cover` | Text-only markers |
+| Event | `eventDetailsMedia` / event-details | User | 0–1 | Portrait/square, `cover` | Renderer-owned pressed-flower divider |
+| Timeline | `timeline.items[].image` / timeline | User | 0–10 | Portrait, `cover` | Text-only markers |
 | Venue | `mapUrl` | User/data | 0–1 | External CTA | Address text |
 | Gallery | `galleryImages` / gallery | User | 0–12 | Fixed frames, preserve focal point | Editorial empty state |
 | Gift | `giftQrMedia` / gift-qr | User | 0–1 | Square, `contain`, never crop | Empty QR panel |
-| Footer | `footerMedia` / footer | User | 0–1 | Portrait/landscape, `cover` | Botanical closure |
+| Footer | `footerMedia` / footer | User | 0–1 | Portrait/landscape, `cover` | Text-only closure |
 
 Renderer-owned artwork is separate from these fields: opening gate, seal, frame/mask, divider, corner branch, ambient sprite and paper texture. It is never selectable as user content.
 
@@ -227,3 +227,86 @@ Before generating artwork, every renderer-owned asset must be recorded in an ass
 - Không biến thiệp thành long-form story website.
 - Không thêm particle dày hoặc animation liên tục để thay thế composition.
 - Không dùng layout card/grid giống nhau cho toàn bộ section.
+
+## Phase 3 section architecture
+
+Phase 3 is the first complete composition skeleton. The preview renderer is split into the
+section keys below; each key is emitted as `[data-editor-section]` and can therefore be selected
+and scrolled to from the live editor. `rose-garden/template-config.ts` is the editor contract and
+`rose-garden/fixture.ts` is the isolated preview fixture.
+
+| Section | Composition gesture | Content/media contract | Empty or disabled behavior |
+| --- | --- | --- | --- |
+| `opening` | Layered paper gate, 4 aligned 2:3 canvases | `openingMediaBack`, `openingMediaFront`, couple/date | Always visible; required and fixed first |
+| `cover` | Vertical garden vignette + name lockup | `heroMedia`, `cover.*`, couple/date | Neutral artwork placeholder |
+| `invitation` | Three independent memory slips | `invitationMemoryImage1/2/3`, `invitation.*` | Neutral empty memory frames; botanical art is a separate decorator |
+| `families` | Split family letter with central ampersand | `families.brideSide`, `families.groomSide`, `families.*` | Required; no collapse |
+| `eventDetails` | Date stamp and calendar action | `eventDetails.*`, `eventDetailsMedia` | Calendar link disappears when empty |
+| `countdown` | Quiet date panel | Derived from `event.weddingDate` | Optional; disabled removes the section |
+| `timeline` | One editorial vertical path | `timeline.items[]` | Optional; an empty list hides the section |
+| `venue` | Address postcard, map link | `venue.*` | Map action disappears when URL is empty |
+| `gallery` | Horizontal pressed-photo rail | `galleryImages`, `gallery.*` | Optional; empty state is separate from renderer-owned decor |
+| `rsvp` | Reply card shell | `rsvp.*` | Optional; API/form wiring is a later integration phase |
+| `guestbook` | Approved-wishes ledger shell | `guestbook.*` | Explains that approved wishes are loaded automatically |
+| `gift` | Compact QR/gift moment | `giftQrMedia`, `gift.*` | QR placeholder remains square until media is supplied |
+| `music` | Compact ambient player dock | `music.*` | Hidden without a track on public preview; editor keeps an empty shell |
+| `footer` | Closing letter and signature | `footer.*`, couple/date | Required and fixed last |
+
+The default order is `opening → cover → invitation → families → eventDetails → countdown →
+timeline → venue → gallery → rsvp → guestbook → gift → music → footer`. Optional sections honor
+the stored `enabled/order` values; missing order entries are appended in canonical order. No visual
+composition is repeated more than three times, and the page remains a single mobile column capped
+at 480px. On wider screens only `.rg-backdrop` occupies the gutter; all invitation-owned artwork
+stays clipped by `.rg-invitation`.
+
+The opening stage deliberately keeps all four approved layers on one shared canvas so the triangle
+flap and the front V-window can be registered precisely. Phase 3 only exposes a static opened state
+for composition testing. The detailed fold, slide-up, easing, reduced-motion choreography and
+performance pause rules belong to Phase 4. Media finalization, live guestbook/RSVP/music data and
+ambient asset integration belong to Phase 5.
+
+### Phase 3 layout and transition map
+
+Each section has one dominant composition gesture and one quiet seam into the next section. This
+keeps the mobile invitation expressive without turning every section into the same card pattern.
+
+| Section | Dominant layout | Transition into the next section |
+| --- | --- | --- |
+| `opening` | Full-viewport layered paper gate | Folded paper stage resolves into the cover |
+| `cover` | Tall portrait vignette and name lockup | Soft rose-paper wash into the invitation letter |
+| `invitation` | Three offset memory slips | Botanical overlap settles into the family letter |
+| `families` | Two-column family letter with a centered ampersand | Blush paper fades to the date stamp |
+| `eventDetails` | Calendar stamp, date line and right-aligned calendar CTA | Pressed divider leads into the dark countdown band |
+| `countdown` | Centered quiet date panel | Dark rose band opens into a blush timeline path |
+| `timeline` | Single vertical path with numbered nodes | Last node releases into the venue postcard |
+| `venue` | Address block with circular map marker | Curved background line carries into the gallery rail |
+| `gallery` | Native horizontal photo rail or designed empty state | Rail ends at the centered RSVP reply card |
+| `rsvp` | Reply card shell | Response area moves into the approved-wishes ledger |
+| `guestbook` | Ledger-like approved-wishes shell | Thin paper rule leads to the gift reveal |
+| `gift` | Square QR moment with optional thank-you text | Compact utility moment leads to the music dock |
+| `music` | Thin ambient player dock | Rule and spacing create a quiet footer pause |
+| `footer` | Closing letter and couple signature | Deep rose closure ends the invitation |
+
+### Phase 3 responsive and motion map
+
+- `320–360px`: reduce horizontal padding and keep every composition inside the invitation width.
+- `361–480px`: use the base mobile composition, with native vertical page scrolling after opening.
+- `481px+`: preserve the invitation at `max-width: 480px`; the gutter contains only background glow
+  and small light particles. No section artwork is positioned in or allowed to overflow into it.
+- Closed state: lock the invitation to the viewport and hide all post-opening sections until the
+  opening trigger is activated, so there is no blank scroll area behind the closed card.
+- Reduced motion: keep the opening and content visible without movement; disable glint animation,
+  drift and transform-based reveals while preserving the same section order and hierarchy.
+
+### Phase 3 completion checklist
+
+- [x] Isolated Rose Garden fixture and editor contract with canonical content keys.
+- [x] All 14 section keys render through one section map with `data-editor-section` hooks.
+- [x] Required/optional enable state and stored section order are honored.
+- [x] User-upload slots are empty by default; renderer-owned artwork is rendered only as a separate
+  decorator or fixed opening layer.
+- [x] Opening has four aligned layers and a tested static open/closed state.
+- [x] Gallery, timeline, QR, footer, event media and memory slots have explicit empty behavior.
+- [x] Public mobile composition is capped at 480px with desktop gutter atmosphere isolated outside it.
+- [x] Responsive and reduced-motion behavior is documented and represented in the renderer/CSS.
+- [x] Component tests cover the section map, opening state, optional section toggle and media ownership.

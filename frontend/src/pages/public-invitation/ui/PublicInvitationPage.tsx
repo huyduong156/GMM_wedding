@@ -23,6 +23,11 @@ import {
   type PeonyVerandaData,
   type PeonyVerandaSectionConfig,
 } from '../../../templates/invitations/peony-veranda/PeonyVerandaInvitation'
+import {
+  RoseGardenInvitation,
+  type RoseGardenData,
+  type RoseGardenSectionConfig,
+} from '../../../templates/invitations/rose-garden/RoseGardenInvitation'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -184,6 +189,14 @@ function InvitationSnapshot({
           data={content as PeonyVerandaData}
           sectionConfig={sectionConfig as PeonyVerandaSectionConfig | undefined}
           interactions={interactions}
+        />
+      )
+    case 'rose-garden':
+      return (
+        <RoseGardenInvitation
+          data={content as RoseGardenData}
+          sectionConfig={sectionConfig as RoseGardenSectionConfig | undefined}
+          guestName={guestName}
         />
       )
     default:
