@@ -16,12 +16,29 @@
     #e8dfe0;
   font-family: var(--font-wedding-body);
 }
+
 .rg-page *,
 .rg-page *::before,
-.rg-page *::after { box-sizing: border-box; }
-.rg-backdrop { position: fixed; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+.rg-page *::after {
+  box-sizing: border-box;
+}
+
+.rg-backdrop {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .rg-backdrop::before,
-.rg-backdrop::after { position: absolute; inset: 0; content: ''; pointer-events: none; }
+.rg-backdrop::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+}
+
 .rg-backdrop::before {
   background:
     radial-gradient(ellipse at 16% 34%, rgb(255 198 214 / 0.34), transparent 22rem),
@@ -32,7 +49,11 @@
   background-size: 100% 100%, 100% 100%, 170px 190px, 210px 230px, 100% 100%;
   animation: rg-backdrop-shimmer 16s ease-in-out infinite alternate;
 }
-.rg-backdrop::after { background: radial-gradient(ellipse at center, transparent 38%, rgb(77 42 53 / 0.12)); }
+
+.rg-backdrop::after {
+  background: radial-gradient(ellipse at center, transparent 38%, rgb(77 42 53 / 0.12));
+}
+
 .rg-glint {
   position: absolute;
   width: 4px;
@@ -44,6 +65,7 @@
   opacity: 0.62;
   animation: rg-glint-float 5.2s ease-in-out infinite alternate;
 }
+
 .rg-invitation {
   position: relative;
   z-index: 1;
@@ -54,6 +76,7 @@
   background: linear-gradient(180deg, rgb(255 250 248 / 0.98), rgb(255 246 244 / 0.98));
   box-shadow: 0 0 70px rgb(81 41 52 / 0.2);
 }
+
 .rg-invitation-decor {
   position: absolute;
   z-index: 0;
@@ -63,6 +86,7 @@
   border-radius: 58% 42% 55% 45%;
   pointer-events: none;
 }
+
 .rg-invitation-decor::before,
 .rg-invitation-decor::after {
   position: absolute;
@@ -72,12 +96,45 @@
   border-radius: 100% 0;
   content: '';
 }
-.rg-invitation-decor-top { top: -112px; right: -92px; transform: translate3d(calc(var(--rg-pointer-x) * 1px), calc(var(--rg-pointer-y) * 1px), 0) rotate(24deg); transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1); }
-.rg-invitation-decor-top::before { top: 105px; left: -52px; transform: rotate(30deg); }
-.rg-invitation-decor-top::after { top: 140px; left: -20px; transform: rotate(58deg); }
-.rg-invitation-decor-bottom { bottom: -132px; left: -105px; transform: translate3d(calc(var(--rg-pointer-x) * -0.65px), calc(var(--rg-pointer-y) * -0.65px), 0) rotate(-22deg); transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1); }
-.rg-invitation-decor-bottom::before { top: 38px; right: -42px; transform: rotate(-42deg); }
-.rg-invitation-decor-bottom::after { top: 78px; right: -18px; transform: rotate(-72deg); }
+
+.rg-invitation-decor-top {
+  top: -112px;
+  right: -92px;
+  transform: translate3d(calc(var(--rg-pointer-x) * 1px), calc(var(--rg-pointer-y) * 1px), 0) rotate(24deg);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rg-invitation-decor-top::before {
+  top: 105px;
+  left: -52px;
+  transform: rotate(30deg);
+}
+
+.rg-invitation-decor-top::after {
+  top: 140px;
+  left: -20px;
+  transform: rotate(58deg);
+}
+
+.rg-invitation-decor-bottom {
+  bottom: -132px;
+  left: -105px;
+  transform: translate3d(calc(var(--rg-pointer-x) * -0.65px), calc(var(--rg-pointer-y) * -0.65px), 0) rotate(-22deg);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rg-invitation-decor-bottom::before {
+  top: 38px;
+  right: -42px;
+  transform: rotate(-42deg);
+}
+
+.rg-invitation-decor-bottom::after {
+  top: 78px;
+  right: -18px;
+  transform: rotate(-72deg);
+}
+
 .rg-opening {
   position: relative;
   z-index: 1;
@@ -88,6 +145,7 @@
   padding: 72px 28px;
   text-align: center;
 }
+
 .rg-kicker,
 .rg-opening-label {
   color: var(--rg-rose-deep);
@@ -96,6 +154,7 @@
   letter-spacing: 0.28em;
   text-transform: uppercase;
 }
+
 .rg-seal {
   width: 74px;
   aspect-ratio: 1;
@@ -107,8 +166,17 @@
   color: var(--rg-rose);
   box-shadow: inset 0 0 0 7px rgb(169 87 104 / 0.06);
 }
-.rg-seal span { font-family: var(--font-wedding-display); font-size: 22px; letter-spacing: 0.04em; }
-.rg-opening-label { margin: 0; }
+
+.rg-seal span {
+  font-family: var(--font-wedding-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+}
+
+.rg-opening-label {
+  margin: 0;
+}
+
 .rg-opening h1 {
   max-width: 380px;
   margin: 20px 0 16px;
@@ -119,22 +187,73 @@
   letter-spacing: -0.06em;
   line-height: 0.9;
 }
-.rg-opening h1 em { color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 0.56em; font-style: normal; letter-spacing: 0; }
-.rg-date { margin: 0; color: var(--rg-rose); font-size: 10px; font-weight: 800; letter-spacing: 0.34em; }
-.rg-opening-note { max-width: 260px; margin: 34px 0 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
+
+.rg-opening h1 em {
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-script);
+  font-size: 0.56em;
+  font-style: normal;
+  letter-spacing: 0;
+}
+
+.rg-date {
+  margin: 0;
+  color: var(--rg-rose);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.34em;
+}
+
+.rg-opening-note {
+  max-width: 260px;
+  margin: 34px 0 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
 @keyframes rg-backdrop-shimmer {
-  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
-  to { background-position: 7% -3%, -6% 5%, 40px -28px, -35px 32px, 100% 0; }
+  from {
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 7% -3%, -6% 5%, 40px -28px, -35px 32px, 100% 0;
+  }
 }
-@keyframes rg-glint-float { from { opacity: 0.2; transform: translate3d(0, 8px, 0) scale(0.72); } to { opacity: 0.88; transform: translate3d(4px, -12px, 0) scale(1.2); } }
+
+@keyframes rg-glint-float {
+  from {
+    opacity: 0.2;
+    transform: translate3d(0, 8px, 0) scale(0.72);
+  }
+
+  to {
+    opacity: 0.88;
+    transform: translate3d(4px, -12px, 0) scale(1.2);
+  }
+}
+
 @media (max-width: 480px) {
-  .rg-page { background: #fffaf8; }
-  .rg-backdrop { display: none; }
-  .rg-invitation { box-shadow: none; }
+  .rg-page {
+    background: #fffaf8;
+  }
+
+  .rg-backdrop {
+    display: none;
+  }
+
+  .rg-invitation {
+    box-shadow: none;
+  }
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .rg-backdrop::before,
-  .rg-glint { animation: none; }
+  .rg-glint {
+    animation: none;
+  }
 }
 
 /* Phase 3 composition skeleton: each section owns one visual gesture. */
@@ -143,6 +262,7 @@
   flex-direction: column;
   isolation: isolate;
 }
+
 .rg-body-section {
   position: relative;
   z-index: 1;
@@ -150,30 +270,116 @@
   flex: 0 0 auto;
   overflow: hidden;
 }
+
 .rg-motion-ready .rg-body-section:not(.rg-opening) {
   opacity: 0;
   transform: translate3d(0, 24px, 0);
   transition: opacity 650ms cubic-bezier(0.22, 1, 0.36, 1), transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible { opacity: 1; transform: translate3d(0, 0, 0); }
-.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible:nth-child(3n) { transition-delay: 45ms; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible:nth-child(3n + 1) { transition-delay: 80ms; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content > * { opacity: 0; transform: translate3d(0, 16px, 0); }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible > * { animation: rg-element-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible > *:nth-child(2) { animation-delay: 70ms; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible > *:nth-child(3) { animation-delay: 130ms; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible > *:nth-child(4) { animation-delay: 190ms; }
-.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible > *:nth-child(5) { animation-delay: 250ms; }
-@keyframes rg-element-rise { to { opacity: 1; transform: translate3d(0, 0, 0); } }
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible:nth-child(3n) {
+  transition-delay: 45ms;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).is-visible:nth-child(3n + 1) {
+  transition-delay: 80ms;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content>* {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible>* {
+  animation: rg-element-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible>*:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible>*:nth-child(3) {
+  animation-delay: 130ms;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible>*:nth-child(4) {
+  animation-delay: 190ms;
+}
+
+.rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content.is-visible>*:nth-child(5) {
+  animation-delay: 250ms;
+}
+
+@keyframes rg-element-rise {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.rg-motion-ready .rg-cover.rg-motion-content.is-visible>.reveal--slide-right {
+  animation-name: rg-element-rise, rg-cover-copy-drift;
+  animation-duration: 620ms, 7.5s;
+  animation-delay: 130ms, 1.3s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: both, none;
+}
+
+@keyframes rg-cover-copy-drift {
+
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+.rg-motion-ready .rg-cover.rg-motion-content.is-visible .rg-cover-copy h2>span {
+  display: inline-block;
+  animation: rg-cover-title-wave 4.8s ease-in-out calc(1.2s + (var(--wave-index) * 70ms)) infinite;
+  will-change: transform;
+}
+
+@keyframes rg-cover-title-wave {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  18% {
+    transform: translate3d(0, 1px, 0) rotate(-0.4deg);
+  }
+
+  42% {
+    transform: translate3d(0, -2px, 0) rotate(0.5deg);
+  }
+
+  68% {
+    transform: translate3d(0, 1px, 0) rotate(-0.25deg);
+  }
+}
+
 .rg-invitation:not(.is-opened) .rg-body-section:not(.rg-opening) {
   display: none;
   pointer-events: none;
 }
+
 .rg-invitation.is-closed {
   height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
 }
+
 .rg-eyebrow {
   display: block;
   color: var(--rg-rose);
@@ -183,6 +389,7 @@
   line-height: 1.4;
   text-transform: uppercase;
 }
+
 .rg-section-number {
   position: absolute;
   top: 30px;
@@ -192,7 +399,14 @@
   font-size: 16px;
   letter-spacing: 0.04em;
 }
-.rg-section-number span { color: var(--rg-muted); font-family: var(--font-wedding-body); font-size: 9px; letter-spacing: 0.12em; }
+
+.rg-section-number span {
+  color: var(--rg-muted);
+  font-family: var(--font-wedding-body);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
 .rg-cover,
 .rg-invitation-letter,
 .rg-families,
@@ -204,7 +418,9 @@
 .rg-rsvp,
 .rg-guestbook,
 .rg-gift,
-.rg-footer { padding: 84px 28px; }
+.rg-footer {
+  padding: 84px 28px;
+}
 
 /* Opening gate. All four approved layers share one exact 2:3 canvas so the V-cut remains registered. */
 .rg-opening {
@@ -216,6 +432,7 @@
   padding: 28px 24px 42px;
   text-align: center;
 }
+
 .rg-opening-stage {
   position: relative;
   width: min(78vw, 328px);
@@ -224,256 +441,1750 @@
   filter: drop-shadow(0 24px 26px rgb(83 38 52 / 0.2));
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.rg-opening-stage.is-opened { transform: translateY(0) scale(0.92); }
-.rg-opening-layer { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: fill; transition: opacity 0.65s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
-.rg-opening-layer-inner { z-index: 1; transform: translateY(4%); opacity: 0; }
-.rg-opening-layer-triangle { z-index: 2; transform: translateY(8%); opacity: 0; }
-.rg-opening-layer-front { z-index: 3; opacity: 0; }
-.rg-opening-layer-closed { z-index: 4; }
-.rg-opening-stage.is-opened .rg-opening-layer-inner { opacity: 1; transform: translateY(-3%); }
-.rg-opening-stage.is-opened .rg-opening-layer-triangle { opacity: 1; transform: translateY(-9%); }
-.rg-opening-stage.is-opened .rg-opening-layer-front { opacity: 1; }
-.rg-opening-stage.is-opened .rg-opening-layer-closed { opacity: 0; transform: translateY(-14%); }
-.rg-opening-card-copy { position: absolute; z-index: 5; right: 13%; bottom: 22%; left: 13%; display: grid; gap: 8px; color: var(--rg-rose-deep); opacity: 1; transition: opacity 0.35s ease, transform 0.55s ease; }
-.rg-opening-card-copy span { font-size: 8px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
-.rg-opening-card-copy strong { font-family: var(--font-wedding-display); font-size: clamp(23px, 7vw, 34px); font-weight: 400; letter-spacing: -0.04em; line-height: 0.95; }
-.rg-opening-card-copy i { color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 0.72em; font-style: normal; }
-.rg-opening-stage.is-opened .rg-opening-card-copy { opacity: 0; transform: translateY(-10px); }
-.rg-opening-copy { position: relative; z-index: 2; max-width: 320px; }
-.rg-opening-copy h1 { margin: 12px 0 10px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: clamp(34px, 10vw, 54px); font-weight: 400; letter-spacing: -0.06em; line-height: 0.92; }
-.rg-opening-copy p { margin: 0 auto; max-width: 260px; color: var(--rg-muted); font-size: 12px; line-height: 1.65; }
-.rg-opening-trigger { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; border: 1px solid rgb(169 87 104 / 0.34); border-radius: 999px; padding: 10px 15px; color: var(--rg-rose-deep); background: rgb(255 250 248 / 0.64); font: inherit; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; cursor: pointer; }
-.rg-opening-trigger svg { font-size: 14px; }
-.rg-opening-trigger { min-height: 44px; }
-.rg-opening-trigger { transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
-@media (hover: hover) and (pointer: fine) {
-  .rg-opening-trigger:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 8px 18px rgb(113 59 74 / 0.12); }
+
+.rg-opening-stage.is-opened {
+  transform: translateY(0) scale(0.92);
 }
-.rg-opening-trigger:active { transform: translateY(1px) scale(0.98); }
-.rg-invitation.is-opened .rg-opening { min-height: min(100dvh, 760px); }
+
+.rg-opening-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  transition: opacity 0.65s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rg-opening-layer-inner {
+  z-index: 1;
+  transform: translateY(4%);
+  opacity: 0;
+}
+
+.rg-opening-layer-triangle {
+  z-index: 2;
+  transform: translateY(8%);
+  opacity: 0;
+}
+
+.rg-opening-layer-front {
+  z-index: 3;
+  opacity: 0;
+}
+
+.rg-opening-layer-closed {
+  z-index: 4;
+}
+
+.rg-opening-stage.is-opened .rg-opening-layer-inner {
+  opacity: 1;
+  transform: translateY(-3%);
+}
+
+.rg-opening-stage.is-opened .rg-opening-layer-triangle {
+  opacity: 1;
+  transform: translateY(-9%);
+}
+
+.rg-opening-stage.is-opened .rg-opening-layer-front {
+  opacity: 1;
+}
+
+.rg-opening-stage.is-opened .rg-opening-layer-closed {
+  opacity: 0;
+  transform: translateY(-14%);
+}
+
+.rg-opening-card-copy {
+  position: absolute;
+  z-index: 5;
+  right: 13%;
+  bottom: 22%;
+  left: 13%;
+  display: grid;
+  gap: 8px;
+  color: var(--rg-rose-deep);
+  opacity: 1;
+  transition: opacity 0.35s ease, transform 0.55s ease;
+}
+
+.rg-opening-card-copy span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.rg-opening-card-copy strong {
+  font-family: var(--font-wedding-display);
+  font-size: clamp(23px, 7vw, 34px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.rg-opening-card-copy i {
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-script);
+  font-size: 0.72em;
+  font-style: normal;
+}
+
+.rg-opening-stage.is-opened .rg-opening-card-copy {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.rg-opening-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 320px;
+}
+
+.rg-opening-copy h1 {
+  margin: 12px 0 10px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(34px, 10vw, 54px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+}
+
+.rg-opening-copy p {
+  margin: 0 auto;
+  max-width: 260px;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.rg-opening-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  border: 1px solid rgb(169 87 104 / 0.34);
+  border-radius: 999px;
+  padding: 10px 15px;
+  color: var(--rg-rose-deep);
+  background: rgb(255 250 248 / 0.64);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.rg-opening-trigger svg {
+  font-size: 14px;
+}
+
+.rg-opening-trigger {
+  min-height: 44px;
+}
+
+.rg-opening-trigger {
+  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rg-opening-trigger:hover {
+    transform: translateY(-2px);
+    background: #fff;
+    box-shadow: 0 8px 18px rgb(113 59 74 / 0.12);
+  }
+}
+
+.rg-opening-trigger:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.rg-invitation.is-opened .rg-opening {
+  min-height: min(100dvh, 760px);
+}
 
 /* Cover: a vertical botanical vignette followed by an editorial name lockup. */
-.rg-cover { position: relative; display: grid; gap: 34px; padding-top: 70px; background: linear-gradient(180deg, #fffaf8, #f8e9e7); }
-.rg-cover-atmosphere { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
-.rg-cover-petal-cluster { position: absolute; right: -56px; bottom: 8%; width: 190px; height: 190px; object-fit: contain; opacity: 0.14; transform: rotate(-18deg); }
-.rg-cover-petal { position: absolute; top: -18px; width: 7px; height: 11px; border-radius: 70% 30% 70% 30%; background: rgb(169 87 104 / 0.28); opacity: 0; transform: translate3d(0, -18px, 0) rotate(0deg); }
-.rg-atmosphere-active .rg-cover-petal { animation: rg-petal-drift 8s ease-in-out infinite; }
-.rg-cover-petal:nth-of-type(1) { left: 5%; animation-delay: -3.1s; transform: scale(0.76); }
-.rg-cover-petal:nth-of-type(2) { left: 12%; animation-delay: -1.2s; }
-.rg-cover-petal:nth-of-type(3) { left: 24%; animation-delay: -4.8s; transform: scale(0.72); }
-.rg-cover-petal:nth-of-type(4) { left: 36%; animation-delay: -2.4s; transform: scale(0.88); }
-.rg-cover-petal:nth-of-type(5) { left: 48%; animation-delay: -6.1s; transform: scale(0.62); }
-.rg-cover-petal:nth-of-type(6) { left: 61%; animation-delay: -3.5s; transform: scale(0.8); }
-.rg-cover-petal:nth-of-type(7) { left: 73%; animation-delay: -7.2s; transform: scale(0.7); }
-.rg-cover-petal:nth-of-type(8) { left: 82%; animation-delay: -5.4s; transform: scale(0.9); }
-.rg-cover-petal:nth-of-type(9) { left: 90%; animation-delay: -2.9s; transform: scale(0.58); }
-@keyframes rg-petal-drift {
-  0% { opacity: 0; transform: translate3d(0, -18px, 0) rotate(0deg); }
-  18% { opacity: 0.58; }
-  72% { opacity: 0.35; }
-  100% { opacity: 0; transform: translate3d(34px, 420px, 0) rotate(185deg); }
+.rg-cover {
+  position: relative;
+  display: grid;
+  gap: 34px;
+  padding-top: 70px;
+  background: linear-gradient(180deg, #fffaf8, #f8e9e7);
 }
-.rg-cover-art { position: relative; z-index: 1; min-height: 360px; overflow: hidden; border-radius: 48% 48% 8px 8px; background: #ead6d4; }
-.rg-cover-art::after { position: absolute; inset: 0; border: 1px solid rgb(255 255 255 / 0.6); border-radius: inherit; content: ''; pointer-events: none; }
-.rg-cover-art img { width: 100%; height: 100%; min-height: 360px; object-fit: cover; object-position: center; mix-blend-mode: multiply; }
-.rg-cover-art > .rg-user-media { display: block; object-position: center 35%; mix-blend-mode: normal; }
-.rg-cover-decor { position: absolute; right: -28px; bottom: -36px; z-index: 1; width: 174px !important; height: 174px !important; min-height: 0 !important; object-fit: contain !important; object-position: center !important; opacity: 0.52; mix-blend-mode: multiply; pointer-events: none; transform: rotate(-9deg); }
-.rg-cover-art-index { position: absolute; right: 16px; bottom: 16px; color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 0.16em; }
-.rg-cover-copy { position: relative; z-index: 1; padding-inline: 8px; }
-.rg-cover-copy h2 { max-width: 320px; margin: 14px 0; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 44px; font-weight: 400; letter-spacing: -0.065em; line-height: 0.9; }
-.rg-cover-copy p { max-width: 260px; margin: 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-name-lockup { display: flex; align-items: baseline; gap: 9px; margin-top: 28px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 23px; }
-.rg-name-lockup i { color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 28px; font-style: normal; }
-.rg-date-line { display: block; margin-top: 9px; color: var(--rg-rose); font-size: 9px; font-weight: 800; letter-spacing: 0.28em; }
-.rg-empty-artwork { display: grid; min-height: 220px; place-items: center; color: var(--rg-muted); background: repeating-linear-gradient(135deg, #f1dfdf 0 10px, #ead5d7 10px 20px); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
+
+.rg-cover-atmosphere {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rg-cover-petal-cluster {
+  position: absolute;
+  right: -56px;
+  bottom: 8%;
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+  opacity: 0.14;
+  transform: rotate(-18deg);
+}
+
+.rg-cover-petal {
+  position: absolute;
+  top: -18px;
+  width: 7px;
+  height: 11px;
+  border-radius: 70% 30% 70% 30%;
+  background: rgb(169 87 104 / 0.28);
+  opacity: 0;
+  transform: translate3d(0, -18px, 0) rotate(0deg);
+}
+
+.rg-atmosphere-active .rg-cover-petal {
+  animation: rg-petal-drift 8s ease-in-out infinite;
+}
+
+.rg-cover-petal:nth-of-type(1) {
+  left: 5%;
+  animation-delay: -3.1s;
+  transform: scale(0.76);
+}
+
+.rg-cover-petal:nth-of-type(2) {
+  left: 12%;
+  animation-delay: -1.2s;
+}
+
+.rg-cover-petal:nth-of-type(3) {
+  left: 24%;
+  animation-delay: -4.8s;
+  transform: scale(0.72);
+}
+
+.rg-cover-petal:nth-of-type(4) {
+  left: 36%;
+  animation-delay: -2.4s;
+  transform: scale(0.88);
+}
+
+.rg-cover-petal:nth-of-type(5) {
+  left: 48%;
+  animation-delay: -6.1s;
+  transform: scale(0.62);
+}
+
+.rg-cover-petal:nth-of-type(6) {
+  left: 61%;
+  animation-delay: -3.5s;
+  transform: scale(0.8);
+}
+
+.rg-cover-petal:nth-of-type(7) {
+  left: 73%;
+  animation-delay: -7.2s;
+  transform: scale(0.7);
+}
+
+.rg-cover-petal:nth-of-type(8) {
+  left: 82%;
+  animation-delay: -5.4s;
+  transform: scale(0.9);
+}
+
+.rg-cover-petal:nth-of-type(9) {
+  left: 90%;
+  animation-delay: -2.9s;
+  transform: scale(0.58);
+}
+
+@keyframes rg-petal-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -18px, 0) rotate(0deg);
+  }
+
+  18% {
+    opacity: 0.58;
+  }
+
+  72% {
+    opacity: 0.35;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(34px, 420px, 0) rotate(185deg);
+  }
+}
+
+.rg-cover-art {
+  position: relative;
+  z-index: 1;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 48% 48% 8px 8px;
+  background: #ead6d4;
+  box-shadow: 0 24px 42px rgb(94 49 65 / 0.16), 0 0 0 8px rgb(255 250 248 / 0.7);
+}
+
+.rg-cover-art::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(63 35 45 / 0.06), transparent 32%, transparent 68%, rgb(63 35 45 / 0.18));
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
+.rg-cover-art::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(255 255 255 / 0.6);
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
+.rg-cover-art img {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+  object-position: center;
+  mix-blend-mode: multiply;
+}
+
+.rg-cover-art>.rg-user-media {
+  display: block;
+  object-position: center 35%;
+  mix-blend-mode: normal;
+}
+
+.rg-cover-main-hero{
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+.rg-cover-main-hero::before,
+.rg-cover-main-hero::after {
+  position: absolute;
+  z-index: 3;
+  width: 74px;
+  height: 74px;
+  border: 1px solid rgb(169 87 104 / 0.44);
+  content: '';
+  pointer-events: none;
+}
+
+.rg-cover-main-hero::before {
+  bottom: -17px;
+  left: -13px;
+  border-right: 0;
+  border-top: 0;
+  border-radius: 0 0 0 28px;
+}
+
+.rg-cover-main-hero::after {
+  top: -17px;
+  right: -13px;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0 28px 0 0;
+}
+
+.rg-cover-art-index {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.rg-cover-copy {
+  position: relative;
+  z-index: 1;
+  padding-inline: 8px;
+}
+
+.rg-cover-copy h2 {
+  max-width: 320px;
+  margin: 14px 0;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+}
+
+.rg-cover-copy p {
+  max-width: 260px;
+  margin: 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-name-lockup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 13px;
+  margin-top: 28px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(40px, 12vw, 64px);
+  font-weight: 400;
+  letter-spacing: -0.07em;
+  line-height: 0.82;
+}
+.rg-name-lockup strong {
+  white-space: nowrap;
+}
+
+.rg-name-lockup i {
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-script);
+  font-size: clamp(34px, 8vw, 48px);
+  font-style: normal;
+}
+
+.rg-date-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 9px;
+  color: var(--rg-rose);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+}
+.rg-date-heart {
+  display: inline-block;
+  color: var(--rg-rose-deep);
+  font-size: 16px;
+  font-style: normal;
+  letter-spacing: 0;
+  line-height: 1;
+  perspective: 500px;
+  transform-origin: 50% 60%;
+  transform-style: preserve-3d;
+  animation: rg-date-heart-cycle 12s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes rg-date-heart-cycle {
+  0% { opacity: 0; transform: rotate(12deg) rotateY(0deg) scale(0.64); }
+  4.17% { opacity: 1; transform: rotate(12deg) rotateY(0deg) scale(1.28); }
+  12.5% { opacity: 1; transform: rotate(12deg) rotateY(0deg) scale(1.28); }
+  62.5% { opacity: 1; transform: rotate(12deg) rotateY(2160deg) scale(1.28); }
+  70.83% { opacity: 1; transform: rotate(12deg) rotateY(2160deg) scale(1.28); }
+  75% { opacity: 1; transform: rotate(12deg) rotateY(2160deg) scale(0.64); }
+  100% { opacity: 0; transform: rotate(12deg) rotateY(2160deg) scale(0.64); }
+}
+
+.rg-empty-artwork {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  color: var(--rg-muted);
+  background: repeating-linear-gradient(135deg, #f1dfdf 0 10px, #ead5d7 10px 20px);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
 
 /* Invitation: three independent editor slots, composed as a loose paper triptych. */
-.rg-invitation-letter { padding-top: 96px; background: #fffaf8; }
-.rg-invitation-letter h2 { max-width: 340px; margin: 14px 0 16px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 42px; font-weight: 400; letter-spacing: -0.065em; line-height: 0.92; }
-.rg-lead { max-width: 300px; margin: 0; color: var(--rg-muted); font-size: 13px; line-height: 1.8; }
-.rg-memory-triptych { position: relative; height: 310px; margin: 40px -4px 0; }
-.rg-memory-card { position: absolute; width: 45%; margin: 0; padding: 7px 7px 26px; background: #fff; box-shadow: 0 14px 28px rgb(80 40 53 / 0.12); }
-.rg-memory-card img { display: block; width: 100%; height: 150px; object-fit: cover; object-position: center 35%; }
-.rg-memory-card .rg-empty-artwork { min-height: 150px; }
-.rg-memory-card figcaption { position: absolute; right: 8px; bottom: 8px; left: 8px; color: var(--rg-muted); font-family: var(--font-wedding-script); font-size: 13px; text-align: center; }
-.rg-memory-card-1 { top: 22px; left: 0; transform: rotate(-7deg); }
-.rg-memory-card-2 { top: 0; left: 27%; z-index: 2; transform: rotate(2deg); }
-.rg-memory-card-3 { top: 35px; right: 0; transform: rotate(8deg); }
-@media (hover: hover) and (pointer: fine) {
-  .rg-memory-card { transition: transform 220ms ease, box-shadow 220ms ease; }
-  .rg-memory-card-1:hover { transform: translateY(-5px) rotate(-7deg); box-shadow: 0 20px 34px rgb(80 40 53 / 0.18); }
-  .rg-memory-card-2:hover { transform: translateY(-5px) rotate(2deg); box-shadow: 0 20px 34px rgb(80 40 53 / 0.18); }
-  .rg-memory-card-3:hover { transform: translateY(-5px) rotate(8deg); box-shadow: 0 20px 34px rgb(80 40 53 / 0.18); }
+.rg-invitation-letter {
+  padding-top: 96px;
+  background: #fffaf8;
 }
-.rg-letter-decor { position: absolute; right: -38px; bottom: -46px; z-index: 0; width: 170px; height: 170px; object-fit: contain; opacity: 0.23; transform: rotate(8deg); pointer-events: none; }
+
+.rg-invitation-letter h2 {
+  max-width: 340px;
+  margin: 14px 0 16px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+}
+
+.rg-lead {
+  max-width: 300px;
+  margin: 0;
+  color: var(--rg-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.rg-motion-ready .rg-invitation-letter.rg-motion-content.is-visible > .rg-invitation-eyebrow {
+  transform-style: preserve-3d;
+  animation-name: rg-element-rise, rg-invitation-eyebrow-flip;
+  animation-duration: 620ms, 6.4s;
+  animation-delay: 70ms, 1.4s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: both, none;
+}
+
+@keyframes rg-invitation-eyebrow-flip {
+  0%, 100% { transform: perspective(500px) rotateX(0deg); }
+  45% { transform: perspective(500px) rotateX(7deg); }
+  58% { transform: perspective(500px) rotateX(-3deg); }
+}
+
+.rg-memory-triptych {
+  position: relative;
+  isolation: isolate;
+  height: 310px;
+  margin: 40px -4px 0;
+}
+
+.rg-memory-triptych::before,
+.rg-memory-triptych::after {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  content: '';
+}
+
+.rg-memory-triptych::before {
+  inset: 12% 17% 16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(214 145 154 / 0.13), transparent 68%);
+  animation: rg-memory-glow 8s ease-in-out infinite;
+}
+
+.rg-memory-triptych::after {
+  top: -10%;
+  bottom: -10%;
+  left: -25%;
+  width: 22%;
+  background: linear-gradient(110deg, transparent, rgb(255 255 255 / 0.52), transparent);
+  opacity: 0;
+  transform: translate3d(-30%, 0, 0) rotate(10deg);
+  animation: rg-memory-sheen 7s ease-in-out 1.8s infinite;
+}
+
+.rg-memory-card {
+  position: absolute;
+  width: 45%;
+  margin: 0;
+  padding: 7px 7px 26px;
+  background: #fff;
+  box-shadow: 0 14px 28px rgb(80 40 53 / 0.12);
+  animation: rg-memory-card-float 8s ease-in-out infinite;
+  will-change: translate;
+}
+
+.rg-memory-card-1 { animation-delay: -1.1s; }
+.rg-memory-card-2 { animation-delay: -3.4s; }
+.rg-memory-card-3 { animation-delay: -5.7s; }
+
+@keyframes rg-memory-card-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+@keyframes rg-memory-glow {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes rg-memory-sheen {
+  0%, 18% { opacity: 0; transform: translate3d(-30%, 0, 0) rotate(10deg); }
+  34% { opacity: 0.7; }
+  58%, 100% { opacity: 0; transform: translate3d(580%, 0, 0) rotate(10deg); }
+}
+
+.rg-memory-card img {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+.rg-memory-card .rg-empty-artwork {
+  min-height: 150px;
+}
+
+.rg-memory-card figcaption {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  color: var(--rg-muted);
+  font-family: var(--font-wedding-script);
+  font-size: 13px;
+  text-align: center;
+}
+
+.rg-memory-card-1 {
+  top: 22px;
+  left: 0;
+  transform: rotate(-7deg);
+}
+
+.rg-memory-card-2 {
+  top: 0;
+  left: 27%;
+  z-index: 2;
+  transform: rotate(2deg);
+}
+
+.rg-memory-card-3 {
+  top: 35px;
+  right: 0;
+  transform: rotate(8deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rg-memory-card {
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+
+  .rg-memory-card-1:hover {
+    transform: translateY(-5px) rotate(-7deg);
+    box-shadow: 0 20px 34px rgb(80 40 53 / 0.18);
+  }
+
+  .rg-memory-card-2:hover {
+    transform: translateY(-5px) rotate(2deg);
+    box-shadow: 0 20px 34px rgb(80 40 53 / 0.18);
+  }
+
+  .rg-memory-card-3:hover {
+    transform: translateY(-5px) rotate(8deg);
+    box-shadow: 0 20px 34px rgb(80 40 53 / 0.18);
+  }
+}
+
+.rg-letter-decor {
+  position: absolute;
+  right: -34px;
+  bottom: 120px;
+  z-index: 3;
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+  opacity: 0.38;
+  transform: rotate(18deg);
+  pointer-events: none;
+}
+
+.rg-letter-rose-decor {
+  position: absolute;
+  bottom: 0;
+  left: -74px;
+  z-index: 0;
+  width: 350px;
+  height: 350px;
+  object-fit: contain;
+  opacity: 0.16;
+  filter: saturate(0.84) drop-shadow(0 12px 18px rgb(113 59 74 / 0.1));
+  transform: rotate(-18deg);
+  pointer-events: none;
+  animation: rg-letter-rose-drift 9s ease-in-out infinite;
+  will-change: translate, opacity;
+}
+
+@keyframes rg-letter-rose-drift {
+  0%, 100% { translate: 0 3px; opacity: 0.13; }
+  50% { translate: 0 -7px; opacity: 0.2; }
+}
 
 /* Families: one letter split by a small rose-ink ampersand. */
-.rg-families { background: #f9eeee; text-align: center; }
-.rg-families h2 { max-width: 290px; margin: 14px auto 8px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 39px; font-weight: 400; letter-spacing: -0.06em; line-height: 0.94; }
-.rg-family-subtitle { margin: 0; color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 21px; }
-.rg-family-message { max-width: 300px; margin: 22px auto 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-family-columns { position: relative; display: grid; grid-template-columns: 1fr 22px 1fr; align-items: center; gap: 8px; margin-top: 34px; text-align: center; }
-.rg-family-side { display: grid; gap: 7px; }
-.rg-family-side > span { color: var(--rg-rose); font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; }
-.rg-family-side strong { color: var(--rg-ink); font-family: var(--font-wedding-display); font-size: 17px; font-weight: 400; line-height: 1.1; }
-.rg-family-side small { margin-top: 5px; color: var(--rg-muted); font-size: 10px; line-height: 1.4; }
-.rg-family-ampersand { color: var(--rg-rose); font-family: var(--font-wedding-script); font-size: 28px; }
+.rg-families {
+  background: #f9eeee;
+  text-align: center;
+}
+
+.rg-families h2 {
+  max-width: 290px;
+  margin: 14px auto 8px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 39px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.94;
+}
+
+.rg-family-subtitle {
+  margin: 0;
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-script);
+  font-size: 21px;
+}
+
+.rg-family-message {
+  max-width: 300px;
+  margin: 22px auto 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-family-columns {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-top: 34px;
+  text-align: center;
+}
+
+.rg-family-side {
+  display: grid;
+  gap: 7px;
+}
+
+.rg-family-side>span {
+  color: var(--rg-rose);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.rg-family-side strong {
+  color: var(--rg-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.rg-family-side small {
+  margin-top: 5px;
+  color: var(--rg-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.rg-family-ampersand {
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-script);
+  font-size: 28px;
+}
 
 @media (max-width: 400px) {
-  .rg-family-columns { grid-template-columns: 1fr; gap: 18px; }
-  .rg-family-side { width: 100%; max-width: 280px; margin-inline: auto; }
-  .rg-family-side strong { overflow-wrap: anywhere; }
-  .rg-family-ampersand { display: grid; width: 42px; height: 42px; place-items: center; margin-inline: auto; border: 1px solid rgb(169 87 104 / 0.24); border-radius: 50%; }
+  .rg-family-columns {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .rg-family-side {
+    width: 100%;
+    max-width: 280px;
+    margin-inline: auto;
+  }
+
+  .rg-family-side strong {
+    overflow-wrap: anywhere;
+  }
+
+  .rg-family-ampersand {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    margin-inline: auto;
+    border: 1px solid rgb(169 87 104 / 0.24);
+    border-radius: 50%;
+  }
 }
 
 /* Date stamp: the calendar action stays at the end of the composition. */
-.rg-event-details { background: #fffaf8; }
-.rg-event-stamp { display: grid; justify-items: center; gap: 2px; width: 84px; margin: 2px 0 24px; color: var(--rg-rose); }
-.rg-event-stamp svg { font-size: 47px; }
-.rg-event-stamp span { font-size: 8px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
-.rg-event-details h2 { max-width: 280px; margin: 13px 0 25px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 42px; font-weight: 400; letter-spacing: -0.065em; line-height: 0.92; }
-.rg-event-date { color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 19px; }
-.rg-event-time { display: flex; align-items: center; gap: 6px; margin-top: 9px; color: var(--rg-rose); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
-.rg-event-details > p { max-width: 270px; margin: 22px 0 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-event-divider { display: block; width: 100%; height: 62px; margin: 24px 0 3px; object-fit: contain; opacity: 0.75; }
-.rg-event-divider.rg-user-media { object-fit: cover; object-position: center 35%; mix-blend-mode: normal; }
-.rg-text-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; color: var(--rg-rose-deep); font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-decoration: none; }
-.rg-text-link svg { font-size: 14px; }
+.rg-event-details {
+  background: #fffaf8;
+}
+
+.rg-event-stamp {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 84px;
+  margin: 2px 0 24px;
+  color: var(--rg-rose);
+}
+
+.rg-event-stamp svg {
+  font-size: 47px;
+}
+
+.rg-event-stamp span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.rg-event-details h2 {
+  max-width: 280px;
+  margin: 13px 0 25px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+}
+
+.rg-event-date {
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 19px;
+}
+
+.rg-event-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  color: var(--rg-rose);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.rg-event-details>p {
+  max-width: 270px;
+  margin: 22px 0 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-event-divider {
+  display: block;
+  width: 100%;
+  height: 62px;
+  margin: 24px 0 3px;
+  object-fit: contain;
+  opacity: 0.75;
+}
+
+.rg-event-divider.rg-user-media {
+  object-fit: cover;
+  object-position: center 35%;
+  mix-blend-mode: normal;
+}
+
+.rg-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  color: var(--rg-rose-deep);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.rg-text-link svg {
+  font-size: 14px;
+}
 
 /* Countdown: intentionally quiet in Phase 3; live time calculation belongs to integration. */
-.rg-countdown { padding-block: 68px; background: #713b4a; color: #fffaf8; text-align: center; }
-.rg-countdown .rg-eyebrow { color: #f0c6c5; }
-.rg-countdown-rule { display: flex; align-items: center; gap: 11px; max-width: 180px; margin: 24px auto 18px; color: #edb1b2; }
-.rg-countdown-rule span { height: 1px; flex: 1; background: rgb(255 250 248 / 0.28); }
-.rg-countdown-rule svg { font-size: 12px; }
-.rg-countdown h2 { margin: 0; font-family: var(--font-wedding-display); font-size: 34px; font-weight: 400; letter-spacing: -0.05em; }
-.rg-countdown-placeholder { display: grid; gap: 8px; margin-top: 20px; }
-.rg-countdown-placeholder strong { color: #fff; font-family: var(--font-wedding-display); font-size: 23px; font-weight: 400; }
-.rg-countdown-placeholder span { color: #e7c9ca; font-size: 10px; line-height: 1.6; }
+.rg-countdown {
+  padding-block: 68px;
+  background: #713b4a;
+  color: #fffaf8;
+  text-align: center;
+}
+
+.rg-countdown .rg-eyebrow {
+  color: #f0c6c5;
+}
+
+.rg-countdown-rule {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  max-width: 180px;
+  margin: 24px auto 18px;
+  color: #edb1b2;
+}
+
+.rg-countdown-rule span {
+  height: 1px;
+  flex: 1;
+  background: rgb(255 250 248 / 0.28);
+}
+
+.rg-countdown-rule svg {
+  font-size: 12px;
+}
+
+.rg-countdown h2 {
+  margin: 0;
+  font-family: var(--font-wedding-display);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
+.rg-countdown-placeholder {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.rg-countdown-placeholder strong {
+  color: #fff;
+  font-family: var(--font-wedding-display);
+  font-size: 23px;
+  font-weight: 400;
+}
+
+.rg-countdown-placeholder span {
+  color: #e7c9ca;
+  font-size: 10px;
+  line-height: 1.6;
+}
 
 /* Timeline: the only vertical path, keeping event rhythm separate from the date stamp. */
-.rg-timeline { background: #f6e6e5; }
-.rg-timeline h2 { max-width: 300px; margin: 14px 0 35px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 40px; font-weight: 400; letter-spacing: -0.065em; line-height: 0.92; }
-.rg-timeline ol { position: relative; display: grid; gap: 28px; margin: 0; padding: 0; list-style: none; }
-.rg-timeline ol::before { position: absolute; top: 8px; bottom: 8px; left: 55px; width: 1px; background: rgb(169 87 104 / 0.28); content: ''; }
-.rg-timeline li { position: relative; display: grid; grid-template-columns: 38px 35px 1fr; gap: 0 9px; align-items: start; }
-.rg-timeline time { padding-top: 7px; color: var(--rg-rose); font-size: 10px; font-weight: 800; }
-.rg-timeline-node { position: relative; z-index: 1; display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid rgb(169 87 104 / 0.38); border-radius: 50%; color: var(--rg-rose-deep); background: #f6e6e5; font-size: 9px; font-weight: 800; }
-.rg-timeline-node > span { position: relative; z-index: 1; }
-.rg-timeline-bloom { position: absolute; inset: -15px; width: calc(100% + 30px); height: calc(100% + 30px); object-fit: contain; opacity: 0.36; pointer-events: none; transition: transform 500ms ease, opacity 500ms ease; }
-@media (hover: hover) and (pointer: fine) {
-  .rg-timeline li:hover .rg-timeline-bloom { opacity: 0.72; transform: rotate(12deg) scale(1.08); }
+.rg-timeline {
+  background: #f6e6e5;
 }
-.rg-timeline li div { padding-top: 4px; padding-left: 8px; }
-.rg-timeline li strong { color: var(--rg-ink); font-family: var(--font-wedding-display); font-size: 20px; font-weight: 400; }
-.rg-timeline li p { margin: 6px 0 0; color: var(--rg-muted); font-size: 11px; line-height: 1.55; }
-.rg-timeline-media { display: block; width: 100%; max-height: 140px; margin-top: 12px; border-radius: 4px 34px 4px 34px; object-fit: cover; object-position: center 35%; }
+
+.rg-timeline h2 {
+  max-width: 300px;
+  margin: 14px 0 35px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+}
+
+.rg-timeline ol {
+  position: relative;
+  display: grid;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rg-timeline ol::before {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 55px;
+  width: 1px;
+  background: rgb(169 87 104 / 0.28);
+  content: '';
+}
+
+.rg-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px 35px 1fr;
+  gap: 0 9px;
+  align-items: start;
+}
+
+.rg-timeline time {
+  padding-top: 7px;
+  color: var(--rg-rose);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rg-timeline-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+  border: 1px solid rgb(169 87 104 / 0.38);
+  border-radius: 50%;
+  color: var(--rg-rose-deep);
+  background: #f6e6e5;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.rg-timeline-node>span {
+  position: relative;
+  z-index: 1;
+}
+
+.rg-timeline-bloom {
+  position: absolute;
+  inset: -15px;
+  width: calc(100% + 30px);
+  height: calc(100% + 30px);
+  object-fit: contain;
+  opacity: 0.36;
+  pointer-events: none;
+  transition: transform 500ms ease, opacity 500ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rg-timeline li:hover .rg-timeline-bloom {
+    opacity: 0.72;
+    transform: rotate(12deg) scale(1.08);
+  }
+}
+
+.rg-timeline li div {
+  padding-top: 4px;
+  padding-left: 8px;
+}
+
+.rg-timeline li strong {
+  color: var(--rg-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.rg-timeline li p {
+  margin: 6px 0 0;
+  color: var(--rg-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.rg-timeline-media {
+  display: block;
+  width: 100%;
+  max-height: 140px;
+  margin-top: 12px;
+  border-radius: 4px 34px 4px 34px;
+  object-fit: cover;
+  object-position: center 35%;
+}
 
 /* Venue: an address card without an iframe, keeping the mobile invitation light. */
-.rg-venue { min-height: 370px; background: linear-gradient(150deg, #fffaf8, #f4dddd); }
-.rg-venue::after { position: absolute; right: -80px; bottom: -110px; width: 260px; height: 260px; border: 1px solid rgb(169 87 104 / 0.18); border-radius: 50%; content: ''; }
-.rg-venue-pin { display: grid; width: 50px; height: 50px; place-items: center; margin-bottom: 24px; border: 1px solid rgb(169 87 104 / 0.32); border-radius: 50%; color: var(--rg-rose); }
-.rg-venue-pin svg { font-size: 19px; }
-.rg-venue h2 { max-width: 280px; margin: 13px 0 30px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 40px; font-weight: 400; letter-spacing: -0.06em; line-height: 0.92; }
-.rg-venue > strong { display: block; color: var(--rg-ink); font-family: var(--font-wedding-display); font-size: 19px; font-weight: 400; }
-.rg-venue > p { max-width: 280px; margin: 8px 0 0; color: var(--rg-muted); font-size: 12px; line-height: 1.55; }
-.rg-venue > .rg-muted-copy { margin-top: 22px; font-style: italic; }
+.rg-venue {
+  min-height: 370px;
+  background: linear-gradient(150deg, #fffaf8, #f4dddd);
+}
+
+.rg-venue::after {
+  position: absolute;
+  right: -80px;
+  bottom: -110px;
+  width: 260px;
+  height: 260px;
+  border: 1px solid rgb(169 87 104 / 0.18);
+  border-radius: 50%;
+  content: '';
+}
+
+.rg-venue-pin {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  margin-bottom: 24px;
+  border: 1px solid rgb(169 87 104 / 0.32);
+  border-radius: 50%;
+  color: var(--rg-rose);
+}
+
+.rg-venue-pin svg {
+  font-size: 19px;
+}
+
+.rg-venue h2 {
+  max-width: 280px;
+  margin: 13px 0 30px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+}
+
+.rg-venue>strong {
+  display: block;
+  color: var(--rg-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 19px;
+  font-weight: 400;
+}
+
+.rg-venue>p {
+  max-width: 280px;
+  margin: 8px 0 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.rg-venue>.rg-muted-copy {
+  margin-top: 22px;
+  font-style: italic;
+}
 
 /* Gallery: horizontal rail, distinct from the invitation triptych. */
-.rg-gallery { background: #fffaf8; perspective: 900px; }
-.rg-gallery h2 { max-width: 300px; margin: 14px 0 11px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 40px; font-weight: 400; letter-spacing: -0.065em; line-height: 0.92; }
-.rg-gallery > p { max-width: 280px; margin: 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-gallery-rail { display: flex; gap: 12px; overflow: auto; margin: 30px -28px 0; padding: 0 28px 12px; scrollbar-width: none; }
-.rg-gallery-rail::-webkit-scrollbar { display: none; }
-.rg-gallery-rail figure { position: relative; min-width: 180px; margin: 0; transform-style: preserve-3d; }
-@media (hover: hover) and (pointer: fine) {
-  .rg-gallery-rail figure { transition: transform 240ms ease, filter 240ms ease; }
-  .rg-gallery-rail figure:hover { filter: drop-shadow(0 16px 16px rgb(81 41 52 / 0.14)); transform: translateY(-5px) rotateX(2deg) rotateY(-2deg) translateZ(8px); }
+.rg-gallery {
+  background: #fffaf8;
+  perspective: 900px;
 }
-.rg-gallery-rail img { display: block; width: 180px; height: 245px; object-fit: cover; border-radius: 90px 90px 5px 5px; background: #ecd8d6; }
-.rg-gallery-rail figcaption { position: absolute; right: 12px; bottom: 12px; color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 0.16em; }
-.rg-gallery-empty { position: relative; display: grid; min-height: 245px; place-items: center; overflow: hidden; margin-top: 30px; border: 1px dashed rgb(169 87 104 / 0.28); border-radius: 90px 90px 5px 5px; color: var(--rg-muted); background: #f7eaea; text-align: center; }
-.rg-gallery-empty > span { position: relative; z-index: 1; max-width: 180px; padding: 20px; font-size: 10px; line-height: 1.6; }
-.rg-gallery-decor { position: absolute; width: 190px; height: 190px; object-fit: contain; opacity: 0.2; transform: rotate(-12deg); pointer-events: none; }
+
+.rg-gallery h2 {
+  max-width: 300px;
+  margin: 14px 0 11px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+}
+
+.rg-gallery>p {
+  max-width: 280px;
+  margin: 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-gallery-rail {
+  display: flex;
+  gap: 12px;
+  overflow: auto;
+  margin: 30px -28px 0;
+  padding: 0 28px 12px;
+  scrollbar-width: none;
+}
+
+.rg-gallery-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rg-gallery-rail figure {
+  position: relative;
+  min-width: 180px;
+  margin: 0;
+  transform-style: preserve-3d;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rg-gallery-rail figure {
+    transition: transform 240ms ease, filter 240ms ease;
+  }
+
+  .rg-gallery-rail figure:hover {
+    filter: drop-shadow(0 16px 16px rgb(81 41 52 / 0.14));
+    transform: translateY(-5px) rotateX(2deg) rotateY(-2deg) translateZ(8px);
+  }
+}
+
+.rg-gallery-rail img {
+  display: block;
+  width: 180px;
+  height: 245px;
+  object-fit: cover;
+  border-radius: 90px 90px 5px 5px;
+  background: #ecd8d6;
+}
+
+.rg-gallery-rail figcaption {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.rg-gallery-empty {
+  position: relative;
+  display: grid;
+  min-height: 245px;
+  place-items: center;
+  overflow: hidden;
+  margin-top: 30px;
+  border: 1px dashed rgb(169 87 104 / 0.28);
+  border-radius: 90px 90px 5px 5px;
+  color: var(--rg-muted);
+  background: #f7eaea;
+  text-align: center;
+}
+
+.rg-gallery-empty>span {
+  position: relative;
+  z-index: 1;
+  max-width: 180px;
+  padding: 20px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.rg-gallery-decor {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+  opacity: 0.2;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
 
 /* RSVP / guestbook are deliberately named interaction shells for Phase 5 wiring. */
-.rg-rsvp { background: #f9eeee; text-align: center; }
-.rg-rsvp h2 { max-width: 300px; margin: 14px auto 12px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 39px; font-weight: 400; letter-spacing: -0.06em; line-height: 0.94; }
-.rg-rsvp > p { max-width: 280px; margin: 0 auto; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-rsvp-choices { display: grid; gap: 9px; margin-top: 27px; }
-.rg-rsvp-choices button { display: block; width: 100%; border: 1px solid rgb(169 87 104 / 0.27); border-radius: 999px; padding: 13px 14px; color: var(--rg-rose-deep); background: rgb(255 250 248 / 0.6); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; transition: border-color 220ms ease, background 220ms ease, transform 220ms ease; }
-.rg-rsvp-choices button:hover { transform: translateY(-2px); }
-.rg-rsvp-choices button.is-selected { border-color: var(--rg-rose); background: rgb(236 190 196 / 0.34); box-shadow: 0 8px 20px rgb(113 59 74 / 0.1); }
-.rg-rsvp-choices button:disabled { cursor: not-allowed; opacity: 0.62; }
-.rg-form-placeholder { margin-top: 17px; color: var(--rg-muted); font-size: 10px; font-style: italic; line-height: 1.5; }
-.rg-rsvp-form, .rg-wish-form { display: grid; gap: 12px; width: 100%; margin-top: 22px; }
-.rg-field { display: grid; gap: 6px; color: var(--rg-muted); font-size: 10px; text-align: left; }
-.rg-field input, .rg-field textarea { width: 100%; border: 1px solid rgb(169 87 104 / 0.24); border-radius: 12px; padding: 12px 13px; color: var(--rg-ink); background: rgb(255 250 248 / 0.76); font: inherit; font-size: 12px; outline: none; resize: vertical; }
-.rg-field input:focus, .rg-field textarea:focus { border-color: var(--rg-rose); box-shadow: 0 0 0 3px rgb(169 87 104 / 0.12); }
-.rg-primary-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 16px; color: #fffaf8; background: var(--rg-rose-deep); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
-.rg-primary-action:disabled { cursor: not-allowed; opacity: 0.58; }
-.rg-form-error { margin: 0; color: #9f3e4a; font-size: 10px; }
-.rg-form-success { margin: 0; color: var(--rg-rose-deep); font-size: 10px; }
-.rg-guestbook { background: #fffaf8; text-align: center; }
-.rg-guestbook-icon { display: block; margin: 0 auto 18px; color: var(--rg-rose); font-size: 52px; }
-.rg-guestbook h2 { max-width: 300px; margin: 14px auto 12px; color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 39px; font-weight: 400; letter-spacing: -0.06em; line-height: 0.94; }
-.rg-guestbook > p { max-width: 280px; margin: 0 auto; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-wish-placeholder { display: flex; align-items: center; gap: 11px; margin-top: 28px; border-top: 1px solid rgb(169 87 104 / 0.18); border-bottom: 1px solid rgb(169 87 104 / 0.18); padding: 18px 4px; color: var(--rg-muted); font-size: 10px; text-align: left; }
-.rg-wish-placeholder svg { flex: 0 0 auto; color: var(--rg-rose); }
-.rg-wish-list { display: grid; gap: 12px; margin-top: 24px; }
-.rg-wish-list article { display: flex; gap: 10px; border-top: 1px solid rgb(169 87 104 / 0.14); padding-top: 12px; text-align: left; }
-.rg-wish-list article > svg { flex: 0 0 auto; margin-top: 2px; color: var(--rg-rose); }
-.rg-wish-list strong { color: var(--rg-rose-deep); font-size: 11px; }
-.rg-wish-list p { margin: 4px 0 0; color: var(--rg-muted); font-size: 11px; line-height: 1.55; }
-.rg-section-decor { position: absolute; z-index: -1; width: 150px; pointer-events: none; opacity: 0.78; filter: drop-shadow(0 12px 14px rgb(113 59 74 / 0.1)); animation: rg-decor-float 7s ease-in-out infinite alternate; }
-.rg-family-decor { right: -27px; bottom: -24px; transform: rotate(18deg); }
-.rg-venue-decor { right: -34px; bottom: -29px; width: 176px; transform: rotate(-10deg); }
-.rg-rsvp-decor { right: -31px; bottom: -30px; width: 164px; opacity: 0.62; }
-.rg-guestbook-decor { left: -29px; bottom: -35px; transform: scaleX(-1) rotate(8deg); opacity: 0.72; }
-.rg-footer-decor { right: -42px; bottom: -55px; width: 210px; opacity: 0.18; }
-@keyframes rg-decor-float { from { translate: 0 3px; } to { translate: 0 -9px; } }
+.rg-rsvp {
+  background: #f9eeee;
+  text-align: center;
+}
+
+.rg-rsvp h2 {
+  max-width: 300px;
+  margin: 14px auto 12px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 39px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.94;
+}
+
+.rg-rsvp>p {
+  max-width: 280px;
+  margin: 0 auto;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-rsvp-choices {
+  display: grid;
+  gap: 9px;
+  margin-top: 27px;
+}
+
+.rg-rsvp-choices button {
+  display: block;
+  width: 100%;
+  border: 1px solid rgb(169 87 104 / 0.27);
+  border-radius: 999px;
+  padding: 13px 14px;
+  color: var(--rg-rose-deep);
+  background: rgb(255 250 248 / 0.6);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
+}
+
+.rg-rsvp-choices button:hover {
+  transform: translateY(-2px);
+}
+
+.rg-rsvp-choices button.is-selected {
+  border-color: var(--rg-rose);
+  background: rgb(236 190 196 / 0.34);
+  box-shadow: 0 8px 20px rgb(113 59 74 / 0.1);
+}
+
+.rg-rsvp-choices button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.rg-form-placeholder {
+  margin-top: 17px;
+  color: var(--rg-muted);
+  font-size: 10px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.rg-rsvp-form,
+.rg-wish-form {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  margin-top: 22px;
+}
+
+.rg-field {
+  display: grid;
+  gap: 6px;
+  color: var(--rg-muted);
+  font-size: 10px;
+  text-align: left;
+}
+
+.rg-field input,
+.rg-field textarea {
+  width: 100%;
+  border: 1px solid rgb(169 87 104 / 0.24);
+  border-radius: 12px;
+  padding: 12px 13px;
+  color: var(--rg-ink);
+  background: rgb(255 250 248 / 0.76);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+  resize: vertical;
+}
+
+.rg-field input:focus,
+.rg-field textarea:focus {
+  border-color: var(--rg-rose);
+  box-shadow: 0 0 0 3px rgb(169 87 104 / 0.12);
+}
+
+.rg-primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px;
+  color: #fffaf8;
+  background: var(--rg-rose-deep);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rg-primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.rg-form-error {
+  margin: 0;
+  color: #9f3e4a;
+  font-size: 10px;
+}
+
+.rg-form-success {
+  margin: 0;
+  color: var(--rg-rose-deep);
+  font-size: 10px;
+}
+
+.rg-guestbook {
+  background: #fffaf8;
+  text-align: center;
+}
+
+.rg-guestbook-icon {
+  display: block;
+  margin: 0 auto 18px;
+  color: var(--rg-rose);
+  font-size: 52px;
+}
+
+.rg-guestbook h2 {
+  max-width: 300px;
+  margin: 14px auto 12px;
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 39px;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.94;
+}
+
+.rg-guestbook>p {
+  max-width: 280px;
+  margin: 0 auto;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-wish-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 28px;
+  border-top: 1px solid rgb(169 87 104 / 0.18);
+  border-bottom: 1px solid rgb(169 87 104 / 0.18);
+  padding: 18px 4px;
+  color: var(--rg-muted);
+  font-size: 10px;
+  text-align: left;
+}
+
+.rg-wish-placeholder svg {
+  flex: 0 0 auto;
+  color: var(--rg-rose);
+}
+
+.rg-wish-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.rg-wish-list article {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid rgb(169 87 104 / 0.14);
+  padding-top: 12px;
+  text-align: left;
+}
+
+.rg-wish-list article>svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--rg-rose);
+}
+
+.rg-wish-list strong {
+  color: var(--rg-rose-deep);
+  font-size: 11px;
+}
+
+.rg-wish-list p {
+  margin: 4px 0 0;
+  color: var(--rg-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.rg-section-decor {
+  position: absolute;
+  z-index: -1;
+  width: 150px;
+  pointer-events: none;
+  opacity: 0.78;
+  filter: drop-shadow(0 12px 14px rgb(113 59 74 / 0.1));
+  animation: rg-decor-float 7s ease-in-out infinite alternate;
+}
+
+.rg-family-decor {
+  right: -27px;
+  bottom: -24px;
+  transform: rotate(18deg);
+}
+
+.rg-venue-decor {
+  right: -34px;
+  bottom: -29px;
+  width: 176px;
+  transform: rotate(-10deg);
+}
+
+.rg-rsvp-decor {
+  right: -31px;
+  bottom: -30px;
+  width: 164px;
+  opacity: 0.62;
+}
+
+.rg-guestbook-decor {
+  left: -29px;
+  bottom: -35px;
+  transform: scaleX(-1) rotate(8deg);
+  opacity: 0.72;
+}
+
+.rg-footer-decor {
+  right: -42px;
+  bottom: -55px;
+  width: 210px;
+  opacity: 0.18;
+}
+
+@keyframes rg-decor-float {
+  from {
+    translate: 0 3px;
+  }
+
+  to {
+    translate: 0 -9px;
+  }
+}
 
 /* Gift and music are compact utility moments, not generic full-width cards. */
-.rg-gift { background: #f6e6e5; text-align: center; }
-.rg-gift-icon { display: block; margin: 0 auto 15px; color: var(--rg-rose); font-size: 50px; }
-.rg-gift .rg-eyebrow { color: var(--rg-rose-deep); }
-.rg-gift > p { max-width: 270px; margin: 14px auto 0; color: var(--rg-muted); font-size: 12px; line-height: 1.7; }
-.rg-qr-placeholder { display: grid; width: 150px; height: 150px; place-items: center; margin: 26px auto 3px; border: 1px solid rgb(113 59 74 / 0.25); background: #fffaf8; }
-.rg-qr-placeholder span { color: var(--rg-rose); font-family: var(--font-wedding-display); font-size: 24px; letter-spacing: 0.12em; }
-.rg-qr-placeholder img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.rg-gift > .rg-muted-copy { font-size: 11px; }
-.rg-music { display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 12px; padding: 22px 28px; border-top: 1px solid rgb(169 87 104 / 0.15); border-bottom: 1px solid rgb(169 87 104 / 0.15); background: #fffaf8; }
-.rg-music-disc { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgb(169 87 104 / 0.34); border-radius: 50%; color: var(--rg-rose); }
-.rg-music-disc::before { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--rg-rose); content: ''; }
-.rg-music-disc svg { position: relative; z-index: 1; font-size: 17px; }
-.rg-music .rg-eyebrow { margin-bottom: 4px; font-size: 8px; }
-.rg-music strong { display: block; overflow: hidden; color: var(--rg-ink); font-family: var(--font-wedding-display); font-size: 16px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
-.rg-music-state { color: var(--rg-muted); font-size: 9px; }
+.rg-gift {
+  background: #f6e6e5;
+  text-align: center;
+}
 
-.rg-footer { display: grid; justify-items: center; min-height: 340px; padding-top: 92px; padding-bottom: 74px; background: #713b4a; color: #fffaf8; text-align: center; }
-.rg-footer > svg { margin-bottom: 19px; color: #f0b9bb; font-size: 31px; }
-.rg-footer .rg-eyebrow { color: #f0c6c5; }
-.rg-footer h2 { margin: 19px 0 14px; font-family: var(--font-wedding-display); font-size: 34px; font-weight: 400; letter-spacing: -0.055em; line-height: 0.95; }
-.rg-footer h2 i { color: #f0b9bb; font-family: var(--font-wedding-script); font-size: 0.72em; font-style: normal; }
-.rg-footer p { max-width: 270px; margin: 0; color: #e7c9ca; font-size: 11px; line-height: 1.7; }
-.rg-footer-media { display: block; width: min(100%, 240px); max-height: 160px; margin-top: 24px; border-radius: 100px 100px 6px 6px; object-fit: cover; object-position: center 35%; }
-.rg-footer-date { margin-top: 27px; color: #f0b9bb; font-size: 9px; font-weight: 800; letter-spacing: 0.3em; }
+.rg-gift-icon {
+  display: block;
+  margin: 0 auto 15px;
+  color: var(--rg-rose);
+  font-size: 50px;
+}
 
-.rg-preview-toolbar { position: fixed; z-index: 10; top: 16px; right: 16px; left: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 448px; margin-inline: auto; border: 1px solid rgb(113 59 74 / 0.16); border-radius: 999px; padding: 9px 12px 9px 16px; color: var(--rg-ink); background: rgb(255 250 248 / 0.9); box-shadow: 0 8px 24px rgb(81 41 52 / 0.1); backdrop-filter: blur(14px); }
-.rg-preview-toolbar div { display: grid; gap: 2px; min-width: 0; }
-.rg-preview-toolbar strong { color: var(--rg-rose-deep); font-family: var(--font-wedding-display); font-size: 16px; font-weight: 400; }
-.rg-preview-toolbar span { overflow: hidden; color: var(--rg-muted); font-size: 8px; letter-spacing: 0.06em; text-overflow: ellipsis; white-space: nowrap; }
-.rg-preview-toolbar a { flex: 0 0 auto; color: var(--rg-rose-deep); font-size: 9px; font-weight: 800; text-decoration: none; }
+.rg-gift .rg-eyebrow {
+  color: var(--rg-rose-deep);
+}
+
+.rg-gift>p {
+  max-width: 270px;
+  margin: 14px auto 0;
+  color: var(--rg-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rg-gift-envelope-box {
+  margin: 18px auto 12px;
+}
+
+.rg-gift .rg-gift-envelope-box+.rg-qr-placeholder {
+  margin-top: 10px;
+}
+
+.rg-qr-placeholder {
+  display: grid;
+  width: 150px;
+  height: 150px;
+  place-items: center;
+  margin: 26px auto 3px;
+  border: 1px solid rgb(113 59 74 / 0.25);
+  background: #fffaf8;
+}
+
+.rg-qr-placeholder span {
+  color: var(--rg-rose);
+  font-family: var(--font-wedding-display);
+  font-size: 24px;
+  letter-spacing: 0.12em;
+}
+
+.rg-qr-placeholder img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.rg-gift>.rg-muted-copy {
+  font-size: 11px;
+}
+
+.rg-music {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 28px;
+  border-top: 1px solid rgb(169 87 104 / 0.15);
+  border-bottom: 1px solid rgb(169 87 104 / 0.15);
+  background: #fffaf8;
+}
+
+.rg-music-disc {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgb(169 87 104 / 0.34);
+  border-radius: 50%;
+  color: var(--rg-rose);
+}
+
+.rg-music-disc::before {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rg-rose);
+  content: '';
+}
+
+.rg-music-disc svg {
+  position: relative;
+  z-index: 1;
+  font-size: 17px;
+}
+
+.rg-music .rg-eyebrow {
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+
+.rg-music strong {
+  display: block;
+  overflow: hidden;
+  color: var(--rg-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 16px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rg-music-state {
+  color: var(--rg-muted);
+  font-size: 9px;
+}
+
+.rg-footer {
+  display: grid;
+  justify-items: center;
+  min-height: 340px;
+  padding-top: 92px;
+  padding-bottom: 74px;
+  background: #713b4a;
+  color: #fffaf8;
+  text-align: center;
+}
+
+.rg-footer>svg {
+  margin-bottom: 19px;
+  color: #f0b9bb;
+  font-size: 31px;
+}
+
+.rg-footer .rg-eyebrow {
+  color: #f0c6c5;
+}
+
+.rg-footer h2 {
+  margin: 19px 0 14px;
+  font-family: var(--font-wedding-display);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.rg-footer h2 i {
+  color: #f0b9bb;
+  font-family: var(--font-wedding-script);
+  font-size: 0.72em;
+  font-style: normal;
+}
+
+.rg-footer p {
+  max-width: 270px;
+  margin: 0;
+  color: #e7c9ca;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.rg-footer-media {
+  display: block;
+  width: min(100%, 240px);
+  max-height: 160px;
+  margin-top: 24px;
+  border-radius: 100px 100px 6px 6px;
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+.rg-footer-date {
+  margin-top: 27px;
+  color: #f0b9bb;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+}
+
+.rg-preview-toolbar {
+  position: fixed;
+  z-index: 10;
+  top: 16px;
+  right: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 448px;
+  margin-inline: auto;
+  border: 1px solid rgb(113 59 74 / 0.16);
+  border-radius: 999px;
+  padding: 9px 12px 9px 16px;
+  color: var(--rg-ink);
+  background: rgb(255 250 248 / 0.9);
+  box-shadow: 0 8px 24px rgb(81 41 52 / 0.1);
+  backdrop-filter: blur(14px);
+}
+
+.rg-preview-toolbar div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rg-preview-toolbar strong {
+  color: var(--rg-rose-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.rg-preview-toolbar span {
+  overflow: hidden;
+  color: var(--rg-muted);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rg-preview-toolbar a {
+  flex: 0 0 auto;
+  color: var(--rg-rose-deep);
+  font-size: 9px;
+  font-weight: 800;
+  text-decoration: none;
+}
 
 @media (min-width: 481px) {
-  .rg-invitation { box-shadow: 0 0 70px rgb(81 41 52 / 0.2); }
+  .rg-invitation {
+    box-shadow: 0 0 70px rgb(81 41 52 / 0.2);
+  }
 }
+
 @media (max-width: 360px) {
-  .rg-cover, .rg-invitation-letter, .rg-families, .rg-event-details, .rg-countdown, .rg-timeline, .rg-venue, .rg-gallery, .rg-rsvp, .rg-guestbook, .rg-gift, .rg-footer { padding-inline: 21px; }
-  .rg-gallery-rail { margin-inline: -21px; padding-inline: 21px; }
-  .rg-section-number { right: 21px; }
+
+  .rg-cover,
+  .rg-invitation-letter,
+  .rg-families,
+  .rg-event-details,
+  .rg-countdown,
+  .rg-timeline,
+  .rg-venue,
+  .rg-gallery,
+  .rg-rsvp,
+  .rg-guestbook,
+  .rg-gift,
+  .rg-footer {
+    padding-inline: 21px;
+  }
+
+  .rg-gallery-rail {
+    margin-inline: -21px;
+    padding-inline: 21px;
+  }
+
+  .rg-section-number {
+    right: 21px;
+  }
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .rg-opening,
   .rg-opening-stage,
   .rg-opening-layer,
@@ -485,21 +2196,78 @@
   .rg-gallery-rail figure,
   .rg-opening-trigger,
   .rg-memory-card,
+  .rg-letter-rose-decor,
+  .rg-memory-triptych::before,
+  .rg-memory-triptych::after,
   .rg-section-decor,
-  .rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content > *,
+  .rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content>*,
   .rg-motion-ready .rg-body-section:not(.rg-opening),
-  .rg-invitation:not(.is-opened) .rg-body-section:not(.rg-opening) { transition: none; }
-  .rg-motion-ready .rg-body-section:not(.rg-opening) { opacity: 1; transform: none; }
-  .rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content > * { opacity: 1; transform: none; animation: none; }
+  .rg-invitation:not(.is-opened) .rg-body-section:not(.rg-opening) {
+    transition: none;
+  }
+
+  .rg-motion-ready .rg-body-section:not(.rg-opening) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .rg-motion-ready .rg-body-section:not(.rg-opening).rg-motion-content>* {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .rg-motion-ready .rg-cover.rg-motion-content.is-visible>.reveal--slide-right {
+    animation: none;
+    translate: none;
+  }
+
+  .rg-motion-ready .rg-cover.rg-motion-content.is-visible .rg-cover-copy h2>span {
+    animation: none;
+    transform: none;
+  }
+
+  .rg-date-heart {
+    animation: none;
+    transform: rotate(12deg);
+  }
+
+  .rg-motion-ready .rg-invitation-letter.rg-motion-content.is-visible > .rg-invitation-eyebrow {
+    animation: none;
+    transform: none;
+  }
+
+  .rg-memory-card,
+  .rg-letter-rose-decor,
+  .rg-memory-triptych::before,
+  .rg-memory-triptych::after {
+    animation: none;
+    translate: none;
+  }
+
   .rg-timeline-bloom,
-  .rg-timeline li:hover .rg-timeline-bloom { opacity: 0.36; transform: none; }
-  .rg-atmosphere-active .rg-cover-petal { animation: none; opacity: 0; }
-  .rg-gallery-rail figure:hover { filter: none; transform: none; }
+  .rg-timeline li:hover .rg-timeline-bloom {
+    opacity: 0.36;
+    transform: none;
+  }
+
+  .rg-atmosphere-active .rg-cover-petal {
+    animation: none;
+    opacity: 0;
+  }
+
+  .rg-gallery-rail figure:hover {
+    filter: none;
+    transform: none;
+  }
 }
+
 .rg-document-hidden .rg-glint,
 .rg-document-hidden .rg-backdrop::before,
 .rg-document-hidden .rg-cover-petal,
-.rg-page:not(.rg-atmosphere-active) .rg-cover-petal { animation-play-state: paused; }
+.rg-page:not(.rg-atmosphere-active) .rg-cover-petal {
+  animation-play-state: paused;
+}
 
 /* Opening gate: full-viewport garden backdrop and direct artwork interaction. */
 .rg-opening {
@@ -512,6 +2280,7 @@
     linear-gradient(145deg, #5f3547 0%, #8d4c5e 48%, #3f2938 100%);
   color: #fffaf8;
 }
+
 .rg-opening::before {
   position: absolute;
   inset: 0;
@@ -522,6 +2291,7 @@
   background-size: 13px 13px;
   mix-blend-mode: screen;
 }
+
 .rg-opening-stage {
   height: min(52dvh, 360px);
   width: auto;
@@ -529,15 +2299,51 @@
   cursor: pointer;
   outline: none;
 }
-.rg-opening-stage:focus-visible { border-radius: 10px; box-shadow: 0 0 0 3px rgb(255 242 222 / 0.84), 0 24px 26px rgb(83 38 52 / 0.2); }
-.rg-opening-copy { position: relative; z-index: 1; max-width: 340px; }
-.rg-opening-copy .rg-eyebrow { color: #f9d4c9; }
-.rg-opening-copy h1 { color: #fffaf8; }
-.rg-opening-copy p { color: #f6dfe0; }
-.rg-opening-trigger { position: relative; z-index: 2; }
+
+.rg-opening-stage:focus-visible {
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px rgb(255 242 222 / 0.84), 0 24px 26px rgb(83 38 52 / 0.2);
+}
+
+.rg-opening-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 340px;
+}
+
+.rg-opening-copy .rg-eyebrow {
+  color: #f9d4c9;
+}
+
+.rg-opening-copy h1 {
+  color: #fffaf8;
+}
+
+.rg-opening-copy p {
+  color: #f6dfe0;
+}
+
+.rg-opening-trigger {
+  position: relative;
+  z-index: 2;
+}
+
 @media (max-height: 640px) {
-  .rg-opening { gap: 12px; padding-block: 16px 24px; }
-  .rg-opening-stage { height: min(43dvh, 270px); }
-  .rg-opening h1 { margin-block: 10px 8px; font-size: clamp(38px, 12vw, 58px); }
-  .rg-opening-copy p { margin-block: 8px; }
+  .rg-opening {
+    gap: 12px;
+    padding-block: 16px 24px;
+  }
+
+  .rg-opening-stage {
+    height: min(43dvh, 270px);
+  }
+
+  .rg-opening h1 {
+    margin-block: 10px 8px;
+    font-size: clamp(38px, 12vw, 58px);
+  }
+
+  .rg-opening-copy p {
+    margin-block: 8px;
+  }
 }

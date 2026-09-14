@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 
 import { roseGardenFixture, roseGardenSectionConfig } from './fixture'
 import { RoseGardenInvitation } from './RoseGardenInvitation'
@@ -30,6 +31,11 @@ describe('RoseGardenInvitation', () => {
     expect(renderedKeys).toEqual(expect.arrayContaining(configuredKeys))
     expect(container.querySelector('[data-editor-section="opening"]')).toHaveClass('classic-card-cover')
     expect(container.querySelectorAll('.classic-card-cover__flower')).toHaveLength(2)
+    const hearts = container.querySelectorAll<HTMLElement>('.classic-card-cover__heart')
+    expect(hearts).toHaveLength(24)
+    expect(container.querySelectorAll('.classic-card-cover__heart--large')).toHaveLength(3)
+    expect(hearts[0]?.style.getPropertyValue('--classic-card-cover-heart-left')).not.toBe('')
+    expect(hearts[0]?.style.getPropertyValue('--classic-card-cover-heart-mid-drift-x')).not.toBe('')
     expect(screen.getByRole('heading', { name: 'Ngày mình chung đôi' })).toBeInTheDocument()
     expect(screen.getByText('Hai gia đình trân trọng báo tin')).toBeInTheDocument()
   })
@@ -56,6 +62,34 @@ describe('RoseGardenInvitation', () => {
 
     expect(trigger).toBeDisabled()
     await waitFor(() => expect(container.querySelector('[data-editor-section="cover"]')).toHaveFocus())
+  })
+
+  it('keeps the opening card mounted through its exit-animation fallback', () => {
+    const originalMatchMedia = window.matchMedia
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: () => ({ matches: false }),
+    })
+    try {
+      const { container } = render(<RoseGardenInvitation />)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Chạm để mở thiệp' }))
+
+      const opening = container.querySelector('[data-editor-section="opening"]')
+      expect(opening).toHaveClass('is-opening')
+      expect(opening).not.toHaveClass('is-open')
+
+      act(() => vi.advanceTimersByTime(1199))
+      expect(opening).toHaveClass('is-opening')
+
+      act(() => vi.advanceTimersByTime(1))
+      expect(opening).toHaveClass('is-open')
+      expect(opening).not.toHaveClass('is-opening')
+    } finally {
+      vi.useRealTimers()
+      Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
+    }
   })
 
   it.each(optionalKeys)('removes optional section %s without removing required content', (key) => {
@@ -155,7 +189,8 @@ describe('RoseGardenInvitation', () => {
 
     expect(container.querySelector('.rg-cover-art .rg-empty-artwork')).toBeInTheDocument()
     expect(container.querySelector('.rg-cover-art .rg-user-media')).not.toBeInTheDocument()
-    expect(container.querySelector('.rg-cover-decor')).toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-main-hero')).toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-decor')).not.toBeInTheDocument()
     expect(container.querySelectorAll('.rg-memory-card .rg-user-media')).toHaveLength(0)
     expect(container.querySelectorAll('.rg-memory-card .rg-empty-artwork')).toHaveLength(3)
     expect(container.querySelector('.rg-letter-decor')).toBeInTheDocument()
@@ -199,5 +234,18 @@ describe('RoseGardenInvitation', () => {
     expect(container.querySelectorAll('.rg-cover-petal')).toHaveLength(9)
     expect(container.querySelector('.rg-cover-petal-cluster')).toHaveAttribute('alt', '')
     expect(container.querySelector('.rg-gallery')).toBeInTheDocument()
+    expect(container.querySelector('.rg-gift-envelope-box')).toBeInTheDocument()
+    expect(container.querySelectorAll('.gift-envelope-box__image')).toHaveLength(2)
+    expect(container.querySelectorAll('.gift-envelope-box__particles i')).toHaveLength(10)
+    expect(container.querySelector('.gift-envelope-box__particles i')).toHaveTextContent('♥')
+    expect(container.querySelector('.gift-envelope-box__particles img')).not.toBeInTheDocument()
+    expect(container.querySelector('.gift-envelope-box__image--back')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-closed-card.png',
+    )
+    expect(container.querySelector('.gift-envelope-box__image--front')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-closed-card.png',
+    )
   })
 })

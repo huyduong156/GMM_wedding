@@ -10,35 +10,64 @@
   overflow: hidden;
   background: #3e2835 var(--classic-card-cover-bg, none) center / cover no-repeat;
   color: var(--classic-card-cover-ink);
-  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 720ms;
 }
 
-.classic-card-cover__hearts { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
-.classic-card-cover__hearts span { position: absolute; bottom: -12%; color: rgb(255 246 244 / 0.2); font-size: clamp(14px, 2.4vw, 30px); line-height: 1; animation: classic-card-cover-heart-float 12s linear infinite; }
-.classic-card-cover__hearts span:nth-child(1) { left: 5%; animation-delay: -2s; animation-duration: 14s; }
-.classic-card-cover__hearts span:nth-child(2) { left: 13%; font-size: 18px; animation-delay: -8s; animation-duration: 11s; }
-.classic-card-cover__hearts span:nth-child(3) { left: 22%; animation-delay: -5s; animation-duration: 16s; }
-.classic-card-cover__hearts span:nth-child(4) { left: 31%; font-size: 16px; animation-delay: -10s; animation-duration: 13s; }
-.classic-card-cover__hearts span:nth-child(5) { left: 42%; animation-delay: -1s; animation-duration: 15s; }
-.classic-card-cover__hearts span:nth-child(6) { left: 52%; font-size: 20px; animation-delay: -7s; animation-duration: 12s; }
-.classic-card-cover__hearts span:nth-child(7) { left: 63%; animation-delay: -11s; animation-duration: 17s; }
-.classic-card-cover__hearts span:nth-child(8) { left: 72%; font-size: 17px; animation-delay: -4s; animation-duration: 13s; }
-.classic-card-cover__hearts span:nth-child(9) { left: 81%; animation-delay: -9s; animation-duration: 15s; }
-.classic-card-cover__hearts span:nth-child(10) { left: 91%; font-size: 16px; animation-delay: -3s; animation-duration: 12s; }
-.classic-card-cover__hearts span:nth-child(11) { left: 36%; font-size: 13px; animation-delay: -13s; animation-duration: 18s; }
-.classic-card-cover__hearts span:nth-child(12) { left: 58%; font-size: 14px; animation-delay: -6s; animation-duration: 14s; }
-.classic-card-cover__hearts span:nth-child(13) { left: 76%; font-size: 12px; animation-delay: -12s; animation-duration: 16s; }
-.classic-card-cover__hearts span:nth-child(14) { left: 17%; font-size: 13px; animation-delay: -15s; animation-duration: 19s; }
-@keyframes classic-card-cover-heart-float { 0% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(0.75); opacity: 0; } 12% { opacity: 0.2; } 48% { transform: translate3d(18px, -48vh, 0) rotate(14deg) scale(1); opacity: 0.16; } 82% { opacity: 0.12; } 100% { transform: translate3d(-14px, -112vh, 0) rotate(-12deg) scale(0.9); opacity: 0; } }
+.classic-card-cover__hearts {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.classic-card-cover__heart {
+  position: absolute;
+  bottom: -12%;
+  left: var(--classic-card-cover-heart-left);
+  color: var(--classic-card-cover-heart-color);
+  font-size: var(--classic-card-cover-heart-size);
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 2px 16px rgb(255 228 231 / 0.25);
+  will-change: transform, opacity;
+  animation: classic-card-cover-heart-float var(--classic-card-cover-heart-duration) cubic-bezier(0.42, 0, 0.58, 1) var(--classic-card-cover-heart-delay) infinite;
+}
+
+@keyframes classic-card-cover-heart-float {
+  0% {
+    transform: translate3d(var(--classic-card-cover-heart-start-x), 0, 0) rotate(var(--classic-card-cover-heart-rotate)) scale(0.72);
+    opacity: 0;
+  }
+
+  14% {
+    opacity: var(--classic-card-cover-heart-opacity);
+  }
+
+  54% {
+    transform: translate3d(var(--classic-card-cover-heart-mid-drift-x), var(--classic-card-cover-heart-mid-rise), 0) rotate(var(--classic-card-cover-heart-rotate)) scale(1);
+    opacity: var(--classic-card-cover-heart-opacity);
+  }
+
+  84% {
+    opacity: var(--classic-card-cover-heart-fade-opacity);
+  }
+
+  100% {
+    transform: translate3d(var(--classic-card-cover-heart-drift-x), var(--classic-card-cover-heart-end-rise), 0) rotate(var(--classic-card-cover-heart-end-rotate)) scale(0.88);
+    opacity: 0;
+  }
+}
+
 .classic-card-cover__wash {
   position: absolute;
+  z-index: 0;
   inset: 0;
   background: linear-gradient(to bottom right, #6e1a20, #511419, #380a0e);
 }
 
 .classic-card-cover__card-shell {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: min(88vw, calc(68vh * 1.5), 780px);
   aspect-ratio: 3 / 2;
   perspective: 1200px;
@@ -114,16 +143,40 @@
 }
 
 .classic-card-cover__seal {
+  --classic-card-cover-seal-cycle: 2.78s;
+  --classic-card-cover-seal-second-ripple-delay: 645ms;
+  position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
   width: clamp(38px, 5vw, 58px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: rgb(72 30 49 / 0.32);
-  animation: classic-card-cover-heartbeat 2.4s ease-in-out infinite;
+  animation: classic-card-cover-heartbeat var(--classic-card-cover-seal-cycle) cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+.classic-card-cover__seal::before,
+.classic-card-cover__seal::after {
+  position: absolute;
+  z-index: 0;
+  inset: -2px;
+  border: 1px solid rgb(169 87 104 / 0.72);
+  border-radius: inherit;
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: classic-card-cover-seal-ripple var(--classic-card-cover-seal-cycle) linear infinite;
+}
+
+.classic-card-cover__seal::after {
+  animation-delay: var(--classic-card-cover-seal-second-ripple-delay);
 }
 
 .classic-card-cover__seal>span {
+  position: relative;
+  z-index: 1;
   display: block;
   font-size: clamp(18px, 2.8vw, 30px);
   line-height: 1;
@@ -252,8 +305,20 @@
   animation: classic-card-cover-flower-right 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+.classic-card-cover.is-opening .classic-card-cover__seal {
+  animation: classic-card-cover-seal-exit 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-card-cover.is-opening .classic-card-cover__seal::before {
+  animation: classic-card-cover-seal-ripple-exit 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-card-cover.is-opening .classic-card-cover__seal::after {
+  animation: classic-card-cover-seal-ripple-exit 1280ms cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+}
+
 .classic-card-cover.is-opening .classic-card-cover__card {
-  animation: classic-card-cover-card-exit 2400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: classic-card-cover-card-exit 2200ms linear forwards;
 }
 
 @keyframes classic-card-cover-heartbeat {
@@ -263,20 +328,70 @@
     transform: scale(1);
   }
 
-  14% {
-    transform: scale(1.035);
+  13% {
+    transform: scale(1.105);
   }
 
-  28% {
-    transform: scale(0.995);
+  26.5% {
+    transform: scale(0.975);
   }
 
-  42% {
-    transform: scale(1.018);
+  41.5% {
+    transform: scale(1.06);
   }
 
-  54% {
+  60.5% {
     transform: scale(1);
+  }
+}
+
+@keyframes classic-card-cover-seal-ripple {
+
+  0%,
+  15.7% {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+
+  18% {
+    transform: scale(0.95);
+    opacity: 0.3;
+  }
+
+  23% {
+    transform: scale(0.98);
+    opacity: 0.55;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  68%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes classic-card-cover-seal-exit {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.38);
+    opacity: 0;
+  }
+}
+
+@keyframes classic-card-cover-seal-ripple-exit {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: scale(4.2);
+    opacity: 0;
   }
 }
 
@@ -322,23 +437,122 @@
 }
 
 @keyframes classic-card-cover-card-exit {
-  0% { transform: translateY(0); opacity: 1; }
-  8% { transform: translateY(8px); opacity: 1; }
-  10% { transform: translateY(10px); opacity: 1; }
-  16% { transform: translateY(10px); opacity: 1; }
-  100% { transform: translateY(-110vh); opacity: 0; }
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  /* Lún xuống + nghiêng nhẹ sang phải */
+  10% {
+    transform: translateY(5px) rotate(0.4deg);
+    opacity: 1;
+  }
+  /* Lún xuống + nghiêng nhẹ sang phải */
+  12% {
+    transform: translateY(7px) rotate(0.7deg);
+    opacity: 1;
+  }
+  /* Lún xuống + nghiêng nhẹ sang phải */
+  13%, 14% {
+    transform: translateY(8px) rotate(1.5deg);
+    opacity: 1;
+  }
+  /* Lún xuống + nghiêng nhẹ sang phải */
+  15% {
+    transform: translateY(7px) rotate(0.7deg);
+    opacity: 1;
+  }
+
+  /* Lún xuống + nghiêng nhẹ sang phải */
+  17% {
+    transform: translateY(5px) rotate(0.4deg);
+    opacity: 1;
+  }
+
+  /* Bắt đầu bay */
+  18% {
+    transform: translateY(-20px) rotate(0);
+    opacity: 1;
+  }
+
+  /* Bắt đầu bay */
+  40% {
+    opacity: 0;
+  }
+
+  /* Bay liên tục khỏi màn hình */
+  100% {
+    transform: translateY(-160vh) rotate(0);
+    opacity: 0;
+  }
 }
 
 .classic-card-cover.is-open {
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
-@media (max-width: 600px) { .classic-card-cover__card-shell { width: min(92vw, calc(56vh * 1.5)); } .classic-card-cover__content { max-width: 64%; } .classic-card-cover__flower { width: 27%; } }
+@media (max-width: 600px) {
+  .classic-card-cover__card-shell {
+    width: min(92vw, calc(64svh * 1.25), 430px);
+    aspect-ratio: 5 / 4;
+  }
+
+  .classic-card-cover__content {
+    width: 64%;
+    max-width: 260px;
+    min-width: 0;
+  }
+
+  .classic-card-cover__flower {
+    width: 28%;
+    height: 66%;
+  }
+
+  .classic-card-cover h1 {
+    width: 100%;
+    margin: 10px 0 8px;
+    font-size: clamp(24px, 7.3vw, 34px);
+    line-height: 0.94;
+  }
+
+  .classic-card-cover h1 span,
+  .classic-card-cover__date,
+  .classic-card-cover__venue,
+  .classic-card-cover__note {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .classic-card-cover__date,
+  .classic-card-cover__venue,
+  .classic-card-cover__note {
+    font-size: clamp(8px, 2.45vw, 10px);
+    line-height: 1.35;
+  }
+
+  .classic-card-cover__date {
+    letter-spacing: 0.13em;
+  }
+
+  .classic-card-cover__note {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .classic-card-cover__open {
+    margin-top: 10px;
+    padding: 8px 14px;
+    font-size: 9px;
+  }
+}
+
 @media (max-height: 620px) {
   .classic-card-cover__card-shell {
     width: min(88vw, calc(60vh * 1.5), 680px);
+    aspect-ratio: 3 / 2;
   }
 
   .classic-card-cover__content {
@@ -348,6 +562,17 @@
   .classic-card-cover__open {
     margin-top: 10px;
     padding-block: 8px;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 620px) {
+  .classic-card-cover h1 {
+    margin: 7px 0 5px;
+    font-size: clamp(22px, 6.4vw, 28px);
+  }
+
+  .classic-card-cover__note {
+    -webkit-line-clamp: 1;
   }
 }
 
@@ -362,8 +587,30 @@
     transition: none;
   }
 
+  .classic-card-cover__seal::before,
+  .classic-card-cover__seal::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .classic-card-cover__heart {
+    animation: none;
+    opacity: 0.1;
+    transform: translate3d(var(--classic-card-cover-heart-start-x), var(--classic-card-cover-heart-static-rise), 0) rotate(var(--classic-card-cover-heart-rotate));
+  }
+
   .classic-card-cover.is-opening .classic-card-cover__card {
     transform: none;
     opacity: 0;
   }
+}
+
+.classic-card-cover.is-document-hidden .classic-card-cover__heart {
+  animation-play-state: paused;
+}
+
+.classic-card-cover.is-document-hidden .classic-card-cover__seal,
+.classic-card-cover.is-document-hidden .classic-card-cover__seal::before,
+.classic-card-cover.is-document-hidden .classic-card-cover__seal::after {
+  animation-play-state: paused;
 }

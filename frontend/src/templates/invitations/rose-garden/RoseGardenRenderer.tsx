@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
+import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
 import '../../../shared/styles/reveal-animations.css'
 
 import { roseGardenFixture, roseGardenSectionConfig } from './fixture'
@@ -74,7 +75,6 @@ const rendererDecor = {
   openingTriangle: `${artworkRoot}/rg-opening-triangle-flap.png`,
   openingFront: `${artworkRoot}/rg-opening-front-frame.png`,
   botanical: `${artworkRoot}/rg-botanical-cluster-v1.png`,
-  envelope: `${artworkRoot}/rg-garden-envelope-vignette-v1.png`,
   divider: `${artworkRoot}/rg-pressed-flower-divider.png`,
   giftCharm: `${artworkRoot}/rg-gift-botanical-charm.png`,
   timelineBloom: `${artworkRoot}/rg-timeline-bloom.png`,
@@ -100,6 +100,7 @@ const fixedSectionKeys = new Set<RoseGardenSectionKey>([
   'music',
   'footer',
 ])
+const openingExitFallbackMs =1200
 
 function mediaSource(value: string | RoseGardenMedia | null | undefined): string {
   return typeof value === 'string' ? value : value?.src ?? ''
@@ -226,14 +227,21 @@ const motionVariants = ['reveal--fade-up', 'reveal--slide-left', 'reveal--slide-
 function motionize(node: ReactNode, depth = 0, siblingIndex = 0): ReactNode {
   if (!isValidElement<MotionElementProps>(node)) return node
   const variant = motionVariants[(depth + siblingIndex) % motionVariants.length]
+  const existingClassName = node.props.className ?? ''
+  const hasRevealClass = existingClassName.split(/\s+/).includes('reveal')
+    || existingClassName.split(/\s+/).includes('rg-date-line')
+    || existingClassName.split(/\s+/).includes('rg-date-heart')
+    || existingClassName.split(/\s+/).includes('rg-invitation-eyebrow')
   const nestedChildren = node.props.children === undefined
     ? undefined
     : Children.map(node.props.children, (child, index) => motionize(child, depth + 1, index))
   return cloneElement(
     node,
     {
-      className: `${node.props.className ?? ''} reveal ${variant}`.trim(),
-      style: { ...node.props.style, '--reveal-delay': `${Math.min((depth + siblingIndex) * 0.08, 0.56)}s` } as CSSProperties,
+      className: hasRevealClass ? existingClassName : `${existingClassName} reveal ${variant}`.trim(),
+      style: hasRevealClass
+        ? node.props.style
+        : { ...node.props.style, '--reveal-delay': `${Math.min((depth + siblingIndex) * 0.08, 0.56)}s` } as CSSProperties,
     },
     nestedChildren,
   )
@@ -266,6 +274,19 @@ function SectionFrame({
 }
 function SectionEyebrow({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <span className={`rg-eyebrow ${className}`.trim()}>{children}</span>
+}
+
+function WaveTitle({ children, className = '', style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
+  const text = String(children ?? '')
+  return (
+    <h2 className={className} style={style} aria-label={text}>
+      {Array.from(text).map((character, index) => (
+        <span key={`${character}-${index}`} style={{ '--wave-index': index } as CSSProperties}>
+          {character === ' ' ? '\u00a0' : character}
+        </span>
+      ))}
+    </h2>
+  )
 }
 
 function Artwork({ src, alt, className = '', eager = false }: { src: string; alt: string; className?: string; eager?: boolean }) {
@@ -425,19 +446,29 @@ export function RoseGardenRenderer({
     if (openingTimerRef.current !== null) window.clearTimeout(openingTimerRef.current)
   }, [])
 
+  const focusCover = () => {
+    requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus({ preventScroll: true }))
+  }
+
+  const completeOpening = () => {
+    if (openingTimerRef.current !== null) {
+      window.clearTimeout(openingTimerRef.current)
+      openingTimerRef.current = null
+    }
+    setOpeningState((current) => current === 'opening' ? 'opened' : current)
+    focusCover()
+  }
+
   const openInvitation = () => {
     if (openingState !== 'closed') return
-    setOpeningState('opening')
     const reduced = typeof window.matchMedia !== 'function' || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const finishOpening = () => {
-      setOpeningState('opened')
-      requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus({ preventScroll: true }))
-    }
     if (reduced) {
-      finishOpening()
-    } else {
-      openingTimerRef.current = window.setTimeout(finishOpening, 2050)
+      setOpeningState('opened')
+      focusCover()
+      return
     }
+    setOpeningState('opening')
+    openingTimerRef.current = window.setTimeout(completeOpening, openingExitFallbackMs)
   }
 
   const sendRsvp = async () => {
@@ -495,14 +526,15 @@ export function RoseGardenRenderer({
       case 'cover':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-cover" tabIndex={-1}>
-            <div className="rg-cover-art">
-              {content.heroMedia?.src ? (
-                <Artwork src={content.heroMedia.src} alt={content.heroMedia.alt || 'Ảnh bìa thiệp'} className="rg-user-media" eager />
-              ) : (
-                <EmptyArtwork label="Ảnh bìa thiệp · Chưa tải ảnh" />
-              )}
-              <Artwork src={rendererDecor.envelope} alt="" className="rg-cover-decor" />
-              <span className="rg-cover-art-index">01 / 14</span>
+            <div className="rg-cover-main-hero">
+              <div className="rg-cover-art">
+                {content.heroMedia?.src ? (
+                  <Artwork src={content.heroMedia.src} alt={content.heroMedia.alt || 'Ảnh bìa thiệp'} className="rg-user-media" eager />
+                ) : (
+                  <EmptyArtwork label="Ảnh bìa thiệp · Chưa tải ảnh" />
+                )}
+                <span className="rg-cover-art-index">01 / 14</span>
+              </div>
             </div>
             <div className="rg-cover-atmosphere" aria-hidden="true">
               <Artwork src={rendererDecor.petalCluster} alt="" className="rg-cover-petal-cluster" />
@@ -510,10 +542,10 @@ export function RoseGardenRenderer({
             </div>
             <div className="rg-cover-copy">
               <SectionEyebrow>{content.cover.eyebrow}</SectionEyebrow>
-              <h2>{content.cover.title}</h2>
+              <WaveTitle>{content.cover.title}</WaveTitle>
               <p>{content.cover.message}</p>
               <div className="rg-name-lockup"><strong>{content.couple.brideName}</strong><i>&amp;</i><strong>{content.couple.groomName}</strong></div>
-              <span className="rg-date-line">{content.event.weddingDate}</span>
+              <span className="rg-date-line"><span>{content.event.weddingDate}</span><i className="rg-date-heart" aria-hidden="true">♥</i></span>
             </div>
           </SectionFrame>
         )
@@ -521,18 +553,19 @@ export function RoseGardenRenderer({
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-invitation-letter">
             <div className="rg-section-number">02 <span>/ 14</span></div>
-            <SectionEyebrow>Lời mời từ khu vườn</SectionEyebrow>
+            <SectionEyebrow className="rg-invitation-eyebrow">Lời mời từ khu vườn</SectionEyebrow>
             <h2>{personalize(content.invitation.title, guestName)}</h2>
             <p className="rg-lead">{personalize(content.invitation.message, guestName)}</p>
+            <Artwork src={rendererDecor.petalCluster} alt="" className="rg-letter-rose-decor reveal reveal--fade-up" />
             <div className="rg-memory-triptych">
               {memoryImages.map((src, index) => (
                 <figure key={`${src}-${index}`} className={`rg-memory-card rg-memory-card-${index + 1}`}>
                   {src ? <Artwork src={src} alt={`Khoảnh khắc của cô dâu chú rể ${index + 1}`} className="rg-user-media" /> : <EmptyArtwork label={`Ảnh ký ức ${index + 1} · Chưa tải ảnh`} />}
-                  <figcaption>mảnh vườn {String(index + 1).padStart(2, '0')}</figcaption>
+                  <figcaption>memories {String(index + 1).padStart(2, '0')}</figcaption>
                 </figure>
               ))}
             </div>
-            <Artwork src={rendererDecor.botanical} alt="" className="rg-letter-decor" />
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-letter-decor reveal reveal--slide-left" />
           </SectionFrame>
         )
       case 'families':
@@ -660,6 +693,11 @@ export function RoseGardenRenderer({
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-gift">
             <div className="rg-section-number">09 <span>/ 14</span></div><Gift className="rg-gift-icon" weight="thin" /><SectionEyebrow>{content.gift.title}</SectionEyebrow><p>{content.gift.message}</p>
+            <GiftEnvelopeBox
+              className="rg-gift-envelope-box"
+              cardSrc={rendererDecor.openingClosed}
+              decorative
+            />
             <div className="rg-qr-placeholder">{content.giftQrMedia?.src ? <Artwork src={content.giftQrMedia.src} alt="Mã QR mừng cưới" className="rg-user-media" /> : <span>QR</span>}</div>{content.gift.thankYouMessage ? <p className="rg-muted-copy">{content.gift.thankYouMessage}</p> : null}
           </SectionFrame>
         )
@@ -704,6 +742,7 @@ export function RoseGardenRenderer({
         isOpen={opened}
         isOpening={openingState === 'opening'}
         onOpen={openInvitation}
+        onOpeningComplete={completeOpening}
       />
       <main className={`rg-invitation ${opened ? 'is-opened' : 'is-closed'} ${openingState === 'opening' ? 'is-opening' : ''}`} aria-label="Thiệp cưới Rose Garden">
         <div className="rg-invitation-decor rg-invitation-decor-top" aria-hidden="true" /><div className="rg-invitation-decor rg-invitation-decor-bottom" aria-hidden="true" />
