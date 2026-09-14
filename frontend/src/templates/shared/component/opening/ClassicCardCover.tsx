@@ -16,6 +16,7 @@ export type ClassicCardCoverProps = {
   date?: ReactNode
   venue?: ReactNode
   note?: ReactNode
+  eyebrow?: ReactNode
   leftDecorationSrc?: string
   rightDecorationSrc?: string
   decorationAlt?: string
@@ -78,6 +79,7 @@ export function ClassicCardCover({
   date,
   venue,
   note,
+  eyebrow,
   leftDecorationSrc,
   rightDecorationSrc,
   decorationAlt = '',
@@ -162,6 +164,7 @@ export function ClassicCardCover({
             <span className="classic-card-cover__seal" aria-label="Tình yêu của cô dâu chú rể">
               <span aria-hidden="true">♥</span>
             </span>
+            {eyebrow ? <span className="classic-card-cover__eyebrow">{eyebrow}</span> : null}
             <h1><span>{brideName}</span><em>&amp;</em><span>{groomName}</span></h1>
             {date ? <p className="classic-card-cover__date">{date}</p> : null}
             {venue ? <p className="classic-card-cover__venue">{venue}</p> : null}

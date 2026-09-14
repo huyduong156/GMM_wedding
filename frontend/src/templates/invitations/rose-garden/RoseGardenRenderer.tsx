@@ -1,7 +1,8 @@
 import { Children, cloneElement, isValidElement, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
-  ArrowDown,
   ArrowUpRight,
+  CaretLeft,
+  CaretRight,
   CalendarBlank,
   Clock,
   EnvelopeSimple,
@@ -45,7 +46,13 @@ type ResolvedData = {
     brideSide: Required<RoseGardenFamilySide>
     groomSide: Required<RoseGardenFamilySide>
   }
-  eventDetails: { title: string; date: string; time: string; calendarUrl: string; message: string }
+  eventDetails: {
+    title: string
+    date: string
+    items: NonNullable<NonNullable<RoseGardenData['eventDetails']>['items']>
+    calendarUrl: string
+    message: string
+  }
   eventDetailsMedia: RoseGardenMedia | null
   countdown: { enabled: boolean }
   timeline: { items: NonNullable<NonNullable<RoseGardenData['timeline']>['items']> }
@@ -68,13 +75,23 @@ type ResolvedData = {
   footerMedia: RoseGardenMedia | null
 }
 
+type CountdownClock = {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+  complete: boolean
+}
+
 const artworkRoot = '/assets/images/templates/rose-garden/artwork-drafts'
 const rendererDecor = {
   openingClosed: `${artworkRoot}/rg-opening-closed-card.png`,
   openingInner: `${artworkRoot}/rg-opening-inner-card.png`,
   openingTriangle: `${artworkRoot}/rg-opening-triangle-flap.png`,
   openingFront: `${artworkRoot}/rg-opening-front-frame.png`,
+  envelopeVignette: `${artworkRoot}/rg-garden-envelope-vignette-v1.png`,
   botanical: `${artworkRoot}/rg-botanical-cluster-v1.png`,
+  botanicalAlt: `${artworkRoot}/rg-botanical-cluster.png`,
   divider: `${artworkRoot}/rg-pressed-flower-divider.png`,
   giftCharm: `${artworkRoot}/rg-gift-botanical-charm.png`,
   timelineBloom: `${artworkRoot}/rg-timeline-bloom.png`,
@@ -102,6 +119,52 @@ const fixedSectionKeys = new Set<RoseGardenSectionKey>([
 ])
 const openingExitFallbackMs =1200
 
+const emptyCountdownClock: CountdownClock = {
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+  complete: false,
+}
+
+function parseWeddingTimestamp(dateValue: string, timeValue: string): number {
+  const normalizedDate = dateValue.trim()
+  const isoMatch = normalizedDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
+  const dmyMatch = normalizedDate.match(/(\d{1,2})\s*[·/.-]\s*(\d{1,2})\s*[·/.-]\s*(\d{4})/)
+  const [, first, second, third] = isoMatch ?? dmyMatch ?? []
+  if (!first || !second || !third) return Number.NaN
+
+  const year = Number(isoMatch ? first : third)
+  const month = Number(second)
+  const day = Number(isoMatch ? third : first)
+  const timeMatch = timeValue.match(/(\d{1,2}):(\d{2})/)
+  const hours = Number(timeMatch?.[1] ?? 0)
+  const minutes = Number(timeMatch?.[2] ?? 0)
+  const target = new Date(year, month - 1, day, hours, minutes)
+
+  if (
+    target.getFullYear() !== year
+    || target.getMonth() !== month - 1
+    || target.getDate() !== day
+    || hours > 23
+    || minutes > 59
+  ) return Number.NaN
+
+  return target.getTime()
+}
+
+function getCountdownClock(target: number, now = Date.now()): CountdownClock {
+  if (!Number.isFinite(target)) return emptyCountdownClock
+  const remaining = Math.max(0, target - now)
+  return {
+    days: Math.floor(remaining / 86_400_000),
+    hours: Math.floor((remaining % 86_400_000) / 3_600_000),
+    minutes: Math.floor((remaining % 3_600_000) / 60_000),
+    seconds: Math.floor((remaining % 60_000) / 1_000),
+    complete: remaining === 0,
+  }
+}
+
 function mediaSource(value: string | RoseGardenMedia | null | undefined): string {
   return typeof value === 'string' ? value : value?.src ?? ''
 }
@@ -116,10 +179,24 @@ function resolveSide(
 ): Required<RoseGardenFamilySide> {
   return {
     label: side?.label ?? fallback.label ?? '',
+    fatherTitle: side?.fatherTitle ?? fallback.fatherTitle ?? 'Ông',
     father: side?.father ?? fallback.father ?? '',
+    motherTitle: side?.motherTitle ?? fallback.motherTitle ?? 'Bà',
     mother: side?.mother ?? fallback.mother ?? '',
     address: side?.address ?? fallback.address ?? '',
   }
+}
+
+function resolveEventDetailItems(
+  value: RoseGardenData['eventDetails'],
+  fallback: RoseGardenData['eventDetails'],
+): NonNullable<NonNullable<RoseGardenData['eventDetails']>['items']> {
+  if (value?.items !== undefined) return value.items
+  if (value?.time !== undefined) {
+    return value.time ? [{ time: value.time, title: 'Thời gian hôn lễ' }] : []
+  }
+  if (fallback?.items !== undefined) return fallback.items
+  return fallback?.time ? [{ time: fallback.time, title: 'Thời gian hôn lễ' }] : []
 }
 
 function resolveData(data?: RoseGardenData): ResolvedData {
@@ -165,7 +242,7 @@ function resolveData(data?: RoseGardenData): ResolvedData {
     eventDetails: {
       title: data?.eventDetails?.title ?? fallback.eventDetails?.title ?? '',
       date: data?.eventDetails?.date ?? fallback.eventDetails?.date ?? '',
-      time: data?.eventDetails?.time ?? fallback.eventDetails?.time ?? '',
+      items: resolveEventDetailItems(data?.eventDetails, fallback.eventDetails),
       calendarUrl: data?.eventDetails?.calendarUrl ?? fallback.eventDetails?.calendarUrl ?? '',
       message: data?.eventDetails?.message ?? fallback.eventDetails?.message ?? '',
     },
@@ -228,10 +305,12 @@ function motionize(node: ReactNode, depth = 0, siblingIndex = 0): ReactNode {
   if (!isValidElement<MotionElementProps>(node)) return node
   const variant = motionVariants[(depth + siblingIndex) % motionVariants.length]
   const existingClassName = node.props.className ?? ''
+  const isMotionStatic = existingClassName.split(/\s+/).includes('rg-motion-static')
   const hasRevealClass = existingClassName.split(/\s+/).includes('reveal')
     || existingClassName.split(/\s+/).includes('rg-date-line')
     || existingClassName.split(/\s+/).includes('rg-date-heart')
     || existingClassName.split(/\s+/).includes('rg-invitation-eyebrow')
+    || isMotionStatic
   const nestedChildren = node.props.children === undefined
     ? undefined
     : Children.map(node.props.children, (child, index) => motionize(child, depth + 1, index))
@@ -297,14 +376,32 @@ function EmptyArtwork({ label, className = '' }: { label: string; className?: st
   return <div className={`rg-empty-artwork ${className}`.trim()} aria-label={label}>{label}</div>
 }
 
-function FamilySide({ side, className = '' }: { side: Required<RoseGardenFamilySide>; className?: string }) {
+function FamilySide({
+  side,
+  decorSrc,
+  decorPosition,
+}: {
+  side: Required<RoseGardenFamilySide>
+  decorSrc: string
+  decorPosition: 'left' | 'right'
+}) {
   return (
-    <div className={`rg-family-side ${className}`.trim()}>
-      {side.label ? <span>{side.label}</span> : null}
-      {side.father ? <strong>{side.father}</strong> : null}
-      {side.mother ? <strong>{side.mother}</strong> : null}
-      {side.address ? <small>{side.address}</small> : null}
-    </div>
+    <article className="rg-family-side" aria-label={side.label || 'Đại diện gia đình'}>
+      <Artwork
+        src={decorSrc}
+        alt=""
+        className={`rg-family-card-flower rg-family-card-flower-${decorPosition}`}
+      />
+      <header>
+        {side.label ? <span className="rg-family-label">{side.label}</span> : null}
+        <small>Đại diện gia đình</small>
+      </header>
+      <div className="rg-family-people">
+        {side.father ? <p><em>{side.fatherTitle}</em><strong>{side.father}</strong></p> : null}
+        {side.mother ? <p><em>{side.motherTitle}</em><strong>{side.mother}</strong></p> : null}
+      </div>
+      {side.address ? <address><span>Tư gia</span>{side.address}</address> : null}
+    </article>
   )
 }
 
@@ -324,7 +421,7 @@ export function RoseGardenRenderer({
   const content = resolveData(data)
   const pageRef = useRef<HTMLDivElement>(null)
   const openingTimerRef = useRef<number | null>(null)
-  const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>(editorMode ? 'opened' : 'closed')
+  const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>('closed')
   const [rsvpChoice, setRsvpChoice] = useState<'attending' | 'declined' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
@@ -334,8 +431,14 @@ export function RoseGardenRenderer({
   const [wishSubmitted, setWishSubmitted] = useState(false)
   const [wishValidationError, setWishValidationError] = useState('')
   const [wishes, setWishes] = useState<Array<{ name: string; message: string }>>([])
+  const weddingTimestamp = useMemo(
+    () => parseWeddingTimestamp(content.event.weddingDate, content.event.time),
+    [content.event.time, content.event.weddingDate],
+  )
+  const [countdownClock, setCountdownClock] = useState<CountdownClock>(() => getCountdownClock(weddingTimestamp))
   const opened = openingState === 'opened'
   const connectedGuestName = interactions?.guestName?.trim() ?? ''
+  const interactionWishItems = interactions?.wishes.items
   const hasGuestName = Boolean(connectedGuestName)
   const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
   const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
@@ -361,8 +464,8 @@ export function RoseGardenRenderer({
     mediaSource(content.invitationMemoryImage3),
   ]
   const galleryImages = content.galleryImages.map(mediaSource).filter(Boolean)
-  const openingInnerAsset = mediaSource(content.openingMediaBack) || rendererDecor.openingInner
-  const openingFrontAsset = mediaSource(content.openingMediaFront) || rendererDecor.openingFront
+  const [galleryIndex, setGalleryIndex] = useState(0)
+  const [giftQrOpen, setGiftQrOpen] = useState(false)
   const glints = useMemo(
     () =>
       Array.from({ length: 20 }, (_, index) => {
@@ -513,12 +616,28 @@ export function RoseGardenRenderer({
   }
 
   useEffect(() => {
-    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
-  }, [interactions?.wishes.items])
+    if (interactionWishItems) setWishes(interactionWishItems.map((item) => ({ name: item.authorName, message: item.content })))
+  }, [interactionWishItems])
 
   useEffect(() => {
     if (interactions?.rsvp.submitted) setRsvpSubmitted(true)
   }, [interactions?.rsvp.submitted])
+
+  useEffect(() => {
+    const updateCountdown = () => setCountdownClock(getCountdownClock(weddingTimestamp))
+    updateCountdown()
+    if (!Number.isFinite(weddingTimestamp) || weddingTimestamp <= Date.now()) return
+
+    const timer = window.setInterval(updateCountdown, 1000)
+    const handleVisibility = () => {
+      if (!document.hidden) updateCountdown()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [weddingTimestamp])
 
   const renderSection = (key: RoseGardenSectionKey) => {
     const sectionIndex = sectionOrder(key)
@@ -572,39 +691,92 @@ export function RoseGardenRenderer({
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-families">
             <div className="rg-section-number">03 <span>/ 14</span></div>
-            <SectionEyebrow>Hai bên gia đình</SectionEyebrow>
-            <h2>{content.families.title}</h2>
-            <p className="rg-family-subtitle">{content.families.subtitle}</p>
-            <p className="rg-family-message">{personalize(content.families.message, guestName)}</p>
-            <div className="rg-family-columns"><FamilySide side={content.families.brideSide} /><span className="rg-family-ampersand">&amp;</span><FamilySide side={content.families.groomSide} /></div>
-            <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-family-decor" />
+            <div className="rg-family-canopy" aria-hidden="true">
+              <Artwork src={rendererDecor.centerCluster} alt="" className="rg-family-floral-cluster" />
+            </div>
+            <div className="rg-family-heading">
+              <SectionEyebrow>Thông tin hai gia đình</SectionEyebrow>
+              <h2>{content.families.title}</h2>
+              <p className="rg-family-subtitle">{content.families.subtitle}</p>
+            </div>
+            <div className="rg-family-columns">
+              <FamilySide side={content.families.brideSide} decorSrc={rendererDecor.botanical} decorPosition="left" />
+              <span className="rg-family-ampersand" aria-hidden="true">&amp;</span>
+              <FamilySide side={content.families.groomSide} decorSrc={rendererDecor.botanicalAlt} decorPosition="right" />
+            </div>
+            <Artwork src={rendererDecor.envelopeVignette} alt="" className="rg-family-floating-envelope" />
+            <p className="rg-family-message">Kính mời đến chung vui và chứng kiến khoảnh khắc hai gia đình kết duyên.</p>
           </SectionFrame>
         )
       case 'eventDetails':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-event-details">
             <div className="rg-section-number">04 <span>/ 14</span></div>
-            <div className="rg-event-stamp" aria-hidden="true"><CalendarBlank weight="thin" /><span>save the date</span></div>
-            <SectionEyebrow>Ngày vui của chúng mình</SectionEyebrow>
-            <h2>{content.eventDetails.title}</h2>
-            <div className="rg-event-date">{content.eventDetails.date}</div>
-            <div className="rg-event-time"><Clock /> {content.eventDetails.time}</div>
-            <p>{content.eventDetails.message}</p>
-            {content.eventDetailsMedia?.src ? (
-              <Artwork src={content.eventDetailsMedia.src} alt={content.eventDetailsMedia.alt || 'Ảnh thời gian hôn lễ'} className="rg-event-divider rg-user-media" />
-            ) : (
-              <Artwork src={rendererDecor.divider} alt="" className="rg-event-divider rg-section-decor" />
-            )}
-            {content.eventDetails.calendarUrl ? <a className="rg-text-link" href={content.eventDetails.calendarUrl} target="_blank" rel="noreferrer"><CalendarBlank /> Thêm vào lịch <ArrowUpRight /></a> : null}
+            <header className="rg-event-heading">
+              <div className="rg-event-stamp rg-motion-static" aria-hidden="true"><CalendarBlank weight="thin" /><span>save the date</span></div>
+              <div>
+                <SectionEyebrow>Hôn lễ &amp; tiệc cưới</SectionEyebrow>
+                <h2>{content.eventDetails.title}</h2>
+              </div>
+            </header>
+            <div className="rg-event-card">
+              {content.eventDetailsMedia?.src ? (
+                <figure className="rg-event-media">
+                  <Artwork src={content.eventDetailsMedia.src} alt={content.eventDetailsMedia.alt || 'Ảnh thời gian hôn lễ'} className="rg-user-media" />
+                  <figcaption>Ngày thành hôn</figcaption>
+                </figure>
+              ) : null}
+              <div className="rg-event-calendar">
+                <span className="rg-event-calendar-label">Ngày thành hôn</span>
+                <time className="rg-event-date">{content.eventDetails.date}</time>
+                {content.eventDetails.items.length ? (
+                  <div className="rg-event-schedule">
+                    <div className="rg-event-schedule-heading"><Clock weight="duotone" /><span>Chương trình dự kiến</span></div>
+                    <ol className="rg-event-times">
+                      {content.eventDetails.items.map((item, index) => (
+                        <li className="rg-event-time-item" key={`${item.time ?? 'time'}-${item.title ?? 'event'}-${index}`}>
+                          <time>{item.time}</time>
+                          <span>{item.title}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ) : null}
+              </div>
+              <div className="rg-event-copy">
+                <Artwork src={rendererDecor.divider} alt="" className="rg-event-divider rg-section-decor rg-motion-static" />
+                <p>{content.eventDetails.message}</p>
+                {content.eventDetails.calendarUrl ? <a className="rg-event-calendar-action" href={content.eventDetails.calendarUrl} target="_blank" rel="noreferrer"><CalendarBlank weight="duotone" /><span><small>Lưu ngày vui</small>Thêm vào lịch</span><ArrowUpRight /></a> : null}
+              </div>
+            </div>
           </SectionFrame>
         )
       case 'countdown':
-        return content.countdown.enabled ? (
+        return content.countdown.enabled && Number.isFinite(weddingTimestamp) ? (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-countdown">
-            <SectionEyebrow>Đếm ngược ngày vui</SectionEyebrow>
-            <div className="rg-countdown-rule"><span /><Heart weight="fill" /><span /></div>
-            <h2>Hẹn gặp nhau sau</h2>
-            <div className="rg-countdown-placeholder" aria-label="Đếm ngược đến ngày cưới"><strong>{content.event.weddingDate}</strong><span>Đếm ngược sẽ tự lấy từ ngày cưới khi kết nối dữ liệu sự kiện.</span></div>
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-countdown-sprig rg-countdown-sprig-left rg-motion-static" />
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-countdown-sprig rg-countdown-sprig-right rg-motion-static" />
+            <div className="rg-countdown-heading">
+              <SectionEyebrow>Đếm ngược ngày vui</SectionEyebrow>
+              <div className="rg-countdown-rule"><span /><Heart weight="fill" /><span /></div>
+              <h2>{countdownClock.complete ? 'Ngày vui đã đến' : 'Hẹn gặp nhau sau'}</h2>
+            </div>
+            <div className="rg-countdown-plaque" role="timer" aria-live="off" aria-label="Đếm ngược đến ngày cưới">
+              <div className="rg-countdown-units">
+                {([
+                  ['days', countdownClock.days, 'Ngày'],
+                  ['hours', countdownClock.hours, 'Giờ'],
+                  ['minutes', countdownClock.minutes, 'Phút'],
+                  ['seconds', countdownClock.seconds, 'Giây'],
+                ] as const).map(([unit, value, label]) => (
+                  <div className="rg-countdown-unit rg-motion-static" data-countdown-unit={unit} key={unit}>
+                    <strong>{String(value).padStart(2, '0')}</strong>
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="rg-countdown-date"><span>{countdownClock.complete ? 'Trân trọng chào đón' : 'Ngày chúng mình chung đôi'}</span><strong>{content.event.weddingDate}</strong></div>
+            </div>
           </SectionFrame>
         ) : null
       case 'timeline':
@@ -613,7 +785,9 @@ export function RoseGardenRenderer({
             <div className="rg-section-number">05 <span>/ 14</span></div>
             <SectionEyebrow>Nhịp ngày chung đôi</SectionEyebrow>
             <h2>Một ngày, những khoảnh khắc đáng nhớ</h2>
-            <ol>{content.timeline.items.map((item, index) => {
+            <ol>
+              <span key="timeline-light-a" className="rg-timeline-light rg-timeline-light-a rg-motion-static" aria-hidden="true" />
+              {content.timeline.items.map((item, index) => {
               const imageSrc = mediaSource(item.image)
               return (
                 <li key={`${item.time}-${item.title}-${index}`}>
@@ -626,18 +800,19 @@ export function RoseGardenRenderer({
                   </div>
                 </li>
               )
-            })}</ol>
+              })}
+            </ol>
           </SectionFrame>
         ) : null
       case 'venue':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-venue">
             <div className="rg-section-number">06 <span>/ 14</span></div>
-            <div className="rg-venue-pin"><MapPin weight="fill" /></div>
+            <div className="rg-venue-pin reveal reveal--slide-left"><MapPin weight="fill" className="rg-motion-static" /></div>
             <SectionEyebrow>Địa điểm hôn lễ</SectionEyebrow>
             <h2>{content.venue.title}</h2><strong>{content.venue.name}</strong><p>{content.venue.address}</p><p className="rg-muted-copy">{content.venue.message}</p>
-            {content.venue.mapUrl ? <a className="rg-text-link" href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở Google Maps <ArrowUpRight /></a> : null}
-            <Artwork src={rendererDecor.wreath} alt="" className="rg-section-decor rg-venue-decor" />
+            {content.venue.mapUrl ? <a className="rg-venue-map-link" href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở Google Maps <ArrowUpRight /></a> : null}
+            <Artwork src={rendererDecor.wreath} alt="" className="rg-section-decor rg-venue-decor rg-motion-static" />
           </SectionFrame>
         )
       case 'gallery':
@@ -645,19 +820,26 @@ export function RoseGardenRenderer({
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-gallery">
             <SectionEyebrow>Album của chúng mình</SectionEyebrow><h2>{content.gallery.title}</h2><p>{content.gallery.message}</p>
             {galleryImages.length ? (
-              <div className="rg-gallery-rail">{galleryImages.map((src, index) => <figure key={`${src}-${index}`}><Artwork src={src} alt={`Khoảnh khắc trong album ${index + 1}`} className="rg-user-media" /><figcaption>0{index + 1}</figcaption></figure>)}</div>
+              <div className="rg-gallery-carousel">
+                <button type="button" className="rg-gallery-control" aria-label="Ảnh trước" onClick={() => setGalleryIndex((index) => Math.max(0, index - 1))} disabled={galleryIndex === 0}><CaretLeft /></button>
+                <div className="rg-gallery-viewport">
+                  <div className="rg-gallery-rail rg-motion-static" style={{ '--rg-gallery-index': galleryIndex } as CSSProperties}>{galleryImages.map((src, index) => <figure key={`${src}-${index}`} className="rg-gallery-card rg-motion-static"><Artwork src={src} alt={`Khoảnh khắc trong album ${index + 1}`} className="rg-user-media" /><figcaption>0{index + 1}</figcaption></figure>)}</div>
+                </div>
+                <button type="button" className="rg-gallery-control" aria-label="Ảnh tiếp theo" onClick={() => setGalleryIndex((index) => Math.min(galleryImages.length - 1, index + 1))} disabled={galleryIndex >= galleryImages.length - 1}><CaretRight /></button>
+              </div>
             ) : (
               <div className="rg-gallery-empty">
                 <Artwork src={rendererDecor.giftCharm} alt="" className="rg-gallery-decor" />
                 <span>Ảnh album sẽ xuất hiện tại đây sau khi tải lên.</span>
               </div>
             )}
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-gallery-botanical rg-motion-static" />
           </SectionFrame>
         )
       case 'rsvp':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-rsvp">
-            <div className="rg-section-number">07 <span>/ 14</span></div><SectionEyebrow>Phản hồi trước {content.rsvp.deadline}</SectionEyebrow><h2>{content.rsvp.title}</h2><p>{content.rsvp.message}</p>
+            <div className="rg-section-number">07 <span>/ 14</span></div>{content.rsvp.deadline.trim() ? <SectionEyebrow>Phản hồi trước {content.rsvp.deadline}</SectionEyebrow> : null}<h2>{content.rsvp.title}</h2><p>{content.rsvp.message}</p>
             <div className="rg-rsvp-form" aria-live="polite">
               {!hasGuestName ? <label className="rg-field"><span>Tên của bạn</span><input value={rsvpName} onChange={(event) => setRsvpName(event.target.value)} placeholder="Nguyễn Văn A" disabled={rsvpLocked} /></label> : null}
               <div className="rg-rsvp-choices" role="group" aria-label="Lựa chọn tham dự">
@@ -668,7 +850,7 @@ export function RoseGardenRenderer({
               {rsvpValidationError || interactions?.rsvp.error ? <p className="rg-form-error" role="alert">{rsvpValidationError || interactions?.rsvp.error}</p> : null}
               {rsvpLocked && !interactions?.rsvp.error ? <p className="rg-form-success" role="status">{content.rsvp.successMessage}</p> : null}
             </div>
-            <Artwork src={rendererDecor.centerCluster} alt="" className="rg-section-decor rg-rsvp-decor" />
+            <Artwork src={rendererDecor.centerCluster} alt="" className="rg-section-decor rg-rsvp-decor rg-motion-static" />
           </SectionFrame>
         )
       case 'guestbook':
@@ -693,12 +875,16 @@ export function RoseGardenRenderer({
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-gift">
             <div className="rg-section-number">09 <span>/ 14</span></div><Gift className="rg-gift-icon" weight="thin" /><SectionEyebrow>{content.gift.title}</SectionEyebrow><p>{content.gift.message}</p>
-            <GiftEnvelopeBox
-              className="rg-gift-envelope-box"
-              cardSrc={rendererDecor.openingClosed}
-              decorative
-            />
-            <div className="rg-qr-placeholder">{content.giftQrMedia?.src ? <Artwork src={content.giftQrMedia.src} alt="Mã QR mừng cưới" className="rg-user-media" /> : <span>QR</span>}</div>{content.gift.thankYouMessage ? <p className="rg-muted-copy">{content.gift.thankYouMessage}</p> : null}
+            <div className={`rg-gift-payment ${giftQrOpen ? 'is-open' : ''}`}>
+              <GiftEnvelopeBox
+                className="rg-gift-envelope-box"
+                cardSrc={rendererDecor.openingClosed}
+                onClick={() => setGiftQrOpen((open) => !open)}
+                expanded={giftQrOpen}
+              />
+              <div className="rg-qr-placeholder rg-motion-static">{content.giftQrMedia?.src ? <Artwork src={content.giftQrMedia.src} alt="Mã QR mừng cưới" className="rg-user-media" /> : <span>QR</span>}</div>
+            </div>
+            {content.gift.thankYouMessage ? <p className="rg-muted-copy">{content.gift.thankYouMessage}</p> : null}
           </SectionFrame>
         )
       case 'music':
@@ -716,7 +902,7 @@ export function RoseGardenRenderer({
             <p className="reveal reveal--fade-up">{content.footer.message}</p>
             {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media reveal reveal--zoom-in" /> : null}
             <span className="rg-footer-date reveal reveal--slide-down">{content.event.weddingDate}</span>
-            <Artwork src={rendererDecor.wreath} alt="" className="rg-section-decor rg-footer-decor reveal reveal--slide-left" />
+            <Artwork src={rendererDecor.botanicalAlt} alt="" className="rg-section-decor rg-footer-decor rg-motion-static" />
           </footer>
         )
       default:
@@ -732,6 +918,7 @@ export function RoseGardenRenderer({
         groomName={content.couple.groomName}
         date={content.event.weddingDate}
         venue={content.event.venueName}
+        eyebrow={content.opening.title}
         note={personalize(content.opening.message, guestName)}
         leftDecorationSrc={rendererDecor.botanical}
         rightDecorationSrc={rendererDecor.botanical}

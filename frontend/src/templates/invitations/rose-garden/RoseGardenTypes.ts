@@ -28,7 +28,9 @@ export type RoseGardenMedia = {
 
 export type RoseGardenFamilySide = {
   label?: string
+  fatherTitle?: string
   father?: string
+  motherTitle?: string
   mother?: string
   address?: string
 }
@@ -38,6 +40,11 @@ export type RoseGardenTimelineItem = {
   title?: string
   description?: string
   image?: string | RoseGardenMedia
+}
+
+export type RoseGardenEventDetailItem = {
+  time?: string
+  title?: string
 }
 
 export type RoseGardenData = {
@@ -68,6 +75,8 @@ export type RoseGardenData = {
   eventDetails?: {
     title?: string
     date?: string
+    items?: RoseGardenEventDetailItem[]
+    /** Legacy single-value field kept for previously saved invitations. */
     time?: string
     calendarUrl?: string
     message?: string

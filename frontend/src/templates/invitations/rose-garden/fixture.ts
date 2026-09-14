@@ -65,13 +65,17 @@ export const roseGardenFixture: RoseGardenData = {
     message: 'Kính mời {guestName} đến chung vui và chứng kiến khoảnh khắc hai gia đình kết duyên.',
     brideSide: {
       label: 'Nhà gái',
+      fatherTitle: 'Ông',
       father: 'Nguyễn Văn Bình',
+      motherTitle: 'Bà',
       mother: 'Trần Thu Hà',
       address: 'Ba Đình · Hà Nội',
     },
     groomSide: {
       label: 'Nhà trai',
+      fatherTitle: 'Ông',
       father: 'Phạm Văn Minh',
+      motherTitle: 'Bà',
       mother: 'Lê Ngọc Lan',
       address: 'Tây Hồ · Hà Nội',
     },
@@ -79,7 +83,11 @@ export const roseGardenFixture: RoseGardenData = {
   eventDetails: {
     title: 'Ngày vui của chúng mình',
     date: 'Chủ nhật · 18 tháng 10, 2026',
-    time: '17:30 · Đón khách từ 17:00',
+    items: [
+      { time: '17:00', title: 'Đón khách' },
+      { time: '17:30', title: 'Lễ thành hôn' },
+      { time: '18:30', title: 'Khai tiệc' },
+    ],
     message: 'Hẹn gặp bạn trong buổi chiều dịu dàng giữa khu vườn đầy hoa.',
     calendarUrl:
       'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Mai%20Anh%20va%20Minh%20Khang',

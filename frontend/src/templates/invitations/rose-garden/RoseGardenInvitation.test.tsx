@@ -164,8 +164,27 @@ describe('RoseGardenInvitation', () => {
     )
 
     expect(container.querySelectorAll('.rg-family-side')).toHaveLength(2)
+    expect(screen.getByRole('article', { name: 'Nhà gái' })).toBeInTheDocument()
+    expect(screen.getByRole('article', { name: 'Nhà trai' })).toBeInTheDocument()
+    expect(screen.getAllByText('Ông')).toHaveLength(2)
+    expect(screen.getAllByText('Bà')).toHaveLength(2)
     expect(screen.getByText('Nguyễn Hoàng Minh Khôi')).toBeInTheDocument()
     expect(screen.getByText('Phường Quảng An, quận Tây Hồ, thành phố Hà Nội')).toBeInTheDocument()
+    expect(container.querySelectorAll('.rg-family-card-flower')).toHaveLength(2)
+    expect(container.querySelector('.rg-family-card-flower-left')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-botanical-cluster-v1.png',
+    )
+    expect(container.querySelector('.rg-family-card-flower-right')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-botanical-cluster.png',
+    )
+    expect(container.querySelector('.rg-family-floral-cluster')).toHaveAttribute('alt', '')
+    expect(container.querySelector('.rg-family-floating-envelope')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-garden-envelope-vignette-v1.png',
+    )
+    expect(container.querySelector('.rg-family-ampersand')).toHaveAttribute('aria-hidden', 'true')
   })
 
   it('keeps empty user media slots separate from renderer-owned decor', () => {
@@ -196,11 +215,59 @@ describe('RoseGardenInvitation', () => {
     expect(container.querySelector('.rg-letter-decor')).toBeInTheDocument()
     expect(container.querySelector('.rg-event-divider.rg-user-media')).not.toBeInTheDocument()
     expect(container.querySelector('.rg-event-divider.rg-section-decor')).toBeInTheDocument()
+    expect(container.querySelector('.rg-event-divider')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-event-divider')).not.toHaveClass('reveal')
+    expect(container.querySelector('.rg-event-stamp')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-event-stamp')).not.toHaveClass('reveal')
+    expect(container.querySelector('.rg-event-card')).toBeInTheDocument()
+    expect(container.querySelectorAll('.rg-event-time-item')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-countdown-unit')).toHaveLength(4)
+    expect(container.querySelectorAll('.rg-countdown-sprig')).toHaveLength(2)
+    expect(screen.getByText('Ngày thành hôn')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Thêm vào lịch/ })).toBeInTheDocument()
     expect(container.querySelector('.rg-gallery-empty')).toBeInTheDocument()
     expect(container.querySelector('.rg-gallery-rail')).not.toBeInTheDocument()
     expect(
       Array.from(container.querySelectorAll('.rg-opening-layer')).every((image) => image.getAttribute('src')),
     ).toBe(true)
+  })
+
+  it('keeps legacy single event time content readable', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          eventDetails: {
+            ...roseGardenFixture.eventDetails,
+            items: undefined,
+            time: '16:45',
+          },
+        }}
+      />,
+    )
+
+    expect(container.querySelectorAll('.rg-event-time-item')).toHaveLength(1)
+    expect(container.querySelector('.rg-event-time-item')).toHaveTextContent('16:45')
+    expect(container.querySelector('.rg-event-time-item')).toHaveTextContent('Thời gian hôn lễ')
+  })
+
+  it('updates the complete countdown clock every second', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 17, 17, 29, 30))
+    try {
+      const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+
+      expect(container.querySelector('[data-countdown-unit="days"]')).toHaveTextContent('01Ngày')
+      expect(container.querySelector('[data-countdown-unit="hours"]')).toHaveTextContent('00Giờ')
+      expect(container.querySelector('[data-countdown-unit="minutes"]')).toHaveTextContent('00Phút')
+      expect(container.querySelector('[data-countdown-unit="seconds"]')).toHaveTextContent('30Giây')
+
+      act(() => vi.advanceTimersByTime(1000))
+      expect(container.querySelector('[data-countdown-unit="seconds"]')).toHaveTextContent('29Giây')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('uses the repository demo couple media in the default fixture', () => {
@@ -223,6 +290,8 @@ describe('RoseGardenInvitation', () => {
     const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
 
     expect(container.querySelectorAll('.rg-timeline-bloom')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-timeline-light')).toHaveLength(1)
+    expect(container.querySelectorAll('.rg-timeline-light.rg-motion-static')).toHaveLength(1)
     expect(container.querySelector('.rg-page')).toHaveClass('rg-motion-ready')
     expect(container.querySelectorAll('.rg-body-section.is-visible').length).toBeGreaterThan(0)
   })
@@ -234,6 +303,8 @@ describe('RoseGardenInvitation', () => {
     expect(container.querySelectorAll('.rg-cover-petal')).toHaveLength(9)
     expect(container.querySelector('.rg-cover-petal-cluster')).toHaveAttribute('alt', '')
     expect(container.querySelector('.rg-gallery')).toBeInTheDocument()
+    expect(container.querySelector('.rg-venue-decor')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-venue-decor')).not.toHaveClass('reveal')
     expect(container.querySelector('.rg-gift-envelope-box')).toBeInTheDocument()
     expect(container.querySelectorAll('.gift-envelope-box__image')).toHaveLength(2)
     expect(container.querySelectorAll('.gift-envelope-box__particles i')).toHaveLength(10)
@@ -247,5 +318,10 @@ describe('RoseGardenInvitation', () => {
       'src',
       '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-closed-card.png',
     )
+    const giftEnvelope = container.querySelector<HTMLElement>('.rg-gift-envelope-box')
+    expect(giftEnvelope).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(giftEnvelope!)
+    expect(giftEnvelope).toHaveAttribute('aria-expanded', 'true')
+    expect(container.querySelector('.rg-gift-payment')).toHaveClass('is-open')
   })
 })

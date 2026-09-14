@@ -102,8 +102,8 @@ Canonical naming rule: `timeline` is the only section key for the rose journey. 
 | `cover` | Yes | Tên đôi và lời mời ngắn | Eyebrow, title, message, hero media | Text remains; neutral hero fallback | Fixed |
 | `invitation` | Yes | Lời báo hỷ và lời mời chính | Title, message, three fixed memory slots | Missing images remove only image layer | Fixed |
 | `families` | Yes | Hai bên gia đình | Parent fields, family title/subtitle | Empty optional address hides only address line | Fixed |
-| `eventDetails` | Yes | Ngày hôn lễ và thêm lịch | Date, calendar URL, optional media | Date remains; media falls back | Fixed |
-| `countdown` | Optional | Đếm ngược ngày vui | Derived from wedding date | Hides when disabled | Toggle/reorder |
+| `eventDetails` | Yes | Ngày hôn lễ, các mốc giờ và thêm lịch | Date, repeatable event items, calendar URL, optional media | Date remains; legacy single time hydrates into one item | Fixed |
+| `countdown` | Optional | Đếm ngược ngày vui đủ ngày–giờ–phút–giây | Derived from wedding date and event time | Hides when disabled or date is invalid; completed state remains at zero | Toggle/reorder |
 | `timeline` | Optional | Lịch trình trong ngày | Repeatable timeline items | Empty list hides the list | Toggle/reorder |
 | `venue` | Optional | Địa điểm và chỉ đường | Venue name, address, map URL | Address remains; CTA hides without URL | Toggle/reorder |
 | `gallery` | Optional | Album ảnh | Gallery images and style | Designed empty state, max 12 | Toggle/reorder |
@@ -142,8 +142,8 @@ The section matrix is paired with this field map so editor, fixture and renderer
 | `opening` | `couple.brideName`, `couple.groomName`, `event.weddingDate`, `opening.title`, `opening.message`, `openingMediaBack`, `openingMediaFront` | Seed defaults in editor and save them on first save | Couple/date remain; opening CTA opens invitation |
 | `cover` | `cover.eyebrow`, `cover.title`, `cover.message`, `heroMedia` | Text fields plus one image field | Neutral hero fallback; text remains |
 | `invitation` | `invitation.title`, `invitation.message`, `invitationMemoryImage1`, `invitationMemoryImage2`, `invitationMemoryImage3` | Three independent image fields | Missing image removes only its image layer |
-| `families` | `families.title`, `families.subtitle`, `families.brideSide`, `families.groomSide`, `families.message` | Family text groups with editable defaults | Empty optional address hides only its line |
-| `eventDetails` | `eventDetails.title`, `eventDetails.date`, `eventDetails.time`, `eventDetails.calendarUrl`, `eventDetails.message`, `eventDetailsMedia` | Text/date/time/URL fields plus optional image | Calendar CTA hides without URL; date/time remain |
+| `families` | `families.title`, `families.subtitle`, `families.brideSide`, `families.groomSide`, `families.message`; each side includes editable label, father/mother honorifics and names, and address | Family text groups with editable defaults | Empty optional address hides only its line; missing legacy honorifics hydrate to `Ông` / `Bà` |
+| `eventDetails` | `eventDetails.title`, `eventDetails.date`, `eventDetails.items[].time`, `eventDetails.items[].title`, `eventDetails.calendarUrl`, `eventDetails.message`, `eventDetailsMedia` | Text/date/URL fields, repeatable event items (max 8), plus optional image | Calendar CTA hides without URL; legacy `eventDetails.time` becomes one event item |
 | `countdown` | `countdown.enabled`, derived `event.weddingDate` | Toggle plus derived value | Hidden when disabled or date is invalid |
 | `timeline` | `timeline.items[].time`, `timeline.items[].title`, `timeline.items[].description`, `timeline.items[].image` | Repeatable items; fixture contains three examples | Empty list hides content and heading |
 | `venue` | `venue.title`, `venue.name`, `venue.address`, `venue.mapUrl`, `venue.message` | Text fields plus map URL | Address remains; map CTA hides without URL |
@@ -261,9 +261,9 @@ and scrolled to from the live editor. `rose-garden/template-config.ts` is the ed
 | `opening` | Layered paper gate, 4 aligned 2:3 canvases | `openingMediaBack`, `openingMediaFront`, couple/date | Always visible; required and fixed first |
 | `cover` | Vertical garden vignette + name lockup | `heroMedia`, `cover.*`, couple/date | Neutral artwork placeholder |
 | `invitation` | Three independent memory slips | `invitationMemoryImage1/2/3`, `invitation.*` | Neutral empty memory frames; botanical art is a separate decorator |
-| `families` | Split family letter with central ampersand | `families.brideSide`, `families.groomSide`, `families.*` | Required; no collapse |
-| `eventDetails` | Date stamp and calendar action | `eventDetails.*`, `eventDetailsMedia` | Calendar link disappears when empty |
-| `countdown` | Quiet date panel | Derived from `event.weddingDate` | Optional; disabled removes the section |
+| `families` | Two ceremonial garden arches with central ampersand, explicit household labels and parent honorifics | `families.brideSide`, `families.groomSide`, `families.*` | Required; no collapse; stacks into two full-width family announcements at ≤400px |
+| `eventDetails` | Pressed-flower almanac with a scan-first date and repeatable run sheet, optional photo header and full-width calendar action | `eventDetails.items[]`, other `eventDetails.*`, `eventDetailsMedia` | Supports up to eight user-managed time/title rows; legacy single time hydrates safely; renderer-owned divider remains |
+| `countdown` | Dark garden plaque with four live time units and paired botanical sprigs | Derived from `event.weddingDate` and `event.time` | Optional; disabled or invalid date removes the section; completed state reads `Ngày vui đã đến` |
 | `timeline` | One editorial vertical path | `timeline.items[]` | Optional; an empty list hides the section |
 | `venue` | Address postcard, map link | `venue.*` | Map action disappears when URL is empty |
 | `gallery` | Horizontal pressed-photo rail | `galleryImages`, `gallery.*` | Optional; empty state is separate from renderer-owned decor |
@@ -297,8 +297,8 @@ keeps the mobile invitation expressive without turning every section into the sa
 | `cover` | Tall portrait vignette and name lockup | Soft rose-paper wash into the invitation letter |
 | `invitation` | Three offset memory slips | Botanical overlap settles into the family letter |
 | `families` | Two-column family letter with a centered ampersand | Blush paper fades to the date stamp |
-| `eventDetails` | Calendar stamp, date line and right-aligned calendar CTA | Pressed divider leads into the dark countdown band |
-| `countdown` | Centered quiet date panel | Dark rose band opens into a blush timeline path |
+| `eventDetails` | Layered paper almanac with an oversized date lockup, compact multi-row run sheet and calendar CTA | Pressed divider and ticket notches lead into the dark countdown band |
+| `countdown` | Arched garden plaque with four time cells and a date footer | Dark rose garden opens into a blush timeline path |
 | `timeline` | Single vertical path with numbered nodes | Last node releases into the venue postcard |
 | `venue` | Address block with circular map marker | Curved background line carries into the gallery rail |
 | `gallery` | Native horizontal photo rail or designed empty state | Rail ends at the centered RSVP reply card |
@@ -367,8 +367,8 @@ of renderer-owned motion.
 | --- | --- | --- | --- | --- | --- |
 | `opening` fold/reveal | Confirm tap and establish the invitation threshold; opening button | 700ms ease-out on `transform`/`opacity` | Same 2:3 stack; full card canvas on mobile | 44px keyboard/touch button, locks during opening, focus moves to `cover`; reduced motion completes immediately | CSS-only layers; one hero stack |
 | `cover`, `invitation`, `families` reveals | Establish reading order; scroll visibility | 650ms ease-out, once | 480px desktop cap; full-width mobile, family stacks at ≤400px | Content stays in DOM; reduced motion instant | Observer fallback marks visible; transform/opacity only |
-| `eventDetails`, `countdown`, `venue` reveals | Lead to date, pause and map actions; scroll visibility | 650ms ease-out | Bands and seams stay clipped inside canvas | Native links remain keyboard/touch reachable; reduced motion instant | No timers, iframe or layout measurement |
-| `timeline` reveal + bloom | Make event rhythm scannable; scroll plus fine-pointer hover | 650ms reveal; 500ms bloom ease | Bloom scales with node at both widths | Hover only for fine pointers; reduced motion freezes bloom | One approved PNG per item; no RAF/canvas |
+| `eventDetails`, `countdown`, `venue` reveals | Lead to date, pause and map actions; scroll visibility | 650ms ease-out; event stamp ring rotates at 14s linear | Bands and seams stay clipped inside canvas | Native links remain keyboard/touch reachable; stamp ring stops for reduced motion and while the document is hidden | CSS transform/opacity only; no timers, iframe or layout measurement |
+| `timeline` reveal + bloom | Make event rhythm scannable; scroll plus fine-pointer hover | 650ms reveal; 500ms bloom ease; 5s line-glow travel | Centered axis follows the node column; bloom scales with node at both widths | Hover only for fine pointers; reduced motion freezes bloom and line glow; hidden documents pause glow | One approved PNG per item; CSS-only glow, no RAF/canvas |
 | `gallery` reveal / rail | Invite exploration without stealing scroll; scroll/native rail | 650ms ease-out | Native horizontal rail on mobile and desktop | Touch/keyboard native; no auto-pan; reduced motion instant | CSS overflow only |
 | `rsvp`, `guestbook`, `gift` reveals | Prepare response, wishes and QR utility; scroll visibility | 650ms ease-out + child stagger | Full-width shells; QR stays square | Native focus order; API errors visible; reduced motion instant | RSVP/wishes use public interaction controllers |
 | `music` dock reveal | Signal optional soundtrack without competing; scroll visibility | 650ms ease-out | Thin dock remains in section order | No autoplay interaction; reduced motion instant | Hidden without URL; no audio loop |
@@ -402,6 +402,13 @@ content media independent:
 | Gallery depth | Gallery rail gets a bounded perspective plane and fine-pointer card lift/tilt | Touch has no hover behavior; reduced motion removes transition/transform | CSS `transform`/`opacity` only; no scroll hijacking |
 | Gift visual | `GiftEnvelopeBox` is a small reusable decorative child: two copies of a caller-provided invitation image float as an offset pair, with an optional caller-provided icon and sparse rose/petal particles | Pauses while the document is hidden; reduced motion keeps the static cards/icon and removes particle drift | Bounded DOM particles and CSS transforms only; the QR, title and gift copy remain owned by the existing section |
 | Approved decor map | Opening layers, envelope, botanical cluster, divider, charm, timeline bloom and cover petal cluster map to their owning section | Empty user media never removes renderer-owned identity; alt text stays empty for decor | Source/provenance remains in `ASSET_MANIFEST.md`; optimization/promotion remains release follow-up |
+
+The `families` focal section now activates the approved center floral cluster as a bounded garden
+canopy and gives each household card its own distinct botanical cluster. Household labels, editable `Ông` / `Bà`
+honorifics, parent names and `Tư gia` metadata use the same hierarchy as the other invitation
+families sections while retaining Rose Garden's arched-paper composition. The approved envelope
+vignette floats behind the cards as a keepsake letter; the central ampersand behaves like a quiet
+wax-seal medallion with a slow transform/opacity pulse. Both effects stop under reduced motion.
 
 ### Phase 5 validation and release checklist
 
