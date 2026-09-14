@@ -1,0 +1,369 @@
+.classic-card-cover {
+  --classic-card-cover-ink: #33252a;
+  --classic-card-cover-rose: #a95768;
+  --classic-card-cover-deep: #713b4a;
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #3e2835 var(--classic-card-cover-bg, none) center / cover no-repeat;
+  color: var(--classic-card-cover-ink);
+  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 720ms;
+}
+
+.classic-card-cover__hearts { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+.classic-card-cover__hearts span { position: absolute; bottom: -12%; color: rgb(255 246 244 / 0.2); font-size: clamp(14px, 2.4vw, 30px); line-height: 1; animation: classic-card-cover-heart-float 12s linear infinite; }
+.classic-card-cover__hearts span:nth-child(1) { left: 5%; animation-delay: -2s; animation-duration: 14s; }
+.classic-card-cover__hearts span:nth-child(2) { left: 13%; font-size: 18px; animation-delay: -8s; animation-duration: 11s; }
+.classic-card-cover__hearts span:nth-child(3) { left: 22%; animation-delay: -5s; animation-duration: 16s; }
+.classic-card-cover__hearts span:nth-child(4) { left: 31%; font-size: 16px; animation-delay: -10s; animation-duration: 13s; }
+.classic-card-cover__hearts span:nth-child(5) { left: 42%; animation-delay: -1s; animation-duration: 15s; }
+.classic-card-cover__hearts span:nth-child(6) { left: 52%; font-size: 20px; animation-delay: -7s; animation-duration: 12s; }
+.classic-card-cover__hearts span:nth-child(7) { left: 63%; animation-delay: -11s; animation-duration: 17s; }
+.classic-card-cover__hearts span:nth-child(8) { left: 72%; font-size: 17px; animation-delay: -4s; animation-duration: 13s; }
+.classic-card-cover__hearts span:nth-child(9) { left: 81%; animation-delay: -9s; animation-duration: 15s; }
+.classic-card-cover__hearts span:nth-child(10) { left: 91%; font-size: 16px; animation-delay: -3s; animation-duration: 12s; }
+.classic-card-cover__hearts span:nth-child(11) { left: 36%; font-size: 13px; animation-delay: -13s; animation-duration: 18s; }
+.classic-card-cover__hearts span:nth-child(12) { left: 58%; font-size: 14px; animation-delay: -6s; animation-duration: 14s; }
+.classic-card-cover__hearts span:nth-child(13) { left: 76%; font-size: 12px; animation-delay: -12s; animation-duration: 16s; }
+.classic-card-cover__hearts span:nth-child(14) { left: 17%; font-size: 13px; animation-delay: -15s; animation-duration: 19s; }
+@keyframes classic-card-cover-heart-float { 0% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(0.75); opacity: 0; } 12% { opacity: 0.2; } 48% { transform: translate3d(18px, -48vh, 0) rotate(14deg) scale(1); opacity: 0.16; } 82% { opacity: 0.12; } 100% { transform: translate3d(-14px, -112vh, 0) rotate(-12deg) scale(0.9); opacity: 0; } }
+.classic-card-cover__wash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, #6e1a20, #511419, #380a0e);
+}
+
+.classic-card-cover__card-shell {
+  position: relative;
+  z-index: 1;
+  width: min(88vw, calc(68vh * 1.5), 780px);
+  aspect-ratio: 3 / 2;
+  perspective: 1200px;
+}
+
+.classic-card-cover__card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(113 59 74 / 0.28);
+  border-radius: 30px;
+  background: linear-gradient(125deg, #fffdf8 0%, #f8eee6 52%, #eedbd8 100%);
+  box-shadow: rgba(255, 255, 255, 0.34) 0px 50px 100px -20px, rgba(255, 255, 255, 0.22) 0px 30px 60px -30px, rgba(255, 255, 255, 0.42) 0px -2px 6px 0px inset;
+  cursor: pointer;
+  outline: none;
+  will-change: transform, opacity;
+}
+
+.classic-card-cover__card::before,
+.classic-card-cover__card::after {
+  position: absolute;
+  content: '';
+  pointer-events: none;
+}
+
+.classic-card-cover__card::before {
+  inset: 17px;
+  border: 1px solid rgb(169 87 104 / 0.23);
+  border-radius: 20px;
+}
+
+.classic-card-cover__card::after {
+  inset: 0;
+  opacity: 0.28;
+  background-image: radial-gradient(rgb(113 59 74 / 0.22) 0.65px, transparent 0.8px);
+  background-size: 9px 9px;
+  mix-blend-mode: multiply;
+}
+
+.classic-card-cover__content {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  max-width: 54%;
+  text-align: center;
+}
+
+
+
+.classic-card-cover h1 {
+  display: grid;
+  gap: 2px;
+  margin: 13px 0 10px;
+  color: #592330;
+  font-family: var(--font-wedding-display, Georgia, serif);
+  font-size: clamp(28px, 5vw, 62px);
+  font-weight: 400;
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+}
+
+.classic-card-cover h1 em {
+  color: var(--classic-card-cover-rose);
+  font-family: var(--font-wedding-script, cursive);
+  font-size: 0.76em;
+  font-style: normal;
+  letter-spacing: 0;
+  line-height: 0.66;
+}
+
+.classic-card-cover__seal {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 5vw, 58px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(72 30 49 / 0.32);
+  animation: classic-card-cover-heartbeat 2.4s ease-in-out infinite;
+}
+
+.classic-card-cover__seal>span {
+  display: block;
+  font-size: clamp(18px, 2.8vw, 30px);
+  line-height: 1;
+  color: rgb(255 250 247 / 0.78);
+  transform: translateY(-1px);
+}
+
+.classic-card-cover__date,
+.classic-card-cover__venue,
+.classic-card-cover__note {
+  margin: 3px 0 0;
+  color: #6b4a50;
+  font-size: clamp(9px, 1.2vw, 12px);
+  line-height: 1.45;
+}
+
+.classic-card-cover__date {
+  color: #8f3f51;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.classic-card-cover__open {
+  position: relative;
+  z-index: 4;
+  margin-top: clamp(14px, 2.4vw, 26px);
+  border: 1px solid rgb(113 59 74 / 0.25);
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: #fffaf7;
+  background: #713044;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.classic-card-cover__open:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.classic-card-cover__card:focus-visible {
+  box-shadow: 0 34px 80px rgb(28 16 29 / 0.38), 0 0 0 4px rgb(255 247 220 / 0.92);
+}
+
+.classic-card-cover__flower {
+  position: absolute;
+  z-index: 2;
+  width: 30%;
+  height: 70%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 15px 13px rgb(113 59 74 / 0.12));
+}
+
+.classic-card-cover__flower--left {
+  left: -1.5%;
+  transform: rotate(-8deg);
+}
+
+.classic-card-cover__flower--right {
+  right: -1.5%;
+  transform: scaleX(-1) rotate(-8deg);
+}
+
+.classic-card-cover__flower:not(img) i,
+.classic-card-cover__flower:not(img) b {
+  position: absolute;
+  display: block;
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, #c87888, #713b4a);
+  box-shadow: 0 3px 8px rgb(113 59 74 / 0.16);
+}
+
+.classic-card-cover__flower:not(img) i {
+  width: 34%;
+  aspect-ratio: 0.7;
+}
+
+.classic-card-cover__flower:not(img) i:nth-child(1) {
+  left: 38%;
+  top: 6%;
+  transform: rotate(22deg);
+}
+
+.classic-card-cover__flower:not(img) i:nth-child(2) {
+  left: 12%;
+  top: 32%;
+  transform: rotate(-42deg);
+}
+
+.classic-card-cover__flower:not(img) i:nth-child(3) {
+  right: 8%;
+  top: 39%;
+  transform: rotate(48deg);
+}
+
+.classic-card-cover__flower:not(img) i:nth-child(4) {
+  left: 35%;
+  bottom: 9%;
+  transform: rotate(-10deg);
+}
+
+.classic-card-cover__flower:not(img) b {
+  left: 37%;
+  top: 35%;
+  width: 25%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e4ae78;
+  box-shadow: 0 0 0 7px rgb(169 87 104 / 0.14);
+}
+
+.classic-card-cover.is-opening .classic-card-cover__open {
+  animation: classic-card-cover-open-button 520ms cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.classic-card-cover.is-opening .classic-card-cover__flower--left {
+  animation: classic-card-cover-flower-left 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-card-cover.is-opening .classic-card-cover__flower--right {
+  animation: classic-card-cover-flower-right 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-card-cover.is-opening .classic-card-cover__card {
+  animation: classic-card-cover-card-exit 2400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes classic-card-cover-heartbeat {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  14% {
+    transform: scale(1.035);
+  }
+
+  28% {
+    transform: scale(0.995);
+  }
+
+  42% {
+    transform: scale(1.018);
+  }
+
+  54% {
+    transform: scale(1);
+  }
+}
+
+@keyframes classic-card-cover-open-button {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  45% {
+    transform: scale(1.22);
+    opacity: 0.72;
+  }
+
+  100% {
+    transform: scale(1.46);
+    opacity: 0;
+  }
+}
+
+@keyframes classic-card-cover-flower-left {
+  0% {
+    transform: rotate(-8deg) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-8deg) scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes classic-card-cover-flower-right {
+  0% {
+    transform: scaleX(-1) rotate(-8deg) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleX(-1) rotate(-8deg) scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes classic-card-cover-card-exit {
+  0% { transform: translateY(0); opacity: 1; }
+  8% { transform: translateY(8px); opacity: 1; }
+  10% { transform: translateY(10px); opacity: 1; }
+  16% { transform: translateY(10px); opacity: 1; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+
+.classic-card-cover.is-open {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) { .classic-card-cover__card-shell { width: min(92vw, calc(56vh * 1.5)); } .classic-card-cover__content { max-width: 64%; } .classic-card-cover__flower { width: 27%; } }
+@media (max-height: 620px) {
+  .classic-card-cover__card-shell {
+    width: min(88vw, calc(60vh * 1.5), 680px);
+  }
+
+  .classic-card-cover__content {
+    max-width: 58%;
+  }
+
+  .classic-card-cover__open {
+    margin-top: 10px;
+    padding-block: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .classic-card-cover,
+  .classic-card-cover__card,
+  .classic-card-cover__seal,
+  .classic-card-cover__open,
+  .classic-card-cover__flower {
+    animation: none;
+    transition: none;
+  }
+
+  .classic-card-cover.is-opening .classic-card-cover__card {
+    transform: none;
+    opacity: 0;
+  }
+}

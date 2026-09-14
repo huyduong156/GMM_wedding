@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties, type ReactNode } from 'react'
+import { Children, cloneElement, isValidElement, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
   ArrowDown,
   ArrowUpRight,
@@ -11,6 +11,9 @@ import {
   MusicNote,
   Sparkle,
 } from '@phosphor-icons/react'
+import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
+import '../../../shared/styles/reveal-animations.css'
 
 import { roseGardenFixture, roseGardenSectionConfig } from './fixture'
 import {
@@ -74,8 +77,29 @@ const rendererDecor = {
   envelope: `${artworkRoot}/rg-garden-envelope-vignette-v1.png`,
   divider: `${artworkRoot}/rg-pressed-flower-divider.png`,
   giftCharm: `${artworkRoot}/rg-gift-botanical-charm.png`,
+  timelineBloom: `${artworkRoot}/rg-timeline-bloom.png`,
+  petalCluster: `${artworkRoot}/rg-center-rose-petal-cluster.png`,
+  wreath: `${artworkRoot}/rg-botanical-wreath.png`,
+  centerCluster: `${artworkRoot}/rg-center-floral-cluster.png`,
+  sprig: `${artworkRoot}/rg-botanical-sprig.png`,
 }
 const sectionKeys: RoseGardenSectionKey[] = roseGardenSectionConfig.order
+const fixedLeadingSectionKeys: RoseGardenSectionKey[] = [
+  'opening',
+  'cover',
+  'invitation',
+  'families',
+  'eventDetails',
+]
+const requiredSectionKeys = new Set<RoseGardenSectionKey>([
+  ...fixedLeadingSectionKeys,
+  'footer',
+])
+const fixedSectionKeys = new Set<RoseGardenSectionKey>([
+  ...fixedLeadingSectionKeys,
+  'music',
+  'footer',
+])
 
 function mediaSource(value: string | RoseGardenMedia | null | undefined): string {
   return typeof value === 'string' ? value : value?.src ?? ''
@@ -191,44 +215,70 @@ function resolveData(data?: RoseGardenData): ResolvedData {
   }
 }
 
+type MotionElementProps = {
+  className?: string
+  style?: CSSProperties
+  children?: ReactNode
+}
+
+const motionVariants = ['reveal--fade-up', 'reveal--slide-left', 'reveal--slide-right', 'reveal--zoom-in', 'reveal--slide-down'] as const
+
+function motionize(node: ReactNode, depth = 0, siblingIndex = 0): ReactNode {
+  if (!isValidElement<MotionElementProps>(node)) return node
+  const variant = motionVariants[(depth + siblingIndex) % motionVariants.length]
+  const nestedChildren = node.props.children === undefined
+    ? undefined
+    : Children.map(node.props.children, (child, index) => motionize(child, depth + 1, index))
+  return cloneElement(
+    node,
+    {
+      className: `${node.props.className ?? ''} reveal ${variant}`.trim(),
+      style: { ...node.props.style, '--reveal-delay': `${Math.min((depth + siblingIndex) * 0.08, 0.56)}s` } as CSSProperties,
+    },
+    nestedChildren,
+  )
+}
 function SectionFrame({
   sectionKey,
   order,
   className,
+  tabIndex,
   children,
 }: {
   sectionKey: RoseGardenSectionKey
   order: number
   className: string
+  tabIndex?: number
   children: ReactNode
 }) {
+  const motionChildren = Children.map(children, (child, index) => motionize(child, 0, index))
   return (
     <section
-      className={`rg-body-section ${className}`}
+      className={`rg-body-section rg-motion-content ${sectionKey === 'opening' ? 'is-visible' : ''} ${className}`}
       data-editor-section={sectionKey}
       data-section-layout={className.replace('rg-', '')}
+      tabIndex={tabIndex}
       style={{ order } as CSSProperties}
     >
-      {children}
+      {motionChildren}
     </section>
   )
 }
-
-function SectionEyebrow({ children }: { children: ReactNode }) {
-  return <span className="rg-eyebrow">{children}</span>
+function SectionEyebrow({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <span className={`rg-eyebrow ${className}`.trim()}>{children}</span>
 }
 
-function Artwork({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
-  return <img className={className} src={src} alt={alt} loading="lazy" />
+function Artwork({ src, alt, className = '', eager = false }: { src: string; alt: string; className?: string; eager?: boolean }) {
+  return <img className={className} src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} />
 }
 
-function EmptyArtwork({ label }: { label: string }) {
-  return <div className="rg-empty-artwork" aria-label={label}>{label}</div>
+function EmptyArtwork({ label, className = '' }: { label: string; className?: string }) {
+  return <div className={`rg-empty-artwork ${className}`.trim()} aria-label={label}>{label}</div>
 }
 
-function FamilySide({ side }: { side: Required<RoseGardenFamilySide> }) {
+function FamilySide({ side, className = '' }: { side: Required<RoseGardenFamilySide>; className?: string }) {
   return (
-    <div className="rg-family-side">
+    <div className={`rg-family-side ${className}`.trim()}>
       {side.label ? <span>{side.label}</span> : null}
       {side.father ? <strong>{side.father}</strong> : null}
       {side.mother ? <strong>{side.mother}</strong> : null}
@@ -242,17 +292,47 @@ export function RoseGardenRenderer({
   sectionConfig,
   editorMode = false,
   guestName,
+  interactions,
 }: {
   data?: RoseGardenData
   sectionConfig?: RoseGardenSectionConfig
   editorMode?: boolean
   guestName?: string | null
+  interactions?: PublicInteractions
 }) {
   const content = resolveData(data)
-  const [opened, setOpened] = useState(editorMode)
+  const pageRef = useRef<HTMLDivElement>(null)
+  const openingTimerRef = useRef<number | null>(null)
+  const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>(editorMode ? 'opened' : 'closed')
+  const [rsvpChoice, setRsvpChoice] = useState<'attending' | 'declined' | null>(null)
+  const [rsvpName, setRsvpName] = useState('')
+  const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
+  const [rsvpValidationError, setRsvpValidationError] = useState('')
+  const [wishName, setWishName] = useState('')
+  const [wishMessage, setWishMessage] = useState('')
+  const [wishSubmitted, setWishSubmitted] = useState(false)
+  const [wishValidationError, setWishValidationError] = useState('')
+  const [wishes, setWishes] = useState<Array<{ name: string; message: string }>>([])
+  const opened = openingState === 'opened'
+  const connectedGuestName = interactions?.guestName?.trim() ?? ''
+  const hasGuestName = Boolean(connectedGuestName)
+  const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
+  const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
   const enabled = new Set(sectionConfig?.enabled ?? sectionKeys)
+  requiredSectionKeys.forEach((key) => enabled.add(key))
   const requestedOrder = sectionConfig?.order?.length ? sectionConfig.order : sectionKeys
-  const order = [...new Set([...requestedOrder, ...sectionKeys])].filter((key) => enabled.has(key))
+  const normalizedRequestedOrder = [...new Set([...requestedOrder, ...sectionKeys])].filter(
+    (key) => sectionKeys.includes(key) && enabled.has(key),
+  )
+  const reorderableSectionKeys = normalizedRequestedOrder.filter(
+    (key) => !fixedSectionKeys.has(key),
+  )
+  const order = [
+    ...fixedLeadingSectionKeys,
+    ...reorderableSectionKeys,
+    ...(enabled.has('music') ? (['music'] as const) : []),
+    'footer' as const,
+  ]
   const sectionOrder = (key: RoseGardenSectionKey) => order.indexOf(key)
   const memoryImages = [
     mediaSource(content.invitationMemoryImage1),
@@ -279,20 +359,154 @@ export function RoseGardenRenderer({
     [],
   )
 
+  useEffect(() => {
+    const page = pageRef.current
+    if (!page || typeof window === 'undefined') return
+
+    const getMediaQuery = (query: string) =>
+      typeof window.matchMedia === 'function' ? window.matchMedia(query) : { matches: false }
+    const reduceMotion = getMediaQuery('(prefers-reduced-motion: reduce)').matches
+    const handleVisibility = () => page.classList.toggle('rg-document-hidden', document.hidden)
+    handleVisibility()
+    document.addEventListener('visibilitychange', handleVisibility)
+    page.classList.add('rg-motion-ready')
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') {
+      page.classList.add('rg-atmosphere-active')
+      page.querySelectorAll<HTMLElement>('.rg-body-section:not(.rg-opening)').forEach((section) => section.classList.add('is-visible'))
+      return () => document.removeEventListener('visibilitychange', handleVisibility)
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.01, rootMargin: '0px 0px -33% 0px' },
+    )
+    const observeSections = () => {
+      page.querySelectorAll<HTMLElement>('.rg-body-section:not(.rg-opening):not(.is-visible)').forEach((section) => observer.observe(section))
+    }
+    observeSections()
+
+    const atmosphere = page.querySelector<HTMLElement>('.rg-cover-atmosphere')
+    const atmosphereObserver = new IntersectionObserver(
+      ([entry]) => page.classList.toggle('rg-atmosphere-active', Boolean(entry?.isIntersecting)),
+      { threshold: 0.05 },
+    )
+    if (atmosphere) atmosphereObserver.observe(atmosphere)
+
+    const canParallax = getMediaQuery('(hover: hover) and (pointer: fine)')
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!canParallax.matches) return
+      page.style.setProperty('--rg-pointer-x', `${((event.clientX / window.innerWidth) - 0.5) * 16}`)
+      page.style.setProperty('--rg-pointer-y', `${((event.clientY / window.innerHeight) - 0.5) * 16}`)
+    }
+    const resetPointer = () => {
+      page.style.setProperty('--rg-pointer-x', '0')
+      page.style.setProperty('--rg-pointer-y', '0')
+    }
+    page.addEventListener('pointermove', handlePointerMove, { passive: true })
+    page.addEventListener('pointerleave', resetPointer)
+
+    return () => {
+      observer.disconnect()
+      atmosphereObserver.disconnect()
+      page.removeEventListener('pointermove', handlePointerMove)
+      page.removeEventListener('pointerleave', resetPointer)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [sectionConfig, openingState])
+
+  useEffect(() => () => {
+    if (openingTimerRef.current !== null) window.clearTimeout(openingTimerRef.current)
+  }, [])
+
+  const openInvitation = () => {
+    if (openingState !== 'closed') return
+    setOpeningState('opening')
+    const reduced = typeof window.matchMedia !== 'function' || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const finishOpening = () => {
+      setOpeningState('opened')
+      requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus({ preventScroll: true }))
+    }
+    if (reduced) {
+      finishOpening()
+    } else {
+      openingTimerRef.current = window.setTimeout(finishOpening, 2050)
+    }
+  }
+
+  const sendRsvp = async () => {
+    if (!rsvpChoice || rsvpLocked || interactions?.rsvp.submitting) return
+    const name = connectedGuestName || rsvpName.trim()
+    if (!hasGuestName && !name) {
+      setRsvpValidationError('Vui lòng nhập tên của bạn.')
+      return
+    }
+    setRsvpValidationError('')
+    const submitted = interactions
+      ? await interactions.rsvp.submit({
+          guestName: hasGuestName ? undefined : name,
+          attendance: rsvpChoice === 'attending' ? 'ATTENDING' : 'DECLINED',
+          partySize: 1,
+        })
+      : true
+    if (submitted) setRsvpSubmitted(true)
+  }
+
+  const sendWish = async () => {
+    if (wishLocked || interactions?.wishes.submitting) return
+    const name = connectedGuestName || wishName.trim()
+    const message = wishMessage.trim()
+    if (!hasGuestName && !name) {
+      setWishValidationError('Vui lòng nhập tên của bạn.')
+      return
+    }
+    if (!message) {
+      setWishValidationError('Vui lòng viết một lời chúc.')
+      return
+    }
+    setWishValidationError('')
+    const submitted = interactions
+      ? await interactions.wishes.submit({ guestName: interactions.isPersonalized ? undefined : name, content: message })
+      : true
+    if (!submitted) return
+    if (!interactions) setWishes((current) => [{ name, message }, ...current])
+    setWishSubmitted(true)
+    setWishName('')
+    setWishMessage('')
+  }
+
+  useEffect(() => {
+    if (interactions) setWishes(interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })))
+  }, [interactions?.wishes.items])
+
+  useEffect(() => {
+    if (interactions?.rsvp.submitted) setRsvpSubmitted(true)
+  }, [interactions?.rsvp.submitted])
+
   const renderSection = (key: RoseGardenSectionKey) => {
     const sectionIndex = sectionOrder(key)
     switch (key) {
       case 'cover':
         return (
-          <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-cover">
+          <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-cover" tabIndex={-1}>
             <div className="rg-cover-art">
               {content.heroMedia?.src ? (
-                <Artwork src={content.heroMedia.src} alt={content.heroMedia.alt || 'Ảnh bìa thiệp'} className="rg-user-media" />
+                <Artwork src={content.heroMedia.src} alt={content.heroMedia.alt || 'Ảnh bìa thiệp'} className="rg-user-media" eager />
               ) : (
                 <EmptyArtwork label="Ảnh bìa thiệp · Chưa tải ảnh" />
               )}
               <Artwork src={rendererDecor.envelope} alt="" className="rg-cover-decor" />
               <span className="rg-cover-art-index">01 / 14</span>
+            </div>
+            <div className="rg-cover-atmosphere" aria-hidden="true">
+              <Artwork src={rendererDecor.petalCluster} alt="" className="rg-cover-petal-cluster" />
+              {Array.from({ length: 9 }, (_, index) => <i key={index} className="rg-cover-petal" />)}
             </div>
             <div className="rg-cover-copy">
               <SectionEyebrow>{content.cover.eyebrow}</SectionEyebrow>
@@ -330,6 +544,7 @@ export function RoseGardenRenderer({
             <p className="rg-family-subtitle">{content.families.subtitle}</p>
             <p className="rg-family-message">{personalize(content.families.message, guestName)}</p>
             <div className="rg-family-columns"><FamilySide side={content.families.brideSide} /><span className="rg-family-ampersand">&amp;</span><FamilySide side={content.families.groomSide} /></div>
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-family-decor" />
           </SectionFrame>
         )
       case 'eventDetails':
@@ -370,7 +585,7 @@ export function RoseGardenRenderer({
               return (
                 <li key={`${item.time}-${item.title}-${index}`}>
                   <time>{item.time}</time>
-                  <span className="rg-timeline-node">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="rg-timeline-node"><Artwork src={rendererDecor.timelineBloom} alt="" className="rg-timeline-bloom" /><span>{String(index + 1).padStart(2, '0')}</span></span>
                   <div>
                     <strong>{item.title}</strong>
                     <p>{item.description}</p>
@@ -389,6 +604,7 @@ export function RoseGardenRenderer({
             <SectionEyebrow>Địa điểm hôn lễ</SectionEyebrow>
             <h2>{content.venue.title}</h2><strong>{content.venue.name}</strong><p>{content.venue.address}</p><p className="rg-muted-copy">{content.venue.message}</p>
             {content.venue.mapUrl ? <a className="rg-text-link" href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở Google Maps <ArrowUpRight /></a> : null}
+            <Artwork src={rendererDecor.wreath} alt="" className="rg-section-decor rg-venue-decor" />
           </SectionFrame>
         )
       case 'gallery':
@@ -409,15 +625,35 @@ export function RoseGardenRenderer({
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-rsvp">
             <div className="rg-section-number">07 <span>/ 14</span></div><SectionEyebrow>Phản hồi trước {content.rsvp.deadline}</SectionEyebrow><h2>{content.rsvp.title}</h2><p>{content.rsvp.message}</p>
-            <div className="rg-rsvp-choices" role="group" aria-label="Lựa chọn tham dự"><span>{content.rsvp.attendingLabel}</span><span>{content.rsvp.notAttendingLabel}</span></div>
-            <div className="rg-form-placeholder">Form xác nhận tham dự sẽ kết nối với lời mời của khách.</div>
+            <div className="rg-rsvp-form" aria-live="polite">
+              {!hasGuestName ? <label className="rg-field"><span>Tên của bạn</span><input value={rsvpName} onChange={(event) => setRsvpName(event.target.value)} placeholder="Nguyễn Văn A" disabled={rsvpLocked} /></label> : null}
+              <div className="rg-rsvp-choices" role="group" aria-label="Lựa chọn tham dự">
+                <button type="button" className={rsvpChoice === 'attending' ? 'is-selected' : ''} onClick={() => setRsvpChoice('attending')} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.attendingLabel}</button>
+                <button type="button" className={rsvpChoice === 'declined' ? 'is-selected' : ''} onClick={() => setRsvpChoice('declined')} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.notAttendingLabel}</button>
+              </div>
+              <button type="button" className="rg-primary-action" onClick={sendRsvp} disabled={rsvpLocked || !rsvpChoice || interactions?.rsvp.submitting}>{interactions?.rsvp.submitting ? 'Đang gửi…' : rsvpLocked ? content.rsvp.successMessage : 'Xác nhận phản hồi'} <ArrowUpRight /></button>
+              {rsvpValidationError || interactions?.rsvp.error ? <p className="rg-form-error" role="alert">{rsvpValidationError || interactions?.rsvp.error}</p> : null}
+              {rsvpLocked && !interactions?.rsvp.error ? <p className="rg-form-success" role="status">{content.rsvp.successMessage}</p> : null}
+            </div>
+            <Artwork src={rendererDecor.centerCluster} alt="" className="rg-section-decor rg-rsvp-decor" />
           </SectionFrame>
         )
       case 'guestbook':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-guestbook">
             <div className="rg-section-number">08 <span>/ 14</span></div><EnvelopeSimple className="rg-guestbook-icon" weight="thin" /><SectionEyebrow>Sổ lưu bút</SectionEyebrow><h2>{content.guestbook.title}</h2><p>{content.guestbook.message}</p>
-            <div className="rg-wish-placeholder"><Heart weight="fill" /><span>Những lời chúc đã duyệt sẽ xuất hiện tại đây.</span></div>
+            <div className="rg-wish-form" aria-live="polite">
+              {!hasGuestName ? <label className="rg-field"><span>Tên của bạn</span><input value={wishName} onChange={(event) => setWishName(event.target.value)} placeholder="Nguyễn Văn A" disabled={wishLocked} /></label> : null}
+              <label className="rg-field"><span>Lời chúc</span><textarea value={wishMessage} onChange={(event) => setWishMessage(event.target.value)} placeholder="Gửi đôi lời yêu thương…" rows={4} disabled={wishLocked} /></label>
+              <button type="button" className="rg-primary-action" onClick={sendWish} disabled={wishLocked || !wishMessage.trim() || interactions?.wishes.submitting}>{interactions?.wishes.submitting ? 'Đang gửi…' : wishLocked ? content.guestbook.successMessage : 'Gửi lời chúc'} <Heart weight="fill" /></button>
+              {wishValidationError || interactions?.wishes.error ? <p className="rg-form-error" role="alert">{wishValidationError || interactions?.wishes.error}</p> : null}
+              {wishLocked && !interactions?.wishes.error ? <p className="rg-form-success" role="status">{content.guestbook.successMessage}</p> : null}
+            </div>
+            <div className="rg-wish-list">
+              {interactions && !wishes.length ? <p className="rg-muted-copy">Chưa có lời chúc nào được duyệt.</p> : null}
+              {wishes.map((wish, index) => <article key={`${wish.name}-${index}`}><Heart weight="fill" /><div><strong>{wish.name}</strong><p>{wish.message}</p></div></article>)}
+            </div>
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-guestbook-decor" />
           </SectionFrame>
         )
       case 'gift':
@@ -434,24 +670,43 @@ export function RoseGardenRenderer({
           </SectionFrame>
         ) : null
       case 'footer':
-        return <footer key={key} className="rg-body-section rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}><Sparkle weight="duotone" /><SectionEyebrow>{content.footer.title}</SectionEyebrow><h2>{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</h2><p>{content.footer.message}</p>{content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media" /> : null}<span className="rg-footer-date">{content.event.weddingDate}</span></footer>
+        return (
+          <footer key={key} className="rg-body-section rg-motion-content is-visible rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}>
+            <Sparkle weight="duotone" className="reveal reveal--zoom-in" />
+            <SectionEyebrow className="reveal reveal--slide-left">{content.footer.title}</SectionEyebrow>
+            <h2 className="reveal reveal--slide-right">{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</h2>
+            <p className="reveal reveal--fade-up">{content.footer.message}</p>
+            {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media reveal reveal--zoom-in" /> : null}
+            <span className="rg-footer-date reveal reveal--slide-down">{content.event.weddingDate}</span>
+            <Artwork src={rendererDecor.wreath} alt="" className="rg-section-decor rg-footer-decor reveal reveal--slide-left" />
+          </footer>
+        )
       default:
         return null
     }
   }
 
   return (
-    <div className="rg-page">
+    <div ref={pageRef} className="rg-page">
       <div className="rg-backdrop" aria-hidden="true">{glints.map((glint) => <i key={glint.id} className="rg-glint" style={{ left: glint.left, top: glint.top, width: glint.size, height: glint.size, animationDelay: glint.delay, animationDuration: glint.duration }} />)}</div>
-      <main className={`rg-invitation ${opened ? 'is-opened' : 'is-closed'}`} aria-label="Thiệp cưới Rose Garden">
+      <ClassicCardCover
+        brideName={content.couple.brideName}
+        groomName={content.couple.groomName}
+        date={content.event.weddingDate}
+        venue={content.event.venueName}
+        note={personalize(content.opening.message, guestName)}
+        leftDecorationSrc={rendererDecor.botanical}
+        rightDecorationSrc={rendererDecor.botanical}
+        openLabel="Chạm để mở thiệp"
+        openedLabel="Thiệp đã mở"
+        sectionKey="opening"
+        order={sectionOrder('opening')}
+        isOpen={opened}
+        isOpening={openingState === 'opening'}
+        onOpen={openInvitation}
+      />
+      <main className={`rg-invitation ${opened ? 'is-opened' : 'is-closed'} ${openingState === 'opening' ? 'is-opening' : ''}`} aria-label="Thiệp cưới Rose Garden">
         <div className="rg-invitation-decor rg-invitation-decor-top" aria-hidden="true" /><div className="rg-invitation-decor rg-invitation-decor-bottom" aria-hidden="true" />
-        <SectionFrame sectionKey="opening" order={sectionOrder('opening')} className="rg-opening">
-          <div className={`rg-opening-stage ${opened ? 'is-opened' : ''}`}>
-            <img className="rg-opening-layer rg-opening-layer-inner" src={openingInnerAsset} alt="" /><img className="rg-opening-layer rg-opening-layer-triangle" src={rendererDecor.openingTriangle} alt="" /><img className="rg-opening-layer rg-opening-layer-front" src={openingFrontAsset} alt="" /><img className="rg-opening-layer rg-opening-layer-closed" src={rendererDecor.openingClosed} alt="" />
-            <div className="rg-opening-card-copy"><span>Rose Garden · 2026</span><strong>{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</strong></div>
-          </div>
-          <div className="rg-opening-copy"><SectionEyebrow>Rose Garden</SectionEyebrow><h1>{content.opening.title}</h1><p>{personalize(content.opening.message, guestName)}</p><button type="button" className="rg-opening-trigger" onClick={() => setOpened(true)} aria-expanded={opened}><ArrowDown /> {opened ? 'Thiệp đã mở' : 'Chạm để mở thiệp'}</button></div>
-        </SectionFrame>
         {sectionKeys.filter((key) => key !== 'opening' && order.includes(key)).map(renderSection)}
       </main>
     </div>

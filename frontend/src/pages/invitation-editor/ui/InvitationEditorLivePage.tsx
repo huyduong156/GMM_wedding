@@ -888,7 +888,7 @@ export function InvitationEditorLivePage() {
                   data={data}
                   palette={palette}
                   fieldErrors={fieldErrors}
-                  update={update}
+                  update={updatePath}
                   setPalette={choosePalette}
                   paletteOptions={paletteOptions}
                   showPalette={index === 0}

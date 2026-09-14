@@ -1,5 +1,32 @@
 import type { RoseGardenData, RoseGardenSectionConfig } from './RoseGardenTypes'
 
+const demoCoupleMedia = {
+  hero: {
+    src: '/assets/images/templates/red-spider-lily/demo/asian-couple-arch.jpg',
+    alt: 'Ảnh demo cặp đôi dưới vòm hoa',
+    mediaAssetId: 'demo-couple-arch',
+    role: 'hero',
+  },
+  portrait: {
+    src: '/assets/images/templates/red-spider-lily/demo/asian-couple-portrait.jpg',
+    alt: 'Ảnh demo chân dung cặp đôi',
+    mediaAssetId: 'demo-couple-portrait',
+    role: 'invitation-memory',
+  },
+  gardenWalk: {
+    src: '/assets/images/templates/cherry-blossom-garden/couple-garden-walk.png',
+    alt: 'Ảnh demo cặp đôi dạo trong vườn',
+    mediaAssetId: 'demo-couple-garden-walk',
+    role: 'invitation-memory',
+  },
+  moonGate: {
+    src: '/assets/images/templates/cherry-blossom-garden/couple-moon-gate.png',
+    alt: 'Ảnh demo cặp đôi bên cổng vườn',
+    mediaAssetId: 'demo-couple-moon-gate',
+    role: 'invitation-memory',
+  },
+} as const
+
 export const roseGardenFixture: RoseGardenData = {
   couple: {
     brideName: 'Mai Anh',
@@ -23,15 +50,15 @@ export const roseGardenFixture: RoseGardenData = {
     title: 'Ngày mình chung đôi',
     message: 'Một khu vườn nhỏ, một lời hẹn lớn và những người thương yêu nhất.',
   },
-  heroMedia: null,
+  heroMedia: demoCoupleMedia.hero,
   invitation: {
     title: 'Kính mời {guestName} đến chung vui',
     message:
       'Sự hiện diện của {guestName} là niềm vui quý giá, để chúng mình được cùng nhau ghi nhớ ngày bắt đầu một chặng đường mới.',
   },
-  invitationMemoryImage1: '',
-  invitationMemoryImage2: '',
-  invitationMemoryImage3: '',
+  invitationMemoryImage1: demoCoupleMedia.portrait,
+  invitationMemoryImage2: demoCoupleMedia.gardenWalk,
+  invitationMemoryImage3: demoCoupleMedia.moonGate,
   families: {
     title: 'Hai gia đình trân trọng báo tin',
     subtitle: 'Lễ thành hôn của các con chúng tôi',
@@ -65,16 +92,19 @@ export const roseGardenFixture: RoseGardenData = {
         time: '17:00',
         title: 'Đón khách',
         description: 'Trà hoa, một góc chụp ảnh và những lời chúc đầu tiên.',
+        image: demoCoupleMedia.gardenWalk,
       },
       {
         time: '17:30',
         title: 'Lễ thành hôn',
         description: 'Cùng chứng kiến lời hẹn trăm năm của hai chúng mình.',
+        image: demoCoupleMedia.portrait,
       },
       {
         time: '18:30',
         title: 'Tiệc thân mật',
         description: 'Nâng ly, dùng tiệc và ở lại thật lâu cùng gia đình.',
+        image: demoCoupleMedia.moonGate,
       },
     ],
   },
@@ -89,7 +119,7 @@ export const roseGardenFixture: RoseGardenData = {
     title: 'Những mảnh vườn ký ức',
     message: 'Album ảnh sẽ được cập nhật từ những khoảnh khắc của hai chúng mình.',
   },
-  galleryImages: [],
+  galleryImages: [demoCoupleMedia.portrait, demoCoupleMedia.gardenWalk, demoCoupleMedia.moonGate],
   rsvp: {
     title: 'Bạn sẽ đến chung vui cùng chúng mình chứ?',
     message: 'Vui lòng phản hồi để gia đình chuẩn bị đón tiếp bạn chu đáo.',
@@ -118,7 +148,7 @@ export const roseGardenFixture: RoseGardenData = {
     title: 'Hẹn gặp bạn trong ngày vui',
     message: 'Cảm ơn bạn đã mở tấm thiệp và trở thành một phần trong ngày đặc biệt của chúng mình.',
   },
-  footerMedia: null,
+  footerMedia: demoCoupleMedia.portrait,
 }
 
 export const roseGardenSectionConfig: RoseGardenSectionConfig = {

@@ -55,7 +55,7 @@ Mobile invitation cho khách mời Việt Nam, với ngôn ngữ editorial botan
 | Love journey | Horizontal rose timeline | Kể hành trình bằng nhịp chuyển ngắn |
 | Venue | Map card with botanical marker | Địa điểm và CTA chỉ đường |
 | Gallery | Floating photo frames | Album có nhịp editorial, không phải grid đều |
-| RSVP | Response card | Xác nhận tham dự, guestName và trạng thái khóa form |
+| RSVP | Response card | Xác nhận tham dự qua `PublicInteractions.rsvp`, guestName và trạng thái khóa form |
 | Guestbook | Rose note stack | Lời chúc đã duyệt và form gửi lời chúc |
 | Gift | QR reveal card | QR ẩn sau nút, lời cảm ơn nằm dưới QR |
 | Footer | Closing garden composition | Lời cảm ơn và closure nhẹ |
@@ -108,7 +108,7 @@ Canonical naming rule: `timeline` is the only section key for the rose journey. 
 | `venue` | Optional | Địa điểm và chỉ đường | Venue name, address, map URL | Address remains; CTA hides without URL | Toggle/reorder |
 | `gallery` | Optional | Album ảnh | Gallery images and style | Designed empty state, max 12 | Toggle/reorder |
 | `rsvp` | Optional | Xác nhận tham dự | Deadline, message, guestName-aware form | Missing name shows validation | Toggle/reorder |
-| `guestbook` | Optional | Lời chúc đã duyệt | API list and guestName-aware submit | Approved-list empty state | Toggle/reorder |
+| `guestbook` | Optional | Lời chúc đã duyệt | API list and guestName-aware submit qua `PublicInteractions.wishes` | Approved-list empty state | Toggle/reorder |
 | `gift` | Optional | QR mừng cưới | QR, gift message, thank-you message | QR opens from button; thank-you below QR | Toggle/reorder |
 | `music` | Optional | Nhạc nền | URL, name, autoplay | Shared player; hidden without track | Toggle, fixed order |
 | `footer` | Yes | Lời cảm ơn/closure | Footer message and optional media | Text-only botanical closure | Fixed last |
@@ -148,8 +148,8 @@ The section matrix is paired with this field map so editor, fixture and renderer
 | `timeline` | `timeline.items[].time`, `timeline.items[].title`, `timeline.items[].description`, `timeline.items[].image` | Repeatable items; fixture contains three examples | Empty list hides content and heading |
 | `venue` | `venue.title`, `venue.name`, `venue.address`, `venue.mapUrl`, `venue.message` | Text fields plus map URL | Address remains; map CTA hides without URL |
 | `gallery` | `gallery.title`, `gallery.message`, `galleryImages` | Repeatable images, max 12 | Designed empty state; no broken frame |
-| `rsvp` | `rsvp.title`, `rsvp.message`, `rsvp.deadline`, `rsvp.successMessage`, `rsvp.attendingLabel`, `rsvp.notAttendingLabel` | Shared RSVP form; guestName from public context | Missing name validates; success locks form |
-| `guestbook` | `guestbook.title`, `guestbook.message`, `guestbook.successMessage` | Shared approved-list/form component | Approved-list empty state; success locks form |
+| `rsvp` | `rsvp.title`, `rsvp.message`, `rsvp.deadline`, `rsvp.successMessage`, `rsvp.attendingLabel`, `rsvp.notAttendingLabel` | `PublicInteractions.rsvp.submit`; guestName from public context | Missing name validates; API error surfaces; success locks form |
+| `guestbook` | `guestbook.title`, `guestbook.message`, `guestbook.successMessage` | `PublicInteractions.wishes.submit` + approved list | Missing name/message validates; API error surfaces; success locks form |
 | `gift` | `gift.title`, `gift.message`, `gift.thankYouMessage`, `giftQrMedia` | QR image field plus text fields | QR opens from button; thank-you only when non-empty |
 | `music` | Shared music capability keys | Shared music editor/player only | Hidden without track; no duplicate player |
 | `footer` | `footer.title`, `footer.message`, `footerMedia` | Text fields plus optional image | Text-only botanical closure |
@@ -160,16 +160,33 @@ The section matrix is paired with this field map so editor, fixture and renderer
 | --- | --- | --- | --- | --- | --- |
 | Opening | `openingMediaBack` / opening-back | User | 0–1 | Portrait, `cover`, focal center | Fixed opening inner-card artwork |
 | Opening | `openingMediaFront` / opening-front | User | 0–1 | Portrait, `contain` or mask | Fixed opening front-frame artwork |
-| Cover | `heroMedia` / hero | User | 0–1 | 4:5 portrait, `cover`, focal center-top | Neutral empty media frame; envelope is separate decor |
-| Invitation | `invitationMemoryImage1..3` / memory | User | 0–3 | Portrait/editorial, `cover` | Paper and typography |
+| Cover | `heroMedia` / hero | User | 0–1 | 4:5 portrait, `cover`, focal center-top | Demo fixture uses the existing repository couple image; empty upload keeps neutral frame |
+| Invitation | `invitationMemoryImage1..3` / memory | User | 0–3 | Portrait/editorial, `cover` | Demo fixture uses three existing couple images; missing upload removes only its image layer |
 | Event | `eventDetailsMedia` / event-details | User | 0–1 | Portrait/square, `cover` | Renderer-owned pressed-flower divider |
 | Timeline | `timeline.items[].image` / timeline | User | 0–10 | Portrait, `cover` | Text-only markers |
 | Venue | `mapUrl` | User/data | 0–1 | External CTA | Address text |
-| Gallery | `galleryImages` / gallery | User | 0–12 | Fixed frames, preserve focal point | Editorial empty state |
+| Gallery | `galleryImages` / gallery | User | 0–12 | Fixed frames, preserve focal point | Demo fixture uses the same approved repository couple set; empty upload keeps editorial empty state |
 | Gift | `giftQrMedia` / gift-qr | User | 0–1 | Square, `contain`, never crop | Empty QR panel |
 | Footer | `footerMedia` / footer | User | 0–1 | Portrait/landscape, `cover` | Text-only closure |
 
 Renderer-owned artwork is separate from these fields: opening gate, seal, frame/mask, divider, corner branch, ambient sprite and paper texture. It is never selectable as user content.
+
+### Demo fixture media
+
+The preview fixture intentionally ships with the existing repository demo couple images so the
+template can be evaluated as a real invitation instead of only empty upload frames. These remain
+user-media fixture values, not Rose Garden renderer-owned artwork:
+
+| Fixture slot | Existing repository asset |
+| --- | --- |
+| `heroMedia` | `/assets/images/templates/red-spider-lily/demo/asian-couple-arch.jpg` |
+| `invitationMemoryImage1` | `/assets/images/templates/red-spider-lily/demo/asian-couple-portrait.jpg` |
+| `invitationMemoryImage2` | `/assets/images/templates/cherry-blossom-garden/couple-garden-walk.png` |
+| `invitationMemoryImage3` | `/assets/images/templates/cherry-blossom-garden/couple-moon-gate.png` |
+| `galleryImages`, timeline images and `footerMedia` | The same three existing couple assets, reused as demo content only |
+
+The editor can replace or clear every slot. Tests still pass explicit empty media values to verify
+that empty/error-safe rendering does not remove Rose Garden identity or renderer-owned decor.
 
 Canonical correction for the journey row above: use section key `timeline` and media key `timeline.items[].image` everywhere. The earlier `loveJourney[].image` label is deprecated and must not be implemented.
 
@@ -221,6 +238,10 @@ Fixed memory slots are three independent image fields. Gallery is the only repea
 
 Before generating artwork, every renderer-owned asset must be recorded in an asset brief with: `assetKey`, role, owning section, visual metaphor, palette/material, transparent-background requirement, aspect ratio, pixel target, safe area, mobile behavior, desktop behavior, filename/path, prompt/provenance and approval criteria. The initial Rose Garden batch should cover at least: opening gate/envelope, rose seal, botanical frame or corner branch, pressed-flower divider, paper texture/light overlay, timeline marker and gift/gallery prop. User-upload media must not be generated in this phase.
 
+The product owner approved the Phase 2.5 artwork batch on 2026-09-12. The locked file set,
+section ownership, briefs, prompt/provenance, responsive constraints and approval checklist are
+recorded in `ASSET_MANIFEST.md`; `ARTWORK_PREVIEW.md` is the approved batch preview sheet.
+
 ## Non-goals
 
 - Không xây desktop website dạng hai cột.
@@ -260,10 +281,10 @@ at 480px. On wider screens only `.rg-backdrop` occupies the gutter; all invitati
 stays clipped by `.rg-invitation`.
 
 The opening stage deliberately keeps all four approved layers on one shared canvas so the triangle
-flap and the front V-window can be registered precisely. Phase 3 only exposes a static opened state
-for composition testing. The detailed fold, slide-up, easing, reduced-motion choreography and
-performance pause rules belong to Phase 4. Media finalization, live guestbook/RSVP/music data and
-ambient asset integration belong to Phase 5.
+flap and the front V-window can be registered precisely. Phase 3 established the static composition;
+Phase 4 now adds the detailed fold, section reveal, easing, reduced-motion choreography and bounded
+pointer depth described below. Media finalization, live guestbook/RSVP/music data and final asset
+optimization/integration remain Phase 5 work.
 
 ### Phase 3 layout and transition map
 
@@ -282,7 +303,7 @@ keeps the mobile invitation expressive without turning every section into the sa
 | `venue` | Address block with circular map marker | Curved background line carries into the gallery rail |
 | `gallery` | Native horizontal photo rail or designed empty state | Rail ends at the centered RSVP reply card |
 | `rsvp` | Reply card shell | Response area moves into the approved-wishes ledger |
-| `guestbook` | Ledger-like approved-wishes shell | Thin paper rule leads to the gift reveal |
+| `guestbook` | Ledger-like approved-wishes form and list | Thin paper rule leads to the gift reveal |
 | `gift` | Square QR moment with optional thank-you text | Compact utility moment leads to the music dock |
 | `music` | Thin ambient player dock | Rule and spacing create a quiet footer pause |
 | `footer` | Closing letter and couple signature | Deep rose closure ends the invitation |
@@ -302,11 +323,91 @@ keeps the mobile invitation expressive without turning every section into the sa
 
 - [x] Isolated Rose Garden fixture and editor contract with canonical content keys.
 - [x] All 14 section keys render through one section map with `data-editor-section` hooks.
-- [x] Required/optional enable state and stored section order are honored.
-- [x] User-upload slots are empty by default; renderer-owned artwork is rendered only as a separate
-  decorator or fixed opening layer.
+- [x] Required sections are restored when stored enable state is malformed; optional toggles,
+      duplicate keys and stored section order are normalized.
+- [x] Demo fixture user-media slots use existing repository couple images; explicit empty overrides
+  still preserve fallback behavior, while renderer-owned artwork remains separate decor.
 - [x] Opening has four aligned layers and a tested static open/closed state.
 - [x] Gallery, timeline, QR, footer, event media and memory slots have explicit empty behavior.
 - [x] Public mobile composition is capped at 480px with desktop gutter atmosphere isolated outside it.
 - [x] Responsive and reduced-motion behavior is documented and represented in the renderer/CSS.
-- [x] Component tests cover the section map, opening state, optional section toggle and media ownership.
+- [x] Family content stacks at 400px and below; long names and addresses remain readable.
+- [x] Component tests cover the section map, opening state, every optional toggle, required anchors,
+      malformed order, long family content and media ownership.
+
+### Phase 3 validation
+
+- Rose Garden component tests: 13/13 passing.
+- TypeScript and Rose Garden scoped ESLint: passing.
+- Browser widths 375, 390, 480, 768 and 1440px: no horizontal overflow; invitation is capped at
+  480px above the mobile breakpoint.
+- Editor preview renders all 14 section hooks. Public preview renders 13 when music has no track,
+  which is the documented empty behavior.
+- Reduced motion removes backdrop animation and opening transition; browser console has no errors.
+
+### Phase 4 motion and interaction map
+
+Phase 4 adds the visual experience layer without changing the 14-section contract or template
+version. The opening remains the single hero choreography: the approved 2:3 layers settle with
+an ease-out fold/reveal. After opening, each body section gets a one-time `IntersectionObserver`
+reveal using opacity and a 24px transform, with a small section-level stagger. On fine pointers,
+the two invitation-owned corner ornaments respond to pointer position with a restrained 16px
+parallax range. Timeline nodes now use the approved `rg-timeline-bloom.png` as a quiet depth cue;
+memory cards and the opening trigger have hover/press feedback only on devices that support hover.
+
+All motion stays on `transform` and `opacity`, unobserved sections stop consuming observer work,
+and no animation changes layout dimensions or scroll behavior. `prefers-reduced-motion` makes all
+sections immediately visible, freezes parallax and bloom motion, and removes hover/transition
+timing while preserving the same content hierarchy. User media and QR content remain independent
+of renderer-owned motion.
+
+#### Phase 4 technique map
+
+| Section / technique | UX purpose and trigger | Timing / easing | Desktop + mobile behavior | Touch / keyboard / reduced-motion | Fallback and budget |
+| --- | --- | --- | --- | --- | --- |
+| `opening` fold/reveal | Confirm tap and establish the invitation threshold; opening button | 700ms ease-out on `transform`/`opacity` | Same 2:3 stack; full card canvas on mobile | 44px keyboard/touch button, locks during opening, focus moves to `cover`; reduced motion completes immediately | CSS-only layers; one hero stack |
+| `cover`, `invitation`, `families` reveals | Establish reading order; scroll visibility | 650ms ease-out, once | 480px desktop cap; full-width mobile, family stacks at ≤400px | Content stays in DOM; reduced motion instant | Observer fallback marks visible; transform/opacity only |
+| `eventDetails`, `countdown`, `venue` reveals | Lead to date, pause and map actions; scroll visibility | 650ms ease-out | Bands and seams stay clipped inside canvas | Native links remain keyboard/touch reachable; reduced motion instant | No timers, iframe or layout measurement |
+| `timeline` reveal + bloom | Make event rhythm scannable; scroll plus fine-pointer hover | 650ms reveal; 500ms bloom ease | Bloom scales with node at both widths | Hover only for fine pointers; reduced motion freezes bloom | One approved PNG per item; no RAF/canvas |
+| `gallery` reveal / rail | Invite exploration without stealing scroll; scroll/native rail | 650ms ease-out | Native horizontal rail on mobile and desktop | Touch/keyboard native; no auto-pan; reduced motion instant | CSS overflow only |
+| `rsvp`, `guestbook`, `gift` reveals | Prepare response, wishes and QR utility; scroll visibility | 650ms ease-out + child stagger | Full-width shells; QR stays square | Native focus order; API errors visible; reduced motion instant | RSVP/wishes use public interaction controllers |
+| `music` dock reveal | Signal optional soundtrack without competing; scroll visibility | 650ms ease-out | Thin dock remains in section order | No autoplay interaction; reduced motion instant | Hidden without URL; no audio loop |
+| `footer` reveal | Give a calm closing beat; scroll visibility | 650ms ease-out | Deep rose closure stays bounded | Content remains keyboard reachable; reduced motion instant | Observer fallback; one section |
+| Corner-decor parallax and card/button feedback | Add depth and confirm affordance; fine pointer/hover/press only | 700–900ms parallax settle; 160–220ms feedback ease | Pointer range is capped at 16px; touch has no hover lift | Reduced motion resets vars and removes transitions | One pointer listener, only fine pointers; no user-media motion |
+
+Browser fallback: if `IntersectionObserver` is unavailable, the motion-ready surface marks all
+mounted sections visible and keeps the invitation readable. Performance budget is one observer
+per rendered invitation, one pointer listener only on fine pointers, and zero animation loops on
+user media.
+
+### Phase 4 completion checklist
+
+- [x] Opening fold/reveal remains the signature hero moment with reduced-motion fallback.
+- [x] Body sections reveal once on scroll with no layout-property animation.
+- [x] Fine-pointer parallax is limited to invitation-owned corner decor and resets on leave.
+- [x] Timeline bloom artwork is integrated as an approved, non-semantic decorative layer.
+- [x] Memory-card hover and opening-button press feedback are touch-safe.
+- [x] Reduced-motion mode disables reveal/parallax/decor motion without hiding content.
+- [x] Tests, typecheck and Rose Garden scoped lint pass after the motion layer.
+
+### Phase 5 integration map
+
+Phase 5 currently integrates the approved atmosphere asset and system effects while keeping
+content media independent:
+
+| Area | Integrated behavior | Pause/fallback | Budget and release note |
+| --- | --- | --- | --- |
+| `cover` atmosphere | `rg-center-rose-petal-cluster.png` is a bounded, low-opacity decor layer; nine small petal particles drift only while the cover is visible | `IntersectionObserver` pauses when cover leaves view; `document.hidden` pauses the layer; reduced motion hides particle motion and keeps the cluster static | One DOM layer, nine particles, no per-particle listeners; no content/CTA overlap |
+| Background light | Existing desktop glints remain outside the 480px invitation and are paused on hidden documents | Mobile hides gutter atmosphere; reduced motion disables glint animation | Existing 20-glint cap, no new canvas loop |
+| Gallery depth | Gallery rail gets a bounded perspective plane and fine-pointer card lift/tilt | Touch has no hover behavior; reduced motion removes transition/transform | CSS `transform`/`opacity` only; no scroll hijacking |
+| Approved decor map | Opening layers, envelope, botanical cluster, divider, charm, timeline bloom and cover petal cluster map to their owning section | Empty user media never removes renderer-owned identity; alt text stays empty for decor | Source/provenance remains in `ASSET_MANIFEST.md`; optimization/promotion remains release follow-up |
+
+### Phase 5 validation and release checklist
+
+- [x] Approved artwork is integrated by section without changing the 14-section contract.
+- [x] Cover atmosphere is bounded, visibility-paused, document-hidden-paused and reduced-motion safe.
+- [x] Gallery has one restrained CSS 3D depth treatment with touch/keyboard-safe fallback.
+- [x] Renderer-owned decor remains `alt=""`; user media and QR content remain semantic/independent.
+- [x] 375/390/480/768/1440px overflow, reduced-motion and console checks remain required before release.
+- [x] Tests, typecheck, scoped lint and production build pass after Phase 5 integration.
+- [ ] Final asset optimization/promotion out of `artwork-drafts` and release review remain open.
