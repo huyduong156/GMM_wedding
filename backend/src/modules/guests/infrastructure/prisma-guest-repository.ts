@@ -69,7 +69,11 @@ function decode(cursor?: string) {
 export class PrismaGuestRepository implements GuestRepository {
   constructor(private readonly prisma: PrismaClient) {}
   private ownedWhere(userId: string, weddingId: string) {
-    return { id: weddingId, createdById: userId, deletedAt: null }
+    return {
+      id: weddingId,
+      deletedAt: null,
+      members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } },
+    }
   }
   private async owns(userId: string, weddingId: string) {
     return Boolean(

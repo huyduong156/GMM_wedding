@@ -52,7 +52,6 @@ enum WeddingVisibility {
 enum WeddingMemberRole {
   OWNER
   EDITOR
-  GUEST_MANAGER
   VIEWER
 }
 
@@ -60,6 +59,18 @@ enum MembershipStatus {
   INVITED
   ACTIVE
   REVOKED
+}
+
+enum WorkspaceAccessRole {
+  EDITOR
+  VIEWER
+}
+
+enum WorkspaceAccessStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
 }
 
 enum WeddingSurface {
@@ -199,6 +210,8 @@ model User {
   sessions            Session[]
   memberships         WeddingMember[]
   createdWeddings     Wedding[]                @relation("WeddingCreator")
+  createdWorkspaceAccesses WeddingWorkspaceAccess[] @relation("WorkspaceAccessCreator")
+  acceptedWorkspaceAccesses WeddingWorkspaceAccess[] @relation("WorkspaceAccessAccepter")
   completedTasks      WeddingTask[]            @relation("TaskCompletedBy")
   notifications       Notification[]
   notificationPrefs   NotificationPreference[]
@@ -294,6 +307,7 @@ model Wedding {
   deletedAt          DateTime?                  @db.Timestamptz(3)
   createdBy          User                       @relation("WeddingCreator", fields: [createdById], references: [id], onDelete: Restrict)
   members            WeddingMember[]
+  workspaceAccesses  WeddingWorkspaceAccess[]
   events             WeddingEvent[]
   content            WeddingContent[]
   snapshots          PublishedWeddingSnapshot[]
@@ -330,6 +344,35 @@ model WeddingMember {
   @@unique([weddingId, userId])
   @@index([userId, status])
   @@index([weddingId, role, status])
+}
+
+/// Quyền truy cập workspace đang chờ hoặc đã được claim bởi một user.
+model WeddingWorkspaceAccess {
+  id               String                @id @default(uuid()) @db.Uuid
+  /// Wedding mà link này cấp quyền truy cập.
+  weddingId        String                @db.Uuid
+  /// User owner/editor đã tạo link truy cập.
+  createdByUserId  String                @db.Uuid
+  /// User duy nhất đã claim link này.
+  acceptedByUserId String?               @db.Uuid
+  email            String?               @db.VarChar(320)
+  /// Quyền sẽ cấp sau khi chấp nhận link.
+  role             WorkspaceAccessRole
+  status           WorkspaceAccessStatus @default(PENDING)
+  /// Hash của token URL dùng một lần.
+  tokenHash        String                @unique @db.VarChar(128)
+  expiresAt        DateTime              @db.Timestamptz(3)
+  acceptedAt       DateTime?             @db.Timestamptz(3)
+  revokedAt        DateTime?             @db.Timestamptz(3)
+  createdAt        DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime              @updatedAt @db.Timestamptz(3)
+  wedding          Wedding               @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  createdBy        User                  @relation("WorkspaceAccessCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  acceptedBy       User?                 @relation("WorkspaceAccessAccepter", fields: [acceptedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([weddingId, status, createdAt])
+  @@index([email, weddingId, status])
+  @@index([acceptedByUserId])
 }
 
 model WeddingEvent {
@@ -564,6 +607,8 @@ model RsvpResponse {
   id              String               @id @default(uuid()) @db.Uuid
   weddingId       String               @db.Uuid
   guestId         String?              @db.Uuid
+  /// Tên khách tự nhập khi RSVP qua link chung.
+  anonymousGuestName String?           @db.VarChar(160)
   attendance      AttendanceStatus
   partySize       Int
   mealPreference  String?              @db.VarChar(160)

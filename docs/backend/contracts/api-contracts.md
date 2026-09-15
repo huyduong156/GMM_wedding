@@ -23,6 +23,7 @@ Tài liệu này liệt kê surface API và convention tổng quát. Chi tiết 
 
 - Auth: `POST /auth/{register,login,logout,forgot-password,reset-password}`, `GET|PATCH /me`.
 - Wedding base đã implement: `GET|POST /weddings`, `GET|PATCH|DELETE /weddings/{id}`, CRUD `/weddings/{id}/events`, `GET /weddings/{id}/dashboard` và `GET /weddings/{id}/analytics`; slug availability, surface-scoped content/theme, publish/unpublish và preview token đã có contract; recap dùng cùng Wedding.slug.
+- Workspace access: owner tạo/revoke link một lần qua `/weddings/{id}/workspace-access`; user đăng nhập rồi claim qua `POST /workspace-access/{token}` để tạo `WeddingMember` ACTIVE. Role MVP gồm `OWNER`, `EDITOR`, `VIEWER`.
 - Template/media: `GET /templates[...]`, upload intent/complete/list/delete.
 - Nhạc nền: user đọc `GET /music-tracks`, upload/complete/retire personal track qua `/music-tracks[...]`; platform admin upload/complete/activate/retire system track qua `/admin/music-tracks[...]`. System track user chỉ được dùng, không được xóa; personal track chỉ owner được quản lý. Content lưu `musicTrackId` cùng revision.
 - Guest: CRUD với `name` bắt buộc, `displayName` tùy chọn và `slug` server-generated, group, import preview/commit, export.
