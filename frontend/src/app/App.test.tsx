@@ -88,6 +88,32 @@ describe('Owner Workspace', () => {
     )
   })
 
+  it('renders the Wedding member management route in operations', async () => {
+    window.history.replaceState(null, '', '/studio/members')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        Promise.resolve(
+          new Response(JSON.stringify(url.includes('/members') ? { members: [] } : { access: [] }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        ),
+      ),
+    )
+    render(
+      <NavigationProvider>
+        <App />
+      </NavigationProvider>,
+    )
+    expect(screen.getByRole('heading', { name: 'Thành viên Wedding' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Thành viên' })).toHaveAttribute(
+      'href',
+      '/studio/members',
+    )
+    await waitFor(() => expect(screen.getByText('Thành viên đang hoạt động (0)')).toBeInTheDocument())
+  })
+
   it('renders the wishes moderation workspace', () => {
     window.history.replaceState(null, '', '/studio/wishes')
     render(
@@ -156,6 +182,34 @@ describe('Owner Workspace', () => {
     )
     expect(screen.getByRole('heading', { name: 'Đăng nhập' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Đăng nhập' })).toHaveAttribute('type', 'submit')
+  })
+
+  it('renders a workspace access link and asks a signed-out user to authenticate', async () => {
+    window.history.replaceState(null, '', '/workspace-access/link-token')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            access: {
+              id: 'access-1',
+              weddingId: 'wedding-1',
+              weddingName: 'Minh Anh & Hoàng Nam',
+              role: 'EDITOR',
+              expiresAt: '2026-12-31T00:00:00.000Z',
+            },
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        ),
+      ),
+    )
+    render(
+      <NavigationProvider>
+        <App />
+      </NavigationProvider>,
+    )
+    expect(await screen.findByRole('heading', { name: /Bạn được mời vào Minh Anh & Hoàng Nam/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Đăng nhập để tham gia/i })).toBeInTheDocument()
   })
 
   it('renders the platform admin dashboard with its own navigation', () => {

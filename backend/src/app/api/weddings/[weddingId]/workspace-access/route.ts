@@ -5,6 +5,7 @@ import { getWorkspaceAccessService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
 import { workspaceAccessCreateSchema } from '@/modules/weddings/interface/workspace-access-schemas'
 import { weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
+import { getServerEnv } from '@/platform/config/env'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const result = await getWorkspaceAccessService().create(actor, await id(context), await parseJson(request, workspaceAccessCreateSchema))
-    const origin = request.nextUrl.origin
+    const frontendOrigin = new URL(getServerEnv().APP_ORIGIN).origin
     const access = {
       id: result.access.id,
       weddingId: result.access.weddingId,
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest, context: Context) {
       revokedAt: result.access.revokedAt,
       createdAt: result.access.createdAt,
       updatedAt: result.access.updatedAt,
-      acceptUrl: `${origin}/workspace-access/${result.token}`,
+      acceptUrl: `${frontendOrigin}/workspace-access/${result.token}`,
     }
     return withApiHeaders(jsonResponse({ access }, { status: 201 }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }

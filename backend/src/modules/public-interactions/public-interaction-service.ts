@@ -71,7 +71,9 @@ export class PublicInteractionService {
     if (input.partySize < 1 || input.partySize > maxPartySize)
       throw new GuestError('RSVP_PARTY_SIZE_INVALID', 400, `Party size must be between 1 and ${maxPartySize}`)
     const optional = {
-      ...(guestId === null ? { anonymousGuestName: input.guestName } : {}),
+      ...(guestId === null && input.guestName !== undefined
+        ? { anonymousGuestName: input.guestName }
+        : {}),
       ...(input.mealPreference !== undefined ? { mealPreference: input.mealPreference } : {}),
       ...(input.specialRequest !== undefined ? { specialRequest: input.specialRequest } : {}),
       ...(input.message !== undefined ? { message: input.message } : {}),

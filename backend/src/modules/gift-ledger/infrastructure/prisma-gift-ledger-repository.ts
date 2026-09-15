@@ -92,12 +92,12 @@ function map(
 
 export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
   constructor(private readonly prisma: PrismaClient) {}
-  private ownedWhere(userId: string, weddingId: string) {
+  private ownedWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
     return {
       id: weddingId,
       deletedAt: null,
       members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } },
-    } as const
+    }
   }
   private async owns(userId: string, weddingId: string) {
     return Boolean(
