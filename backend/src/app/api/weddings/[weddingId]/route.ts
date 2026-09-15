@@ -9,6 +9,7 @@ import {
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import { updateWeddingSchema, weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
@@ -24,8 +25,10 @@ export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     const { actor } = await requireAuthenticatedUser(request)
+    const id = await weddingId(context)
+    await requireWeddingPermission(actor.userId, id, 'READ')
     return withApiHeaders(
-      jsonResponse({ wedding: await getWeddingService().get(actor, await weddingId(context)) }),
+      jsonResponse({ wedding: await getWeddingService().get(actor, id) }),
       requestId,
     )
   } catch (error) {
@@ -39,9 +42,11 @@ export async function PATCH(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, updateWeddingSchema)
+    const id = await weddingId(context)
+    await requireWeddingPermission(actor.userId, id, 'EDIT')
     return withApiHeaders(
       jsonResponse({
-        wedding: await getWeddingService().update(actor, await weddingId(context), input),
+        wedding: await getWeddingService().update(actor, id, input),
       }),
       requestId,
     )
@@ -55,7 +60,9 @@ export async function DELETE(request: NextRequest, context: Context) {
   try {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
-    await getWeddingService().remove(actor, await weddingId(context))
+    const id = await weddingId(context)
+    await requireWeddingPermission(actor.userId, id, 'OWNER')
+    await getWeddingService().remove(actor, id)
     return withApiHeaders(new Response(null, { status: 204 }), requestId)
   } catch (error) {
     return weddingErrorResponse(error, requestId)

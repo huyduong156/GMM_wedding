@@ -11,6 +11,7 @@ import { RecapError } from '@/modules/recaps/application/recap-service'
 import { recapErrorResponse } from '@/modules/recaps/interface/recap-http'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import { publishWeddingSchema, weddingIdSchema } from '@/modules/weddings/interface/wedding-schemas'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 export const dynamic = 'force-dynamic'
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, publishWeddingSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     if (input.surface === 'RECAP') {
       return withApiHeaders(
         jsonResponse(

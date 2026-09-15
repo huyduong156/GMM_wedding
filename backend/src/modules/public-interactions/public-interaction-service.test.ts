@@ -10,6 +10,15 @@ function prismaMock(maxPartySize:number, upsert=vi.fn()) {
   } as unknown as PrismaClient
 }
 describe("PublicInteractionService",()=>{
+  it("stores the anonymous RSVP name submitted from the common invitation URL",async()=>{
+    const create=vi.fn().mockResolvedValue({id:"rsvp-1",guestId:null,attendance:"ATTENDING",partySize:1,updatedAt:new Date()})
+    const prisma={
+      publishedWeddingSnapshot: { findFirst: vi.fn().mockResolvedValue({ wedding: { id: "wedding-1" } }) },
+      rsvpResponse: { create },
+    } as unknown as PrismaClient
+    await new PublicInteractionService(prisma).submitRsvp("mai-duc",{guestName:"Nguyễn An",attendance:"ATTENDING",partySize:1})
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({anonymousGuestName:"Nguyễn An"})}))
+  })
   it("rejects an RSVP above the guest party-size limit",async()=>{
     const prisma=prismaMock(2)
     await expect(new PublicInteractionService(prisma).submitPersonalRsvp("mai-duc","guest-1",{attendance:"ATTENDING",partySize:3})).rejects.toMatchObject({code:"RSVP_PARTY_SIZE_INVALID",status:400})

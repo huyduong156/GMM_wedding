@@ -373,7 +373,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
   }
   async listOwned(userId: string): Promise<WeddingView[]> {
     const rows = await this.prisma.wedding.findMany({
-      where: { createdById: userId, deletedAt: null },
+      where: { deletedAt: null, members: { some: { userId, status: 'ACTIVE' } } },
       select: weddingSelect,
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
     })
@@ -1470,7 +1470,11 @@ export class PrismaWeddingRepository implements WeddingRepository {
     )
   }
   private ownedWhere(userId: string, weddingId: string) {
-    return { id: weddingId, createdById: userId, deletedAt: null } as const
+    return {
+      id: weddingId,
+      deletedAt: null,
+      members: { some: { userId, status: 'ACTIVE' } },
+    } as const
   }
   private async isOwned(userId: string, weddingId: string) {
     return Boolean(

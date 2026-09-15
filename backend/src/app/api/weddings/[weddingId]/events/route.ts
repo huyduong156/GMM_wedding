@@ -9,6 +9,7 @@ import {
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import {
   createWeddingEventSchema,
   weddingIdSchema,
@@ -26,8 +27,10 @@ export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
     const { actor } = await requireAuthenticatedUser(request)
+    const weddingId = await id(context)
+    await requireWeddingPermission(actor.userId, weddingId, 'READ')
     return withApiHeaders(
-      jsonResponse({ items: await getWeddingService().listEvents(actor, await id(context)) }),
+      jsonResponse({ items: await getWeddingService().listEvents(actor, weddingId) }),
       requestId,
     )
   } catch (error) {
@@ -41,9 +44,11 @@ export async function POST(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, createWeddingEventSchema)
+    const weddingId = await id(context)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     return withApiHeaders(
       jsonResponse(
-        { event: await getWeddingService().createEvent(actor, await id(context), input) },
+        { event: await getWeddingService().createEvent(actor, weddingId, input) },
         { status: 201 },
       ),
       requestId,

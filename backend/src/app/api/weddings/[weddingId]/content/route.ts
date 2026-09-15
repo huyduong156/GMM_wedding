@@ -8,6 +8,7 @@ import {
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import {
   contentQuerySchema,
   saveWeddingContentSchema,
@@ -26,6 +27,7 @@ export async function GET(request: NextRequest, context: Context) {
       surface: request.nextUrl.searchParams.get('surface') ?? undefined,
     }).surface
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
+    await requireWeddingPermission(actor.userId, weddingId, 'READ')
     return withApiHeaders(
       jsonResponse({ content: await getWeddingService().getContent(actor, weddingId, surface) }),
       requestId,
@@ -41,6 +43,7 @@ export async function PUT(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, saveWeddingContentSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     return withApiHeaders(
       jsonResponse({ content: await getWeddingService().saveContent(actor, weddingId, input) }),
       requestId,

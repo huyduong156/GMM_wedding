@@ -26,7 +26,11 @@ export class MediaManager {
   ) {}
   private async owner(userId: string, weddingId: string) {
     return this.prisma.wedding.findFirst({
-      where: { id: weddingId, createdById: userId, deletedAt: null },
+      where: {
+        id: weddingId,
+        deletedAt: null,
+        members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } },
+      },
       select: { id: true },
     })
   }

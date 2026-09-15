@@ -1,1 +1,1 @@
-export { getWeddingService } from './composition'
+export { getWeddingService, getWorkspaceAccessService } from './composition'

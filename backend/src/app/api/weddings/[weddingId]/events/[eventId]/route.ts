@@ -10,6 +10,7 @@ import {
 import { requireAuthenticatedUser } from '@/modules/identity/interface/request-authenticator'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import {
   updateWeddingEventSchema,
   weddingIdSchema,
@@ -34,6 +35,7 @@ export async function PATCH(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, updateWeddingEventSchema)
     const { weddingId, eventId } = await ids(context)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     return withApiHeaders(
       jsonResponse({
         event: await getWeddingService().updateEvent(actor, weddingId, eventId, input),
@@ -51,6 +53,7 @@ export async function DELETE(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const { weddingId, eventId } = await ids(context)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     await getWeddingService().removeEvent(actor, weddingId, eventId)
     return withApiHeaders(new Response(null, { status: 204 }), requestId)
   } catch (error) {

@@ -114,7 +114,7 @@ export class RecapService {
 
   async getDraft(userId: string, weddingId: string) {
     const owned = await this.prisma.wedding.findFirst({
-      where: { id: weddingId, createdById: userId, deletedAt: null },
+      where: { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } },
       select: { id: true },
     })
     if (!owned) throw new RecapError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
@@ -127,7 +127,7 @@ export class RecapService {
   async saveDraft(userId: string, weddingId: string, input: RecapSaveInput) {
     const owned = weddingId
       ? await this.prisma.wedding.findFirst({
-          where: { id: weddingId, createdById: userId, deletedAt: null },
+          where: { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } },
           select: { id: true },
         })
       : null
@@ -263,7 +263,7 @@ export class RecapService {
   async publish(userId: string, weddingId: string, input: RecapPublishInput) {
     const owned = weddingId
       ? await this.prisma.wedding.findFirst({
-          where: { id: weddingId, createdById: userId, deletedAt: null },
+          where: { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } },
           select: { id: true, slug: true },
         })
       : null
@@ -391,7 +391,7 @@ export class RecapService {
   async unpublish(userId: string, weddingId: string, revision: number) {
     const owned = weddingId
       ? await this.prisma.wedding.findFirst({
-          where: { id: weddingId, createdById: userId, deletedAt: null },
+          where: { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } },
           select: { id: true },
         })
       : null

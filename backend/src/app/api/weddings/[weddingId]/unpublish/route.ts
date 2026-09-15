@@ -11,6 +11,7 @@ import { RecapError } from '@/modules/recaps/application/recap-service'
 import { recapErrorResponse } from '@/modules/recaps/interface/recap-http'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { requireWeddingPermission } from '@/modules/weddings/interface/wedding-authorizer'
 import {
   unpublishWeddingSchema,
   weddingIdSchema,
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const input = await parseJson(request, unpublishWeddingSchema)
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
+    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
     if (input.surface === 'RECAP') {
       await getRecapService().unpublish(actor.userId, weddingId, input.revision!)
     } else {

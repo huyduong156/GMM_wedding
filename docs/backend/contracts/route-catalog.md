@@ -89,20 +89,26 @@ Core slice và security boundary được thiết kế tại [authentication imp
 |---|---|---|---|---|
 | GET | `/weddings` | Session owner | Implemented | Danh sách wedding chưa xóa của actor, dùng cho workspace switcher |
 | POST | `/weddings` | Session owner | Implemented | Tạo wedding tối giản và owner membership nội bộ |
-| GET | `/weddings/{weddingId}` | Owner | Implemented | Chi tiết wedding; cross-owner trả 404 |
-| PATCH | `/weddings/{weddingId}` | Owner | Implemented | Cập nhật metadata theo `revision`; conflict trả 409 |
+| GET | `/weddings/{weddingId}` | Active member | Implemented | Chi tiết wedding; cross-workspace trả 404 |
+| PATCH | `/weddings/{weddingId}` | Owner/editor | Implemented | Cập nhật metadata theo `revision`; conflict trả 409 |
 | DELETE | `/weddings/{weddingId}` | Owner | Implemented | Soft delete, archive và thu hồi wedding slug |
-| GET/POST | `/weddings/{weddingId}/events` | Owner | Implemented | List/tạo lễ hoặc tiệc dùng cho publication/RSVP |
-| PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
-| GET | `/weddings/{weddingId}/dashboard` | Owner | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
-| GET | `/weddings/{weddingId}/content` | Owner | Implemented | Lấy canonical content và theme/section config theo surface |
-| PUT | `/weddings/{weddingId}/content` | Owner | Implemented | Lưu canonical content, template selection và section/theme config theo revision; nếu surface đang public thì chuyển về draft và thu hồi snapshot live, không tạo publication version mới |
-| POST | `/weddings/{weddingId}/publish` | Owner | Implemented | Validate config/media rồi tạo immutable snapshot; retry cùng payload trả snapshot live |
-| POST | `/weddings/{weddingId}/unpublish` | Owner | Implemented | Thu hồi public pointer của đúng surface |
+| GET/POST | `/weddings/{weddingId}/events` | Member / owner-editor | Implemented | List/tạo lễ hoặc tiệc dùng cho publication/RSVP |
+| PATCH/DELETE | `/weddings/{weddingId}/events/{eventId}` | Owner/editor | Implemented | Sửa theo event `revision`/xóa mềm lễ hoặc tiệc cùng wedding |
+| GET | `/weddings/{weddingId}/dashboard` | Active member | Implemented | Read model dashboard: publication, guest/invite/RSVP/wish, trend, event và activity |
+| GET/PUT | `/weddings/{weddingId}/content` | Member / owner-editor | Implemented | Lấy/lưu canonical content, template selection và section/theme config theo revision |
+| POST | `/weddings/{weddingId}/publish` | Owner/editor | Implemented | Validate config/media rồi tạo immutable snapshot; retry cùng payload trả snapshot live |
+| POST | `/weddings/{weddingId}/unpublish` | Owner/editor | Implemented | Thu hồi public pointer của đúng surface |
 | POST | `/weddings/{weddingId}/preview-token` | Owner/editor | Planned | Tạo draft preview token |
+| GET/POST | `/weddings/{weddingId}/workspace-access` | Member / owner | Implemented | Xem link quyền hoặc owner tạo link một lần |
+| DELETE | `/weddings/{weddingId}/workspace-access/{accessId}` | Owner | Implemented | Thu hồi link quyền đang chờ |
+| GET | `/workspace-access/{token}` | Public token | Implemented | Kiểm tra link và trả metadata tối thiểu |
+| POST | `/workspace-access/{token}` | Session + token | Implemented | Claim link, tạo membership ACTIVE một lần |
+| GET | `/weddings/{weddingId}/members` | Active member | Implemented | Danh sách member workspace tối thiểu |
+| PATCH/DELETE | `/weddings/{weddingId}/members/{memberId}` | Owner | Implemented | Đổi role EDITOR/VIEWER hoặc revoke member |
+| DELETE | `/weddings/{weddingId}/members/me` | Active member | Implemented | Tự rời workspace; owner không thể tự rời |
 | GET | `/slugs/weddings/{slug}/availability` | Session | Implemented | Kiểm tra slug đang được một publication live sử dụng |
 
-Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được tạo để giữ invariant dữ liệu nhưng chưa có API quản trị thành viên. Dashboard trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai; không dùng số giả.
+`WeddingWorkspaceAccess` cấp link một lần để user đã đăng nhập claim membership; token chỉ lưu dạng hash, có hạn và có thể revoke. Các owner-only module cũ sẽ được chuyển dần sang role policy theo `WeddingMember`; dashboard hiện vẫn trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai.
 
 ## Templates và media
 
@@ -115,11 +121,11 @@ Wedding base hiện owner-only theo ADR 0008. `WeddingMember` vẫn được t�
 | GET | `/admin/templates/{templateKey}/versions/{version}` | Platform admin | Implemented | Chi tiết config và trạng thái duyệt của version |
 | POST | `/admin/templates/{templateKey}/versions/{version}/release` | Platform admin + CSRF | Implemented | Phát hành version cho catalog user; từ chối `TEMPLATE_VERSION_INCOMPATIBLE` khi contract version/config không được runtime hỗ trợ |
 | POST | `/admin/templates/{templateKey}/versions/{version}/deprecate` | Platform admin + CSRF | Implemented | Ngừng phân phối version, không xóa tham chiếu cũ |
-| POST | `/weddings/{weddingId}/media/upload-intents` | Owner | Implemented | Tạo presigned/fake upload intent có giới hạn MIME/size |
-| PUT | `/weddings/{weddingId}/media/{mediaId}/upload` | Owner, local fake storage | Implemented | Upload bytes cho fake storage local |
-| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Owner | Implemented | Xác minh object/size/MIME khả dụng rồi chuyển asset READY |
-| GET | `/weddings/{weddingId}/media` | Owner | Implemented | Danh sách media |
-| DELETE | `/weddings/{weddingId}/media/{mediaId}` | Owner | Implemented | Xóa/retire media |
+| POST | `/weddings/{weddingId}/media/upload-intents` | Owner/editor | Implemented | Tạo presigned/fake upload intent có giới hạn MIME/size |
+| PUT | `/weddings/{weddingId}/media/{mediaId}/upload` | Owner/editor, local fake storage | Implemented | Upload bytes cho fake storage local |
+| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Owner/editor | Implemented | Xác minh object/size/MIME khả dụng rồi chuyển asset READY |
+| GET | `/weddings/{weddingId}/media` | Owner/editor | Implemented | Danh sách media |
+| DELETE | `/weddings/{weddingId}/media/{mediaId}` | Owner/editor | Implemented | Xóa/retire media |
 
 ## Nhạc nền dùng chung
 
@@ -140,8 +146,8 @@ Contract chi tiết, invariant và test gate xem [backend nhạc nền cưới](
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET/POST | `/weddings/{weddingId}/guests` | Owner | Implemented | List/filter hoặc tạo guest; response có guest slug |
-| GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner | Implemented | Đọc/cập nhật/soft-delete guest |
+| GET/POST | `/weddings/{weddingId}/guests` | Owner/editor | Implemented | List/filter hoặc tạo guest; response có guest slug |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}` | Owner/editor | Implemented | Đọc/cập nhật/soft-delete guest |
 | POST | `/weddings/{weddingId}/guests/bulk-delete` | Owner | Implemented | Soft-delete nhiều guest |
 | POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Owner | Implemented | Gắn/gỡ category nhiều guest |
 | GET/POST | `/weddings/{weddingId}/guest-categories` | Owner | Implemented | Cây danh mục khách |
@@ -164,8 +170,8 @@ Không có route Invitation. Link cá nhân sử dụng `Guest.slug`; guest slug
 | POST | `/weddings/{weddingId}/tasks/bulk-status` | Owner | Implemented | Đổi status tối đa 200 task |
 | POST | `/weddings/{weddingId}/tasks/bulk` | Owner | Implemented | Tạo atomic nhiều root task từ FE checklist preset |
 | — | Checklist preset | FE source | MVP | Preset static, không có API catalog/admin management |
-| GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner only | Implemented | List/filter hoặc ghi nhanh entry riêng tư; guestId tùy chọn |
-| GET/PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner only | Implemented | Đọc/sửa theo revision/xóa mềm entry |
+| GET/POST | `/weddings/{weddingId}/gift-ledger` | Owner/editor | Implemented | List/filter hoặc ghi nhanh entry riêng tư; guestId tùy chọn |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/gift-ledger/{entryId}` | Owner/editor | Implemented | Đọc/sửa theo revision/xóa mềm entry |
 | GET | `/weddings/{weddingId}/gift-ledger/summary` | Owner only | Implemented | Tổng hợp tiền theo currency, vàng theo unit/type, quà và trạng thái |
 | GET | `/weddings/{weddingId}/gift-ledger/export` | Owner only | Implemented | Export CSV riêng tư |
 | POST | `/weddings/{weddingId}/gift-ledger/{entryId}/promote-to-guest` | Owner only | Implemented | Tạo Guest từ tên nhập nhanh và liên kết entry |
