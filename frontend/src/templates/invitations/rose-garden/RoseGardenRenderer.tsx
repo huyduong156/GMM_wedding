@@ -9,7 +9,6 @@ import {
   Gift,
   Heart,
   MapPin,
-  MusicNote,
   Sparkle,
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'

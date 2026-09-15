@@ -270,7 +270,7 @@ and scrolled to from the live editor. `rose-garden/template-config.ts` is the ed
 | `rsvp` | Reply card shell | `rsvp.*` | Optional; API/form wiring is a later integration phase |
 | `guestbook` | Approved-wishes ledger shell | `guestbook.*` | Explains that approved wishes are loaded automatically |
 | `gift` | Compact QR/gift moment | `giftQrMedia`, `gift.*` | QR placeholder remains square until media is supplied |
-| `music` | Compact ambient player dock | `music.*` | Hidden without a track on public preview; editor keeps an empty shell |
+| `music` | Fixed ambient player button | `music.*` | Hidden without a track on public preview; editor keeps a disabled button |
 | `footer` | Closing letter and signature | `footer.*`, couple/date | Required and fixed last |
 
 The default order is `opening → cover → invitation → families → eventDetails → countdown →
@@ -304,8 +304,8 @@ keeps the mobile invitation expressive without turning every section into the sa
 | `gallery` | Native horizontal photo rail or designed empty state | Rail ends at the centered RSVP reply card |
 | `rsvp` | Reply card shell | Response area moves into the approved-wishes ledger |
 | `guestbook` | Ledger-like approved-wishes form and list | Thin paper rule leads to the gift reveal |
-| `gift` | Square QR moment with optional thank-you text | Compact utility moment leads to the music dock |
-| `music` | Thin ambient player dock | Rule and spacing create a quiet footer pause |
+| `gift` | Square QR moment with optional thank-you text | Compact utility moment leads to the fixed music button |
+| `music` | Fixed ambient player button | Bottom-right control stays outside the section flow |
 | `footer` | Closing letter and couple signature | Deep rose closure ends the invitation |
 
 ### Phase 3 responsive and motion map
@@ -371,7 +371,7 @@ of renderer-owned motion.
 | `timeline` reveal + bloom | Make event rhythm scannable; scroll plus fine-pointer hover | 650ms reveal; 500ms bloom ease; 5s line-glow travel | Centered axis follows the node column; bloom scales with node at both widths | Hover only for fine pointers; reduced motion freezes bloom and line glow; hidden documents pause glow | One approved PNG per item; CSS-only glow, no RAF/canvas |
 | `gallery` reveal / rail | Invite exploration without stealing scroll; scroll/native rail | 650ms ease-out | Native horizontal rail on mobile and desktop | Touch/keyboard native; no auto-pan; reduced motion instant | CSS overflow only |
 | `rsvp`, `guestbook`, `gift` reveals | Prepare response, wishes and QR utility; scroll visibility | 650ms ease-out + child stagger | Full-width shells; QR stays square | Native focus order; API errors visible; reduced motion instant | RSVP/wishes use public interaction controllers |
-| `music` dock reveal | Signal optional soundtrack without competing; scroll visibility | 650ms ease-out | Thin dock remains in section order | No autoplay interaction; reduced motion instant | Hidden without URL; no audio loop |
+| `music` fixed player | Signal optional soundtrack without competing; persistent bottom-right control | Native player state | Fixed control stays outside section flow | Autoplay remains browser-policy dependent; reduced motion disables spin | Hidden without URL; shared `MusicPlayer` |
 | `footer` reveal | Give a calm closing beat; scroll visibility | 650ms ease-out | Deep rose closure stays bounded | Content remains keyboard reachable; reduced motion instant | Observer fallback; one section |
 | Corner-decor parallax and card/button feedback | Add depth and confirm affordance; fine pointer/hover/press only | 700–900ms parallax settle; 160–220ms feedback ease | Pointer range is capped at 16px; touch has no hover lift | Reduced motion resets vars and removes transitions | One pointer listener, only fine pointers; no user-media motion |
 
