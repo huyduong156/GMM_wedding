@@ -13,6 +13,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
 import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
 import '../../../shared/styles/reveal-animations.css'
@@ -437,7 +438,7 @@ export function RoseGardenRenderer({
   )
   const [countdownClock, setCountdownClock] = useState<CountdownClock>(() => getCountdownClock(weddingTimestamp))
   const opened = openingState === 'opened'
-  const connectedGuestName = interactions?.guestName?.trim() ?? ''
+  const connectedGuestName = interactions?.guestName?.trim() || guestName?.trim() || ''
   const interactionWishItems = interactions?.wishes.items
   const hasGuestName = Boolean(connectedGuestName)
   const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
@@ -584,7 +585,7 @@ export function RoseGardenRenderer({
     setRsvpValidationError('')
     const submitted = interactions
       ? await interactions.rsvp.submit({
-          guestName: hasGuestName ? undefined : name,
+          guestName: hasGuestName || interactions.isPersonalized ? undefined : name,
           attendance: rsvpChoice === 'attending' ? 'ATTENDING' : 'DECLINED',
           partySize: 1,
         })
@@ -623,6 +624,20 @@ export function RoseGardenRenderer({
     if (interactions?.rsvp.submitted) setRsvpSubmitted(true)
   }, [interactions?.rsvp.submitted])
 
+  const renderWish = (wish: { name: string; message: string }, index: number, clone = false) => (
+    <article
+      key={`${clone ? 'clone-' : ''}${wish.name}-${index}`}
+      aria-hidden={clone || undefined}
+    >
+      <Heart weight="fill" />
+      <div>
+        <strong>{wish.name}</strong>
+        <p>{wish.message}</p>
+      </div>
+    </article>
+  )
+  const isWishMarquee = wishes.length > 5
+
   useEffect(() => {
     const updateCountdown = () => setCountdownClock(getCountdownClock(weddingTimestamp))
     updateCountdown()
@@ -652,7 +667,6 @@ export function RoseGardenRenderer({
                 ) : (
                   <EmptyArtwork label="Ảnh bìa thiệp · Chưa tải ảnh" />
                 )}
-                <span className="rg-cover-art-index">01 / 14</span>
               </div>
             </div>
             <div className="rg-cover-atmosphere" aria-hidden="true">
@@ -671,10 +685,9 @@ export function RoseGardenRenderer({
       case 'invitation':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-invitation-letter">
-            <div className="rg-section-number">02 <span>/ 14</span></div>
             <SectionEyebrow className="rg-invitation-eyebrow">Lời mời từ khu vườn</SectionEyebrow>
-            <h2>{personalize(content.invitation.title, guestName)}</h2>
-            <p className="rg-lead">{personalize(content.invitation.message, guestName)}</p>
+            <h2>{personalize(content.invitation.title, connectedGuestName)}</h2>
+            <p className="rg-lead">{personalize(content.invitation.message, connectedGuestName)}</p>
             <Artwork src={rendererDecor.petalCluster} alt="" className="rg-letter-rose-decor reveal reveal--fade-up" />
             <div className="rg-memory-triptych">
               {memoryImages.map((src, index) => (
@@ -690,7 +703,6 @@ export function RoseGardenRenderer({
       case 'families':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-families">
-            <div className="rg-section-number">03 <span>/ 14</span></div>
             <div className="rg-family-canopy" aria-hidden="true">
               <Artwork src={rendererDecor.centerCluster} alt="" className="rg-family-floral-cluster" />
             </div>
@@ -711,7 +723,6 @@ export function RoseGardenRenderer({
       case 'eventDetails':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-event-details">
-            <div className="rg-section-number">04 <span>/ 14</span></div>
             <header className="rg-event-heading">
               <div className="rg-event-stamp rg-motion-static" aria-hidden="true"><CalendarBlank weight="thin" /><span>save the date</span></div>
               <div>
@@ -782,7 +793,6 @@ export function RoseGardenRenderer({
       case 'timeline':
         return content.timeline.items.length ? (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-timeline">
-            <div className="rg-section-number">05 <span>/ 14</span></div>
             <SectionEyebrow>Nhịp ngày chung đôi</SectionEyebrow>
             <h2>Một ngày, những khoảnh khắc đáng nhớ</h2>
             <ol>
@@ -807,7 +817,6 @@ export function RoseGardenRenderer({
       case 'venue':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-venue">
-            <div className="rg-section-number">06 <span>/ 14</span></div>
             <div className="rg-venue-pin reveal reveal--slide-left"><MapPin weight="fill" className="rg-motion-static" /></div>
             <SectionEyebrow>Địa điểm hôn lễ</SectionEyebrow>
             <h2>{content.venue.title}</h2><strong>{content.venue.name}</strong><p>{content.venue.address}</p><p className="rg-muted-copy">{content.venue.message}</p>
@@ -839,12 +848,12 @@ export function RoseGardenRenderer({
       case 'rsvp':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-rsvp">
-            <div className="rg-section-number">07 <span>/ 14</span></div>{content.rsvp.deadline.trim() ? <SectionEyebrow>Phản hồi trước {content.rsvp.deadline}</SectionEyebrow> : null}<h2>{content.rsvp.title}</h2><p>{content.rsvp.message}</p>
+            {content.rsvp.deadline.trim() ? <SectionEyebrow>Phản hồi trước {content.rsvp.deadline}</SectionEyebrow> : null}<h2>{content.rsvp.title}</h2><p>{content.rsvp.message}</p>
             <div className="rg-rsvp-form" aria-live="polite">
-              {!hasGuestName ? <label className="rg-field"><span>Tên của bạn</span><input value={rsvpName} onChange={(event) => setRsvpName(event.target.value)} placeholder="Nguyễn Văn A" disabled={rsvpLocked} /></label> : null}
+              {hasGuestName ? <p className="rg-form-identity">Xác nhận dành cho <strong>{connectedGuestName}</strong></p> : <label className="rg-field"><span>Tên của bạn</span><input value={rsvpName} onChange={(event) => { setRsvpName(event.target.value); setRsvpValidationError('') }} placeholder="Nguyễn Văn A" disabled={rsvpLocked || interactions?.rsvp.submitting} /></label>}
               <div className="rg-rsvp-choices" role="group" aria-label="Lựa chọn tham dự">
-                <button type="button" className={rsvpChoice === 'attending' ? 'is-selected' : ''} onClick={() => setRsvpChoice('attending')} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.attendingLabel}</button>
-                <button type="button" className={rsvpChoice === 'declined' ? 'is-selected' : ''} onClick={() => setRsvpChoice('declined')} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.notAttendingLabel}</button>
+                <button type="button" className={rsvpChoice === 'attending' ? 'is-selected' : ''} onClick={() => { setRsvpChoice('attending'); setRsvpValidationError('') }} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.attendingLabel}</button>
+                <button type="button" className={rsvpChoice === 'declined' ? 'is-selected' : ''} onClick={() => { setRsvpChoice('declined'); setRsvpValidationError('') }} disabled={rsvpLocked || interactions?.rsvp.submitting}>{content.rsvp.notAttendingLabel}</button>
               </div>
               <button type="button" className="rg-primary-action" onClick={sendRsvp} disabled={rsvpLocked || !rsvpChoice || interactions?.rsvp.submitting}>{interactions?.rsvp.submitting ? 'Đang gửi…' : rsvpLocked ? content.rsvp.successMessage : 'Xác nhận phản hồi'} <ArrowUpRight /></button>
               {rsvpValidationError || interactions?.rsvp.error ? <p className="rg-form-error" role="alert">{rsvpValidationError || interactions?.rsvp.error}</p> : null}
@@ -856,17 +865,26 @@ export function RoseGardenRenderer({
       case 'guestbook':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-guestbook">
-            <div className="rg-section-number">08 <span>/ 14</span></div><EnvelopeSimple className="rg-guestbook-icon" weight="thin" /><SectionEyebrow>Sổ lưu bút</SectionEyebrow><h2>{content.guestbook.title}</h2><p>{content.guestbook.message}</p>
+            <EnvelopeSimple className="rg-guestbook-icon" weight="thin" /><SectionEyebrow>Sổ lưu bút</SectionEyebrow><h2>{content.guestbook.title}</h2><p>{content.guestbook.message}</p>
             <div className="rg-wish-form" aria-live="polite">
-              {!hasGuestName ? <label className="rg-field"><span>Tên của bạn</span><input value={wishName} onChange={(event) => setWishName(event.target.value)} placeholder="Nguyễn Văn A" disabled={wishLocked} /></label> : null}
-              <label className="rg-field"><span>Lời chúc</span><textarea value={wishMessage} onChange={(event) => setWishMessage(event.target.value)} placeholder="Gửi đôi lời yêu thương…" rows={4} disabled={wishLocked} /></label>
+              {hasGuestName ? <p className="rg-form-identity">Lời chúc từ <strong>{connectedGuestName}</strong></p> : <label className="rg-field"><span>Tên của bạn</span><input value={wishName} onChange={(event) => { setWishName(event.target.value); setWishValidationError('') }} placeholder="Nguyễn Văn A" disabled={wishLocked || interactions?.wishes.submitting} /></label>}
+              <label className="rg-field"><span>Lời chúc</span><textarea value={wishMessage} onChange={(event) => { setWishMessage(event.target.value); setWishValidationError('') }} placeholder="Gửi đôi lời yêu thương…" rows={4} disabled={wishLocked || interactions?.wishes.submitting} /></label>
               <button type="button" className="rg-primary-action" onClick={sendWish} disabled={wishLocked || !wishMessage.trim() || interactions?.wishes.submitting}>{interactions?.wishes.submitting ? 'Đang gửi…' : wishLocked ? content.guestbook.successMessage : 'Gửi lời chúc'} <Heart weight="fill" /></button>
               {wishValidationError || interactions?.wishes.error ? <p className="rg-form-error" role="alert">{wishValidationError || interactions?.wishes.error}</p> : null}
               {wishLocked && !interactions?.wishes.error ? <p className="rg-form-success" role="status">{content.guestbook.successMessage}</p> : null}
             </div>
-            <div className="rg-wish-list">
+            <div
+              className={`rg-wish-list${isWishMarquee ? ' is-marquee' : ''}`}
+              data-wish-count={wishes.length}
+              data-wish-marquee={isWishMarquee ? 'true' : 'false'}
+            >
               {interactions && !wishes.length ? <p className="rg-muted-copy">Chưa có lời chúc nào được duyệt.</p> : null}
-              {wishes.map((wish, index) => <article key={`${wish.name}-${index}`}><Heart weight="fill" /><div><strong>{wish.name}</strong><p>{wish.message}</p></div></article>)}
+              {isWishMarquee ? (
+                <div className="rg-wish-track rg-motion-static">
+                  {wishes.map((wish, index) => renderWish(wish, index))}
+                  {wishes.map((wish, index) => renderWish(wish, index, true))}
+                </div>
+              ) : wishes.map((wish, index) => renderWish(wish, index))}
             </div>
             <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-guestbook-decor" />
           </SectionFrame>
@@ -874,7 +892,7 @@ export function RoseGardenRenderer({
       case 'gift':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-gift">
-            <div className="rg-section-number">09 <span>/ 14</span></div><Gift className="rg-gift-icon" weight="thin" /><SectionEyebrow>{content.gift.title}</SectionEyebrow><p>{content.gift.message}</p>
+            <Gift className="rg-gift-icon" weight="thin" /><SectionEyebrow>{content.gift.title}</SectionEyebrow><p>{content.gift.message}</p>
             <div className={`rg-gift-payment ${giftQrOpen ? 'is-open' : ''}`}>
               <GiftEnvelopeBox
                 className="rg-gift-envelope-box"
@@ -888,11 +906,7 @@ export function RoseGardenRenderer({
           </SectionFrame>
         )
       case 'music':
-        return content.music.backgroundMusicUrl || editorMode ? (
-          <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-music">
-           <div className="rg-music-disc"><MusicNote weight="duotone" /></div><div><SectionEyebrow>Nhạc nền</SectionEyebrow><strong>{content.music.backgroundMusicName || 'Chọn một bài hát cho khu vườn'}</strong></div><span className="rg-music-state">{content.music.backgroundMusicUrl ? 'Sẵn sàng' : 'Chưa chọn'}</span>
-          </SectionFrame>
-        ) : null
+        return null
       case 'footer':
         return (
           <footer key={key} className="rg-body-section rg-motion-content is-visible rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}>
@@ -913,13 +927,22 @@ export function RoseGardenRenderer({
   return (
     <div ref={pageRef} className="rg-page">
       <div className="rg-backdrop" aria-hidden="true">{glints.map((glint) => <i key={glint.id} className="rg-glint" style={{ left: glint.left, top: glint.top, width: glint.size, height: glint.size, animationDelay: glint.delay, animationDuration: glint.duration }} />)}</div>
+      {enabled.has('music') && (content.music.backgroundMusicUrl || editorMode) ? (
+        <MusicPlayer
+          src={content.music.backgroundMusicUrl}
+          title={content.music.backgroundMusicName || 'Nhạc nền'}
+          autoplay={content.music.backgroundMusicAutoplay}
+          active={opened}
+          editorMode={editorMode}
+        />
+      ) : null}
       <ClassicCardCover
         brideName={content.couple.brideName}
         groomName={content.couple.groomName}
         date={content.event.weddingDate}
         venue={content.event.venueName}
         eyebrow={content.opening.title}
-        note={personalize(content.opening.message, guestName)}
+        note={personalize(content.opening.message, connectedGuestName)}
         leftDecorationSrc={rendererDecor.botanical}
         rightDecorationSrc={rendererDecor.botanical}
         openLabel="Chạm để mở thiệp"

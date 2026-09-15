@@ -390,23 +390,6 @@
   text-transform: uppercase;
 }
 
-.rg-section-number {
-  position: absolute;
-  top: 30px;
-  right: 28px;
-  color: rgb(113 59 74 / 0.48);
-  font-family: var(--font-wedding-display);
-  font-size: 16px;
-  letter-spacing: 0.04em;
-}
-
-.rg-section-number span {
-  color: var(--rg-muted);
-  font-family: var(--font-wedding-body);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-}
-
 .rg-cover,
 .rg-invitation-letter,
 .rg-families,
@@ -796,16 +779,6 @@
   border-bottom: 0;
   border-left: 0;
   border-radius: 0 28px 0 0;
-}
-
-.rg-cover-art-index {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
 }
 
 .rg-cover-copy {
@@ -2709,6 +2682,17 @@
   font-size: 10px;
 }
 
+.rg-form-identity {
+  margin: 0;
+  color: var(--rg-rose-deep);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.rg-form-identity strong {
+  font-weight: 800;
+}
+
 .rg-guestbook {
   background: #fffaf8;
   text-align: center;
@@ -2764,6 +2748,50 @@
   margin-top: 24px;
 }
 
+.rg-wish-list.is-marquee {
+  --rg-wish-card-height: 82px;
+  --rg-wish-gap: 12px;
+  height: calc(var(--rg-wish-card-height) + var(--rg-wish-card-height) + var(--rg-wish-gap));
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.rg-wish-track {
+  display: grid;
+  gap: var(--rg-wish-gap, 12px);
+  will-change: transform;
+  animation: rg-wish-marquee 24s linear infinite;
+}
+
+.rg-wish-list.is-marquee article {
+  box-sizing: border-box;
+  height: var(--rg-wish-card-height);
+  min-height: var(--rg-wish-card-height);
+  overflow: hidden;
+}
+
+.rg-wish-list.is-marquee article p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.rg-wish-list.is-marquee:hover .rg-wish-track,
+.rg-wish-list.is-marquee:focus-within .rg-wish-track {
+  animation-play-state: paused;
+}
+
+@keyframes rg-wish-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, calc(-50% - 6px), 0);
+  }
+}
+
 .rg-wish-list article {
   display: flex;
   gap: 10px;
@@ -2788,6 +2816,12 @@
   color: var(--rg-muted);
   font-size: 11px;
   line-height: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rg-wish-track {
+    animation: none;
+  }
 }
 
 .rg-section-decor {
@@ -3171,9 +3205,6 @@
     padding-inline: 21px;
   }
 
-  .rg-section-number {
-    right: 21px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3430,12 +3461,12 @@
 
 .rg-footer-decor,
 .rg-motion-ready .rg-footer.rg-motion-content.is-visible > .rg-footer-decor {
-  left: -72px;
+  left: -90px;
   right: auto;
-  bottom: -46px;
+  bottom: -230px;
   z-index: 0;
-  width: 280px;
-  opacity: 0.2;
-  transform: scaleX(-1) rotate(8deg);
+  width: 650px;
+  opacity: 0.8;
+  transform: rotate(330deg);
   animation: none;
 }

@@ -95,24 +95,20 @@ const hydrateTemplateConfig = (templateKey: string, config: Record<string, unkno
     sections: sections.length ? sections : configSections,
   }
 }
-function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
+export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
   const pinned = new Set(pinnedKeys)
-  const next = [...new Set(storedKeys.filter((key) => canonicalKeys.includes(key) && !pinned.has(key)))]
-  const canonicalPinned = canonicalKeys.filter((key) => pinned.has(key))
-  next.unshift(...canonicalPinned)
-  canonicalKeys.forEach((key, canonicalIndex) => {
-    if (next.includes(key)) return
-    let insertAt = 0
-    for (let index = canonicalIndex - 1; index >= 0; index -= 1) {
-      const previousIndex = next.indexOf(canonicalKeys[index])
-      if (previousIndex >= 0) {
-        insertAt = previousIndex + 1
-        break
-      }
-    }
-    next.splice(insertAt, 0, key)
-  })
-  return next
+  const storedReorderable = [
+    ...new Set(storedKeys.filter((key) => canonicalKeys.includes(key) && !pinned.has(key))),
+  ]
+  const canonicalReorderable = canonicalKeys.filter((key) => !pinned.has(key))
+  const reorderable = [
+    ...storedReorderable,
+    ...canonicalReorderable.filter((key) => !storedReorderable.includes(key)),
+  ]
+  let reorderableIndex = 0
+  return canonicalKeys.map((key) =>
+    pinned.has(key) ? key : reorderable[reorderableIndex++],
+  )
 }
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {
@@ -487,11 +483,12 @@ export function InvitationEditorLivePage() {
       setContentRevision(saved.content.revision)
       baselineRef.current = editorSignature(data, palette, order, enabled)
       setDirty(false)
-      if (surfacePublished) setSurfacePublished(false)
       setSaveMessage(
         localMusicOnly
           ? 'Đã lưu nội dung thiệp. Nhạc demo chỉ được giữ trong phiên chỉnh sửa này.'
-          : 'Đã lưu thay đổi.',
+          : surfacePublished
+            ? 'Đã lưu bản nháp. Khách vẫn đang thấy bản đã công khai; bấm Công khai thiệp để cập nhật.'
+            : 'Đã lưu thay đổi.',
       )
       return true
     } catch (cause) {

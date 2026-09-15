@@ -314,13 +314,21 @@ function eventView(row: EventRow): WeddingEventView {
     longitude: row.longitude?.toString() ?? null,
   }
 }
-function collectMediaIds(value: unknown, key = '', result = new Set<string>()): Set<string> {
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+export function collectMediaIds(value: unknown, key = '', result = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
     for (const item of value) collectMediaIds(item, key, result)
     return result
   }
   if (!value || typeof value !== 'object') {
-    if (typeof value === 'string' && /(?:media|asset)id$/i.test(key)) result.add(value)
+    if (
+      typeof value === 'string' &&
+      /(?:media|asset)id$/i.test(key) &&
+      uuidPattern.test(value)
+    )
+      result.add(value)
     return result
   }
   for (const [childKey, childValue] of Object.entries(value))
@@ -653,7 +661,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       publication: {
         invitation: {
           configured: Boolean(invitationContent?.templateVersionId),
-          published: Boolean(invitationContent?.status === 'PUBLISHED' && invitationSnapshot),
+          published: Boolean(invitationSnapshot),
           slug: invitationSnapshot?.slug ?? wedding.slug ?? null,
           templateName: invitationContent?.templateVersion?.template.name ?? null,
           templateVersion: invitationContent?.templateVersion?.version ?? null,
@@ -661,7 +669,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         },
         website: {
           configured: Boolean(websiteContent?.templateVersionId),
-          published: Boolean(websiteContent?.status === 'PUBLISHED' && websiteSnapshot),
+          published: Boolean(websiteSnapshot),
           slug: websiteSnapshot?.slug ?? wedding.slug ?? null,
           templateName: websiteContent?.templateVersion?.template.name ?? null,
           templateVersion: websiteContent?.templateVersion?.version ?? null,
@@ -959,24 +967,9 @@ export class PrismaWeddingRepository implements WeddingRepository {
           })
           if (claimed.count !== 1) throw new WeddingContentConflictError()
 
-          // Editing a published surface creates a new draft. The old immutable
-          // snapshot must stop being reachable until the next publish.
-          const unpublished = await tx.publishedWeddingSnapshot.updateMany({
-            where: { weddingId, surface: data.surface, unpublishedAt: null },
-            data: { unpublishedAt: new Date() },
-          })
-          const otherLive = await tx.publishedWeddingSnapshot.count({
-            where: { weddingId, surface: { not: data.surface }, unpublishedAt: null },
-          })
-          const liveRecap = await tx.publishedRecapSnapshot.count({
-            where: { content: { weddingId }, unpublishedAt: null },
-          })
-          if (unpublished.count > 0 && otherLive === 0 && liveRecap === 0) {
-            await tx.wedding.update({
-              where: { id: weddingId },
-              data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
-            })
-          }
+          // Saving creates a new draft only. Keep the live immutable snapshot
+          // reachable until the owner explicitly publishes this revision or
+          // unpublishes the surface.
         } else {
           await tx.weddingContent.create({
             data: {

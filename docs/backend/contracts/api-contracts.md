@@ -53,6 +53,7 @@ Gift ledger phải authorize owner ở application service trước mọi read/w
 
 - Public snapshot: CDN cache ngắn + stale-while-revalidate, purge khi publish/unpublish.
 - Private dashboard: `no-store` hoặc private cache có chủ đích.
+- Save content chỉ ghi draft; nếu surface đang public thì snapshot live cũ vẫn phải phục vụ khách. Chỉ publish mới thay snapshot và chỉ unpublish mới gỡ snapshot khỏi public lookup.
 - Publish transaction: validate -> tăng version -> snapshot -> cập nhật trạng thái.
 - Trước khi implement rộng, tạo `backend/openapi.yaml` hoặc sinh OpenAPI để tạo typed client và kiểm tra breaking change trong CI.
 

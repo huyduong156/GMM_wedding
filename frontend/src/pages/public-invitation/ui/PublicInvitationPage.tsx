@@ -197,6 +197,7 @@ function InvitationSnapshot({
           data={content as RoseGardenData}
           sectionConfig={sectionConfig as RoseGardenSectionConfig | undefined}
           guestName={guestName}
+          interactions={interactions}
         />
       )
     default:

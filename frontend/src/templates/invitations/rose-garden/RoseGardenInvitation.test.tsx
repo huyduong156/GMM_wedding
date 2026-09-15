@@ -29,6 +29,8 @@ describe('RoseGardenInvitation', () => {
     expect(configuredKeys).toEqual(roseGardenSectionConfig.order)
     expect(new Set(configuredKeys).size).toBe(configuredKeys.length)
     expect(renderedKeys).toEqual(expect.arrayContaining(configuredKeys))
+    expect(container.querySelector('.rg-section-number')).not.toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-art-index')).not.toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="opening"]')).toHaveClass('classic-card-cover')
     expect(container.querySelectorAll('.classic-card-cover__flower')).toHaveLength(2)
     const hearts = container.querySelectorAll<HTMLElement>('.classic-card-cover__heart')
@@ -52,6 +54,26 @@ describe('RoseGardenInvitation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Chạm để mở thiệp' }))
     expect(container.querySelector('.rg-invitation')).toHaveClass('is-opened')
     expect(screen.getByRole('button', { name: 'Thiệp đã mở' })).toBeInTheDocument()
+  })
+
+  it('renders the configured music player without duplicating the editor section marker', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          music: {
+            backgroundMusicUrl: '/music/wedding.mp3',
+            backgroundMusicName: 'Wedding soundtrack',
+            backgroundMusicAutoplay: true,
+          },
+        }}
+      />,
+    )
+
+    expect(container.querySelector('[data-music-player]')).toBeInTheDocument()
+    expect(container.querySelectorAll('[data-editor-section="music"]')).toHaveLength(1)
+    expect(container.querySelector('[data-music-player] button')).toHaveAttribute('title', 'Wedding soundtrack')
   })
 
   it('locks the opening trigger and transfers focus to the cover', async () => {
@@ -268,6 +290,78 @@ describe('RoseGardenInvitation', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('uses the personalized guest identity and sends RSVP and wishes through public controllers', async () => {
+    const rsvpSubmit = vi.fn().mockResolvedValue(true)
+    const wishSubmit = vi.fn().mockResolvedValue(true)
+    const interactions = {
+      isPersonalized: true,
+      guestName: 'Anh Ba Hùng',
+      rsvp: { isPersonalized: true, submit: rsvpSubmit, submitting: false, submitted: false, error: '' },
+      wishes: { items: [], submit: wishSubmit, submitting: false, submitted: false, error: '' },
+    }
+
+    render(<RoseGardenInvitation editorMode interactions={interactions} />)
+
+    expect(screen.getByText(/Xác nhận dành cho/)).toHaveTextContent('Anh Ba Hùng')
+    expect(screen.getByText(/Lời chúc từ/)).toHaveTextContent('Anh Ba Hùng')
+    expect(screen.queryByPlaceholderText('Nguyễn Văn A')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: roseGardenFixture.rsvp?.attendingLabel }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận phản hồi' }))
+
+    await waitFor(() =>
+      expect(rsvpSubmit).toHaveBeenCalledWith({
+        guestName: undefined,
+        attendance: 'ATTENDING',
+        partySize: 1,
+      }),
+    )
+
+    fireEvent.change(screen.getByPlaceholderText('Gửi đôi lời yêu thương…'), {
+      target: { value: 'Chúc hai bạn trăm năm hạnh phúc.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi lời chúc' }))
+
+    await waitFor(() =>
+      expect(wishSubmit).toHaveBeenCalledWith({
+        guestName: undefined,
+        content: 'Chúc hai bạn trăm năm hạnh phúc.',
+      }),
+    )
+  })
+
+  it('shows up to five wishes normally and turns larger lists into a two-card marquee', async () => {
+    const makeInteractions = (count: number) => ({
+      isPersonalized: false,
+      guestName: null,
+      rsvp: { isPersonalized: false, submit: vi.fn().mockResolvedValue(true), submitting: false, submitted: false, error: '' },
+      wishes: {
+        items: Array.from({ length: count }, (_, index) => ({
+          id: `wish-${index}`,
+          authorName: `Khách ${index + 1}`,
+          content: `Lời chúc ${index + 1}`,
+          submittedAt: '2026-01-01T00:00:00.000Z',
+          isPinned: false,
+        })),
+        submit: vi.fn().mockResolvedValue(true),
+        submitting: false,
+        submitted: false,
+        error: '',
+      },
+    })
+
+    const five = render(<RoseGardenInvitation editorMode interactions={makeInteractions(5)} />)
+    await waitFor(() => expect(five.container.querySelectorAll('.rg-wish-list > article')).toHaveLength(5))
+    expect(five.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-marquee', 'false')
+    five.unmount()
+
+    const more = render(<RoseGardenInvitation editorMode interactions={makeInteractions(6)} />)
+    await waitFor(() => expect(more.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-marquee', 'true'))
+    expect(more.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-count', '6')
+    expect(more.container.querySelector('.rg-wish-track')).toBeInTheDocument()
+    expect(more.container.querySelectorAll('.rg-wish-track > article')).toHaveLength(12)
   })
 
   it('uses the repository demo couple media in the default fixture', () => {

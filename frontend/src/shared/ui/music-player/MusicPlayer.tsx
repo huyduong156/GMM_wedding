@@ -11,6 +11,7 @@ export type MusicPlayerProps = {
   active?: boolean
   editorMode?: boolean
   variant?: MusicPlayerVariant
+  sectionKey?: string | null
 }
 
 export function MusicPlayer({
@@ -20,6 +21,7 @@ export function MusicPlayer({
   active = true,
   editorMode = false,
   variant = 'rotating-fab',
+  sectionKey = 'music',
 }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
@@ -60,7 +62,7 @@ export function MusicPlayer({
         (!available ? ' is-unavailable' : '')
       }
       data-music-player
-      data-editor-section="music"
+      {...(sectionKey ? { 'data-editor-section': sectionKey } : {})}
     >
       {src ? (
         <audio
