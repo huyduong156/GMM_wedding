@@ -8,11 +8,12 @@ Mọi theme task phải đi theo thứ tự:
 
 1. Đọc `AGENTS.md`, `.agents/PROJECT_CONTEXT.md`, `docs/frontend/README.md` và tài liệu này.
 2. Gọi đúng domain agent theo `productType`.
-3. Domain agent đọc section/content contract riêng của product, xác định product meaning, viewer job, experience arc, non-goals và viết brief/acceptance map trước khi code.
-4. Chọn art direction, layout, asset plan, motion plan và responsive fallback. Không bắt đầu từ fixture ảnh.
-5. Tạo `template-config.ts`, content types/fixture, renderer, style và asset manifest theo contract.
-6. Render toàn bộ theme và gọi design/review skill phù hợp để kiểm tra screen thực tế ở desktop, tablet, mobile và reduced-motion.
-7. Kiểm tra đủ required và optional sections theo product contract, sau đó kiểm tra lại `template-config.ts` ở bước cuối trước khi bàn giao cho admin/catalog/publish.
+3. Tạo Phase 0 preview shell để khóa route preview, spatial contract, viewport behavior và overflow trước khi thiết kế section.
+4. Domain agent đọc section/content contract riêng của product, xác định product meaning, viewer job, experience arc, non-goals và viết brief/acceptance map trước khi code section.
+5. Chọn art direction, layout, asset plan, motion plan và responsive fallback. Không bắt đầu từ fixture ảnh.
+6. Tạo `template-config.ts`, content types/fixture, renderer, style và asset manifest theo contract.
+7. Render toàn bộ theme và gọi design/review skill phù hợp để kiểm tra screen thực tế ở desktop, tablet, mobile và reduced-motion.
+8. Kiểm tra đủ required và optional sections theo product contract, sau đó kiểm tra lại `template-config.ts` ở bước cuối trước khi bàn giao cho admin/catalog/publish.
 
 Không được bỏ qua domain agent vì task “chỉ làm một theme”, “chỉ dựng preview” hoặc “chỉ thay giao diện”.
 
@@ -20,7 +21,28 @@ Theme không được dừng ở mức layout cơ bản như hero ảnh + text, 
 
 ## 1.1. Phased authoring flow bắt buộc cho mọi template
 
-Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự qua sáu phase dưới đây. Agent phải đọc lại common contract và tài liệu domain liên quan ở mỗi phase, đối chiếu checklist trước khi chuyển phase tiếp theo. Không được gộp toàn bộ phase vào một lượt code, không được bắt đầu từ fixture hoặc asset, và không được đánh dấu hoàn tất nếu thiếu artifact của bất kỳ phase nào.
+Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự qua bảy phase dưới đây. Agent phải đọc lại common contract và tài liệu domain liên quan ở mỗi phase, đối chiếu checklist trước khi chuyển phase tiếp theo. Không được gộp toàn bộ phase vào một lượt code, không được bắt đầu từ fixture hoặc asset, và không được đánh dấu hoàn tất nếu thiếu artifact của bất kỳ phase nào.
+
+### Phase 0 — Preview shell và spatial contract
+
+Trước khi tạo section hoặc artwork, theme phải có một preview route mở được và một renderer shell tối giản. Phase này không nhằm hoàn thiện giao diện; nó chỉ khóa các ràng buộc không gian để những phase sau không phải sửa lại toàn bộ layout.
+
+Artifact bắt buộc:
+
+- preview route trong `shared/config/routes.ts` và route dispatch trong `app/App.tsx`;
+- renderer shell riêng của template và stylesheet namespace riêng;
+- `max-width`, min-height, overflow, desktop gutter và mobile behavior;
+- reduced-motion fallback cho atmosphere nếu shell đã có animation;
+- preview link được ghi trong brief/template README để review thủ công.
+
+Acceptance gate:
+
+- route preview mở được bằng URL trực tiếp;
+- nội dung không tạo horizontal scroll ở mobile hoặc desktop;
+- decor không vượt khỏi vùng content đã chốt;
+- desktop/tablet/mobile behavior được kiểm tra trước khi bắt đầu Phase 1.
+
+Không thêm section nghiệp vụ, API hoặc artwork final vào Phase 0 nếu spatial contract chưa được duyệt.
 
 ### Phase 1 — Product meaning, chủ đề và content system
 
@@ -36,6 +58,8 @@ Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự 
 
 Đầu ra bắt buộc: `theme brief`, product meaning statement, viewer journey, section/content matrix, required/optional section list, content fixture plan, editor field plan, acceptance checklist, non-goals và anti-pattern. Chưa được generate image, decor hoặc viết renderer trước khi phase này đạt checklist.
 
+Phase 1 phải có content matrix cụ thể theo từng section. Mỗi dòng tối thiểu ghi: section key, required/optional, content anchor, content keys, default data, editor control, empty behavior, CTA/action và section toggle/reorder rule.
+
 ### Phase 2 — Media contract và bảo vệ main content
 
 Đọc lại phần media-independence, asset generation, responsive và `template-config` trong common contract cùng section rules của domain. Agent phải lập media matrix cho từng section, ghi rõ:
@@ -50,6 +74,23 @@ Mọi domain agent khi tạo hoặc sửa một template phải đi tuần tự 
 Phải kiểm tra bằng ảnh neutral hoặc khác art direction: thay toàn bộ ảnh mẫu, thay ảnh sáng/tối, thay tỉ lệ ảnh và bỏ trống media mà theme vẫn giữ hierarchy, semantic content, CTA và nhận diện. Không được hard-code couple/model/sample photo làm nền tảng cho theme.
 
 Đầu ra bắt buộc: media matrix, upload/editability matrix, crop/focal-point rules, fallback/error/empty states, external album behavior, media field schema, media-independence checklist và mapping media vào `template-config.ts`.
+
+Nếu theme không dùng external album, artifact phải ghi rõ `not supported` thay vì để behavior không xác định. Media matrix cũng phải ghi alt text strategy, loading strategy và behavior với ảnh lỗi/chất lượng thấp.
+
+### Quy tắc rút ra từ các template đã author
+
+Modern Luxe và Verdant Promise có chất lượng thị giác tốt hơn vì art direction, section composition, renderer và decor được phát triển như một hệ thống thống nhất. Các template về sau phát sinh lỗi khi quy trình bị rút ngắn thành renderer trước, config/editor sau hoặc copy fixture/layout từ template khác.
+
+Các quality gate sau là bắt buộc để tránh lặp lại:
+
+- Mỗi template phải có fixture và content type riêng; không dùng fixture của Modern Luxe làm mặc định cho template khác.
+- Không đăng ký template `review` như một template đã sẵn sàng publish nếu chưa vượt screenshot/review gate.
+- Không coi test mount hoặc test click là visual approval. Phải có review ở 375px, 390px, 480px, tablet, desktop và reduced motion.
+- Không để renderer hardcode text/media mà `template-config.ts` lại expose field tương ứng.
+- Không tạo decor trước khi chốt media role, owner, crop, section ownership và overflow boundary.
+- Không dùng số lượng dòng code, animation hoặc asset count làm thước đo chất lượng; mọi complexity phải có UX purpose và fallback.
+- Mỗi template phải có ít nhất một signature interaction, một hệ thống artwork nhận diện và section layouts đa dạng nhưng vẫn scan nhanh trên mobile.
+- Sau mỗi phase phải có artifact và acceptance gate; không gộp toàn bộ phase vào một lượt code rồi sửa theo triệu chứng.
 
 
 ### Phase 2.5 — Decor asset pre-production và duyệt artwork

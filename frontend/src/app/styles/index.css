@@ -9333,11 +9333,31 @@ kbd {
 .editor-schema-fields.is-three-column-media > :nth-child(n + 4) {
   grid-column: 1 / -1;
 }
+.editor-schema-fields.is-invitation-editorial {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+.editor-schema-fields.is-invitation-editorial > :nth-child(1),
+.editor-schema-fields.is-invitation-editorial > :nth-child(2) {
+  grid-column: 1 / -1;
+}
+.editor-schema-fields.is-invitation-editorial .editor-media-field {
+  min-width: 0;
+}
+.editor-schema-fields.is-invitation-editorial .editor-image-picker {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+}
 @media (max-width: 700px) {
   .editor-schema-fields.is-three-column-media {
     grid-template-columns: 1fr;
   }
   .editor-schema-fields.is-two-column-media {
+    grid-template-columns: 1fr;
+  }
+  .editor-schema-fields.is-invitation-editorial {
     grid-template-columns: 1fr;
   }
 }

@@ -95,21 +95,20 @@ const hydrateTemplateConfig = (templateKey: string, config: Record<string, unkno
     sections: sections.length ? sections : configSections,
   }
 }
-function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[]) {
-  const next = [...new Set(storedKeys.filter((key) => canonicalKeys.includes(key)))]
-  canonicalKeys.forEach((key, canonicalIndex) => {
-    if (next.includes(key)) return
-    let insertAt = 0
-    for (let index = canonicalIndex - 1; index >= 0; index -= 1) {
-      const previousIndex = next.indexOf(canonicalKeys[index])
-      if (previousIndex >= 0) {
-        insertAt = previousIndex + 1
-        break
-      }
-    }
-    next.splice(insertAt, 0, key)
-  })
-  return next
+export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
+  const pinned = new Set(pinnedKeys)
+  const storedReorderable = [
+    ...new Set(storedKeys.filter((key) => canonicalKeys.includes(key) && !pinned.has(key))),
+  ]
+  const canonicalReorderable = canonicalKeys.filter((key) => !pinned.has(key))
+  const reorderable = [
+    ...storedReorderable,
+    ...canonicalReorderable.filter((key) => !storedReorderable.includes(key)),
+  ]
+  let reorderableIndex = 0
+  return canonicalKeys.map((key) =>
+    pinned.has(key) ? key : reorderable[reorderableIndex++],
+  )
 }
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {
@@ -260,7 +259,11 @@ export function InvitationEditorLivePage() {
       const storedEnabled = new Set(
         loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)),
       )
-      const nextOrder = mergeSectionOrder(validKeys, storedOrder)
+      const nextOrder = mergeSectionOrder(
+        validKeys,
+        storedOrder,
+        definitions.filter((section) => !section.canReorder).map((section) => section.sectionKey),
+      )
       const nextEnabled = validKeys.filter(
         (key) =>
           storedEnabled.has(key) ||
@@ -480,11 +483,12 @@ export function InvitationEditorLivePage() {
       setContentRevision(saved.content.revision)
       baselineRef.current = editorSignature(data, palette, order, enabled)
       setDirty(false)
-      if (surfacePublished) setSurfacePublished(false)
       setSaveMessage(
         localMusicOnly
           ? 'Đã lưu nội dung thiệp. Nhạc demo chỉ được giữ trong phiên chỉnh sửa này.'
-          : 'Đã lưu thay đổi.',
+          : surfacePublished
+            ? 'Đã lưu bản nháp. Khách vẫn đang thấy bản đã công khai; bấm Công khai thiệp để cập nhật.'
+            : 'Đã lưu thay đổi.',
       )
       return true
     } catch (cause) {
@@ -548,7 +552,18 @@ export function InvitationEditorLivePage() {
     else setPublishOpen(true)
   }
   const publish = async () => {
-    if (!activeWedding || dirty || !activeWedding.slug) return
+    if (!activeWedding) {
+      setApiError('Chưa chọn thiệp để công khai.')
+      return
+    }
+    if (dirty) {
+      setApiError('Vui lòng lưu thay đổi trước khi công khai thiệp.')
+      return
+    }
+    if (!activeWedding.slug) {
+      setApiError('Wedding chưa có đường dẫn để công khai.')
+      return
+    }
     setPublishing(true)
     setApiError('')
     try {
@@ -558,7 +573,10 @@ export function InvitationEditorLivePage() {
         setApiError('Đường dẫn này đã được sử dụng. Vui lòng chọn đường dẫn khác.')
         return
       }
-      if (contentRevision === null) return
+      if (contentRevision === null) {
+        setApiError('Thiệp chưa có bản nội dung đã lưu. Vui lòng lưu thiệp trước.')
+        return
+      }
       await weddingApi.publish(activeWedding.id, {
         surface: 'ONLINE_INVITATION',
         revision: contentRevision,
@@ -676,7 +694,7 @@ export function InvitationEditorLivePage() {
                   : ''
               }
               error={fieldErrors[field.contentKey]}
-              onChange={(value) => update(field.contentKey, value)}
+              onChange={(value) => updatePath(field.contentKey, value)}
             />
           ))}
         </div>
@@ -888,7 +906,7 @@ export function InvitationEditorLivePage() {
                   data={data}
                   palette={palette}
                   fieldErrors={fieldErrors}
-                  update={update}
+                  update={updatePath}
                   setPalette={choosePalette}
                   paletteOptions={paletteOptions}
                   showPalette={index === 0}
@@ -1229,6 +1247,8 @@ function editorSignature(data: EditorData, palette: string, order: string[], ena
 function friendlyEditorError(cause: unknown, fallback: string) {
   if (cause instanceof WeddingApiError) {
     if (cause.status === 401) return 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+    if (cause.code === 'WEDDING_NOT_READY_TO_PUBLISH')
+      return 'Thiệp chưa đủ điều kiện công khai. Vui lòng lưu lại nội dung, kiểm tra các section đang bật và trạng thái ảnh đã tải lên.'
     if (cause.status === 400)
       return 'Một số nội dung chưa hợp lệ. Vui lòng kiểm tra lại rồi thử lưu.'
     if (cause.status >= 500) return 'Hệ thống đang bận. Vui lòng thử lại sau ít phút.'

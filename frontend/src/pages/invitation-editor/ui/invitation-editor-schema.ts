@@ -48,7 +48,13 @@ export function validateSchemaContent(
     if (enabled.includes(section.sectionKey))
       for (const [key, field] of Object.entries(section.fields)) {
         if (['image', 'images', 'audio'].includes(field.type)) continue
-        const value = content[key]
+        const value = key.split('.').reduce<unknown>(
+          (current, segment) =>
+            current && typeof current === 'object'
+              ? (current as Record<string, unknown>)[segment]
+              : undefined,
+          content,
+        )
         if (
           field.required &&
           (value === undefined || value === null || String(value).trim() === '')

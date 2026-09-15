@@ -4,7 +4,7 @@ import { vi } from 'vitest'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import { WeddingContext } from '../../../entities/wedding/model/wedding-context'
 import { weddingApi, type Wedding } from '../../../shared/api/weddings'
-import { InvitationEditorLivePage } from './InvitationEditorLivePage'
+import { InvitationEditorLivePage, mergeSectionOrder } from './InvitationEditorLivePage'
 
 const wedding: Wedding = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -34,6 +34,46 @@ const workspace = {
 }
 
 describe('InvitationEditorLivePage', () => {
+  it('keeps pinned sections in their canonical positions while restoring reorderable order', () => {
+    const canonical = [
+      'opening',
+      'cover',
+      'invitation',
+      'families',
+      'eventDetails',
+      'countdown',
+      'timeline',
+      'venue',
+      'gallery',
+      'rsvp',
+      'guestbook',
+      'gift',
+      'music',
+      'footer',
+    ]
+    const pinned = ['opening', 'cover', 'invitation', 'families', 'eventDetails', 'music', 'footer']
+
+    expect(mergeSectionOrder(canonical, canonical, pinned)).toEqual(canonical)
+    expect(
+      mergeSectionOrder(canonical, ['footer', 'gallery', 'countdown', 'rsvp', 'music'], pinned),
+    ).toEqual([
+      'opening',
+      'cover',
+      'invitation',
+      'families',
+      'eventDetails',
+      'gallery',
+      'countdown',
+      'rsvp',
+      'timeline',
+      'venue',
+      'guestbook',
+      'gift',
+      'music',
+      'footer',
+    ])
+  })
+
   it('renders the live iframe editor, complete sections and image input', () => {
     render(
       <NavigationProvider>

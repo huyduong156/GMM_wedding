@@ -1,0 +1,421 @@
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
+
+import { roseGardenFixture, roseGardenSectionConfig } from './fixture'
+import { RoseGardenInvitation } from './RoseGardenInvitation'
+import { roseGardenTemplateConfig } from './template-config'
+
+describe('RoseGardenInvitation', () => {
+  const optionalKeys = [
+    'countdown',
+    'timeline',
+    'venue',
+    'gallery',
+    'rsvp',
+    'guestbook',
+    'gift',
+    'music',
+  ] as const
+
+  it('renders the complete Phase 3 section map and opening layers', () => {
+    const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+    const configuredKeys = roseGardenTemplateConfig.sections.map((section) =>
+      typeof section === 'string' ? section : section.sectionKey,
+    )
+    const renderedKeys = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-editor-section]'),
+    ).map((section) => section.dataset.editorSection)
+
+    expect(configuredKeys).toEqual(roseGardenSectionConfig.order)
+    expect(new Set(configuredKeys).size).toBe(configuredKeys.length)
+    expect(renderedKeys).toEqual(expect.arrayContaining(configuredKeys))
+    expect(container.querySelector('.rg-section-number')).not.toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-art-index')).not.toBeInTheDocument()
+    expect(container.querySelector('[data-editor-section="opening"]')).toHaveClass('classic-card-cover')
+    expect(container.querySelectorAll('.classic-card-cover__flower')).toHaveLength(2)
+    const hearts = container.querySelectorAll<HTMLElement>('.classic-card-cover__heart')
+    expect(hearts).toHaveLength(24)
+    expect(container.querySelectorAll('.classic-card-cover__heart--large')).toHaveLength(3)
+    expect(hearts[0]?.style.getPropertyValue('--classic-card-cover-heart-left')).not.toBe('')
+    expect(hearts[0]?.style.getPropertyValue('--classic-card-cover-heart-mid-drift-x')).not.toBe('')
+    expect(screen.getByRole('heading', { name: 'Ngày mình chung đôi' })).toBeInTheDocument()
+    expect(screen.getByText('Hai gia đình trân trọng báo tin')).toBeInTheDocument()
+  })
+
+  it('honors optional section toggles and opens the static gate', () => {
+    const sectionConfig = {
+      enabled: roseGardenSectionConfig.enabled.filter((key) => key !== 'gallery'),
+      order: roseGardenSectionConfig.order,
+    }
+    const { container } = render(<RoseGardenInvitation sectionConfig={sectionConfig} />)
+
+    expect(container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()
+    expect(container.querySelector('.rg-invitation')).not.toHaveClass('is-opened')
+    fireEvent.click(screen.getByRole('button', { name: 'Chạm để mở thiệp' }))
+    expect(container.querySelector('.rg-invitation')).toHaveClass('is-opened')
+    expect(screen.getByRole('button', { name: 'Thiệp đã mở' })).toBeInTheDocument()
+  })
+
+  it('renders the configured music player without duplicating the editor section marker', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          music: {
+            backgroundMusicUrl: '/music/wedding.mp3',
+            backgroundMusicName: 'Wedding soundtrack',
+            backgroundMusicAutoplay: true,
+          },
+        }}
+      />,
+    )
+
+    expect(container.querySelector('[data-music-player]')).toBeInTheDocument()
+    expect(container.querySelectorAll('[data-editor-section="music"]')).toHaveLength(1)
+    expect(container.querySelector('[data-music-player] button')).toHaveAttribute('title', 'Wedding soundtrack')
+  })
+
+  it('locks the opening trigger and transfers focus to the cover', async () => {
+    const { container } = render(<RoseGardenInvitation />)
+    const trigger = screen.getByRole('button', { name: 'Chạm để mở thiệp' })
+
+    fireEvent.click(trigger)
+
+    expect(trigger).toBeDisabled()
+    await waitFor(() => expect(container.querySelector('[data-editor-section="cover"]')).toHaveFocus())
+  })
+
+  it('keeps the opening card mounted through its exit-animation fallback', () => {
+    const originalMatchMedia = window.matchMedia
+    vi.useFakeTimers()
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: () => ({ matches: false }),
+    })
+    try {
+      const { container } = render(<RoseGardenInvitation />)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Chạm để mở thiệp' }))
+
+      const opening = container.querySelector('[data-editor-section="opening"]')
+      expect(opening).toHaveClass('is-opening')
+      expect(opening).not.toHaveClass('is-open')
+
+      act(() => vi.advanceTimersByTime(1199))
+      expect(opening).toHaveClass('is-opening')
+
+      act(() => vi.advanceTimersByTime(1))
+      expect(opening).toHaveClass('is-open')
+      expect(opening).not.toHaveClass('is-opening')
+    } finally {
+      vi.useRealTimers()
+      Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
+    }
+  })
+
+  it.each(optionalKeys)('removes optional section %s without removing required content', (key) => {
+    const sectionConfig = {
+      enabled: roseGardenSectionConfig.enabled.filter((sectionKey) => sectionKey !== key),
+      order: roseGardenSectionConfig.order,
+    }
+    const { container } = render(
+      <RoseGardenInvitation editorMode sectionConfig={sectionConfig} />,
+    )
+
+    expect(container.querySelector(`[data-editor-section="${key}"]`)).not.toBeInTheDocument()
+    expect(container.querySelector('[data-editor-section="opening"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-editor-section="footer"]')).toBeInTheDocument()
+  })
+
+  it('reveals an optional section when an editor re-enables it after mount', async () => {
+    const hiddenConfig = {
+      enabled: roseGardenSectionConfig.enabled.filter((key) => key !== 'gallery'),
+      order: roseGardenSectionConfig.order,
+    }
+    const view = render(<RoseGardenInvitation editorMode sectionConfig={hiddenConfig} />)
+    expect(view.container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()
+
+    view.rerender(<RoseGardenInvitation editorMode sectionConfig={roseGardenSectionConfig} />)
+    await waitFor(() => expect(view.container.querySelector('[data-editor-section="gallery"]')).toHaveClass('is-visible'))
+  })
+
+  it('restores required anchors and normalizes malformed stored order', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        sectionConfig={{
+          enabled: ['gallery', 'rsvp'],
+          order: ['footer', 'gallery', 'gallery', 'rsvp', 'opening'],
+        }}
+      />,
+    )
+
+    for (const key of ['opening', 'cover', 'invitation', 'families', 'eventDetails', 'footer']) {
+      expect(container.querySelector(`[data-editor-section="${key}"]`)).toBeInTheDocument()
+    }
+    expect(container.querySelector('[data-editor-section="opening"]')).toHaveStyle({ order: 0 })
+    expect(container.querySelector('[data-editor-section="gallery"]')).toHaveStyle({ order: 5 })
+    expect(container.querySelector('[data-editor-section="rsvp"]')).toHaveStyle({ order: 6 })
+    expect(container.querySelector('[data-editor-section="footer"]')).toHaveStyle({ order: 7 })
+  })
+
+  it('keeps long family content intact for the stacked mobile composition', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          families: {
+            ...roseGardenFixture.families,
+            brideSide: {
+              ...roseGardenFixture.families?.brideSide,
+              father: 'Nguyễn Hoàng Minh Khôi',
+              mother: 'Trần Thị Thuỳ Dương',
+              address: 'Phường Trúc Bạch, quận Ba Đình, thành phố Hà Nội',
+            },
+            groomSide: {
+              ...roseGardenFixture.families?.groomSide,
+              father: 'Phạm Nguyễn Đức Anh',
+              mother: 'Lê Thị Ngọc Phương',
+              address: 'Phường Quảng An, quận Tây Hồ, thành phố Hà Nội',
+            },
+          },
+        }}
+      />,
+    )
+
+    expect(container.querySelectorAll('.rg-family-side')).toHaveLength(2)
+    expect(screen.getByRole('article', { name: 'Nhà gái' })).toBeInTheDocument()
+    expect(screen.getByRole('article', { name: 'Nhà trai' })).toBeInTheDocument()
+    expect(screen.getAllByText('Ông')).toHaveLength(2)
+    expect(screen.getAllByText('Bà')).toHaveLength(2)
+    expect(screen.getByText('Nguyễn Hoàng Minh Khôi')).toBeInTheDocument()
+    expect(screen.getByText('Phường Quảng An, quận Tây Hồ, thành phố Hà Nội')).toBeInTheDocument()
+    expect(container.querySelectorAll('.rg-family-card-flower')).toHaveLength(2)
+    expect(container.querySelector('.rg-family-card-flower-left')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-botanical-cluster-v1.png',
+    )
+    expect(container.querySelector('.rg-family-card-flower-right')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-botanical-cluster.png',
+    )
+    expect(container.querySelector('.rg-family-floral-cluster')).toHaveAttribute('alt', '')
+    expect(container.querySelector('.rg-family-floating-envelope')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-garden-envelope-vignette-v1.png',
+    )
+    expect(container.querySelector('.rg-family-ampersand')).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('keeps empty user media slots separate from renderer-owned decor', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          heroMedia: null,
+          openingMediaBack: null,
+          openingMediaFront: null,
+          eventDetailsMedia: null,
+          footerMedia: null,
+          galleryImages: [],
+          invitationMemoryImage1: '',
+          invitationMemoryImage2: '',
+          invitationMemoryImage3: '',
+        }}
+      />,
+    )
+
+    expect(container.querySelector('.rg-cover-art .rg-empty-artwork')).toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-art .rg-user-media')).not.toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-main-hero')).toBeInTheDocument()
+    expect(container.querySelector('.rg-cover-decor')).not.toBeInTheDocument()
+    expect(container.querySelectorAll('.rg-memory-card .rg-user-media')).toHaveLength(0)
+    expect(container.querySelectorAll('.rg-memory-card .rg-empty-artwork')).toHaveLength(3)
+    expect(container.querySelector('.rg-letter-decor')).toBeInTheDocument()
+    expect(container.querySelector('.rg-event-divider.rg-user-media')).not.toBeInTheDocument()
+    expect(container.querySelector('.rg-event-divider.rg-section-decor')).toBeInTheDocument()
+    expect(container.querySelector('.rg-event-divider')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-event-divider')).not.toHaveClass('reveal')
+    expect(container.querySelector('.rg-event-stamp')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-event-stamp')).not.toHaveClass('reveal')
+    expect(container.querySelector('.rg-event-card')).toBeInTheDocument()
+    expect(container.querySelectorAll('.rg-event-time-item')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-countdown-unit')).toHaveLength(4)
+    expect(container.querySelectorAll('.rg-countdown-sprig')).toHaveLength(2)
+    expect(screen.getByText('Ngày thành hôn')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Thêm vào lịch/ })).toBeInTheDocument()
+    expect(container.querySelector('.rg-gallery-empty')).toBeInTheDocument()
+    expect(container.querySelector('.rg-gallery-rail')).not.toBeInTheDocument()
+    expect(
+      Array.from(container.querySelectorAll('.rg-opening-layer')).every((image) => image.getAttribute('src')),
+    ).toBe(true)
+  })
+
+  it('keeps legacy single event time content readable', () => {
+    const { container } = render(
+      <RoseGardenInvitation
+        editorMode
+        data={{
+          ...roseGardenFixture,
+          eventDetails: {
+            ...roseGardenFixture.eventDetails,
+            items: undefined,
+            time: '16:45',
+          },
+        }}
+      />,
+    )
+
+    expect(container.querySelectorAll('.rg-event-time-item')).toHaveLength(1)
+    expect(container.querySelector('.rg-event-time-item')).toHaveTextContent('16:45')
+    expect(container.querySelector('.rg-event-time-item')).toHaveTextContent('Thời gian hôn lễ')
+  })
+
+  it('updates the complete countdown clock every second', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 9, 17, 17, 29, 30))
+    try {
+      const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+
+      expect(container.querySelector('[data-countdown-unit="days"]')).toHaveTextContent('01Ngày')
+      expect(container.querySelector('[data-countdown-unit="hours"]')).toHaveTextContent('00Giờ')
+      expect(container.querySelector('[data-countdown-unit="minutes"]')).toHaveTextContent('00Phút')
+      expect(container.querySelector('[data-countdown-unit="seconds"]')).toHaveTextContent('30Giây')
+
+      act(() => vi.advanceTimersByTime(1000))
+      expect(container.querySelector('[data-countdown-unit="seconds"]')).toHaveTextContent('29Giây')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('uses the personalized guest identity and sends RSVP and wishes through public controllers', async () => {
+    const rsvpSubmit = vi.fn().mockResolvedValue(true)
+    const wishSubmit = vi.fn().mockResolvedValue(true)
+    const interactions = {
+      isPersonalized: true,
+      guestName: 'Anh Ba Hùng',
+      rsvp: { isPersonalized: true, submit: rsvpSubmit, submitting: false, submitted: false, error: '' },
+      wishes: { items: [], submit: wishSubmit, submitting: false, submitted: false, error: '' },
+    }
+
+    render(<RoseGardenInvitation editorMode interactions={interactions} />)
+
+    expect(screen.getByText(/Xác nhận dành cho/)).toHaveTextContent('Anh Ba Hùng')
+    expect(screen.getByText(/Lời chúc từ/)).toHaveTextContent('Anh Ba Hùng')
+    expect(screen.queryByPlaceholderText('Nguyễn Văn A')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: roseGardenFixture.rsvp?.attendingLabel }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận phản hồi' }))
+
+    await waitFor(() =>
+      expect(rsvpSubmit).toHaveBeenCalledWith({
+        guestName: undefined,
+        attendance: 'ATTENDING',
+        partySize: 1,
+      }),
+    )
+
+    fireEvent.change(screen.getByPlaceholderText('Gửi đôi lời yêu thương…'), {
+      target: { value: 'Chúc hai bạn trăm năm hạnh phúc.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi lời chúc' }))
+
+    await waitFor(() =>
+      expect(wishSubmit).toHaveBeenCalledWith({
+        guestName: undefined,
+        content: 'Chúc hai bạn trăm năm hạnh phúc.',
+      }),
+    )
+  })
+
+  it('shows up to five wishes normally and turns larger lists into a two-card marquee', async () => {
+    const makeInteractions = (count: number) => ({
+      isPersonalized: false,
+      guestName: null,
+      rsvp: { isPersonalized: false, submit: vi.fn().mockResolvedValue(true), submitting: false, submitted: false, error: '' },
+      wishes: {
+        items: Array.from({ length: count }, (_, index) => ({
+          id: `wish-${index}`,
+          authorName: `Khách ${index + 1}`,
+          content: `Lời chúc ${index + 1}`,
+          submittedAt: '2026-01-01T00:00:00.000Z',
+          isPinned: false,
+        })),
+        submit: vi.fn().mockResolvedValue(true),
+        submitting: false,
+        submitted: false,
+        error: '',
+      },
+    })
+
+    const five = render(<RoseGardenInvitation editorMode interactions={makeInteractions(5)} />)
+    await waitFor(() => expect(five.container.querySelectorAll('.rg-wish-list > article')).toHaveLength(5))
+    expect(five.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-marquee', 'false')
+    five.unmount()
+
+    const more = render(<RoseGardenInvitation editorMode interactions={makeInteractions(6)} />)
+    await waitFor(() => expect(more.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-marquee', 'true'))
+    expect(more.container.querySelector('.rg-wish-list')).toHaveAttribute('data-wish-count', '6')
+    expect(more.container.querySelector('.rg-wish-track')).toBeInTheDocument()
+    expect(more.container.querySelectorAll('.rg-wish-track > article')).toHaveLength(12)
+  })
+
+  it('uses the repository demo couple media in the default fixture', () => {
+    const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+
+    expect(container.querySelector('.rg-cover-art .rg-user-media')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/red-spider-lily/demo/asian-couple-arch.jpg',
+    )
+    expect(container.querySelectorAll('.rg-memory-card .rg-user-media')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-gallery-rail .rg-user-media')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-timeline-media')).toHaveLength(3)
+    expect(container.querySelector('.rg-footer-media')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/red-spider-lily/demo/asian-couple-portrait.jpg',
+    )
+  })
+
+  it('includes the Phase 4 timeline bloom and motion-ready surface', () => {
+    const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+
+    expect(container.querySelectorAll('.rg-timeline-bloom')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-timeline-light')).toHaveLength(1)
+    expect(container.querySelectorAll('.rg-timeline-light.rg-motion-static')).toHaveLength(1)
+    expect(container.querySelector('.rg-page')).toHaveClass('rg-motion-ready')
+    expect(container.querySelectorAll('.rg-body-section.is-visible').length).toBeGreaterThan(0)
+  })
+
+  it('keeps Phase 5 atmosphere bounded and decorative', () => {
+    const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
+
+    expect(container.querySelector('.rg-cover-atmosphere')).toHaveAttribute('aria-hidden', 'true')
+    expect(container.querySelectorAll('.rg-cover-petal')).toHaveLength(9)
+    expect(container.querySelector('.rg-cover-petal-cluster')).toHaveAttribute('alt', '')
+    expect(container.querySelector('.rg-gallery')).toBeInTheDocument()
+    expect(container.querySelector('.rg-venue-decor')).toHaveClass('rg-motion-static')
+    expect(container.querySelector('.rg-venue-decor')).not.toHaveClass('reveal')
+    expect(container.querySelector('.rg-gift-envelope-box')).toBeInTheDocument()
+    expect(container.querySelectorAll('.gift-envelope-box__image')).toHaveLength(2)
+    expect(container.querySelectorAll('.gift-envelope-box__particles i')).toHaveLength(10)
+    expect(container.querySelector('.gift-envelope-box__particles i')).toHaveTextContent('♥')
+    expect(container.querySelector('.gift-envelope-box__particles img')).not.toBeInTheDocument()
+    expect(container.querySelector('.gift-envelope-box__image--back')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-closed-card.png',
+    )
+    expect(container.querySelector('.gift-envelope-box__image--front')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-closed-card.png',
+    )
+    const giftEnvelope = container.querySelector<HTMLElement>('.rg-gift-envelope-box')
+    expect(giftEnvelope).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(giftEnvelope!)
+    expect(giftEnvelope).toHaveAttribute('aria-expanded', 'true')
+    expect(container.querySelector('.rg-gift-payment')).toHaveClass('is-open')
+  })
+})
