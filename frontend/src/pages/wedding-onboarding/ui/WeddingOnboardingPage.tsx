@@ -1,6 +1,6 @@
 import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
 import { useState } from 'react'
-import { CalendarBlank, Heart, Sparkle } from '@phosphor-icons/react'
+import { Heart, Sparkle } from '@phosphor-icons/react'
 import { useWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { weddingApi } from '../../../shared/api/weddings'
 
@@ -64,10 +64,7 @@ export function WeddingOnboardingPage() {
         </label>
         <label>
           Ngày cưới chính <small>Có thể bổ sung sau</small>
-          <span className="date-input">
-            <CalendarBlank size={18} />
-            <NativeDateField value={date} onChange={(event) => setDate(event.target.value)} />
-          </span>
+          <NativeDateField value={date} onChange={(event) => setDate(event.target.value)} />
         </label>
         {error ? (
           <p className="workspace-form-error" role="alert">
