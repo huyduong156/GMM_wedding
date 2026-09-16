@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, context: Context) {
     const { actor } = await requireAuthenticatedUser(request)
     const query = wishQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams))
     const weddingId = weddingIdSchema.parse((await context.params).weddingId)
-    await requireWeddingPermission(actor.userId, weddingId, 'EDIT')
+    await requireWeddingPermission(actor.userId, weddingId, 'READ')
     const result = await getWeddingService().listWishes(
       actor,
       weddingId,
