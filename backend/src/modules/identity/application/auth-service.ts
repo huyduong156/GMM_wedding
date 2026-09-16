@@ -60,7 +60,10 @@ export class AuthService {
     }
   }
 
-  async register(input: { email: string; password: string; displayName?: string }, ip: string) {
+  async register(
+    input: { email: string; password: string; displayName?: string; workspaceAccessToken?: string },
+    ip: string,
+  ) {
     const email = normalizeEmail(input.email)
     await Promise.all([
       this.limit('register-ip', ip, 5, 60 * 60),
@@ -78,7 +81,27 @@ export class AuthService {
       tokenHash: hashOpaqueToken(token),
       tokenExpiresAt: expiresAt,
       encryptedToken: this.tokenProtector.encrypt(token),
+      ...(input.workspaceAccessToken
+        ? { workspaceAccessTokenHash: hashOpaqueToken(input.workspaceAccessToken) }
+        : {}),
     })
+    if (result.workspaceAccessError === 'INVALID') {
+      throw new AuthError('WORKSPACE_ACCESS_INVALID', 400, 'Workspace access link is invalid or expired')
+    }
+    if (result.workspaceAccessError === 'ALREADY_USED') {
+      throw new AuthError(
+        'WORKSPACE_ACCESS_ALREADY_USED',
+        409,
+        'Workspace access link has already been used',
+      )
+    }
+    if (result.workspaceAccessError === 'EMAIL_MISMATCH') {
+      throw new AuthError(
+        'WORKSPACE_ACCESS_EMAIL_MISMATCH',
+        403,
+        'Workspace access link is restricted to a different email address',
+      )
+    }
     if (!result.created || !result.outboxId) return
 
     try {
@@ -91,14 +114,15 @@ export class AuthService {
 
   async verifyEmail(token: string, ip: string) {
     await this.limit('verify-ip', ip, 20, 60 * 60)
-    const verified = await this.repository.verifyEmail(hashOpaqueToken(token), new Date())
-    if (!verified) {
+    const result = await this.repository.verifyEmail(hashOpaqueToken(token), new Date())
+    if (!result.verified) {
       throw new AuthError(
         'INVALID_VERIFICATION_TOKEN',
         400,
         'Verification token is invalid or expired',
       )
     }
+    return result.workspaceAccessOutcome
   }
 
   async resendVerification(emailInput: string, ip: string) {

@@ -23,6 +23,9 @@ export async function POST(request: Request) {
         email: input.email,
         password: input.password,
         ...(input.displayName ? { displayName: input.displayName } : {}),
+        ...(input.workspaceAccessToken
+          ? { workspaceAccessToken: input.workspaceAccessToken }
+          : {}),
       },
       clientIp(request),
     )

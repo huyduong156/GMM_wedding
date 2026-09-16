@@ -13,6 +13,7 @@ export const registerRequestSchema = z
     email: emailSchema,
     password: passwordSchema,
     displayName: z.string().trim().min(1).max(120).optional(),
+    workspaceAccessToken: z.string().min(32).max(200).optional(),
   })
   .strip()
 

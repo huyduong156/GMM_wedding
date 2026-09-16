@@ -73,6 +73,12 @@ enum WorkspaceAccessStatus {
   EXPIRED
 }
 
+enum WorkspaceAccessClaimStatus {
+  PENDING
+  ACCEPTED
+  INVALID
+}
+
 enum WeddingSurface {
   ONLINE_INVITATION
   WEDDING_WEBSITE
@@ -191,35 +197,36 @@ enum IdempotencyStatus {
 }
 
 model User {
-  id                  String                   @id @default(uuid()) @db.Uuid
-  email               String                   @unique @db.VarChar(320)
-  emailVerifiedAt     DateTime?                @db.Timestamptz(3)
-  passwordHash        String?                  @db.VarChar(255)
-  displayName         String?                  @db.VarChar(120)
-  phone               String?                  @db.VarChar(32)
-  avatarUrl           String?                  @db.VarChar(2048)
-  locale              String                   @default("vi-VN") @db.VarChar(16)
-  timezone            String                   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
-  status              UserStatus               @default(PENDING_VERIFICATION)
-  platformRole        PlatformRole             @default(USER)
-  lastLoginAt         DateTime?                @db.Timestamptz(3)
-  createdAt           DateTime                 @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime                 @updatedAt @db.Timestamptz(3)
-  deletedAt           DateTime?                @db.Timestamptz(3)
-  accounts            Account[]
-  sessions            Session[]
-  memberships         WeddingMember[]
-  createdWeddings     Wedding[]                @relation("WeddingCreator")
-  createdWorkspaceAccesses WeddingWorkspaceAccess[] @relation("WorkspaceAccessCreator")
-  acceptedWorkspaceAccesses WeddingWorkspaceAccess[] @relation("WorkspaceAccessAccepter")
-  completedTasks      WeddingTask[]            @relation("TaskCompletedBy")
-  notifications       Notification[]
-  notificationPrefs   NotificationPreference[]
-  auditLogs           AuditLog[]
-  ownedMusicTracks    MusicTrack[]             @relation("MusicTrackOwner")
-  uploadedMusicTracks MusicTrack[]             @relation("MusicTrackUploader")
-  roles               UserRole[]               @relation("UserRoles")
-  grantedRoles        UserRole[]               @relation("GrantedUserRoles")
+  id                        String                        @id @default(uuid()) @db.Uuid
+  email                     String                        @unique @db.VarChar(320)
+  emailVerifiedAt           DateTime?                     @db.Timestamptz(3)
+  passwordHash              String?                       @db.VarChar(255)
+  displayName               String?                       @db.VarChar(120)
+  phone                     String?                       @db.VarChar(32)
+  avatarUrl                 String?                       @db.VarChar(2048)
+  locale                    String                        @default("vi-VN") @db.VarChar(16)
+  timezone                  String                        @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  status                    UserStatus                    @default(PENDING_VERIFICATION)
+  platformRole              PlatformRole                  @default(USER)
+  lastLoginAt               DateTime?                     @db.Timestamptz(3)
+  createdAt                 DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime                      @updatedAt @db.Timestamptz(3)
+  deletedAt                 DateTime?                     @db.Timestamptz(3)
+  accounts                  Account[]
+  sessions                  Session[]
+  memberships               WeddingMember[]
+  createdWeddings           Wedding[]                     @relation("WeddingCreator")
+  createdWorkspaceAccesses  WeddingWorkspaceAccess[]      @relation("WorkspaceAccessCreator")
+  acceptedWorkspaceAccesses WeddingWorkspaceAccess[]      @relation("WorkspaceAccessAccepter")
+  workspaceAccessClaims     WeddingWorkspaceAccessClaim[] @relation("WorkspaceAccessClaimUser")
+  completedTasks            WeddingTask[]                 @relation("TaskCompletedBy")
+  notifications             Notification[]
+  notificationPrefs         NotificationPreference[]
+  auditLogs                 AuditLog[]
+  ownedMusicTracks          MusicTrack[]                  @relation("MusicTrackOwner")
+  uploadedMusicTracks       MusicTrack[]                  @relation("MusicTrackUploader")
+  roles                     UserRole[]                    @relation("UserRoles")
+  grantedRoles              UserRole[]                    @relation("GrantedUserRoles")
 
   @@index([status, createdAt])
 }
@@ -348,31 +355,52 @@ model WeddingMember {
 
 /// Quyền truy cập workspace đang chờ hoặc đã được claim bởi một user.
 model WeddingWorkspaceAccess {
-  id               String                @id @default(uuid()) @db.Uuid
+  id                 String                        @id @default(uuid()) @db.Uuid
   /// Wedding mà link này cấp quyền truy cập.
-  weddingId        String                @db.Uuid
+  weddingId          String                        @db.Uuid
   /// User owner/editor đã tạo link truy cập.
-  createdByUserId  String                @db.Uuid
+  createdByUserId    String                        @db.Uuid
   /// User duy nhất đã claim link này.
-  acceptedByUserId String?               @db.Uuid
-  email            String?               @db.VarChar(320)
+  acceptedByUserId   String?                       @db.Uuid
+  email              String?                       @db.VarChar(320)
   /// Quyền sẽ cấp sau khi chấp nhận link.
-  role             WorkspaceAccessRole
-  status           WorkspaceAccessStatus @default(PENDING)
+  role               WorkspaceAccessRole
+  status             WorkspaceAccessStatus         @default(PENDING)
   /// Hash của token URL dùng một lần.
-  tokenHash        String                @unique @db.VarChar(128)
-  expiresAt        DateTime              @db.Timestamptz(3)
-  acceptedAt       DateTime?             @db.Timestamptz(3)
-  revokedAt        DateTime?             @db.Timestamptz(3)
-  createdAt        DateTime              @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime              @updatedAt @db.Timestamptz(3)
-  wedding          Wedding               @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  createdBy        User                  @relation("WorkspaceAccessCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
-  acceptedBy       User?                 @relation("WorkspaceAccessAccepter", fields: [acceptedByUserId], references: [id], onDelete: SetNull)
+  tokenHash          String                        @unique @db.VarChar(128)
+  expiresAt          DateTime                      @db.Timestamptz(3)
+  acceptedAt         DateTime?                     @db.Timestamptz(3)
+  revokedAt          DateTime?                     @db.Timestamptz(3)
+  createdAt          DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime                      @updatedAt @db.Timestamptz(3)
+  wedding            Wedding                       @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  createdBy          User                          @relation("WorkspaceAccessCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  acceptedBy         User?                         @relation("WorkspaceAccessAccepter", fields: [acceptedByUserId], references: [id], onDelete: SetNull)
+  registrationClaims WeddingWorkspaceAccessClaim[]
 
   @@index([weddingId, status, createdAt])
   @@index([email, weddingId, status])
   @@index([acceptedByUserId])
+}
+
+/// Claim quyền workspace khi user mới cần xác thực email trước.
+model WeddingWorkspaceAccessClaim {
+  id                String                     @id @default(uuid()) @db.Uuid
+  /// Link quyền mà user đã dùng khi đăng ký.
+  workspaceAccessId String                     @db.Uuid
+  /// Tài khoản chờ xác thực để được thêm vào wedding.
+  userId            String                     @db.Uuid
+  status            WorkspaceAccessClaimStatus @default(PENDING)
+  acceptedAt        DateTime?                  @db.Timestamptz(3)
+  invalidatedAt     DateTime?                  @db.Timestamptz(3)
+  createdAt         DateTime                   @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                   @updatedAt @db.Timestamptz(3)
+  workspaceAccess   WeddingWorkspaceAccess     @relation(fields: [workspaceAccessId], references: [id], onDelete: Cascade)
+  user              User                       @relation("WorkspaceAccessClaimUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceAccessId, userId])
+  @@index([userId, status])
+  @@index([workspaceAccessId, status])
 }
 
 model WeddingEvent {
@@ -426,14 +454,14 @@ model WeddingContent {
 }
 
 model Template {
-  id          String              @id @default(uuid()) @db.Uuid
-  key         String              @unique @db.VarChar(80)
-  name        String              @db.VarChar(160)
+  id          String                    @id @default(uuid()) @db.Uuid
+  key         String                    @unique @db.VarChar(80)
+  name        String                    @db.VarChar(160)
   productType TemplateProductType
-  status      TemplateStatus      @default(DRAFT)
-  description String?             @db.Text
-  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
+  status      TemplateStatus            @default(DRAFT)
+  description String?                   @db.Text
+  createdAt   DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime                  @updatedAt @db.Timestamptz(3)
   versions    TemplateVersion[]
   styles      TemplateStyleAssignment[]
 }
@@ -597,30 +625,30 @@ model Guest {
   wishes            Wish[]
   giftLedgerEntries GiftLedgerEntry[]
 
+  @@unique([weddingId, slug])
   @@index([weddingId, groupId])
   @@index([weddingId, categoryId])
-  @@unique([weddingId, slug])
   @@index([weddingId, name])
 }
 
 model RsvpResponse {
-  id              String               @id @default(uuid()) @db.Uuid
-  weddingId       String               @db.Uuid
-  guestId         String?              @db.Uuid
+  id                 String               @id @default(uuid()) @db.Uuid
+  weddingId          String               @db.Uuid
+  guestId            String?              @db.Uuid
   /// Tên khách tự nhập khi RSVP qua link chung.
-  anonymousGuestName String?           @db.VarChar(160)
-  attendance      AttendanceStatus
-  partySize       Int
-  mealPreference  String?              @db.VarChar(160)
-  specialRequest  String?              @db.Text
-  message         String?              @db.Text
-  submittedAt     DateTime             @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime             @updatedAt @db.Timestamptz(3)
-  revision        Int                  @default(1)
-  wedding         Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
-  guest           Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
-  eventSelections RsvpEventSelection[]
-  companions      RsvpCompanion[]
+  anonymousGuestName String?              @db.VarChar(160)
+  attendance         AttendanceStatus
+  partySize          Int
+  mealPreference     String?              @db.VarChar(160)
+  specialRequest     String?              @db.Text
+  message            String?              @db.Text
+  submittedAt        DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime             @updatedAt @db.Timestamptz(3)
+  revision           Int                  @default(1)
+  wedding            Wedding              @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guest              Guest?               @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  eventSelections    RsvpEventSelection[]
+  companions         RsvpCompanion[]
 
   @@unique([weddingId, guestId])
   @@index([weddingId, attendance, submittedAt])
@@ -921,4 +949,3 @@ model MusicTrack {
   @@index([scope, status, sortOrder])
   @@index([ownerUserId, status, createdAt])
 }
-

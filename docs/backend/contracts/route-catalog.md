@@ -59,8 +59,8 @@ Core slice và security boundary được thiết kế tại [authentication imp
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| POST | `/auth/register` | Public | Implemented | Đăng ký |
-| POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần |
+| POST | `/auth/register` | Public | Implemented | Đăng ký; nhận tùy chọn `workspaceAccessToken` để giữ claim quyền chờ xác minh |
+| POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần; trả outcome claim workspace nếu có |
 | POST | `/auth/resend-verification` | Public pending account | Implemented | Gửi lại verification không lộ account; token cũ bị vô hiệu |
 | POST | `/auth/login` | Public | Implemented | Tạo session |
 | POST | `/auth/admin/login` | Public + active `ADMIN` role | Implemented | Tạo session cho bề mặt platform admin |
@@ -108,7 +108,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | DELETE | `/weddings/{weddingId}/members/me` | Active member | Implemented | Tự rời workspace; owner không thể tự rời |
 | GET | `/slugs/weddings/{slug}/availability` | Session | Implemented | Kiểm tra slug đang được một publication live sử dụng |
 
-`WeddingWorkspaceAccess` cấp link một lần để user đã đăng nhập claim membership; token chỉ lưu dạng hash, có hạn và có thể revoke. Các owner-only module cũ sẽ được chuyển dần sang role policy theo `WeddingMember`; dashboard hiện vẫn trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai.
+`WeddingWorkspaceAccess` cấp link một lần để user đã đăng nhập claim membership; token chỉ lưu dạng hash, có hạn và có thể revoke. Khi user mới đăng ký từ link, `WeddingWorkspaceAccessClaim` giữ liên kết token hash–user cho đến email verification; chỉ verification thành công mới consume link. Claim khác xác minh sau khi link đã được dùng nhận `ALREADY_USED`, không lộ danh tính user đã claim. Các owner-only module cũ sẽ được chuyển dần sang role policy theo `WeddingMember`; dashboard hiện vẫn trả `views: null` cho từng publication surface cho đến khi analytics tracking được triển khai.
 
 ## Templates và media
 

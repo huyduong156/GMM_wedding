@@ -55,7 +55,11 @@ Wedding base service hiện dùng `name` làm couple/workspace name và chỉ ex
 
 ### `WeddingMember`
 
-Quan hệ user–wedding và quyền. Trường: `id`, `weddingId`, `userId`, `role` (`OWNER|EDITOR|GUEST_MANAGER|VIEWER`), `status`, `invitedAt?`, `joinedAt?`, `revokedAt?`, `createdAt`, `updatedAt`. Cặp `(weddingId, userId)` unique. Role không thay thế resource authorization.
+Quan hệ user–wedding và quyền. Trường: `id`, `weddingId`, `userId`, `role` (`OWNER|EDITOR|VIEWER`), `status`, `invitedAt?`, `joinedAt?`, `revokedAt?`, `createdAt`, `updatedAt`. Cặp `(weddingId, userId)` unique. Khi member đã bị xóa khỏi workspace (`REVOKED`) nhận link mới, hệ thống khôi phục chính row này về `ACTIVE` thay vì tạo row thứ hai. Role không thay thế resource authorization.
+
+### `WeddingWorkspaceAccess` và `WeddingWorkspaceAccessClaim`
+
+`WeddingWorkspaceAccess` là link cấp quyền dùng một lần, chỉ lưu hash token, có role, thời hạn và trạng thái consume/revoke. `WeddingWorkspaceAccessClaim` liên kết một user mới với link đã dùng khi đăng ký (`workspaceAccessId`, `userId`); claim `PENDING` chỉ được đổi sang `ACCEPTED` sau email verification, lúc đó mới tạo `WeddingMember`. Claim `INVALID` lưu kết quả khi link đã bị dùng, thu hồi hoặc hết hạn để không cấp quyền nhầm.
 
 ### `WeddingEvent`
 
