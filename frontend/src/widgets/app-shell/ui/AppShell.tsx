@@ -1,4 +1,3 @@
-import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { useEffect, useState } from 'react'
 import {
   Bell,
@@ -20,6 +19,7 @@ import {
   SidebarSimple,
   SignOut,
   UserList,
+  UsersThree,
   X,
 } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
@@ -84,6 +84,7 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
     label: 'Vận hành',
     items: [
       { to: studioRoutes.analytics, label: 'Thống kê', icon: ChartLineUp },
+      { to: studioRoutes.members, label: 'Thành viên', icon: UsersThree },
       { to: studioRoutes.settings, label: 'Cài đặt', icon: GearSix },
     ],
   },
@@ -92,9 +93,23 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
 export function AppShell({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setCollapsed] = useState(false)
+  const [switcherOpen, setSwitcherOpen] = useState(false)
+  const [pendingWeddingId, setPendingWeddingId] = useState<string | null>(null)
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
+  const isViewer = weddingWorkspace?.activeRole === 'VIEWER'
+  const viewerHiddenRoutes = new Set([
+    studioRoutes.invites,
+    studioRoutes.site,
+    studioRoutes.siteEditor,
+    studioRoutes.recap,
+    studioRoutes.recapThemes,
+    studioRoutes.events,
+    studioRoutes.giftLedger,
+    studioRoutes.members,
+    studioRoutes.settings,
+  ])
   const currentWedding = weddingWorkspace?.activeWedding
   const activeWedding = currentWedding
     ? {
@@ -111,6 +126,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       : `Còn ${weddingCountdown.days} ngày đến lễ cưới`
 
   useEffect(() => setSidebarOpen(false), [pathname])
+
+  function openSwitcher() {
+    setSwitcherOpen(true)
+  }
+
+  const pendingWedding = weddingWorkspace?.weddings.find((wedding) => wedding.id === pendingWeddingId) ?? null
 
   return (
     <div className={`app-shell ${isCollapsed ? 'is-collapsed' : ''}`}>
@@ -147,65 +168,33 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <div
+        <button
+          type="button"
           className="wedding-switcher"
-          role={weddingWorkspace && weddingWorkspace.weddings.length > 1 ? undefined : 'button'}
-          tabIndex={weddingWorkspace && weddingWorkspace.weddings.length > 1 ? undefined : 0}
-          aria-label={
-            weddingWorkspace && weddingWorkspace.weddings.length > 1
-              ? undefined
-              : 'Mở cài đặt wedding'
-          }
-          onClick={() => {
-            if (!weddingWorkspace || weddingWorkspace.weddings.length <= 1)
-              navigate(studioRoutes.settings)
-          }}
-          onKeyDown={(event) => {
-            if (
-              (!weddingWorkspace || weddingWorkspace.weddings.length <= 1) &&
-              (event.key === 'Enter' || event.key === ' ')
-            ) {
-              event.preventDefault()
-              navigate(studioRoutes.settings)
-            }
-          }}
+          aria-label="Mở danh sách Wedding để chuyển"
+          aria-haspopup="dialog"
+          onClick={() => void openSwitcher()}
         >
           <span className="couple-avatar">MĐ</span>
           <span className="wedding-switcher-copy">
             <strong>{activeWedding.coupleName}</strong>
-            <span>
-              <i
-                className={`status-dot ${currentWedding?.status === 'ARCHIVED' ? 'is-archived' : currentWedding?.status === 'PUBLISHED' ? '' : 'is-draft'}`}
-              />{' '}
-              {currentWedding?.status === 'ARCHIVED'
-                ? 'Đã lưu trữ'
-                : currentWedding?.status === 'PUBLISHED'
-                  ? 'Đã xuất bản'
-                  : 'Bản nháp'}
-            </span>
+            <span>Nhấn để chuyển Wedding</span>
           </span>
-          {weddingWorkspace && weddingWorkspace.weddings.length > 1 ? (
-            <NativeSelectField
-              aria-label="Chọn đám cưới"
-              value={activeWedding.id}
-              onChange={(event) => weddingWorkspace.selectWedding(event.target.value)}
-            >
-              {weddingWorkspace.weddings.map((wedding) => (
-                <option key={wedding.id} value={wedding.id}>
-                  {wedding.name}
-                </option>
-              ))}
-            </NativeSelectField>
-          ) : (
-            <CaretRight size={16} aria-hidden="true" />
-          )}
-        </div>
+          <CaretDown size={16} aria-hidden="true" />
+        </button>
 
         <nav className="primary-nav">
           {navGroups.map((group) => (
             <div className="nav-group" key={group.label || 'main'}>
               {group.label ? <p className="nav-group-label">{group.label}</p> : null}
-              {group.items.map(({ to, label, icon: Icon, badge, child, heading }) =>
+              {group.items
+                .filter(
+                  (item) =>
+                    !isViewer ||
+                    (!item.to || !viewerHiddenRoutes.has(item.to)) &&
+                      !(item.heading && item.icon === ImagesSquare),
+                )
+                .map(({ to, label, icon: Icon, badge, child, heading }) =>
                 heading ? (
                   <div className="nav-section-heading" key={label}>
                     <Icon size={19} weight="regular" aria-hidden="true" />
@@ -332,6 +321,109 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+      {switcherOpen ? (
+        <div
+          className="workspace-dialog-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSwitcherOpen(false)
+          }}
+        >
+          <section
+            className="workspace-dialog wedding-switcher-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wedding-switcher-title"
+          >
+            <header>
+              <div>
+                <h2 id="wedding-switcher-title">Chuyển Wedding</h2>
+                <p>Chọn không gian Wedding bạn muốn tiếp tục làm việc.</p>
+              </div>
+              <button type="button" onClick={() => setSwitcherOpen(false)} aria-label="Đóng">
+                <X size={18} />
+              </button>
+            </header>
+            <div className="wedding-switcher-list">
+              {(weddingWorkspace?.weddings ?? []).map((wedding) => (
+                <button
+                  type="button"
+                  key={wedding.id}
+                  className={wedding.id === activeWedding.id ? 'is-active' : ''}
+                  onClick={() => setPendingWeddingId(wedding.id)}
+                >
+                  <span>
+                    <strong>{wedding.name}</strong>
+                    <small>
+                      {wedding.primaryDate
+                        ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(
+                            new Date(wedding.primaryDate),
+                          )
+                        : 'Chưa chọn ngày cưới'}
+                    </small>
+                  </span>
+                  <span className="wedding-switcher-meta">
+                    <em>
+                      {weddingWorkspace?.rolesByWedding[wedding.id] === 'OWNER'
+                        ? 'Chủ sở hữu'
+                        : weddingWorkspace?.rolesByWedding[wedding.id] === 'EDITOR'
+                          ? 'Biên tập viên'
+                          : weddingWorkspace?.rolesByWedding[wedding.id] === 'VIEWER'
+                            ? 'Chỉ xem'
+                            : 'Đang tải quyền…'}
+                    </em>
+                    <i>
+                      {wedding.status === 'PUBLISHED'
+                        ? 'Đã xuất bản'
+                        : wedding.status === 'ARCHIVED'
+                          ? 'Đã lưu trữ'
+                          : 'Bản nháp'}
+                    </i>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+      {pendingWedding ? (
+        <div className="workspace-dialog-backdrop" role="presentation">
+          <section
+            className="workspace-dialog wedding-switch-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wedding-switch-confirm-title"
+          >
+            <header>
+              <div>
+                <h2 id="wedding-switch-confirm-title">Xác nhận chuyển Wedding</h2>
+              </div>
+              <button type="button" onClick={() => setPendingWeddingId(null)} aria-label="Đóng">
+                <X size={18} />
+              </button>
+            </header>
+            <p>
+              Bạn sẽ chuyển không gian làm việc sang <strong>{pendingWedding.name}</strong>.
+            </p>
+            <footer>
+              <button type="button" className="button button-secondary" onClick={() => setPendingWeddingId(null)}>
+                Hủy
+              </button>
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={() => {
+                  weddingWorkspace?.selectWedding(pendingWedding.id)
+                  setPendingWeddingId(null)
+                  setSwitcherOpen(false)
+                }}
+              >
+                Chuyển Wedding
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
     </div>
   )
 }

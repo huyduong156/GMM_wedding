@@ -15,6 +15,7 @@ export const studioRoutes = {
   recapReview: '/studio/recap/review',
   recapThemes: '/studio/recap/themes',
   analytics: '/studio/analytics',
+  members: '/studio/members',
   events: '/studio/events',
   settings: '/studio/settings',
   profile: '/studio/profile',
@@ -49,6 +50,7 @@ export const legacyStudioRoutes: Record<string, string> = {
   recap: studioRoutes.recap,
   'recap-themes': studioRoutes.recapThemes,
   analytics: studioRoutes.analytics,
+  members: studioRoutes.members,
   events: studioRoutes.events,
   settings: studioRoutes.settings,
   profile: studioRoutes.profile,
@@ -75,6 +77,9 @@ export const marketingRoutes = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
 } as const
+
+export const workspaceAccessRoute = (token: string) =>
+  `/workspace-access/${encodeURIComponent(token)}`
 
 export const statusRoutes = {
   unauthorized: '/401',

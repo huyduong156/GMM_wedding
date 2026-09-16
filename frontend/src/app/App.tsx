@@ -15,6 +15,8 @@ import { DashboardPage } from '../pages/dashboard/ui/DashboardPage'
 import { WeddingDashboardPage } from '../pages/dashboard/ui/WeddingDashboardPage'
 import { WeddingEventsPage } from '../pages/events/ui/WeddingEventsPage'
 import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSettingsPage'
+import { WorkspaceMembersPage } from '../pages/workspace-members/ui/WorkspaceMembersPage'
+import { WorkspaceAccessPage } from '../pages/workspace-access/ui/WorkspaceAccessPage'
 import { ProfilePage } from '../pages/profile/ui/ProfilePage'
 import { GuestsPageConnected } from '../pages/guests/ui/GuestsPageConnected'
 import { GuestCategoriesConnectedV2 } from '../pages/guest-categories/ui/GuestCategoriesConnectedV2'
@@ -75,6 +77,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.recapReview]: <RedSpiderLilyRecapPreviewPage />,
   [studioRoutes.recapThemes]: <RecapThemesPage />,
   [studioRoutes.analytics]: <AnalyticsPage />,
+  [studioRoutes.members]: <WorkspaceMembersPage />,
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
   [studioRoutes.profile]: <ProfilePage />,
@@ -124,6 +127,9 @@ function AppContent() {
   if (pathname === marketingRoutes.verifyEmail) return <VerifyEmailPage />
   if (pathname === marketingRoutes.forgotPassword) return <ForgotPasswordPage />
   if (pathname === marketingRoutes.resetPassword) return <ResetPasswordPage />
+  const workspaceAccessMatch = pathname.match(/^\/workspace-access\/([^/]+)\/?$/)
+  if (workspaceAccessMatch)
+    return <WorkspaceAccessPage token={decodeURIComponent(workspaceAccessMatch[1])} />
   if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
   if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
   if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />

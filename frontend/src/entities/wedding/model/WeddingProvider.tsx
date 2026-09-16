@@ -1,5 +1,6 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { weddingApi, type Wedding } from '../../../shared/api/weddings'
+import { weddingApi, type Wedding, type WeddingMemberRole } from '../../../shared/api/weddings'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { WeddingContext } from './wedding-context'
 
 const storageKey = 'gmm-active-wedding-id'
@@ -9,11 +10,35 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
   const [activeId, setActiveId] = useState(() => localStorage.getItem(storageKey))
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rolesByWedding, setRolesByWedding] = useState<Record<string, WeddingMemberRole>>({})
+  const userId = useOptionalAuth()?.user?.id
   const refresh = useCallback(async () => {
     setError(null)
     try {
       const result = await weddingApi.list()
       setWeddings(result.items)
+      if (userId) {
+        const roles = await Promise.all(
+          result.items.map(async (wedding) => {
+            try {
+              const members = await weddingApi.members(wedding.id)
+              return [
+                wedding.id,
+                members.members.find((member) => member.userId === userId)?.role,
+              ] as const
+            } catch {
+              return [wedding.id, undefined] as const
+            }
+          }),
+        )
+        setRolesByWedding(
+          Object.fromEntries(
+            roles.filter((entry): entry is [string, WeddingMemberRole] => Boolean(entry[1])),
+          ),
+        )
+      } else {
+        setRolesByWedding({})
+      }
       setActiveId((current) =>
         result.items.some((item) => item.id === current) ? current : (result.items[0]?.id ?? null),
       )
@@ -22,7 +47,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [userId])
   useEffect(() => {
     void refresh()
   }, [refresh])
@@ -34,6 +59,8 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     () => ({
       weddings,
       activeWedding: weddings.find((item) => item.id === activeId) ?? null,
+      activeRole: activeId ? (rolesByWedding[activeId] ?? null) : null,
+      rolesByWedding,
       loading,
       error,
       selectWedding: setActiveId,
@@ -51,7 +78,7 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
           return next
         }),
     }),
-    [activeId, error, loading, refresh, weddings],
+    [activeId, error, loading, refresh, rolesByWedding, weddings],
   )
   return <WeddingContext.Provider value={value}>{children}</WeddingContext.Provider>
 }

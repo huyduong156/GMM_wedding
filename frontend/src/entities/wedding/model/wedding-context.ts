@@ -1,9 +1,11 @@
 import { createContext, useContext } from 'react'
-import type { Wedding } from '../../../shared/api/weddings'
+import type { Wedding, WeddingMemberRole } from '../../../shared/api/weddings'
 
 export type WeddingContextValue = {
   weddings: Wedding[]
   activeWedding: Wedding | null
+  activeRole: WeddingMemberRole | null
+  rolesByWedding: Record<string, WeddingMemberRole>
   loading: boolean
   error: string | null
   selectWedding(id: string): void

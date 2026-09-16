@@ -7,6 +7,14 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { AuthApiError } from '../../../shared/api/auth'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 
+const workspaceAccessReturnKey = 'gmm-workspace-access-return'
+
+function consumeWorkspaceAccessReturn() {
+  const destination = sessionStorage.getItem(workspaceAccessReturnKey)
+  sessionStorage.removeItem(workspaceAccessReturnKey)
+  return destination?.startsWith('/workspace-access/') ? destination : studioRoutes.home
+}
+
 function loginError(error: unknown) {
   if (!(error instanceof AuthApiError)) return 'Không thể đăng nhập lúc này. Vui lòng thử lại.'
   if (error.code === 'INVALID_CREDENTIALS') return 'Email hoặc mật khẩu không chính xác.'
@@ -33,7 +41,7 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password)
-      navigate(studioRoutes.home, true)
+      navigate(consumeWorkspaceAccessReturn(), true)
     } catch (reason) {
       setError(loginError(reason))
     } finally {

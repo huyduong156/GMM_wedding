@@ -31,10 +31,21 @@ const initials = (name: string) =>
 export function WishesPageConnected() {
   const workspace = useOptionalWeddingWorkspace()
   if (!workspace) return <WishesPage />
-  return <WishesContent activeWedding={workspace.activeWedding} />
+  return (
+    <WishesContent
+      activeWedding={workspace.activeWedding}
+      canEdit={workspace.activeRole === 'OWNER' || workspace.activeRole === 'EDITOR'}
+    />
+  )
 }
 
-function WishesContent({ activeWedding }: { activeWedding: { id: string; name: string } | null }) {
+function WishesContent({
+  activeWedding,
+  canEdit,
+}: {
+  activeWedding: { id: string; name: string } | null
+  canEdit: boolean
+}) {
   const [wishes, setWishes] = useState<Wish[]>([])
   const [activeTab, setActiveTab] = useState<WishTab>('pending')
   const [query, setQuery] = useState('')
@@ -84,7 +95,7 @@ function WishesContent({ activeWedding }: { activeWedding: { id: string; name: s
     input: { status?: WishStatus; isPinned?: boolean },
     message: string,
   ) => {
-    if (!activeWedding) return
+    if (!canEdit || !activeWedding) return
     try {
       const result = await wishApi.moderate(activeWedding.id, wish.id, input)
       setWishes((current) => current.map((item) => (item.id === wish.id ? result.wish : item)))
@@ -183,7 +194,7 @@ function WishesContent({ activeWedding }: { activeWedding: { id: string; name: s
                         ) : null}
                       </header>
                       <p>{wish.content}</p>
-                      <div className="wish-actions">
+                      {canEdit ? <div className="wish-actions">
                         {!isApproved && !isHidden ? (
                           <button
                             type="button"
@@ -244,7 +255,7 @@ function WishesContent({ activeWedding }: { activeWedding: { id: string; name: s
                             <Sparkle size={16} /> Khôi phục
                           </button>
                         )}
-                      </div>
+                      </div> : null}
                     </div>
                   </article>
                 )

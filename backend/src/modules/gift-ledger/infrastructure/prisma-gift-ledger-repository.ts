@@ -97,7 +97,7 @@ export class PrismaGiftLedgerRepository implements GiftLedgerRepository {
       id: weddingId,
       deletedAt: null,
       members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } },
-    } as const
+    }
   }
   private async owns(userId: string, weddingId: string) {
     return Boolean(

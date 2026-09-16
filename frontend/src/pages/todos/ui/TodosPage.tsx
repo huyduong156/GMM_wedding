@@ -60,6 +60,7 @@ const showSuccess = (title: string) =>
 export function TodosPage() {
   const workspace = useOptionalWeddingWorkspace()
   const weddingId = workspace?.activeWedding?.id
+  const canEdit = workspace?.activeRole === 'OWNER' || workspace?.activeRole === 'EDITOR'
   const [tasks, setTasks] = useState<WeddingTask[]>([])
   const templates = TODO_CHECKLIST_PRESETS
   const [previewPreset, setPreviewPreset] = useState<TodoChecklistPreset | null>(null)
@@ -137,7 +138,7 @@ export function TodosPage() {
   const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0
 
   async function updateStatus(task: WeddingTask, status: TaskStatus) {
-    if (!weddingId) return
+    if (!canEdit || !weddingId) return
     try {
       const result = await taskApi.update(weddingId, task.id, { status, revision: task.revision })
       setTasks((items) => items.map((item) => (item.id === result.task.id ? result.task : item)))
@@ -153,6 +154,7 @@ export function TodosPage() {
     }
   }
   function show(task?: WeddingTask) {
+    if (!canEdit) return
     setTemplatesOpen(false)
     setEditing(task ?? null)
     setTitle(task?.title ?? '')
@@ -163,7 +165,7 @@ export function TodosPage() {
   }
   async function save(event: React.FormEvent) {
     event.preventDefault()
-    if (!weddingId || !title.trim() || saving) return
+    if (!canEdit || !weddingId || !title.trim() || saving) return
     setSaving(true)
     try {
       const input = {
@@ -189,7 +191,7 @@ export function TodosPage() {
     }
   }
   async function remove(task: WeddingTask) {
-    if (!weddingId) return
+    if (!canEdit || !weddingId) return
     const confirmation = await notifications.fire({
       icon: 'warning',
       title: 'Xóa công việc?',
@@ -210,7 +212,7 @@ export function TodosPage() {
   }
 
   async function applyTemplate(template: TodoChecklistPreset) {
-    if (!weddingId || applyingTemplateKey) return
+    if (!canEdit || !weddingId || applyingTemplateKey) return
     const confirmation = await notifications.fire({
       icon: 'warning',
       title: 'Thêm checklist?',
@@ -245,7 +247,7 @@ export function TodosPage() {
           <p>Cùng nhau theo dõi những việc quan trọng trước ngày trọng đại.</p>
         </div>
         <div className="todos-heading-actions">
-          <div className="todo-template-trigger">
+          {canEdit ? <div className="todo-template-trigger">
             <button
               className="button button-secondary"
               type="button"
@@ -299,11 +301,11 @@ export function TodosPage() {
                 )}
               </div>
             ) : null}
-          </div>
-          <button className="button button-primary" type="button" onClick={() => show()}>
+          </div> : null}
+          {canEdit ? <button className="button button-primary" type="button" onClick={() => show()}>
             <Plus size={18} />
             Thêm công việc
-          </button>
+          </button> : null}
         </div>
       </header>
       <section className="todos-overview" aria-label="Tiến độ chuẩn bị">
@@ -382,7 +384,7 @@ export function TodosPage() {
                   data-parent-task={task.parentTaskId ?? undefined}
                   key={task.id}
                 >
-                  <button
+                  {canEdit ? <button
                     className="todo-check"
                     type="button"
                     aria-label={
@@ -396,7 +398,7 @@ export function TodosPage() {
                     }
                   >
                     {task.status === 'DONE' ? <Check size={16} /> : null}
-                  </button>
+                  </button> : <span className="todo-check" aria-hidden="true">{task.status === 'DONE' ? <Check size={16} /> : null}</span>}
                   <div className="todo-copy" style={{ paddingLeft: task.parentTaskId ? 18 : 0 }}>
                     <strong>
                       {task.parentTaskId ? '↳ ' : ''}
@@ -411,7 +413,7 @@ export function TodosPage() {
                       <CalendarBlank size={15} />
                       {toLabel(task.dueAt)}
                     </span>
-                    <label className="todo-status-select">
+                    {canEdit ? <label className="todo-status-select">
                       <span className="sr-only">Trạng thái của {task.title}</span>
                       <NativeSelectField
                         value={task.status}
@@ -426,23 +428,23 @@ export function TodosPage() {
                         ))}
                       </NativeSelectField>
                       <CaretDown size={12} />
-                    </label>
-                    <button
+                    </label> : <span className="todo-status-readonly">{statusLabels[task.status]}</span>}
+                    {canEdit ? <button
                       type="button"
                       aria-label={`Sửa ${task.title}`}
                       onClick={() => show(task)}
                     >
                       <PencilSimple size={15} />
                       <span className="todo-action-label">Sửa</span>
-                    </button>
-                    <button
+                    </button> : null}
+                    {canEdit ? <button
                       type="button"
                       aria-label={`Xóa ${task.title}`}
                       onClick={() => void remove(task)}
                     >
                       <Trash size={15} />
                       <span className="todo-action-label">Xóa</span>
-                    </button>
+                    </button> : null}
                   </div>
                 </article>
               ))

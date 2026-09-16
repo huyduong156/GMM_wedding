@@ -33,10 +33,21 @@ const alertSuccess = (text: string) =>
 export function GuestCategoriesConnectedV2() {
   const workspace = useOptionalWeddingWorkspace()
   if (!workspace) return <GuestCategoriesPage />
-  return <GuestCategoriesContent activeWedding={workspace.activeWedding} />
+  return (
+    <GuestCategoriesContent
+      activeWedding={workspace.activeWedding}
+      canEdit={workspace.activeRole === 'OWNER' || workspace.activeRole === 'EDITOR'}
+    />
+  )
 }
 
-function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | null }) {
+function GuestCategoriesContent({
+  activeWedding,
+  canEdit,
+}: {
+  activeWedding: Wedding | null
+  canEdit: boolean
+}) {
   const [items, setItems] = useState<GuestCategory[]>([])
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [parent, setParent] = useState<GuestCategory | null | undefined>(undefined)
@@ -74,12 +85,13 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
     setError('')
   }
   const openCreate = (value: GuestCategory | null) => {
+    if (!canEdit) return
     setParent(value)
     setName('')
     setError('')
   }
   const create = async () => {
-    if (!activeWedding || !name.trim()) return
+    if (!canEdit || !activeWedding || !name.trim()) return
     if ((parent?.depth ?? 0) >= 3) {
       setError('Danh mục chỉ được tối đa 3 cấp.')
       return
@@ -100,7 +112,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
     }
   }
   const remove = async () => {
-    if (!activeWedding || !selected.length) return
+    if (!canEdit || !activeWedding || !selected.length) return
     const result = await notifications.fire({
       icon: 'warning',
       title: 'Xóa danh mục?',
@@ -148,7 +160,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
           >
             {nested.length ? isOpen ? <CaretDown size={15} /> : <CaretRight size={15} /> : <span />}
           </button>
-          <input
+          {canEdit ? <input
             className="guest-checkbox"
             type="checkbox"
             checked={selected.includes(item.id)}
@@ -160,7 +172,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
               )
             }
             aria-label={`Chọn ${item.name}`}
-          />
+          /> : null}
           <span className="category-folder">
             <FolderSimple size={18} weight={isOpen ? 'fill' : 'regular'} />
           </span>
@@ -170,7 +182,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
               Cấp {item.depth} · {item.guestCount ?? 0} khách
             </span>
           </div>
-          {item.depth < 3 && (
+          {canEdit && item.depth < 3 && (
             <button className="category-add-child" type="button" onClick={() => openCreate(item)}>
               <Plus size={14} /> <span>Thêm cấp con</span>
             </button>
@@ -191,9 +203,9 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
           <h1 id="categories-heading">Danh mục khách mời</h1>
           <p>Tổ chức khách theo cây danh mục tối đa 3 cấp để lọc thuận tiện hơn.</p>
         </div>
-        <button className="button button-primary" type="button" onClick={() => openCreate(null)}>
+        {canEdit ? <button className="button button-primary" type="button" onClick={() => openCreate(null)}>
           <Plus size={17} /> Thêm danh mục
-        </button>
+        </button> : null}
       </header>
       <div className="category-summary">
         <div>
@@ -213,7 +225,7 @@ function GuestCategoriesContent({ activeWedding }: { activeWedding: Wedding | nu
             <h2>Cây danh mục</h2>
             <p>Chọn danh mục để xóa hàng loạt.</p>
           </div>
-          {selected.length ? (
+          {canEdit && selected.length ? (
             <button
               className="button button-secondary"
               type="button"

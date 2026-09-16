@@ -24,7 +24,6 @@ export async function POST(request: NextRequest, context: Context) {
     assertSafeMutation(request)
     const { actor } = await requireAuthenticatedUser(request)
     const result = await getWorkspaceAccessService().create(actor, await id(context), await parseJson(request, workspaceAccessCreateSchema))
-    const origin = request.nextUrl.origin
     const access = {
       id: result.access.id,
       weddingId: result.access.weddingId,
@@ -38,8 +37,7 @@ export async function POST(request: NextRequest, context: Context) {
       revokedAt: result.access.revokedAt,
       createdAt: result.access.createdAt,
       updatedAt: result.access.updatedAt,
-      acceptUrl: `${origin}/workspace-access/${result.token}`,
     }
-    return withApiHeaders(jsonResponse({ access }, { status: 201 }), requestId)
+    return withApiHeaders(jsonResponse({ access, token: result.token }, { status: 201 }), requestId)
   } catch (error) { return weddingErrorResponse(error, requestId) }
 }

@@ -137,6 +137,7 @@ function Artwork({ theme }: { theme: Theme }) {
 export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   const workspace = useOptionalWeddingWorkspace()
   const activeWedding = workspace?.activeWedding ?? null
+  const canEdit = workspace?.activeRole === 'OWNER' || workspace?.activeRole === 'EDITOR'
   const surface = kind === 'website' ? 'WEDDING_WEBSITE' : 'ONLINE_INVITATION'
   const [themes, setThemes] = useState<Theme[]>([])
   const [content, setContent] = useState<WeddingContent | null>(null)
@@ -232,7 +233,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   }, [activeVersionId, deferredQuery, filter, themes, unavailableActiveTheme])
 
   const selectTheme = async (theme: Theme) => {
-    if (!activeWedding || !content) {
+    if (!canEdit || !activeWedding || !content) {
       setNotice('Hãy chọn một đám cưới trước khi áp dụng giao diện.')
       return
     }
@@ -401,11 +402,11 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
                       <Eye size={16} /> Chưa có preview
                     </button>
                   )}
-                  {active ? (
+                  {active && canEdit ? (
                     <AppLink className="button button-primary" to={studioRoutes.invites}>
                       <PencilSimple size={16} /> Chỉnh sửa
                     </AppLink>
-                  ) : (
+                  ) : !active && canEdit ? (
                     <button
                       className={`button ${active ? 'button-secondary' : 'button-primary'}`}
                       type="button"
@@ -418,7 +419,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
                           ? 'Đang áp dụng…'
                           : 'Dùng giao diện'}
                     </button>
-                  )}
+                  ) : null}
                 </footer>
               </article>
             )

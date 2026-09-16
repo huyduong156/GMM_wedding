@@ -22,6 +22,8 @@ export type PlatformAdminActor = {
   assurance: 'base' | 'stepUp'
 }
 
+export type WorkspaceAccessOutcome = 'JOINED' | 'ALREADY_USED' | 'REVOKED' | 'EXPIRED' | 'INVALID'
+
 type ApiErrorEnvelope = {
   error?: { code?: string; message?: string; fieldErrors?: Record<string, string[]> }
 }
@@ -66,14 +68,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const authApi = {
-  register(email: string, password: string, displayName?: string) {
+  register(
+    email: string,
+    password: string,
+    displayName?: string,
+    workspaceAccessToken?: string,
+  ) {
     return request<{ message: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, ...(displayName ? { displayName } : {}) }),
+      body: JSON.stringify({
+        email,
+        password,
+        ...(displayName ? { displayName } : {}),
+        ...(workspaceAccessToken ? { workspaceAccessToken } : {}),
+      }),
     })
   },
   verifyEmail(token: string) {
-    return request<void>('/auth/verify-email', {
+    return request<{ workspaceAccessOutcome?: WorkspaceAccessOutcome }>('/auth/verify-email', {
       method: 'POST',
       body: JSON.stringify({ token }),
     })

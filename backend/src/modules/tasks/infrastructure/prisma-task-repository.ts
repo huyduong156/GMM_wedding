@@ -56,17 +56,32 @@ function decode(cursor?: string) {
 
 export class PrismaTaskRepository implements TaskRepository {
   constructor(private readonly prisma: PrismaClient) {}
+  private memberWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
+    return {
+      id: weddingId,
+      deletedAt: null,
+      members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR', 'VIEWER'] } } },
+    }
+  }
   private ownedWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
     return {
       id: weddingId,
       deletedAt: null,
       members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } },
-    } as const
+    }
   }
   private async owns(userId: string, weddingId: string) {
     return Boolean(
       await this.prisma.wedding.findFirst({
         where: this.ownedWhere(userId, weddingId),
+        select: { id: true },
+      }),
+    )
+  }
+  private async canRead(userId: string, weddingId: string) {
+    return Boolean(
+      await this.prisma.wedding.findFirst({
+        where: this.memberWhere(userId, weddingId),
         select: { id: true },
       }),
     )
@@ -102,7 +117,7 @@ export class PrismaTaskRepository implements TaskRepository {
     }
   }
   async listOwned(userId: string, weddingId: string, filter: TaskListFilter) {
-    if (!(await this.owns(userId, weddingId))) return null
+    if (!(await this.canRead(userId, weddingId))) return null
     const cursor = decode(filter.cursor)
     const where: Prisma.WeddingTaskWhereInput = {
       weddingId,

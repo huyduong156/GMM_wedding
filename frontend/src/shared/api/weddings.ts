@@ -179,6 +179,38 @@ export type Wedding = {
   updatedAt: string
 }
 
+export type WeddingMemberRole = 'OWNER' | 'EDITOR' | 'VIEWER'
+export type WeddingMember = {
+  id: string
+  weddingId: string
+  userId: string
+  role: WeddingMemberRole
+  status: 'INVITED' | 'ACTIVE' | 'REVOKED'
+  invitedAt: string | null
+  joinedAt: string | null
+  revokedAt: string | null
+  createdAt: string
+  updatedAt: string
+  user: { id: string; email: string; displayName: string | null; avatarUrl: string | null }
+}
+
+export type WorkspaceAccessRole = Exclude<WeddingMemberRole, 'OWNER'>
+export type WorkspaceAccessStatus = 'PENDING' | 'ACCEPTED' | 'REVOKED' | 'EXPIRED'
+export type WeddingWorkspaceAccess = {
+  id: string
+  weddingId: string
+  createdByUserId: string
+  acceptedByUserId: string | null
+  email: string | null
+  role: WorkspaceAccessRole
+  status: WorkspaceAccessStatus
+  expiresAt: string
+  acceptedAt: string | null
+  revokedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export type WeddingEvent = {
   id: string
   weddingId: string
@@ -197,6 +229,13 @@ export type WeddingEvent = {
   revision: number
   createdAt: string
   updatedAt: string
+}
+export type WorkspaceAccessResolution = {
+  id: string
+  weddingId: string
+  weddingName: string
+  role: WorkspaceAccessRole
+  expiresAt: string
 }
 
 export type Guest = {
@@ -481,6 +520,41 @@ export const weddingApi = {
       body: JSON.stringify(input),
     }),
   remove: (id: string) => request<void>(`/weddings/${id}`, { method: 'DELETE', body: '{}' }),
+  members: (id: string) => request<{ members: WeddingMember[] }>(`/weddings/${id}/members`),
+  updateMemberRole: (weddingId: string, memberId: string, role: WorkspaceAccessRole) =>
+    request<{ member: WeddingMember }>(`/weddings/${weddingId}/members/${memberId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    }),
+  removeMember: (weddingId: string, memberId: string) =>
+    request<void>(`/weddings/${weddingId}/members/${memberId}`, {
+      method: 'DELETE',
+      body: '{}',
+    }),
+  leaveWorkspace: (weddingId: string) =>
+    request<void>(`/weddings/${weddingId}/members/me`, { method: 'DELETE', body: '{}' }),
+  workspaceAccess: (weddingId: string) =>
+    request<{ access: WeddingWorkspaceAccess[] }>(`/weddings/${weddingId}/workspace-access`),
+  createWorkspaceAccess: (
+    weddingId: string,
+    input: { role: WorkspaceAccessRole; email?: string },
+  ) =>
+    request<{ access: WeddingWorkspaceAccess; token: string }>(`/weddings/${weddingId}/workspace-access`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  revokeWorkspaceAccess: (weddingId: string, accessId: string) =>
+    request<void>(`/weddings/${weddingId}/workspace-access/${accessId}`, {
+      method: 'DELETE',
+      body: '{}',
+    }),
+  resolveWorkspaceAccess: (token: string) =>
+    request<{ access: WorkspaceAccessResolution }>(`/workspace-access/${encodeURIComponent(token)}`),
+  acceptWorkspaceAccess: (token: string) =>
+    request<{ member: WeddingMember }>(`/workspace-access/${encodeURIComponent(token)}`, {
+      method: 'POST',
+      body: '{}',
+    }),
   dashboard: (id: string) => request<{ dashboard: Dashboard }>(`/weddings/${id}/dashboard`),
   analytics: (id: string) => request<{ analytics: Analytics }>(`/weddings/${id}/analytics`),
   events: (id: string) => request<{ items: WeddingEvent[] }>(`/weddings/${id}/events`),

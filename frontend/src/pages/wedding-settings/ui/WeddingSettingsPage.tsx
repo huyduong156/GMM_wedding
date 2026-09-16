@@ -8,6 +8,7 @@ import {
   Trash,
 } from '@phosphor-icons/react'
 import { useWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { weddingApi, WeddingApiError, type WeddingVisibility } from '../../../shared/api/weddings'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/ConfirmDialog'
 import { DatePickerField } from '../../../shared/ui/form-controls/DatePickerField'
@@ -61,6 +62,9 @@ function CountdownSection({ date }: { date: string }) {
 }
 export function WeddingSettingsPage() {
   const { activeWedding, replaceWedding, removeWedding } = useWeddingWorkspace()
+  const auth = useOptionalAuth()
+  const activeWeddingId = activeWedding?.id
+  const currentUserId = auth?.user?.id
   const [name, setName] = useState(''),
     [date, setDate] = useState(''),
     [timezone, setTimezone] = useState('Asia/Ho_Chi_Minh')
@@ -68,7 +72,8 @@ export function WeddingSettingsPage() {
     [saving, setSaving] = useState(false),
     [message, setMessage] = useState<string | null>(null),
     [deleteOpen, setDeleteOpen] = useState(false),
-    [deleting, setDeleting] = useState(false)
+    [deleting, setDeleting] = useState(false),
+    [canDeleteWedding, setCanDeleteWedding] = useState(false)
   useEffect(() => {
     if (!activeWedding) return
     setName(activeWedding.name)
@@ -76,6 +81,28 @@ export function WeddingSettingsPage() {
     setTimezone(activeWedding.timezone)
     setVisibility(activeWedding.visibility)
   }, [activeWedding])
+  useEffect(() => {
+    if (!activeWeddingId || !currentUserId) {
+      setCanDeleteWedding(false)
+      return
+    }
+    let active = true
+    setCanDeleteWedding(false)
+    void weddingApi
+      .members(activeWeddingId)
+      .then(({ members }) => {
+        if (active)
+          setCanDeleteWedding(
+            members.some((member) => member.userId === currentUserId && member.role === 'OWNER'),
+          )
+      })
+      .catch(() => {
+        if (active) setCanDeleteWedding(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [activeWeddingId, currentUserId])
   if (!activeWedding) return null
   const wedding = activeWedding
   async function save(event: React.FormEvent) {
@@ -212,9 +239,11 @@ export function WeddingSettingsPage() {
             <Archive size={17} />{' '}
             {activeWedding.status === 'ARCHIVED' ? 'Mở lại bản nháp' : 'Lưu trữ'}
           </button>
-          <button className="button button-danger" onClick={() => setDeleteOpen(true)}>
-            <Trash size={17} /> Xóa đám cưới
-          </button>
+          {canDeleteWedding ? (
+            <button className="button button-danger" onClick={() => setDeleteOpen(true)}>
+              <Trash size={17} /> Xóa đám cưới
+            </button>
+          ) : null}
         </div>
       </section>
       <ConfirmDialog

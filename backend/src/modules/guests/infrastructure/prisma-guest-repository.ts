@@ -68,6 +68,13 @@ function decode(cursor?: string) {
 
 export class PrismaGuestRepository implements GuestRepository {
   constructor(private readonly prisma: PrismaClient) {}
+  private memberWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
+    return {
+      id: weddingId,
+      deletedAt: null,
+      members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR', 'VIEWER'] } } },
+    }
+  }
   private ownedWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
     return {
       id: weddingId,
@@ -79,6 +86,14 @@ export class PrismaGuestRepository implements GuestRepository {
     return Boolean(
       await this.prisma.wedding.findFirst({
         where: this.ownedWhere(userId, weddingId),
+        select: { id: true },
+      }),
+    )
+  }
+  private async canRead(userId: string, weddingId: string) {
+    return Boolean(
+      await this.prisma.wedding.findFirst({
+        where: this.memberWhere(userId, weddingId),
         select: { id: true },
       }),
     )
@@ -117,7 +132,7 @@ export class PrismaGuestRepository implements GuestRepository {
       cursor?: string | undefined
     },
   ) {
-    if (!(await this.owns(userId, weddingId))) return null
+    if (!(await this.canRead(userId, weddingId))) return null
     const cursor = decode(filter.cursor)
     const rows = await this.prisma.guest.findMany({
       where: {
@@ -147,7 +162,7 @@ export class PrismaGuestRepository implements GuestRepository {
     }
   }
   async findOwned(userId: string, weddingId: string, guestId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
+    if (!(await this.canRead(userId, weddingId))) return null
     return this.prisma.guest.findFirst({
       where: { id: guestId, weddingId, deletedAt: null },
       select: guestSelect,
@@ -244,7 +259,7 @@ export class PrismaGuestRepository implements GuestRepository {
     return { updatedCount: result.count }
   }
   async listCategories(userId: string, weddingId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
+    if (!(await this.canRead(userId, weddingId))) return null
     return this.prisma.guestCategory.findMany({
       where: { weddingId, deletedAt: null },
       select: categorySelect,
@@ -386,7 +401,7 @@ export class PrismaGuestRepository implements GuestRepository {
     })
   }
   async listGroups(userId: string, weddingId: string) {
-    if (!(await this.owns(userId, weddingId))) return null
+    if (!(await this.canRead(userId, weddingId))) return null
     return this.prisma.guestGroup.findMany({
       where: { weddingId, deletedAt: null },
       select: groupSelect,
