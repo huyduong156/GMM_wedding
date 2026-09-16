@@ -32,7 +32,6 @@ import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbien
 import { studioRoutes } from '../../../shared/config/routes'
 import { marketingRoutes } from '../../../shared/config/routes'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
-import { weddingApi, type WeddingMemberRole } from '../../../shared/api/weddings'
 
 type NavItem = {
   label: string
@@ -96,10 +95,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isCollapsed, setCollapsed] = useState(false)
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const [pendingWeddingId, setPendingWeddingId] = useState<string | null>(null)
-  const [roles, setRoles] = useState<Record<string, WeddingMemberRole>>({})
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
+  const isViewer = weddingWorkspace?.activeRole === 'VIEWER'
+  const viewerHiddenRoutes = new Set([
+    studioRoutes.invites,
+    studioRoutes.site,
+    studioRoutes.siteEditor,
+    studioRoutes.recap,
+    studioRoutes.recapThemes,
+    studioRoutes.events,
+    studioRoutes.giftLedger,
+    studioRoutes.members,
+    studioRoutes.settings,
+  ])
   const currentWedding = weddingWorkspace?.activeWedding
   const activeWedding = currentWedding
     ? {
@@ -117,18 +127,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => setSidebarOpen(false), [pathname])
 
-  async function openSwitcher() {
+  function openSwitcher() {
     setSwitcherOpen(true)
-    if (!weddingWorkspace || !auth?.user) return
-    const resolved = await Promise.all(
-      weddingWorkspace.weddings.map(async (wedding) => {
-        try {
-          const result = await weddingApi.members(wedding.id)
-          return [wedding.id, result.members.find((member) => member.userId === auth.user?.id)?.role] as const
-        } catch { return [wedding.id, undefined] as const }
-      }),
-    )
-    setRoles(Object.fromEntries(resolved.filter((entry): entry is [string, WeddingMemberRole] => Boolean(entry[1]))))
   }
 
   const pendingWedding = weddingWorkspace?.weddings.find((wedding) => wedding.id === pendingWeddingId) ?? null
@@ -187,7 +187,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           {navGroups.map((group) => (
             <div className="nav-group" key={group.label || 'main'}>
               {group.label ? <p className="nav-group-label">{group.label}</p> : null}
-              {group.items.map(({ to, label, icon: Icon, badge, child, heading }) =>
+              {group.items
+                .filter(
+                  (item) =>
+                    !isViewer ||
+                    (!item.to || !viewerHiddenRoutes.has(item.to)) &&
+                      !(item.heading && item.icon === ImagesSquare),
+                )
+                .map(({ to, label, icon: Icon, badge, child, heading }) =>
                 heading ? (
                   <div className="nav-section-heading" key={label}>
                     <Icon size={19} weight="regular" aria-hidden="true" />
@@ -357,11 +364,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </span>
                   <span className="wedding-switcher-meta">
                     <em>
-                      {roles[wedding.id] === 'OWNER'
+                      {weddingWorkspace?.rolesByWedding[wedding.id] === 'OWNER'
                         ? 'Chủ sở hữu'
-                        : roles[wedding.id] === 'EDITOR'
+                        : weddingWorkspace?.rolesByWedding[wedding.id] === 'EDITOR'
                           ? 'Biên tập viên'
-                          : roles[wedding.id] === 'VIEWER'
+                          : weddingWorkspace?.rolesByWedding[wedding.id] === 'VIEWER'
                             ? 'Chỉ xem'
                             : 'Đang tải quyền…'}
                     </em>

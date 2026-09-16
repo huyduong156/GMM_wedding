@@ -7,6 +7,7 @@ import {
   type WorkspaceAccessRole,
   type WeddingWorkspaceAccess,
 } from '../../../shared/api/weddings'
+import { workspaceAccessRoute } from '../../../shared/config/routes'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/ConfirmDialog'
 import { SelectField } from '../../../shared/ui/form-controls/SelectField'
 
@@ -88,7 +89,7 @@ export function WorkspaceMembersSection({
         ...(email.trim() ? { email: email.trim() } : {}),
       })
       setAccessLinks((items) => [result.access, ...items])
-      setNewLink(result.access.acceptUrl ?? null)
+      setNewLink(`${window.location.origin}${workspaceAccessRoute(result.token)}`)
       setNewLinkAccessId(result.access.id)
       setEmail('')
       setFeedback('Đã tạo link một lần dùng. Hãy sao chép và gửi ngay cho thành viên.')

@@ -30,6 +30,7 @@ The owner-facing public URL is `/{weddingSlug}/invitation`.
 - Logout revokes the backend session, clears frontend auth state and returns to the matching login surface.
 - Owner password recovery uses `/forgot-password` and `/reset-password?token=...`, backed by `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
 - Owner onboarding uses `/register` and `/verify-email?token=...`, backed by `POST /api/auth/register` and `POST /api/auth/verify-email`. Registration acknowledgment remains generic.
+- Khi user mới mở `/workspace-access/{token}`, FE lưu return path trong `sessionStorage`; `/register` tách token từ path này và gửi `workspaceAccessToken` cùng registration. Token không đi vào URL email. Verify response có thể trả `workspaceAccessOutcome`; FE dọn return path đã consume và hiển thị trạng thái `JOINED`, `ALREADY_USED`, `REVOKED`, `EXPIRED` hoặc `INVALID` trước khi user đăng nhập.
 - The forgot-password confirmation remains generic and does not reveal whether an account exists. Public password recovery is not exposed on the platform-admin login surface.
 - Resend-verification UI and `POST /api/auth/resend-verification` client integration are prepared behind `VITE_AUTH_RESEND_ENABLED=false`. Enable it only after the backend exposes the planned generic-acknowledgment contract; the UI includes a 60-second cooldown.
 

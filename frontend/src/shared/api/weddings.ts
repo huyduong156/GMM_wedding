@@ -209,8 +209,6 @@ export type WeddingWorkspaceAccess = {
   revokedAt: string | null
   createdAt: string
   updatedAt: string
-  /** Chỉ xuất hiện ở phản hồi tạo link; token không thể lấy lại sau đó. */
-  acceptUrl?: string
 }
 
 export type WeddingEvent = {
@@ -541,7 +539,7 @@ export const weddingApi = {
     weddingId: string,
     input: { role: WorkspaceAccessRole; email?: string },
   ) =>
-    request<{ access: WeddingWorkspaceAccess }>(`/weddings/${weddingId}/workspace-access`, {
+    request<{ access: WeddingWorkspaceAccess; token: string }>(`/weddings/${weddingId}/workspace-access`, {
       method: 'POST',
       body: JSON.stringify(input),
     }),

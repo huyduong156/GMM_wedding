@@ -9,10 +9,12 @@ const decode = (c?: string) => { if (!c) return undefined; try { const [d,id]=JS
 
 export class PrismaRsvpRepository implements RsvpRepository {
   constructor(private readonly prisma: PrismaClient) {}
+  private memberWedding(userId: string, weddingId: string): Prisma.WeddingWhereInput { return { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR', 'VIEWER'] } } } } }
   private ownedWedding(userId: string, weddingId: string): Prisma.WeddingWhereInput { return { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } } }
   private async owns(userId: string, weddingId: string) { return Boolean(await this.prisma.wedding.findFirst({ where: this.ownedWedding(userId,weddingId), select:{id:true} })) }
+  private async canRead(userId: string, weddingId: string) { return Boolean(await this.prisma.wedding.findFirst({ where: this.memberWedding(userId,weddingId), select:{id:true} })) }
   async listOwned(userId: string, weddingId: string, filter: Parameters<RsvpRepository["listOwned"]>[2]) {
-    if (!(await this.owns(userId,weddingId))) return null
+    if (!(await this.canRead(userId,weddingId))) return null
     const cursor=decode(filter.cursor)
     const where: Prisma.RsvpResponseWhereInput={ weddingId, ...(filter.attendance?{attendance:filter.attendance}:{}), ...(filter.eventId?{eventSelections:{some:{weddingEventId:filter.eventId}}}:{}), ...(filter.categoryId?{guest:{categoryId:filter.categoryId}}:{}), ...(filter.groupId?{guest:{groupId:filter.groupId}}:{}), ...(filter.query?{guest:{OR:[{name:{contains:filter.query,mode:"insensitive"}},{displayName:{contains:filter.query,mode:"insensitive"}}]}}:{}), ...(filter.from||filter.to?{submittedAt:{...(filter.from?{gte:filter.from}:{}),...(filter.to?{lte:filter.to}:{})}}:{}), ...(cursor?{OR:[{submittedAt:{lt:cursor.submittedAt}},{submittedAt:cursor.submittedAt,id:{lt:cursor.id}}]}:{}) }
     const rows=await this.prisma.rsvpResponse.findMany({where,orderBy:[{submittedAt:"desc"},{id:"desc"}],take:filter.limit+1,select:{id:true,weddingId:true,guestId:true,anonymousGuestName:true,attendance:true,partySize:true,mealPreference:true,specialRequest:true,message:true,submittedAt:true,updatedAt:true,revision:true,guest:{select:{id:true,name:true,displayName:true,phone:true,email:true,categoryId:true,groupId:true}},eventSelections:{select:{attending:true,weddingEvent:{select:{id:true,name:true}}},orderBy:{weddingEvent:{startsAt:"asc"}}},companions:{select:{id:true,displayName:true,mealPreference:true,sortOrder:true},orderBy:{sortOrder:"asc"}}}})

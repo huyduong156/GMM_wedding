@@ -361,10 +361,21 @@ function GuestDialog({
 export function GuestsPageConnected() {
   const workspace = useOptionalWeddingWorkspace()
   if (!workspace) return <GuestsPage />
-  return <GuestsPageConnectedContent activeWedding={workspace.activeWedding} />
+  return (
+    <GuestsPageConnectedContent
+      activeWedding={workspace.activeWedding}
+      canEdit={workspace.activeRole === 'OWNER' || workspace.activeRole === 'EDITOR'}
+    />
+  )
 }
 
-function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding | null }) {
+function GuestsPageConnectedContent({
+  activeWedding,
+  canEdit,
+}: {
+  activeWedding: Wedding | null
+  canEdit: boolean
+}) {
   const [guests, setGuests] = useState<Guest[]>([])
   const [sharingGuest, setSharingGuest] = useState<Guest | null>(null)
   const [categories, setCategories] = useState<GuestCategory[]>([])
@@ -412,12 +423,14 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
   const allSelected = guests.length > 0 && guests.every((guest) => selected.includes(guest.id))
   const openShare = (guest: Guest) => setSharingGuest(guest)
   const openCreate = () => {
+    if (!canEdit) return
     setCreating(true)
     setEditing(null)
     setForm({ ...blank })
     setFeedback('')
   }
   const openEdit = (guest: Guest) => {
+    if (!canEdit) return
     setCreating(false)
     setEditing(guest)
     setForm({
@@ -441,7 +454,7 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
   }
   const closeShare = () => setSharingGuest(null)
   const save = async () => {
-    if (!activeWedding || !form.name.trim()) return
+    if (!canEdit || !activeWedding || !form.name.trim()) return
     setBusy(true)
     setFeedback('')
     const input = {
@@ -480,7 +493,7 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
     }
   }
   const remove = async () => {
-    if (!activeWedding || !selected.length) return
+    if (!canEdit || !activeWedding || !selected.length) return
     const result = await notifications.fire({
       icon: 'warning',
       title: 'Xóa khách mời?',
@@ -515,7 +528,7 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
     }
   }
   const assign = async (value: string) => {
-    if (!activeWedding || !selected.length) return
+    if (!canEdit || !activeWedding || !selected.length) return
     setBusy(true)
     try {
       await guestApi.assignCategory(activeWedding.id, selected, value || null)
@@ -574,10 +587,13 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
           <button className="button button-secondary" type="button" disabled>
             <UploadSimple size={17} /> Nhập danh sách
           </button>
-          <button className="button button-primary" type="button" onClick={openCreate}>
-            <UserPlus size={17} weight="bold" /> Thêm khách mời
-          </button>
+          {canEdit ? (
+            <button className="button button-primary" type="button" onClick={openCreate}>
+              <UserPlus size={17} weight="bold" /> Thêm khách mời
+            </button>
+          ) : null}
         </div>
+        {!canEdit ? <p className="workspace-readonly-note">Bạn có quyền chỉ xem danh sách khách mời.</p> : null}
       </header>
       <div className="guest-summary">
         <div>
@@ -629,7 +645,7 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
             </NativeSelectField>
           </label>
         </div>
-        {selected.length > 0 && (
+        {canEdit && selected.length > 0 && (
           <div className="guest-bulk-bar">
             <strong>{selected.length} khách đã chọn</strong>
             <div>
@@ -682,9 +698,11 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
             <Users size={28} />
             <h2>Chưa có khách mời</h2>
             <p>Thêm khách đầu tiên để bắt đầu quản lý danh sách.</p>
-            <button className="button button-secondary" type="button" onClick={openCreate}>
-              Thêm khách mời
-            </button>
+            {canEdit ? (
+              <button className="button button-secondary" type="button" onClick={openCreate}>
+                Thêm khách mời
+              </button>
+            ) : null}
           </div>
         ) : (
           <>
@@ -693,17 +711,19 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
                 <caption className="sr-only">Danh sách khách mời</caption>
                 <thead>
                   <tr>
-                    <th>
-                      <input
-                        className="guest-checkbox"
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={() =>
-                          setSelected(allSelected ? [] : guests.map((guest) => guest.id))
-                        }
-                        aria-label="Chọn tất cả"
-                      />
-                    </th>
+                    {canEdit ? (
+                      <th>
+                        <input
+                          className="guest-checkbox"
+                          type="checkbox"
+                          checked={allSelected}
+                          onChange={() =>
+                            setSelected(allSelected ? [] : guests.map((guest) => guest.id))
+                          }
+                          aria-label="Chọn tất cả"
+                        />
+                      </th>
+                    ) : null}
                     <th>Khách mời</th>
                     <th>Tên hiển thị</th>
                     <th>Danh mục</th>
@@ -714,23 +734,29 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
                 <tbody>
                   {guests.map((guest) => (
                     <tr key={guest.id} className={selected.includes(guest.id) ? 'is-selected' : ''}>
-                      <td>
-                        <input
-                          className="guest-checkbox"
-                          type="checkbox"
-                          checked={selected.includes(guest.id)}
-                          onChange={() => toggle(guest.id)}
-                          aria-label={`Chọn ${guestName(guest)}`}
-                        />
-                      </td>
+                      {canEdit ? (
+                        <td>
+                          <input
+                            className="guest-checkbox"
+                            type="checkbox"
+                            checked={selected.includes(guest.id)}
+                            onChange={() => toggle(guest.id)}
+                            aria-label={`Chọn ${guestName(guest)}`}
+                          />
+                        </td>
+                      ) : null}
                       <td>
                         <div className="guest-identity">
                           <span>{initials(guestName(guest))}</span>
                           <div>
                             <div className="guest-name-row">
-                              <button type="button" onClick={() => openEdit(guest)}>
-                                {guestName(guest)}
-                              </button>
+                              {canEdit ? (
+                                <button type="button" onClick={() => openEdit(guest)}>
+                                  {guestName(guest)}
+                                </button>
+                              ) : (
+                                <strong>{guestName(guest)}</strong>
+                              )}
                               <button
                                 type="button"
                                 className="guest-share-button"
@@ -752,14 +778,16 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
                       </td>
                       <td>{guest.maxPartySize}</td>
                       <td>
-                        <button
-                          className="row-menu"
-                          type="button"
-                          onClick={() => openEdit(guest)}
-                          aria-label={`Sửa ${guestName(guest)}`}
-                        >
-                          <DotsThree size={20} weight="bold" />
-                        </button>
+                        {canEdit ? (
+                          <button
+                            className="row-menu"
+                            type="button"
+                            onClick={() => openEdit(guest)}
+                            aria-label={`Sửa ${guestName(guest)}`}
+                          >
+                            <DotsThree size={20} weight="bold" />
+                          </button>
+                        ) : null}
                       </td>
                     </tr>
                   ))}
@@ -773,20 +801,26 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
                   key={guest.id}
                 >
                   <div className="guest-card-top">
-                    <input
-                      className="guest-checkbox"
-                      type="checkbox"
-                      checked={selected.includes(guest.id)}
-                      onChange={() => toggle(guest.id)}
-                      aria-label={`Chọn ${guestName(guest)}`}
-                    />
+                    {canEdit ? (
+                      <input
+                        className="guest-checkbox"
+                        type="checkbox"
+                        checked={selected.includes(guest.id)}
+                        onChange={() => toggle(guest.id)}
+                        aria-label={`Chọn ${guestName(guest)}`}
+                      />
+                    ) : null}
                     <div className="guest-identity">
                       <span>{initials(guestName(guest))}</span>
                       <div>
                         <div className="guest-name-row">
-                          <button type="button" onClick={() => openEdit(guest)}>
-                            {guestName(guest)}
-                          </button>
+                          {canEdit ? (
+                            <button type="button" onClick={() => openEdit(guest)}>
+                              {guestName(guest)}
+                            </button>
+                          ) : (
+                            <strong>{guestName(guest)}</strong>
+                          )}
                           <button
                             type="button"
                             className="guest-share-button"
@@ -799,14 +833,16 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
                         <small>{catName(categories, guest.categoryId)}</small>
                       </div>
                     </div>
-                    <button
-                      className="row-menu"
-                      type="button"
-                      onClick={() => openEdit(guest)}
-                      aria-label={`Sửa ${guestName(guest)}`}
-                    >
-                      <DotsThree size={20} weight="bold" />
-                    </button>
+                    {canEdit ? (
+                      <button
+                        className="row-menu"
+                        type="button"
+                        onClick={() => openEdit(guest)}
+                        aria-label={`Sửa ${guestName(guest)}`}
+                      >
+                        <DotsThree size={20} weight="bold" />
+                      </button>
+                    ) : null}
                   </div>
                   <div className="guest-card-meta">
                     <span>{guest.maxPartySize} người</span>
@@ -825,14 +861,16 @@ function GuestsPageConnectedContent({ activeWedding }: { activeWedding: Wedding 
           </>
         )}
       </div>
-      <button
-        className="guest-mobile-add"
-        type="button"
-        onClick={openCreate}
-        aria-label="Thêm khách mời"
-      >
-        <Plus size={22} weight="bold" />
-      </button>
+      {canEdit ? (
+        <button
+          className="guest-mobile-add"
+          type="button"
+          onClick={openCreate}
+          aria-label="Thêm khách mời"
+        >
+          <Plus size={22} weight="bold" />
+        </button>
+      ) : null}
       {feedback && !creating && !editing && (
         <div className="guest-feedback" role="status">
           {feedback}

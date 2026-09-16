@@ -5,24 +5,49 @@ import { marketingRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { AuthRecoveryLayout } from './AuthRecoveryLayout'
 import { ResendVerificationControl } from './ResendVerificationControl'
+import type { WorkspaceAccessOutcome } from '../../../shared/api/auth'
 
 type VerificationState = 'checking' | 'verified' | 'invalid'
 
+const workspaceAccessReturnKey = 'gmm-workspace-access-return'
+
+function workspaceAccessMessage(outcome: WorkspaceAccessOutcome) {
+  switch (outcome) {
+    case 'JOINED':
+      return 'Bạn đã được thêm vào Wedding được mời. Đăng nhập để bắt đầu cộng tác.'
+    case 'ALREADY_USED':
+      return 'Email đã được xác minh, nhưng link quyền này đã được một tài khoản khác sử dụng.'
+    case 'REVOKED':
+      return 'Email đã được xác minh, nhưng link quyền này đã bị thu hồi.'
+    case 'EXPIRED':
+      return 'Email đã được xác minh, nhưng link quyền này đã hết hạn.'
+    default:
+      return 'Email đã được xác minh, nhưng link quyền này không còn khả dụng.'
+  }
+}
+
 export function VerifyEmailPage() {
   const token = new URLSearchParams(window.location.search).get('token') ?? ''
-  const verification = useRef<Promise<void> | null>(null)
+  const verification = useRef<Promise<{ workspaceAccessOutcome?: WorkspaceAccessOutcome }> | null>(null)
   const [state, setState] = useState<VerificationState>(token ? 'checking' : 'invalid')
   const [message, setMessage] = useState(
     token ? '' : 'Liên kết xác minh không hợp lệ hoặc thiếu token.',
   )
+  const [workspaceAccessOutcome, setWorkspaceAccessOutcome] = useState<WorkspaceAccessOutcome>()
 
   useEffect(() => {
     if (!token) return
     verification.current ??= authApi.verifyEmail(token)
     let active = true
     void verification.current
-      .then(() => {
-        if (active) setState('verified')
+      .then((result) => {
+        if (!active) return
+        if (result.workspaceAccessOutcome) {
+          sessionStorage.removeItem(workspaceAccessReturnKey)
+          setWorkspaceAccessOutcome(result.workspaceAccessOutcome)
+          setMessage(workspaceAccessMessage(result.workspaceAccessOutcome))
+        }
+        setState('verified')
       })
       .catch((reason: unknown) => {
         if (!active) return
@@ -56,11 +81,11 @@ export function VerifyEmailPage() {
             </div>
           </div>
         ) : state === 'verified' ? (
-          <div className="auth-form-success" role="status">
-            <CheckCircle size={22} />
+          <div className={workspaceAccessOutcome && workspaceAccessOutcome !== 'JOINED' ? 'auth-verification-state is-error' : 'auth-form-success'} role="status">
+            {workspaceAccessOutcome && workspaceAccessOutcome !== 'JOINED' ? <WarningCircle size={22} /> : <CheckCircle size={22} />}
             <div>
               <strong>Email đã được xác minh</strong>
-              <span>Tài khoản của bạn đã sẵn sàng để đăng nhập.</span>
+              <span>{workspaceAccessOutcome ? message : 'Tài khoản của bạn đã sẵn sàng để đăng nhập.'}</span>
             </div>
           </div>
         ) : (

@@ -13,6 +13,20 @@ import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { AuthRecoveryLayout } from './AuthRecoveryLayout'
 import { ResendVerificationControl } from './ResendVerificationControl'
 
+const workspaceAccessReturnKey = 'gmm-workspace-access-return'
+
+function workspaceAccessTokenFromReturnPath() {
+  const destination = sessionStorage.getItem(workspaceAccessReturnKey)
+  const match = destination?.match(/^\/workspace-access\/([^/?#]+)$/)
+  if (!match) return undefined
+  try {
+    const token = decodeURIComponent(match[1])
+    return token.length >= 32 ? token : undefined
+  } catch {
+    return undefined
+  }
+}
+
 function registerError(reason: unknown) {
   if (!(reason instanceof AuthApiError)) return 'Không thể tạo tài khoản lúc này. Vui lòng thử lại.'
   if (reason.code === 'REQUEST_ORIGIN_REJECTED')
@@ -21,10 +35,17 @@ function registerError(reason: unknown) {
     return 'Bạn đã thử quá nhiều lần. Vui lòng chờ một lúc rồi thử lại.'
   if (reason.code === 'VALIDATION_ERROR')
     return 'Thông tin đăng ký chưa hợp lệ. Vui lòng kiểm tra lại.'
+  if (reason.code === 'WORKSPACE_ACCESS_ALREADY_USED')
+    return 'Link quyền này đã được một tài khoản khác sử dụng.'
+  if (reason.code === 'WORKSPACE_ACCESS_INVALID')
+    return 'Link quyền không hợp lệ, đã hết hạn hoặc đã bị thu hồi.'
+  if (reason.code === 'WORKSPACE_ACCESS_EMAIL_MISMATCH')
+    return 'Link quyền này chỉ dành cho một địa chỉ email khác.'
   return reason.message
 }
 
 export function RegisterPage() {
+  const [workspaceAccessToken] = useState(workspaceAccessTokenFromReturnPath)
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,7 +64,12 @@ export function RegisterPage() {
     }
     setSubmitting(true)
     try {
-      await authApi.register(email, password, displayName.trim() || undefined)
+      await authApi.register(
+        email,
+        password,
+        displayName.trim() || undefined,
+        workspaceAccessToken,
+      )
       setSent(true)
     } catch (reason) {
       setError(registerError(reason))
@@ -59,9 +85,13 @@ export function RegisterPage() {
           <img src="/assets/logo/wedding_logo.png" alt="" />
           <strong>GMM Wedding</strong>
         </div>
-        <span className="login-kicker">Bắt đầu hành trình</span>
-        <h2 id="register-title">Tạo tài khoản</h2>
-        <p>Tạo không gian riêng để chuẩn bị thiệp và website cưới của bạn.</p>
+        <span className="login-kicker">{workspaceAccessToken ? 'Lời mời cộng tác' : 'Bắt đầu hành trình'}</span>
+        <h2 id="register-title">{workspaceAccessToken ? 'Tạo tài khoản để tham gia' : 'Tạo tài khoản'}</h2>
+        <p>
+          {workspaceAccessToken
+            ? 'Xác minh email để nhận quyền truy cập vào Wedding được mời.'
+            : 'Tạo không gian riêng để chuẩn bị thiệp và website cưới của bạn.'}
+        </p>
         {sent ? (
           <>
             <div className="auth-form-success" role="status">
@@ -70,6 +100,9 @@ export function RegisterPage() {
                 <strong>Kiểm tra email của bạn</strong>
                 <span>
                   Nếu địa chỉ có thể đăng ký, chúng tôi đã gửi liên kết xác minh tài khoản.
+                  {workspaceAccessToken
+                    ? ' Quyền truy cập Wedding sẽ được thêm ngay sau khi xác minh email.'
+                    : ''}
                 </span>
               </div>
             </div>
