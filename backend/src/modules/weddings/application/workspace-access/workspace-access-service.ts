@@ -94,18 +94,40 @@ export class WorkspaceAccessService {
   async accept(actor: AuthenticatedUserActor, token: string) {
     const tokenHash = hashToken(token)
     return this.db.$transaction(async (tx) => {
+      const now = new Date()
       const access = await tx.weddingWorkspaceAccess.findUnique({ where: { tokenHash } })
       if (!access || access.status !== 'PENDING') throw new WeddingError('WORKSPACE_ACCESS_INVALID', 404, 'Access link is invalid')
-      if (access.expiresAt <= new Date()) {
+      if (access.expiresAt <= now) {
         await tx.weddingWorkspaceAccess.updateMany({ where: { id: access.id, status: 'PENDING' }, data: { status: 'EXPIRED' } })
         throw new WeddingError('WORKSPACE_ACCESS_EXPIRED', 410, 'Access link has expired')
       }
       const user = await tx.user.findUnique({ where: { id: actor.userId }, select: { email: true } })
       if (access.email && user?.email.toLowerCase() !== access.email) throw new WeddingError('WORKSPACE_ACCESS_EMAIL_MISMATCH', 403, 'Access link is restricted to another email')
       const existing = await tx.weddingMember.findUnique({ where: { weddingId_userId: { weddingId: access.weddingId, userId: actor.userId } } })
-      if (existing) throw new WeddingError('WORKSPACE_MEMBER_EXISTS', 409, 'User is already a member')
-      const member = await tx.weddingMember.create({ data: { weddingId: access.weddingId, userId: actor.userId, role: access.role, status: 'ACTIVE', invitedAt: access.createdAt, joinedAt: new Date() } })
-      const claimed = await tx.weddingWorkspaceAccess.updateMany({ where: { id: access.id, status: 'PENDING' }, data: { status: 'ACCEPTED', acceptedByUserId: actor.userId, acceptedAt: new Date() } })
+      if (existing?.status === 'ACTIVE')
+        throw new WeddingError('WORKSPACE_MEMBER_EXISTS', 409, 'User is already a member')
+      const member = existing
+        ? await tx.weddingMember.update({
+            where: { id: existing.id },
+            data: {
+              role: access.role,
+              status: 'ACTIVE',
+              invitedAt: access.createdAt,
+              joinedAt: now,
+              revokedAt: null,
+            },
+          })
+        : await tx.weddingMember.create({
+            data: {
+              weddingId: access.weddingId,
+              userId: actor.userId,
+              role: access.role,
+              status: 'ACTIVE',
+              invitedAt: access.createdAt,
+              joinedAt: now,
+            },
+          })
+      const claimed = await tx.weddingWorkspaceAccess.updateMany({ where: { id: access.id, status: 'PENDING' }, data: { status: 'ACCEPTED', acceptedByUserId: actor.userId, acceptedAt: now } })
       if (!claimed.count) throw new WeddingError('WORKSPACE_ACCESS_INVALID', 409, 'Access link was already used')
       return member
     })

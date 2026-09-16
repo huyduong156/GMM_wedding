@@ -9,7 +9,7 @@ const decode = (c?: string) => { if (!c) return undefined; try { const [d,id]=JS
 
 export class PrismaRsvpRepository implements RsvpRepository {
   constructor(private readonly prisma: PrismaClient) {}
-  private ownedWedding(userId: string, weddingId: string) { return { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } } }
+  private ownedWedding(userId: string, weddingId: string): Prisma.WeddingWhereInput { return { id: weddingId, deletedAt: null, members: { some: { userId, status: 'ACTIVE', role: { in: ['OWNER', 'EDITOR'] } } } } }
   private async owns(userId: string, weddingId: string) { return Boolean(await this.prisma.wedding.findFirst({ where: this.ownedWedding(userId,weddingId), select:{id:true} })) }
   async listOwned(userId: string, weddingId: string, filter: Parameters<RsvpRepository["listOwned"]>[2]) {
     if (!(await this.owns(userId,weddingId))) return null

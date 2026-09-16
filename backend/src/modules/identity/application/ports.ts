@@ -45,6 +45,13 @@ export interface IdentityEmailSender {
   sendPasswordResetEmail(input: { email: string; token: string; expiresAt: Date }): Promise<void>
 }
 
+export type WorkspaceAccessClaimOutcome =
+  | 'JOINED'
+  | 'ALREADY_USED'
+  | 'REVOKED'
+  | 'EXPIRED'
+  | 'INVALID'
+
 export interface IdentityRepository {
   findUserByEmail(email: string): Promise<IdentityUser | null>
   updatePasswordHash(userId: string, passwordHash: string): Promise<void>
@@ -65,8 +72,17 @@ export interface IdentityRepository {
     tokenHash: string
     tokenExpiresAt: Date
     encryptedToken: string
-  }): Promise<{ created: boolean; userId?: string; outboxId?: string }>
-  verifyEmail(tokenHash: string, now: Date): Promise<boolean>
+    workspaceAccessTokenHash?: string
+  }): Promise<{
+    created: boolean
+    userId?: string
+    outboxId?: string
+    workspaceAccessError?: 'INVALID' | 'ALREADY_USED' | 'EMAIL_MISMATCH'
+  }>
+  verifyEmail(
+    tokenHash: string,
+    now: Date,
+  ): Promise<{ verified: boolean; workspaceAccessOutcome?: WorkspaceAccessClaimOutcome }>
   createVerificationResend(input: {
     userId: string
     email: string

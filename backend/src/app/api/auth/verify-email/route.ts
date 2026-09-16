@@ -8,7 +8,7 @@ import {
   parseJson,
   withApiHeaders,
 } from '@/modules/identity/interface/auth-http'
-import { getRequestId } from '@/shared/http/api-response'
+import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 export const dynamic = 'force-dynamic'
 export const OPTIONS = optionsResponse
@@ -18,8 +18,11 @@ export async function POST(request: Request) {
   try {
     assertSafeMutation(request)
     const input = await parseJson(request, verifyEmailRequestSchema)
-    await getAuthService().verifyEmail(input.token, clientIp(request))
-    return withApiHeaders(new Response(null, { status: 204 }), requestId)
+    const workspaceAccessOutcome = await getAuthService().verifyEmail(input.token, clientIp(request))
+    return withApiHeaders(
+      jsonResponse({ ...(workspaceAccessOutcome ? { workspaceAccessOutcome } : {}) }),
+      requestId,
+    )
   } catch (error) {
     const response = authErrorResponse(error, requestId)
     return withApiHeaders(response, requestId)

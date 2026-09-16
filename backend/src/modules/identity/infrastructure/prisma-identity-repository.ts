@@ -91,6 +91,7 @@ export class PrismaIdentityRepository implements IdentityRepository {
     tokenHash: string
     tokenExpiresAt: Date
     encryptedToken: string
+    workspaceAccessTokenHash?: string
   }) {
     try {
       return await this.db.$transaction(async (tx) => {
@@ -100,6 +101,35 @@ export class PrismaIdentityRepository implements IdentityRepository {
         })
         if (existing) return { created: false }
 
+        let workspaceAccessId: string | undefined
+        if (input.workspaceAccessTokenHash) {
+          const workspaceAccess = await tx.weddingWorkspaceAccess.findUnique({
+            where: { tokenHash: input.workspaceAccessTokenHash },
+            select: {
+              id: true,
+              email: true,
+              status: true,
+              expiresAt: true,
+              wedding: { select: { deletedAt: true } },
+            },
+          })
+          if (!workspaceAccess) return { created: false, workspaceAccessError: 'INVALID' as const }
+          if (workspaceAccess.status === 'ACCEPTED') {
+            return { created: false, workspaceAccessError: 'ALREADY_USED' as const }
+          }
+          if (
+            workspaceAccess.status !== 'PENDING' ||
+            workspaceAccess.expiresAt <= new Date() ||
+            workspaceAccess.wedding.deletedAt !== null
+          ) {
+            return { created: false, workspaceAccessError: 'INVALID' as const }
+          }
+          if (workspaceAccess.email && workspaceAccess.email !== input.email) {
+            return { created: false, workspaceAccessError: 'EMAIL_MISMATCH' as const }
+          }
+          workspaceAccessId = workspaceAccess.id
+        }
+
         const user = await tx.user.create({
           data: {
             email: input.email,
@@ -108,6 +138,11 @@ export class PrismaIdentityRepository implements IdentityRepository {
           },
           select: { id: true },
         })
+        if (workspaceAccessId) {
+          await tx.weddingWorkspaceAccessClaim.create({
+            data: { workspaceAccessId, userId: user.id },
+          })
+        }
         await tx.verificationToken.create({
           data: {
             identifier: input.email,
@@ -156,13 +191,13 @@ export class PrismaIdentityRepository implements IdentityRepository {
         token.usedAt ||
         token.expiresAt <= now
       ) {
-        return false
+        return { verified: false }
       }
       const claimed = await tx.verificationToken.updateMany({
         where: { id: token.id, usedAt: null, expiresAt: { gt: now } },
         data: { usedAt: now },
       })
-      if (claimed.count !== 1) return false
+      if (claimed.count !== 1) return { verified: false }
 
       const user = await tx.user.update({
         where: { email: token.identifier },
@@ -177,7 +212,127 @@ export class PrismaIdentityRepository implements IdentityRepository {
           resourceId: user.id,
         },
       })
-      return true
+
+      const claims = await tx.weddingWorkspaceAccessClaim.findMany({
+        where: { userId: user.id, status: 'PENDING' },
+        include: {
+          workspaceAccess: {
+            select: {
+              id: true,
+              weddingId: true,
+              email: true,
+              status: true,
+              expiresAt: true,
+              createdAt: true,
+              role: true,
+              wedding: { select: { deletedAt: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      })
+      let workspaceAccessOutcome: 'JOINED' | 'ALREADY_USED' | 'REVOKED' | 'EXPIRED' | 'INVALID' | undefined
+      const joinedWeddingIds = new Set<string>()
+
+      for (const claim of claims) {
+        const access = claim.workspaceAccess
+        let invalidOutcome: typeof workspaceAccessOutcome
+        if (access.status === 'ACCEPTED') invalidOutcome = 'ALREADY_USED'
+        else if (access.status === 'REVOKED') invalidOutcome = 'REVOKED'
+        else if (access.status === 'EXPIRED' || access.expiresAt <= now) invalidOutcome = 'EXPIRED'
+        else if (access.wedding.deletedAt || access.email !== null && access.email !== token.identifier) {
+          invalidOutcome = 'INVALID'
+        } else if (joinedWeddingIds.has(access.weddingId)) {
+          invalidOutcome = 'ALREADY_USED'
+        }
+
+        if (invalidOutcome) {
+          await tx.weddingWorkspaceAccessClaim.update({
+            where: { id: claim.id },
+            data: { status: 'INVALID', invalidatedAt: now },
+          })
+          workspaceAccessOutcome ??= invalidOutcome
+          continue
+        }
+
+        const existingMember = await tx.weddingMember.findUnique({
+          where: { weddingId_userId: { weddingId: access.weddingId, userId: user.id } },
+          select: { id: true, status: true },
+        })
+        if (existingMember?.status === 'ACTIVE') {
+          await tx.weddingWorkspaceAccessClaim.update({
+            where: { id: claim.id },
+            data: { status: 'INVALID', invalidatedAt: now },
+          })
+          workspaceAccessOutcome ??= 'ALREADY_USED'
+          continue
+        }
+
+        const accessClaimed = await tx.weddingWorkspaceAccess.updateMany({
+          where: { id: access.id, status: 'PENDING', expiresAt: { gt: now } },
+          data: { status: 'ACCEPTED', acceptedByUserId: user.id, acceptedAt: now },
+        })
+        if (accessClaimed.count !== 1) {
+          const latestAccess = await tx.weddingWorkspaceAccess.findUnique({
+            where: { id: access.id },
+            select: { status: true, expiresAt: true },
+          })
+          const outcome =
+            latestAccess?.status === 'ACCEPTED'
+              ? 'ALREADY_USED'
+              : latestAccess?.status === 'REVOKED'
+                ? 'REVOKED'
+                : latestAccess?.expiresAt && latestAccess.expiresAt <= now
+                  ? 'EXPIRED'
+                  : 'INVALID'
+          await tx.weddingWorkspaceAccessClaim.update({
+            where: { id: claim.id },
+            data: { status: 'INVALID', invalidatedAt: now },
+          })
+          workspaceAccessOutcome ??= outcome
+          continue
+        }
+
+        if (existingMember) {
+          await tx.weddingMember.update({
+            where: { id: existingMember.id },
+            data: {
+              role: access.role,
+              status: 'ACTIVE',
+              invitedAt: access.createdAt,
+              joinedAt: now,
+              revokedAt: null,
+            },
+          })
+        } else {
+          await tx.weddingMember.create({
+            data: {
+              weddingId: access.weddingId,
+              userId: user.id,
+              role: access.role,
+              status: 'ACTIVE',
+              invitedAt: access.createdAt,
+              joinedAt: now,
+            },
+          })
+        }
+        await tx.weddingWorkspaceAccessClaim.update({
+          where: { id: claim.id },
+          data: { status: 'ACCEPTED', acceptedAt: now },
+        })
+        await tx.auditLog.create({
+          data: {
+            actorUserId: user.id,
+            weddingId: access.weddingId,
+            action: 'wedding.workspace_access_claimed_after_verification',
+            resourceType: 'WeddingWorkspaceAccess',
+            resourceId: access.id,
+          },
+        })
+        joinedWeddingIds.add(access.weddingId)
+        workspaceAccessOutcome ??= 'JOINED'
+      }
+      return { verified: true, ...(workspaceAccessOutcome ? { workspaceAccessOutcome } : {}) }
     })
   }
 
