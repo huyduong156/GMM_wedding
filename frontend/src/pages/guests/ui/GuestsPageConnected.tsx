@@ -707,7 +707,7 @@ function GuestsPageConnectedContent({
         ) : (
           <>
             <div className="guest-table-wrap">
-              <table className="guest-table">
+              <table className={`guest-table ${canEdit ? '' : 'is-read-only'}`}>
                 <caption className="sr-only">Danh sách khách mời</caption>
                 <thead>
                   <tr>
@@ -728,7 +728,7 @@ function GuestsPageConnectedContent({
                     <th>Tên hiển thị</th>
                     <th>Danh mục</th>
                     <th>Số người</th>
-                    <th />
+                    {canEdit ? <th /> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -777,18 +777,16 @@ function GuestsPageConnectedContent({
                         </span>
                       </td>
                       <td>{guest.maxPartySize}</td>
-                      <td>
-                        {canEdit ? (
-                          <button
-                            className="row-menu"
-                            type="button"
-                            onClick={() => openEdit(guest)}
-                            aria-label={`Sửa ${guestName(guest)}`}
-                          >
-                            <DotsThree size={20} weight="bold" />
-                          </button>
-                        ) : null}
-                      </td>
+                      {canEdit ? <td>
+                        <button
+                          className="row-menu"
+                          type="button"
+                          onClick={() => openEdit(guest)}
+                          aria-label={`Sửa ${guestName(guest)}`}
+                        >
+                          <DotsThree size={20} weight="bold" />
+                        </button>
+                      </td> : null}
                     </tr>
                   ))}
                 </tbody>
@@ -800,7 +798,7 @@ function GuestsPageConnectedContent({
                   className={selected.includes(guest.id) ? 'guest-card is-selected' : 'guest-card'}
                   key={guest.id}
                 >
-                  <div className="guest-card-top">
+                  <div className={`guest-card-top ${canEdit ? '' : 'is-read-only'}`}>
                     {canEdit ? (
                       <input
                         className="guest-checkbox"

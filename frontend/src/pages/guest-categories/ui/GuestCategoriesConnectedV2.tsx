@@ -148,7 +148,7 @@ function GuestCategoriesContent({
     return (
       <li key={item.id}>
         <div
-          className="category-card-row"
+          className={`category-card-row ${canEdit ? '' : 'is-read-only'}`}
           style={{ '--category-depth': item.depth } as React.CSSProperties}
         >
           <button

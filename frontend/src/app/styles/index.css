@@ -2861,6 +2861,23 @@ kbd {
 .guest-table td:nth-child(5) {
   width: 8%;
 }
+.guest-table.is-read-only th:first-child,
+.guest-table.is-read-only td:first-child {
+  width: 42%;
+  padding-left: 16px;
+}
+.guest-table.is-read-only th:nth-child(2),
+.guest-table.is-read-only td:nth-child(2) {
+  width: 27%;
+}
+.guest-table.is-read-only th:nth-child(3),
+.guest-table.is-read-only td:nth-child(3) {
+  width: 22%;
+}
+.guest-table.is-read-only th:nth-child(4),
+.guest-table.is-read-only td:nth-child(4) {
+  width: 9%;
+}
 .guest-table td {
   height: 52px;
   padding: 6px 11px;
@@ -3959,6 +3976,9 @@ kbd {
   background: rgb(255 255 255 / 0.72);
   transition: background 140ms ease;
 }
+.category-card-row.is-read-only {
+  grid-template-columns: 28px 28px minmax(0, 1fr);
+}
 .category-card-row:hover {
   background: #fffaf3;
 }
@@ -3999,6 +4019,15 @@ kbd {
 .category-card-row .category-add-child:hover {
   border-color: #d5ad7c;
   background: #fff2df;
+}
+
+@media (max-width: 767px) {
+  .guest-card-top.is-read-only {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .category-card-row.is-read-only {
+    grid-template-columns: 22px 22px minmax(0, 1fr);
+  }
 }
 .category-tree-panel > header > span {
   display: inline-flex;
