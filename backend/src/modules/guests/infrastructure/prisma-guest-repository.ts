@@ -68,7 +68,7 @@ function decode(cursor?: string) {
 
 export class PrismaGuestRepository implements GuestRepository {
   constructor(private readonly prisma: PrismaClient) {}
-  private ownedWhere(userId: string, weddingId: string) {
+  private ownedWhere(userId: string, weddingId: string): Prisma.WeddingWhereInput {
     return {
       id: weddingId,
       deletedAt: null,

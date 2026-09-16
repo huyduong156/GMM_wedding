@@ -38,4 +38,39 @@ describe('WorkspaceAccessService', () => {
       status: 409,
     })
   })
+
+  it('reactivates a revoked member when they claim a new access link', async () => {
+    const memberUpdate = vi.fn().mockResolvedValue({ id: 'member-1', status: 'ACTIVE' })
+    const tx = {
+      weddingWorkspaceAccess: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'access-1',
+          weddingId,
+          email: null,
+          role: 'EDITOR',
+          status: 'PENDING',
+          createdAt: new Date('2026-09-16T00:00:00.000Z'),
+          expiresAt: new Date('2026-10-16T00:00:00.000Z'),
+        }),
+        updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      },
+      user: { findUnique: vi.fn().mockResolvedValue({ email: 'member@example.test' }) },
+      weddingMember: {
+        findUnique: vi.fn().mockResolvedValue({ id: 'member-1', status: 'REVOKED' }),
+        update: memberUpdate,
+        create: vi.fn(),
+      },
+    }
+    const db = { $transaction: vi.fn((callback) => callback(tx)) } as unknown as PrismaClient
+
+    await new WorkspaceAccessService(db).accept(actor, 'a'.repeat(32))
+
+    expect(memberUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'member-1' },
+        data: expect.objectContaining({ status: 'ACTIVE', role: 'EDITOR', revokedAt: null }),
+      }),
+    )
+    expect(tx.weddingMember.create).not.toHaveBeenCalled()
+  })
 })

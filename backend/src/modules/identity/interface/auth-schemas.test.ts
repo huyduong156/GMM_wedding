@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { updateProfileRequestSchema } from './auth-schemas'
+import { registerRequestSchema, updateProfileRequestSchema } from './auth-schemas'
+
+describe('registerRequestSchema', () => {
+  it('accepts an optional workspace access token for a new-member registration', () => {
+    expect(
+      registerRequestSchema.parse({
+        email: ' new.member@example.test ',
+        password: 'a-secure-password',
+        workspaceAccessToken: 'a'.repeat(32),
+      }),
+    ).toMatchObject({
+      email: 'new.member@example.test',
+      workspaceAccessToken: 'a'.repeat(32),
+    })
+  })
+})
 
 describe('updateProfileRequestSchema', () => {
   it('accepts editable profile fields and nullable values for clearing', () => {
