@@ -62,6 +62,7 @@ export const publicTemplateRoutes = {
   chibiDaydreamPreview: '/templates/invitations/chibi-daydream/preview',
   peonyVerandaPreview: '/templates/invitations/peony-veranda/preview',
   roseGardenPreview: '/templates/invitations/rose-garden/preview',
+  astralVowPreview: '/templates/invitations/astral-vow/preview',
   editorialVowsPreview: '/templates/websites/editorial-vows/preview',
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
