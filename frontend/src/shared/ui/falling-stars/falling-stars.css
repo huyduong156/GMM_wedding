@@ -1,0 +1,8 @@
+.falling-stars { position: absolute; z-index: 1; inset: 0; overflow: hidden; contain: paint; pointer-events: none; }
+.falling-stars i { position: absolute; width: var(--falling-star-size); height: var(--falling-star-size); border-radius: 50%; opacity: 0; background: #fff; box-shadow: 0 0 7px 2px #fff, 0 0 14px 4px rgb(231 199 119 / 72%); animation: falling-stars-flight var(--falling-star-cycle) linear var(--falling-star-delay) 1; }
+.falling-stars i::before { position: absolute; left: 50%; top: 50%; width: var(--falling-star-tail); height: 2px; border-radius: 999px; background: linear-gradient(90deg, rgb(255 255 255 / 96%), rgb(231 199 119 / 74%) 24%, rgb(231 199 119 / 32%) 62%, transparent); box-shadow: 0 0 8px rgb(231 199 119 / 72%); content: ''; transform: translateY(-50%) rotate(var(--falling-star-angle, -35deg)); transform-origin: left center; }
+@keyframes falling-stars-flight {
+    0%, 7% { opacity: 0; transform: translate3d(0, 0, 0); }
+    15%, 88% { opacity: .95; }
+    100% { opacity: 0; transform: translate3d(var(--falling-star-x), var(--falling-star-y), 0); }
+}

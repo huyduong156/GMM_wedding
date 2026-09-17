@@ -196,6 +196,9 @@ The currently generated `astral-eclipse-envelope.png` is **not** AV-01 approval:
 | Crescent moon | `artwork/av-crescent-moon-v1.png` | Opening/families/closing small ornament | Isolated pearl-and-champagne crescent, transparent PNG; **awaiting visual approval**. |
 | Cygnus constellation | `artwork/av-cygnus-constellation-v1.png` | Alternative only | Sparse pearl/champagne Cygnus (Swan) star map; retained as an alternative, not the primary constellation. |
 | Corona Borealis constellation | `artwork/av-corona-borealis-v1.png` | Opening/invitation sectional ornament | Pearl/champagne Northern Crown star arc, chosen as the primary love symbol for Ariadne's wedding crown; transparent PNG; **awaiting visual approval**. |
+| Opening halo sequence | `artwork/av-opening-halo-rings-v1.png` | Opening card, left-side decor | Original transparent cutout built from the visual language of repeated spiral/halo light rings: varied oval scales, cool luminous edges and depth rhythm; not a copy of the reference chandelier. |
+| Opening spiral ribbon | `artwork/av-opening-spiral-ribbon-v1.png` | Opening card, right-side decor | Original transparent cutout built from the visual language of a broad sculptural spiral stair/ribbon: continuous helix, open void and restrained luminous step edge; not a copy of the reference staircase. |
+| Opening spiral ribbon v2 | `artwork/av-opening-spiral-ribbon-v2.png` | Opening card, right-side decor | Refined full-height architectural cutout with upper and lower landings, individual treads, handrails, balustrade and structural supports; replaces v1 for the active opening composition. |
 | Celestial soft frame v1 | `artwork/av-celestial-soft-frame-v1.png` | None | Superseded candidate: too ornate for the intended soft, modern frame. |
 | Celestial soft frame v2 | `artwork/av-celestial-soft-frame-v2.png` | Opening card/gallery photo frame | Thin, gently curved champagne-gold frame with sparse star glints; transparent center; **awaiting visual approval**. |
 | Charcoal asteroid | `artwork/av-asteroid-charcoal-v1.png` | None | **Rejected**: crystal fissures feel fantasy/cartoon-like. |
@@ -267,7 +270,7 @@ The three planet assets stay independent static PNGs. Their system composition a
 | --- | --- | --- | --- | --- |
 | `IntersectionObserver` reveal | Establish reading order for every section | Once at 24% visibility; 560ms `ease-out` rise/fade | Content is visible before JS; reduced motion removes the transition | One observer, no scroll handler. |
 | Planetary orbit drift | Gives the four isolated planets a shared but non-baked orbital feeling in `opening`/`cover` | Cover visibility only; 18–34s `ease-in-out`, transform only | Static composition; no parallax or scroll scrub | Four raster props, transform/opacity only. |
-| Star glint / starfield | Keeps the body canvas alive without turning into a HUD | Bounded 34 nodes; 3.5–6.5s opacity/scale pulse | Static sparse stars | DOM nodes only; pause when document is hidden. |
+| Star glint / starfield | Keeps the body canvas alive without turning into a HUD | Bounded 22 nodes; 10s sparse opacity/scale pulse with staggered delays | Static sparse stars | DOM nodes only; pause when document is hidden. |
 | Envelope choreography | Makes the opening card feel like a celestial letter being opened | User click; visual card first, copy second, CTA last; 800ms | Immediate opened state | No layout animation, no audio. |
 | Gallery depth feedback | Confirms an image is interactive on fine pointers | Hover/focus 180ms | Native horizontal scroll-snap; no hover dependency | Transform and shadow only. |
 | CTA feedback | Confirms RSVP, guestbook and map/calendar actions | Press 120ms; focus-visible immediate | Same controls and keyboard behavior | Transform/color only. |
@@ -278,13 +281,13 @@ The three planet assets stay independent static PNGs. Their system composition a
 - Each section receives one reveal only. The observer adds an in-view state but content is never hidden by default, preserving JavaScript-failure readability.
 - A document-visibility state pauses ambient stars and planet drift when the tab is hidden. Native vertical scroll remains untouched.
 - Motion tokens: `--av-ease-out: cubic-bezier(.215,.61,.355,1)`, `--av-ease-move: cubic-bezier(.45,.03,.515,.955)`, 120ms press, 180ms hover, 560ms reveal, 800ms opening, 18–34s ambient orbit.
-- `prefers-reduced-motion: reduce` disables all autoplay and reveal transforms; it keeps the final composition, content, controls and countdown values.
+- Astral Vow keeps its restrained ambient motion enabled; the template does not expose or apply a reduced-motion fallback.
 
 ### Phase 4 acceptance
 
 - [x] Every rendered section has a one-time viewport reveal without relying on motion for visibility.
 - [x] The opening, orbit props, starfield, gallery feedback and CTA feedback use only purposeful transform/opacity motion.
-- [x] Ambient animation pauses for a hidden document and all non-essential motion has a reduced-motion fallback.
+- [x] Ambient animation pauses for a hidden document while the Star opening keeps its authored ambient motion enabled.
 - [x] Focus, keyboard and touch paths retain the same actions as pointer interactions.
 
 ## Phase 5 — asset integration, atmosphere, review and release

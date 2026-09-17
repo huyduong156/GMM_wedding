@@ -1,16 +1,25 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { AstralVowInvitation } from './AstralVowInvitation'
 import { astralVowFixture, astralVowSectionConfig } from './fixture'
 import { astralVowTemplateConfig } from './template-config'
 
 describe('AstralVowInvitation', () => {
-  it('opens the eclipse-card invitation and keeps its celestial identity', () => {
+  it('keeps the atmosphere sparse and slow-moving', () => {
+    const { container } = render(<AstralVowInvitation />)
+    const stars = container.querySelectorAll('.av-stars i')
+    expect(stars).toHaveLength(22)
+    expect(stars[0]).toHaveAttribute('style', expect.stringContaining('--delay: 0s'))
+  })
+
+  it('opens the eclipse-card invitation and keeps its celestial identity', async () => {
     const { container } = render(<AstralVowInvitation />)
     expect(screen.getByRole('button', { name: 'Mở thiệp' })).toBeInTheDocument()
-    expect(container.querySelector('.av-envelope img')).toHaveAttribute('src', '/assets/images/templates/astral-vow/artwork/av-celestial-soft-frame-v2.png')
+    expect(container.querySelector('.av-opening-card')).toBeInTheDocument()
+    expect(container.querySelector('.astral-opening-card__decoration--left')).toHaveAttribute('src', '/assets/images/templates/astral-vow/artwork/av-opening-halo-rings-v1.png')
+    expect(container.querySelector('.astral-opening-card__decoration--right')).toHaveAttribute('src', '/assets/images/templates/astral-vow/artwork/av-opening-spiral-ribbon-v2.png')
     fireEvent.click(screen.getByRole('button', { name: 'Mở thiệp' }))
-    expect(screen.getByText('Trân trọng kính mời')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('Trân trọng kính mời')).toBeInTheDocument(), { timeout: 3000 })
     expect(container.querySelector('.av-page')).toHaveClass('is-opened')
   })
 

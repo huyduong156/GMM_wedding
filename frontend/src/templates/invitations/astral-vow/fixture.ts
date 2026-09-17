@@ -1,11 +1,18 @@
 import type { AstralVowData, AstralVowSectionConfig } from './AstralVowTypes'
 
+const demoCoupleMedia = {
+  portrait: { src: '/assets/images/templates/red-spider-lily/demo/asian-couple-portrait.jpg', alt: 'Ảnh demo chân dung cặp đôi', mediaAssetId: 'astral-demo-couple-portrait', role: 'invitation-memory' },
+  gardenWalk: { src: '/assets/images/templates/cherry-blossom-garden/couple-garden-walk.png', alt: 'Ảnh demo cặp đôi dạo trong vườn', mediaAssetId: 'astral-demo-couple-garden-walk', role: 'invitation-memory' },
+  moonGate: { src: '/assets/images/templates/cherry-blossom-garden/couple-moon-gate.png', alt: 'Ảnh demo cặp đôi bên cổng vườn', mediaAssetId: 'astral-demo-couple-moon-gate', role: 'invitation-memory' },
+} as const
+
 export const astralVowFixture: AstralVowData = {
   couple: { brideName: 'An Nhiên', groomName: 'Gia Huy' },
   event: { weddingDate: '18 · 10 · 2026', time: '17:30', venueName: 'Stellarium Event Hall', venueAddress: '88 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh', mapUrl: 'https://maps.google.com' },
   opening: { title: 'Một lời hẹn dưới dải ngân hà', message: 'Chạm nhẹ để mở lá thư của chúng mình.' }, openingMediaBack: null, openingMediaFront: null,
   cover: { eyebrow: 'Trân trọng kính mời', title: 'Gặp nhau dưới cùng một bầu trời', message: 'Khi hai vì sao chọn cùng một quỹ đạo.' }, heroMedia: null,
   invitation: { title: 'Kính mời {guestName} đến chung vui', message: 'Giữa muôn vàn vì tinh tú, sự hiện diện của {guestName} là ánh sáng quý giá trong ngày chúng mình nên duyên.' },
+  invitationMemoryImage1: demoCoupleMedia.portrait, invitationMemoryImage2: demoCoupleMedia.gardenWalk, invitationMemoryImage3: demoCoupleMedia.moonGate,
   families: { title: 'Hai gia đình trân trọng báo tin', subtitle: 'Lễ thành hôn của các con chúng tôi', message: 'Kính mời {guestName} cùng chứng kiến khoảnh khắc hai quỹ đạo gặp nhau.', brideSide: { label: 'Nhà gái', fatherTitle: 'Ông', father: 'Trần Minh Quang', motherTitle: 'Bà', mother: 'Lê Thanh Hà', address: 'Quận 3 · TP. Hồ Chí Minh' }, groomSide: { label: 'Nhà trai', fatherTitle: 'Ông', father: 'Nguyễn Quốc Bảo', motherTitle: 'Bà', mother: 'Phạm Thu Vân', address: 'Thủ Đức · TP. Hồ Chí Minh' } },
   eventDetails: { title: 'Điểm hẹn dưới vì sao', date: 'Chủ nhật · 18 tháng 10, 2026', items: [{ time: '17:00', title: 'Đón khách' }, { time: '17:30', title: 'Lễ thành hôn' }, { time: '18:30', title: 'Khai tiệc' }], message: 'Một đêm để lời hẹn trở thành kỷ niệm.', calendarUrl: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20An%20Nhien%20va%20Gia%20Huy' }, eventDetailsMedia: null,
   countdown: { enabled: true }, timeline: { items: [{ time: '17:00', title: 'Đón khách', description: 'Cùng nhau bắt đầu một đêm đầy sao.' }, { time: '17:30', title: 'Lễ thành hôn', description: 'Lời hẹn trăm năm dưới cùng một bầu trời.' }, { time: '18:30', title: 'Tiệc thân mật', description: 'Nâng ly và lưu giữ những điều dịu dàng.' }] },

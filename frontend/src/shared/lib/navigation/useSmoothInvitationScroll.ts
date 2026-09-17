@@ -18,9 +18,9 @@ export function useSmoothInvitationScroll(enabled: boolean) {
       if (!active || document.hidden) return
       smoothScroll = new Lenis({
         autoRaf: true,
-        lerp: 0.12,
+        lerp: 0.35,
         smoothWheel: true,
-        wheelMultiplier: 0.8,
+        wheelMultiplier: 1,
       })
     })
 
