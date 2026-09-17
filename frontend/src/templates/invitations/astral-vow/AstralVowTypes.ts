@@ -1,5 +1,5 @@
 export type AstralVowSectionKey =
-  | 'opening' | 'cover' | 'invitation' | 'families' | 'eventDetails' | 'countdown'
+  | 'opening' | 'cover' | 'invitation' | 'families' | 'countdown'
   | 'timeline' | 'venue' | 'gallery' | 'rsvp' | 'guestbook' | 'gift' | 'music' | 'footer'
 
 export type AstralVowSectionConfig = {
@@ -25,11 +25,9 @@ export type AstralVowData = {
   invitationMemoryImage2?: string | AstralVowMedia
   invitationMemoryImage3?: string | AstralVowMedia
   families?: { title?: string; subtitle?: string; message?: string; brideSide?: AstralVowFamilySide; groomSide?: AstralVowFamilySide }
-  eventDetails?: { title?: string; date?: string; items?: AstralVowEventDetailItem[]; time?: string; calendarUrl?: string; message?: string }
-  eventDetailsMedia?: AstralVowMedia | null
-  countdown?: { enabled?: boolean }
-  timeline?: { items?: AstralVowTimelineItem[] }
+  countdown?: { enabled?: boolean }
   venue?: { title?: string; name?: string; address?: string; mapUrl?: string; message?: string }
+  timeline?: { title?: string; message?: string; items?: AstralVowTimelineItem[] }
   gallery?: { title?: string; message?: string; images?: Array<string | AstralVowMedia> }
   galleryImages?: Array<string | AstralVowMedia>
   rsvp?: { title?: string; message?: string; deadline?: string; successMessage?: string; attendingLabel?: string; notAttendingLabel?: string }

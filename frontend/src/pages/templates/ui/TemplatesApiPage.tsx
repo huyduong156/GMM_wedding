@@ -44,18 +44,21 @@ const previewPaths: Record<string, string> = {
   'verdant-promise': publicTemplateRoutes.verdantPromisePreview,
   'chibi-daydream': publicTemplateRoutes.chibiDaydreamPreview,
   'peony-veranda': publicTemplateRoutes.peonyVerandaPreview,
+  'astral-vow': publicTemplateRoutes.astralVowPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
   'verdant-promise': { style: 'Lãng mạn', palette: 'Vườn xanh & ivory' },
   'chibi-daydream': { style: 'Lãng mạn', palette: 'Coral & powder blue' },
   'peony-veranda': { style: 'Botanical editorial', palette: 'Peony & veranda ivory' },
+  'astral-vow': { style: 'Celestial editorial', palette: 'Midnight nebula & gold' },
 }
 const localNames: Record<string, string> = {
   'modern-luxe': 'Élan d’Amour',
   'verdant-promise': 'Verdant Promise',
   'chibi-daydream': 'Mây Hồng Có Đôi',
   'peony-veranda': 'Peony Veranda',
+  'astral-vow': 'Astral Vow',
 }
 
 function toTheme(template: WeddingTemplate): Theme | null {

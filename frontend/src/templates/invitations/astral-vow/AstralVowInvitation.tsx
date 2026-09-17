@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { ArrowUpRight, CalendarBlank, MapPin, Sparkle } from '@phosphor-icons/react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { ArrowUpRight, CaretLeft, CaretRight, HandTap, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothInvitationScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { FallingStars } from '../../../shared/ui/falling-stars/FallingStars'
 import { AstralOpeningCard } from './AstralOpeningCard'
 import type { AstralVowData, AstralVowSectionConfig, AstralVowSectionKey } from './AstralVowTypes'
 import { astralVowFixture, astralVowSectionConfig } from './fixture'
+import '../../../shared/styles/reveal-animations.css'
 import './astral-vow.css'
 
 export type { AstralVowData, AstralVowSectionConfig, AstralVowSectionKey }
@@ -17,14 +18,14 @@ const artwork = {
   openingRibbon: '/assets/images/templates/astral-vow/artwork/av-opening-spiral-ribbon-v2.png',
 }
 const keys = astralVowSectionConfig.order
-const required = new Set<AstralVowSectionKey>(['opening', 'cover', 'invitation', 'families', 'eventDetails', 'footer'])
-const anchored = new Set<AstralVowSectionKey>(['opening', 'cover', 'invitation', 'families', 'eventDetails', 'music', 'footer'])
+const required = new Set<AstralVowSectionKey>(['opening', 'cover', 'invitation', 'families', 'footer'])
+const anchored = new Set<AstralVowSectionKey>(['opening', 'cover', 'invitation', 'families', 'music', 'footer'])
 const src = (value: string | { src: string } | null | undefined) => typeof value === 'string' ? value : value?.src ?? ''
-const withGuest = (value: string, guest?: string | null) => value.replaceAll('{guestName}', guest?.trim() || 'Quý khách')
+const withGuest = (value: string | null | undefined, guest?: string | null) => (value ?? '').replaceAll('{guestName}', guest?.trim() || 'Quý khách')
 
-function AstralSection({ sectionKey, className = '', children, active, order }: { sectionKey: AstralVowSectionKey; className?: string; children: ReactNode; active: Set<AstralVowSectionKey>; order: AstralVowSectionKey[] }) {
+function AstralSection({ sectionKey, className = '', children, active, order, style }: { sectionKey: AstralVowSectionKey; className?: string; children: ReactNode; active: Set<AstralVowSectionKey>; order: AstralVowSectionKey[]; style?: CSSProperties }) {
   if (!active.has(sectionKey)) return null
-  return <section className={`av-section av-reveal ${className}`} data-editor-section={sectionKey} tabIndex={-1} style={{ order: order.indexOf(sectionKey) } as CSSProperties}>{children}</section>
+  return <section className={`av-section av-reveal ${className}`} data-editor-section={sectionKey} tabIndex={-1} style={{ order: order.indexOf(sectionKey), ...style } as CSSProperties}>{children}</section>
 }
 
 function getClock(date: string, time: string) {
@@ -36,38 +37,47 @@ function getClock(date: string, time: string) {
 }
 
 export function AstralVowInvitation({ data, sectionConfig, editorMode = false, guestName, interactions }: { data?: AstralVowData; sectionConfig?: AstralVowSectionConfig; editorMode?: boolean; guestName?: string | null; interactions?: PublicInteractions }) {
-  const content = { ...astralVowFixture, ...data, couple: { ...astralVowFixture.couple, ...data?.couple }, event: { ...astralVowFixture.event, ...data?.event }, opening: { ...astralVowFixture.opening, ...data?.opening }, cover: { ...astralVowFixture.cover, ...data?.cover }, invitation: { ...astralVowFixture.invitation, ...data?.invitation }, families: { ...astralVowFixture.families, ...data?.families }, eventDetails: { ...astralVowFixture.eventDetails, ...data?.eventDetails }, venue: { ...astralVowFixture.venue, ...data?.venue }, gallery: { ...astralVowFixture.gallery, ...data?.gallery }, rsvp: { ...astralVowFixture.rsvp, ...data?.rsvp }, guestbook: { ...astralVowFixture.guestbook, ...data?.guestbook }, gift: { ...astralVowFixture.gift, ...data?.gift }, footer: { ...astralVowFixture.footer, ...data?.footer } }
+  const content = { ...astralVowFixture, ...data, couple: { ...astralVowFixture.couple, ...data?.couple }, event: { ...astralVowFixture.event, ...data?.event }, opening: { ...astralVowFixture.opening, ...data?.opening }, cover: { ...astralVowFixture.cover, ...data?.cover }, invitation: { ...astralVowFixture.invitation, ...data?.invitation }, families: { ...astralVowFixture.families, ...data?.families }, timeline: { ...astralVowFixture.timeline, ...data?.timeline }, venue: { ...astralVowFixture.venue, ...data?.venue }, gallery: { ...astralVowFixture.gallery, ...data?.gallery }, rsvp: { ...astralVowFixture.rsvp, ...data?.rsvp }, guestbook: { ...astralVowFixture.guestbook, ...data?.guestbook }, gift: { ...astralVowFixture.gift, ...data?.gift }, footer: { ...astralVowFixture.footer, ...data?.footer } }
   const rootRef = useRef<HTMLElement>(null)
-  const [opened, setOpened] = useState(editorMode); const [openingComplete, setOpeningComplete] = useState(editorMode); const [pageHidden, setPageHidden] = useState(false); const [tick, setTick] = useState(0); const [choice, setChoice] = useState<'ATTENDING' | 'DECLINED' | null>(null); const [rsvpDone, setRsvpDone] = useState(false); const [wish, setWish] = useState(''); const [wishDone, setWishDone] = useState(false)
+  const [opened, setOpened] = useState(editorMode); const [openingComplete, setOpeningComplete] = useState(editorMode); const [pageHidden, setPageHidden] = useState(false); const [, setTick] = useState(0); const [choice, setChoice] = useState<'ATTENDING' | 'DECLINED' | null>(null); const [rsvpDone, setRsvpDone] = useState(false); const [wish, setWish] = useState(''); const [wishDone, setWishDone] = useState(false); const [galleryIndex, setGalleryIndex] = useState(0); const [giftOpen, setGiftOpen] = useState(false)
   useSmoothInvitationScroll(opened && openingComplete)
   useEffect(() => { const id = window.setInterval(() => setTick((value) => value + 1), 1000); return () => window.clearInterval(id) }, [])
   useEffect(() => { if (opened) window.setTimeout(() => document.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus(), 650) }, [opened])
   useEffect(() => {
     const root = rootRef.current
-    if (!root) return
-    let frame = 0
-    const update = () => {
-      frame = 0
-      root.style.setProperty('--av-scroll', `${Math.min(window.scrollY, 520) * 0.055}px`)
-    }
-    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update) }
-    update()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => { window.removeEventListener('scroll', onScroll); if (frame) window.cancelAnimationFrame(frame) }
-  }, [])
-  useEffect(() => {
-    const root = rootRef.current
-    if (!root) return
+    if (!root || !opened || !openingComplete) return
     const sections = Array.from(root.querySelectorAll<HTMLElement>('[data-editor-section]'))
-    if (!('IntersectionObserver' in window)) { sections.forEach((section) => section.classList.add('is-in-view')); return }
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
-      if (!entry.isIntersecting) return
-      entry.target.classList.add('is-in-view')
-      observer.unobserve(entry.target)
-    }), { threshold: 0.24 })
-    sections.forEach((section) => observer.observe(section))
+    const revealSelector = 'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select,img,iframe,article'
+    sections.forEach((section) => {
+      section.querySelectorAll<HTMLElement>(revealSelector).forEach((element, index) => {
+        if (element.matches('.av-gift > .av-eclipse')) return
+        if (element.closest('.av-opening-card')) return
+        element.classList.add('reveal')
+        if (element.matches('.av-gallery-deck figure, .av-gallery-deck img, .av-gift-panel, .av-gift-panel img, .av-gift > .av-eclipse')) {
+          element.classList.add('reveal--fade-only')
+        } else {
+          element.classList.add(index % 3 === 0 ? 'reveal--fade-up' : index % 3 === 1 ? 'reveal--slide-left' : 'reveal--zoom-in')
+        }
+        element.style.setProperty('--reveal-delay', Math.min(index * 0.12, 1.1).toFixed(2) + 's')
+      })
+    })
+    if (!('IntersectionObserver' in window)) {
+      sections.forEach((section) => section.classList.add('is-visible', 'is-in-view'))
+      return
+    }
+    const markVisible = (section: Element) => section.classList.add('is-visible', 'is-in-view')
+    sections.filter((section) => section.getBoundingClientRect().top < window.innerHeight * 0.67).forEach(markVisible)
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        markVisible(entry.target)
+        observer.unobserve(entry.target)
+      }),
+      { rootMargin: '0px 0px -33% 0px', threshold: 0.01 },
+    )
+    sections.filter((section) => !section.classList.contains('is-visible')).forEach((section) => observer.observe(section))
     return () => observer.disconnect()
-  }, [opened])
+  }, [opened, openingComplete])
   useEffect(() => {
     const sync = () => setPageHidden(document.visibilityState === 'hidden')
     sync(); document.addEventListener('visibilitychange', sync)
@@ -80,28 +90,33 @@ export function AstralVowInvitation({ data, sectionConfig, editorMode = false, g
   }, [opened, openingComplete])
   const active = new Set(sectionConfig?.enabled ?? keys); required.forEach((key) => active.add(key))
   const requested = sectionConfig?.order?.length ? sectionConfig.order : keys
-  const order = [...keys.filter((key) => anchored.has(key) && !['music', 'footer'].includes(key)), ...requested.filter((key) => active.has(key) && !anchored.has(key)), ...(active.has('music') ? ['music' as const] : []), 'footer' as const]
-  const time = useMemo(() => getClock(content.event?.weddingDate ?? '', content.event?.time ?? ''), [content.event?.time, content.event?.weddingDate, tick])
+  const order = [...requested, ...keys.filter((key) => !requested.includes(key))].filter((key) => active.has(key))
+  const time = getClock(content.event?.weddingDate ?? '', content.event?.time ?? '')
   const guest = interactions?.guestName || guestName
+  const venueAddress = content.venue?.address || content.event?.venueAddress || ''
+  const venueMapSrc = content.venue?.mapUrl?.includes('output=embed') ? content.venue.mapUrl : venueAddress ? 'https://www.google.com/maps?q=' + encodeURIComponent(venueAddress) + '&output=embed' : content.venue?.mapUrl || ''
   const invitationImages = [content.invitationMemoryImage1, content.invitationMemoryImage2, content.invitationMemoryImage3].map(src).filter(Boolean)
   if (!invitationImages.length) { const heroImage = src(content.heroMedia); if (heroImage) invitationImages.push(heroImage) }
-  const family = (side: NonNullable<AstralVowData['families']>['brideSide']) => <article className="av-family"><span>{side?.label}</span><p><em>{side?.fatherTitle}</em>{side?.father}</p><p><em>{side?.motherTitle}</em>{side?.mother}</p><small>{side?.address}</small></article>
-  const submitRsvp = async () => { if (!choice) return; const accepted = await interactions?.rsvp.submit({ guestName: guest ? undefined : 'Quý khách', attendance: choice, partySize: 1 }); if (accepted !== false) setRsvpDone(true) }
-  const submitWish = async () => { if (!wish.trim()) return; const accepted = await interactions?.wishes.submit({ guestName: guest ? undefined : 'Quý khách', content: wish }); if (accepted !== false) setWishDone(true) }
+  const galleryImages = (data?.galleryImages?.length ? data.galleryImages : content.galleryImages ?? []).map(src).filter(Boolean).slice(0, 12)
+  const footerImage = src(data?.footerMedia ?? content.footerMedia)
+  const family = (side: NonNullable<AstralVowData['families']>['brideSide']) => <article className="av-family"><span>{side?.label}</span><p><em>{side?.fatherTitle}</em>{withGuest(side?.father ?? '', guest)}</p><p><em>{side?.motherTitle}</em>{withGuest(side?.mother ?? '', guest)}</p><small>{withGuest(side?.address ?? '', guest)}</small></article>
+  const submitRsvp = async () => { if (!choice || interactions?.rsvp.submitting) return; const accepted = await interactions?.rsvp.submit({ guestName: undefined, attendance: choice, partySize: 1 }); if (accepted !== false) setRsvpDone(true) }
+  const submitWish = async () => { if (!wish.trim()) return; const accepted = await interactions?.wishes.submit({ guestName: undefined, content: wish }); if (accepted !== false) setWishDone(true) }
   return <main ref={rootRef} className={`av-page ${opened ? 'is-opened' : ''} ${pageHidden ? 'is-page-hidden' : ''}`}><div className="av-stars" aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} style={{ '--x': `${index * 53 % 100}%`, '--y': `${index * 71 % 100}%`, '--delay': `${(index * 1.7) % 12}s` } as CSSProperties}/>)}</div>{openingComplete && <FallingStars target=".av-page" className="av-page-stars" />}
-    {(!openingComplete || editorMode) && <AstralOpeningCard className="av-opening-card" brideName={content.couple?.brideName ?? ''} groomName={content.couple?.groomName ?? ''} date={content.event?.weddingDate} venue={content.event?.venueName} eyebrow={content.opening?.title} note={withGuest(content.opening?.message ?? '', guest)} leftDecorationSrc={artwork.openingHalos} rightDecorationSrc={artwork.openingRibbon} openLabel="Mở thiệp" openedLabel="Thiệp đã mở" isOpen={editorMode} isOpening={opened && !openingComplete} onOpen={() => setOpened(true)} sectionKey="opening" />}
+    {(!openingComplete || editorMode) && <AstralOpeningCard className="av-opening-card" brideName={content.couple?.brideName ?? ''} groomName={content.couple?.groomName ?? ''} date={content.event?.weddingDate} venue={content.event?.venueName} eyebrow={withGuest(content.opening?.title ?? '', guest)} note={withGuest(content.opening?.message ?? '', guest)} leftDecorationSrc={artwork.openingHalos} rightDecorationSrc={artwork.openingRibbon} openLabel="Mở thiệp" openedLabel="Thiệp đã mở" isOpen={editorMode} isOpening={opened && !openingComplete} onOpen={() => setOpened(true)} sectionKey="opening" />}
     {openingComplete && <div className="av-canvas"><div className="av-content">
-      <AstralSection active={active} order={order} sectionKey="cover" className="av-cover"><img className="av-cover-frame" src={art} alt=""/><div className="av-cover-astral-rings" aria-hidden="true"><div/><div/><div/><div className="av-cover-rays"><i/><i/><i/><i/></div><i className="av-cover-sun"/></div><span className="av-label">{content.cover?.eyebrow}</span><h2>{content.couple?.brideName}<b>&</b>{content.couple?.groomName}</h2><p className="av-cover-slogan">{content.cover?.title}</p><p>{content.event?.weddingDate}</p></AstralSection>
+      <AstralSection active={active} order={order} sectionKey="cover" className="av-cover"><img className="av-cover-frame" src={art} alt=""/><div className="av-cover-astral-rings" aria-hidden="true"><div/><div/><div/><div className="av-cover-rays"><i/><i/><i/><i/></div><i className="av-cover-sun"/></div><span className="av-label">{withGuest(content.cover?.eyebrow ?? '', guest)}</span><h2>{content.couple?.brideName}<b>&</b>{content.couple?.groomName}</h2><p className="av-cover-slogan">{withGuest(content.cover?.title ?? '', guest)}</p><p>{content.event?.weddingDate}</p></AstralSection>
       <AstralSection active={active} order={order} sectionKey="invitation" className="av-invitation"><span className="av-label">Lời mời</span><h2>{withGuest(content.invitation?.title ?? '', guest)}</h2><p>{withGuest(content.invitation?.message ?? '', guest)}</p>{invitationImages.length > 0 && <div className="av-invitation-memories">{invitationImages.map((image, index) => <figure key={`${image}-${index}`}><img src={image} alt={`Khoảnh khắc cô dâu chú rể ${index + 1}`}/></figure>)}</div>}<div className="av-orbit" aria-hidden="true"/></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="families" className="av-families"><img className="av-families-moon" src={artwork.crescent} alt=""/><span className="av-label">Hai gia đình</span><h2>{content.families?.title}</h2><p>{content.families?.subtitle}</p><div className="av-family-grid">{family(content.families?.brideSide)}<div className="av-eclipse" aria-hidden="true"/>{family(content.families?.groomSide)}</div><p>{withGuest(content.families?.message ?? '', guest)}</p></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="eventDetails" className="av-events"><span className="av-label">Điểm hẹn</span><h2>{content.eventDetails?.title}</h2><p>{content.eventDetails?.date}</p><div className="av-event-list">{content.eventDetails?.items?.map((item) => <div key={`${item.time}-${item.title}`}><time>{item.time}</time><span>{item.title}</span></div>)}</div>{content.eventDetails?.calendarUrl && <a href={content.eventDetails.calendarUrl}><CalendarBlank size={18}/>Thêm vào lịch</a>}</AstralSection>
-      <AstralSection active={active} order={order} sectionKey="countdown" className="av-countdown"><span className="av-label">Đếm ngược đến ngày vui</span><div>{time.map((value, index) => <strong key={index}><b>{String(value).padStart(2, '0')}</b><small>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</small></strong>)}</div></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="timeline"><span className="av-label">Quỹ đạo ngày vui</span><h2>Lịch trình</h2><div className="av-timeline">{content.timeline?.items?.map((item) => <article key={`${item.time}-${item.title}`}><i/><time>{item.time}</time><h3>{item.title}</h3><p>{item.description}</p></article>)}</div></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="venue" className="av-venue"><MapPin size={28}/><span className="av-label">Đài quan sát</span><h2>{content.venue?.name}</h2><p>{content.venue?.address}</p><p>{content.venue?.message}</p>{content.venue?.mapUrl && <a href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở bản đồ <ArrowUpRight size={17}/></a>}</AstralSection>
-      <AstralSection active={active} order={order} sectionKey="gallery" className="av-gallery"><span className="av-label">Chòm sao ký ức</span><h2>{content.gallery?.title}</h2><p>{content.gallery?.message}</p><div>{(data?.galleryImages ?? content.galleryImages ?? []).slice(0, 6).map((image, index) => <figure key={index}><img src={src(image)} alt={`Khoảnh khắc ${index + 1}`}/></figure>)}</div></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="rsvp" className="av-rsvp"><Sparkle size={22}/><h2>{content.rsvp?.title}</h2><p>{content.rsvp?.message}</p>{rsvpDone || interactions?.rsvp.submitted ? <strong>{content.rsvp?.successMessage}</strong> : <><div><button type="button" className={choice === 'ATTENDING' ? 'is-picked' : ''} onClick={() => setChoice('ATTENDING')}>{content.rsvp?.attendingLabel}</button><button type="button" className={choice === 'DECLINED' ? 'is-picked' : ''} onClick={() => setChoice('DECLINED')}>{content.rsvp?.notAttendingLabel}</button></div><button type="button" onClick={submitRsvp} disabled={!choice}>Xác nhận phản hồi</button></>}</AstralSection>
-      <AstralSection active={active} order={order} sectionKey="guestbook" className="av-guestbook"><span className="av-label">Gửi một vì sao</span><h2>{content.guestbook?.title}</h2><p>{content.guestbook?.message}</p>{wishDone || interactions?.wishes.submitted ? <strong>{content.guestbook?.successMessage}</strong> : <><textarea value={wish} onChange={(event) => setWish(event.target.value)} placeholder="Gửi đôi lời yêu thương…"/><button type="button" onClick={submitWish}>Gửi lời chúc</button></>}</AstralSection>
-      <AstralSection active={active} order={order} sectionKey="gift" className="av-gift"><div className="av-eclipse"/><h2>{content.gift?.title}</h2><p>{content.gift?.message}</p>{src(data?.giftQrMedia ?? content.giftQrMedia) && <img src={src(data?.giftQrMedia ?? content.giftQrMedia)} alt="Mã QR mừng cưới"/>}<small>{content.gift?.thankYouMessage}</small></AstralSection>
-      <AstralSection active={active} order={order} sectionKey="footer" className="av-footer"><img src={artwork.corona} alt=""/><span className="av-label">Dưới cùng một bầu trời</span><h2>{content.footer?.title}</h2><p>{content.footer?.message}</p></AstralSection>
+      <AstralSection active={active} order={order} sectionKey="families" className="av-families"><img className="av-families-moon" src={artwork.crescent} alt=""/><span className="av-label">Hai gia đình</span><h2>{withGuest(content.families?.title ?? '', guest)}</h2><p>{withGuest(content.families?.subtitle ?? '', guest)}</p><div className="av-family-grid">{family(content.families?.brideSide)}<div className="av-eclipse" aria-hidden="true"/>{family(content.families?.groomSide)}</div><p>{withGuest(content.families?.message ?? '', guest)}</p></AstralSection>
+
+      <AstralSection active={active} order={order} sectionKey="countdown" className="av-countdown"><div className="av-countdown-decor" aria-hidden="true"><span className="av-countdown-decor__orbit av-countdown-decor__orbit--one"/><span className="av-countdown-decor__orbit av-countdown-decor__orbit--two"/><i className="av-countdown-decor__spark av-countdown-decor__spark--one"/><i className="av-countdown-decor__spark av-countdown-decor__spark--two"/></div><span className="av-label">Đếm ngược đến ngày vui</span><h2>Khoảnh khắc đang đến gần</h2><div>{time.map((value, index) => <strong key={index}><b>{String(value).padStart(2, '0')}</b><small>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</small><img src={["/assets/images/templates/astral-vow/artwork/av-planet-terra-v1.png", "/assets/images/templates/astral-vow/artwork/av-planet-mars-v1.png", "/assets/images/templates/astral-vow/artwork/av-planet-veil-v1.png", "/assets/images/templates/astral-vow/artwork/av-planet-ringed-v2.png"][index]} alt=""/></strong>)}</div></AstralSection>
+      <AstralSection active={active} order={order} sectionKey="timeline"><span className="av-label">Quỹ đạo ngày vui</span><h2>{withGuest(content.timeline?.title ?? '', guest)}</h2><p>{withGuest(content.timeline?.message ?? '', guest)}</p><div className="av-timeline">{content.timeline?.items?.map((item) => <article key={`${item.time}-${item.title}`}><i/><time>{withGuest(item.time, guest)}</time><h3>{withGuest(item.title, guest)}</h3><p>{withGuest(item.description, guest)}</p></article>)}</div></AstralSection>
+
+      <AstralSection active={active} order={order} sectionKey="venue" className="av-venue"><MapPin className="av-venue-icon" size={28}/><span className="av-label">{withGuest(content.venue?.title ?? 'Đài quan sát', guest)}</span><h2>{withGuest(content.venue?.name ?? '', guest)}</h2><p>{withGuest(content.venue?.address ?? '', guest)}</p><p>{withGuest(content.venue?.message ?? '', guest)}</p>{venueMapSrc && <div className="av-venue-map"><iframe src={venueMapSrc} title="Bản đồ địa điểm" loading="lazy" referrerPolicy="no-referrer-when-downgrade"/></div>}{content.venue?.mapUrl && <a href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở bản đồ <ArrowUpRight size={17}/></a>}</AstralSection>
+      <AstralSection active={active} order={order} sectionKey="gallery" className="av-gallery"><span className="av-label">Chòm sao ký ức</span><h2>{withGuest(content.gallery?.title ?? '', guest)}</h2><p>{withGuest(content.gallery?.message ?? '', guest)}</p>{galleryImages.length > 0 ? <><div className="av-gallery-deck" aria-live="polite"><button type="button" className="av-gallery-control is-prev" onClick={() => setGalleryIndex((galleryIndex - 1 + galleryImages.length) % galleryImages.length)} aria-label="Ảnh trước"><CaretLeft size={20}/></button><div className="av-gallery-stage">{galleryImages.map((image, index) => { const previous = (galleryIndex - 1 + galleryImages.length) % galleryImages.length; const next = (galleryIndex + 1) % galleryImages.length; const position = index === galleryIndex ? 'is-active' : index === previous ? 'is-previous' : index === next ? 'is-next' : 'is-hidden'; return <figure key={image + '-' + index} className={position} aria-hidden={position === 'is-hidden'}><img src={image} alt={'Khoảnh khắc ' + (index + 1)}/><figcaption>0{index + 1}</figcaption></figure> })}</div><button type="button" className="av-gallery-control is-next" onClick={() => setGalleryIndex((galleryIndex + 1) % galleryImages.length)} aria-label="Ảnh tiếp theo"><CaretRight size={20}/></button></div><div className="av-gallery-dots" role="group" aria-label="Chọn ảnh">{galleryImages.map((_, index) => <button key={index} type="button" className={index === galleryIndex ? 'is-active' : ''} onClick={() => setGalleryIndex(index)} aria-label={'Xem ảnh ' + (index + 1)} aria-pressed={index === galleryIndex}/>)}</div></> : <div className="av-gallery-empty">Chưa có ảnh kỷ niệm</div>}</AstralSection>
+      <AstralSection active={active} order={order} sectionKey="rsvp" className="av-rsvp"><Sparkle size={22}/><h2>{withGuest(content.rsvp?.title ?? '', guest)}</h2><p>{withGuest(content.rsvp?.message ?? '', guest)}</p>{rsvpDone || interactions?.rsvp.submitted ? <strong>{withGuest(content.rsvp?.successMessage ?? '', guest)}</strong> : <><div><button type="button" className={choice === 'ATTENDING' ? 'is-picked' : ''} onClick={() => setChoice('ATTENDING')} disabled={interactions?.rsvp.submitting}>{content.rsvp?.attendingLabel}</button><button type="button" className={choice === 'DECLINED' ? 'is-picked' : ''} onClick={() => setChoice('DECLINED')} disabled={interactions?.rsvp.submitting}>{content.rsvp?.notAttendingLabel}</button></div><button type="button" onClick={submitRsvp} disabled={!choice || interactions?.rsvp.submitting}>{interactions?.rsvp.submitting ? 'Đang gửi…' : 'Xác nhận phản hồi'}</button>{interactions?.rsvp.error && <small role="alert">{interactions.rsvp.error}</small>}</>}</AstralSection>
+      <AstralSection active={active} order={order} sectionKey="guestbook" className="av-guestbook"><span className="av-label">Gửi một vì sao</span><h2>{withGuest(content.guestbook?.title ?? '', guest)}</h2><p>{withGuest(content.guestbook?.message ?? '', guest)}</p>{wishDone || interactions?.wishes.submitted ? <strong>{withGuest(content.guestbook?.successMessage ?? '', guest)}</strong> : <><textarea value={wish} onChange={(event) => setWish(event.target.value)} placeholder="Gửi đôi lời yêu thương…"/><button type="button" onClick={submitWish}>Gửi lời chúc</button></>}</AstralSection>
+      <AstralSection active={active} order={order} sectionKey="gift" className="av-gift"><h2>Gửi quà chúc phúc</h2><button type="button" className="av-eclipse" aria-expanded={giftOpen} aria-controls="astral-gift-panel" onClick={() => setGiftOpen((open) => !open)}><span className="av-gift-click-label">Click</span><HandTap className="av-gift-click-icon" size={18} weight="duotone"/></button><div id="astral-gift-panel" className={'av-gift-panel' + (giftOpen ? ' is-open' : '')} aria-hidden={!giftOpen}><div className="av-gift-panel__inner">{src(data?.giftQrMedia ?? content.giftQrMedia) && <img src={src(data?.giftQrMedia ?? content.giftQrMedia)} alt="Mã QR mừng cưới"/>}<small>{withGuest(content.gift?.thankYouMessage ?? '', guest)}</small></div></div></AstralSection>
+      <AstralSection active={active} order={order} sectionKey="footer" className="av-footer" style={{ '--av-footer-image': footerImage ? 'url("' + footerImage + '")' : 'none' } as CSSProperties}><span className="av-label">Dưới cùng một bầu trời</span><h2>{withGuest(content.footer?.title ?? '', guest)}</h2><p>{withGuest(content.footer?.message ?? '', guest)}</p></AstralSection>
     </div></div>}</main>
 }

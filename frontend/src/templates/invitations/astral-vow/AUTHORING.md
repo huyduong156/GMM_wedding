@@ -47,7 +47,7 @@ Unlike a Website, it has no open-ended desktop editorial chapters; unlike a Reca
 | `cover` | Required, fixed | `cover.*`, `heroMedia` | Text + optional hero | Neutral celestial composition with missing media. |
 | `invitation` | Required, fixed | `invitation.*`, memory media 1–3 | Text + optional images | `{guestName}` supported; text remains if images empty. |
 | `families` | Required, fixed | `families.*`, bride/groom side fields | Separate titles, parents, addresses | Hide only a missing line; preserve family hierarchy. |
-| `eventDetails` | Required, fixed | `eventDetails.*` | 1–8 event points, calendar URL | Calendar CTA hides without URL; text remains. |
+| `venue` | Optional, reorderable | `venue.*` | Place name, address, map action | Venue is the single location anchor. |
 | `countdown` | Optional, reorderable | Derived from `event.*` | Toggle | Invalid date hides; zero state after event. |
 | `timeline` | Optional, reorderable | `timeline.items[]` | 0–10 repeatable items | Empty removes section. |
 | `venue` | Optional, reorderable | `venue.*` | Text + map URL | Address is always text; map CTA hides without URL. |
@@ -95,7 +95,7 @@ User media communicates the couple/event. It must never be used as the sky, nebu
 | `openingMediaBack`, `openingMediaFront` | Optional opening portrait; user | 0–1 each; portrait 3:4; `cover`, focal 50% 35% | Eager only after opening gesture; contextual opening alt | Remove only that media plane; eclipse-letter composition stays complete. |
 | `heroMedia` | Optional cover couple image; user | 0–1; portrait 4:5; `cover`, focal 50% 35% | Eager/high priority; “Ảnh bìa của {bride} và {groom}” | Neutral constellation frame replaces it; never put vital text solely on photo. |
 | `invitationMemoryImage1..3` | Optional memory images; user | 0–3; portrait 3:4; `cover` | Lazy; numbered contextual alt | Missing image removes its frame instead of rendering a broken tile. |
-| `eventDetailsMedia` | Optional event image; user | 0–1; portrait/square; `cover` | Lazy; event-specific alt | Event schedule remains text-first; no media placeholder needed. |
+
 | `timeline.items[].image` | Optional programme image; user | 0–10; portrait 3:4; `cover` | Lazy; item title in alt | Each item has text-only orbital marker fallback. |
 | `galleryImages` | Album content; user | 0–12; portrait/landscape; frame aspect 3:4, `cover` | Lazy except first visible item; “Khoảnh khắc {n} của {bride} và {groom}” | Designed empty gallery state; no external redirect. |
 | `giftQrMedia` | Payment QR; user | 0–1; square; `contain`, no filters/crop | Eager when gift panel is deliberately opened; explicit payment-QR alt | Hide QR panel on missing/broken file; gift copy remains. |
@@ -145,7 +145,7 @@ Before Phase 3, validate each of these cases against the eventual skeleton rende
 - [x] QR, map/calendar, responsive, low-quality and error rules are explicit.
 - [x] Media-independence test cases are defined.
 - [x] Config exposes the two opening media roles under Astral Vow’s own template config.
-- [x] Empty-media fixture test preserves family, venue and closing content.
+- [x] Empty-media fixture test preserves family, consolidated event details and closing content.
 - [x] Phase 2 contract and schema mapping are ready for Phase 2.5.
 
 ## Phase 2.5 — decor pre-production
@@ -162,7 +162,7 @@ Do **not** generate a full-page background image: the body-wide sky, grain and d
 | --- | --- | --- | --- | --- |
 | AV-01 `av-eclipse-letter-key.png` | Key opening artwork; `opening` only | Portrait astronomical invitation face: deep navy celestial paper, embossed eclipse seal, extremely fine champagne constellation filigree around edges, empty central reading area. | PNG RGBA; portrait 2:3; 10% safe margin; target ≤700 KB after optimization. | Scales to 320–360px wide; all copy must remain HTML; no baked text. |
 | AV-02 `av-nebula-veil-top.png` | Atmospheric foreground; `cover` → `invitation` seam | Asymmetrical translucent indigo/pearl-blue nebula veil, concentrated along one upper corner and fading to alpha; no rectangular edge. | PNG RGBA; 4:5 portrait; 15% edge-safe negative center; ≤500 KB. | Crops freely above content; never covers names/date; static under reduced motion. |
-| AV-03 `av-constellation-ribbon.png` | Divider/section bridge; `families` → `eventDetails` → `timeline` | Thin flowing gold-and-blue stellar dust ribbon with a few linked star points, long diagonal movement and generous transparent gaps. | PNG RGBA; 3:1 landscape; 8% safe edge; ≤350 KB. | Can extend across vertical seams but page clips horizontal overflow; no readable text or event detail baked in. |
+| AV-03 `av-constellation-ribbon.png` | Divider/section bridge; `families` → `venue` → `timeline` | Thin flowing gold-and-blue stellar dust ribbon with a few linked star points, long diagonal movement and generous transparent gaps. | PNG RGBA; 3:1 landscape; 8% safe edge; ≤350 KB. | Can extend across vertical seams but page clips horizontal overflow; no readable text or event detail baked in. |
 | AV-04 `av-planet-terra-v1.png`, `av-planet-mars-v1.png`, `av-planet-veil-v1.png`, `av-planet-ringed-v2.png` | Shared orbital props; cover/opening atmosphere | Four individual, subtly 3D planets: restrained blue Earth-like, terracotta Mars-like, smoky indigo/amethyst exoplanet, and a midnight-indigo planet with a broad champagne ring. Each remains an isolated visual object; no baked system or background. | PNG RGBA; generous alpha padding; target ≤700 KB each after optimization. | CSS alone positions them on a tilted orbit and handles any slow float/orbit; all four become static with reduced motion. |
 | AV-05 `av-photo-constellation-frame.png` | Gallery frame/mask; `gallery` | Luminous irregular astronomical frame: delicate champagne edge, tiny stardust on two corners, transparent center intended for a user photo. | PNG RGBA; 3:4 portrait; center fully transparent; 7% inset-safe frame; ≤250 KB. | Reusable only for gallery; hides with empty gallery, never substitutes photo content. |
 | AV-06 `av-starfall-cluster.png` | Closing/ambient prop; `rsvp`, `guestbook`, `footer` | Sparse diagonal starfall: a few pearl and gold meteors, dust, faint blue flare; dissipates into alpha, no hard bounding box. | PNG RGBA; 2:3 portrait; 12% safe edge; ≤350 KB. | Separate scale/crop variants may be derived only after approval; static on reduced motion. |
@@ -228,8 +228,8 @@ The three planet assets stay independent static PNGs. Their system composition a
 | `cover` | `constellation-hero` | Couple names and date | The primary four-planet tilted system sits behind an HTML reading layer and frame. Missing hero media does not change the composition. |
 | `invitation` | `ornamental-plaque` | Personalized invitation heading and message | Corona Borealis crown arc leads into the text, then a code-native orbit completes the lower edge. |
 | `families` | `dual-orbit-cards` | Two family hierarchies | Two readable vertical cards split by an eclipse marker; crescent holds the upper seam. |
-| `eventDetails` | `vertical-program` | Date and event points | Text-first programme rows; calendar CTA appears only with a valid configured URL. |
-| `countdown` | `four-unit-grid` | Days, hours, minutes, seconds | Four equal, tabular-number cells; invalid date later suppresses the section. |
+| `venue` | `venue-card-over-map` | Place name, address, map action | Observatory-style typographic landmark; address remains available without a map URL. |
+| `countdown` | `four-unit-grid` | Days, hours, minutes, seconds | Four enlarged tabular-number cells with orbital planet decor; invalid date later suppresses the section. |
 | `timeline` | `vertical-timeline` | Programme milestones | One clear route with orbital nodes; no image is required per item. |
 | `venue` | `venue-card-over-map` | Place name, address, map action | Observatory-style typographic landmark; address remains available without a map URL. |
 | `gallery` | `horizontal-snap` | Album heading and user images | Framed 3:4 media rail; empty list is intentionally removable rather than a broken gallery. |
@@ -243,7 +243,7 @@ The three planet assets stay independent static PNGs. Their system composition a
 | opening → cover | Compact orbit becomes the full tilted planetary system | Vertical decor may overlap naturally; no section background boundary. |
 | cover → invitation | Planet depth fades into Corona Borealis arc | Keep the cover reading layer free of planet overlap. |
 | invitation → families | Lower orbit resolves into the central eclipse marker | The crescent can extend upward; only horizontal overflow clips at page level. |
-| families → eventDetails → timeline | Fine gold vertical route continues through programme information | Text rows keep an opaque enough reading surface and own their anchors. |
+| families → venue → timeline | Fine gold vertical route continues through programme information | Text rows keep an opaque enough reading surface and own their anchors. |
 | gallery → RSVP → footer | Media rail yields to form cards, then crown-arc farewell | No CTA may be placed below a decorative image or rely on a crop. |
 
 ### Phase 3 decisions

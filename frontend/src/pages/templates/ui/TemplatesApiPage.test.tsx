@@ -82,6 +82,8 @@ describe('TemplatesApiPage', () => {
           value={{
             weddings: [wedding],
             activeWedding: wedding,
+            activeRole: 'OWNER',
+            rolesByWedding: { [wedding.id]: 'OWNER' },
             loading: false,
             error: null,
             selectWedding: vi.fn(),
@@ -145,6 +147,8 @@ describe('TemplatesApiPage', () => {
           value={{
             weddings: [wedding],
             activeWedding: wedding,
+            activeRole: 'OWNER',
+            rolesByWedding: { [wedding.id]: 'OWNER' },
             loading: false,
             error: null,
             selectWedding: vi.fn(),

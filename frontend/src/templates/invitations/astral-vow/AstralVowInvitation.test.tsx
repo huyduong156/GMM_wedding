@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { AstralVowInvitation } from './AstralVowInvitation'
 import { astralVowFixture, astralVowSectionConfig } from './fixture'
 import { astralVowTemplateConfig } from './template-config'
+import type { TemplateFieldConfig } from '../../template-config'
 
 describe('AstralVowInvitation', () => {
   it('keeps the atmosphere sparse and slow-moving', () => {
@@ -29,11 +30,11 @@ describe('AstralVowInvitation', () => {
     expect(container.querySelector('[data-editor-section="footer"]')).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="gallery"]')).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="rsvp"]')).not.toBeInTheDocument()
-    expect(astralVowSectionConfig.order).toHaveLength(14)
+    expect(astralVowSectionConfig.order).toHaveLength(13)
   })
 
   it('keeps essential invitation content usable when all user media is empty', () => {
-    render(<AstralVowInvitation editorMode data={{ ...astralVowFixture, heroMedia: null, openingMediaBack: null, openingMediaFront: null, eventDetailsMedia: null, galleryImages: [], giftQrMedia: null, footerMedia: null, invitationMemoryImage1: '', invitationMemoryImage2: '', invitationMemoryImage3: '' }} />)
+    render(<AstralVowInvitation editorMode data={{ ...astralVowFixture, heroMedia: null, openingMediaBack: null, openingMediaFront: null, galleryImages: [], giftQrMedia: null, footerMedia: null, invitationMemoryImage1: '', invitationMemoryImage2: '', invitationMemoryImage3: '' }} />)
     expect(screen.getByText('Hai gia đình trân trọng báo tin')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Stellarium Event Hall' })).toBeInTheDocument()
     expect(screen.getByText('Hẹn gặp bạn dưới cùng một bầu trời')).toBeInTheDocument()
@@ -42,8 +43,9 @@ describe('AstralVowInvitation', () => {
   it('maps opening media to Astral Vow roles', () => {
     const opening = astralVowTemplateConfig.sections.find((section) => typeof section !== 'string' && section.sectionKey === 'opening')
     if (!opening || typeof opening === 'string') throw new Error('Missing opening config')
-    expect(opening.fields?.openingMediaBack).toMatchObject({ type: 'image', contentKey: 'openingMediaBack', mediaRole: 'opening-back' })
-    expect(opening.fields?.openingMediaFront).toMatchObject({ type: 'image', contentKey: 'openingMediaFront', mediaRole: 'opening-front' })
+    const fields = opening.fields as Record<string, TemplateFieldConfig>
+    expect(fields['openingMediaBack']).toMatchObject({ type: 'image', contentKey: 'openingMediaBack', mediaRole: 'opening-back' })
+    expect(fields['openingMediaFront']).toMatchObject({ type: 'image', contentKey: 'openingMediaFront', mediaRole: 'opening-front' })
   })
 
   it('keeps section content visible when viewport-observer motion is unavailable', () => {
