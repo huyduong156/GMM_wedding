@@ -16,8 +16,6 @@ export type AstralVowData = {
   couple?: { brideName?: string; groomName?: string }
   event?: { weddingDate?: string; time?: string; venueName?: string; venueAddress?: string; mapUrl?: string }
   opening?: { title?: string; message?: string }
-  openingMediaBack?: AstralVowMedia | null
-  openingMediaFront?: AstralVowMedia | null
   cover?: { eyebrow?: string; title?: string; message?: string }
   heroMedia?: AstralVowMedia | null
   invitation?: { title?: string; message?: string }

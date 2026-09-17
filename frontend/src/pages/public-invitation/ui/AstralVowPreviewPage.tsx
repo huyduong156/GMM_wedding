@@ -2,11 +2,26 @@ import { useEffect, useState } from 'react'
 import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } from '../../../templates/invitations/astral-vow/AstralVowInvitation'
 import { astralVowFixture } from '../../../templates/invitations/astral-vow/fixture'
 import { isLiveEditorScroll, isLiveEditorUpdate, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { weddingApi } from '../../../shared/api/weddings'
 
 export function AstralVowPreviewPage() {
-  const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
+  const params = new URLSearchParams(window.location.search)
+  const editorMode = params.get('editor') === '1'
+  const weddingId = params.get('weddingId')
   const [data, setData] = useState<AstralVowData>(astralVowFixture)
-  const [sectionConfig, setSectionConfig] = useState<AstralVowSectionConfig>()
+  const [sectionConfig, setSectionConfig] = useState<AstralVowSectionConfig | undefined>()
+  useEffect(() => {
+    if (editorMode || !weddingId) return
+    let active = true
+    void weddingApi.content(weddingId, 'ONLINE_INVITATION').then(({ content }) => {
+      if (!active) return
+      setData(content.content as AstralVowData)
+      setSectionConfig(content.sectionConfig as AstralVowSectionConfig)
+    })
+    return () => {
+      active = false
+    }
+  }, [editorMode, weddingId])
   useEffect(() => {
     if (!editorMode) return
     const receive = (event: MessageEvent) => {

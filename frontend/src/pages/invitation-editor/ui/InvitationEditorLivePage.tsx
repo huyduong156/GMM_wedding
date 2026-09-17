@@ -244,10 +244,10 @@ export function InvitationEditorLivePage() {
       const hasSavedContent = Object.keys(stored).length > 0
       const storedPalette =
         typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
-      const templateConfig = hydrateTemplateConfig(
-        loaded.templateVersion.key,
-        loaded.templateVersion.config,
-      )
+      const localTemplateConfig = getInvitationTemplate(loaded.templateVersion.key)?.config as Record<string, unknown> | undefined
+      const templateConfig = loaded.templateVersion.key === 'astral-vow' && localTemplateConfig
+        ? { ...hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config), sections: localTemplateConfig.sections }
+        : hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config)
       const definitions = resolveEditorSections(
         templateConfig,
         hasSavedContent ? loaded.sectionConfig.order : [],
@@ -518,12 +518,9 @@ export function InvitationEditorLivePage() {
     }
   }
   const openFullPreview = () => {
-    if (!templateKey) return
-    sessionStorage.setItem(
-      `gmm-invitation-preview:${templateKey}`,
-      JSON.stringify({ data, palette, sectionConfig: { enabled, order } }),
-    )
-    window.open(previewPath, '_blank', 'noopener,noreferrer')
+    if (!templateKey || !activeWedding) return
+    const query = new URLSearchParams({ weddingId: activeWedding.id })
+    window.open(previewPath + (previewPath.includes("?") ? "&" : "?") + query.toString(), "_blank", "noopener,noreferrer")
   }
   const openMyInvitation = () => {
     if (!activeWedding?.slug) {

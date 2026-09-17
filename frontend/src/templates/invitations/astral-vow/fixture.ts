@@ -9,7 +9,7 @@ const demoCoupleMedia = {
 export const astralVowFixture: AstralVowData = {
   couple: { brideName: 'An Nhiên', groomName: 'Gia Huy' },
   event: { weddingDate: '18 · 10 · 2026', time: '17:30', venueName: 'Stellarium Event Hall', venueAddress: '88 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh', mapUrl: 'https://maps.google.com' },
-  opening: { title: 'Một lời hẹn dưới dải ngân hà', message: 'Chạm nhẹ để mở lá thư của chúng mình.' }, openingMediaBack: null, openingMediaFront: null,
+  opening: { title: 'Một lời hẹn dưới dải ngân hà', message: 'Chạm nhẹ để mở lá thư của chúng mình.' },
   cover: { eyebrow: 'Trân trọng kính mời', title: 'Gặp nhau dưới cùng một bầu trời', message: 'Khi hai vì sao chọn cùng một quỹ đạo.' }, heroMedia: null,
   invitation: { title: 'Kính mời {guestName} đến chung vui', message: 'Giữa muôn vàn vì tinh tú, sự hiện diện của {guestName} là ánh sáng quý giá trong ngày chúng mình nên duyên.' },
   invitationMemoryImage1: demoCoupleMedia.portrait, invitationMemoryImage2: demoCoupleMedia.gardenWalk, invitationMemoryImage3: demoCoupleMedia.moonGate,

@@ -26,7 +26,7 @@ describe('AstralVowInvitation', () => {
 
   it('honors optional section configuration while restoring invitation anchors', () => {
     const { container } = render(<AstralVowInvitation editorMode sectionConfig={{ enabled: ['gallery'], order: ['gallery'] }} />)
-    expect(container.querySelector('[data-editor-section="opening"]')).toBeInTheDocument()
+    expect(container.querySelector('.astral-opening-card')).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="footer"]')).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="gallery"]')).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="rsvp"]')).not.toBeInTheDocument()
@@ -34,19 +34,18 @@ describe('AstralVowInvitation', () => {
   })
 
   it('keeps essential invitation content usable when all user media is empty', () => {
-    render(<AstralVowInvitation editorMode data={{ ...astralVowFixture, heroMedia: null, openingMediaBack: null, openingMediaFront: null, galleryImages: [], giftQrMedia: null, footerMedia: null, invitationMemoryImage1: '', invitationMemoryImage2: '', invitationMemoryImage3: '' }} />)
+    render(<AstralVowInvitation editorMode data={{ ...astralVowFixture, heroMedia: null, galleryImages: [], giftQrMedia: null, footerMedia: null, invitationMemoryImage1: '', invitationMemoryImage2: '', invitationMemoryImage3: '' }} />)
     expect(screen.getByText('Hai gia đình trân trọng báo tin')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Stellarium Event Hall' })).toBeInTheDocument()
     expect(screen.getByText('Hẹn gặp bạn dưới cùng một bầu trời')).toBeInTheDocument()
   })
 
-  it('maps opening media to Astral Vow roles', () => {
+  it('does not expose editable media for the opening section', () => {
     const opening = astralVowTemplateConfig.sections.find((section) => typeof section !== 'string' && section.sectionKey === 'opening')
     if (!opening || typeof opening === 'string') throw new Error('Missing opening config')
     const fields = opening.fields as Record<string, TemplateFieldConfig>
-    expect(fields['openingMediaBack']).toMatchObject({ type: 'image', contentKey: 'openingMediaBack', mediaRole: 'opening-back' })
-    expect(fields['openingMediaFront']).toMatchObject({ type: 'image', contentKey: 'openingMediaFront', mediaRole: 'opening-front' })
-  })
+    expect(fields['openingMediaBack']).toBeUndefined()
+    expect(fields['openingMediaFront']).toBeUndefined()  })
 
   it('keeps section content visible when viewport-observer motion is unavailable', () => {
     const { container } = render(<AstralVowInvitation editorMode />)
