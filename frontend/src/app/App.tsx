@@ -44,6 +44,7 @@ import { ChibiDaydreamPreviewPage } from '../pages/public-invitation/ui/ChibiDay
 import { PeonyVerandaPreviewPage } from '../pages/public-invitation/ui/PeonyVerandaPreviewPage'
 import { RoseGardenPreviewPage } from '../pages/public-invitation/ui/RoseGardenPreviewPage'
 import { AstralVowPreviewPage } from '../pages/public-invitation/ui/AstralVowPreviewPage'
+import { VanHyPreviewPage } from '../pages/public-invitation/ui/VanHyPreviewPage'
 import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVowsPreviewPage'
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
@@ -137,6 +138,7 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.peonyVerandaPreview) return <PeonyVerandaPreviewPage />
   if (pathname === publicTemplateRoutes.roseGardenPreview) return <RoseGardenPreviewPage />
   if (pathname === publicTemplateRoutes.astralVowPreview) return <AstralVowPreviewPage />
+  if (pathname === publicTemplateRoutes.vanHyPreview) return <VanHyPreviewPage />
   if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
   if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
   if (pathname === publicTemplateRoutes.enchantedForestPreview)

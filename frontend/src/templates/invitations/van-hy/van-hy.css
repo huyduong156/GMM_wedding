@@ -1,0 +1,297 @@
+.hh-page {
+  --hh-red: #5b0b18;
+  --hh-red-dark: #35050e;
+  --hh-red-hot: #781326;
+  --hh-coral: #a43a46;
+  --hh-cream: #f7e8d5;
+  --hh-gold: #c59645;
+  position: relative;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--hh-cream);
+  background: var(--hh-red-dark);
+  font-family: var(--font-wedding-body);
+}
+
+.hh-page * { box-sizing: border-box; }
+
+.hh-page::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: '';
+  background:
+    radial-gradient(circle at 50% 18%, rgb(242 139 134 / 0.34), transparent 30%),
+    radial-gradient(circle at 8% 92%, rgb(227 66 69 / 0.32), transparent 28%),
+    linear-gradient(145deg, #35050e, #5b0b18 56%, #6d1021);
+}
+
+.hh-page::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: '';
+  opacity: 0.16;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(255 241 223 / 0.65) 0.7px, transparent 0.9px);
+  background-size: 14px 14px;
+  mix-blend-mode: screen;
+}
+
+.hh-atmosphere,
+.hh-atmosphere span {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hh-atmosphere { z-index: 0; inset: 0; overflow: hidden; }
+
+.hh-invitation-preview {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  align-content: center;
+  gap: 16px;
+  padding: 32px 24px;
+  color: var(--hh-cream);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 420ms ease, transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hh-invitation-preview h1 { margin: 0; font-family: var(--font-wedding-display); font-size: 42px; line-height: 0.92; }
+.hh-invitation-preview h1 em { color: var(--hh-gold); font-size: 0.72em; font-style: normal; }
+.hh-invitation-preview p { max-width: 270px; margin: 0; color: rgb(247 232 213 / 0.72); font-size: 12px; line-height: 1.7; }
+.hh-page.is-opening-complete .hh-invitation-preview { opacity: 1; transform: translateY(0); }
+
+.hh-atmosphere span {
+  top: calc(8% + (var(--hh-index) * 10%));
+  left: calc(7% + ((var(--hh-index) * 17%) % 86%));
+  color: var(--hh-coral);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(20px, 7vw, 34px);
+  opacity: 0.32;
+  transform: rotate(calc(-12deg + (var(--hh-index) * 5deg)));
+  animation: hh-float 10s ease-in-out calc(var(--hh-index) * -1.1s) infinite alternate;
+}
+
+.hh-atmosphere span:nth-child(3n) { color: var(--hh-gold); opacity: 0.22; font-size: 18px; }
+.hh-atmosphere span:nth-child(2n) { color: var(--hh-cream); opacity: 0.2; }
+
+.hh-opening {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  align-content: center;
+  gap: 24px;
+  padding: 32px 20px 48px;
+  text-align: center;
+  transition: opacity 360ms ease, visibility 360ms ease;
+}
+
+.hh-opening.is-opening { opacity: 0; visibility: hidden; }
+
+.hh-opening-stage {
+  width: min(78vw, 320px);
+  aspect-ratio: 2 / 3;
+  perspective: 1200px;
+}
+
+.hh-opening-card {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(240 184 75 / 0.62);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #5b0b18, #6d1021);
+  box-shadow: 0 28px 60px rgb(54 7 18 / 0.42), inset 0 0 0 8px rgb(255 241 223 / 0.06);
+  cursor: pointer;
+  outline: none;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 700ms ease;
+}
+
+.hh-opening-card::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgb(240 184 75 / 0.48);
+  border-radius: 10px;
+  content: '';
+  pointer-events: none;
+}
+
+.hh-opening-card:focus-visible { box-shadow: 0 0 0 3px var(--hh-cream), 0 28px 60px rgb(54 7 18 / 0.42); }
+.hh-opening-card.is-opened { transform: translateY(-4px) scale(0.98); }
+.hh-opening.is-opening .hh-opening-card { transform: translateY(-7vh) scale(0.94); opacity: 0; }
+
+.hh-card-front,
+.hh-card-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 28px;
+  transition: opacity 450ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hh-card-front { z-index: 2; }
+.hh-card-inner { z-index: 1; color: var(--hh-red-dark); background: var(--hh-cream); opacity: 0; transform: translateY(9%); }
+.hh-opening-card.is-opened .hh-card-front { opacity: 0; transform: translateY(-8%); }
+.hh-opening-card.is-opened .hh-card-inner { opacity: 1; transform: translateY(0); }
+
+.hh-seal {
+  display: grid;
+  width: 54px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--hh-gold);
+  border-radius: 12px;
+  color: var(--hh-gold);
+  font-family: var(--font-wedding-display);
+  font-size: 27px;
+  transform: rotate(-8deg);
+}
+
+.hh-eyebrow { color: var(--hh-gold); font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+.hh-card-inner .hh-eyebrow { color: var(--hh-red); }
+.hh-card-front h1 { margin: 4px 0; color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: clamp(38px, 12vw, 58px); font-weight: 600; letter-spacing: -0.07em; line-height: 0.88; }
+.hh-card-front h1 em { color: var(--hh-gold); font-size: 0.66em; font-style: normal; letter-spacing: -0.04em; }
+.hh-card-note { margin: 4px 0; color: rgb(255 241 223 / 0.72); font-size: 12px; }
+.hh-card-inner strong { max-width: 210px; color: var(--hh-red-dark); font-family: var(--font-wedding-display); font-size: 38px; line-height: 0.92; }
+.hh-card-inner > span:last-child { max-width: 190px; color: var(--hh-red-dark); font-size: 12px; line-height: 1.5; }
+
+.hh-open-button { min-height: 44px; margin-top: 8px; border: 1px solid var(--hh-gold); border-radius: 999px; padding: 10px 18px; color: var(--hh-cream); background: rgb(117 21 38 / 0.4); font: inherit; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; cursor: pointer; transition: transform 160ms ease, background-color 160ms ease; }
+.hh-open-button:hover { background: var(--hh-red-dark); transform: translateY(-2px); }
+.hh-open-button:active { transform: translateY(1px) scale(0.98); }
+.hh-open-button:disabled { cursor: default; opacity: 0.72; }
+
+.hh-flower { position: absolute; z-index: 3; width: 106px; height: 146px; pointer-events: none; transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease; }
+.hh-flower--left { left: -48px; bottom: 14%; transform: rotate(-18deg); }
+.hh-flower--right { right: -48px; top: 16%; transform: scaleX(-1) rotate(-18deg); }
+.hh-flower i { position: absolute; width: 62px; aspect-ratio: 1; border-radius: 58% 42% 62% 38%; background: var(--hh-red-hot); box-shadow: inset -8px -8px 0 rgb(117 21 38 / 0.18); }
+.hh-flower i:nth-child(1) { top: 28px; left: 24px; transform: rotate(12deg); }
+.hh-flower i:nth-child(2) { top: 58px; left: 2px; transform: rotate(-30deg) scale(0.82); background: var(--hh-coral); }
+.hh-flower i:nth-child(3) { top: 4px; left: 42px; transform: rotate(54deg) scale(0.66); background: var(--hh-red-hot); }
+.hh-flower b { position: absolute; right: 10px; bottom: 4px; color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 26px; transform: rotate(12deg); }
+.hh-opening-card.is-opened .hh-flower--left { transform: translateX(-32px) rotate(-26deg); opacity: 0.18; }
+.hh-opening-card.is-opened .hh-flower--right { transform: translateX(32px) scaleX(-1) rotate(-26deg); opacity: 0.18; }
+
+.hh-shell-note { margin: 0; color: rgb(255 241 223 / 0.56); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+@keyframes hh-float { from { translate: 0 7px; } to { translate: 8px -11px; } }
+
+@media (min-width: 481px) {
+  body { background: #42101d; }
+  .hh-page { box-shadow: 0 0 80px rgb(28 3 11 / 0.42); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-atmosphere span { animation: none; }
+  .hh-opening,
+  .hh-invitation-preview,
+  .hh-opening-card,
+  .hh-card-front,
+  .hh-card-inner,
+  .hh-flower { transition: none; }
+}
+
+/* Phase 3 section architecture: the skeleton stays renderer-owned and media-independent. */
+.hh-content { 
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100dvh;
+  opacity: 0;
+  transition: opacity 520ms ease;
+}
+.hh-content.has-reveal .hh-section { opacity: 0; transform: translateY(18px); transition: opacity 650ms ease-out, transform 750ms cubic-bezier(0.215, 0.61, 0.355, 1); }
+.hh-content.has-reveal .hh-section.is-visible { opacity: 1; transform: translateY(0); }
+.hh-page.is-opening-complete .hh-content { opacity: 1; }
+.hh-section {
+  position: relative;
+  display: grid;
+  min-height: min(86dvh, 700px);
+  align-content: center;
+  gap: 18px;
+  overflow: hidden;
+  padding: 76px 24px;
+  border-top: 1px solid rgb(247 232 213 / 0.12);
+  background: linear-gradient(160deg, rgb(91 11 24 / 0.96), rgb(53 5 14 / 0.98));
+  text-align: center;
+  isolation: isolate;
+}
+.hh-section::before { position: absolute; z-index: -1; inset: 18px; border: 1px solid rgb(197 150 69 / 0.18); content: ''; pointer-events: none; }
+.hh-section::after { position: absolute; z-index: -1; width: 180px; height: 180px; border-radius: 50%; background: rgb(164 58 70 / 0.2); filter: blur(28px); content: ''; pointer-events: none; }
+.hh-section:nth-child(odd)::after { top: 8%; right: -84px; }
+.hh-section:nth-child(even)::after { bottom: 8%; left: -84px; }
+.hh-section h2 { max-width: 360px; margin: 0 auto; color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: clamp(34px, 10vw, 58px); font-weight: 600; letter-spacing: -0.055em; line-height: 0.96; }
+.hh-section p { max-width: 330px; margin: 0 auto; color: rgb(247 232 213 / 0.74); font-size: 14px; line-height: 1.8; }
+.hh-section-kicker { color: var(--hh-coral) !important; font-size: 11px !important; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.hh-cover { min-height: 100dvh; border-top: 0; perspective: 900px; transform-style: preserve-3d; background: radial-gradient(circle at 50% 38%, rgb(120 19 38 / 0.72), transparent 35%), linear-gradient(145deg, #35050e, #5b0b18 55%, #781326); }
+.hh-cover h2 { transform: translateZ(24px); }
+.hh-cover .hh-date-lockup, .hh-cover .hh-eyebrow { transform: translateZ(12px); }
+.hh-approved-art { position: absolute; pointer-events: none; user-select: none; }
+.hh-opening-art-left, .hh-opening-art-right { z-index: 4; width: 42%; opacity: 0.84; mix-blend-mode: screen; }
+.hh-opening-art-left { bottom: -6%; left: -18%; transform: rotate(-10deg); }
+.hh-opening-art-right { top: -4%; right: -18%; transform: scaleX(-1) rotate(-10deg); }
+.hh-opening-card.is-opening .hh-approved-art { opacity: 0; transform: translateY(-24px) scale(0.94); transition: opacity 420ms ease-in, transform 650ms ease-in; }
+.hh-cover-fan { top: -10%; right: -22%; width: 78%; opacity: 0.18; transform: rotate(7deg); mix-blend-mode: screen; animation: hh-fan-breathe 10s ease-in-out infinite alternate; }
+.hh-cover h2 { font-size: clamp(48px, 15vw, 78px); }
+.hh-cover h2 i { color: var(--hh-gold); font-size: 0.52em; font-style: normal; }
+.hh-date-lockup { display: grid; gap: 8px; margin-top: 8px; }
+.hh-date-lockup strong { color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 28px; letter-spacing: 0.08em; }
+.hh-date-lockup span { color: rgb(247 232 213 / 0.64); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.hh-section-mark { margin: 12px auto 0; color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 52px; opacity: 0.76; }
+.hh-seal-line { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; color: var(--hh-gold); }
+.hh-seal-line span { font-family: var(--font-wedding-display); font-size: 32px; }
+.hh-seal-line i { width: 84px; height: 1px; background: var(--hh-gold); opacity: 0.7; }
+.hh-memory-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 360px; margin: 10px auto 0; }
+.hh-memory-grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border: 1px solid rgb(197 150 69 / 0.36); }
+.hh-family-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 390px; margin: 10px auto 0; }
+.hh-family-grid article, .hh-detail-card { display: grid; gap: 10px; padding: 22px 16px; border: 1px solid rgb(197 150 69 / 0.46); background: rgb(53 5 14 / 0.52); }
+.hh-family-grid span, .hh-detail-card time { color: var(--hh-gold); font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.hh-family-grid strong, .hh-detail-card strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 23px; line-height: 1; }
+.hh-family-grid small, .hh-detail-card span { color: rgb(247 232 213 / 0.62); font-size: 12px; line-height: 1.5; }
+.hh-countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 400px; margin: 12px auto 0; }
+.hh-countdown-grid div { display: grid; gap: 8px; padding: 16px 4px; border-top: 1px solid var(--hh-gold); border-bottom: 1px solid rgb(197 150 69 / 0.36); }
+.hh-countdown-grid strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 30px; }
+.hh-countdown-grid span { color: var(--hh-gold); font-size: 10px; text-transform: uppercase; }
+.hh-detail-card { width: 100%; max-width: 360px; margin: 10px auto 0; }
+.hh-detail-card a { display: inline-grid; min-height: 44px; place-items: center; margin-top: 4px; border: 1px solid var(--hh-gold); color: var(--hh-cream); font-size: 12px; text-decoration: none; }
+.hh-timeline { display: grid; width: 100%; max-width: 390px; margin: 12px auto 0; text-align: left; }
+.hh-timeline article { display: grid; grid-template-columns: 70px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid rgb(247 232 213 / 0.13); }
+.hh-timeline time { color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 24px; }
+.hh-timeline strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 23px; }
+.hh-timeline p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
+.hh-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 390px; margin: 12px auto 0; }
+.hh-gallery-grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border: 1px solid rgb(197 150 69 / 0.36); }
+.hh-empty { width: 100%; max-width: 340px; margin: 10px auto 0; padding: 22px 16px; border: 1px dashed rgb(197 150 69 / 0.45); color: rgb(247 232 213 / 0.62); font-size: 12px; line-height: 1.6; }
+.hh-actions { display: grid; gap: 10px; width: 100%; max-width: 330px; margin: 10px auto 0; }
+.hh-actions button, .hh-text-button { min-height: 46px; border: 1px solid var(--hh-gold); padding: 10px 16px; color: var(--hh-cream); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+.hh-actions button.is-selected, .hh-text-button:hover { background: var(--hh-red-hot); }
+.hh-actions button:focus-visible, .hh-text-button:focus-visible, .hh-detail-card a:focus-visible { outline: 2px solid var(--hh-cream); outline-offset: 3px; }
+.hh-page .music-player { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; }
+.hh-page .music-player button { border-color: var(--hh-gold); color: var(--hh-cream); background: var(--hh-red); box-shadow: 0 12px 28px rgb(24 2 8 / 0.34), 0 0 0 4px rgb(247 232 213 / 0.18); }
+.hh-page .music-player button:hover { background: var(--hh-red-hot); box-shadow: 0 16px 34px rgb(24 2 8 / 0.42), 0 0 0 5px rgb(247 232 213 / 0.24); }
+.hh-page .music-player button:focus-visible { outline-color: var(--hh-cream); }
+.hh-page .music-player button:disabled { color: rgb(247 232 213 / 0.64); background: var(--hh-red-dark); }
+.hh-page .music-player-disc { border-color: rgb(247 232 213 / 0.58); background: radial-gradient(circle, var(--hh-cream) 0 18%, var(--hh-coral) 19% 30%, var(--hh-cream) 31% 35%, var(--hh-red-hot) 36% 58%, var(--hh-red-dark) 59%); }
+.hh-page .music-player-state { color: var(--hh-red); border-color: var(--hh-cream); background: var(--hh-cream); }
+.hh-status { color: var(--hh-gold); font-size: 12px; }
+.hh-section textarea { width: 100%; max-width: 340px; min-height: 110px; margin: 8px auto 0; border: 1px solid rgb(197 150 69 / 0.55); padding: 14px; color: var(--hh-cream); background: rgb(53 5 14 / 0.62); font: inherit; font-size: 13px; resize: vertical; }
+.hh-footer { min-height: 70dvh; background: linear-gradient(160deg, #781326, #35050e); }
+@media (min-width: 481px) { .hh-content { max-width: 480px; margin-inline: auto; } }
+@keyframes hh-fan-breathe { from { transform: rotate(7deg) translate3d(0, 0, 0); } to { transform: rotate(10deg) translate3d(-5px, 8px, 0); } }
+@media (prefers-reduced-motion: reduce) { .hh-content, .hh-content.has-reveal .hh-section, .hh-approved-art, .hh-cover-fan { transition: none; animation: none; transform: none; } .hh-content.has-reveal .hh-section { opacity: 1; } }
