@@ -40,6 +40,7 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import type { ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { getInvitationTemplate } from '../../../templates/template-registry'
+import { resolveInvitationTemplateConfig } from '../../../templates/invitation-config-resolver'
 import {
   resolveEditorSections,
   validateSchemaContent,
@@ -62,39 +63,6 @@ const readQuickEdit = (config: Record<string, unknown> | null | undefined): Quic
         ),
       )
     : []
-const hydrateTemplateConfig = (templateKey: string, config: Record<string, unknown>) => {
-  const fallback = getInvitationTemplate(templateKey)?.config as Record<string, unknown> | undefined
-  if (!fallback) return config
-  const fallbackSections = Array.isArray(fallback.sections) ? fallback.sections : []
-  const configSections = Array.isArray(config.sections) ? config.sections : []
-  if (!configSections.length) return { ...fallback, ...config, sections: fallback.sections }
-  const sections = fallbackSections.map((fallbackSection) => {
-    if (!fallbackSection || typeof fallbackSection !== 'object') return fallbackSection
-    const fallbackRecord = fallbackSection as Record<string, any>
-    const configSection = configSections.find(
-      (item) =>
-        item &&
-        typeof item === 'object' &&
-        (item as Record<string, unknown>).sectionKey === fallbackRecord.sectionKey,
-    ) as Record<string, any> | undefined
-    if (!configSection) return fallbackSection
-    const fallbackFields = fallbackRecord.fields ?? {}
-    const configFields = configSection.fields ?? {}
-    const fields = Object.fromEntries(
-      Object.entries(fallbackFields).map(([key, field]) => [
-        key,
-        { ...((field ?? {}) as Record<string, unknown>), ...(configFields[key] ?? {}) },
-      ]),
-    )
-    return { ...fallbackRecord, ...configSection, fields: { ...fields, ...configFields } }
-  })
-  return {
-    ...fallback,
-    ...config,
-    previewPath: fallback.previewPath,
-    sections: sections.length ? sections : configSections,
-  }
-}
 export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
   const pinned = new Set(pinnedKeys)
   const storedReorderable = [
@@ -244,10 +212,10 @@ export function InvitationEditorLivePage() {
       const hasSavedContent = Object.keys(stored).length > 0
       const storedPalette =
         typeof loaded.themeConfig.palette === 'string' ? loaded.themeConfig.palette : undefined
-      const localTemplateConfig = getInvitationTemplate(loaded.templateVersion.key)?.config as Record<string, unknown> | undefined
-      const templateConfig = loaded.templateVersion.key === 'astral-vow' && localTemplateConfig
-        ? { ...hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config), sections: localTemplateConfig.sections }
-        : hydrateTemplateConfig(loaded.templateVersion.key, loaded.templateVersion.config)
+      const templateConfig = resolveInvitationTemplateConfig(
+        loaded.templateVersion.key,
+        loaded.templateVersion.config,
+      )
       const definitions = resolveEditorSections(
         templateConfig,
         hasSavedContent ? loaded.sectionConfig.order : [],
@@ -518,9 +486,8 @@ export function InvitationEditorLivePage() {
     }
   }
   const openFullPreview = () => {
-    if (!templateKey || !activeWedding) return
-    const query = new URLSearchParams({ weddingId: activeWedding.id })
-    window.open(previewPath + (previewPath.includes("?") ? "&" : "?") + query.toString(), "_blank", "noopener,noreferrer")
+    if (!previewPath) return
+    window.open(previewPath, "_blank", "noopener,noreferrer")
   }
   const openMyInvitation = () => {
     if (!activeWedding?.slug) {
