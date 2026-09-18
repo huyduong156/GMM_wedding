@@ -1,0 +1,49 @@
+.astral-opening-card { position: fixed; z-index: 30; inset: 0; display: grid; place-items: center; overflow: hidden; background: #000; color: #f7f2e8; }
+.astral-opening-card__wash, .astral-opening-card__stars, .astral-opening-card__particles { position: absolute; inset: 0; pointer-events: none; }
+.astral-opening-card__wash { background: #000; }
+.astral-opening-card__stars { z-index: 1; overflow: hidden; }
+.astral-opening-card__stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #e6efff; opacity: 0; animation: astral-opening-twinkle 8s ease-in-out infinite; }
+.astral-opening-card__stars i:nth-child(3n) { width: 3px; height: 3px; background: #fff7dc; box-shadow: 0 0 9px 2px rgb(231 199 119 / 52%); }
+.astral-opening-card__stars i:nth-child(4n) { animation-duration: 15s; }
+.astral-opening-card__stars i:nth-child(1) { --index: 1; } .astral-opening-card__stars i:nth-child(2) { --index: 2; } .astral-opening-card__stars i:nth-child(3) { --index: 3; } .astral-opening-card__stars i:nth-child(4) { --index: 4; } .astral-opening-card__stars i:nth-child(5) { --index: 5; } .astral-opening-card__stars i:nth-child(6) { --index: 6; } .astral-opening-card__stars i:nth-child(7) { --index: 7; } .astral-opening-card__stars i:nth-child(8) { --index: 8; } .astral-opening-card__stars i:nth-child(9) { --index: 9; } .astral-opening-card__stars i:nth-child(10) { --index: 10; } .astral-opening-card__stars i:nth-child(11) { --index: 11; } .astral-opening-card__stars i:nth-child(12) { --index: 12; } .astral-opening-card__stars i:nth-child(13) { --index: 13; } .astral-opening-card__stars i:nth-child(14) { --index: 14; } .astral-opening-card__stars i:nth-child(15) { --index: 15; } .astral-opening-card__stars i:nth-child(16) { --index: 16; } .astral-opening-card__stars i:nth-child(17) { --index: 17; } .astral-opening-card__stars i:nth-child(18) { --index: 18; }
+.astral-opening-card__opening-meteor-rain i::before { position: absolute; left: 50%; top: 50%; width: var(--meteor-tail, 44px); height: 1px; border-radius: 999px; background: linear-gradient(90deg, rgb(255 255 255 / 96%), rgb(231 199 119 / 74%) 24%, rgb(231 199 119 / 32%) 62%, transparent); content: ''; transform: translateY(-50%) rotate(var(--meteor-tail-angle, -35deg)); transform-origin: left center; }
+.astral-opening-card__opening-meteor-rain { position: absolute; z-index: 6; inset: 0; overflow: hidden; contain: strict; pointer-events: none; opacity: 0; }
+.astral-opening-card__opening-meteor-rain i { position: absolute; width: var(--meteor-size); height: var(--meteor-size); border-radius: 50%; opacity: 0; background: radial-gradient(circle, #fff 0 35%, #e7c777 58%, transparent 76%); will-change: transform, opacity; }
+.astral-opening-card__opening-meteor-rain i::before { height: 1px; box-shadow: none; }
+.astral-opening-card__blackout { position: absolute; z-index: 40; left: 50%; top: 50%; width: 24px; aspect-ratio: 1; border-radius: 50%; background: #000; box-shadow: 0 0 0 2px #000, 0 0 42px 18px #000; opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(0); will-change: transform, opacity; }
+.astral-opening-card__particles { z-index: 1; overflow: hidden; }
+.astral-opening-card__particles i { position: absolute; bottom: -10%; width: 3px; aspect-ratio: 1; border-radius: 50%; background: #d6deef; opacity: 0; animation: astral-opening-particle 10s ease-in-out infinite; }
+.astral-opening-card__shell { position: relative; z-index: 2; width: min(88vw, calc(68vh * 1.5), 780px); aspect-ratio: 3 / 2; perspective: 1200px; }
+.astral-opening-card__card { position: relative; display: grid; place-items: center; width: 100%; height: 100%; overflow: hidden; border: 1px solid rgb(231 199 119 / 45%); border-radius: 24px; background: #000; box-shadow: inset 0 0 42px 8px rgb(255 255 255 / 13%), inset 0 0 3px rgb(255 255 255 / 35%), 0 30px 80px rgb(0 0 0 / 70%); cursor: pointer; outline: none; will-change: transform, opacity; }
+.astral-opening-card__card::after { position: absolute; inset: 0; opacity: .12; background-image: radial-gradient(rgb(255 255 255 / 35%) .65px, transparent .8px); background-size: 9px 9px; content: ''; pointer-events: none; mix-blend-mode: screen; }
+.astral-opening-card__content { position: relative; z-index: 3; display: grid; justify-items: center; width: 68%; max-width: 360px; text-align: center; }
+.astral-opening-card__seal { display: grid; place-items: center; width: clamp(38px, 5vw, 58px); aspect-ratio: 1; border: 1px solid rgb(231 199 119 / 72%); border-radius: 50%; color: #e7c777; animation: astral-opening-pulse 2.78s ease-in-out infinite; }
+.astral-opening-card__eyebrow, .astral-opening-card__date { color: #e7c777; font-size: clamp(8px, 1.1vw, 11px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.astral-opening-card h1 { display: grid; gap: 2px; margin: 13px 0 10px; color: #f7f2e8; font-family: var(--font-wedding-display, Georgia, serif); font-size: clamp(28px, 5vw, 62px); font-weight: 400; letter-spacing: -.065em; line-height: .9; }
+.astral-opening-card h1 em { color: #e7c777; font-family: var(--font-wedding-script, cursive); font-size: .76em; font-style: normal; line-height: .66; }
+.astral-opening-card__date, .astral-opening-card__venue, .astral-opening-card__note { margin: 3px 0 0; line-height: 1.45; }
+.astral-opening-card__venue, .astral-opening-card__note { color: #d6deef; font-size: clamp(9px, 1.2vw, 12px); }
+.astral-opening-card__open { position: relative; z-index: 4; isolation: isolate; overflow: hidden; margin-top: clamp(14px, 2.4vw, 26px); border: 1px solid rgb(231 199 119 / 72%); border-radius: 999px; padding: 11px 23px 10px; color: #f7f2e8; background: rgb(0 0 0 / 72%); box-shadow: 0 0 0 1px rgb(231 199 119 / 12%), 0 0 18px rgb(231 199 119 / 12%), inset 0 0 14px rgb(231 199 119 / 8%); font: inherit; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; cursor: pointer; transition: color 420ms ease, border-color 420ms ease, box-shadow 420ms ease, transform 420ms cubic-bezier(.22, 1, .36, 1); }
+.astral-opening-card__open::before { position: absolute; z-index: -1; inset: 0; content: ''; background: linear-gradient(105deg, transparent 20%, rgb(255 255 255 / 22%) 45%, transparent 70%); transform: translateX(-135%); transition: transform 850ms cubic-bezier(.22, 1, .36, 1); }
+.astral-opening-card__open::after { position: absolute; inset: 3px; border: 1px solid rgb(255 255 255 / 18%); border-radius: inherit; content: ''; pointer-events: none; }
+.astral-opening-card__open:hover { border-color: #f3d98e; color: #fff9e9; box-shadow: 0 0 0 1px rgb(231 199 119 / 25%), 0 0 28px rgb(231 199 119 / 25%), inset 0 0 18px rgb(231 199 119 / 13%); transform: translateY(-2px); }
+.astral-opening-card__open:hover::before { transform: translateX(135%); }
+.astral-opening-card__open:focus-visible { outline: 2px solid #f3d98e; outline-offset: 5px; }
+.astral-opening-card__open:disabled { cursor: not-allowed; opacity: .68; }
+.astral-opening-card__decoration { position: absolute; z-index: 3; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 14px rgb(214 230 255 / 28%)) drop-shadow(0 18px 24px rgb(0 0 0 / 62%)); mix-blend-mode: screen; }
+.astral-opening-card__decoration--left { left: -21%; transform: rotate(4deg); width: 50%; height: 116%; }
+.astral-opening-card__decoration--right { left: 70%; top: -15%; transform: scaleX(-1) rotate(0deg); width: 60%; height: 125%; }
+.astral-opening-card.is-opening .astral-opening-card__opening-meteor-rain { opacity: 1; }
+.astral-opening-card.is-opening .astral-opening-card__stars, .astral-opening-card.is-opening .falling-stars, .astral-opening-card.is-opening .astral-opening-card__particles { visibility: hidden; }
+.astral-opening-card.is-opening .astral-opening-card__opening-meteor-rain i { animation: astral-opening-meteor-flight var(--meteor-duration) linear var(--meteor-delay) both, astral-opening-meteor-opacity var(--meteor-duration) ease-in-out var(--meteor-delay) both; }
+.astral-opening-card.is-opening .astral-opening-card__blackout { animation: astral-opening-blackout 1200ms cubic-bezier(.76, 0, .24, 1) 1000ms forwards; }
+@keyframes astral-opening-card-exit { to { transform: translateY(-8vh) scale(.98); } }
+@keyframes astral-opening-left { to { transform: translateX(-26vw) rotate(-18deg); opacity: 0; } }
+@keyframes astral-opening-right { to { transform: translateX(26vw) scaleX(-1) rotate(-15deg); opacity: 0; } }
+@keyframes astral-opening-meteor-flight { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--meteor-x), var(--meteor-y), 0); } }
+@keyframes astral-opening-meteor-opacity { 0%, 7% { opacity: 0; } 15%, 88% { opacity: .95; } 100% { opacity: 0; } }
+@keyframes astral-opening-blackout { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0); } 8% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 45% { opacity: 1; transform: translate(-50%, -50%) scale(72); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(72); } }
+@keyframes astral-opening-pulse { 50% { box-shadow: 0 0 0 9px rgb(231 199 119 / 0); } }
+@keyframes astral-opening-particle { 15%, 75% { opacity: .22; } 100% { transform: translateY(-110vh); opacity: 0; } }
+@keyframes astral-opening-twinkle { 0%, 35%, 100% { opacity: .08; transform: scale(.7); } 43% { opacity: .72; transform: scale(1.25); } 49% { opacity: .12; transform: scale(.8); } 56% { opacity: .52; transform: scale(1); } }
+@media (max-width: 480px) { .astral-opening-card__decoration--left { left: -21%; width: 50%; height: 116%; } .astral-opening-card__decoration--right { left: 70%; top: -15%; width: 60%; height: 125%; } }

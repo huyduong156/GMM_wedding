@@ -28,6 +28,7 @@ import {
   type RoseGardenData,
   type RoseGardenSectionConfig,
 } from '../../../templates/invitations/rose-garden/RoseGardenInvitation'
+import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } from '../../../templates/invitations/astral-vow/AstralVowInvitation'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -196,6 +197,15 @@ function InvitationSnapshot({
         <RoseGardenInvitation
           data={content as RoseGardenData}
           sectionConfig={sectionConfig as RoseGardenSectionConfig | undefined}
+          guestName={guestName}
+          interactions={interactions}
+        />
+      )
+    case 'astral-vow':
+      return (
+        <AstralVowInvitation
+          data={content as AstralVowData}
+          sectionConfig={sectionConfig as AstralVowSectionConfig | undefined}
           guestName={guestName}
           interactions={interactions}
         />

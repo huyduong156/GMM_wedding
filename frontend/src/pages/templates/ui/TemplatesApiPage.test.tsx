@@ -82,6 +82,8 @@ describe('TemplatesApiPage', () => {
           value={{
             weddings: [wedding],
             activeWedding: wedding,
+            activeRole: 'OWNER',
+            rolesByWedding: { [wedding.id]: 'OWNER' },
             loading: false,
             error: null,
             selectWedding: vi.fn(),
@@ -111,7 +113,38 @@ describe('TemplatesApiPage', () => {
       wedding.id,
       expect.objectContaining({
         themeConfig: { palette: 'sage', customSetting: true },
-        sectionConfig: { enabled: ['invitation'], order: ['invitation', 'cover'] },
+        sectionConfig: {
+          enabled: expect.arrayContaining([
+            'opening',
+            'cover',
+            'invitation',
+            'families',
+            'countdown',
+            'timeline',
+            'venue',
+            'gallery',
+            'rsvp',
+            'guestbook',
+            'gift',
+            'music',
+            'footer',
+          ]),
+          order: expect.arrayContaining([
+            'opening',
+            'cover',
+            'invitation',
+            'families',
+            'countdown',
+            'timeline',
+            'venue',
+            'gallery',
+            'rsvp',
+            'guestbook',
+            'gift',
+            'music',
+            'footer',
+          ]),
+        },
       }),
     )
     expect(await screen.findByText('Đã chọn giao diện Élan d’Amour.')).toBeInTheDocument()
@@ -145,6 +178,8 @@ describe('TemplatesApiPage', () => {
           value={{
             weddings: [wedding],
             activeWedding: wedding,
+            activeRole: 'OWNER',
+            rolesByWedding: { [wedding.id]: 'OWNER' },
             loading: false,
             error: null,
             selectWedding: vi.fn(),

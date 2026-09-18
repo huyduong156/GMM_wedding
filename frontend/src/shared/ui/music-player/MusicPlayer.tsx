@@ -1,5 +1,5 @@
 import { MusicNote, Pause, Play } from '@phosphor-icons/react'
-import { useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import './music-player.css'
 
 export type MusicPlayerVariant = 'rotating-fab'
@@ -14,7 +14,11 @@ export type MusicPlayerProps = {
   sectionKey?: string | null
 }
 
-export function MusicPlayer({
+export type MusicPlayerHandle = {
+  play: () => Promise<boolean>
+}
+
+export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(function MusicPlayer({
   src,
   title = 'Nhạc nền',
   autoplay = false,
@@ -22,10 +26,25 @@ export function MusicPlayer({
   editorMode = false,
   variant = 'rotating-fab',
   sectionKey = 'music',
-}: MusicPlayerProps) {
+}: MusicPlayerProps, ref) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
   const available = Boolean(src)
+
+  const playAudio = async () => {
+    const audio = audioRef.current
+    if (!audio || !available) return false
+    try {
+      await audio.play()
+      setPlaying(true)
+      return true
+    } catch {
+      setPlaying(false)
+      return false
+    }
+  }
+
+  useImperativeHandle(ref, () => ({ play: playAudio }), [available])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -33,20 +52,14 @@ export function MusicPlayer({
     audio.load()
     setPlaying(false)
     if (!active || editorMode || !autoplay || !src) return
-    void audio
-      .play()
-      .then(() => setPlaying(true))
-      .catch(() => setPlaying(false))
+    void playAudio()
   }, [active, autoplay, editorMode, src])
 
   const toggle = async () => {
     const audio = audioRef.current
     if (!audio || !available) return
     if (audio.paused) {
-      await audio
-        .play()
-        .then(() => setPlaying(true))
-        .catch(() => setPlaying(false))
+      await playAudio()
     } else {
       audio.pause()
       setPlaying(false)
@@ -102,4 +115,4 @@ export function MusicPlayer({
       </button>
     </div>
   )
-}
+})

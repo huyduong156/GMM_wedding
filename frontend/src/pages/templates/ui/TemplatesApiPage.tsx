@@ -23,7 +23,7 @@ import {
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
-import { getInvitationTemplate } from '../../../templates/template-registry'
+import { resolveInvitationTemplateSections } from '../../../templates/invitation-config-resolver'
 
 type Theme = {
   key: string
@@ -44,26 +44,31 @@ const previewPaths: Record<string, string> = {
   'verdant-promise': publicTemplateRoutes.verdantPromisePreview,
   'chibi-daydream': publicTemplateRoutes.chibiDaydreamPreview,
   'peony-veranda': publicTemplateRoutes.peonyVerandaPreview,
+  'astral-vow': publicTemplateRoutes.astralVowPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
   'verdant-promise': { style: 'Lãng mạn', palette: 'Vườn xanh & ivory' },
   'chibi-daydream': { style: 'Lãng mạn', palette: 'Coral & powder blue' },
   'peony-veranda': { style: 'Botanical editorial', palette: 'Peony & veranda ivory' },
+  'astral-vow': { style: 'Celestial editorial', palette: 'Midnight nebula & gold' },
 }
 const localNames: Record<string, string> = {
   'modern-luxe': 'Élan d’Amour',
   'verdant-promise': 'Verdant Promise',
   'chibi-daydream': 'Mây Hồng Có Đôi',
   'peony-veranda': 'Peony Veranda',
+  'astral-vow': 'Astral Vow',
 }
 
 function toTheme(template: WeddingTemplate): Theme | null {
   const version = template.versions.find((item) => !item.deprecatedAt) ?? template.versions[0]
   if (!version) return null
   const meta = localMeta[template.key]
-  const localConfig =
-    template.key === 'peony-veranda' ? getInvitationTemplate(template.key)?.config : undefined
+  const sections =
+    template.productType === 'ONLINE_INVITATION'
+      ? resolveInvitationTemplateSections(template.key, version.config)
+      : version.config.sections ?? []
   return {
     key: template.key,
     versionId: version.id,
@@ -80,7 +85,7 @@ function toTheme(template: WeddingTemplate): Theme | null {
       typeof version.config.palette === 'string'
         ? version.config.palette
         : (meta?.palette ?? 'Theo cấu hình mẫu'),
-    sections: localConfig ? [...localConfig.sections] : (version.config.sections ?? []),
+    sections,
     previewPath: previewPaths[template.key],
   }
 }
@@ -198,11 +203,12 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     const selected = content?.templateVersion
     if (!selected || themes.some((theme) => theme.versionId === selected.id)) return null
     const meta = localMeta[selected.key]
-    const localConfig =
-      selected.key === 'peony-veranda' ? getInvitationTemplate(selected.key)?.config : undefined
-    const sections = Array.isArray(selected.config.sections)
-      ? (selected.config.sections as TemplateSectionConfig[])
-      : []
+    const sections =
+      kind === 'invitation'
+        ? resolveInvitationTemplateSections(selected.key, selected.config)
+        : Array.isArray(selected.config.sections)
+          ? (selected.config.sections as TemplateSectionConfig[])
+          : []
     return {
       key: selected.key,
       versionId: selected.id,
@@ -213,7 +219,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       style: meta?.style ?? 'Theo cấu hình mẫu',
       styles: [],
       palette: meta?.palette ?? 'Theo cấu hình mẫu',
-      sections: localConfig ? [...localConfig.sections] : sections,
+      sections,
       previewPath: previewPaths[selected.key],
       unavailable: true,
     }

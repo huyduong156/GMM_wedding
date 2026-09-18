@@ -1,2 +1,2 @@
 export { MusicPlayer } from './MusicPlayer'
-export type { MusicPlayerProps, MusicPlayerVariant } from './MusicPlayer'
+export type { MusicPlayerHandle, MusicPlayerProps, MusicPlayerVariant } from './MusicPlayer'
