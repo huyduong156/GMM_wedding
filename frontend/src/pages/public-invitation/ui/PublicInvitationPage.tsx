@@ -29,6 +29,7 @@ import {
   type RoseGardenSectionConfig,
 } from '../../../templates/invitations/rose-garden/RoseGardenInvitation'
 import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } from '../../../templates/invitations/astral-vow/AstralVowInvitation'
+import { VanHyInvitation, type VanHyData, type VanHySectionConfig } from '../../../templates/invitations/van-hy/VanHyInvitation'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -197,6 +198,15 @@ function InvitationSnapshot({
         <RoseGardenInvitation
           data={content as RoseGardenData}
           sectionConfig={sectionConfig as RoseGardenSectionConfig | undefined}
+          guestName={guestName}
+          interactions={interactions}
+        />
+      )
+    case 'van-hy':
+      return (
+        <VanHyInvitation
+          data={content as VanHyData}
+          sectionConfig={sectionConfig as VanHySectionConfig | undefined}
           guestName={guestName}
           interactions={interactions}
         />

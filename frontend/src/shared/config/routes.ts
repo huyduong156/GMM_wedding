@@ -63,6 +63,7 @@ export const publicTemplateRoutes = {
   peonyVerandaPreview: '/templates/invitations/peony-veranda/preview',
   roseGardenPreview: '/templates/invitations/rose-garden/preview',
   astralVowPreview: '/templates/invitations/astral-vow/preview',
+  vanHyPreview: '/templates/invitations/van-hy/preview',
   editorialVowsPreview: '/templates/websites/editorial-vows/preview',
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
