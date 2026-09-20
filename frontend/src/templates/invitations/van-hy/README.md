@@ -18,8 +18,8 @@ Gen Z Vietnamese wedding invitation with a dark burgundy-red Hỷ Sự direction
 | Display font | Phudu GMM |
 | Body font | Be Vietnam Pro GMM |
 | Accent font | Tapestry GMM, short decorative use only |
-| Section contract | 13 sections, matching Astral Vows |
-| Current phase | Phase 4 — core motion and interaction system implemented; visual review pending |
+| Section contract | 11 sections, matching the current editor config |
+| Current phase | Phase 5 — artwork integrated; public/editor release audit |
 
 ## Visual direction
 
@@ -33,19 +33,17 @@ The opening signature is a full-screen red opening scene with a centered Hỷ ca
 - A click, Enter or Space interaction to open the card.
 - A static reduced-motion fallback.
 
-## Phase 0 scope
+## Current preview scope
 
-The current preview contains only the spatial shell and opening-card prototype. It intentionally does not include the final 13 invitation sections, user media, backend content, final artwork or `template-config.ts`.
-
-Phase 0 must be reviewed at 375px, 390px, 480px, 768px and 1440px before Phase 1 begins. The invitation must not create horizontal overflow; at widths above 480px, the extra gutter is non-essential atmosphere only.
+The preview mounts the complete Vạn Hỷ renderer, including the opening scene, all configured sections, editor live-preview bridge, user content/media fallbacks and public interaction flows. The invitation remains capped at 480px and must not create horizontal overflow; at widths above 480px, the extra gutter is non-essential atmosphere only.
 
 ## Section contract
 
-The final template will use the same 13-section structure as Astral Vows:
+The current template uses this 11-section structure:
 
-`opening → cover → invitation → families → countdown → venue → timeline → gallery → rsvp → guestbook → gift → music → footer`
+`opening → cover → families → countdown → timeline → gallery → rsvp → guestbook → gift → music → footer`
 
-Required sections: `opening`, `cover`, `invitation`, `families`, `footer`.
+Required sections: `opening`, `cover`, `families`, `footer`.
 
 Optional sections: `countdown`, `venue`, `timeline`, `gallery`, `rsvp`, `guestbook`, `gift`, `music`.
 

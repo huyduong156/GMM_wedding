@@ -4,12 +4,12 @@ All files below are renderer-owned candidates for Phase 2.5. They are not user m
 
 | Filename | Role | Source | License / provenance | Integration |
 | --- | --- | --- | --- | --- |
-| `vh-opening-flower-left-v1.png` | Left opening floral cluster | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
-| `vh-opening-flower-right-v1.png` | Right opening floral cluster | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
-| `vh-celebration-divider-v1.png` | Wide celebration divider / burst | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
-| `vh-lucky-envelope-v1.png` | Red lì xì accent | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
-| `vh-paper-fan-v1.png` | Red paper fan accent | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
-| `vh-double-happiness-v1.png` | `囍` paper-cut / embossed motif | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Pending owner approval |
+| `vh-opening-flower-left-v1.png` | Left opening floral cluster | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
+| `vh-opening-flower-right-v1.png` | Right opening floral cluster | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
+| `vh-celebration-divider-v1.png` | Wide celebration divider / burst | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
+| `vh-lucky-envelope-v1.png` | Red lì xì accent | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
+| `vh-paper-fan-v1.png` | Red paper fan accent | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
+| `vh-double-happiness-v1.png` | `囍` paper-cut / embossed motif | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Approved for integration |
 | `vh-paper-fan-v2.png` | Flat open Chinese paper fan with floral pattern | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Preferred candidate; pending owner approval |
 | `vh-double-happiness-v2.png` | Flat floral paper-cut `囍` motif | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Preferred candidate; pending owner approval |
 | `vh-paper-fan-v3.png` | Restrained flat open Chinese fan with minimal flower accent | Generated with built-in `image_gen` on 2026-09-18 | OpenAI-generated project artwork; no external source image supplied | Preferred candidate; pending owner approval |

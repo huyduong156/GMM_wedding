@@ -16,7 +16,9 @@
   font-family: var(--font-wedding-body);
 }
 
-.hh-page * { box-sizing: border-box; }
+.hh-page * {
+  box-sizing: border-box;
+}
 
 .hh-page::before {
   position: absolute;
@@ -47,7 +49,11 @@
   pointer-events: none;
 }
 
-.hh-atmosphere { z-index: 0; inset: 0; overflow: hidden; }
+.hh-atmosphere {
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+}
 
 .hh-invitation-preview {
   display: grid;
@@ -63,14 +69,35 @@
   transition: opacity 420ms ease, transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hh-invitation-preview h1 { margin: 0; font-family: var(--font-wedding-display); font-size: 42px; line-height: 0.92; }
-.hh-invitation-preview h1 em { color: var(--hh-gold); font-size: 0.72em; font-style: normal; }
-.hh-invitation-preview p { max-width: 270px; margin: 0; color: rgb(247 232 213 / 0.72); font-size: 12px; line-height: 1.7; }
-.hh-page.is-opening-complete .hh-invitation-preview { opacity: 1; transform: translateY(0); }
+.hh-invitation-preview h1 {
+  margin: 0;
+  font-family: var(--font-wedding-display);
+  font-size: 42px;
+  line-height: 0.92;
+}
+
+.hh-invitation-preview h1 em {
+  color: var(--hh-gold);
+  font-size: 0.72em;
+  font-style: normal;
+}
+
+.hh-invitation-preview p {
+  max-width: 270px;
+  margin: 0;
+  color: rgb(247 232 213 / 0.72);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.hh-page.is-opening-complete .hh-invitation-preview {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 .hh-atmosphere span {
   top: calc(8% + (var(--hh-index) * 10%));
-  left: calc(7% + ((var(--hh-index) * 17%) % 86%));
+  left: calc(7% + ((var(--hh-index) * 17%) / 86%));
   color: var(--hh-coral);
   font-family: var(--font-wedding-display);
   font-size: clamp(20px, 7vw, 34px);
@@ -79,8 +106,16 @@
   animation: hh-float 10s ease-in-out calc(var(--hh-index) * -1.1s) infinite alternate;
 }
 
-.hh-atmosphere span:nth-child(3n) { color: var(--hh-gold); opacity: 0.22; font-size: 18px; }
-.hh-atmosphere span:nth-child(2n) { color: var(--hh-cream); opacity: 0.2; }
+.hh-atmosphere span:nth-child(3n) {
+  color: var(--hh-gold);
+  opacity: 0.22;
+  font-size: 18px;
+}
+
+.hh-atmosphere span:nth-child(2n) {
+  color: var(--hh-cream);
+  opacity: 0.2;
+}
 
 .hh-opening {
   position: fixed;
@@ -98,7 +133,10 @@
   transition: opacity 360ms ease, visibility 360ms ease;
 }
 
-.hh-opening.is-opening { opacity: 0; visibility: hidden; }
+.hh-opening.is-opening {
+  opacity: 0;
+  visibility: hidden;
+}
 
 .hh-opening-stage {
   width: min(78vw, 320px);
@@ -130,9 +168,18 @@
   pointer-events: none;
 }
 
-.hh-opening-card:focus-visible { box-shadow: 0 0 0 3px var(--hh-cream), 0 28px 60px rgb(54 7 18 / 0.42); }
-.hh-opening-card.is-opened { transform: translateY(-4px) scale(0.98); }
-.hh-opening.is-opening .hh-opening-card { transform: translateY(-7vh) scale(0.94); opacity: 0; }
+.hh-opening-card:focus-visible {
+  box-shadow: 0 0 0 3px var(--hh-cream), 0 28px 60px rgb(54 7 18 / 0.42);
+}
+
+.hh-opening-card.is-opened {
+  transform: translateY(-4px) scale(0.98);
+}
+
+.hh-opening.is-opening .hh-opening-card {
+  transform: translateY(-7vh) scale(0.94);
+  opacity: 0;
+}
 
 .hh-card-front,
 .hh-card-inner {
@@ -146,10 +193,27 @@
   transition: opacity 450ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hh-card-front { z-index: 2; }
-.hh-card-inner { z-index: 1; color: var(--hh-red-dark); background: var(--hh-cream); opacity: 0; transform: translateY(9%); }
-.hh-opening-card.is-opened .hh-card-front { opacity: 0; transform: translateY(-8%); }
-.hh-opening-card.is-opened .hh-card-inner { opacity: 1; transform: translateY(0); }
+.hh-card-front {
+  z-index: 2;
+}
+
+.hh-card-inner {
+  z-index: 1;
+  color: var(--hh-red-dark);
+  background: var(--hh-cream);
+  opacity: 0;
+  transform: translateY(9%);
+}
+
+.hh-opening-card.is-opened .hh-card-front {
+  opacity: 0;
+  transform: translateY(-8%);
+}
+
+.hh-opening-card.is-opened .hh-card-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 .hh-seal {
   display: grid;
@@ -164,51 +228,201 @@
   transform: rotate(-8deg);
 }
 
-.hh-eyebrow { color: var(--hh-gold); font-size: 10px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
-.hh-card-inner .hh-eyebrow { color: var(--hh-red); }
-.hh-card-front h1 { margin: 4px 0; color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: clamp(38px, 12vw, 58px); font-weight: 600; letter-spacing: -0.07em; line-height: 0.88; }
-.hh-card-front h1 em { color: var(--hh-gold); font-size: 0.66em; font-style: normal; letter-spacing: -0.04em; }
-.hh-card-note { margin: 4px 0; color: rgb(255 241 223 / 0.72); font-size: 12px; }
-.hh-card-inner strong { max-width: 210px; color: var(--hh-red-dark); font-family: var(--font-wedding-display); font-size: 38px; line-height: 0.92; }
-.hh-card-inner > span:last-child { max-width: 190px; color: var(--hh-red-dark); font-size: 12px; line-height: 1.5; }
+.hh-eyebrow {
+  color: var(--hh-gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
 
-.hh-open-button { min-height: 44px; margin-top: 8px; border: 1px solid var(--hh-gold); border-radius: 999px; padding: 10px 18px; color: var(--hh-cream); background: rgb(117 21 38 / 0.4); font: inherit; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; cursor: pointer; transition: transform 160ms ease, background-color 160ms ease; }
-.hh-open-button:hover { background: var(--hh-red-dark); transform: translateY(-2px); }
-.hh-open-button:active { transform: translateY(1px) scale(0.98); }
-.hh-open-button:disabled { cursor: default; opacity: 0.72; }
+.hh-card-inner .hh-eyebrow {
+  color: var(--hh-red);
+}
 
-.hh-flower { position: absolute; z-index: 3; width: 106px; height: 146px; pointer-events: none; transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease; }
-.hh-flower--left { left: -48px; bottom: 14%; transform: rotate(-18deg); }
-.hh-flower--right { right: -48px; top: 16%; transform: scaleX(-1) rotate(-18deg); }
-.hh-flower i { position: absolute; width: 62px; aspect-ratio: 1; border-radius: 58% 42% 62% 38%; background: var(--hh-red-hot); box-shadow: inset -8px -8px 0 rgb(117 21 38 / 0.18); }
-.hh-flower i:nth-child(1) { top: 28px; left: 24px; transform: rotate(12deg); }
-.hh-flower i:nth-child(2) { top: 58px; left: 2px; transform: rotate(-30deg) scale(0.82); background: var(--hh-coral); }
-.hh-flower i:nth-child(3) { top: 4px; left: 42px; transform: rotate(54deg) scale(0.66); background: var(--hh-red-hot); }
-.hh-flower b { position: absolute; right: 10px; bottom: 4px; color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 26px; transform: rotate(12deg); }
-.hh-opening-card.is-opened .hh-flower--left { transform: translateX(-32px) rotate(-26deg); opacity: 0.18; }
-.hh-opening-card.is-opened .hh-flower--right { transform: translateX(32px) scaleX(-1) rotate(-26deg); opacity: 0.18; }
+.hh-card-front h1 {
+  margin: 4px 0;
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(38px, 12vw, 58px);
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  line-height: 0.88;
+}
 
-.hh-shell-note { margin: 0; color: rgb(255 241 223 / 0.56); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+.hh-card-front h1 em {
+  color: var(--hh-gold);
+  font-size: 0.66em;
+  font-style: normal;
+  letter-spacing: -0.04em;
+}
 
-@keyframes hh-float { from { translate: 0 7px; } to { translate: 8px -11px; } }
+.hh-card-note {
+  margin: 4px 0;
+  color: rgb(255 241 223 / 0.72);
+  font-size: 12px;
+}
+
+.hh-card-inner strong {
+  max-width: 210px;
+  color: var(--hh-red-dark);
+  font-family: var(--font-wedding-display);
+  font-size: 38px;
+  line-height: 0.92;
+}
+
+.hh-card-inner>span:last-child {
+  max-width: 190px;
+  color: var(--hh-red-dark);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hh-open-button {
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid var(--hh-gold);
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: var(--hh-cream);
+  background: rgb(117 21 38 / 0.4);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 160ms ease, background-color 160ms ease;
+}
+
+.hh-opening-card:hover .hh-open-button {
+  background: var(--hh-red-dark);
+  transform: translateY(-2px);
+}
+
+.hh-opening-card:active .hh-open-button {
+  transform: translateY(1px) scale(0.98);
+}
+
+.hh-opening-card:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.hh-flower {
+  position: absolute;
+  z-index: 3;
+  width: 106px;
+  height: 146px;
+  pointer-events: none;
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 500ms ease;
+}
+
+.hh-flower--left {
+  left: -48px;
+  bottom: 14%;
+  transform: rotate(-18deg);
+}
+
+.hh-flower--right {
+  right: -48px;
+  top: 16%;
+  transform: scaleX(-1) rotate(-18deg);
+}
+
+.hh-flower i {
+  position: absolute;
+  width: 62px;
+  aspect-ratio: 1;
+  border-radius: 58% 42% 62% 38%;
+  background: var(--hh-red-hot);
+  box-shadow: inset -8px -8px 0 rgb(117 21 38 / 0.18);
+}
+
+.hh-flower i:nth-child(1) {
+  top: 28px;
+  left: 24px;
+  transform: rotate(12deg);
+}
+
+.hh-flower i:nth-child(2) {
+  top: 58px;
+  left: 2px;
+  transform: rotate(-30deg) scale(0.82);
+  background: var(--hh-coral);
+}
+
+.hh-flower i:nth-child(3) {
+  top: 4px;
+  left: 42px;
+  transform: rotate(54deg) scale(0.66);
+  background: var(--hh-red-hot);
+}
+
+.hh-flower b {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  color: var(--hh-gold);
+  font-family: var(--font-wedding-display);
+  font-size: 26px;
+  transform: rotate(12deg);
+}
+
+.hh-opening-card.is-opened .hh-flower--left {
+  transform: translateX(-32px) rotate(-26deg);
+  opacity: 0.18;
+}
+
+.hh-opening-card.is-opened .hh-flower--right {
+  transform: translateX(32px) scaleX(-1) rotate(-26deg);
+  opacity: 0.18;
+}
+
+.hh-shell-note {
+  margin: 0;
+  color: rgb(255 241 223 / 0.56);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@keyframes hh-float {
+  from {
+    translate: 0 7px;
+  }
+
+  to {
+    translate: 8px -11px;
+  }
+}
 
 @media (min-width: 481px) {
-  body { background: #42101d; }
-  .hh-page { box-shadow: 0 0 80px rgb(28 3 11 / 0.42); }
+  body {
+    background: #42101d;
+  }
+
+  .hh-page {
+    box-shadow: 0 0 80px rgb(28 3 11 / 0.42);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hh-atmosphere span { animation: none; }
+  .hh-atmosphere span {
+    animation: none;
+  }
+
   .hh-opening,
   .hh-invitation-preview,
   .hh-opening-card,
   .hh-card-front,
   .hh-card-inner,
-  .hh-flower { transition: none; }
+  .hh-flower {
+    transition: none;
+  }
 }
 
 /* Phase 3 section architecture: the skeleton stays renderer-owned and media-independent. */
-.hh-content { 
+.hh-content {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -216,9 +430,22 @@
   opacity: 0;
   transition: opacity 520ms ease;
 }
-.hh-content.has-reveal .hh-section { opacity: 0; transform: translateY(18px); transition: opacity 650ms ease-out, transform 750ms cubic-bezier(0.215, 0.61, 0.355, 1); }
-.hh-content.has-reveal .hh-section.is-visible { opacity: 1; transform: translateY(0); }
-.hh-page.is-opening-complete .hh-content { opacity: 1; }
+
+.hh-content.has-reveal .hh-section {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 650ms ease-out, transform 750ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.hh-content.has-reveal .hh-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hh-page.is-opening-complete .hh-content {
+  opacity: 1;
+}
+
 .hh-section {
   position: relative;
   display: grid;
@@ -232,66 +459,4916 @@
   text-align: center;
   isolation: isolate;
 }
-.hh-section::before { position: absolute; z-index: -1; inset: 18px; border: 1px solid rgb(197 150 69 / 0.18); content: ''; pointer-events: none; }
-.hh-section::after { position: absolute; z-index: -1; width: 180px; height: 180px; border-radius: 50%; background: rgb(164 58 70 / 0.2); filter: blur(28px); content: ''; pointer-events: none; }
-.hh-section:nth-child(odd)::after { top: 8%; right: -84px; }
-.hh-section:nth-child(even)::after { bottom: 8%; left: -84px; }
-.hh-section h2 { max-width: 360px; margin: 0 auto; color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: clamp(34px, 10vw, 58px); font-weight: 600; letter-spacing: -0.055em; line-height: 0.96; }
-.hh-section p { max-width: 330px; margin: 0 auto; color: rgb(247 232 213 / 0.74); font-size: 14px; line-height: 1.8; }
-.hh-section-kicker { color: var(--hh-coral) !important; font-size: 11px !important; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
-.hh-cover { min-height: 100dvh; border-top: 0; perspective: 900px; transform-style: preserve-3d; background: radial-gradient(circle at 50% 38%, rgb(120 19 38 / 0.72), transparent 35%), linear-gradient(145deg, #35050e, #5b0b18 55%, #781326); }
-.hh-cover h2 { transform: translateZ(24px); }
-.hh-cover .hh-date-lockup, .hh-cover .hh-eyebrow { transform: translateZ(12px); }
-.hh-approved-art { position: absolute; pointer-events: none; user-select: none; }
-.hh-opening-art-left, .hh-opening-art-right { z-index: 4; width: 42%; opacity: 0.84; mix-blend-mode: screen; }
-.hh-opening-art-left { bottom: -6%; left: -18%; transform: rotate(-10deg); }
-.hh-opening-art-right { top: -4%; right: -18%; transform: scaleX(-1) rotate(-10deg); }
-.hh-opening-card.is-opening .hh-approved-art { opacity: 0; transform: translateY(-24px) scale(0.94); transition: opacity 420ms ease-in, transform 650ms ease-in; }
-.hh-cover-fan { top: -10%; right: -22%; width: 78%; opacity: 0.18; transform: rotate(7deg); mix-blend-mode: screen; animation: hh-fan-breathe 10s ease-in-out infinite alternate; }
-.hh-cover h2 { font-size: clamp(48px, 15vw, 78px); }
-.hh-cover h2 i { color: var(--hh-gold); font-size: 0.52em; font-style: normal; }
-.hh-date-lockup { display: grid; gap: 8px; margin-top: 8px; }
-.hh-date-lockup strong { color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 28px; letter-spacing: 0.08em; }
-.hh-date-lockup span { color: rgb(247 232 213 / 0.64); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-.hh-section-mark { margin: 12px auto 0; color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 52px; opacity: 0.76; }
-.hh-seal-line { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; color: var(--hh-gold); }
-.hh-seal-line span { font-family: var(--font-wedding-display); font-size: 32px; }
-.hh-seal-line i { width: 84px; height: 1px; background: var(--hh-gold); opacity: 0.7; }
-.hh-memory-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 360px; margin: 10px auto 0; }
-.hh-memory-grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border: 1px solid rgb(197 150 69 / 0.36); }
-.hh-family-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 390px; margin: 10px auto 0; }
-.hh-family-grid article, .hh-detail-card { display: grid; gap: 10px; padding: 22px 16px; border: 1px solid rgb(197 150 69 / 0.46); background: rgb(53 5 14 / 0.52); }
-.hh-family-grid span, .hh-detail-card time { color: var(--hh-gold); font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
-.hh-family-grid strong, .hh-detail-card strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 23px; line-height: 1; }
-.hh-family-grid small, .hh-detail-card span { color: rgb(247 232 213 / 0.62); font-size: 12px; line-height: 1.5; }
-.hh-countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 400px; margin: 12px auto 0; }
-.hh-countdown-grid div { display: grid; gap: 8px; padding: 16px 4px; border-top: 1px solid var(--hh-gold); border-bottom: 1px solid rgb(197 150 69 / 0.36); }
-.hh-countdown-grid strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 30px; }
-.hh-countdown-grid span { color: var(--hh-gold); font-size: 10px; text-transform: uppercase; }
-.hh-detail-card { width: 100%; max-width: 360px; margin: 10px auto 0; }
-.hh-detail-card a { display: inline-grid; min-height: 44px; place-items: center; margin-top: 4px; border: 1px solid var(--hh-gold); color: var(--hh-cream); font-size: 12px; text-decoration: none; }
-.hh-timeline { display: grid; width: 100%; max-width: 390px; margin: 12px auto 0; text-align: left; }
-.hh-timeline article { display: grid; grid-template-columns: 70px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid rgb(247 232 213 / 0.13); }
-.hh-timeline time { color: var(--hh-gold); font-family: var(--font-wedding-display); font-size: 24px; }
-.hh-timeline strong { color: var(--hh-cream); font-family: var(--font-wedding-display); font-size: 23px; }
-.hh-timeline p { margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
-.hh-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 390px; margin: 12px auto 0; }
-.hh-gallery-grid img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border: 1px solid rgb(197 150 69 / 0.36); }
-.hh-empty { width: 100%; max-width: 340px; margin: 10px auto 0; padding: 22px 16px; border: 1px dashed rgb(197 150 69 / 0.45); color: rgb(247 232 213 / 0.62); font-size: 12px; line-height: 1.6; }
-.hh-actions { display: grid; gap: 10px; width: 100%; max-width: 330px; margin: 10px auto 0; }
-.hh-actions button, .hh-text-button { min-height: 46px; border: 1px solid var(--hh-gold); padding: 10px 16px; color: var(--hh-cream); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
-.hh-actions button.is-selected, .hh-text-button:hover { background: var(--hh-red-hot); }
-.hh-actions button:focus-visible, .hh-text-button:focus-visible, .hh-detail-card a:focus-visible { outline: 2px solid var(--hh-cream); outline-offset: 3px; }
-.hh-page .music-player { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; }
-.hh-page .music-player button { border-color: var(--hh-gold); color: var(--hh-cream); background: var(--hh-red); box-shadow: 0 12px 28px rgb(24 2 8 / 0.34), 0 0 0 4px rgb(247 232 213 / 0.18); }
-.hh-page .music-player button:hover { background: var(--hh-red-hot); box-shadow: 0 16px 34px rgb(24 2 8 / 0.42), 0 0 0 5px rgb(247 232 213 / 0.24); }
-.hh-page .music-player button:focus-visible { outline-color: var(--hh-cream); }
-.hh-page .music-player button:disabled { color: rgb(247 232 213 / 0.64); background: var(--hh-red-dark); }
-.hh-page .music-player-disc { border-color: rgb(247 232 213 / 0.58); background: radial-gradient(circle, var(--hh-cream) 0 18%, var(--hh-coral) 19% 30%, var(--hh-cream) 31% 35%, var(--hh-red-hot) 36% 58%, var(--hh-red-dark) 59%); }
-.hh-page .music-player-state { color: var(--hh-red); border-color: var(--hh-cream); background: var(--hh-cream); }
-.hh-status { color: var(--hh-gold); font-size: 12px; }
-.hh-section textarea { width: 100%; max-width: 340px; min-height: 110px; margin: 8px auto 0; border: 1px solid rgb(197 150 69 / 0.55); padding: 14px; color: var(--hh-cream); background: rgb(53 5 14 / 0.62); font: inherit; font-size: 13px; resize: vertical; }
-.hh-footer { min-height: 70dvh; background: linear-gradient(160deg, #781326, #35050e); }
-@media (min-width: 481px) { .hh-content { max-width: 480px; margin-inline: auto; } }
-@keyframes hh-fan-breathe { from { transform: rotate(7deg) translate3d(0, 0, 0); } to { transform: rotate(10deg) translate3d(-5px, 8px, 0); } }
-@media (prefers-reduced-motion: reduce) { .hh-content, .hh-content.has-reveal .hh-section, .hh-approved-art, .hh-cover-fan { transition: none; animation: none; transform: none; } .hh-content.has-reveal .hh-section { opacity: 1; } }
+
+.hh-section::before {
+  position: absolute;
+  z-index: -1;
+  inset: 18px;
+  border: 1px solid rgb(197 150 69 / 0.18);
+  content: '';
+  pointer-events: none;
+}
+
+.hh-section::after {
+  position: absolute;
+  z-index: -1;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgb(164 58 70 / 0.2);
+  filter: blur(28px);
+  content: '';
+  pointer-events: none;
+}
+
+.hh-section:nth-child(odd)::after {
+  top: 8%;
+  right: -84px;
+}
+
+.hh-section:nth-child(even)::after {
+  bottom: 8%;
+  left: -84px;
+}
+
+.hh-section h2 {
+  max-width: 360px;
+  margin: 0 auto;
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(34px, 10vw, 58px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.96;
+}
+
+.hh-section p {
+  max-width: 330px;
+  margin: 0 auto;
+  color: rgb(247 232 213 / 0.74);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.hh-section-kicker {
+  color: var(--hh-coral) !important;
+  font-size: 11px !important;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hh-cover {
+  min-height: 100dvh;
+  border-top: 0;
+  perspective: 900px;
+  transform-style: preserve-3d;
+  background: radial-gradient(circle at 50% 38%, rgb(120 19 38 / 0.72), transparent 35%), linear-gradient(145deg, #35050e, #5b0b18 55%, #781326);
+}
+
+.hh-cover h2 {
+  transform: translateZ(24px);
+}
+
+.hh-cover .hh-date-lockup,
+.hh-cover .hh-eyebrow {
+  transform: translateZ(12px);
+}
+
+.hh-approved-art {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hh-opening-art-left,
+.hh-opening-art-right {
+  z-index: 4;
+  width: 42%;
+  opacity: 0.84;
+  mix-blend-mode: screen;
+}
+
+.hh-opening-art-left {
+  bottom: -6%;
+  left: -18%;
+  transform: rotate(-10deg);
+}
+
+.hh-opening-art-right {
+  top: -4%;
+  right: -18%;
+  transform: scaleX(-1) rotate(-10deg);
+}
+
+.hh-opening-card.is-opening .hh-approved-art {
+  opacity: 0;
+  transform: translateY(-24px) scale(0.94);
+  transition: opacity 420ms ease-in, transform 650ms ease-in;
+}
+
+.hh-cover-fan {
+  top: -10%;
+  right: -22%;
+  width: 78%;
+  opacity: 0.18;
+  transform: rotate(7deg);
+  mix-blend-mode: screen;
+  animation: hh-fan-breathe 10s ease-in-out infinite alternate;
+}
+
+.hh-cover h2 {
+  font-size: clamp(48px, 15vw, 78px);
+}
+
+.hh-cover h2 i {
+  color: var(--hh-gold);
+  font-size: 0.52em;
+  font-style: normal;
+}
+
+.hh-date-lockup {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.hh-date-lockup strong {
+  color: var(--hh-gold);
+  font-family: var(--font-wedding-display);
+  font-size: 28px;
+  letter-spacing: 0.08em;
+}
+
+.hh-date-lockup span {
+  color: rgb(247 232 213 / 0.64);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hh-section-mark {
+  margin: 12px auto 0;
+  color: var(--hh-gold);
+  font-family: var(--font-wedding-display);
+  font-size: 52px;
+  opacity: 0.76;
+}
+
+.hh-seal-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 12px;
+  color: var(--hh-gold);
+}
+
+.hh-seal-line span {
+  font-family: var(--font-wedding-display);
+  font-size: 32px;
+}
+
+.hh-seal-line i {
+  width: 84px;
+  height: 1px;
+  background: var(--hh-gold);
+  opacity: 0.7;
+}
+
+.hh-memory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+  margin: 10px auto 0;
+}
+
+.hh-memory-grid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border: 1px solid rgb(197 150 69 / 0.36);
+}
+
+.hh-family-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 390px;
+  margin: 10px auto 0;
+}
+
+.hh-family-grid article,
+.hh-detail-card {
+  display: grid;
+  gap: 10px;
+  padding: 22px 16px;
+  border: 1px solid rgb(197 150 69 / 0.46);
+  background: rgb(53 5 14 / 0.52);
+}
+
+.hh-family-grid span,
+.hh-detail-card time {
+  color: var(--hh-gold);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hh-family-grid strong,
+.hh-detail-card strong {
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: 23px;
+  line-height: 1;
+}
+
+.hh-family-grid small,
+.hh-detail-card span {
+  color: rgb(247 232 213 / 0.62);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hh-countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  margin: 12px auto 0;
+}
+
+.hh-countdown-grid div {
+  display: grid;
+  gap: 8px;
+  padding: 16px 4px;
+  border-top: 1px solid var(--hh-gold);
+  border-bottom: 1px solid rgb(197 150 69 / 0.36);
+}
+
+.hh-countdown-grid strong {
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hh-countdown-grid span {
+  color: var(--hh-gold);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.hh-detail-card {
+  width: 100%;
+  max-width: 360px;
+  margin: 10px auto 0;
+}
+
+.hh-detail-card a {
+  display: inline-grid;
+  min-height: 44px;
+  place-items: center;
+  margin-top: 4px;
+  border: 1px solid var(--hh-gold);
+  color: var(--hh-cream);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.hh-timeline {
+  display: grid;
+  width: 100%;
+  max-width: 390px;
+  margin: 12px auto 0;
+  text-align: left;
+}
+
+.hh-timeline article {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgb(247 232 213 / 0.13);
+}
+
+.hh-timeline time {
+  color: var(--hh-gold);
+  font-family: var(--font-wedding-display);
+  font-size: 24px;
+}
+
+.hh-timeline strong {
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: 23px;
+}
+
+.hh-timeline p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.hh-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 390px;
+  margin: 12px auto 0;
+}
+
+.hh-gallery-grid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border: 1px solid rgb(197 150 69 / 0.36);
+}
+
+.hh-empty {
+  width: 100%;
+  max-width: 340px;
+  margin: 10px auto 0;
+  padding: 22px 16px;
+  border: 1px dashed rgb(197 150 69 / 0.45);
+  color: rgb(247 232 213 / 0.62);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.hh-actions {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 330px;
+  margin: 10px auto 0;
+}
+
+.hh-actions button,
+.hh-text-button {
+  min-height: 46px;
+  touch-action: manipulation;
+  border: 1px solid var(--hh-gold);
+  padding: 10px 16px;
+  color: var(--hh-cream);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.hh-actions button.is-selected,
+.hh-text-button:hover {
+  background: var(--hh-red-hot);
+}
+
+.hh-actions button:focus-visible,
+.hh-text-button:focus-visible,
+.hh-detail-card a:focus-visible {
+  outline: 2px solid var(--hh-cream);
+  outline-offset: 3px;
+}
+
+.hh-actions button:hover,
+.hh-text-button:hover,
+.hh-detail-card a:hover {
+  border-color: var(--hh-cream);
+}
+
+.hh-page .music-player {
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+}
+
+.hh-page .music-player button {
+  border-color: var(--hh-gold);
+  color: var(--hh-cream);
+  background: var(--hh-red);
+  box-shadow: 0 12px 28px rgb(24 2 8 / 0.34), 0 0 0 4px rgb(247 232 213 / 0.18);
+}
+
+.hh-page .music-player button:hover {
+  background: var(--hh-red-hot);
+  box-shadow: 0 16px 34px rgb(24 2 8 / 0.42), 0 0 0 5px rgb(247 232 213 / 0.24);
+}
+
+.hh-page .music-player button:focus-visible {
+  outline-color: var(--hh-cream);
+}
+
+.hh-page .music-player button:disabled {
+  color: rgb(247 232 213 / 0.64);
+  background: var(--hh-red-dark);
+}
+
+.hh-page .music-player-disc {
+  border-color: rgb(247 232 213 / 0.58);
+  background: radial-gradient(circle, var(--hh-cream) 0 18%, var(--hh-coral) 19% 30%, var(--hh-cream) 31% 35%, var(--hh-red-hot) 36% 58%, var(--hh-red-dark) 59%);
+}
+
+.hh-page .music-player-state {
+  color: var(--hh-red);
+  border-color: var(--hh-cream);
+  background: var(--hh-cream);
+}
+
+.hh-status {
+  color: var(--hh-gold);
+  font-size: 12px;
+}
+
+.hh-section textarea {
+  width: 100%;
+  max-width: 340px;
+  min-height: 110px;
+  margin: 8px auto 0;
+  border: 1px solid rgb(197 150 69 / 0.55);
+  padding: 14px;
+  color: var(--hh-cream);
+  background: rgb(53 5 14 / 0.62);
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.hh-footer {
+  min-height: 70dvh;
+  background: linear-gradient(160deg, #781326, #35050e);
+}
+
+@media (min-width: 481px) {
+  .hh-content {
+    max-width: 480px;
+    margin-inline: auto;
+  }
+}
+
+@keyframes hh-fan-breathe {
+  from {
+    transform: rotate(7deg) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: rotate(10deg) translate3d(-5px, 8px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hh-content,
+  .hh-content.has-reveal .hh-section,
+  .hh-approved-art,
+  .hh-cover-fan {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+
+  .hh-content.has-reveal .hh-section {
+    opacity: 1;
+  }
+}
+
+/* Phase 5: section-owned decor and visibility-aware atmosphere. */
+.hh-page.is-paused .hh-atmosphere span,
+.hh-page.is-paused .hh-cover-fan,
+.hh-page.is-paused .hh-divider-art,
+.hh-page.is-paused .hh-envelope-art,
+.hh-page.is-paused .hh-footer-motif {
+  animation-play-state: paused;
+}
+
+.hh-timeline-section {
+  isolation: isolate;
+}
+
+.hh-section> :not(.hh-approved-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.hh-divider-art {
+  top: 12%;
+  right: -18%;
+  z-index: 0;
+  width: 82%;
+  opacity: 0.17;
+  transform: rotate(-6deg);
+  animation: hh-divider-drift 12s ease-in-out infinite alternate;
+}
+
+.hh-envelope-art {
+  right: -14%;
+  bottom: 8%;
+  z-index: 0;
+  width: 34%;
+  opacity: 0.22;
+  transform: rotate(10deg);
+  animation: hh-envelope-float 8s ease-in-out infinite alternate;
+}
+
+.hh-footer-motif {
+  right: -9%;
+  bottom: 5%;
+  z-index: 0;
+  width: 42%;
+  opacity: 0.18;
+  transform: rotate(-8deg);
+  animation: hh-motif-breathe 9s ease-in-out infinite alternate;
+}
+
+@keyframes hh-divider-drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(-6deg);
+  }
+
+  to {
+    transform: translate3d(-8px, 7px, 0) rotate(-3deg);
+  }
+}
+
+@keyframes hh-envelope-float {
+  from {
+    transform: translate3d(0, 0, 0) rotate(10deg);
+  }
+
+  to {
+    transform: translate3d(-5px, -9px, 0) rotate(6deg);
+  }
+}
+
+@keyframes hh-motif-breathe {
+  from {
+    transform: scale(0.96) rotate(-8deg);
+  }
+
+  to {
+    transform: scale(1.02) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hh-divider-art,
+  .hh-envelope-art,
+  .hh-footer-motif {
+    animation: none;
+  }
+}
+/* Vạn Hỷ desktop stage: the 480px invitation sits inside a deep oxblood atmosphere. */
+html:has(.hh-page) {
+  background: #100309;
+  color-scheme: dark;
+}
+body:has(.hh-page) {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgb(126 25 47 / 0.42) 0, rgb(74 12 30 / 0.18) 22%, transparent 48%),
+    radial-gradient(circle at 16% 12%, rgb(197 150 69 / 0.09), transparent 28%),
+    linear-gradient(135deg, #1a050d 0%, #2d0815 45%, #100309 100%);
+}
+body:has(.hh-page)::before {
+  position: fixed;
+  z-index: -1;
+  inset: -18%;
+  content: '';
+  pointer-events: none;
+  opacity: 0.52;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgb(183 49 68 / 0.22), transparent 28%),
+    radial-gradient(circle at 78% 76%, rgb(197 150 69 / 0.11), transparent 22%),
+    radial-gradient(circle at 20% 74%, rgb(120 19 38 / 0.2), transparent 25%);
+  filter: blur(22px);
+  animation: hh-stage-halo 18s ease-in-out infinite alternate;
+}
+body:has(.hh-page)::after {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  opacity: 0.34;
+  background:
+    radial-gradient(circle at center, transparent 22%, rgb(8 1 5 / 0.46) 100%),
+    repeating-linear-gradient(115deg, rgb(255 241 223 / 0.025) 0 1px, transparent 1px 9px);
+  mix-blend-mode: screen;
+}
+@keyframes hh-stage-halo {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(0.98); }
+  to { transform: translate3d(1.5%, 1%, 0) scale(1.04); }
+}
+@media (min-width: 481px) {
+  body:has(.hh-page) { background-attachment: fixed; }
+  .hh-page { box-shadow: 0 0 0 1px rgb(255 241 223 / 0.05), 0 22px 100px rgb(7 1 5 / 0.62), 0 0 180px rgb(118 18 43 / 0.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:has(.hh-page)::before { animation: none; }
+}
+/* Desktop side atmosphere: sparse paper flecks and quiet fan silhouettes. */
+@media (min-width: 481px) {
+  .hh-page { z-index: 1; }
+  .hh-stage-decor,
+  .hh-stage-dust {
+    position: fixed;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hh-stage-fan {
+    position: absolute;
+    width: clamp(180px, 19vw, 300px);
+    opacity: 0.075;
+    mix-blend-mode: screen;
+    filter: saturate(0.78) contrast(0.94);
+    animation: hh-stage-fan-drift 16s ease-in-out infinite alternate;
+  }
+  .hh-stage-fan--left {
+    top: 10%;
+    left: calc(50% - 440px);
+    transform: rotate(-22deg);
+  }
+  .hh-stage-fan--right {
+    right: calc(50% - 440px);
+    bottom: 12%;
+    transform: scaleX(-1) rotate(-28deg);
+    animation-delay: -7s;
+  }
+  .hh-stage-dust-item {
+    position: absolute;
+    top: var(--hh-dust-y);
+    left: var(--hh-dust-x);
+    width: 5px;
+    height: 9px;
+    border-radius: 2px 1px 2px 1px;
+    opacity: 0.42;
+    background: var(--hh-gold);
+    box-shadow: 0 0 12px rgb(197 150 69 / 0.24);
+    transform: rotate(var(--hh-dust-rotate));
+    animation: hh-stage-dust-drift 9s ease-in-out var(--hh-dust-delay) infinite alternate;
+  }
+  .hh-stage-dust-item:nth-child(3n) {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--hh-coral);
+  }
+  .hh-stage-dust-item:nth-child(4n) {
+    width: 3px;
+    height: 11px;
+    opacity: 0.27;
+    background: var(--hh-cream);
+  }
+  body:has(.hh-page.is-paused) .hh-stage-fan,
+  body:has(.hh-page.is-paused) .hh-stage-dust-item { animation-play-state: paused; }
+}
+@keyframes hh-stage-fan-drift {
+  from { transform: translate3d(-5px, 4px, 0) rotate(-22deg); }
+  to { transform: translate3d(7px, -7px, 0) rotate(-17deg); }
+}
+@keyframes hh-stage-dust-drift {
+  from { transform: translate3d(0, -8px, 0) rotate(var(--hh-dust-rotate)); }
+  to { transform: translate3d(var(--hh-dust-drift), 10px, 0) rotate(calc(var(--hh-dust-rotate) + 24deg)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-stage-fan,
+  .hh-stage-dust-item { animation: none; }
+}@media (min-width: 481px) {
+  .hh-stage-fan--right { animation-name: hh-stage-fan-drift-right; }
+}
+@keyframes hh-stage-fan-drift-right {
+  from { transform: scaleX(-1) translate3d(-5px, 4px, 0) rotate(-28deg); }
+  to { transform: scaleX(-1) translate3d(7px, -7px, 0) rotate(-23deg); }
+}
+/* Stage fans stay flat and proportionate: gentle 2D float, no depth-axis illusion. */
+@media (min-width: 481px) {
+  .hh-stage-fan {
+    width: clamp(150px, 16vw, 240px);
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: contain;
+    transform-style: flat;
+    perspective: none;
+    transform-origin: center;
+  }
+  .hh-stage-fan--left {
+    left: calc(50% - 410px);
+    transform: rotate(-18deg);
+    animation-name: hh-stage-fan-float-left;
+  }
+  .hh-stage-fan--right {
+    right: calc(50% - 410px);
+    transform: rotate(18deg);
+    animation-name: hh-stage-fan-float-right;
+  }
+}
+@keyframes hh-stage-fan-float-left {
+  from { transform: translate(-4px, 4px) rotate(-18deg); }
+  to { transform: translate(5px, -6px) rotate(-14deg); }
+}
+@keyframes hh-stage-fan-float-right {
+  from { transform: translate(4px, 4px) rotate(18deg); }
+  to { transform: translate(-5px, -6px) rotate(14deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-stage-fan--left { transform: rotate(-18deg); }
+  .hh-stage-fan--right { transform: rotate(18deg); }
+}
+/* Final desktop atmosphere tuning: make the fans readable and bring the halo above the stage background. */
+body:has(.hh-page)::before {
+  z-index: 0;
+  opacity: 0.86;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgb(194 44 70 / 0.42), transparent 31%),
+    radial-gradient(circle at 18% 20%, rgb(197 150 69 / 0.18), transparent 24%),
+    radial-gradient(circle at 84% 74%, rgb(126 25 47 / 0.3), transparent 28%);
+  filter: blur(18px);
+}
+body:has(.hh-page)::after { z-index: 0; opacity: 0.42; }
+@media (min-width: 481px) {
+  .hh-stage-decor,
+  .hh-stage-dust { z-index: 1; }
+  .hh-page { z-index: 2; }
+  .hh-stage-fan {
+    width: clamp(195px, 20.8vw, 312px);
+  }
+  .hh-stage-fan--left {
+    left: calc(50% - 360px);
+    animation-name: hh-stage-fan-float-left-wide;
+  }
+  .hh-stage-fan--right {
+    right: calc(50% - 360px);
+    animation-name: hh-stage-fan-float-right-wide;
+  }
+}
+@keyframes hh-stage-fan-float-left-wide {
+  from { transform: translate(-7px, 6px) rotate(-18deg); }
+  to { transform: translate(14px, -12px) rotate(-12deg); }
+}
+@keyframes hh-stage-fan-float-right-wide {
+  from { transform: translate(7px, 6px) rotate(18deg); }
+  to { transform: translate(-14px, -12px) rotate(12deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-stage-fan--left { transform: rotate(-18deg); }
+  .hh-stage-fan--right { transform: rotate(18deg); }
+}
+/* Dust lives outside .hh-page, so give it an explicit stage palette. */
+body:has(.hh-page) {
+  --hh-stage-gold: #c59645;
+  --hh-stage-coral: #b84c5e;
+  --hh-stage-cream: #f7e8d5;
+}
+.hh-stage-dust-item {
+  width: 6px;
+  height: 12px;
+  opacity: 0.76;
+  background: var(--hh-stage-gold);
+  box-shadow:
+    0 0 5px rgb(247 232 213 / 0.62),
+    0 0 16px rgb(197 150 69 / 0.48);
+}
+.hh-stage-dust-item:nth-child(3n) {
+  background: var(--hh-stage-coral);
+  box-shadow:
+    0 0 5px rgb(255 196 170 / 0.5),
+    0 0 16px rgb(184 76 94 / 0.42);
+}
+.hh-stage-dust-item:nth-child(4n) {
+  background: var(--hh-stage-cream);
+  opacity: 0.68;
+}
+/* Opening overlay: full viewport threshold, separate from the 480px invitation column. */
+body:has(.hh-opening) {
+  overflow: hidden;
+}
+.hh-opening {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  width: 100vw;
+  max-width: none;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  padding: 28px 20px 42px;
+  background:
+    radial-gradient(circle at 50% 38%, rgb(125 20 44 / 0.82), transparent 40%),
+    radial-gradient(circle at 14% 82%, rgb(197 150 69 / 0.16), transparent 25%),
+    radial-gradient(circle at 88% 18%, rgb(164 58 70 / 0.26), transparent 28%),
+    linear-gradient(135deg, #21040d 0%, #4a0919 52%, #120209 100%);
+  transition: opacity 760ms cubic-bezier(0.22, 1, 0.36, 1), visibility 760ms ease;
+}
+.hh-opening::before,
+.hh-opening::after {
+  position: absolute;
+  inset: -12%;
+  content: '';
+  pointer-events: none;
+}
+.hh-opening::before {
+  z-index: -2;
+  opacity: 0.48;
+  background:
+    radial-gradient(circle at 20% 32%, rgb(247 232 213 / 0.18) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 72%, rgb(197 150 69 / 0.2) 0 1px, transparent 2px);
+  background-size: 92px 118px, 137px 151px;
+  animation: hh-opening-glow 12s ease-in-out infinite alternate;
+}
+.hh-opening::after {
+  z-index: -1;
+  border: 1px solid rgb(247 232 213 / 0.12);
+  box-shadow: inset 0 0 120px rgb(0 0 0 / 0.28);
+}
+.hh-opening.is-opening {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.025);
+}
+.hh-opening-stage {
+  position: relative;
+  z-index: 2;
+  width: min(88vw, 640px);
+  aspect-ratio: 16 / 10;
+  perspective: none;
+}
+.hh-opening-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  border-color: rgb(240 184 75 / 0.72);
+  background:
+    radial-gradient(circle at 50% 18%, rgb(164 58 70 / 0.72), transparent 44%),
+    linear-gradient(145deg, #741326, #3b0612 76%);
+  box-shadow:
+    0 30px 90px rgb(12 1 6 / 0.68),
+    0 0 0 8px rgb(247 232 213 / 0.05),
+    inset 0 0 0 1px rgb(247 232 213 / 0.1);
+  transform-style: flat;
+  transition: transform 760ms cubic-bezier(0.22, 1, 0.36, 1), opacity 560ms ease, box-shadow 560ms ease;
+}
+.hh-opening-card::before {
+  inset: 14px;
+  border-radius: 12px;
+  border-color: rgb(240 184 75 / 0.54);
+}
+.hh-opening-card.is-opening {
+  opacity: 0;
+  transform: translateY(-18px) scale(0.94);
+  box-shadow: 0 12px 30px rgb(12 1 6 / 0.2);
+}
+.hh-card-front {
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  justify-items: start;
+  align-content: center;
+  column-gap: 24px;
+  row-gap: 8px;
+  padding: clamp(26px, 5vw, 54px);
+  text-align: left;
+}
+.hh-card-front .hh-seal {
+  grid-row: 1 / span 3;
+  width: clamp(64px, 10vw, 92px);
+  border-radius: 18px;
+  font-size: clamp(30px, 5vw, 46px);
+}
+.hh-card-front .hh-eyebrow,
+.hh-card-front h1,
+.hh-card-front .hh-card-note,
+.hh-card-front .hh-open-button {
+  grid-column: 2;
+}
+.hh-card-front h1 {
+  margin: 2px 0;
+  font-size: clamp(42px, 8vw, 76px);
+  line-height: 0.88;
+}
+.hh-card-front .hh-card-note {
+  margin: 2px 0 0;
+}
+.hh-card-front .hh-open-button {
+  margin-top: 10px;
+}
+.hh-opening-art-left,
+.hh-opening-art-right {
+  width: clamp(130px, 24vw, 230px);
+  opacity: 0.68;
+  mix-blend-mode: screen;
+}
+.hh-opening-art-left {
+  bottom: -16%;
+  left: -7%;
+  transform: rotate(-14deg);
+}
+.hh-opening-art-right {
+  top: -16%;
+  right: -7%;
+  transform: scaleX(-1) rotate(-14deg);
+}
+.hh-opening.is-opening .hh-approved-art {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.92);
+}
+.hh-shell-note {
+  position: absolute;
+  z-index: 2;
+  bottom: 18px;
+  margin: 0;
+  color: rgb(247 232 213 / 0.52);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+@keyframes hh-opening-glow {
+  from { transform: translate3d(-1%, 0, 0) scale(1); opacity: 0.62; }
+  to { transform: translate3d(1%, -1%, 0) scale(1.04); opacity: 1; }
+}
+@media (max-width: 560px) {
+  .hh-opening { padding-inline: 16px; }
+  .hh-opening-stage {
+    width: min(92vw, 520px);
+    aspect-ratio: 1.36 / 1;
+  }
+  .hh-card-front {
+    column-gap: 14px;
+    padding: 24px;
+  }
+  .hh-card-front .hh-seal {
+    width: 58px;
+    border-radius: 14px;
+    font-size: 29px;
+  }
+  .hh-card-front h1 { font-size: clamp(34px, 10vw, 54px); }
+  .hh-opening-art-left,
+  .hh-opening-art-right { width: 34%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening,
+  .hh-opening-card,
+  .hh-opening::before,
+  .hh-opening.is-opening .hh-approved-art {
+    animation: none;
+    transition: none;
+  }
+  .hh-opening.is-opening { opacity: 0; visibility: hidden; }
+}
+/* Match the opening card to the diagonal light streak of the full-screen backdrop. */
+.hh-opening-card {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 18%, rgb(164 58 70 / 0.72), transparent 44%),
+    linear-gradient(135deg, transparent 30%, rgb(247 232 213 / 0.06) 43%, rgb(197 150 69 / 0.2) 50%, rgb(164 58 70 / 0.1) 57%, transparent 70%),
+    linear-gradient(145deg, #741326, #3b0612 76%);
+}
+.hh-opening-card::after {
+  position: absolute;
+  z-index: 1;
+  inset: -24%;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 39%, rgb(247 232 213 / 0.1) 48%, rgb(197 150 69 / 0.16) 51%, transparent 61%);
+  opacity: 0.52;
+  transform: translate3d(-3%, 2%, 0);
+  animation: hh-card-sheen 11s ease-in-out infinite alternate;
+}
+.hh-opening-card > * {
+  position: relative;
+  z-index: 2;
+}
+@keyframes hh-card-sheen {
+  from { transform: translate3d(-3%, 2%, 0); }
+  to { transform: translate3d(3%, -2%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-card::after { animation: none; }
+}
+/* Card uses the same diagonal base gradient as the stage; no overlay streak. */
+.hh-opening-card {
+  background: linear-gradient(135deg, #741326 0%, #5b0b18 46%, #3b0612 100%);
+}
+.hh-opening-card::after {
+  display: none;
+}
+/* Restore the card layers after the diagonal background-only treatment. */
+.hh-opening-card {
+  background: linear-gradient(135deg, #741326 0%, #5b0b18 38%, #6d1021 47%, #5b0b18 55%, #3b0612 100%);
+}
+.hh-opening-card > .hh-card-front {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.hh-opening-card > .hh-opening-art-left,
+.hh-opening-card > .hh-opening-art-right,
+.hh-opening-card > .hh-flower {
+  position: absolute;
+}
+.hh-opening-card > .hh-opening-art-left,
+.hh-opening-card > .hh-opening-art-right {
+  z-index: 4;
+}
+.hh-opening-card > .hh-flower {
+  z-index: 3;
+}
+/* Opening card legibility and flat side artwork alignment. */
+.hh-card-front {
+  color: var(--hh-cream);
+  text-shadow: 0 1px 12px rgb(20 2 8 / 0.42);
+}
+.hh-card-front .hh-eyebrow,
+.hh-card-front h1,
+.hh-card-front .hh-card-note {
+  color: var(--hh-cream);
+}
+.hh-card-front h1 em,
+.hh-card-front .hh-eyebrow {
+  color: var(--hh-gold);
+}
+.hh-card-front .hh-card-note {
+  color: rgb(247 232 213 / 0.82);
+}
+.hh-opening-card > .hh-opening-art-left,
+.hh-opening-card > .hh-opening-art-right {
+  width: 31%;
+  height: auto;
+  max-height: 82%;
+  object-fit: contain;
+  transform-style: flat;
+  perspective: none;
+}
+.hh-opening-card > .hh-opening-art-left {
+  left: -4%;
+  bottom: -16%;
+  transform: rotate(-12deg);
+  transform-origin: bottom left;
+}
+.hh-opening-card > .hh-opening-art-right {
+  top: -16%;
+  right: -4%;
+  transform: scaleX(-1) rotate(-12deg);
+  transform-origin: top right;
+}
+.hh-opening-card.is-opening > .hh-opening-art-left {
+  transform: translateY(-20px) rotate(-12deg) scale(0.92);
+}
+.hh-opening-card.is-opening > .hh-opening-art-right {
+  transform: translateY(-20px) scaleX(-1) rotate(-12deg) scale(0.92);
+}
+@media (max-width: 560px) {
+  .hh-opening-card > .hh-opening-art-left,
+  .hh-opening-card > .hh-opening-art-right {
+    width: 30%;
+    max-height: 78%;
+  }
+}
+/* Force readable warm text inside the opening button/card. */
+.hh-opening-card .hh-card-front,
+.hh-opening-card .hh-card-front h1,
+.hh-opening-card .hh-card-front .hh-card-note {
+  color: #fff3df !important;
+}
+.hh-opening-card .hh-card-front .hh-eyebrow,
+.hh-opening-card .hh-card-front h1 em {
+  color: #f0c765 !important;
+}
+.hh-opening-card .hh-card-front .hh-open-button {
+  color: #fff3df !important;
+  border-color: #f0c765;
+}
+/* Opening identity: names lead, the invitation line supports them. */
+.hh-card-front h1 {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 430px);
+}
+.hh-opening-names {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(8px, 1.8vw, 16px);
+  color: #fff3df;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(30px, 6.4vw, 58px);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+.hh-opening-names strong {
+  color: #fff3df;
+  font: inherit;
+}
+.hh-opening-names i {
+  color: #f0c765;
+  font: 400 0.58em/1 var(--font-wedding-script, cursive);
+  letter-spacing: 0;
+}
+.hh-card-front h1 > em {
+  display: block;
+  color: #f0c765 !important;
+  font-size: clamp(14px, 2.5vw, 20px);
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.hh-opening-card > .hh-opening-art-left {
+  left: 2%;
+}
+.hh-opening-card > .hh-opening-art-right {
+  right: 2%;
+}
+@media (max-width: 560px) {
+  .hh-opening-names {
+    gap: 6px;
+    font-size: clamp(24px, 7.2vw, 40px);
+  }
+  .hh-card-front h1 > em {
+    font-size: 13px;
+  }
+}
+/* Final opening hierarchy: note, three-line names, supporting note, CTA. */
+.hh-card-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(24px, 5vw, 48px);
+  text-align: center;
+}
+.hh-card-front .hh-seal {
+  flex: 0 0 auto;
+  width: clamp(48px, 8vw, 68px);
+  font-size: clamp(25px, 4vw, 36px);
+}
+.hh-card-front .hh-eyebrow {
+  order: 1;
+}
+.hh-card-front h1 {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0;
+}
+.hh-opening-names {
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: clamp(32px, 6.8vw, 62px);
+  line-height: 0.88;
+  white-space: normal;
+}
+.hh-opening-names i {
+  font-size: 0.48em;
+  line-height: 0.8;
+}
+.hh-card-front h1 > em {
+  margin-top: 5px;
+}
+.hh-card-front .hh-open-button {
+  order: 3;
+  margin-top: 10px;
+  animation: hh-open-cta-pulse 2.8s ease-in-out 1.1s infinite;
+}
+@keyframes hh-open-cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(240 199 101 / 0.04); }
+  50% { box-shadow: 0 0 0 7px rgb(240 199 101 / 0.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-card-front .hh-open-button { animation: none; }
+}
+/* The Chinese double-happiness mark is a quiet corner signature, not a layout item. */
+.hh-card-front .hh-seal {
+  position: absolute;
+  top: clamp(20px, 4vw, 34px);
+  left: clamp(20px, 4vw, 34px);
+  z-index: 5;
+  width: clamp(46px, 7vw, 64px);
+  margin: 0;
+  border-radius: 14px;
+  font-size: clamp(24px, 4vw, 34px);
+}
+@media (max-width: 560px) {
+  .hh-card-front .hh-seal {
+    top: 18px;
+    left: 18px;
+    width: 46px;
+    font-size: 25px;
+  }
+}
+/* Small celebratory sparks radiate from the double-happiness seal. */
+.hh-card-front .hh-seal {
+  overflow: visible;
+}
+.hh-card-front .hh-seal > i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff3df;
+  box-shadow: 0 0 8px 2px rgb(240 199 101 / 0.74);
+  opacity: 0;
+  pointer-events: none;
+  animation: hh-seal-spark 3.4s ease-out infinite;
+}
+.hh-card-front .hh-seal > i:nth-child(2) { --spark-x: -28px; --spark-y: -22px; animation-delay: -0.2s; }
+.hh-card-front .hh-seal > i:nth-child(3) { --spark-x: 30px; --spark-y: -18px; animation-delay: -0.8s; }
+.hh-card-front .hh-seal > i:nth-child(4) { --spark-x: 34px; --spark-y: 20px; animation-delay: -1.4s; }
+.hh-card-front .hh-seal > i:nth-child(5) { --spark-x: -28px; --spark-y: 24px; animation-delay: -2s; }
+.hh-card-front .hh-seal > i:nth-child(6) { --spark-x: 4px; --spark-y: -32px; animation-delay: -2.6s; }
+@keyframes hh-seal-spark {
+  0%, 16% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.35);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  72% {
+    opacity: 0.58;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--spark-x)), calc(-50% + var(--spark-y))) scale(0.08);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-card-front .hh-seal > i { animation: none; opacity: 0; }
+}/* Spark positions follow the five actual i elements inside the seal. */
+.hh-card-front .hh-seal > i:nth-child(1) { --spark-x: -28px; --spark-y: -22px; animation-delay: -0.2s; }
+.hh-card-front .hh-seal > i:nth-child(2) { --spark-x: 30px; --spark-y: -18px; animation-delay: -0.8s; }
+.hh-card-front .hh-seal > i:nth-child(3) { --spark-x: 34px; --spark-y: 20px; animation-delay: -1.4s; }
+.hh-card-front .hh-seal > i:nth-child(4) { --spark-x: -28px; --spark-y: 24px; animation-delay: -2s; }
+.hh-card-front .hh-seal > i:nth-child(5) { --spark-x: 4px; --spark-y: -32px; animation-delay: -2.6s; }
+/* User-editable opening title: two continuous marquee rows. */
+.hh-opening-marquee {
+  order: 1;
+  width: min(100%, 360px);
+  overflow: hidden;
+  color: #f0c765;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.hh-opening-marquee-line {
+  display: flex;
+  width: max-content;
+  animation: hh-opening-marquee 13s linear infinite;
+}
+.hh-opening-marquee-line--reverse {
+  animation-name: hh-opening-marquee-reverse;
+  animation-duration: 16s;
+}
+.hh-opening-marquee-line > span {
+  flex: 0 0 auto;
+  padding-right: 42px;
+}
+@keyframes hh-opening-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes hh-opening-marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-marquee-line,
+  .hh-opening-marquee-line--reverse { animation: none; transform: none; }
+}
+/* Denser, wider seal spark burst: ten particles with a longer travel distance. */
+.hh-card-front .hh-seal > i:nth-child(1) { --spark-x: -36px; --spark-y: -29px; }
+.hh-card-front .hh-seal > i:nth-child(2) { --spark-x: 39px; --spark-y: -23px; }
+.hh-card-front .hh-seal > i:nth-child(3) { --spark-x: 44px; --spark-y: 26px; }
+.hh-card-front .hh-seal > i:nth-child(4) { --spark-x: -36px; --spark-y: 31px; }
+.hh-card-front .hh-seal > i:nth-child(5) { --spark-x: 5px; --spark-y: -42px; }
+.hh-card-front .hh-seal > i:nth-child(6) { --spark-x: -48px; --spark-y: -4px; animation-delay: -0.5s; }
+.hh-card-front .hh-seal > i:nth-child(7) { --spark-x: 48px; --spark-y: 5px; animation-delay: -1.1s; }
+.hh-card-front .hh-seal > i:nth-child(8) { --spark-x: -11px; --spark-y: 43px; animation-delay: -1.7s; }
+.hh-card-front .hh-seal > i:nth-child(9) { --spark-x: 20px; --spark-y: -39px; animation-delay: -2.3s; }
+.hh-card-front .hh-seal > i:nth-child(10) { --spark-x: -25px; --spark-y: 38px; animation-delay: -2.9s; }
+.hh-opening-marquee-line--reverse { display: none; }
+/* Seamless single-row marquee: equal duplicated tracks, no visible reset jump. */
+.hh-opening-marquee-line {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  align-items: center;
+  animation: hh-opening-marquee-seamless 15s linear infinite;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+.hh-opening-marquee-line > span {
+  display: block;
+  flex: 0 0 auto;
+  width: max-content;
+  padding-right: 42px;
+}
+@keyframes hh-opening-marquee-seamless {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-marquee-line { animation: none; transform: none; }
+}
+/* Four equal copies make the marquee reset after a complete identical cycle. */
+.hh-opening-marquee-line {
+  animation-duration: 18s;
+}
+.hh-opening-marquee-line > span {
+  min-width: max-content;
+}
+/* Visibility correction for the opening Hỷ floaters. */
+.hh-opening-floaters {
+  z-index: 2;
+  display: block;
+  visibility: visible;
+}
+.hh-opening-stage { z-index: 4; }
+.hh-opening-floater {
+  z-index: 2;
+  color: #fff0dc;
+  opacity: 0;
+  text-shadow:
+    0 0 7px rgb(255 240 220 / 0.58),
+    0 0 18px rgb(240 199 194 / 0.34);
+  animation-name: hh-opening-floater-rise-visible;
+}
+.hh-opening-floater:nth-child(3n) { color: #ffd8d2; }
+@keyframes hh-opening-floater-rise-visible {
+  0%, 10% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) rotate(var(--hh-floater-rotate)) scale(0.72);
+  }
+  22% { opacity: 0.62; }
+  58% { opacity: 0.42; }
+  82% { opacity: 0.16; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--hh-floater-drift), -118vh, 0) rotate(calc(var(--hh-floater-rotate) + 34deg)) scale(1);
+  }
+}
+/* Complete runtime definition for opening floaters. */
+.hh-opening-floaters {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hh-opening-floater {
+  position: absolute;
+  left: var(--hh-floater-x);
+  bottom: var(--hh-floater-bottom);
+  z-index: 2;
+  display: block;
+  color: #fff0dc;
+  font-family: var(--font-wedding-display);
+  font-size: var(--hh-floater-size);
+  line-height: 1;
+  opacity: 0;
+  text-shadow:
+    0 0 7px rgb(255 240 220 / 0.58),
+    0 0 18px rgb(240 199 194 / 0.34);
+  animation: hh-opening-floater-rise-visible var(--hh-floater-duration) ease-in-out var(--hh-floater-delay) infinite;
+  will-change: transform, opacity;
+}
+.hh-opening-floater:nth-child(3n) { color: #ffd8d2; }
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-floater { animation: none; opacity: 0.2; transform: none; }
+}
+/* Slower, lighter, side-to-side floating path for the Hỷ atmosphere. */
+@keyframes hh-opening-floater-rise-visible {
+  0%, 10% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) rotate(var(--hh-floater-rotate)) scale(0.72);
+  }
+  22% {
+    opacity: 0.62;
+    transform: translate3d(calc(var(--hh-floater-drift) * -0.45), -18vh, 0) rotate(calc(var(--hh-floater-rotate) - 8deg)) scale(0.84);
+  }
+  46% {
+    opacity: 0.48;
+    transform: translate3d(var(--hh-floater-drift), -48vh, 0) rotate(calc(var(--hh-floater-rotate) + 8deg)) scale(0.92);
+  }
+  68% {
+    opacity: 0.34;
+    transform: translate3d(calc(var(--hh-floater-drift) * -0.65), -78vh, 0) rotate(calc(var(--hh-floater-rotate) - 5deg)) scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--hh-floater-drift), -118vh, 0) rotate(calc(var(--hh-floater-rotate) + 34deg)) scale(1);
+  }
+}
+/* Opening curtain choreography: close, hold for 500ms, then reveal the invitation. */
+.hh-opening-curtains {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hh-opening-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(164 58 70 / 0.32), transparent 42%),
+    linear-gradient(135deg, #781326, #35050e 78%);
+  box-shadow: inset 0 0 70px rgb(20 2 8 / 0.34);
+}
+.hh-opening-curtain--left {
+  left: 0;
+  transform: translateX(-101%);
+}
+.hh-opening-curtain--right {
+  right: 0;
+  transform: translateX(101%);
+  background:
+    radial-gradient(circle at 50% 50%, rgb(126 25 47 / 0.28), transparent 42%),
+    linear-gradient(225deg, #781326, #35050e 78%);
+}
+.hh-opening-curtain--left::after,
+.hh-opening-curtain--right::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  content: '';
+  opacity: 0.65;
+  background: linear-gradient(90deg, transparent, rgb(197 150 69 / 0.18), transparent);
+}
+.hh-opening-curtain--left::after { right: 0; }
+.hh-opening-curtain--right::after { left: 0; }
+.hh-opening-curtain-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  border-right: 1px solid rgb(247 232 213 / 0.9);
+  border-left: 1px solid rgb(197 150 69 / 0.9);
+  background:
+    repeating-linear-gradient(180deg, rgb(240 199 101 / 0.9) 0 2px, transparent 2px 18px),
+    linear-gradient(90deg, rgb(197 150 69 / 0.68), rgb(247 232 213 / 0.22));
+  box-shadow: 0 0 18px rgb(197 150 69 / 0.55);
+}
+.hh-opening-curtain--left img {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: -94px;
+  width: 188px;
+  height: 188px;
+  object-fit: contain;
+  transform: translateY(-50%) rotate(-2deg);
+  filter: drop-shadow(0 0 16px rgb(197 150 69 / 0.34));
+}
+.hh-opening.is-opening .hh-opening-curtain--left,
+.hh-opening.is-opening .hh-opening-curtain--right {
+  animation-duration: 1900ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+.hh-opening.is-opening .hh-opening-curtain--left { animation-name: hh-curtain-left; }
+.hh-opening.is-opening .hh-opening-curtain--right { animation-name: hh-curtain-right; }
+@keyframes hh-curtain-left {
+  0% { transform: translateX(-101%); }
+  34% { transform: translateX(0); }
+  61% { transform: translateX(0); }
+  100% { transform: translateX(-101%); }
+}
+@keyframes hh-curtain-right {
+  0% { transform: translateX(101%); }
+  34% { transform: translateX(0); }
+  61% { transform: translateX(0); }
+  100% { transform: translateX(101%); }
+}
+@media (max-width: 560px) {
+  .hh-opening-curtain--left img {
+    right: -58px;
+    width: 116px;
+    height: 116px;
+  }
+  .hh-opening-curtain-line { width: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening.is-opening .hh-opening-curtain--left,
+  .hh-opening.is-opening .hh-opening-curtain--right {
+    animation: none;
+    transform: translateX(0);
+  }
+}
+/* Curtain bugfix: keep the overlay opaque and hide off-canvas artwork before interaction. */
+.hh-opening:not(.is-opening) .hh-opening-curtains {
+  visibility: hidden;
+}
+.hh-opening.is-opening {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: none;
+}
+.hh-opening.is-opening .hh-opening-curtains {
+  visibility: visible;
+  opacity: 1;
+}
+.hh-opening-curtains,
+.hh-opening-curtain {
+  opacity: 1;
+}
+.hh-opening-curtain--left {
+  background:
+    radial-gradient(circle at 82% 50%, rgb(164 58 70 / 0.42), transparent 35%),
+    linear-gradient(135deg, #781326 0%, #5b0b18 48%, #35050e 100%);
+}
+.hh-opening-curtain--right {
+  background:
+    radial-gradient(circle at 18% 50%, rgb(197 150 69 / 0.14), transparent 34%),
+    linear-gradient(225deg, #781326 0%, #5b0b18 48%, #35050e 100%);
+}
+.hh-opening-curtain--left img {
+  opacity: 1;
+}
+/* Final curtain timing and center emblem priority. */
+.hh-opening.is-opening .hh-opening-curtain--left,
+.hh-opening.is-opening .hh-opening-curtain--right {
+  animation-duration: 2400ms;
+  animation-timing-function: ease-in-out;
+}
+.hh-opening-curtain--left { z-index: 2; }
+.hh-opening-curtain--right { z-index: 1; }
+.hh-opening-curtain--left img {
+  z-index: 9999;
+  right: -125px;
+  width: 250px;
+  height: 250px;
+}
+@media (max-width: 560px) {
+  .hh-opening-curtain--left img {
+    right: -78px;
+    width: 156px;
+    height: 156px;
+  }
+}
+/* Curtains are a root-level layer, independent from the removable opening section. */
+.hh-opening-curtains {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+}
+.hh-opening-curtains:not(.is-active) { display: none; }
+.hh-opening-curtains.is-active .hh-opening-curtain--left,
+.hh-opening-curtains.is-active .hh-opening-curtain--right {
+  animation-duration: 2400ms;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+.hh-opening-curtains.is-active .hh-opening-curtain--left { animation-name: hh-curtain-left; }
+.hh-opening-curtains.is-active .hh-opening-curtain--right { animation-name: hh-curtain-right; }
+/* Center seam correction: overlapping curtains, centered gold line, emblem gap. */
+.hh-opening-curtain {
+  width: calc(50% + 5px);
+}
+.hh-opening-curtain-line {
+  left: 0;
+  width: 10px;
+  border: 0;
+  background:
+    repeating-linear-gradient(180deg, rgb(240 199 101 / 0.96) 0 2px, transparent 2px 18px),
+    linear-gradient(90deg, rgb(197 150 69 / 0.9), rgb(247 232 213 / 0.34));
+  box-shadow: 0 0 18px rgb(197 150 69 / 0.55);
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0 calc(50% - 132px),
+    transparent calc(50% - 132px) calc(50% + 132px),
+    #000 calc(50% + 132px) 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 0 calc(50% - 132px),
+    transparent calc(50% - 132px) calc(50% + 132px),
+    #000 calc(50% + 132px) 100%
+  );
+}
+.hh-opening-curtain--left img {
+  right: -120px;
+}
+@media (max-width: 560px) {
+  .hh-opening-curtain-line {
+    width: 8px;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0 calc(50% - 84px),
+      transparent calc(50% - 84px) calc(50% + 84px),
+      #000 calc(50% + 84px) 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0 calc(50% - 84px),
+      transparent calc(50% - 84px) calc(50% + 84px),
+      #000 calc(50% + 84px) 100%
+    );
+  }
+  .hh-opening-curtain--left img { right: -73px; }
+}
+/* Seam stacking: curtain bodies at 5, center details above them at 6. */
+.hh-opening-curtain--left,
+.hh-opening-curtain--right {
+  z-index: 5;
+}
+.hh-opening-curtain-line,
+.hh-opening-curtain--left img {
+  z-index: 6;
+}
+/* Seam artwork is root-level so neither curtain stacking context can cover it. */
+.hh-opening-curtain--left,
+.hh-opening-curtain--right { z-index: 5; }
+.hh-opening-curtain-emblem {
+  position: fixed;
+  z-index: 7;
+  top: 50%;
+  left: calc(50% - 125px);
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px rgb(197 150 69 / 0.42));
+}
+.hh-opening-curtain-line {
+  position: fixed;
+  z-index: 6;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 5px);
+  width: 10px;
+  opacity: 0;
+  pointer-events: none;
+}
+.hh-opening-curtains.is-active .hh-opening-curtain-emblem {
+  animation: hh-curtain-emblem 2400ms ease-in-out forwards;
+}
+.hh-opening-curtains.is-active .hh-opening-curtain-line {
+  animation: hh-curtain-line 2400ms ease-in-out forwards;
+}
+@keyframes hh-curtain-emblem {
+  0% { opacity: 0; transform: translate3d(-100vw, -50%, 0) rotate(-2deg); }
+  28% { opacity: 0; transform: translate3d(-100vw, -50%, 0) rotate(-2deg); }
+  34% { opacity: 1; transform: translate3d(0, -50%, 0) rotate(-2deg); }
+  61% { opacity: 1; transform: translate3d(0, -50%, 0) rotate(-2deg); }
+  100% { opacity: 0; transform: translate3d(-100vw, -50%, 0) rotate(-2deg); }
+}
+@keyframes hh-curtain-line {
+  0%, 32% { opacity: 0; }
+  34%, 61% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (max-width: 560px) {
+  .hh-opening-curtain-emblem {
+    left: calc(50% - 78px);
+    width: 156px;
+    height: 156px;
+  }
+  .hh-opening-curtain-line {
+    left: calc(50% - 4px);
+    width: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-curtain-emblem,
+  .hh-opening-curtain-line { animation: none; }
+  .hh-opening-curtain-emblem { opacity: 1; transform: translate3d(0, -50%, 0); }
+  .hh-opening-curtain-line { opacity: 1; }
+}
+/* Emblem follows the curtain continuously instead of appearing at the seam. */
+@keyframes hh-curtain-emblem {
+  0% {
+    opacity: 0;
+    transform: translate3d(-100vw, -50%, 0) rotate(-2deg);
+  }
+  12% {
+    opacity: 0.12;
+    transform: translate3d(-72vw, -50%, 0) rotate(-2deg);
+  }
+  28% {
+    opacity: 0.58;
+    transform: translate3d(-18vw, -50%, 0) rotate(-2deg);
+  }
+  34% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+  61% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+  88% {
+    opacity: 0.5;
+    transform: translate3d(-58vw, -50%, 0) rotate(-2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-100vw, -50%, 0) rotate(-2deg);
+  }
+}
+/* Exact 1:1 timing with the left curtain; no emblem delay or separate fade-in. */
+@keyframes hh-curtain-emblem {
+  0% {
+    opacity: 1;
+    transform: translate3d(-101%, -50%, 0) rotate(-2deg);
+  }
+  34% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+  61% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-101%, -50%, 0) rotate(-2deg);
+  }
+}
+/* Match the curtain's off-canvas start/end distance. */
+@keyframes hh-curtain-emblem {
+  0% {
+    opacity: 1;
+    transform: translate3d(-100vw, -50%, 0) rotate(-2deg);
+  }
+  34%, 61% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-100vw, -50%, 0) rotate(-2deg);
+  }
+}
+/* Right opening artwork: larger and more visible inside the card face. */
+.hh-opening-card > .hh-opening-art-right {
+  top: -7%;
+  right: 0;
+  width: 41%;
+  max-height: 96%;
+  opacity: 0.82;
+}
+@media (max-width: 560px) {
+  .hh-opening-card > .hh-opening-art-right {
+    top: -5%;
+    right: -1%;
+    width: 38%;
+    max-height: 92%;
+  }
+}
+.hh-opening-card > .hh-opening-art-right {
+  top: -8%;
+  right: 10%;
+}
+/* Gentle floating motion for the corner double-happiness seal. */
+.hh-card-front .hh-seal {
+  animation: hh-seal-float 4.6s ease-in-out infinite alternate;
+}
+@keyframes hh-seal-float {
+  from { transform: translate3d(0, 0, 0) rotate(-8deg); }
+  to { transform: translate3d(0, -6px, 0) rotate(-4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-card-front .hh-seal { animation: none; transform: rotate(-8deg); }
+}
+/* Ripple echo for the ampersand between the couple's names. */
+.hh-opening-names i {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+.hh-opening-names i::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: '&';
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: center;
+  text-shadow: 0 0 12px rgb(240 199 101 / 0.58);
+  animation: hh-ampersand-ripple 3.2s ease-out infinite;
+}
+@keyframes hh-ampersand-ripple {
+  0%, 18% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  34% { opacity: 0.48; }
+  72% {
+    opacity: 0.14;
+    transform: scale(2.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-opening-names i::after { animation: none; opacity: 0; }
+}
+/* Refined Vạn Hỷ seam: delicate double gold line with restrained motifs. */
+.hh-opening-curtain-line {
+  width: 12px;
+  border: 0;
+  background:
+    radial-gradient(circle, rgb(247 232 213 / 0.9) 0 1px, transparent 1.6px) center / 12px 28px repeat-y,
+    linear-gradient(90deg, transparent 0 3px, rgb(197 150 69 / 0.86) 3px 4px, transparent 4px 7px, rgb(240 199 101 / 0.72) 7px 8px, transparent 8px);
+  box-shadow: 0 0 12px rgb(197 150 69 / 0.34);
+}
+.hh-opening-curtain-line::before,
+.hh-opening-curtain-line::after {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  content: '';
+  background: #f0c765;
+  box-shadow: 0 0 7px rgb(240 199 101 / 0.56);
+  transform: translateX(-50%) rotate(45deg);
+}
+.hh-opening-curtain-line::before { top: 18px; }
+.hh-opening-curtain-line::after { bottom: 18px; }
+@media (max-width: 560px) {
+  .hh-opening-curtain-line { width: 10px; }
+  .hh-opening-curtain-line::before,
+  .hh-opening-curtain-line::after { width: 3px; height: 3px; }
+}
+/* Replace the thin seam with a fuller ornamental gold ribbon. */
+.hh-opening-curtain-line {
+  width: 24px;
+  background:
+    radial-gradient(ellipse 5px 7px at 50% 14px, rgb(247 232 213 / 0.86) 0 38%, transparent 43%) center / 24px 34px repeat-y,
+    linear-gradient(90deg, transparent 0 3px, rgb(197 150 69 / 0.68) 3px 5px, rgb(240 199 101 / 0.92) 5px 7px, rgb(247 232 213 / 0.34) 7px 9px, rgb(91 11 24 / 0.58) 9px 15px, rgb(247 232 213 / 0.34) 15px 17px, rgb(240 199 101 / 0.92) 17px 19px, rgb(197 150 69 / 0.68) 19px 21px, transparent 21px);
+  box-shadow:
+    0 0 0 1px rgb(197 150 69 / 0.24),
+    0 0 22px rgb(197 150 69 / 0.42);
+}
+.hh-opening-curtain-line::before,
+.hh-opening-curtain-line::after {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgb(247 232 213 / 0.7);
+  background: #c59645;
+  box-shadow: 0 0 10px rgb(240 199 101 / 0.65);
+}
+.hh-opening-curtain-line::before { top: 22px; }
+.hh-opening-curtain-line::after { bottom: 22px; }
+@media (max-width: 560px) {
+  .hh-opening-curtain-line { width: 18px; }
+  .hh-opening-curtain-line::before,
+  .hh-opening-curtain-line::after { width: 5px; height: 5px; }
+}
+/* Softer Chinese-paper seam: rounded, low-contrast, silk-like ornament. */
+.hh-opening-curtain-line {
+  width: 18px;
+  opacity: 0.86;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 15px, rgb(247 232 213 / 0.72) 0 1.6px, transparent 2.4px) center / 18px 30px repeat-y,
+    linear-gradient(90deg, transparent 0 4px, rgb(197 150 69 / 0.5) 4px 5px, rgb(240 199 101 / 0.72) 5px 6px, rgb(247 232 213 / 0.18) 6px 12px, rgb(240 199 101 / 0.72) 12px 13px, rgb(197 150 69 / 0.5) 13px 14px, transparent 14px);
+  box-shadow: 0 0 14px rgb(197 150 69 / 0.26);
+}
+.hh-opening-curtain-line::before,
+.hh-opening-curtain-line::after {
+  width: 5px;
+  height: 5px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(247 232 213 / 0.8);
+  box-shadow: 0 0 8px rgb(240 199 101 / 0.48);
+}
+.hh-opening-curtain-line::before { top: 24px; }
+.hh-opening-curtain-line::after { bottom: 24px; }
+@media (max-width: 560px) {
+  .hh-opening-curtain-line { width: 14px; }
+  .hh-opening-curtain-line::before,
+  .hh-opening-curtain-line::after { width: 4px; height: 4px; }
+}
+/* Gold seam removed: the double-happiness artwork is the sole center accent. */
+.hh-opening-curtain-line { display: none; }
+/* Content direction: one shared theatre background, transparent section surfaces. */
+.hh-page {
+  background: #35050e;
+}
+.hh-page::before {
+  background:
+    radial-gradient(circle at 50% 14%, rgb(164 58 70 / 0.34), transparent 24%),
+    radial-gradient(circle at 12% 68%, rgb(197 150 69 / 0.1), transparent 26%),
+    radial-gradient(circle at 88% 42%, rgb(120 19 38 / 0.24), transparent 30%),
+    linear-gradient(145deg, #21040d 0%, #5b0b18 48%, #1b030b 100%);
+}
+.hh-content,
+.hh-section,
+.hh-cover,
+.hh-footer {
+  background: transparent;
+}
+.hh-section::before {
+  border-color: rgb(247 232 213 / 0.1);
+}
+.hh-section::after { opacity: 0.42; }
+
+/* Shared slow reveal system: text rises, media fades, controls scale in. */
+.hh-content.has-reveal .hh-section .hh-reveal-item {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-item {
+  animation-duration: 720ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-delay: var(--hh-reveal-delay, 0ms);
+  animation-fill-mode: both;
+}
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-rise { animation-name: hh-reveal-rise; }
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-slide { animation-name: hh-reveal-slide; }
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-scale { animation-name: hh-reveal-scale; }
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-fade { animation-name: hh-reveal-fade; }
+@keyframes hh-reveal-rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes hh-reveal-slide {
+  from { opacity: 0; transform: translate3d(-18px, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes hh-reveal-scale {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.97); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes hh-reveal-fade {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Guest-aware forms and approved wishes. */
+.hh-guest-field {
+  display: grid;
+  width: min(100%, 340px);
+  gap: 7px;
+  margin: 2px auto 0;
+  color: rgb(247 232 213 / 0.72);
+  font-size: 11px;
+  text-align: left;
+}
+.hh-guest-field input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgb(197 150 69 / 0.5);
+  padding: 11px 13px;
+  color: var(--hh-cream);
+  background: rgb(53 5 14 / 0.42);
+  font: inherit;
+}
+.hh-guest-context {
+  font-size: 12px !important;
+  color: var(--hh-gold) !important;
+}
+.hh-interaction-error {
+  color: #ffc0b5 !important;
+  font-size: 12px !important;
+}
+.hh-wish-list {
+  display: grid;
+  width: min(100%, 360px);
+  gap: 10px;
+  margin: 16px auto 0;
+}
+.hh-wish-list article {
+  border-left: 2px solid rgb(197 150 69 / 0.58);
+  padding: 9px 12px;
+  background: rgb(247 232 213 / 0.05);
+  text-align: left;
+}
+.hh-wish-list article p { margin: 0; font-size: 12px; }
+.hh-wish-list article small { color: var(--hh-gold); font-size: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-content.has-reveal .hh-section .hh-reveal-item {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
+/* Content rhythm: open up section spacing and remove divider lines. */
+.hh-section {
+  padding-block: 44px;
+  border-top: 0;
+}
+
+.hh-section::before {
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .hh-section {
+    padding-block: 39px;
+  }
+}
+
+/* Softer reveal pacing: slower ease-in-out motion with a relaxed stagger. */
+.hh-content.has-reveal .hh-section {
+  transition-duration: 900ms;
+  transition-timing-function: ease-in-out;
+}
+
+.hh-content.has-reveal .hh-section.is-visible .hh-reveal-item {
+  animation-duration: 980ms;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* Keep content sections compact; spacing should come from the content rhythm, not a tall viewport block. */
+.hh-section {
+  min-height: min(68dvh, 560px);
+}
+
+/* Cover redesign: a quieter editorial title panel on the shared atmosphere. */
+.hh-section.hh-cover {
+  min-height: min(68dvh, 560px);
+  padding: 64px 24px 58px;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  overflow: hidden;
+  perspective: none;
+  transform-style: flat;
+  isolation: isolate;
+}
+
+.hh-cover::before {
+  inset: 8% 9%;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(164 58 70 / 0.2), transparent 68%);
+  filter: blur(8px);
+  opacity: 0.9;
+}
+
+.hh-cover::after {
+  width: 240px;
+  height: 240px;
+  top: 50%;
+  right: -116px;
+  bottom: auto;
+  left: auto;
+  background: radial-gradient(circle, rgb(197 150 69 / 0.14), transparent 68%);
+  filter: blur(10px);
+}
+
+.hh-cover .hh-cover-fan {
+  top: -14%;
+  right: -18%;
+  width: min(76%, 440px);
+  opacity: 0.13;
+  transform: rotate(9deg);
+}
+
+.hh-cover .hh-eyebrow {
+  position: relative;
+  z-index: 1;
+  transform: none;
+  color: rgb(240 199 101 / 0.92) !important;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+}
+
+.hh-cover .hh-section-kicker {
+  position: relative;
+  z-index: 1;
+  max-width: 270px;
+  margin: 0;
+  color: rgb(247 232 213 / 0.68) !important;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(17px, 4.8vw, 24px) !important;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-transform: none;
+}
+
+.hh-cover h2 {
+  position: relative;
+  z-index: 1;
+  max-width: min(92vw, 520px);
+  margin: 2px auto 0;
+  color: var(--hh-cream);
+  font-size: clamp(42px, 12vw, 72px);
+  letter-spacing: -0.075em;
+  line-height: 0.92;
+  text-shadow: 0 10px 30px rgb(0 0 0 / 0.28);
+  transform: none;
+}
+
+.hh-cover h2 i {
+  display: inline-block;
+  margin: 0 0.08em;
+  color: var(--hh-gold);
+  font-size: 0.5em;
+  transform: translateY(-0.08em);
+}
+
+.hh-cover .hh-date-lockup {
+  position: relative;
+  z-index: 1;
+  gap: 7px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgb(240 199 101 / 0.28);
+  transform: none;
+  text-align: center;
+}
+
+.hh-cover .hh-date-lockup strong {
+  color: var(--hh-gold);
+  font-size: clamp(25px, 7vw, 34px);
+  letter-spacing: 0.12em;
+}
+
+.hh-cover .hh-date-lockup span {
+  color: rgb(247 232 213 / 0.62);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.hh-cover .hh-section-mark {
+  position: absolute;
+  right: 13%;
+  bottom: 10%;
+  z-index: 1;
+  margin: 0;
+  color: rgb(240 199 101 / 0.2);
+  font-size: clamp(42px, 9vw, 64px);
+  transform: rotate(8deg);
+}
+
+.hh-cover.is-visible .hh-cover-fan {
+  animation: hh-cover-fan-drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes hh-cover-fan-drift {
+  from { transform: translate3d(0, 0, 0) rotate(9deg); }
+  to { transform: translate3d(-12px, 9px, 0) rotate(6deg); }
+}
+
+@media (max-width: 560px) {
+  .hh-section.hh-cover {
+    padding-block: 48px 44px;
+  }
+
+  .hh-cover .hh-section-mark {
+    right: 9%;
+    bottom: 8%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover.is-visible .hh-cover-fan {
+    animation: none;
+    transform: rotate(9deg);
+  }
+}
+
+/* Full cover composition: editorial title scene with a centered ceremonial lockup. */
+.hh-section.hh-cover {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto;
+  align-content: center;
+  justify-items: center;
+  min-height: min(68dvh, 560px);
+  padding: 58px 24px 54px;
+  gap: 13px;
+  background: transparent;
+}
+
+.hh-section.hh-cover::before {
+  inset: 12% 7%;
+  border: 1px solid rgb(240 199 101 / 0.12);
+  border-radius: 46% 54% 48% 52%;
+  background:
+    radial-gradient(circle at 50% 48%, rgb(164 58 70 / 0.22), transparent 48%),
+    linear-gradient(115deg, transparent 35%, rgb(240 199 101 / 0.05) 50%, transparent 65%);
+  box-shadow: inset 0 0 70px rgb(0 0 0 / 0.16);
+  filter: none;
+  opacity: 1;
+  transform: rotate(-2deg);
+}
+
+.hh-section.hh-cover::after {
+  top: 17%;
+  right: -90px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgb(197 150 69 / 0.13), transparent 68%);
+  filter: blur(4px);
+}
+
+.hh-cover .hh-cover-fan {
+  top: -11%;
+  right: -14%;
+  z-index: 0;
+  width: min(70%, 430px);
+  opacity: 0.12;
+  filter: saturate(0.8) sepia(0.18);
+  transform: rotate(11deg);
+}
+
+.hh-cover .hh-eyebrow {
+  grid-row: 1;
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid rgb(240 199 101 / 0.28);
+  border-radius: 999px;
+  background: rgb(53 5 14 / 0.24);
+  color: var(--hh-gold) !important;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}
+
+.hh-cover .hh-section-kicker {
+  grid-row: 2;
+  max-width: 300px;
+  margin: 4px 0 0;
+  color: rgb(247 232 213 / 0.7) !important;
+  font-size: clamp(16px, 4.4vw, 22px) !important;
+  letter-spacing: 0.015em;
+  line-height: 1.35;
+}
+
+.hh-cover .hh-section-kicker::before,
+.hh-cover .hh-section-kicker::after {
+  display: inline-block;
+  width: 30px;
+  height: 1px;
+  margin: 0 10px 0.28em;
+  background: rgb(240 199 101 / 0.5);
+  content: '';
+}
+
+.hh-cover h2 {
+  grid-row: 3;
+  max-width: min(92vw, 560px);
+  margin: 5px auto 0;
+  color: #fff3df;
+  font-size: clamp(43px, 12.5vw, 76px);
+  font-weight: 600;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+  text-shadow: 0 12px 34px rgb(0 0 0 / 0.32), 0 0 26px rgb(164 58 70 / 0.22);
+}
+
+.hh-cover h2::before,
+.hh-cover h2::after {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(240 199 101 / 0.6));
+  content: '';
+}
+
+.hh-cover h2::before {
+  right: calc(100% + 12px);
+}
+
+.hh-cover h2::after {
+  left: calc(100% + 12px);
+  transform: rotate(180deg);
+}
+
+.hh-cover h2 i {
+  margin: 0 0.1em;
+  color: var(--hh-gold);
+  font-size: 0.46em;
+  text-shadow: 0 0 18px rgb(240 199 101 / 0.32);
+}
+
+.hh-cover .hh-date-lockup {
+  grid-row: 4;
+  min-width: min(76vw, 300px);
+  gap: 8px;
+  margin: 9px 0 0;
+  padding: 16px 22px 0;
+  border-top: 1px solid rgb(240 199 101 / 0.32);
+  transform: none;
+}
+
+.hh-cover .hh-date-lockup strong {
+  font-size: clamp(24px, 6.8vw, 33px);
+  letter-spacing: 0.14em;
+}
+
+.hh-cover .hh-date-lockup span {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+
+.hh-cover .hh-section-mark {
+  grid-row: 5;
+  position: relative;
+  right: auto;
+  bottom: auto;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 9px 0 0;
+  border: 1px solid rgb(240 199 101 / 0.42);
+  border-radius: 50%;
+  color: rgb(240 199 101 / 0.9);
+  font-size: 34px;
+  line-height: 1;
+  opacity: 0.86;
+  transform: rotate(8deg);
+  box-shadow: 0 0 0 6px rgb(240 199 101 / 0.035), 0 0 24px rgb(197 150 69 / 0.12);
+}
+
+.hh-cover.is-visible .hh-section-mark {
+  animation: hh-cover-seal-breathe 4.8s ease-in-out 1.1s infinite alternate;
+}
+
+@keyframes hh-cover-seal-breathe {
+  from { box-shadow: 0 0 0 6px rgb(240 199 101 / 0.035), 0 0 24px rgb(197 150 69 / 0.12); }
+  to { box-shadow: 0 0 0 11px rgb(240 199 101 / 0.018), 0 0 34px rgb(197 150 69 / 0.22); }
+}
+
+@media (max-width: 560px) {
+  .hh-section.hh-cover {
+    min-height: min(68dvh, 520px);
+    padding: 48px 20px 44px;
+    gap: 11px;
+  }
+
+  .hh-cover .hh-section-kicker::before,
+  .hh-cover .hh-section-kicker::after {
+    width: 20px;
+    margin-inline: 6px;
+  }
+
+  .hh-cover h2::before,
+  .hh-cover h2::after {
+    display: none;
+  }
+
+  .hh-cover .hh-cover-fan {
+    right: -24%;
+    width: 82%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover.is-visible .hh-section-mark {
+    animation: none;
+  }
+}
+
+/* Replace the modern circular mark with a traditional Vạn Hỷ seal stamp. */
+.hh-cover .hh-section-mark {
+  width: 66px;
+  height: 66px;
+  border: 1px solid rgb(240 199 101 / 0.9);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgb(164 58 70 / 0.96), rgb(105 16 32 / 0.98)),
+    #8f1d2e;
+  color: #fff0d2;
+  font-family: var(--font-wedding-display);
+  font-size: 36px;
+  opacity: 0.96;
+  transform: rotate(-4deg);
+  clip-path: polygon(7% 0, 93% 0, 100% 7%, 100% 93%, 93% 100%, 7% 100%, 0 93%, 0 7%);
+  box-shadow:
+    inset 0 0 0 4px rgb(240 199 101 / 0.12),
+    inset 0 0 0 6px rgb(247 232 213 / 0.5),
+    0 0 0 5px rgb(164 58 70 / 0.1),
+    0 12px 24px rgb(0 0 0 / 0.2);
+}
+
+.hh-cover .hh-section-mark::before {
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgb(240 199 101 / 0.5);
+  content: '';
+  pointer-events: none;
+}
+
+.hh-cover .hh-section-mark::after {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(255 243 223 / 0.72);
+  box-shadow: 0 0 8px rgb(255 243 223 / 0.45);
+  content: '';
+  opacity: 0.7;
+}
+
+.hh-cover.is-visible .hh-section-mark {
+  animation-name: hh-cover-seal-stamp;
+}
+
+@keyframes hh-cover-seal-stamp {
+  0% { transform: rotate(-4deg) scale(0.94); opacity: 0.72; }
+  45% { transform: rotate(-4deg) scale(1.03); opacity: 1; }
+  100% { transform: rotate(-4deg) scale(1); opacity: 0.96; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover.is-visible .hh-section-mark {
+    animation: none;
+    transform: rotate(-4deg);
+  }
+}
+
+.hh-cover.is-visible .hh-section-mark {
+  animation: hh-cover-seal-stamp 720ms cubic-bezier(0.45, 0, 0.55, 1) 1.1s both;
+}
+
+/* Cover decor: replace the flickering paper fan with calm floral framing. */
+.hh-cover .hh-cover-fan {
+  display: none;
+}
+
+.hh-cover .hh-cover-flower {
+  z-index: 0;
+  width: clamp(150px, 31vw, 250px);
+  opacity: 0.2;
+  filter: saturate(0.78) sepia(0.16) drop-shadow(0 12px 20px rgb(0 0 0 / 0.18));
+  transform-origin: center bottom;
+  pointer-events: none;
+}
+
+.hh-cover .hh-cover-flower--right {
+  top: -7%;
+  right: -6%;
+  transform: rotate(7deg);
+}
+
+.hh-cover .hh-cover-flower--left {
+  bottom: -13%;
+  left: -8%;
+  transform: scaleX(-1) rotate(7deg);
+}
+
+.hh-cover.is-visible .hh-cover-flower--right {
+  animation: hh-cover-flower-sway-right 9s ease-in-out 900ms infinite alternate;
+}
+
+.hh-cover.is-visible .hh-cover-flower--left {
+  animation: hh-cover-flower-sway-left 10s ease-in-out 1.1s infinite alternate;
+}
+
+@keyframes hh-cover-flower-sway-right {
+  from { transform: rotate(7deg) translate3d(0, 0, 0); }
+  to { transform: rotate(4deg) translate3d(-6px, 5px, 0); }
+}
+
+@keyframes hh-cover-flower-sway-left {
+  from { transform: scaleX(-1) rotate(7deg) translate3d(0, 0, 0); }
+  to { transform: scaleX(-1) rotate(4deg) translate3d(-5px, -4px, 0); }
+}
+
+@media (max-width: 560px) {
+  .hh-cover .hh-cover-flower {
+    width: 180px;
+    opacity: 0.17;
+  }
+
+  .hh-cover .hh-cover-flower--right {
+    top: -5%;
+    right: -18%;
+  }
+
+  .hh-cover .hh-cover-flower--left {
+    bottom: -10%;
+    left: -21%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover.is-visible .hh-cover-flower--right,
+  .hh-cover.is-visible .hh-cover-flower--left {
+    animation: none;
+  }
+}
+
+.hh-content.has-reveal .hh-section.is-visible .hh-cover-flower {
+  opacity: 0.2;
+}
+
+/* Decor is atmospheric, not reveal content: preserve its shape and avoid fade loops. */
+.hh-content .hh-approved-art {
+  height: auto;
+  max-width: none;
+}
+
+.hh-content .hh-cover-flower {
+  opacity: 0.2;
+  animation: none;
+}
+
+.hh-content.has-reveal .hh-section.is-visible .hh-cover-flower {
+  opacity: 0.2;
+  animation: none;
+  transform: rotate(7deg);
+}
+
+.hh-content.has-reveal .hh-section.is-visible .hh-cover-flower--left {
+  transform: scaleX(-1) rotate(7deg);
+}
+
+/* Photo media keeps its source ratio and is never stretched by the reveal system. */
+.hh-content img:not(.hh-approved-art) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.hh-memory-grid img,
+.hh-gallery-grid img {
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Let section-owned artwork cross the section boundary without being clipped. */
+.hh-section {
+  overflow: visible;
+}
+
+.hh-section.hh-cover {
+  overflow: visible;
+}
+
+/* Chinese frame language: replace the soft oval with a chamfered red-envelope border. */
+.hh-section::before {
+  inset: 16px 12px;
+  border: 1px solid rgb(240 199 101 / 0.46);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgb(240 199 101 / 0.08), transparent 18%, transparent 82%, rgb(240 199 101 / 0.08)),
+    linear-gradient(180deg, rgb(164 58 70 / 0.12), transparent 22%, transparent 78%, rgb(164 58 70 / 0.12));
+  box-shadow:
+    inset 0 0 0 4px rgb(164 58 70 / 0.16),
+    inset 0 0 0 5px rgb(247 232 213 / 0.08);
+  clip-path: polygon(
+    0 5%, 5% 0, 34% 0, 36% 1.5%, 64% 1.5%, 66% 0, 95% 0, 100% 5%,
+    100% 34%, 98.5% 36%, 98.5% 64%, 100% 66%, 100% 95%, 95% 100%,
+    66% 100%, 64% 98.5%, 36% 98.5%, 34% 100%, 5% 100%, 0 95%,
+    0 66%, 1.5% 64%, 1.5% 36%, 0 34%
+  );
+  opacity: 0.86;
+  transform: none;
+}
+
+.hh-section.hh-cover::before {
+  inset: 13px 10px;
+  border-color: rgb(240 199 101 / 0.62);
+  background:
+    linear-gradient(90deg, rgb(143 29 46 / 0.22), transparent 20%, transparent 80%, rgb(143 29 46 / 0.22)),
+    radial-gradient(circle at 50% 48%, rgb(164 58 70 / 0.18), transparent 55%);
+  box-shadow:
+    inset 0 0 0 4px rgb(143 29 46 / 0.22),
+    inset 0 0 0 5px rgb(240 199 101 / 0.12),
+    0 0 30px rgb(0 0 0 / 0.08);
+}
+
+/* Keep the small side ornaments stable when the ceremonial line wraps. */
+.hh-cover .hh-section-kicker {
+  position: relative;
+  width: min(100%, 300px);
+  padding-inline: 38px;
+  white-space: normal;
+}
+
+.hh-cover .hh-section-kicker::before,
+.hh-cover .hh-section-kicker::after {
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 1px;
+  margin: 0;
+  background: rgb(240 199 101 / 0.52);
+  content: '';
+  transform: translateY(-50%);
+}
+
+.hh-cover .hh-section-kicker::before { left: 0; }
+.hh-cover .hh-section-kicker::after { right: 0; }
+
+/* Three-line wedding lockup: bride / ampersand / groom. */
+.hh-cover h2 {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  row-gap: 2px;
+  width: 100%;
+}
+
+.hh-cover h2 .hh-cover-name {
+  display: block;
+  white-space: nowrap;
+}
+
+.hh-cover h2 i {
+  display: block;
+  margin: 0;
+  line-height: 0.8;
+  transform: none;
+}
+
+.hh-cover h2::before,
+.hh-cover h2::after {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .hh-section::before {
+    inset: 12px 8px;
+  }
+
+  .hh-section.hh-cover::before {
+    inset: 10px 7px;
+  }
+
+  .hh-cover .hh-section-kicker {
+    width: min(100%, 280px);
+    padding-inline: 28px;
+  }
+
+  .hh-cover .hh-section-kicker::before,
+  .hh-cover .hh-section-kicker::after {
+    width: 18px;
+  }
+}
+
+/* Reference-led Chinese wedding frame: deep scarlet structure, gold edge detailing, open center. */
+.hh-section::before {
+  inset: 14px 10px;
+  border: 2px solid rgb(143 29 46 / 0.94);
+  border-radius: 0;
+  background:
+    linear-gradient(90deg, rgb(240 199 101 / 0.82), transparent 13%, transparent 87%, rgb(240 199 101 / 0.82)) top / 100% 1px no-repeat,
+    linear-gradient(90deg, rgb(240 199 101 / 0.82), transparent 13%, transparent 87%, rgb(240 199 101 / 0.82)) bottom / 100% 1px no-repeat,
+    linear-gradient(180deg, rgb(240 199 101 / 0.82), transparent 13%, transparent 87%, rgb(240 199 101 / 0.82)) left / 1px 100% no-repeat,
+    linear-gradient(180deg, rgb(240 199 101 / 0.82), transparent 13%, transparent 87%, rgb(240 199 101 / 0.82)) right / 1px 100% no-repeat,
+    radial-gradient(circle at 0 0, rgb(164 58 70 / 0.82) 0 9px, transparent 10px),
+    radial-gradient(circle at 100% 0, rgb(164 58 70 / 0.82) 0 9px, transparent 10px),
+    radial-gradient(circle at 0 100%, rgb(164 58 70 / 0.82) 0 9px, transparent 10px),
+    radial-gradient(circle at 100% 100%, rgb(164 58 70 / 0.82) 0 9px, transparent 10px);
+  box-shadow:
+    inset 0 0 0 4px rgb(164 58 70 / 0.2),
+    inset 0 0 0 6px rgb(240 199 101 / 0.1);
+  clip-path: none;
+  opacity: 0.94;
+}
+
+.hh-section.hh-cover::before {
+  inset: 11px 8px;
+  border-color: rgb(143 29 46 / 0.98);
+  background:
+    linear-gradient(90deg, rgb(240 199 101 / 0.94), transparent 15%, transparent 85%, rgb(240 199 101 / 0.94)) top / 100% 1px no-repeat,
+    linear-gradient(90deg, rgb(240 199 101 / 0.94), transparent 15%, transparent 85%, rgb(240 199 101 / 0.94)) bottom / 100% 1px no-repeat,
+    linear-gradient(180deg, rgb(240 199 101 / 0.94), transparent 15%, transparent 85%, rgb(240 199 101 / 0.94)) left / 1px 100% no-repeat,
+    linear-gradient(180deg, rgb(240 199 101 / 0.94), transparent 15%, transparent 85%, rgb(240 199 101 / 0.94)) right / 1px 100% no-repeat,
+    radial-gradient(circle at 0 0, rgb(164 58 70 / 0.96) 0 11px, transparent 12px),
+    radial-gradient(circle at 100% 0, rgb(164 58 70 / 0.96) 0 11px, transparent 12px),
+    radial-gradient(circle at 0 100%, rgb(164 58 70 / 0.96) 0 11px, transparent 12px),
+    radial-gradient(circle at 100% 100%, rgb(164 58 70 / 0.96) 0 11px, transparent 12px),
+    radial-gradient(circle at 50% 45%, rgb(164 58 70 / 0.12), transparent 54%);
+  box-shadow:
+    inset 0 0 0 4px rgb(164 58 70 / 0.3),
+    inset 0 0 0 6px rgb(240 199 101 / 0.14);
+}
+
+@media (max-width: 560px) {
+  .hh-section::before {
+    inset: 10px 7px;
+  }
+
+  .hh-section.hh-cover::before {
+    inset: 8px 6px;
+  }
+}
+
+/* Final geometry correction: keep the Chinese frame perfectly rectangular at every width. */
+.hh-section::before,
+.hh-section.hh-cover::before {
+  inset: 16px;
+  border: 1px solid rgb(240 199 101 / 0.58);
+  border-radius: 0;
+  clip-path: none !important;
+  transform: none !important;
+  background:
+    linear-gradient(90deg, rgb(143 29 46 / 0.96) 0 9px, transparent 9px calc(100% - 9px), rgb(143 29 46 / 0.96) calc(100% - 9px)) top / 100% 2px no-repeat,
+    linear-gradient(90deg, rgb(143 29 46 / 0.96) 0 9px, transparent 9px calc(100% - 9px), rgb(143 29 46 / 0.96) calc(100% - 9px)) bottom / 100% 2px no-repeat,
+    linear-gradient(180deg, rgb(143 29 46 / 0.96) 0 9px, transparent 9px calc(100% - 9px), rgb(143 29 46 / 0.96) calc(100% - 9px)) left / 2px 100% no-repeat,
+    linear-gradient(180deg, rgb(143 29 46 / 0.96) 0 9px, transparent 9px calc(100% - 9px), rgb(143 29 46 / 0.96) calc(100% - 9px)) right / 2px 100% no-repeat,
+    transparent;
+  box-shadow: inset 0 0 0 4px rgb(143 29 46 / 0.12);
+  opacity: 0.92;
+}
+
+@media (max-width: 560px) {
+  .hh-section::before,
+  .hh-section.hh-cover::before {
+    inset: 12px;
+  }
+}
+
+/* Cover centerpiece: a dedicated medallion with two symmetrical Chinese panels. */
+.hh-cover-ornament {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(100%, 430px);
+  height: 190px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.hh-cover-medallion {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 146px;
+  height: 146px;
+  place-items: center;
+  border: 2px solid rgb(240 199 101 / 0.84);
+  border-radius: 50%;
+  color: rgb(255 243 223 / 0.2);
+  font-family: var(--font-wedding-display);
+  font-size: 76px;
+  line-height: 1;
+  background:
+    radial-gradient(circle at 50% 42%, rgb(164 58 70 / 0.88), rgb(105 16 32 / 0.96) 68%),
+    #8f1d2e;
+  box-shadow:
+    0 0 0 5px rgb(143 29 46 / 0.2),
+    0 0 0 7px rgb(240 199 101 / 0.16),
+    inset 0 0 0 5px rgb(240 199 101 / 0.12),
+    0 18px 30px rgb(0 0 0 / 0.18);
+  opacity: 0.96;
+  transform: translate(-50%, -50%);
+}
+
+.hh-cover-medallion::before,
+.hh-cover-medallion::after {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgb(240 199 101 / 0.44);
+  border-radius: 50%;
+  content: '';
+}
+
+.hh-cover-medallion::after {
+  inset: 20px;
+  border-color: rgb(247 232 213 / 0.18);
+}
+
+.hh-cover-panel {
+  position: absolute;
+  top: 50%;
+  width: 122px;
+  height: 142px;
+  border: 1px solid rgb(240 199 101 / 0.62);
+  background:
+    linear-gradient(90deg, rgb(240 199 101 / 0.12) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(0deg, rgb(240 199 101 / 0.1) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(145deg, rgb(164 58 70 / 0.9), rgb(105 16 32 / 0.96));
+  box-shadow:
+    inset 0 0 0 4px rgb(143 29 46 / 0.28),
+    inset 0 0 0 6px rgb(240 199 101 / 0.1),
+    0 14px 26px rgb(0 0 0 / 0.14);
+  opacity: 0.78;
+  transform: translateY(-50%);
+}
+
+.hh-cover-panel::before,
+.hh-cover-panel::after {
+  position: absolute;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgb(240 199 101 / 0.34);
+  content: '';
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.hh-cover-panel::before {
+  top: 18px;
+}
+
+.hh-cover-panel::after {
+  bottom: 18px;
+}
+
+.hh-cover-panel--left {
+  left: calc(50% - 198px);
+  border-radius: 8px 0 0 8px;
+}
+
+.hh-cover-panel--right {
+  right: calc(50% - 198px);
+  border-radius: 0 8px 8px 0;
+}
+
+.hh-cover .hh-cover-ornament ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 560px) {
+  .hh-cover-ornament {
+    width: 100%;
+    height: 156px;
+  }
+
+  .hh-cover-medallion {
+    width: 116px;
+    height: 116px;
+    font-size: 60px;
+  }
+
+  .hh-cover-panel {
+    width: 94px;
+    height: 116px;
+  }
+
+  .hh-cover-panel--left {
+    left: calc(50% - 148px);
+  }
+
+  .hh-cover-panel--right {
+    right: calc(50% - 148px);
+  }
+}
+
+/* Use the extracted screenshot artwork directly; no CSS redrawing or reveal animation. */
+.hh-cover-ornament {
+  z-index: 0;
+  height: 220px;
+}
+
+.hh-cover-ornament img.hh-cover-medallion {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 206px;
+  height: auto;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+}
+
+.hh-cover-ornament img.hh-cover-panel {
+  position: absolute;
+  top: 50%;
+  display: block;
+  width: 116px;
+  height: auto;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.92;
+  object-fit: contain;
+  transform: translateY(-50%);
+}
+
+.hh-cover-ornament img.hh-cover-panel--left {
+  left: calc(50% - 194px);
+}
+
+.hh-cover-ornament img.hh-cover-panel--right {
+  right: calc(50% - 194px);
+}
+
+@media (max-width: 560px) {
+  .hh-cover-ornament {
+    height: 178px;
+  }
+
+  .hh-cover-ornament img.hh-cover-medallion {
+    width: 154px;
+  }
+
+  .hh-cover-ornament img.hh-cover-panel {
+    width: 88px;
+  }
+
+  .hh-cover-ornament img.hh-cover-panel--left {
+    left: calc(50% - 146px);
+  }
+
+  .hh-cover-ornament img.hh-cover-panel--right {
+    right: calc(50% - 146px);
+  }
+}
+
+/* CSS-only cover backdrop: a central ceremonial medallion and calm side rails behind the names. */
+.hh-cover-ornament {
+  display: none !important;
+}
+
+.hh-cover h2 {
+  isolation: isolate;
+  min-height: 226px;
+  align-content: center;
+  padding: 42px 38px;
+  overflow: visible;
+}
+
+.hh-cover h2::after {
+  position: absolute;
+  z-index: -2;
+  top: 50%;
+  right: 8%;
+  left: 8%;
+  height: 86px;
+  border-top: 1px solid rgb(240 199 101 / 0.38);
+  border-bottom: 1px solid rgb(240 199 101 / 0.38);
+  background:
+    linear-gradient(90deg, transparent, rgb(143 29 46 / 0.5) 15%, rgb(143 29 46 / 0.62) 50%, rgb(143 29 46 / 0.5) 85%, transparent),
+    repeating-linear-gradient(90deg, transparent 0 22px, rgb(240 199 101 / 0.12) 22px 23px);
+  content: '';
+  opacity: 0.72;
+  transform: translateY(-50%);
+}
+
+.hh-cover h2::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 182px;
+  height: 182px;
+  border: 1px solid rgb(240 199 101 / 0.72);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgb(164 58 70 / 0.42) 0 53%, transparent 54%),
+    radial-gradient(circle at center, transparent 0 66%, rgb(240 199 101 / 0.14) 67% 68%, transparent 69%);
+  box-shadow:
+    0 0 0 5px rgb(143 29 46 / 0.16),
+    inset 0 0 0 7px rgb(240 199 101 / 0.08),
+    0 16px 30px rgb(0 0 0 / 0.16);
+  content: '';
+  opacity: 0.94;
+  transform: translate(-50%, -50%);
+}
+
+.hh-cover h2 .hh-cover-name,
+.hh-cover h2 i {
+  position: relative;
+  z-index: 1;
+}
+
+.hh-cover h2 i {
+  color: #fff0d2;
+  text-shadow: 0 0 16px rgb(240 199 101 / 0.42);
+}
+
+@media (max-width: 560px) {
+  .hh-cover h2 {
+    min-height: 190px;
+    padding-inline: 24px;
+  }
+
+  .hh-cover h2::before {
+    width: 154px;
+    height: 154px;
+  }
+
+  .hh-cover h2::after {
+    right: 3%;
+    left: 3%;
+    height: 70px;
+  }
+}
+
+/* Generated ceremonial frame behind the couple names. */
+.hh-cover h2 {
+  background-image: url('/assets/images/templates/van-hy/decor/vh-cover-name-frame-v4.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: min(260px, 72vw) auto;
+}
+
+.hh-cover h2::before {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .hh-cover h2 {
+    background-size: 205px auto;
+  }
+}
+
+/* Keep the cover name treatment as a single circular frame. */
+.hh-cover h2::after {
+  display: none;
+}
+
+/* Slightly larger name frame for a stronger cover focal point. */
+.hh-cover h2 {
+  background-size: min(300px, 80vw);
+}
+
+@media (max-width: 560px) {
+  .hh-cover h2 {
+    background-size: 235px auto;
+  }
+}
+
+/* Rotate the circular frame itself, while keeping the name lockup stable. */
+@keyframes hh-cover-name-frame-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.hh-cover h2 {
+  background-image: none;
+  overflow: visible;
+}
+
+.hh-cover h2::before {
+  display: block;
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(290px, 76vw);
+  aspect-ratio: 1;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: url('/assets/images/templates/van-hy/decor/vh-cover-name-frame-v4.png') center / contain no-repeat;
+  content: '';
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: hh-cover-name-frame-spin 32s linear infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@media (max-width: 560px) {
+  .hh-cover h2::before {
+    width: 225px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover h2::before {
+    animation: none;
+  }
+}
+
+/* Soft gold glow for the couple names. */
+@keyframes hh-cover-name-glow {
+  0%, 100% {
+    text-shadow:
+      0 3px 12px rgb(0 0 0 / 0.24),
+      0 0 5px rgb(240 199 101 / 0.2),
+      0 0 14px rgb(240 199 101 / 0.08);
+  }
+  50% {
+    text-shadow:
+      0 3px 12px rgb(0 0 0 / 0.2),
+      0 0 8px rgb(255 224 147 / 0.76),
+      0 0 22px rgb(240 199 101 / 0.52),
+      0 0 38px rgb(240 199 101 / 0.22);
+  }
+}
+
+.hh-cover h2 .hh-cover-name {
+  animation: hh-cover-name-glow 4.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover h2 .hh-cover-name {
+    animation: none;
+    text-shadow:
+      0 3px 12px rgb(0 0 0 / 0.24),
+      0 0 7px rgb(240 199 101 / 0.36);
+  }
+}
+
+/* Animate only the halo behind the names; the letterforms stay visually stable. */
+@keyframes hh-cover-name-halo {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgb(240 199 101 / 0.16)) drop-shadow(0 0 9px rgb(240 199 101 / 0.06));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgb(255 224 147 / 0.68)) drop-shadow(0 0 19px rgb(240 199 101 / 0.38));
+  }
+}
+
+.hh-cover h2 .hh-cover-name {
+  animation: hh-cover-name-halo 4.8s ease-in-out infinite;
+  text-shadow: 0 3px 12px rgb(0 0 0 / 0.24);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover h2 .hh-cover-name {
+    animation: none;
+    filter: drop-shadow(0 0 5px rgb(240 199 101 / 0.32));
+  }
+}
+
+/* Lamp-like gold flicker: mostly steady, with brief irregular glints. */
+@keyframes hh-cover-name-flicker {
+  0%, 24%, 28%, 56%, 60%, 100% {
+    filter: drop-shadow(0 0 3px rgb(240 199 101 / 0.2)) drop-shadow(0 0 8px rgb(240 199 101 / 0.08));
+  }
+  25%, 27%, 57%, 59% {
+    filter: drop-shadow(0 0 7px rgb(255 224 147 / 0.84)) drop-shadow(0 0 20px rgb(240 199 101 / 0.48));
+  }
+  26%, 58% {
+    filter: drop-shadow(0 0 4px rgb(255 224 147 / 0.42)) drop-shadow(0 0 11px rgb(240 199 101 / 0.16));
+  }
+}
+
+.hh-cover h2 .hh-cover-name {
+  animation: hh-cover-name-flicker 5.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover h2 .hh-cover-name {
+    animation: none;
+  }
+}
+
+/* The generated frame already contains its own ornament; remove legacy pseudo shadows. */
+.hh-cover h2::before {
+  box-shadow: none;
+}
+
+/* Slow breathing halo: gentle brighten, then gentle fade. */
+@keyframes hh-cover-name-soft-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgb(240 199 101 / 0.14)) drop-shadow(0 0 8px rgb(240 199 101 / 0.05));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgb(255 224 147 / 0.58)) drop-shadow(0 0 18px rgb(240 199 101 / 0.3));
+  }
+}
+
+.hh-cover h2 .hh-cover-name {
+  animation: hh-cover-name-soft-glow 6.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-cover h2 .hh-cover-name {
+    animation: none;
+  }
+}
+
+/* Combined invitation and family section. */
+.hh-families {
+  position: relative;
+  isolation: isolate;
+}
+
+.hh-families > *:not(.hh-family-flower) {
+  position: relative;
+  z-index: 2;
+}
+
+.hh-family-flower {
+  position: absolute;
+  z-index: 1;
+  width: clamp(118px, 30vw, 190px);
+  height: auto;
+  opacity: 0.2;
+  pointer-events: none;
+  animation: none !important;
+}
+
+.hh-family-flower--left {
+  top: 4%;
+  left: -8%;
+  transform: scaleX(-1) rotate(-10deg);
+}
+
+.hh-family-flower--right {
+  right: -8%;
+  bottom: 4%;
+  transform: rotate(10deg);
+}
+
+.hh-family-message {
+  max-width: 390px;
+  margin: -2px auto 0;
+  color: rgb(247 232 213 / 0.8);
+  font-size: 13px;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.hh-families .hh-memory-grid {
+  margin-top: 16px;
+}
+
+.hh-families .hh-family-grid {
+  position: relative;
+  z-index: 3;
+  gap: 14px;
+  max-width: 420px;
+  margin-top: 18px;
+}
+
+.hh-families .hh-family-grid article {
+  position: relative;
+  gap: 9px;
+  min-height: 196px;
+  padding: 20px 15px 18px;
+  overflow: hidden;
+  border: 1px solid rgb(240 199 101 / 0.58);
+  border-radius: 18px 4px 18px 4px;
+  background: linear-gradient(145deg, rgb(112 17 35 / 0.82), rgb(53 5 14 / 0.72));
+  box-shadow: inset 0 0 0 1px rgb(255 231 170 / 0.08), 0 16px 30px rgb(28 2 8 / 0.2);
+}
+
+.hh-families .hh-family-grid article::before {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-top: 1px solid rgb(240 199 101 / 0.5);
+  border-right: 1px solid rgb(240 199 101 / 0.5);
+  content: '';
+  opacity: 0.72;
+}
+
+.hh-families .hh-family-grid article > span {
+  color: var(--hh-gold);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.hh-families .hh-family-grid article > strong {
+  color: #fff0d2;
+  font-size: clamp(19px, 5vw, 25px);
+  line-height: 1.05;
+}
+
+.hh-family-parents {
+  display: grid;
+  gap: 4px;
+}
+
+.hh-family-parents small,
+.hh-families .hh-family-grid article > small {
+  color: rgb(247 232 213 / 0.72);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 420px) {
+  .hh-families .hh-family-grid {
+    gap: 9px;
+  }
+  .hh-families .hh-family-grid article {
+    min-height: 204px;
+    padding-inline: 12px;
+  }
+}
+
+/* Family cards: responsive stacked layout with a stronger name hierarchy. */
+.hh-families .hh-family-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: min(100%, 440px);
+  max-width: 440px;
+  gap: 16px;
+}
+
+.hh-families .hh-family-grid article {
+  display: grid;
+  grid-template-columns: minmax(82px, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 16px;
+  min-height: 154px;
+  padding: 22px 24px;
+  overflow: visible;
+  border-radius: 22px 6px 22px 6px;
+}
+
+.hh-families .hh-family-grid article::after {
+  position: absolute;
+  right: 18px;
+  bottom: 12px;
+  display: grid;
+  width: 32px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgb(240 199 101 / 0.42);
+  border-radius: 50%;
+  color: rgb(240 199 101 / 0.72);
+  content: '囍';
+  font-family: var(--font-wedding-display);
+  font-size: 17px;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.hh-families .hh-family-grid article > span {
+  align-self: start;
+  padding-top: 5px;
+  color: rgb(240 199 101 / 0.86);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  line-height: 1.3;
+}
+
+.hh-families .hh-family-grid article > strong {
+  max-width: 270px;
+  color: #fff3dc;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(30px, 8vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  text-shadow: 0 5px 18px rgb(0 0 0 / 0.25), 0 0 14px rgb(240 199 101 / 0.12);
+  overflow-wrap: anywhere;
+}
+
+.hh-families .hh-family-parents,
+.hh-families .hh-family-grid article > small {
+  grid-column: 2;
+}
+
+.hh-families .hh-family-parents {
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.hh-families .hh-family-parents small {
+  color: rgb(247 232 213 / 0.74);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.hh-families .hh-family-grid article > small {
+  margin-top: 3px;
+  color: var(--hh-gold);
+  font-size: 11px;
+}
+
+.hh-families .hh-family-grid article:nth-child(2) {
+  border-radius: 6px 22px 6px 22px;
+  background: linear-gradient(145deg, rgb(53 5 14 / 0.72), rgb(112 17 35 / 0.82));
+}
+
+@media (max-width: 420px) {
+  .hh-families .hh-family-grid {
+    width: 100%;
+    gap: 12px;
+  }
+  .hh-families .hh-family-grid article {
+    grid-template-columns: 66px minmax(0, 1fr);
+    column-gap: 12px;
+    min-height: 148px;
+    padding: 20px 16px;
+  }
+  .hh-families .hh-family-grid article > strong {
+    font-size: clamp(27px, 9vw, 36px);
+  }
+}
+
+/* Family-side florals sit beneath the side label; parents are the visual focus. */
+.hh-families .hh-family-grid article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.hh-family-side-art {
+  display: block;
+  width: min(76%, 210px);
+  height: 54px;
+  margin: 0 auto 2px;
+  object-fit: contain;
+  opacity: 0.9;
+  filter: drop-shadow(0 5px 10px rgb(20 0 5 / 0.2));
+}
+
+.hh-family-side-art--groom {
+  transform: scaleX(-1);
+}
+
+.hh-families .hh-family-grid article > strong {
+  max-width: 100%;
+  font-size: clamp(22px, 6vw, 31px);
+  line-height: 1.05;
+}
+
+.hh-families .hh-family-parents {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.hh-families .hh-family-parents strong {
+  color: #fff3dc;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(21px, 5.6vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-shadow: 0 4px 14px rgb(0 0 0 / 0.2);
+  overflow-wrap: anywhere;
+}
+
+.hh-families .hh-family-grid article > small {
+  width: 100%;
+  margin-top: 1px;
+}
+
+@media (max-width: 420px) {
+  .hh-family-side-art {
+    width: min(82%, 196px);
+    height: 48px;
+  }
+  .hh-families .hh-family-parents strong {
+    font-size: clamp(19px, 6vw, 25px);
+  }
+}
+
+/* Use the existing round double-happiness seal instead of extra family florals. */
+.hh-families .hh-family-grid article::after {
+  top: 18px;
+  right: 18px;
+  bottom: auto;
+  width: 54px;
+  border-width: 1.5px;
+  color: #f0c765;
+  font-size: 27px;
+  box-shadow: 0 0 0 4px rgb(240 199 101 / 0.06), inset 0 0 0 3px rgb(240 199 101 / 0.08);
+}
+
+.hh-families .hh-family-grid article > strong {
+  font-size: clamp(25px, 7vw, 34px);
+}
+
+.hh-families .hh-family-parents strong {
+  font-size: clamp(25px, 6.4vw, 32px);
+}
+
+.hh-families .hh-family-parents strong small {
+  display: inline-block;
+  margin-right: 4px;
+  color: rgb(240 199 101 / 0.82);
+  font-family: var(--font-wedding-body);
+  font-size: 0.46em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: 0.18em;
+}
+
+/* Centered family ornament: bride and groom florals frame the double-happiness seal. */
+.hh-family-bridge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 60px minmax(0, 1fr);
+  align-items: center;
+  width: min(100%, 430px);
+  margin: 14px auto 8px;
+}
+
+.hh-family-bridge img {
+  display: block;
+  width: 100%;
+  height: 64px;
+  object-fit: contain;
+  opacity: 0.86;
+  filter: drop-shadow(0 5px 10px rgb(20 0 5 / 0.18));
+}
+
+.hh-family-bridge img:last-child {
+  transform: scaleX(-1);
+}
+
+.hh-family-bridge span {
+  display: grid;
+  width: 58px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1.5px solid #f0c765;
+  border-radius: 50%;
+  color: #f0c765;
+  font-family: var(--font-wedding-display);
+  font-size: 30px;
+  line-height: 1;
+  box-shadow: 0 0 0 4px rgb(240 199 101 / 0.06), inset 0 0 0 3px rgb(240 199 101 / 0.08), 0 8px 18px rgb(20 0 5 / 0.18);
+}
+
+.hh-families .hh-family-grid article::after {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .hh-family-bridge {
+    grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
+    width: 100%;
+  }
+  .hh-family-bridge span {
+    width: 50px;
+    font-size: 26px;
+  }
+  .hh-family-bridge img {
+    height: 54px;
+  }
+}
+
+/* Mobile stage-fan tuning: keep both fans outside the reading column. */
+@media (max-width: 480px) {
+  .hh-stage-decor {
+    inset: 0;
+    overflow: clip;
+  }
+
+  .hh-stage-fan {
+    width: clamp(112px, 31vw, 148px);
+    height: auto;
+    aspect-ratio: 3 / 2;
+    opacity: 0.055;
+    transform-style: flat;
+    perspective: none;
+  }
+
+  .hh-stage-fan--left {
+    top: 14%;
+    left: -58px;
+    transform: rotate(-18deg);
+    animation: hh-stage-fan-mobile-left 18s ease-in-out infinite alternate;
+  }
+
+  .hh-stage-fan--right {
+    right: -58px;
+    bottom: 16%;
+    transform: scaleX(-1) rotate(-18deg);
+    animation: hh-stage-fan-mobile-right 20s ease-in-out -7s infinite alternate;
+  }
+}
+
+@keyframes hh-stage-fan-mobile-left {
+  from { transform: translate(-3px, 3px) rotate(-18deg); }
+  to { transform: translate(4px, -5px) rotate(-13deg); }
+}
+
+@keyframes hh-stage-fan-mobile-right {
+  from { transform: scaleX(-1) translate(-3px, 3px) rotate(-18deg); }
+  to { transform: scaleX(-1) translate(4px, -5px) rotate(-13deg); }
+}
+
+/* Each family card carries its own centered double-happiness seal. */
+.hh-family-bridge {
+  display: none;
+}
+
+.hh-families .hh-family-grid article > .hh-family-card-seal {
+  display: grid;
+  width: 62px;
+  aspect-ratio: 1;
+  place-items: center;
+  margin: 1px auto 5px;
+  border: 1.5px solid #f0c765;
+  border-radius: 50%;
+  color: #f0c765;
+  font-family: var(--font-wedding-display);
+  font-size: 32px;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+  box-shadow: 0 0 0 4px rgb(240 199 101 / 0.06), inset 0 0 0 3px rgb(240 199 101 / 0.08), 0 8px 18px rgb(20 0 5 / 0.16);
+}
+
+@media (max-width: 420px) {
+  .hh-families .hh-family-grid article > .hh-family-card-seal {
+    width: 54px;
+    font-size: 28px;
+  }
+}
+
+/* Two seals glow softly, while a centered knot visually links both families. */
+@keyframes hh-family-seal-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgb(240 199 101 / 0.06), inset 0 0 0 3px rgb(240 199 101 / 0.08), 0 8px 18px rgb(20 0 5 / 0.16);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgb(240 199 101 / 0.1), inset 0 0 0 3px rgb(255 224 147 / 0.18), 0 0 22px rgb(240 199 101 / 0.42), 0 8px 18px rgb(20 0 5 / 0.12);
+  }
+}
+
+.hh-families .hh-family-grid {
+  position: relative;
+}
+
+.hh-families .hh-family-grid::before {
+  position: absolute;
+  z-index: 4;
+  top: calc(50% - 8px);
+  left: 50%;
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(180deg, transparent, rgb(240 199 101 / 0.78), transparent);
+  content: '';
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hh-families .hh-family-grid::after {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgb(240 199 101 / 0.82);
+  background: var(--hh-red-dark);
+  content: '';
+  transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.hh-families .hh-family-grid article > .hh-family-card-seal {
+  animation: hh-family-seal-glow 5.4s ease-in-out infinite;
+}
+
+.hh-families .hh-family-grid article:nth-child(2) > .hh-family-card-seal {
+  animation-delay: -2.7s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-families .hh-family-grid article > .hh-family-card-seal {
+    animation: none;
+  }
+}
+
+/* Slowly rotating dashed ring; keep the double-happiness mark upright. */
+@keyframes hh-family-seal-ring-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.hh-families .hh-family-grid article > .hh-family-card-seal {
+  position: relative;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.hh-families .hh-family-grid article > .hh-family-card-seal::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 1.5px dashed #f0c765;
+  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: hh-family-seal-ring-spin 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-families .hh-family-grid article > .hh-family-card-seal::before {
+    animation: none;
+  }
+}
+
+/* Countdown units use the same circular ceremonial frame as the cover. */
+.hh-countdown-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(4px, 2vw, 10px);
+  max-width: 430px;
+}
+
+.hh-countdown-grid div {
+  display: grid;
+  position: relative;
+  z-index: 0;
+  min-width: 0;
+  aspect-ratio: 1;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 14px 5px;
+  border: 0;
+  background: url('/assets/images/templates/van-hy/decor/vh-cover-name-frame-v4.png') center / 100% 100% no-repeat;
+}
+
+.hh-countdown-grid strong,
+.hh-countdown-grid span {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.hh-countdown-grid strong {
+  color: #fff3dc;
+  font-size: clamp(22px, 7vw, 34px);
+  line-height: 0.95;
+  text-shadow: 0 3px 12px rgb(0 0 0 / 0.22), 0 0 12px rgb(240 199 101 / 0.18);
+}
+
+.hh-countdown-grid span {
+  color: var(--hh-gold);
+  font-size: clamp(8px, 2.2vw, 10px);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@media (max-width: 360px) {
+  .hh-countdown-grid {
+    gap: 2px;
+  }
+  .hh-countdown-grid div {
+    padding-inline: 2px;
+  }
+  .hh-countdown-grid strong {
+    font-size: 20px;
+  }
+  .hh-countdown-grid span {
+    font-size: 7px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Countdown numerals glow gold and flip softly like a mechanical wedding clock. */
+@keyframes hh-countdown-number-flip {
+  0%, 68% {
+    transform: perspective(420px) rotateX(0deg);
+  }
+  82% {
+    transform: perspective(420px) rotateX(-88deg);
+  }
+  100% {
+    transform: perspective(420px) rotateX(0deg);
+  }
+}
+
+.hh-countdown-grid .hh-countdown-value {
+  display: block;
+  color: #fff3dc;
+  text-shadow: 0 0 5px rgb(255 224 147 / 0.55), 0 0 14px rgb(240 199 101 / 0.42), 0 3px 12px rgb(0 0 0 / 0.22);
+  transform-origin: center center;
+  backface-visibility: hidden;
+  animation: hh-countdown-number-flip 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform, text-shadow;
+}
+
+.hh-countdown-grid div:nth-child(2) .hh-countdown-value { animation-delay: -0.7s; }
+.hh-countdown-grid div:nth-child(3) .hh-countdown-value { animation-delay: -1.4s; }
+.hh-countdown-grid div:nth-child(4) .hh-countdown-value { animation-delay: -2.1s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-countdown-grid .hh-countdown-value {
+    animation: none;
+  }
+}
+
+/* Flip only the countdown value that has changed. */
+.hh-countdown-grid .hh-countdown-value {
+  animation: none;
+}
+
+.hh-countdown-grid .hh-countdown-value.is-changing {
+  animation: hh-countdown-number-flip 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Final precedence for value-change flip; prevents legacy reveal rules from overriding it. */
+.hh-content .hh-section.hh-countdown .hh-countdown-grid .hh-countdown-value.is-changing {
+  animation-name: hh-countdown-number-flip !important;
+  animation-duration: 560ms !important;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  animation-iteration-count: 1 !important;
+  animation-fill-mode: both !important;
+}
+
+/* Sections share the atmospheric background without individual frames. */
+.hh-section {
+  border-top: 0;
+}
+
+.hh-section::before {
+  border: 0;
+}
+
+/* Van Hy refresh: ceremonial timeline cards and a slow 3D memory carousel. */
+.hh-timeline-section {
+  position: relative;
+  gap: 18px;
+  background:
+    radial-gradient(circle at 50% 18%, rgb(197 150 69 / 0.12), transparent 32%),
+    linear-gradient(180deg, rgb(91 12 22 / 0.28), transparent 52%);
+}
+
+.hh-timeline-section::before {
+  inset: 7% 5%;
+  border: 0;
+  background: url('/assets/images/templates/van-hy/decor/vh-cover-name-frame-v3.png') center / min(92%, 470px) auto no-repeat;
+  opacity: 0.2;
+}
+
+@media (max-width: 480px) {
+  .hh-timeline-section::before {
+    inset: 9% 1%;
+    background-size: min(106%, 390px) auto;
+    opacity: 0.17;
+  }
+}
+.hh-timeline-section::after {
+  content: '囍';
+  position: absolute;
+  right: 9%;
+  bottom: 9%;
+  color: rgb(197 150 69 / 0.1);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(80px, 22vw, 140px);
+  line-height: 1;
+  pointer-events: none;
+  transform: rotate(-12deg);
+}
+
+.hh-timeline-section .hh-divider-art {
+  top: 3%;
+  right: -25%;
+  width: 64%;
+  opacity: 0.14;
+  filter: sepia(0.5) saturate(0.8);
+  transform: rotate(8deg);
+}
+
+.hh-timeline {
+  position: relative;
+  z-index: 1;
+  max-width: 430px;
+  gap: 13px;
+  margin-top: 8px;
+  padding: 4px 0;
+}
+
+.hh-timeline::before {
+  content: '';
+  position: absolute;
+  top: 26px;
+  bottom: 26px;
+  left: 29px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgb(197 150 69 / 0.78) 12%, rgb(197 150 69 / 0.42) 88%, transparent);
+}
+
+.hh-timeline article {
+  position: relative;
+  grid-template-columns: 58px 1fr;
+  gap: 14px;
+  min-height: 84px;
+  padding: 15px 16px 15px 0;
+  border: 1px solid rgb(197 150 69 / 0.25);
+  border-radius: 4px 22px 4px 22px;
+  background: linear-gradient(112deg, rgb(115 15 28 / 0.78), rgb(63 7 17 / 0.46));
+  box-shadow: 0 16px 30px rgb(36 2 8 / 0.16), inset 0 1px rgb(255 241 196 / 0.08);
+}
+
+.hh-timeline article::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 23px;
+  z-index: 2;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--hh-cream);
+  border-radius: 50%;
+  background: var(--hh-red-deep);
+  box-shadow: 0 0 0 5px rgb(197 150 69 / 0.12), 0 0 16px rgb(197 150 69 / 0.34);
+}
+
+.hh-timeline article:nth-child(even) {
+  border-radius: 22px 4px 22px 4px;
+  background: linear-gradient(248deg, rgb(115 15 28 / 0.78), rgb(63 7 17 / 0.46));
+}
+
+.hh-timeline article time {
+  position: relative;
+  z-index: 3;
+  padding-top: 4px;
+  padding-left: 39px;
+  color: var(--hh-gold);
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.hh-timeline article div {
+  padding-left: 2px;
+}
+
+.hh-timeline article strong {
+  display: block;
+  color: var(--hh-cream);
+  font-size: 21px;
+  letter-spacing: 0.02em;
+}
+
+.hh-timeline article p {
+  max-width: 270px;
+  margin: 5px 0 0;
+  color: rgb(255 243 214 / 0.68);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.hh-gallery {
+  gap: 17px;
+}
+
+.hh-gallery-carousel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 440px);
+  height: clamp(260px, 72vw, 350px);
+  margin: 10px auto 0;
+  perspective: 1050px;
+  perspective-origin: 50% 46%;
+}
+
+.hh-gallery-carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: hh-gallery-carousel-spin 24s linear infinite;
+}
+
+.hh-gallery-carousel:hover .hh-gallery-carousel-track,
+.hh-gallery-carousel:focus-within .hh-gallery-carousel-track {
+  animation-play-state: paused;
+}
+
+.hh-gallery-carousel figure {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(132px, 37vw, 174px);
+  aspect-ratio: 3 / 4;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(241 208 132 / 0.72);
+  border-radius: 5px 28px 5px 28px;
+  background: var(--hh-red-deep);
+  box-shadow: 0 18px 34px rgb(34 2 9 / 0.38), 0 0 0 6px rgb(197 150 69 / 0.08), inset 0 0 0 1px rgb(255 245 204 / 0.18);
+  transform: translate(-50%, -50%) rotateY(var(--hh-gallery-angle)) translateZ(clamp(92px, 25vw, 142px));
+  backface-visibility: hidden;
+}
+
+.hh-gallery-carousel figure::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgb(255 245 204 / 0.2), transparent 30%, rgb(69 3 14 / 0.16));
+  pointer-events: none;
+}
+
+.hh-gallery-carousel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@keyframes hh-gallery-carousel-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-360deg); }
+}
+
+@media (max-width: 480px) {
+  .hh-timeline-section .hh-divider-art {
+    right: -42%;
+    width: 84%;
+  }
+
+  .hh-timeline article {
+    grid-template-columns: 54px 1fr;
+    padding-right: 12px;
+  }
+
+  .hh-timeline article time {
+    padding-left: 34px;
+    font-size: 14px;
+  }
+
+  .hh-timeline article::before {
+    left: 20px;
+  }
+
+  .hh-timeline::before {
+    left: 26px;
+  }
+
+  .hh-gallery-carousel {
+    height: 285px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-gallery-carousel-track {
+    animation: none;
+  }
+}
+
+/* Gallery sizing correction: let every photo fully occupy its 3D card. */
+.hh-gallery-carousel {
+  min-height: 300px;
+  height: clamp(300px, 78vw, 390px);
+}
+
+.hh-gallery-carousel figure {
+  width: clamp(164px, 48vw, 226px);
+  height: min(86%, 330px);
+  aspect-ratio: auto;
+}
+
+.hh-gallery-carousel figure img {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  .hh-gallery-carousel {
+    min-height: 290px;
+    height: 290px;
+  }
+
+  .hh-gallery-carousel figure {
+    width: min(58vw, 205px);
+    height: 250px;
+  }
+}
+
+/* Guest-aware submit layout: action beside the name field, or full-width for personalized links. */
+.hh-submit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  width: min(100%, 420px);
+  margin: 12px auto 0;
+}
+
+.hh-submit-row .hh-guest-field {
+  width: 100%;
+  margin: 0;
+}
+
+.hh-submit-row .hh-text-button {
+  width: auto;
+  min-width: 128px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hh-submit-row.is-personalized {
+  grid-template-columns: 1fr;
+}
+
+.hh-submit-row.is-personalized .hh-guest-context {
+  margin: 0;
+}
+
+.hh-submit-row.is-personalized .hh-text-button {
+  width: 100%;
+}
+
+@media (max-width: 380px) {
+  .hh-submit-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hh-submit-row .hh-text-button {
+    width: 100%;
+  }
+}
+
+/* Gift section: two floating scarlet cards that open a centered modal. */
+.hh-gift {
+  position: relative;
+  isolation: isolate;
+}
+
+.hh-gift > p {
+  max-width: 320px;
+  margin-inline: auto;
+}
+
+.hh-gift-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(8px, 4vw, 18px);
+  width: min(100%, 360px);
+  margin: 22px auto 0;
+  perspective: 900px;
+}
+
+.hh-gift-card {
+  position: relative;
+  display: grid;
+  width: clamp(132px, 37vw, 164px);
+  aspect-ratio: 0.72;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  overflow: hidden;
+  border: 1px solid rgb(245 210 126 / 0.74);
+  border-radius: 5px 28px 5px 28px;
+  padding: 22px 12px;
+  color: var(--hh-cream);
+  background:
+    linear-gradient(135deg, rgb(255 243 193 / 0.16), transparent 26%, transparent 70%, rgb(36 2 8 / 0.28)),
+    linear-gradient(145deg, rgb(151 27 48 / 0.98), rgb(75 7 19 / 0.98));
+  box-shadow: 0 18px 30px rgb(38 2 9 / 0.28), inset 0 0 0 5px rgb(197 150 69 / 0.1), inset 0 0 0 7px rgb(255 237 172 / 0.08);
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: border-color 260ms ease, box-shadow 260ms ease, filter 260ms ease;
+}
+
+.hh-gift-card::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgb(240 199 101 / 0.3);
+  border-radius: 2px 18px 2px 18px;
+  pointer-events: none;
+}
+
+.hh-gift-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/assets/images/templates/van-hy/decor/vh-lucky-envelope-v1.png') center / 82% auto no-repeat;
+  opacity: 0.2;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.hh-gift-card--left {
+  animation: hh-gift-card-float-left 5.8s ease-in-out infinite;
+}
+
+.hh-gift-card--right {
+  animation: hh-gift-card-float-right 6.4s ease-in-out -1.4s infinite;
+}
+
+.hh-gift-card:hover,
+.hh-gift-card:focus-visible {
+  border-color: var(--hh-cream);
+  box-shadow: 0 22px 38px rgb(38 2 9 / 0.38), 0 0 24px rgb(197 150 69 / 0.2), inset 0 0 0 5px rgb(197 150 69 / 0.14);
+  filter: brightness(1.08);
+}
+
+.hh-gift-card:focus-visible {
+  outline: 2px solid var(--hh-cream);
+  outline-offset: 5px;
+}
+
+.hh-gift-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hh-gift-card-seal,
+.hh-gift-modal-seal {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--hh-gold);
+  border-radius: 50%;
+  color: var(--hh-cream);
+  background: rgb(87 8 21 / 0.55);
+  font-family: var(--font-wedding-display);
+  font-size: 27px;
+  line-height: 1;
+  box-shadow: 0 0 0 5px rgb(197 150 69 / 0.08);
+}
+
+.hh-gift-card strong {
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.hh-gift-card small {
+  color: rgb(255 243 214 / 0.7);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.hh-gift-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(19 1 7 / 0.78);
+  backdrop-filter: blur(8px);
+  animation: hh-gift-modal-in 300ms ease-out both;
+}
+
+.hh-gift-modal-card {
+  position: relative;
+  display: grid;
+  width: min(100%, 390px);
+  max-height: min(86dvh, 640px);
+  justify-items: center;
+  gap: 12px;
+  overflow-y: auto;
+  border: 1px solid rgb(240 199 101 / 0.7);
+  border-radius: 6px 32px 6px 32px;
+  padding: 34px 24px 26px;
+  color: var(--hh-cream);
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgb(255 239 181 / 0.12), transparent 30%),
+    linear-gradient(150deg, #7f1429, #430610);
+  box-shadow: 0 28px 70px rgb(13 0 5 / 0.55), inset 0 0 0 6px rgb(197 150 69 / 0.1);
+  animation: hh-gift-modal-card-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hh-gift-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 13px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(240 199 101 / 0.48);
+  border-radius: 50%;
+  color: var(--hh-cream);
+  background: rgb(57 4 13 / 0.42);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hh-gift-modal-close:hover,
+.hh-gift-modal-close:focus-visible {
+  border-color: var(--hh-cream);
+  background: var(--hh-red-hot);
+}
+
+.hh-gift-modal-close:focus-visible {
+  outline: 2px solid var(--hh-cream);
+  outline-offset: 3px;
+}
+
+.hh-gift-modal h3 {
+  margin: 0;
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.hh-gift-modal p {
+  max-width: 310px;
+  margin: 0;
+  color: rgb(255 243 214 / 0.78);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.hh-gift-qr,
+.hh-gift-qr-placeholder {
+  width: min(100%, 210px);
+  height: 210px;
+  object-fit: contain;
+  border: 8px solid var(--hh-cream);
+  background: var(--hh-cream);
+}
+
+.hh-gift-qr-placeholder {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  color: var(--hh-red-deep);
+  font-family: var(--font-wedding-display);
+  font-size: 31px;
+  line-height: 1.2;
+}
+
+.hh-gift-qr-placeholder small {
+  max-width: 130px;
+  color: rgb(91 12 22 / 0.72);
+  font-family: inherit;
+  font-size: 10px;
+}
+
+.hh-gift-modal-note {
+  max-width: 280px;
+  color: rgb(255 243 214 / 0.62);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@keyframes hh-gift-card-float-left {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+
+@keyframes hh-gift-card-float-right {
+  0%, 100% { transform: translateY(-2px) rotate(4deg); }
+  50% { transform: translateY(9px) rotate(1deg); }
+}
+
+@keyframes hh-gift-modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hh-gift-modal-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-gift-card--left,
+  .hh-gift-card--right,
+  .hh-gift-modal,
+  .hh-gift-modal-card {
+    animation: none;
+  }
+}
+
+/* Use the approved envelope artwork itself as the floating gift card. */
+.hh-gift-card {
+  width: clamp(138px, 39vw, 174px);
+  aspect-ratio: auto;
+  gap: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hh-gift-card::before,
+.hh-gift-card::after {
+  display: none;
+}
+
+.hh-gift-card-art {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 18px rgb(38 2 9 / 0.3));
+  transition: filter 260ms ease;
+}
+
+.hh-gift-card-label {
+  position: absolute !important;
+  right: 0;
+  bottom: 17%;
+  left: 0;
+  z-index: 2 !important;
+  color: var(--hh-cream);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 500;
+  text-shadow: 0 2px 8px rgb(47 2 9 / 0.7);
+}
+
+.hh-gift-card > small {
+  position: absolute;
+  right: 0;
+  bottom: 9%;
+  left: 0;
+  z-index: 2;
+  color: rgb(255 243 214 / 0.82);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 5px rgb(47 2 9 / 0.8);
+}
+
+.hh-gift-card:hover .hh-gift-card-art,
+.hh-gift-card:focus-visible .hh-gift-card-art {
+  filter: brightness(1.1) drop-shadow(0 22px 24px rgb(38 2 9 / 0.42));
+}
+
+@media (max-width: 380px) {
+  .hh-gift-card {
+    width: min(40vw, 154px);
+  }
+}
+
+/* Van Hy gift visual: local copy of Rose Garden's two-card envelope composition. */
+.hh-gift-payment {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  margin: 18px auto 8px;
+}
+
+.hh-gift-envelope-box {
+  position: relative;
+  width: min(72vw, 282px);
+  aspect-ratio: 1.12 / 1;
+  margin-inline: auto;
+  overflow: visible;
+  cursor: pointer;
+  outline: none;
+}
+
+.hh-gift-envelope-box:focus-visible {
+  outline: 2px solid var(--hh-cream);
+  outline-offset: 8px;
+}
+
+.hh-gift-envelope-box__particles {
+  position: absolute;
+  z-index: 4;
+  inset: -14% -12%;
+  pointer-events: none;
+}
+
+.hh-gift-envelope-box__particles i {
+  position: absolute;
+  display: grid;
+  width: clamp(9px, 2.8vw, 15px);
+  height: clamp(9px, 2.8vw, 15px);
+  min-width: 9px;
+  min-height: 9px;
+  place-items: center;
+  color: var(--hh-gold);
+  font-size: clamp(10px, 2.8vw, 15px);
+  font-style: normal;
+  line-height: 1;
+  opacity: 0;
+  filter: drop-shadow(0 2px 8px rgb(197 150 69 / 0.2));
+  animation: hh-gift-particle-rise 5.8s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+.hh-gift-envelope-box__particles :nth-child(1) { left: 13%; bottom: 21%; animation-delay: -0.8s; }
+.hh-gift-envelope-box__particles :nth-child(2) { left: 29%; bottom: 9%; animation-delay: -3.2s; }
+.hh-gift-envelope-box__particles :nth-child(3) { left: 49%; bottom: 18%; animation-delay: -1.6s; }
+.hh-gift-envelope-box__particles :nth-child(4) { right: 30%; bottom: 12%; animation-delay: -4.4s; }
+.hh-gift-envelope-box__particles :nth-child(5) { right: 14%; bottom: 23%; animation-delay: -2.5s; }
+.hh-gift-envelope-box__particles :nth-child(6) { right: 4%; bottom: 34%; animation-delay: -5s; }
+.hh-gift-envelope-box__particles :nth-child(7) { left: 3%; bottom: 39%; animation-delay: -3.8s; }
+.hh-gift-envelope-box__particles :nth-child(8) { right: 43%; bottom: 4%; animation-delay: -1.1s; }
+.hh-gift-envelope-box__particles :nth-child(9) { left: 41%; bottom: 29%; animation-delay: -4.9s; }
+.hh-gift-envelope-box__particles :nth-child(10) { right: 27%; bottom: 31%; animation-delay: -2s; }
+
+.hh-gift-envelope-box__image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 8px 14px rgb(0 0 0 / 0.18));
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hh-gift-envelope-box__image--back {
+  z-index: 2;
+  object-position: center bottom;
+  transform: translateX(-5%) translateY(1%) scale(0.94) rotate(-10deg);
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.22));
+  animation: hh-gift-float-back 5.2s cubic-bezier(0.45, 0.03, 0.55, 0.95) infinite;
+}
+
+.hh-gift-envelope-box__image--front {
+  z-index: 1;
+  transform: translateX(20%) translateY(-10%) scale(-0.8, 0.8) rotate(-15deg);
+  animation: hh-gift-float-front 5.6s cubic-bezier(0.45, 0.03, 0.55, 0.95) -2.4s infinite;
+}
+
+.hh-gift-envelope-box:hover .hh-gift-envelope-box__image--back,
+.hh-gift-envelope-box:focus-visible .hh-gift-envelope-box__image--back {
+  animation-name: hh-gift-hover-back;
+}
+
+.hh-page.is-paused .hh-gift-envelope-box__image,
+.hh-page.is-paused .hh-gift-envelope-box__particles i {
+  animation-play-state: paused;
+}
+
+@keyframes hh-gift-float-back {
+  0%, 100% { transform: translateX(-5%) translateY(1%) scale(0.94) rotate(-10deg); }
+  50% { transform: translateX(-3%) translateY(-3%) scale(0.94) rotate(-7deg); }
+}
+
+@keyframes hh-gift-float-front {
+  0%, 100% { transform: translateX(20%) translateY(-10%) scale(-0.8, 0.8) rotate(-15deg); }
+  50% { transform: translateX(17%) translateY(-14%) scale(-0.8, 0.8) rotate(-12deg); }
+}
+
+@keyframes hh-gift-hover-back {
+  0%, 100% { transform: translateX(-5%) translateY(1%) scale(0.94) rotate(-10deg); }
+  50% { transform: translateX(-5%) translateY(1%) scale(0.94) rotate(-4deg); }
+}
+
+@keyframes hh-gift-particle-rise {
+  0% { opacity: 0; transform: translate3d(0, 14px, 0) rotate(-8deg) scale(0.78); }
+  18% { opacity: 0.62; }
+  72% { opacity: 0.34; }
+  100% { opacity: 0; transform: translate3d(18px, -88px, 0) rotate(18deg) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-gift-envelope-box__image,
+  .hh-gift-envelope-box__particles i {
+    animation: none;
+  }
+}
+
+/* Final gift motion: diagonal overlap with a restrained sway; modal pops in place. */
+.hh-gift-envelope-box__image--back {
+  animation-name: hh-gift-float-back-soft;
+  animation-duration: 5.8s;
+}
+
+.hh-gift-envelope-box__image--front {
+  animation-name: hh-gift-float-front-soft;
+  animation-duration: 6.2s;
+}
+
+@keyframes hh-gift-float-back-soft {
+  0%, 100% { transform: translateX(-5%) translateY(1%) scale(0.94) rotate(-10deg); }
+  50% { transform: translateX(-4%) translateY(0) scale(0.94) rotate(-7.5deg); }
+}
+
+@keyframes hh-gift-float-front-soft {
+  0%, 100% { transform: translateX(20%) translateY(-10%) scale(-0.8, 0.8) rotate(-15deg); }
+  50% { transform: translateX(19%) translateY(-10.5%) scale(-0.8, 0.8) rotate(-12deg); }
+}
+
+@keyframes hh-gift-modal-card-in {
+  from { opacity: 0; transform: scale(0.9) rotate(-1deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* Gift card direction: large card leans left, smaller card leans right. */
+.hh-gift-envelope-box__image--back {
+  z-index: 1;
+  animation-name: hh-gift-large-left;
+}
+
+.hh-gift-envelope-box__image--front {
+  z-index: 2;
+  animation-name: hh-gift-small-right;
+}
+
+@keyframes hh-gift-large-left {
+  0%, 100% { transform: translateX(-9%) translateY(2%) scale(1.04) rotate(-10deg); }
+  50% { transform: translateX(-8%) translateY(1%) scale(1.04) rotate(-7.5deg); }
+}
+
+@keyframes hh-gift-small-right {
+  0%, 100% { transform: translateX(25%) translateY(-9%) scale(0.78) rotate(10deg); }
+  50% { transform: translateX(24%) translateY(-9.5%) scale(0.78) rotate(7.5deg); }
+}
+
+/* Hover interaction: both cards lift/zoom together with a soft head-wobble. */
+@media (hover: hover) and (pointer: fine) {
+  .hh-gift-envelope-box__image {
+    transition: filter 540ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hh-gift-envelope-box:hover .hh-gift-envelope-box__image--back {
+    animation: hh-gift-hover-large-left 1.8s cubic-bezier(0.45, 0.03, 0.55, 0.95) infinite;
+  }
+
+  .hh-gift-envelope-box:hover .hh-gift-envelope-box__image--front {
+    animation: hh-gift-hover-small-right 1.8s cubic-bezier(0.45, 0.03, 0.55, 0.95) -0.12s infinite;
+  }
+
+  .hh-gift-envelope-box:hover .hh-gift-envelope-box__image {
+    filter: drop-shadow(0 13px 20px rgb(0 0 0 / 0.3)) brightness(1.06);
+  }
+}
+
+@keyframes hh-gift-hover-large-left {
+  0%, 100% { transform: translateX(-9%) translateY(2%) scale(1.04) rotate(-10deg); }
+  25% { transform: translateX(-9%) translateY(0) scale(1.1) rotate(-7deg); }
+  50% { transform: translateX(-9%) translateY(-1%) scale(1.1) rotate(-12deg); }
+  75% { transform: translateX(-9%) translateY(0) scale(1.1) rotate(-8deg); }
+}
+
+@keyframes hh-gift-hover-small-right {
+  0%, 100% { transform: translateX(25%) translateY(-9%) scale(0.78) rotate(10deg); }
+  25% { transform: translateX(25%) translateY(-11%) scale(0.84) rotate(13deg); }
+  50% { transform: translateX(25%) translateY(-12%) scale(0.84) rotate(7deg); }
+  75% { transform: translateX(25%) translateY(-11%) scale(0.84) rotate(12deg); }
+}
+
+/* Keep the gift detail detached from section layout as a true viewport modal. */
+.hh-gift-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Burgundy correction for the approved gift artwork. */
+.hh-gift-envelope-box__image {
+  filter: sepia(0.2) saturate(1.34) hue-rotate(338deg) brightness(0.68) contrast(1.12) drop-shadow(0 8px 14px rgb(0 0 0 / 0.2));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hh-gift-envelope-box:hover .hh-gift-envelope-box__image {
+    filter: sepia(0.2) saturate(1.34) hue-rotate(338deg) brightness(0.76) contrast(1.1) drop-shadow(0 13px 20px rgb(0 0 0 / 0.3));
+  }
+}
+
+/* Softer hover exit: preserve the gentle sway and reduce the zoom jump. */
+.hh-gift-envelope-box__image {
+  transition: scale 520ms cubic-bezier(0.22, 1, 0.36, 1), filter 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hh-gift-envelope-box:hover .hh-gift-envelope-box__image--back,
+.hh-gift-envelope-box:focus-visible .hh-gift-envelope-box__image--back {
+  animation-name: hh-gift-large-left;
+  animation-duration: 5.8s;
+  scale: 1.035;
+}
+
+.hh-gift-envelope-box:hover .hh-gift-envelope-box__image--front,
+.hh-gift-envelope-box:focus-visible .hh-gift-envelope-box__image--front {
+  animation-name: hh-gift-small-right;
+  animation-duration: 6.2s;
+  scale: 1.025;
+}
+
+/* Uploaded footer artwork stays portrait, framed and independent from the decorative motif. */
+.hh-footer-user-media {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(68vw, 250px);
+  aspect-ratio: 3 / 4;
+  margin: 12px auto 20px;
+  border: 1px solid rgb(240 199 101 / 0.5);
+  border-radius: 4px 24px 4px 24px;
+  object-fit: cover;
+  box-shadow: 0 18px 32px rgb(31 1 8 / 0.28), 0 0 0 6px rgb(197 150 69 / 0.08);
+}
+
+/* The larger left card must sit above the smaller right card. */
+.hh-gift-envelope-box__image--back {
+  z-index: 2;
+}
+
+.hh-gift-envelope-box__image--front {
+  z-index: 1;
+}
+
+/* Footer upload is a full-section background, with a readable burgundy veil. */
+.hh-footer {
+  background-image:
+    linear-gradient(180deg, rgb(38 3 12 / 0.62), rgb(38 3 12 / 0.84)),
+    var(--hh-footer-media, none) !important;
+  background-position: center, center;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+  background-blend-mode: normal, luminosity;
+}
+
+/* Gallery background decor: a quiet paper fan behind the 3D photo carousel. */
+.hh-gallery {
+  position: relative;
+  isolation: isolate;
+}
+
+.hh-gallery::before {
+  inset: 8% -18%;
+  z-index: -1;
+  border: 0;
+  background: url('/assets/images/templates/van-hy/decor/vh-paper-fan-v4.png') center / min(82%, 430px) auto no-repeat;
+  opacity: 0.14;
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .hh-gallery::before {
+    inset: 12% -30%;
+    background-size: 108% auto;
+    opacity: 0.11;
+  }
+}
+
+
+/* Opening copy */
+.hh-opening-message {
+  position: relative;
+  z-index: 1;
+  max-width: 250px;
+  margin: 8px auto 0;
+  color: rgb(255 243 214 / 0.72);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+
+
+/* Separate 3D gallery cards so adjacent photos do not cut through the active card. */
+.hh-gallery-carousel {
+  width: min(100%, 430px);
+  min-height: 330px;
+  height: clamp(330px, 82vw, 410px);
+  overflow: visible;
+  perspective: 1200px;
+}
+
+.hh-gallery-carousel figure {
+  width: clamp(150px, 43vw, 198px);
+  height: min(84%, 326px);
+  transform: translate(-50%, -50%) rotateY(var(--hh-gallery-angle)) translateZ(clamp(174px, 37vw, 208px));
+}
+
+@media (max-width: 480px) {
+  .hh-gallery-carousel {
+    min-height: 300px;
+    height: 300px;
+    perspective: 1050px;
+  }
+
+  .hh-gallery-carousel figure {
+    width: min(54vw, 194px);
+    height: 248px;
+    transform: translate(-50%, -50%) rotateY(var(--hh-gallery-angle)) translateZ(174px);
+  }
+}
+
+
+/* Keep the Hỷ emblem physically attached to the left curtain motion. */
+.hh-opening-curtains.is-active .hh-opening-curtain-emblem {
+  animation: hh-curtain-emblem-attached 2400ms ease-in-out forwards;
+}
+@keyframes hh-curtain-emblem-attached {
+  0%, 100% {
+    opacity: 1;
+    transform: translate3d(calc(-50vw - 125px), -50%, 0) rotate(-2deg);
+  }
+  34%, 61% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0) rotate(-2deg);
+  }
+}
+
+
+/* The emblem belongs to the left curtain: no independent travel or delay. */
+.hh-opening-curtains.is-active .hh-opening-curtain--left .hh-opening-curtain-emblem {
+  animation: none;
+  opacity: 1;
+  transform: translateY(-50%) rotate(-2deg);
+}
+
+
+/* The left curtain owns the emblem so both share the exact same transform. */
+.hh-opening-curtain--left .hh-opening-curtain-emblem {
+  position: absolute !important;
+  top: 50%;
+  right: -94px;
+  left: auto;
+  width: 250px;
+  height: 250px;
+  transform: translateY(-50%) rotate(-2deg);
+  opacity: 1;
+}
+@media (max-width: 560px) {
+  .hh-opening-curtain--left .hh-opening-curtain-emblem {
+    right: -78px;
+    width: 156px;
+    height: 156px;
+  }
+}
+
+
+/* Keep the emblem above the right curtain at the center seam. */
+.hh-opening-curtain--left {
+  z-index: 6;
+}
+.hh-opening-curtain--right {
+  z-index: 5;
+}
+.hh-opening-curtain--left .hh-opening-curtain-emblem {
+  z-index: 8 !important;
+}
+.hh-opening-curtain-line {
+  z-index: 9;
+}
+
+
+/* Fine-tune the emblem center against the curtain seam. */
+.hh-opening-curtain--left .hh-opening-curtain-emblem,
+.hh-opening-curtains.is-active .hh-opening-curtain--left .hh-opening-curtain-emblem {
+  transform: translateY(calc(-50% + 5px)) rotate(-2deg);
+}
+
+
+/* Fine-tune the emblem horizontally at the center seam. */
+.hh-opening-curtain--left .hh-opening-curtain-emblem,
+.hh-opening-curtains.is-active .hh-opening-curtain--left .hh-opening-curtain-emblem {
+  transform: translate3d(5px, calc(-50% + 5px), 0) rotate(-2deg);
+}
+
+
+/* Final seam alignment: move the emblem 30px to the right. */
+.hh-opening-curtain--left .hh-opening-curtain-emblem,
+.hh-opening-curtains.is-active .hh-opening-curtain--left .hh-opening-curtain-emblem {
+  transform: translate3d(30px, calc(-50% + 5px), 0) rotate(-2deg);
+}
+
+
+/* Roomier vertical rhythm across content sections. */
+.hh-section {
+  min-height: min(82dvh, 660px);
+  padding-block: 88px;
+  gap: 22px;
+}
+.hh-section > h2 {
+  margin-block: 4px 8px;
+}
+.hh-family-grid,
+.hh-countdown-grid,
+.hh-detail-card,
+.hh-timeline,
+.hh-gallery-carousel,
+.hh-actions {
+  margin-top: 14px;
+}
+@media (max-width: 480px) {
+  .hh-section {
+    min-height: min(78dvh, 620px);
+    padding-block: 70px;
+    gap: 20px;
+  }
+}

@@ -6,22 +6,22 @@ Working template key: `van-hy`
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
-| 0 — preview shell / spatial contract | Complete | `VanHyShell.tsx`, `van-hy.css`, direct route smoke, responsive CSS audit and shell interaction tests are complete. |
-| 1 — product meaning / content system | Complete | Product meaning, journey, art direction, 13-section content matrix and editor plan are recorded below. |
+| 0 — preview shell / spatial contract | Complete | `VanHyInvitation.tsx`, `van-hy.css`, direct route smoke, responsive CSS audit and invitation interaction tests are complete. |
+| 1 — product meaning / content system | Complete | Product meaning, journey, art direction, current section content matrix and editor plan are recorded below. |
 | 2 — media contract | Complete | Media matrix, editability, crop/focal/loading/alt/fallback rules, external album decision and config mapping are recorded below. |
 | 2.5 — decor pre-production | Complete / approved | Approved renderer-owned artwork batch, preview sheet and provenance manifest are recorded below. |
-| 3 — section composition | Complete | 13-section skeleton renderer, config, fixture, composition map and tests are implemented below. |
-| 4 — motion / interaction | Implementation started | Technique map and core motion system are recorded below; Phase 5 visual review remains. |
-| 5 — integration / review / release | Not started | Deferred. |
+| 3 — section composition | Complete | current section skeleton renderer, config, fixture, composition map and tests are implemented below. |
+| 4 — motion / interaction | Complete | Technique map, core motion system, targeted browser review, reduced-motion rule and template validation are complete. |
+| 5 — integration / review / release | In progress | Artwork is integrated; release review and final catalog audit remain. |
 
 ## Phase 0 — preview shell and spatial contract
 
 ### Preview
 
 - Route: `/templates/invitations/van-hy/preview`
-- Renderer shell: `VanHyShell.tsx`
+- Renderer: `VanHyInvitation.tsx`
 - Stylesheet namespace: `.hh-*` in `van-hy.css`
-- No template sections, fixture, backend data or final artwork are mounted yet.
+- The complete renderer, fixture and approved artwork are mounted; editor and public data are supported.
 
 ### Locked spatial decisions
 
@@ -91,7 +91,7 @@ Vạn Hỷ is intentionally different from Astral Vows even though it uses the s
 
 ### Section/content matrix
 
-The template uses the same 13-section contract as Astral Vows. Technical keys stay compatible with the established invitation system. Human-facing section labels, field labels, empty messages and helper text must be fully Vietnamese in `template-config.ts`.
+The template uses the current 11-section contract. Technical keys stay compatible with the established invitation system. Human-facing section labels, field labels, empty messages and helper text must be fully Vietnamese in `template-config.ts`.
 
 | Key | Required / order | Content anchor and canonical keys | Editor/default plan | Empty, action and fallback |
 | --- | --- | --- | --- | --- |
@@ -141,7 +141,7 @@ Phase 3 will create an isolated Vạn Hỷ content type and fictional Vietnamese
 - [x] Product type, meaning, viewer job, audience, non-goals and experience arc are documented.
 - [x] Vạn Hỷ art direction is defined: dominant dark burgundy red, energetic Gen Z tone, floating Hỷ and red flower opening decor.
 - [x] Mobile-only 480px constraint and full-screen opening role are documented.
-- [x] Required/optional section list and canonical order match the 13-section Astral Vows contract.
+- [x] Required/optional section list and canonical order match the 11-section current contract.
 - [x] Each section has a content anchor, canonical keys, editor/default plan, empty behavior and action/fallback.
 - [x] Fixture and editor mapping plans are isolated from existing templates.
 - [x] Template config parity and fully Vietnamese editor labels are explicit release blockers.
@@ -316,7 +316,7 @@ The batch was produced with the built-in `image_gen` workflow. Prompts specified
 
 ### Preview and approval
 
-See [ARTWORK_PREVIEW.md](./ARTWORK_PREVIEW.md) for the visual preview sheet and reviewer checklist. The generated images are intentionally not referenced from `VanHyShell.tsx` or `van-hy.css` yet. Approval must confirm edge quality, alpha cleanliness, mobile crop safety and visual fit against the current dark-red shell before Phase 3 integration.
+See [ARTWORK_PREVIEW.md](./ARTWORK_PREVIEW.md) for the visual preview sheet and reviewer checklist. The approved generated images are referenced by `VanHyInvitation.tsx` and `van-hy.css`; artwork approval covers edge quality, alpha cleanliness, mobile crop safety and visual fit against the current dark-red shell.
 
 ### Phase 2.5 acceptance checklist
 
@@ -373,7 +373,7 @@ The order is locked to `opening → cover → invitation → families → countd
 
 ## Phase 4 — Advanced visual experience, interaction and motion
 
-Status: **Implementation started — technique map and core motion system added.**
+Status: **Complete — motion, interaction and browser smoke validation completed.**
 
 ### Technique map
 
@@ -402,7 +402,10 @@ Status: **Implementation started — technique map and core motion system added.
 - [x] Native scroll, touch and keyboard fallbacks remain available.
 - [x] Reduced-motion fallback disables spatial/ambient motion while preserving content and identity.
 - [x] Template tests cover opening and section rendering; full typecheck was attempted and is blocked by four pre-existing errors outside `templates/invitations/van-hy`.
-- [ ] Full cross-viewport visual review and release audit remain for Phase 5.
+- [x] Browser smoke review completed at 375px and 768px; no horizontal overflow and no console errors beyond the standard React DevTools info message.
+- [x] Full screenshot-by-screenshot viewport smoke review completed; no horizontal overflow, asset load errors or runtime errors observed.
+- [x] Template registry/config audit confirms `van-hy` resolves through the invitation catalog path.
+- [ ] Final owner screenshot approval and whole-frontend release gate remain.
 
 ## Preserved product decisions for Phase 1
 

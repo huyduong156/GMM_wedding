@@ -241,7 +241,8 @@ export function InvitationEditorLivePage() {
       setSectionDefinitions(definitions)
       if (Array.isArray(templateConfig.quickEdit)) setQuickEditFields(readQuickEdit(templateConfig))
       const templateDefaults = (templateConfig.defaultData ?? {}) as Partial<EditorData>
-      const nextData = { ...initialData, ...templateDefaults, ...stored }
+      const selectedTemplateFixture = getInvitationTemplate(loaded.templateVersion.key)?.fixture as Partial<EditorData> | undefined
+      const nextData = { ...(selectedTemplateFixture ?? initialData), ...templateDefaults, ...stored }
       setData(nextData)
       const configuredPalettes = ((templateConfig.palettes ?? []) as Array<{ key: string }>).map(
         (item) => item.key,
