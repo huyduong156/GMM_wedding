@@ -384,3 +384,17 @@ Renderer phải map đúng `sectionKey`, render đủ required sections, hỗ tr
 - [ ] Đã audit seam giữa các section liền kề.
 - [ ] `template-config.ts`, fixture, renderer và editor mapping nhất quán.
 - [ ] Typecheck, lint, test và build đã chạy; blocker phải được ghi rõ, không đánh dấu hoàn thành khi quality gate chưa đạt.
+
+## 7.1. Invariants và lỗi thường gặp cần tránh
+
+Các quy tắc dưới đây là contract ổn định cho mọi template mới. Không tự ý tạo biến thể theo từng template; nếu contract cần thay đổi, phải xử lý migration/scanner theo lô.
+
+- `template-config.ts` phải giữ đúng cấu trúc, key, nesting và kiểu dữ liệu đang được các template hiện có sử dụng để scanner, editor, validator và catalog đọc được. Không đổi tên key, đổi shape hoặc thêm cấu trúc riêng chỉ vì một template cần cách biểu diễn khác.
+- Các phần tử nhỏ có vai trò thị giác trong từng section phải có entrance effect riêng, thay vì chỉ animate toàn section. Entrance effect phải dùng chung class/utility scroll reveal đã được thiết kế trong hệ thống; trigger khi người dùng đã scroll qua khoảng hơn một phần ba viewport/section theo convention hiện hành.
+- Entrance effect không được quá nhanh. Giữ đủ thời gian để người dùng nhận biết hierarchy, chỉ animate `transform` và `opacity` khi có thể, đồng thời có fallback hoàn chỉnh cho reduced motion.
+- Luôn xử lý `guestName` trong mọi section có nội dung cá nhân hóa. Khi cần hiển thị tên người nhận, renderer phải lấy từ content/runtime contract đúng chuẩn, không hard-code fixture hoặc bỏ qua khi section được bật/tắt.
+- Section gửi lời chúc và section xác nhận tham dự luôn phải giữ luồng gọi API tương ứng. Cả hai section phải kiểm tra `guestName` để quyết định hiển thị form cá nhân hóa hay input nhập tên dự phòng; không mặc định hiển thị input tên khi đã có tên khách.
+- Tất cả label, title và hướng dẫn của input trong editor phải đầy đủ bằng tiếng Việt, rõ nghĩa và phù hợp với dữ liệu người dùng cần nhập.
+- Không đưa text cố định của button, placeholder, câu hướng dẫn chung chung hoặc copy hệ thống vào input content của editor. Chỉ khai báo các giá trị thực sự là nội dung người dùng cần chỉnh sửa.
+- Decor renderer-owned như hoa nền, lá, khung, texture và ornament không cần input image để user thay đổi. Chỉ expose input cho ảnh user upload hoặc vị trí đặc biệt có chủ đích, như ảnh cô dâu/chú rể dùng làm background.
+- Section hai bên gia đình phải ưu tiên tên cha mẹ và tên thành viên gia đình trong hierarchy: tên phải lớn/nổi bật hơn danh xưng, địa chỉ và metadata; trên mobile vẫn phải đọc rõ từng tên và vai vế.

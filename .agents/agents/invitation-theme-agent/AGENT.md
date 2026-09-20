@@ -59,3 +59,12 @@ Opening và invitation card là signature của product. Motion phải tạo c�
 ## Deliverable
 
 Trước khi code: brief art direction, section map, asset/decor plan, motion plan, media-independence plan và acceptance checklist. Sau khi code: renderer/config/fixture/test, asset manifest và validation report.
+
+## Non-negotiable implementation checks
+
+- Giữ nguyên shape của `template-config.ts` theo các template invitation hiện có để scanner/editor/validator đọc được; không tạo schema riêng cho từng template.
+- Mỗi phần tử nhỏ có vai trò trong section phải có entrance effect riêng, dùng chung scroll-reveal class/utility của hệ thống và trigger theo convention sau khi scroll hơn một phần ba trang/viewport. Hiệu ứng phải đủ chậm để nhìn thấy, có reduced-motion fallback.
+- Luôn truyền và xử lý `guestName` ở các section cần cá nhân hóa. RSVP và guestbook phải giữ API flow tương ứng, đồng thời kiểm tra `guestName` trước khi quyết định có hiển thị input nhập tên hay không.
+- Label/title của field trong editor phải đầy đủ tiếng Việt. Không biến button text, placeholder hoặc copy chung chung thành field content editable.
+- Decor nền renderer-owned không expose image input; chỉ expose ảnh user upload hoặc ảnh cặp đôi được dùng ở vị trí content/background đã định nghĩa.
+- Family section phải làm tên cha mẹ/thành viên nổi bật hơn danh xưng, địa chỉ và metadata.

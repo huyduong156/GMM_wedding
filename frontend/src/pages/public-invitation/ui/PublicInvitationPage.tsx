@@ -30,6 +30,8 @@ import {
 } from '../../../templates/invitations/rose-garden/RoseGardenInvitation'
 import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } from '../../../templates/invitations/astral-vow/AstralVowInvitation'
 import { VanHyInvitation, type VanHyData, type VanHySectionConfig } from '../../../templates/invitations/van-hy/VanHyInvitation'
+import { AureliaCourtRenderer } from '../../../templates/invitations/aurelia-court/AureliaCourtRenderer'
+import type { AureliaCourtData, AureliaCourtSectionConfig } from '../../../templates/invitations/aurelia-court/AureliaCourtTypes'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -217,6 +219,14 @@ function InvitationSnapshot({
           data={content as AstralVowData}
           sectionConfig={sectionConfig as AstralVowSectionConfig | undefined}
           guestName={guestName}
+          interactions={interactions}
+        />
+      )
+    case 'aurelia-court':
+      return (
+        <AureliaCourtRenderer
+          data={content as AureliaCourtData}
+          sectionConfig={sectionConfig as AureliaCourtSectionConfig | undefined}
           interactions={interactions}
         />
       )
