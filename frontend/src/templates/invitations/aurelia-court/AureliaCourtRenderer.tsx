@@ -3,6 +3,7 @@ import { aureliaCourtArtwork, aureliaCourtFixture, aureliaCourtSectionConfig } f
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { MusicPlayer } from '../../../shared/ui/music-player'
 import '../../../shared/styles/reveal-animations.css'
 import './aurelia-court.css'
 
@@ -10,7 +11,7 @@ type Props = { data?: AureliaCourtData; sectionConfig?: AureliaCourtSectionConfi
 
 const replaceGuest = (value: string, guestName = 'quý khách') => value.replaceAll('{guestName}', guestName)
 
-export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig = aureliaCourtSectionConfig, interactions }: Props) {
+export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig = aureliaCourtSectionConfig, editorMode = false, interactions }: Props) {
   const [opened, setOpened] = useState(false)
   const stageRef = useRef<HTMLDivElement>(null)
   const [openingComplete, setOpeningComplete] = useState(false)
@@ -22,7 +23,8 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
 
   useEffect(() => {
     if (!opened || openingComplete) return
-    const timeout = window.setTimeout(() => setOpeningComplete(true), 1250)
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const timeout = window.setTimeout(() => setOpeningComplete(true), reducedMotion ? 0 : 1500)
     return () => window.clearTimeout(timeout)
   }, [opened, openingComplete])
   useEffect(() => {
@@ -39,6 +41,7 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
     <>
       <main className={`ac-page ${opened ? 'is-opened' : ''}`} aria-label="Thiệp cưới Aurelia Court">
       <Opening data={data} opened={opened} openingComplete={openingComplete} ambientActive={ambientActive} onOpen={() => setOpened(true)} />
+      {active.has('music') && (data.music.backgroundMusicUrl || editorMode) ? <MusicPlayer src={data.music.backgroundMusicUrl} title={data.music.backgroundMusicName || data.music.trackName || data.music.title} autoplay={data.music.backgroundMusicAutoplay} active={opened} editorMode={editorMode} /> : null}
       <div ref={stageRef} className={`ac-stage ${opened ? 'is-opened' : ''} ${ambientActive ? 'is-ambient-active' : ''}`} data-template-shell="aurelia-court">
         <div className="ac-shared-background" aria-hidden="true" />
         <div className="ac-ambient" aria-hidden="true"><i /><i /><i /><i /><i /></div>
@@ -85,18 +88,21 @@ function Section({ sectionKey, className = '', children }: { sectionKey: string;
 function Opening({ data, opened, openingComplete, ambientActive, onOpen }: { data: AureliaCourtData; opened: boolean; openingComplete: boolean; ambientActive: boolean; onOpen: () => void }) {
   if (openingComplete) return null
   return <section className={`ac-opening-shell ${opened ? 'is-opening' : ''}`} data-editor-section="opening" aria-label="Mở thiệp Aurelia Court" aria-hidden={opened}>
-    <div className="ac-opening-petals" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index}>✿</span>)}</div>
+    <div className="ac-opening-petals" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} />)}</div>
+    <div className="ac-opening-transition" aria-hidden="true" />
     <div className="ac-opening-stage">
+      <svg className="ac-opening-border-glow" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="ac-opening-glow-blur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.5" /></filter></defs><rect className="ac-opening-border-glow__blur ac-opening-border-glow__blur--one" x="1.5" y="1.5" width="97" height="97" rx="8" pathLength="1000" /><rect className="ac-opening-border-glow__blur ac-opening-border-glow__blur--two" x="1.5" y="1.5" width="97" height="97" rx="8" pathLength="1000" /><rect className="ac-opening-border-glow__line ac-opening-border-glow__line--one" x="1.5" y="1.5" width="97" height="97" rx="8" pathLength="1000" /><rect className="ac-opening-border-glow__line ac-opening-border-glow__line--two" x="1.5" y="1.5" width="97" height="97" rx="8" pathLength="1000" /></svg>
+
       <button className={`ac-opening-card ${opened ? 'is-opening' : ''}`} type="button" onClick={onOpen} disabled={opened} aria-label="Chạm để mở thiệp Aurelia Court">
         <div className="ac-opening-card__art" aria-hidden="true"><img src={aureliaCourtArtwork.front} alt="" /><img className="ac-opening-card__arch" src={aureliaCourtArtwork.arch} alt="" /><img className="ac-opening-card__corner" src={aureliaCourtArtwork.corner} alt="" /></div>
         <span className="ac-opening-card__inner-border" aria-hidden="true" />
-        <div className="ac-opening-card__content"><img className="ac-opening-card__crest" src={aureliaCourtArtwork.crest} alt="" /><span className="ac-opening-card__eyebrow">{data.opening.eyebrow}</span><h1><span>{data.couple.brideName}</span><em>&amp;</em><span>{data.couple.groomName}</span></h1><p className="ac-opening-card__date">{data.event.weddingDate}</p><p className="ac-opening-card__note">{data.opening.message}</p><span className="ac-opening-card__open">Mở thiệp</span></div>
+        <div className="ac-opening-card__content"><img className="ac-opening-card__crest" src={aureliaCourtArtwork.crest} alt="" /><span className="ac-opening-card__eyebrow">{data.opening.eyebrow}</span><p className="ac-opening-card__title">{data.opening.title}</p><h1><span>{data.couple.brideName}</span><em className="ac-opening-card__ampersand" aria-label="và">&amp;</em><span>{data.couple.groomName}</span></h1><p className="ac-opening-card__date">{data.event.weddingDate}</p><p className="ac-opening-card__note">{data.opening.message}</p><span className="ac-opening-card__open">Mở thiệp</span></div>
       </button>
     </div>
   </section>
 }
 function Cover({ data }: { data: AureliaCourtData }) {
-  return <Section sectionKey="cover" className="ac-cover"><img className="ac-border" src={aureliaCourtArtwork.border} alt="" /><img className="ac-floral ac-floral--cover" src={aureliaCourtArtwork.corner} alt="" /><div className="ac-content ac-cover__plane"><p className="ac-kicker reveal reveal--fade-up">{data.cover.eyebrow}</p><h2 className="reveal reveal--zoom-in">{data.couple.brideName}<span>&amp;</span>{data.couple.groomName}</h2><p className="ac-lead reveal reveal--fade-up">{data.cover.title}</p><p className="reveal reveal--fade-up">{data.event.weddingDate} · {data.event.time}</p>{data.cover.heroMedia ? <img className="ac-user-media reveal reveal--fade-up" src={data.cover.heroMedia.src} alt={data.cover.heroMedia.alt} /> : null}</div></Section>
+  return <Section sectionKey="cover" className="ac-cover"><img className="ac-royal-decor ac-royal-decor--pediment" src={aureliaCourtArtwork.royalPediment} alt="" /><div className="ac-content ac-cover__plane"><p className="ac-kicker reveal reveal--fade-up">{data.cover.eyebrow}</p><h2 className="reveal reveal--zoom-in">{data.couple.brideName}<span>&amp;</span>{data.couple.groomName}</h2>{data.cover.title !== data.couple.brideName + ' & ' + data.couple.groomName ? <p className="ac-lead reveal reveal--fade-up">{data.cover.title}</p> : null}<p className="ac-cover__message reveal reveal--fade-up">{data.cover.message}</p><p className="reveal reveal--fade-up">{data.event.weddingDate} · {data.event.time}</p>{data.cover.heroMedia ? <img className="ac-user-media reveal reveal--fade-up" src={data.cover.heroMedia.src} alt={data.cover.heroMedia.alt} /> : null}</div></Section>
 }
 
 function Invitation({ data, guestName }: { data: AureliaCourtData; guestName: string }) {
@@ -105,16 +111,18 @@ function Invitation({ data, guestName }: { data: AureliaCourtData; guestName: st
 
 function Families({ data }: { data: AureliaCourtData }) {
   const family = (side: typeof data.families.brideSide) => <div className="ac-family reveal reveal--fade-up"><p className="ac-kicker">{side.label}</p><div><small>{side.fatherTitle}</small><strong>{side.father}</strong><small>{side.motherTitle}</small><strong>{side.mother}</strong></div><p>{side.address}</p></div>
-  return <Section sectionKey="families" className="ac-families"><img className="ac-floral ac-floral--family" src={aureliaCourtArtwork.cascade} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Hai bên gia đình</p><h2 className="reveal reveal--slide-up">{data.families.title}</h2><p className="reveal reveal--fade-up">{data.families.subtitle}</p><div className="ac-families__grid">{family(data.families.brideSide)}{family(data.families.groomSide)}</div><img className="ac-divider reveal reveal--zoom-in" src={aureliaCourtArtwork.divider} alt="" /></div></Section>
+  return <Section sectionKey="families" className="ac-families"><img className="ac-royal-decor ac-royal-decor--bust" src={aureliaCourtArtwork.royalBust} alt="" /><img className="ac-floral ac-floral--family" src={aureliaCourtArtwork.cascade} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Hai bên gia đình</p><h2 className="reveal reveal--slide-up">{data.families.title}</h2><p className="reveal reveal--fade-up">{data.families.subtitle}</p><p className="ac-families__message reveal reveal--fade-up">{data.families.message}</p><div className="ac-families__grid">{family(data.families.brideSide)}{family(data.families.groomSide)}</div><img className="ac-divider reveal reveal--zoom-in" src={aureliaCourtArtwork.divider} alt="" /></div></Section>
 }
 
-function EventDetails({ data }: { data: AureliaCourtData }) { return <Section sectionKey="eventDetails" className="ac-event"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Thông tin ngày cưới</p><h2 className="reveal reveal--slide-up">{data.eventDetails.title}</h2><strong className="ac-date reveal reveal--zoom-in">{data.event.weddingDate}</strong><p className="reveal reveal--fade-up">{data.eventDetails.message}</p><p className="reveal reveal--fade-up">{data.event.time} · {data.event.venueName}</p></div></Section> }
+function EventDetails({ data }: { data: AureliaCourtData }) { return <Section sectionKey="eventDetails" className="ac-event"><img className="ac-royal-decor ac-royal-decor--column ac-royal-decor--column-right" src={aureliaCourtArtwork.royalColumn} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Thông tin ngày cưới</p><h2 className="reveal reveal--slide-up">{data.eventDetails.title}</h2><strong className="ac-date reveal reveal--zoom-in">{data.event.weddingDate}</strong><p className="reveal reveal--fade-up">{data.eventDetails.message}</p><p className="reveal reveal--fade-up">{data.event.time} · {data.event.venueName}</p><p className="reveal reveal--fade-up">{data.event.venueAddress}</p></div></Section> }
 
-function Countdown({ data }: { data: AureliaCourtData }) { const countdown = useWeddingCountdown('2026-10-18T17:30:00+07:00'); const values = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds]; return <Section sectionKey="countdown" className="ac-countdown"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Đếm ngược ngày vui</p><h2 className="reveal reveal--slide-up">{data.event.weddingDate}</h2><div className="ac-countdown__grid">{['Ngày', 'Giờ', 'Phút', 'Giây'].map((label, index) => <strong className="reveal reveal--fade-up" key={label}><b>{formatCountdownUnit(values[index])}</b><small>{label}</small></strong>)}</div></div></Section> }
+function toCountdownTarget(date: string, time: string) { const parts = date.replaceAll('·', '-').trim().split('-').map((part) => part.trim()); if (parts.length === 3 && parts[2].length === 4) return parts[2] + '-' + parts[1].padStart(2, '0') + '-' + parts[0].padStart(2, '0') + 'T' + time + ':00+07:00'; return date + 'T' + time + ':00+07:00' }
+
+function Countdown({ data }: { data: AureliaCourtData }) { const countdown = useWeddingCountdown(toCountdownTarget(data.event.weddingDate, data.event.time)); const values = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds]; return <Section sectionKey="countdown" className="ac-countdown"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Đếm ngược ngày vui</p><h2 className="reveal reveal--slide-up">{data.event.weddingDate}</h2><div className="ac-countdown__grid">{['Ngày', 'Giờ', 'Phút', 'Giây'].map((label, index) => <strong className="reveal reveal--fade-up" key={label}><b>{formatCountdownUnit(values[index])}</b><small>{label}</small></strong>)}</div></div></Section> }
 
 function Timeline({ data }: { data: AureliaCourtData }) { return <Section sectionKey="timeline" className="ac-timeline"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Lịch trình trong ngày</p><h2 className="reveal reveal--slide-up">{data.timeline.title}</h2><p className="reveal reveal--fade-up">{data.timeline.message}</p><div className="ac-timeline__list">{data.timeline.items.map((item) => <div className="ac-timeline__item reveal reveal--slide-left" key={`${item.time}-${item.title}`}><time>{item.time}</time><div><strong>{item.title}</strong><p>{item.detail}</p></div></div>)}</div></div></Section> }
 
-function Venue({ data }: { data: AureliaCourtData }) { return <Section sectionKey="venue" className="ac-venue"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Địa điểm hôn lễ</p><h2 className="reveal reveal--slide-up">{data.venue.name}</h2><p className="reveal reveal--fade-up">{data.venue.address}</p><p className="reveal reveal--fade-up">{data.venue.message}</p><div className="ac-actions reveal reveal--fade-up"><a href={data.venue.mapUrl}>Mở bản đồ</a><a href={data.venue.calendarUrl}>Thêm vào lịch</a></div></div></Section> }
+function Venue({ data }: { data: AureliaCourtData }) { return <Section sectionKey="venue" className="ac-venue"><img className="ac-royal-decor ac-royal-decor--mirror ac-royal-decor--mirror-left" src={aureliaCourtArtwork.royalMirror} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">{data.venue.title}</p><h2 className="reveal reveal--slide-up">{data.venue.name}</h2><p className="reveal reveal--fade-up">{data.venue.address}</p><p className="reveal reveal--fade-up">{data.venue.message}</p><div className="ac-actions reveal reveal--fade-up"><a href={data.venue.mapUrl}>Mở bản đồ</a><a href={data.venue.calendarUrl}>Thêm vào lịch</a></div></div></Section> }
 
 function Activities({ data }: { data: AureliaCourtData }) { return <Section sectionKey="activities" className="ac-activities"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Trong ngày vui</p><h2 className="reveal reveal--slide-up">{data.activities.title}</h2><p className="reveal reveal--fade-up">{data.activities.message}</p><div className="ac-activities__grid">{data.activities.items.map((item) => <article className="reveal reveal--fade-up" key={item.title}>{item.image ? <img src={item.image.src} alt={item.image.alt} /> : <img src={aureliaCourtArtwork.corner} alt="" />}<strong>{item.title}</strong></article>)}</div></div></Section> }
 

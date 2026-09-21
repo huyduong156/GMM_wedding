@@ -25,7 +25,7 @@ export type AureliaCourtData = {
   rsvp: { title: string; message: string; deadline: string }
   guestbook: { title: string; message: string }
   gift: { title: string; message: string; thankYouMessage: string; qrMedia: AureliaCourtMedia | null }
-  music: { title: string; trackName: string }
+  music: { title: string; trackName: string; backgroundMusicUrl: string; backgroundMusicName: string; backgroundMusicAutoplay: boolean }
   footer: { title: string; message: string }
 }
 
