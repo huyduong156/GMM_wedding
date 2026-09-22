@@ -1,0 +1,2467 @@
+:root {
+  --ac-ink: #35271d;
+  --ac-muted: #5f5041;
+  --ac-paper: #fbf8f0;
+  --ac-gold: #bd9650;
+  --ac-gold-light: #e6d19a;
+  --ac-line: rgb(126 94 48 / 0.34);
+  --ac-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+.ac-page {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  color: var(--ac-ink);
+  background: #fbfaf6;
+  font-family: var(--font-wedding-body);
+}
+
+.ac-page *,
+.ac-page *::before,
+.ac-page *::after {
+  box-sizing: border-box;
+}
+
+.ac-stage {
+  position: relative;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  background: transparent;
+}
+
+.ac-shared-background {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% -8%, rgb(255 255 255 / .98), transparent 34%), radial-gradient(circle at 5% 28%, rgb(229 202 142 / .055), transparent 18rem), radial-gradient(circle at 95% 70%, rgb(213 188 129 / .045), transparent 20rem), repeating-linear-gradient(90deg, transparent 0 47px, rgb(126 94 48 / .012) 48px 49px), linear-gradient(180deg, #fffefa 0%, #fdfbf6 50%, #f8f2e8 100%);
+}
+
+.ac-invitation {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+}
+
+.ac-ambient {
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ac-ambient i {
+  position: absolute;
+  width: 8px;
+  height: 14px;
+  border: 1px solid rgb(189 150 80 / 0.48);
+  border-radius: 70% 30% 70% 30%;
+  opacity: 0;
+}
+
+.ac-ambient i:nth-child(1) {
+  left: 8%;
+  top: 22%;
+  --drift: 34px;
+  --delay: -2s;
+  --duration: 18s;
+}
+
+.ac-ambient i:nth-child(2) {
+  right: 10%;
+  top: 42%;
+  --drift: -26px;
+  --delay: -8s;
+  --duration: 21s;
+}
+
+.ac-ambient i:nth-child(3) {
+  left: 15%;
+  top: 68%;
+  --drift: 22px;
+  --delay: -13s;
+  --duration: 17s;
+}
+
+.ac-ambient i:nth-child(4) {
+  right: 18%;
+  top: 78%;
+  --drift: -18px;
+  --delay: -6s;
+  --duration: 20s;
+}
+
+.ac-ambient i:nth-child(5) {
+  left: 48%;
+  top: 14%;
+  --drift: 14px;
+  --delay: -10s;
+  --duration: 24s;
+}
+
+.ac-stage.is-ambient-active .ac-ambient i {
+  animation: ac-ambient-drift var(--duration) ease-in-out var(--delay) infinite;
+}
+
+@keyframes ac-ambient-drift {
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) rotate(18deg);
+  }
+
+  50% {
+    opacity: .26;
+    transform: translate3d(var(--drift), 54px, 0) rotate(128deg);
+  }
+}
+
+/* Content theatre rebuilt from zero: one stage, chapters only as typographic compositions. */
+.ac-section {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 40px 20px;
+  border-bottom: 0;
+  isolation: isolate;
+}
+
+.ac-section::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8% 7%;
+  border: 0;
+  content: '';
+  opacity: .8;
+  pointer-events: none;
+}
+
+.ac-content {
+  position: relative;
+  z-index: 3;
+  width: min(100%, 380px);
+  padding: 30px 18px;
+  text-align: center;
+}
+
+.ac-content h1,
+.ac-content h2,
+.ac-content p {
+  margin-top: 0;
+}
+
+.ac-content h2 {
+  margin-bottom: 20px;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(34px, 10vw, 56px);
+  font-weight: 500;
+  letter-spacing: -.055em;
+  line-height: .98;
+  text-wrap: balance;
+  text-shadow: 0 1px 0 rgb(255 255 255 / .72);
+}
+
+.ac-content h2 span {
+  display: block;
+  color: var(--ac-gold);
+  font-family: var(--font-wedding-script);
+  font-size: .68em;
+  line-height: .8;
+}
+
+.ac-content p {
+  color: #514233;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.ac-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 19px !important;
+  color: #96733a !important;
+  font-size: 10px !important;
+  font-weight: 800;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.ac-kicker::before,
+.ac-kicker::after {
+  width: 30px;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--ac-gold));
+}
+
+.ac-kicker::after {
+  transform: rotate(180deg);
+}
+
+.ac-lead {
+  margin-bottom: 9px !important;
+  color: #96733a !important;
+  font-family: var(--font-wedding-display);
+  font-size: 23px !important;
+}
+
+.ac-date {
+  display: block;
+  width: min(100%, 290px);
+  margin: 30px auto 0;
+  padding: 0;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-waterfall);
+  font-style: normal;
+  text-align: center;
+}
+
+.ac-event__couple {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 30px auto 22px;
+}
+
+.ac-event__couple>div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ac-event__couple small {
+  color: var(--ac-muted);
+  font-size: 1.4rem;
+  letter-spacing: .12em;
+  text-transform: none;
+}
+
+.ac-event__couple strong {
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.ac-event__ceremony {
+  margin: 0 auto 8px;
+  color: var(--ac-ink) !important;
+  font-family: var(--font-wedding-display);
+  font-size: 1.25rem !important;
+  line-height: 1.3 !important;
+}
+
+.ac-event__time {
+  margin: 0;
+  color: var(--ac-muted) !important;
+  font-size: 1.4rem !important;
+  line-height: 1.3 !important;
+}
+
+.ac-date__top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  color: var(--ac-muted);
+  font-size: 1.05rem;
+  letter-spacing: .08em;
+}
+
+.ac-date__top>span {
+  padding: 12px 8px;
+}
+
+.ac-date__top>span:first-child {
+  border-right: 1px solid rgb(189 150 80 / .5);
+}
+
+.ac-date__top>span:last-child {
+  border-left: 1px solid rgb(189 150 80 / .5);
+}
+
+.ac-date__top strong {
+  color: var(--ac-gold);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(56px, 15vw, 82px);
+  font-weight: 500;
+  letter-spacing: -.04em;
+  line-height: .8;
+}
+
+.ac-date__year {
+  margin-top: 16px;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 1.5rem;
+  letter-spacing: .18em;
+}
+
+.ac-date>small {
+  display: block;
+  margin-top: 12px;
+  color: var(--ac-muted);
+  font-size: .95rem;
+  letter-spacing: .02em;
+}
+
+.ac-divider {
+  display: block;
+  width: min(100%, 260px);
+  height: auto;
+  margin: 30px auto 0;
+}
+
+.ac-floral {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.ac-cover {
+  padding-top: 120px;
+  padding-bottom: 100px;
+  perspective: 1000px;
+}
+
+.ac-cover__plane {
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 520ms var(--ac-ease);
+}
+
+.ac-cover .ac-content {
+  padding-top: 110px;
+  padding-bottom: 80px;
+}
+
+.ac-cover h2 {
+  font-size: clamp(45px, 13vw, 70px);
+}
+
+.ac-cover__message {
+  max-width: 280px;
+  margin-inline: auto;
+}
+
+.ac-cover::after {
+  position: absolute;
+  right: 18%;
+  bottom: 42px;
+  left: 18%;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--ac-gold), transparent);
+}
+
+.ac-letter h2,
+.ac-event h2,
+.ac-venue h2,
+.ac-gift h2,
+.ac-footer h2 {
+  position: relative;
+  padding-bottom: 22px;
+}
+
+.ac-letter h2::after,
+.ac-event h2::after,
+.ac-venue h2::after,
+.ac-gift h2::after,
+.ac-footer h2::after {
+  position: absolute;
+  left: 50%;
+  width: 44%;
+  bottom: 0;
+  height: 1px;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--ac-gold), transparent);
+  transform: translateX(-50%);
+}
+
+.ac-floral--letter {
+  top: 18px;
+  left: 50%;
+  width: 78%;
+  transform: translateX(-50%);
+  opacity: .82;
+}
+
+.ac-letter .ac-content {
+  margin-top: 40px;
+}
+
+.ac-floral--family {
+  top: 0;
+  right: 22%;
+  z-index: -1;
+  width: 80%;
+  opacity: 0.6 !important;
+}
+
+.ac-venue .ac-floral--countdown {
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 52%;
+  opacity: 0.6 !important;
+}
+
+.ac-countdown .ac-floral--venue {
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 48%;
+  opacity: 0.6 !important;
+  transform: scaleX(-1);
+}
+
+.ac-families__message {
+  margin-bottom: 28px;
+}
+
+.ac-families__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+  margin-top: 30px;
+}
+
+.ac-family-orbit {
+  z-index: 2;
+  display: grid;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+  border: 1px solid rgb(189 150 80 / .72);
+  border-radius: 50%;
+  background: rgb(251 248 240 / .9);
+  box-shadow: 0 0 0 5px rgb(251 248 240 / .72), 0 10px 22px rgb(78 59 34 / .16);
+  transform: translate(-50%, -50%);
+}
+
+.ac-family-orbit.reveal--zoom-in {
+  transform: translate(-50%, -50%) scale(.63) !important;
+}
+
+.ac-families.is-visible .ac-family-orbit.reveal--zoom-in {
+  transform: translate(-50%, -50%) scale(.7) !important;
+}
+
+.ac-family-orbit::before,
+.ac-family-orbit::after,
+.ac-family-orbit__ring {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgb(189 150 80 / .38);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.ac-family-orbit::before {
+  animation: ac-family-wave 4.8s ease-out infinite;
+}
+
+.ac-family-orbit::after {
+  inset: -16px;
+  opacity: .72;
+  animation: ac-family-wave 4.8s ease-out 1.2s infinite;
+}
+
+.ac-family-orbit__ring {
+  inset: -24px;
+  opacity: .42;
+  animation: ac-family-wave 4.8s ease-out 2.4s infinite;
+}
+
+.ac-family-orbit img {
+  position: relative;
+  z-index: 1;
+  width: 43px;
+  height: 43px;
+  object-fit: contain;
+}
+
+@keyframes ac-family-wave {
+  0% {
+    opacity: .7;
+    transform: scale(.72);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+.ac-family {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 228px;
+  overflow: hidden;
+  padding: 24px 18px;
+  border: 1px solid rgb(126 94 48 / .42);
+  background: rgb(251 248 240 / .4);
+  box-shadow: 0 14px 28px rgb(78 59 34 / .1);
+}
+
+.ac-family::before {
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgb(189 150 80 / .22);
+  content: '';
+}
+
+.ac-family .ac-family-decor {
+  position: absolute;
+  z-index: 0;
+  bottom: -20%;
+  width: 78%;
+  max-width: 210px;
+  opacity: .4 !important;
+  pointer-events: none;
+  object-fit: contain;
+  filter: sepia(.15) saturate(.8) drop-shadow(0 8px 12px rgb(78 59 34 / .12));
+}
+
+.ac-family--bride .ac-family-decor {
+  left: -10%;
+}
+
+.ac-family--groom .ac-family-decor {
+  right: -10%;
+  transform: scaleX(1);
+}
+
+.ac-family>.ac-kicker,
+.ac-family>div,
+.ac-family>p:last-child {
+  position: relative;
+  z-index: 2;
+}
+
+.ac-family>div {
+  display: grid;
+  gap: 5px;
+}
+
+.ac-family small {
+  color: var(--ac-muted);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ac-family .ac-kicker,
+.ac-family small {
+  text-transform: none;
+}
+
+.ac-family .ac-kicker {
+  font-size: 11px !important;
+  letter-spacing: .12em;
+}
+
+.ac-family strong {
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 25px;
+  line-height: 1.05;
+}
+
+.ac-family>p:last-child {
+  margin: 16px 0 0;
+  color: var(--ac-muted);
+  font-size: 11px;
+}
+
+.ac-countdown__grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin-top: 30px;
+}
+
+.ac-countdown__grid strong {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  min-height: 92px;
+  place-items: center;
+  gap: 6px;
+  border-top: 1px solid var(--ac-gold);
+  border-bottom: 1px solid var(--ac-gold);
+  background: rgb(251 248 240 / .18);
+}
+
+.ac-countdown__calendar {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 255px);
+  margin: 24px auto 0;
+  padding: 18px 16px 15px;
+  border: 1px solid rgb(177 139 70 / .42);
+  background: rgb(251 248 240 / .76);
+  box-shadow: 0 14px 28px rgb(78 59 34 / .1);
+  text-align: center;
+}
+
+.ac-countdown__calendar::before {
+  position: absolute;
+  top: 0;
+  right: 15%;
+  left: 15%;
+  height: 4px;
+  background: var(--ac-gold);
+  content: '';
+}
+
+.ac-countdown__calendar::after {
+  position: absolute;
+  top: 10px;
+  right: 22px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--ac-gold);
+  border-radius: 50%;
+  box-shadow: -92px 0 0 -1px var(--ac-paper), -92px 0 0 0 var(--ac-gold);
+  content: '';
+}
+
+.ac-countdown__calendar span,
+.ac-countdown__calendar small {
+  display: block;
+  color: var(--ac-muted);
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.ac-countdown__calendar strong {
+  display: block;
+  margin: 7px 0 5px;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: .08em;
+}
+
+.ac-countdown__calendar small {
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: none;
+}
+
+.ac-countdown__grid b {
+  position: relative;
+  z-index: 2;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.ac-countdown__grid small {
+  position: relative;
+  z-index: 2;
+  color: var(--ac-muted);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: none;
+}
+
+.ac-countdown,
+.ac-venue {
+  padding-block: 0;
+}
+
+.ac-countdown {
+  padding-top: 40px;
+}
+
+.ac-venue {
+  padding-bottom: 40px;
+}
+
+.ac-countdown .ac-content {
+  padding-bottom: 0;
+}
+
+.ac-venue .ac-content {
+  padding-top: 0;
+}
+
+.ac-timeline__list {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  width: min(100%, 340px);
+  margin: 30px auto 0;
+  text-align: left;
+}
+
+.ac-timeline__list::before {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 27px;
+  width: 1px;
+  content: '';
+  background: linear-gradient(var(--ac-gold), transparent);
+}
+
+.ac-timeline__item {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.ac-timeline__item time {
+  padding-top: 4px;
+  color: #84632d;
+  background: #f5edda;
+  font-family: var(--font-wedding-display);
+  font-size: 21px;
+  text-align: center;
+}
+
+.ac-timeline__item strong {
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 17px;
+}
+
+.ac-timeline__item p {
+  margin: 5px 0 0;
+  color: var(--ac-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ac-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 28px;
+}
+
+.ac-button,
+.ac-actions a {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ac-gold);
+  border-radius: 2px;
+  padding: 11px 22px;
+  color: var(--ac-ink);
+  background: rgb(251 248 240 / .56);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.ac-button:disabled {
+  opacity: .62;
+}
+
+.ac-button:active,
+.ac-actions a:active {
+  transform: scale(.97);
+}
+
+.ac-activities__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.ac-activities__marquee {
+  width: 100vw;
+  margin: 26px calc(50% - 50vw) 0;
+  overflow: hidden;
+}
+
+.ac-activities__track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  padding: 0 20px;
+  animation: ac-activities-marquee 28s linear infinite;
+}
+
+.ac-activities article {
+  flex: 0 0 170px;
+  display: grid;
+  gap: 0;
+  border: 1px solid rgb(126 94 48 / .32);
+  background: rgb(251 248 240 / .38);
+  text-align: left;
+}
+
+.ac-activities__grid article {
+  flex-basis: auto;
+}
+
+.ac-activities article img,
+.ac-gallery__grid img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.ac-activities article strong {
+  padding: 12px 10px 14px;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 18px;
+}
+
+.ac-gallery__carousel {
+  margin-top: 26px;
+}
+
+.ac-gallery__stage {
+  position: relative;
+  height: min(82vw, 360px);
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.ac-gallery__card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(72%, 260px);
+  height: 100%;
+  margin: 0;
+  transform-origin: center;
+  transform-style: preserve-3d;
+  transition: transform 650ms cubic-bezier(.645, .045, .355, 1), opacity 450ms ease;
+  will-change: transform, opacity;
+}
+
+.ac-gallery__card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  background: rgb(255 255 255 / .7);
+  object-fit: cover;
+  box-shadow: 0 18px 35px rgb(76 52 27 / .14);
+}
+
+.ac-gallery__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+  color: var(--ac-muted);
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.ac-gallery__controls button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgb(126 94 48 / .36);
+  border-radius: 50%;
+  color: var(--ac-gold);
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+}
+
+@keyframes ac-activities-marquee {
+  to {
+    transform: translateX(calc(-50% - 6px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-activities__track {
+    animation: none;
+  }
+
+  .ac-gallery__card {
+    transition: none;
+  }
+}
+
+.ac-empty {
+  display: grid;
+  min-height: 130px;
+  place-items: center;
+  margin-top: 26px;
+  border: 1px dashed rgb(126 94 48 / .48);
+  color: var(--ac-muted);
+  font-size: 12px;
+}
+
+.ac-seal {
+  width: 62px;
+  height: 62px;
+  margin-bottom: 16px;
+  object-fit: contain;
+}
+
+.ac-action .ac-button {
+  margin-top: 18px;
+}
+
+.ac-action__form {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  text-align: left;
+}
+
+.ac-action__form label {
+  display: grid;
+  gap: 6px;
+  color: var(--ac-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ac-action__form input,
+.ac-action__form textarea,
+.ac-choice button {
+  border: 1px solid rgb(126 94 48 / .38);
+  border-radius: 2px;
+  padding: 11px 12px;
+  color: var(--ac-ink);
+  background: rgb(255 255 255 / .48);
+  font: inherit;
+}
+
+.ac-action__form input,
+.ac-action__form textarea {
+  margin-bottom: 0;
+}
+
+.ac-action__form input:focus,
+.ac-action__form textarea:focus {
+  outline: 2px solid rgb(189 150 80 / .42);
+  outline-offset: 2px;
+}
+
+.ac-choice {
+  display: grid;
+  gap: 8px;
+}
+
+.ac-choice button.is-selected {
+  border-color: var(--ac-gold);
+  background: rgb(230 209 154 / .28);
+}
+
+.ac-personalized {
+  margin: 0 !important;
+  color: #96733a !important;
+  font-weight: 700;
+}
+
+.ac-qr {
+  display: block;
+  width: min(100%, 180px);
+  aspect-ratio: 1;
+  max-width: 100%;
+  max-height: 180px;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.ac-gift {
+  padding-block: 76px;
+  background: radial-gradient(circle at 50% 24%, rgb(230 209 154 / .2), transparent 12rem), linear-gradient(180deg, rgb(248 242 232 / .32), rgb(255 254 250 / .82));
+}
+
+.ac-gift__card {
+  position: relative;
+  width: min(100%, 350px);
+  border: 1px solid rgb(126 94 48 / .48);
+  padding: 8px;
+  background: rgb(255 254 250 / .82);
+  box-shadow: 0 24px 50px rgb(78 59 34 / .14);
+}
+
+.ac-gift__card::before {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgb(189 150 80 / .34);
+  content: '';
+  pointer-events: none;
+}
+
+.ac-gift__card .ac-content {
+  position: relative;
+  z-index: 1;
+  padding: 58px 28px 34px;
+}
+
+.ac-gift .ac-kicker {
+  font-size: 9px !important;
+  letter-spacing: .14em;
+  text-transform: none;
+}
+
+.ac-gift__crest {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transform: translateX(-50%);
+}
+
+.ac-gift__message {
+  max-width: 270px;
+  margin-inline: auto;
+}
+
+.ac-gift__rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 190px);
+  margin: 24px auto 20px;
+  color: var(--ac-gold);
+  font-size: 12px;
+}
+
+.ac-gift__rule::before,
+.ac-gift__rule::after {
+  flex: 1;
+  height: 1px;
+  background: rgb(189 150 80 / .5);
+  content: '';
+}
+
+.ac-gift__qr {
+  position: relative;
+  display: grid;
+  width: min(100%, 204px);
+  min-height: 204px;
+  place-items: center;
+  margin: 0 auto;
+  border: 1px solid rgb(189 150 80 / .44);
+  padding: 11px;
+  background: #fff;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ac-gift__qr--empty {
+  gap: 10px;
+  align-content: center;
+  min-height: 204px;
+  border-style: dashed;
+  background: rgb(248 242 232 / .55);
+  color: var(--ac-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.ac-gift__qr--empty img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  opacity: .72;
+}
+
+.ac-gift__qr-trigger {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border: 0;
+  color: var(--ac-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ac-gift__qr-trigger .ac-qr--preview {
+  width: min(100%, 180px);
+  max-height: 180px;
+  margin: 0 auto;
+}
+
+.ac-gift__qr-trigger:focus-visible,
+.ac-gift__qr-close:focus-visible {
+  outline: 2px solid var(--ac-gold);
+  outline-offset: 3px;
+}
+
+.ac-gift__qr-panel {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  background: #fffefa;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.72);
+  transition: transform 360ms cubic-bezier(.23, 1, .32, 1), opacity 220ms ease-out;
+}
+
+.ac-gift__qr.is-open .ac-gift__qr-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.ac-gift__qr-placeholder {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  color: var(--ac-muted);
+  text-align: center;
+}
+
+.ac-gift__qr-placeholder>span {
+  width: 116px;
+  height: 116px;
+  border: 9px solid #3d3023;
+  background: linear-gradient(90deg, transparent 42%, #3d3023 42% 56%, transparent 56%) 0 0 / 31px 31px, linear-gradient(0deg, transparent 42%, #3d3023 42% 56%, transparent 56%) 0 0 / 31px 31px, #fff;
+  box-shadow: inset 0 0 0 5px #fff, inset 0 0 0 8px #3d3023;
+}
+
+.ac-gift__qr-close {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgb(126 94 48 / .34);
+  border-radius: 50%;
+  color: var(--ac-gold);
+  background: rgb(255 254 250 / .9);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ac-gift__thanks {
+  max-width: 250px;
+  margin: 22px auto 0 !important;
+  color: #84632d !important;
+  font-family: var(--font-wedding-display);
+  font-size: 1.05rem !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-gift__qr-panel {
+    transition: none;
+    transform: none;
+  }
+}
+
+.ac-footer {
+  position: relative;
+  isolation: isolate;
+  padding-bottom: 130px;
+  border-bottom: 0;
+}
+
+.ac-footer::before {
+  z-index: -1;
+  background-image: linear-gradient(180deg, rgb(251 248 240 / .78), rgb(251 248 240 / .88)), var(--ac-footer-image, none);
+  background-position: center;
+  background-size: cover;
+  opacity: 1;
+}
+
+.ac-footer .ac-content,
+.ac-footer .ac-seal {
+  position: relative;
+  z-index: 1;
+}
+
+.ac-footer__names {
+  color: #96733a !important;
+  font-family: var(--font-wedding-display);
+  font-size: 25px !important;
+}
+
+.ac-royal-decor {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  object-fit: contain;
+  opacity: .62;
+  filter: drop-shadow(0 18px 18px rgb(78 59 34 / .14));
+  will-change: transform, opacity;
+}
+
+.ac-royal-decor--pediment {
+  top: 0;
+  left: 50%;
+  width: 102%;
+  max-width: 560px;
+  opacity: .4;
+  transform: translateX(-50%);
+}
+
+.ac-royal-decor--bust {
+  bottom: -9%;
+  left: -16%;
+  width: 43%;
+  transform: rotate(-4deg);
+}
+
+.ac-royal-decor--column {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.ac-royal-decor--column-right {
+  right: 0;
+  left: auto;
+  transform: translateX(50%) scaleX(-1);
+}
+
+.ac-royal-decor--mirror {
+  top: 4%;
+  right: -14%;
+  width: 38%;
+  transform: rotate(7deg);
+}
+
+.ac-royal-decor--mirror-left {
+  right: auto;
+  left: -14%;
+  transform: rotate(-7deg);
+}
+
+.ac-families.is-visible .ac-royal-decor--bust {
+  animation: ac-bust-float 11s ease-in-out -3s infinite;
+}
+
+.ac-venue.is-visible .ac-royal-decor--mirror {
+  animation: ac-decor-float 10s ease-in-out -3s infinite;
+}
+
+@keyframes ac-bust-float {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-4deg);
+  }
+
+  50% {
+    transform: translate3d(5px, -8px, 0) rotate(-2deg);
+  }
+}
+
+@keyframes ac-decor-float {
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(3deg);
+  }
+
+  50% {
+    transform: translate3d(-4px, -7px, 0) rotate(1deg);
+  }
+}
+
+@media (min-width: 481px) {
+  .ac-stage {
+    border-radius: 2px;
+  }
+
+  .ac-stage.is-ambient-active .ac-ambient i {
+    animation: ac-ambient-drift var(--duration) ease-in-out var(--delay) infinite;
+  }
+}
+
+@media (max-width: 480px) {
+  .ac-section {
+    padding: 40px 14px;
+  }
+
+  .ac-countdown,
+  .ac-venue {
+    padding-block: 0;
+  }
+
+  .ac-content {
+    padding-inline: 10px;
+  }
+
+  .ac-cover {
+    padding-top: 122px;
+  }
+
+  .ac-royal-decor--pediment {
+    top: 0;
+    width: 102%;
+  }
+
+  .ac-royal-decor--bust {
+    left: -22%;
+    width: 48%;
+  }
+
+  .ac-royal-decor--column {
+    left: 0;
+    height: 100%;
+  }
+
+  .ac-royal-decor--column-right {
+    right: 0;
+    left: auto;
+  }
+
+  .ac-royal-decor--mirror {
+    right: -20%;
+    width: 42%;
+  }
+
+  .ac-royal-decor--mirror-left {
+    right: auto;
+    left: -20%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ac-stage.is-ambient-active .ac-ambient i,
+  .ac-royal-decor,
+  .ac-section::before {
+    animation: none;
+  }
+
+  .ac-family-orbit::before,
+  .ac-family-orbit::after,
+  .ac-family-orbit__ring {
+    animation: none;
+  }
+
+  .ac-cover__plane,
+  .ac-button,
+  .ac-actions a {
+    transition: none;
+    transform: none;
+  }
+
+  .ac-opening-petals span {
+    animation: none;
+    opacity: .38;
+    transform: translateY(18vh) rotate(30deg) scale(.82);
+  }
+
+  .ac-opening-border-glow__line,
+  .ac-opening-border-glow__blur {
+    animation: none;
+    opacity: .5;
+  }
+}
+
+/* Opening remains temporarily isolated while content is rebuilt. */
+.ac-page:not(.is-opened) {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.ac-opening-shell {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  width: 100vw;
+  min-height: 100dvh;
+  place-items: center;
+  overflow: hidden;
+  padding: 24px;
+  background: radial-gradient(circle at 20% 18%, rgb(230 209 154 / .34), transparent 20rem), radial-gradient(circle at 84% 78%, rgb(141 146 112 / .2), transparent 22rem), linear-gradient(135deg, #fbf8f0, #eadfc7);
+  transition: opacity 520ms ease, visibility 520ms ease;
+}
+
+.ac-opening-shell::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: .28;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(126 94 48 / .18) .6px, transparent .6px);
+  background-size: 6px 6px;
+}
+
+.ac-opening-shell.is-opening {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+}
+
+.ac-opening-stage {
+  position: relative;
+  z-index: 2;
+  width: min(88vw, 780px);
+  aspect-ratio: 3 / 2;
+}
+
+.ac-opening-card {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(126 94 48 / .58);
+  border-radius: 24px;
+  padding: 0;
+  box-shadow: rgba(0, 0, 0, .3) 0 19px 38px, rgba(0, 0, 0, .22) 0 15px 12px;
+  background: linear-gradient(135deg, #fbf8f0, #eadfc7);
+  color: var(--ac-ink);
+  cursor: pointer;
+  transition: transform 620ms var(--ac-ease), opacity 420ms ease;
+}
+
+.ac-opening-card__inner-border {
+  position: absolute;
+  z-index: 4;
+  inset: 14px;
+  border: 1px solid rgb(126 94 48 / .38);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.ac-opening-card__art {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ac-opening-card__art>img:first-child {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .28;
+  mix-blend-mode: multiply;
+}
+
+.ac-opening-card__arch {
+  display: none;
+}
+
+.ac-opening-card__art::before,
+.ac-opening-card__art::after {
+  position: absolute;
+  top: -16%;
+  z-index: 2;
+  width: 23%;
+  height: 132%;
+  content: '';
+  background: url('/assets/images/templates/aurelia-court/ac-ranunculus-gatefold-arch-v1.png') no-repeat;
+  background-size: 200% 100%;
+}
+
+.ac-opening-card__art::before {
+  left: -4%;
+  background-position: left center;
+  transform: rotate(-3deg);
+}
+
+.ac-opening-card__art::after {
+  right: -4%;
+  background-position: right center;
+  transform: rotate(3deg);
+}
+
+.ac-opening-card__corner {
+  position: absolute;
+  z-index: 2;
+  bottom: -24%;
+  left: -10%;
+  width: 46%;
+  height: 126%;
+  object-fit: contain;
+  opacity: .9;
+  transform: rotate(-13deg) scale(1.12);
+}
+
+.ac-opening-card__content {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: min(64%, 390px);
+  margin-inline: auto;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.ac-opening-card__crest {
+  width: clamp(36px, 5.5vw, 58px);
+  margin: 2px auto;
+  object-fit: contain;
+}
+
+.ac-opening-card__eyebrow,
+.ac-opening-card__date {
+  color: #96733a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.ac-opening-card__title {
+  margin: 6px 0 0;
+  color: #96733a;
+  font-family: var(--font-wedding-display);
+  font-size: 14px;
+}
+
+.ac-opening-card h1 {
+  display: grid;
+  gap: 2px;
+  margin: 12px 0 8px;
+  color: var(--ac-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(34px, 5.8vw, 68px);
+  font-weight: 500;
+  line-height: .96;
+}
+
+.ac-opening-card h1 em {
+  color: var(--ac-gold);
+  font-family: var(--font-wedding-script);
+  font-size: .72em;
+  font-style: normal;
+}
+
+.ac-opening-card__open {
+  color: #2f2119;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgb(126 94 48 / .22);
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  border: 1px solid var(--ac-gold);
+  border-radius: 999px;
+  padding: 10px 22px;
+  color: #2f2119;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.ac-opening-petals {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ac-opening-petals span {
+  position: absolute;
+  top: -12%;
+  width: clamp(18px, 2.2vw, 34px);
+  aspect-ratio: 1;
+  opacity: 0;
+  background: url('/assets/images/templates/aurelia-court/ac-white-botanical-blossom-v2.png') center / contain no-repeat;
+  filter: brightness(.84) sepia(.16) saturate(1.18) drop-shadow(0 4px 6px rgb(75 46 22 / .38));
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  animation: ac-opening-petal-fall var(--petal-duration, 28s) linear var(--petal-delay, 0s) infinite;
+}
+
+.ac-opening-petals span:nth-child(1) {
+  left: 4%;
+  --petal-duration: 26s;
+  --petal-delay: -2s;
+  --petal-drift: -58px;
+}
+
+.ac-opening-petals span:nth-child(2) {
+  left: 10%;
+  --petal-duration: 31s;
+  --petal-delay: -8s;
+  --petal-drift: 42px;
+}
+
+.ac-opening-petals span:nth-child(3) {
+  left: 17%;
+  --petal-duration: 28s;
+  --petal-delay: -4s;
+  --petal-drift: -34px;
+}
+
+.ac-opening-petals span:nth-child(4) {
+  left: 24%;
+  --petal-duration: 34s;
+  --petal-delay: -10s;
+  --petal-drift: 66px;
+}
+
+.ac-opening-petals span:nth-child(5) {
+  left: 32%;
+  --petal-duration: 29s;
+  --petal-delay: -6s;
+  --petal-drift: -48px;
+}
+
+.ac-opening-petals span:nth-child(6) {
+  left: 39%;
+  --petal-duration: 36s;
+  --petal-delay: -1s;
+  --petal-drift: 30px;
+}
+
+.ac-opening-petals span:nth-child(7) {
+  left: 47%;
+  --petal-duration: 27s;
+  --petal-delay: -7s;
+  --petal-drift: -70px;
+}
+
+.ac-opening-petals span:nth-child(8) {
+  left: 54%;
+  --petal-duration: 33s;
+  --petal-delay: -3s;
+  --petal-drift: 54px;
+}
+
+.ac-opening-petals span:nth-child(9) {
+  left: 61%;
+  --petal-duration: 30s;
+  --petal-delay: -11s;
+  --petal-drift: -44px;
+}
+
+.ac-opening-petals span:nth-child(10) {
+  left: 68%;
+  --petal-duration: 35s;
+  --petal-delay: -5s;
+  --petal-drift: 72px;
+}
+
+.ac-opening-petals span:nth-child(11) {
+  left: 74%;
+  --petal-duration: 28s;
+  --petal-delay: -9s;
+  --petal-drift: -26px;
+}
+
+.ac-opening-petals span:nth-child(12) {
+  left: 81%;
+  --petal-duration: 32s;
+  --petal-delay: -2s;
+  --petal-drift: 48px;
+}
+
+.ac-opening-petals span:nth-child(13) {
+  left: 88%;
+  --petal-duration: 37s;
+  --petal-delay: -12s;
+  --petal-drift: -62px;
+}
+
+.ac-opening-petals span:nth-child(14) {
+  left: 94%;
+  --petal-duration: 29s;
+  --petal-delay: -6s;
+  --petal-drift: 38px;
+}
+
+.ac-opening-petals span:nth-child(15) {
+  left: 14%;
+  --petal-duration: 34s;
+  --petal-delay: -13s;
+  --petal-drift: -52px;
+}
+
+.ac-opening-petals span:nth-child(16) {
+  left: 44%;
+  --petal-duration: 31s;
+  --petal-delay: -8s;
+  --petal-drift: 64px;
+}
+
+.ac-opening-petals span:nth-child(17) {
+  left: 71%;
+  --petal-duration: 36s;
+  --petal-delay: -4s;
+  --petal-drift: -36px;
+}
+
+.ac-opening-petals span:nth-child(18) {
+  left: 57%;
+  --petal-duration: 30s;
+  --petal-delay: -10s;
+  --petal-drift: 56px;
+}
+
+.ac-opening-shell.is-opening .ac-opening-petals span {
+  animation-play-state: paused;
+}
+
+.ac-opening-petals span:nth-child(3n) {
+  width: clamp(14px, 1.7vw, 26px);
+}
+
+.ac-opening-petals span:nth-child(4n) {
+  width: clamp(22px, 2.8vw, 40px);
+}
+
+@keyframes ac-opening-petal-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(calc(var(--petal-drift, 28px) * -.35), -12vh, 0) rotate(-28deg) scale(calc(var(--petal-size, .8) * .84));
+  }
+
+  10% {
+    opacity: .88;
+  }
+
+  27% {
+    transform: translate3d(calc(var(--petal-drift, 28px) * .35), 22vh, 0) rotate(42deg) scale(var(--petal-size, .8));
+  }
+
+  50% {
+    opacity: .66;
+    transform: translate3d(var(--petal-drift, 28px), 52vh, 0) rotate(144deg) scale(calc(var(--petal-size, .8) * .92));
+  }
+
+  72% {
+    opacity: .44;
+    transform: translate3d(calc(var(--petal-drift, 28px) * .35), 79vh, 0) rotate(224deg) scale(calc(var(--petal-size, .8) * 1.04));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--petal-drift, 28px) * -.65), 116vh, 0) rotate(326deg) scale(calc(var(--petal-size, .8) * .72));
+  }
+}
+
+.ac-cover .ac-content h2,
+.ac-opening-card h1 {
+  color: #2f2119;
+  font-family: var(--font-wedding-names);
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: -.065em;
+  text-shadow: 0 2px 0 rgb(255 255 255 / .72), 0 10px 22px rgb(78 49 25 / .12);
+}
+
+.ac-cover .ac-content h2 {
+  display: grid;
+  gap: .035em;
+  font-size: clamp(46px, 13vw, 76px);
+  font-weight: 400;
+  line-height: .84;
+}
+
+.ac-cover .ac-content h2 span {
+  display: block;
+  margin: -.02em 0;
+  font-family: var(--font-wedding-script);
+  font-size: .62em;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: .72;
+}
+
+.ac-opening-card h1 {
+  font-size: clamp(42px, 7.5vw, 82px);
+  font-weight: 400;
+  line-height: .86;
+}
+
+@media (max-width: 480px) {
+  .ac-cover .ac-content h2 {
+    font-size: clamp(43px, 14vw, 66px);
+  }
+
+  .ac-opening-card h1 {
+    font-size: clamp(38px, 10vw, 58px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ac-cover:hover .ac-cover__plane {
+    transform: translateZ(18px) rotateX(1deg) rotateY(-1.5deg);
+  }
+
+  .ac-button:hover,
+  .ac-actions a:hover {
+    color: var(--ac-paper);
+    background: #4a3928;
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .ac-opening-stage {
+    width: 92vw;
+    aspect-ratio: 1.36 / 1;
+  }
+
+  .ac-opening-card {
+    border-radius: 18px;
+  }
+
+  .ac-opening-card__content {
+    width: 70%;
+  }
+
+  .ac-opening-card__corner {
+    left: -16%;
+    width: 54%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ac-opening-shell,
+  .ac-opening-card,
+  .ac-opening-card__open,
+  .ac-cover__plane,
+  .ac-button,
+  .ac-actions a {
+    transition: none;
+  }
+
+  .ac-section::before,
+  .ac-ambient i,
+  .ac-opening-petals span,
+  .ac-royal-decor {
+    animation: none;
+  }
+}
+
+.ac-opening-card__open {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(110deg, rgb(255 255 255 / .78), rgb(189 150 80 / .72), rgb(255 255 255 / .78));
+  background-size: 220% 100%;
+  box-shadow: 0 8px 18px rgb(87 58 29 / .12), inset 0 1px 0 rgb(255 255 255 / .68);
+  transition: color 240ms ease, background 240ms ease, box-shadow 240ms ease, transform 240ms ease;
+  animation: ac-opening-cta-pulse 3.8s ease-in-out infinite, ac-opening-cta-sheen 5.2s ease-in-out 1s infinite;
+}
+
+@keyframes ac-opening-cta-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 8px 18px rgb(87 58 29 / .12), inset 0 1px 0 rgb(255 255 255 / .68);
+  }
+
+  50% {
+    box-shadow: 0 11px 25px rgb(87 58 29 / .2), 0 0 0 5px rgb(189 150 80 / .08), inset 0 1px 0 rgb(255 255 255 / .78);
+  }
+}
+
+@keyframes ac-opening-cta-sheen {
+
+  0%,
+  18% {
+    background-position: 100% 50%;
+  }
+
+  48%,
+  70% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+.ac-opening-card__open:active {
+  transform: translateY(1px) scale(.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ac-opening-card:hover .ac-opening-card__open {
+    color: var(--ac-paper);
+    background: linear-gradient(110deg, #8d682d, #bd9650, #8d682d);
+    box-shadow: 0 12px 24px rgb(87 58 29 / .24), 0 0 0 5px rgb(189 150 80 / .1);
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-opening-card__open {
+    animation: none;
+  }
+}
+
+.ac-opening-stage::before,
+.ac-opening-stage::after {
+  display: none;
+}
+
+.ac-opening-border-glow {
+  position: absolute;
+  z-index: 5;
+  inset: -13px;
+  width: calc(100% + 26px);
+  height: calc(100% + 26px);
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgb(255 255 255 / .72)) drop-shadow(0 0 12px rgb(255 255 255 / .34)) drop-shadow(0 0 26px rgb(255 255 255 / .16));
+}
+
+.ac-opening-border-glow__line,
+.ac-opening-border-glow__blur {
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-dasharray: 92 908;
+  animation: ac-opening-border-sweep 13s linear infinite;
+}
+
+.ac-opening-border-glow__line {
+  stroke-width: .5;
+  opacity: .1;
+}
+
+.ac-opening-border-glow__blur {
+  stroke-width: 3.4;
+  opacity: .16;
+  filter: url(#ac-opening-glow-blur);
+}
+
+.ac-opening-border-glow__line--two {
+  animation-duration: 13s;
+  animation-delay: -6.5s;
+  opacity: .1;
+}
+
+.ac-opening-border-glow__blur--two {
+  animation-duration: 13s;
+  animation-delay: -6.5s;
+  opacity: .16;
+}
+
+@keyframes ac-opening-border-sweep {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.ac-opening-card__content {
+  color: #2f2119;
+  opacity: 1;
+  text-shadow: 0 1px 0 rgb(255 255 255 / .42);
+}
+
+.ac-opening-card__eyebrow,
+.ac-opening-card__date,
+.ac-opening-card__title {
+  color: #704b1c !important;
+  text-shadow: 0 1px 0 rgb(255 255 255 / .5);
+}
+
+.ac-opening-card__open {
+  color: #2f2119 !important;
+  background: linear-gradient(110deg, rgb(255 255 255 / .82), rgb(189 150 80 / .78), rgb(255 255 255 / .82)) !important;
+  opacity: 1 !important;
+  text-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ac-opening-stage::before,
+  .ac-opening-stage::after {
+    animation: none;
+  }
+}
+
+.ac-stage.is-opened {
+  animation: ac-opening-content-reveal 520ms cubic-bezier(.16, 1, .3, 1) 1040ms both;
+}
+
+.ac-opening-transition {
+  position: fixed;
+  z-index: 40;
+  top: 50%;
+  left: 50%;
+  width: 16vmax;
+  height: 16vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 38%, rgb(255 255 255 / .99) 52%, rgb(255 255 255 / .76) 64%, rgb(255 255 255 / 0) 100%);
+  box-shadow: 0 0 24px 8px #fff, 0 0 84px 34px rgb(255 255 255 / .96), 0 0 180px 72px rgb(255 255 255 / .66);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  transform-origin: center;
+}
+
+.ac-opening-shell.is-opening .ac-opening-transition {
+  animation: ac-opening-white-wipe 3000ms cubic-bezier(.76, 0, .24, 1) both;
+}
+
+.ac-opening-shell.is-opening .ac-opening-stage {
+  animation: ac-opening-card-exit 620ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes ac-opening-white-wipe {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  42%,
+  66% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(8);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+}
+
+@keyframes ac-opening-card-exit {
+
+  0%,
+  24% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(.94);
+  }
+}
+
+@keyframes ac-opening-content-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ac-opening-transition,
+  .ac-opening-shell.is-opening .ac-opening-stage,
+  .ac-stage.is-opened {
+    animation: none;
+  }
+
+  .ac-opening-transition {
+    display: none;
+  }
+}
+
+.ac-shared-background::before,
+.ac-shared-background::after {
+  position: absolute;
+  inset: -18%;
+  content: "";
+  pointer-events: none;
+}
+
+.ac-shared-background::before {
+  opacity: .72;
+  background: radial-gradient(circle at 18% 18%, rgb(255 255 255 / .82) 0 1px, transparent 2px), radial-gradient(circle at 76% 34%, rgb(189 150 80 / .15) 0 1px, transparent 2px), radial-gradient(ellipse at 50% 0%, transparent 0 22%, rgb(189 150 80 / .075) 22.2%, transparent 22.8%), radial-gradient(ellipse at 50% 0%, transparent 0 38%, rgb(189 150 80 / .05) 38.2%, transparent 38.8%), radial-gradient(ellipse at 50% 0%, transparent 0 55%, rgb(189 150 80 / .035) 55.2%, transparent 55.8%), radial-gradient(circle at 12% 52%, rgb(255 255 255 / .8), transparent 24%), radial-gradient(circle at 92% 78%, rgb(255 255 255 / .65), transparent 26%);
+  background-size: 137px 173px, 191px 229px, auto, auto, auto, auto, auto;
+  transform-origin: 50% 4%;
+  animation: ac-royal-halo-breathe 18s ease-in-out infinite;
+}
+
+.ac-shared-background::after {
+  opacity: .2;
+  background: repeating-conic-gradient(from 45deg at 50% 50%, transparent 0 7deg, rgb(189 150 80 / .12) 7.3deg 7.8deg, transparent 8.1deg 15deg), repeating-linear-gradient(118deg, transparent 0 76px, rgb(255 255 255 / .2) 78px 80px, transparent 82px 154px), radial-gradient(circle at 50% 45%, transparent 0 22%, rgb(255 255 255 / .32) 22.2%, transparent 22.7%);
+  mix-blend-mode: multiply;
+  animation: ac-royal-guilloche-drift 28s linear infinite;
+}
+
+@keyframes ac-royal-halo-breathe {
+
+  0%,
+  100% {
+    opacity: .22;
+    transform: scale(.96);
+  }
+
+  50% {
+    opacity: .42;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes ac-royal-guilloche-drift {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Aurelia typography: Waterfall for the invitation copy, Lavishly Yours only for names. */
+.ac-page * {
+  font-family: var(--font-wedding-waterfall) !important;
+}
+
+.ac-page .ac-opening-card h1,
+.ac-page .ac-cover h2,
+.ac-page .ac-footer__names {
+  font-family: var(--font-wedding-names) !important;
+}
+
+.ac-page .ac-opening-card h1 em,
+.ac-page .ac-cover h2 span {
+  font-family: var(--font-wedding-waterfall) !important;
+}
+
+/* Opening copy needs stronger hierarchy against the pale card artwork. */
+.ac-opening-card__content {
+  width: min(72%, 430px);
+}
+
+.ac-opening-card__eyebrow {
+  color: #5a3718 !important;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2em;
+}
+
+.ac-opening-card__title {
+  color: #6a421d !important;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ac-opening-card__date {
+  color: #5a3718 !important;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.ac-opening-card__open {
+  min-height: 48px;
+  border-color: #9a6a2f;
+  color: #321e13 !important;
+  background: linear-gradient(110deg, #f4dfae, #d2a455 52%, #f4dfae) !important;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  box-shadow: 0 8px 18px rgb(83 51 22 / .24), inset 0 1px 0 rgb(255 255 255 / .8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ac-shared-background::before,
+  .ac-shared-background::after {
+    animation: none;
+  }
+}
+
+/* Final opening scale: names lead, supporting copy remains legible. */
+.ac-opening-card h1 {
+  font-size: clamp(52px, 9vw, 98px);
+  line-height: .72;
+}
+
+.ac-opening-card h1 em {
+  font-size: .68em;
+}
+
+.ac-opening-card__eyebrow {
+  font-size: 14px;
+}
+
+.ac-opening-card__title {
+  font-size: 20px;
+}
+
+.ac-opening-card__date {
+  margin: 0;
+  font-size: 15px;
+}
+
+.ac-opening-card__open {
+  min-height: 52px;
+  padding: 12px 26px;
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .ac-opening-card h1 {
+    font-size: clamp(46px, 12vw, 74px);
+  }
+
+  .ac-opening-card__eyebrow {
+    font-size: 12px;
+  }
+
+  .ac-opening-card__title {
+    font-size: 18px;
+  }
+
+  .ac-opening-card__date {
+    font-size: 13px;
+  }
+
+  .ac-opening-card__open {
+    font-size: 13px;
+  }
+}
+
+/* Desktop frame: pale ivory outside, one soft champagne field behind all content. */
+@media (min-width: 481px) {
+  .ac-page {
+    background: #f9efd5;
+  }
+
+  .ac-stage {
+    background: #f9efd5;
+  }
+
+  .ac-shared-background {
+    background: #f9efd5;
+  }
+}
+
+/* Content typography scale: Waterfall needs a larger optical size without loose leading. */
+:root {
+  --reveal-duration: 2s;
+}
+
+.ac-invitation {
+  font-size: 1.4rem;
+  line-height: 1.22;
+}
+
+.ac-invitation p {
+  font-size: 1.4rem;
+  line-height: 1.22;
+}
+
+.ac-invitation small,
+.ac-invitation label {
+  font-size: 1.0625rem;
+  line-height: 1.2;
+}
+
+.ac-invitation .ac-kicker {
+  font-size: 15px !important;
+  line-height: 1.1;
+}
+
+.ac-invitation .ac-timeline__item p,
+.ac-invitation .ac-family small,
+.ac-invitation .ac-countdown__grid small {
+  font-size: 1.4rem;
+  line-height: 1.15;
+}
+
+/* Aurelia Court choreography: each section resolves in small, readable groups. */
+.ac-section.is-visible .ac-content>.reveal:nth-child(1) {
+  --reveal-delay: .04s;
+}
+
+.ac-section.is-visible .ac-content>.reveal:nth-child(2) {
+  --reveal-delay: .14s;
+}
+
+.ac-section.is-visible .ac-content>.reveal:nth-child(3) {
+  --reveal-delay: .24s;
+}
+
+.ac-section.is-visible .ac-content>.reveal:nth-child(4) {
+  --reveal-delay: .34s;
+}
+
+.ac-section.is-visible .ac-content>.reveal:nth-child(5) {
+  --reveal-delay: .44s;
+}
+
+.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(1),
+.ac-section.is-visible .ac-activities__track>.reveal:nth-child(1),
+.ac-section.is-visible .ac-choice>button:nth-child(1) {
+  --reveal-delay: .16s;
+}
+
+.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(2),
+.ac-section.is-visible .ac-activities__track>.reveal:nth-child(2),
+.ac-section.is-visible .ac-choice>button:nth-child(2) {
+  --reveal-delay: .26s;
+}
+
+.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(3),
+.ac-section.is-visible .ac-activities__track>.reveal:nth-child(3) {
+  --reveal-delay: .36s;
+}
+
+.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(4),
+.ac-section.is-visible .ac-activities__track>.reveal:nth-child(4) {
+  --reveal-delay: .46s;
+}
+
+.ac-families.is-visible .ac-family-decor,
+.ac-families.is-visible .ac-family>.reveal:nth-child(2) {
+  --reveal-delay: .16s;
+}
+
+.ac-families.is-visible .ac-family>.reveal:nth-child(3) {
+  --reveal-delay: .28s;
+}
+
+.ac-families.is-visible .ac-family>.reveal:nth-child(4) {
+  --reveal-delay: .38s;
+}
+
+.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(1) {
+  --reveal-delay: .08s;
+}
+
+.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(2) {
+  --reveal-delay: .16s;
+}
+
+.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(3) {
+  --reveal-delay: .24s;
+}
+
+.ac-date__top>.reveal--slide-left,
+.ac-date__top>.reveal--slide-right {
+  transition-delay: .18s !important;
+}
+
+.ac-date__top>.reveal--slide-left {
+  transform: translate3d(-28px, 0, 0) !important;
+}
+
+.ac-date__top>.reveal--slide-right {
+  transform: translate3d(28px, 0, 0) !important;
+}
+
+.ac-date__top>.reveal--zoom-in {
+  transform: scale(.82) !important;
+  transition-delay: .28s !important;
+}
+
+.ac-event.is-visible .ac-date__top>.reveal--slide-left,
+.ac-event.is-visible .ac-date__top>.reveal--slide-right,
+.ac-event.is-visible .ac-date__top>.reveal--zoom-in {
+  transform: none !important;
+}
+
+.ac-families.is-visible .ac-floral--family.reveal,
+.ac-countdown.is-visible .ac-floral--countdown.reveal,
+.ac-venue.is-visible .ac-floral--venue.reveal {
+  opacity: 0.6 !important;
+}
+
+/* Compact opening CTA and preserve the champagne frame on narrow screens. */
+.ac-opening-card__open {
+  min-height: 32px;
+  margin-top: 10px;
+  padding: 6px 13px;
+  font-size: 10px;
+}
+
+@media (max-width: 480px) {
+
+  .ac-page,
+  .ac-stage,
+  .ac-shared-background {
+    background: #f9efd5;
+  }
+
+  .ac-opening-card__open {
+    min-height: 28px;
+    margin-top: 8px;
+    padding: 5px 11px;
+    font-size: 9px;
+  }
+}
+
+/* Editor preview uses the page as its only viewport lock. */
+.ac-page.is-editor-preview:not(.is-opened) {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.ac-page.is-editor-preview:not(.is-opened) .ac-invitation {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Keep the oversized atmosphere layers inside the fixed background surface. */
+.ac-shared-background {
+  overflow: hidden;
+}

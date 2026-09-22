@@ -11,6 +11,8 @@ import { astralVowTemplateConfig } from './invitations/astral-vow/template-confi
 import { astralVowFixture } from './invitations/astral-vow/fixture'
 import { vanHyTemplateConfig } from './invitations/van-hy/template-config'
 import { vanHyFixture } from './invitations/van-hy/fixture'
+import { aureliaCourtTemplateConfig } from './invitations/aurelia-court/template-config'
+import { aureliaCourtFixture } from './invitations/aurelia-court/fixture'
 import type { ModernLuxeData } from './invitations/modern-luxe/ModernLuxeInvitation'
 import { editorialVowsFixture } from './websites/editorial-vows/fixture'
 import { editorialVowsTemplateConfig } from './websites/editorial-vows/template-config'
@@ -107,6 +109,10 @@ export const invitationTemplateRegistry: Record<
   'van-hy': {
     config: vanHyTemplateConfig,
     fixture: vanHyFixture as unknown as ModernLuxeData,
+  },
+  'aurelia-court': {
+    config: aureliaCourtTemplateConfig,
+    fixture: aureliaCourtFixture as unknown as ModernLuxeData,
   },
 }
 

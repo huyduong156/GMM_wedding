@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
   const isViewer = weddingWorkspace?.activeRole === 'VIEWER'
-  const viewerHiddenRoutes = new Set([
+  const viewerHiddenRoutes = new Set<string>([
     studioRoutes.invites,
     studioRoutes.site,
     studioRoutes.siteEditor,

@@ -24,6 +24,8 @@ const wedding: Wedding = {
 const workspace = {
   weddings: [wedding],
   activeWedding: wedding,
+  activeRole: 'OWNER' as const,
+  rolesByWedding: { [wedding.id]: 'OWNER' as const },
   loading: false,
   error: null,
   selectWedding: vi.fn(),
