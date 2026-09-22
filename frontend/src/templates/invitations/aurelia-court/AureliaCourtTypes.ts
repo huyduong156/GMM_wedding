@@ -2,9 +2,7 @@ export type AureliaCourtMedia = { src: string; alt: string }
 
 export type AureliaCourtFamilySide = {
   label: string
-  fatherTitle: string
   father: string
-  motherTitle: string
   mother: string
   address: string
 }
@@ -14,9 +12,9 @@ export type AureliaCourtData = {
   event: { weddingDate: string; time: string; venueName: string; venueAddress: string; mapUrl: string; calendarUrl: string }
   opening: { eyebrow: string; title: string; message: string }
   cover: { eyebrow: string; title: string; message: string; heroMedia: AureliaCourtMedia | null }
-  invitation: { title: string; message: string }
+  invitation: { message: string }
   families: { title: string; subtitle: string; message: string; brideSide: AureliaCourtFamilySide; groomSide: AureliaCourtFamilySide }
-  eventDetails: { title: string; message: string }
+  eventDetails: { title: string; message: string; brideTitle: string; groomTitle: string }
   countdown: { enabled: boolean }
   timeline: { title: string; message: string; items: Array<{ time: string; title: string; detail: string }> }
   venue: { title: string; name: string; address: string; message: string; mapUrl: string; calendarUrl: string }
@@ -26,7 +24,7 @@ export type AureliaCourtData = {
   guestbook: { title: string; message: string }
   gift: { title: string; message: string; thankYouMessage: string; qrMedia: AureliaCourtMedia | null }
   music: { title: string; trackName: string; backgroundMusicUrl: string; backgroundMusicName: string; backgroundMusicAutoplay: boolean }
-  footer: { title: string; message: string }
+  footer: { title: string; message: string; backgroundMedia: AureliaCourtMedia | null }
 }
 
 export type AureliaCourtSectionConfig = { enabled: string[]; order: string[] }

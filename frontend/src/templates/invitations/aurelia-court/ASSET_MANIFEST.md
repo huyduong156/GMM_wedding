@@ -29,6 +29,7 @@ Status: all planned artwork generated, reviewed and approved for composition; in
 | --- | --- | ---: | --- | --- | --- |
 | `ac-royal-crest-v1.png` | Abstract royal crest ornament | 1254×1254 | PNG RGBA | GMM renderer-owned | Approved; integrated |
 | `ac-wax-seal-v1.png` | Wax seal prop | 1254×1254 | PNG RGBA | GMM renderer-owned | Approved; integrated |
+| `ac-royal-marble-bust-male-v1.png` | Male classical marble bust for groom-side family card | 1024×1536 | PNG RGBA | GMM renderer-owned | Generated; integrated |
 | `ac-embossed-border-v1.png` | Paper frame/border | 1122×1402 | PNG RGBA | GMM renderer-owned | Approved; integrated |
 | `ac-family-divider-v1.png` | Family/event divider | 2172×724 | PNG RGBA | GMM renderer-owned | Approved; integrated |
 
@@ -41,6 +42,22 @@ Status: all planned artwork generated, reviewed and approved for composition; in
 | `ac-family-botanical-cascade-v1.png` | Vertical family-card botanical cascade | 1086×1448 | PNG RGBA | GMM renderer-owned | Approved; integrated |
 
 ## Budget notes
+
+## Activity and gallery demo assets
+
+| File | Role | Ownership | Status |
+| --- | --- | --- | --- |
+| `ac-activity-balloons-v1.png` | Children’s balloon-corner activity demo | GMM renderer-owned | Generated; integrated |
+| `ac-activity-candy-favors-v1.png` | Wedding candy-favor activity demo | GMM renderer-owned | Generated; integrated |
+| `ac-activity-photobooth-v1.png` | Photobooth activity demo | GMM renderer-owned | Generated; integrated |
+| `ac-gallery-couple-v1.png` | Wedding couple album demo | GMM renderer-owned | Generated; integrated |
+| `ac-gallery-table-v1.png` | Reception table album demo | GMM renderer-owned | Generated; integrated |
+| `ac-gallery-toast-v1.png` | Champagne toast album demo | GMM renderer-owned | Generated; integrated |
+| `ac-footer-background-v1.png` | Ivory champagne floral footer background demo | GMM renderer-owned | Generated; integrated |
+
+- Tool: built-in image generation skill, default image generation mode.
+- Palette: ivory, champagne gold, muted blush and warm botanical tones to match Aurelia Court.
+- Text policy: no readable text, logos or watermarks were requested in the generated artwork.
 
 Current generated file sizes are above the target bundle budget from the asset brief:
 

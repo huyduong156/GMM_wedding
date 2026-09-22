@@ -78,6 +78,13 @@ export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[],
     pinned.has(key) ? key : reorderable[reorderableIndex++],
   )
 }
+
+function isLegacyAureliaCourtOrder(order: string[]) {
+  const invitation = order.indexOf('invitation')
+  const families = order.indexOf('families')
+  return invitation >= 0 && families >= 0 && invitation < families
+}
+
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {
   ...initialTemplate.fixture,
@@ -221,9 +228,13 @@ export function InvitationEditorLivePage() {
         hasSavedContent ? loaded.sectionConfig.order : [],
       )
       const validKeys = definitions.map((section) => section.sectionKey)
-      const storedOrder = hasSavedContent
+      const rawStoredOrder = hasSavedContent
         ? loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
         : []
+      const storedOrder =
+        loaded.templateVersion.key === 'aurelia-court' && isLegacyAureliaCourtOrder(rawStoredOrder)
+          ? []
+          : rawStoredOrder
       const storedEnabled = new Set(
         loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)),
       )
@@ -844,17 +855,13 @@ export function InvitationEditorLivePage() {
             {order.map((key, index) => (
               <EditorSectionCard
                 key={key}
-                sectionKey={key}
+                  sectionKey={key}
                 definition={sectionDefinitions.find((section) => section.sectionKey === key)}
                 index={index}
                 order={order}
                 expanded={expandedSection === key}
                 shown={enabled.includes(key)}
                 select={() => selectSection(key)}
-                focus={() => {
-                  setSelected(key)
-                  focusPreviewSection(key)
-                }}
                 move={(step) => {
                   move(key, step)
                   setDirty(true)
@@ -874,7 +881,7 @@ export function InvitationEditorLivePage() {
                   update={updatePath}
                   setPalette={choosePalette}
                   paletteOptions={paletteOptions}
-                  showPalette={index === 0}
+                  showPalette={index === 0 && paletteOptions.length > 1}
                   uploadMusic={uploadMusic}
                   openMediaManager={openMediaManager}
                   useMediaManager={Boolean(activeWedding)}
@@ -1264,7 +1271,6 @@ function EditorSectionCard({
   expanded,
   shown,
   select,
-  focus,
   move,
   toggle,
   children,
@@ -1276,7 +1282,6 @@ function EditorSectionCard({
   expanded: boolean
   shown: boolean
   select: () => void
-  focus: () => void
   move: (step: -1 | 1) => void
   toggle: () => void
   children: React.ReactNode
@@ -1337,7 +1342,6 @@ function EditorSectionCard({
       <div
         className={`editor-accordion-content ${expanded ? 'is-open' : ''}`}
         aria-hidden={!expanded}
-        onFocusCapture={focus}
       >
         <div className="editor-accordion-content-inner">{children}</div>
       </div>

@@ -477,7 +477,7 @@ Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm moti
 
 - Opening hỗ trợ click và keyboard qua native button; sau move-out overlay `aria-hidden` và `pointer-events: none`.
 - CTA map/calendar dùng link thật và giữ địa chỉ text làm fallback.
-- RSVP/guestbook hiện là skeleton disabled ở Phase 4; API, guestName form và semantic states nối ở Phase 5.
+- RSVP/guestbook dùng `PublicInteractions`; URL cá nhân lấy identity từ guest slug, URL chung yêu cầu nhập `guestName`, và cả hai hiển thị submitting/submitted/error trong cùng form.
 - Decor và ambient layer `aria-hidden`, không chiếm pointer event.
 - Reduced motion tắt ambient loop, 3D tilt và transition spatial; content hiện tĩnh, overlay state đổi ngay.
 - Không hijack native mobile scroll, không dùng smooth-scroll runtime riêng.
