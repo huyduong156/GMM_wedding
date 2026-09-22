@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { aureliaCourtArtwork, aureliaCourtFixture, aureliaCourtSectionConfig } from './fixture'
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
@@ -11,6 +11,7 @@ import './aurelia-court.css'
 type Props = { data?: AureliaCourtData; sectionConfig?: AureliaCourtSectionConfig; editorMode?: boolean; interactions?: PublicInteractions }
 
 const replaceGuest = (value: string, guestName = 'quý khách') => value.replaceAll('{guestName}', guestName)
+const AureliaEditorModeContext = createContext(false)
 
 export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig = aureliaCourtSectionConfig, editorMode = false, interactions }: Props) {
   const [opened, setOpened] = useState(false)
@@ -28,7 +29,7 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
     const mediaSources = [
       ...Object.values(aureliaCourtArtwork),
       data.cover?.heroMedia?.src,
-      data.gift?.qrMedia?.src,
+      typeof data.gift?.qrMedia === 'string' ? data.gift.qrMedia : data.gift?.qrMedia?.src,
       data.footer?.backgroundMedia?.src,
       ...(data.activities?.items ?? []).map((item) => item.image?.src),
       ...(data.gallery?.images ?? []).map((image) => image.src),
@@ -72,6 +73,7 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
 
   return (
     <>
+      <AureliaEditorModeContext.Provider value={editorMode}>
       <main className={`ac-page ${opened ? 'is-opened' : ''} ${editorMode ? 'is-editor-preview' : ''}`} aria-label="Thiệp cưới Aurelia Court">
       <Opening data={data} opened={opened} openingComplete={openingComplete} ambientActive={ambientActive} onOpen={() => setOpened(true)} />
       <div ref={stageRef} className={`ac-stage ${opened ? 'is-opened' : ''} ${ambientActive ? 'is-ambient-active' : ''}`} data-template-shell="aurelia-court">
@@ -92,28 +94,34 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
               case 'rsvp': return <ActionCard key={sectionKey} sectionKey="rsvp" title={data.rsvp.title} message={data.rsvp.message} meta={`Phản hồi trước ${data.rsvp.deadline}`} action="Xác nhận tham dự" interactions={interactions} />
               case 'guestbook': return <ActionCard key={sectionKey} sectionKey="guestbook" title={data.guestbook.title} message={data.guestbook.message} action="Gửi lời chúc" interactions={interactions} />
               case 'gift': return <Gift key={sectionKey} data={data} />
-              case 'music': return <MusicPlayer key={sectionKey} src={data.music.backgroundMusicUrl} title={data.music.backgroundMusicName || data.music.trackName || data.music.title} autoplay={data.music.backgroundMusicAutoplay} active={opened} editorMode={editorMode} sectionKey="music" />
               case 'footer': return <Footer key={sectionKey} data={data} />
               default: return null
             }
           })}
         </div>
       </div>
+      {show('music') ? <MusicPlayer src={data.music.backgroundMusicUrl} title={data.music.backgroundMusicName || data.music.trackName || data.music.title} autoplay={data.music.backgroundMusicAutoplay} active={opened} editorMode={editorMode} sectionKey="music" /> : null}
       </main>
+      </AureliaEditorModeContext.Provider>
     </>
   )
 }
 
 function Section({ sectionKey, className = '', style, children }: { sectionKey: string; className?: string; style?: React.CSSProperties; children: React.ReactNode }) {
+  const editorMode = useContext(AureliaEditorModeContext)
   const ref = useRef<HTMLElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(editorMode)
   useEffect(() => {
+    if (editorMode) {
+      setVisible(true)
+      return
+    }
     const element = ref.current
     if (!element) return
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } }, { threshold: 0.08, rootMargin: '0px 0px -33% 0px' })
     observer.observe(element)
     return () => observer.disconnect()
-  }, [])
+  }, [editorMode])
   return <section ref={ref} className={`ac-section ${visible ? 'is-visible' : ''} ${className}`.trim()} data-editor-section={sectionKey} style={style}>{children}</section>
 }
 
@@ -128,7 +136,7 @@ function Opening({ data, opened, openingComplete, ambientActive, onOpen }: { dat
       <button className={`ac-opening-card ${opened ? 'is-opening' : ''}`} type="button" onClick={onOpen} disabled={opened} aria-label="Chạm để mở thiệp Aurelia Court">
         <div className="ac-opening-card__art" aria-hidden="true"><img src={aureliaCourtArtwork.front} alt="" /><img className="ac-opening-card__arch" src={aureliaCourtArtwork.arch} alt="" /><img className="ac-opening-card__corner" src={aureliaCourtArtwork.corner} alt="" /></div>
         <span className="ac-opening-card__inner-border" aria-hidden="true" />
-        <div className="ac-opening-card__content"><img className="ac-opening-card__crest" src={aureliaCourtArtwork.crest} alt="" /><span className="ac-opening-card__eyebrow">{data.opening.eyebrow}</span><p className="ac-opening-card__title">{data.opening.title}</p><h1><span>{data.couple.brideName}</span><em className="ac-opening-card__ampersand" aria-label="và">&amp;</em><span>{data.couple.groomName}</span></h1><p className="ac-opening-card__date">{data.event.weddingDate}</p><p className="ac-opening-card__note">{data.opening.message}</p><span className="ac-opening-card__open">Mở thiệp</span></div>
+        <div className="ac-opening-card__content"><span className="ac-opening-card__eyebrow">{data.opening.eyebrow}</span><p className="ac-opening-card__title">{data.opening.title}</p><h1><span>{data.couple.brideName}</span><img className="ac-opening-card__crest" src={aureliaCourtArtwork.crest} alt="" /><span>{data.couple.groomName}</span></h1><p className="ac-opening-card__date">{data.event.weddingDate}</p><span className="ac-opening-card__open">Mở thiệp</span></div>
       </button>
     </div>
   </section>
@@ -258,7 +266,7 @@ function Timeline({ data }: { data: AureliaCourtData }) { const items = data.tim
 
 function Venue({ data }: { data: AureliaCourtData }) { return <Section sectionKey="venue" className="ac-venue"><img className="ac-floral ac-floral--countdown reveal reveal--fade-only" src={aureliaCourtArtwork.cascade} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">{data.venue.title}</p><h2 className="reveal reveal--slide-up">{data.venue.name}</h2><p className="reveal reveal--fade-up">{data.venue.address}</p><p className="reveal reveal--fade-up">{data.venue.message}</p><div className="ac-actions reveal reveal--fade-up"><a href={data.venue.mapUrl}>Mở bản đồ</a><a href={data.venue.calendarUrl}>Thêm vào lịch</a></div></div></Section> }
 
-function Activities({ data }: { data: AureliaCourtData }) { const items = data.activities.items ?? []; const renderCard = (item: AureliaCourtData['activities']['items'][number], key: string) => <article className="reveal reveal--fade-up" key={key}>{item.image ? <img className="reveal reveal--zoom-in" src={item.image.src} alt={item.image.alt} /> : <img className="reveal reveal--zoom-in" src={aureliaCourtArtwork.corner} alt="" />}<strong className="reveal reveal--fade-up">{item.title}</strong></article>; const cards = items.length > 2 ? <div className="ac-activities__marquee reveal reveal--fade-up" aria-label="Các hoạt động trong ngày vui"><div className="ac-activities__track">{[...items, ...items].map((item, index) => renderCard(item, `${item.title}-${index}`))}</div></div> : <div className="ac-activities__grid reveal reveal--fade-up">{items.map((item) => renderCard(item, item.title))}</div>; return <Section sectionKey="activities" className="ac-activities"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Trong ngày vui</p><h2 className="reveal reveal--slide-up">{data.activities.title}</h2><p className="reveal reveal--fade-up">{data.activities.message}</p>{cards}</div></Section> }
+function Activities({ data }: { data: AureliaCourtData }) { const items = data.activities.items ?? []; if (!items.length) return null; const renderCard = (item: AureliaCourtData['activities']['items'][number], key: string) => <article className="reveal reveal--fade-up" key={key}>{item.image ? <img className="reveal reveal--zoom-in" src={item.image.src} alt={item.image.alt} /> : <img className="reveal reveal--zoom-in" src={aureliaCourtArtwork.corner} alt="" />}<strong className="reveal reveal--fade-up">{item.title}</strong></article>; const cards = items.length > 2 ? <div className="ac-activities__marquee reveal reveal--fade-up" aria-label="Các hoạt động trong ngày vui"><div className="ac-activities__track">{[...items, ...items].map((item, index) => renderCard(item, `${item.title}-${index}`))}</div></div> : <div className="ac-activities__grid reveal reveal--fade-up">{items.map((item) => renderCard(item, item.title))}</div>; return <Section sectionKey="activities" className="ac-activities"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Trong ngày vui</p><h2 className="reveal reveal--slide-up">{data.activities.title}</h2><p className="reveal reveal--fade-up">{data.activities.message}</p>{cards}</div></Section> }
 
 function Gallery({ data }: { data: AureliaCourtData }) { const images = data.gallery.images ?? []; const [active, setActive] = useState(0); useEffect(() => { if (images.length < 2) return; const timer = window.setInterval(() => setActive((current) => (current + 1) % images.length), 4200); return () => window.clearInterval(timer); }, [images.length]); if (!images.length) return <Section sectionKey="gallery" className="ac-gallery"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Album ảnh</p><h2 className="reveal reveal--slide-up">{data.gallery.title}</h2><p className="reveal reveal--fade-up">{data.gallery.message}</p><div className="ac-empty reveal reveal--fade-up">Album sẽ được hiển thị tại đây.</div></div></Section>; return <Section sectionKey="gallery" className="ac-gallery"><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Album ảnh</p><h2 className="reveal reveal--slide-up">{data.gallery.title}</h2><p className="reveal reveal--fade-up">{data.gallery.message}</p><div className="ac-gallery__carousel reveal reveal--fade-up" role="region" aria-label="Album ảnh cưới"><div className="ac-gallery__stage">{images.map((image, index) => { const rawOffset = (index - active + images.length) % images.length; const offset = rawOffset > images.length / 2 ? rawOffset - images.length : rawOffset; const visible = Math.abs(offset) <= 1; return <figure className="ac-gallery__card" key={image.src} aria-hidden={!visible} style={{ opacity: visible ? 1 : 0, transform: `translateX(calc(-50% + ${offset * 72}%)) translateZ(${offset === 0 ? 70 : 0}px) rotateY(${offset * -24}deg) scale(${offset === 0 ? 1 : .78})`, zIndex: offset === 0 ? 3 : 2 - Math.abs(offset) }}><img src={image.src} alt={image.alt} /></figure> })}</div><div className="ac-gallery__controls"><button className="reveal reveal--slide-left" type="button" onClick={() => setActive((active - 1 + images.length) % images.length)} aria-label="Ảnh album trước">‹</button><span className="reveal reveal--fade-up">{active + 1} / {images.length}</span><button className="reveal reveal--slide-right" type="button" onClick={() => setActive((active + 1) % images.length)} aria-label="Ảnh album tiếp theo">›</button></div></div></div></Section> }
 
@@ -293,6 +301,6 @@ function ActionCard({ sectionKey, title, message, meta, action, interactions }: 
   return <Section sectionKey={sectionKey} className={`ac-action ac-action--${sectionKey}`}><img className="ac-seal reveal reveal--zoom-in" src={aureliaCourtArtwork.seal} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">{isRsvp ? 'Xác nhận tham dự' : 'Lời chúc'}</p><h2 className="reveal reveal--slide-up">{title}</h2><p className="reveal reveal--fade-up">{message}</p>{meta ? <small className="reveal reveal--fade-up">{meta}</small> : null}<form className="ac-action__form reveal reveal--fade-up" onSubmit={submit}>{isPersonalized ? <p className="ac-personalized reveal reveal--fade-up">Xác nhận cho {personalizedName || 'khách mời'}</p> : <label className="reveal reveal--fade-up">Tên của bạn<input value={name} onChange={(event) => { setName(event.target.value); clearValidationError() }} autoComplete="name" /></label>}{isRsvp ? <div className="ac-choice reveal reveal--fade-up" aria-label="Lựa chọn tham dự"><button type="button" className={attendance === 'ATTENDING' ? 'is-selected' : ''} onClick={() => { setAttendance('ATTENDING'); clearValidationError() }}>Có thể tham dự</button><button type="button" className={attendance === 'DECLINED' ? 'is-selected' : ''} onClick={() => { setAttendance('DECLINED'); clearValidationError() }}>Xin phép vắng mặt</button></div> : <label className="reveal reveal--fade-up">Lời chúc<textarea value={content} onChange={(event) => { setContent(event.target.value); clearValidationError() }} rows={3} placeholder="Viết lời chúc của bạn..." /></label>}<button className="ac-button reveal reveal--zoom-in" type="submit" disabled={disabled}>{submitted ? 'Đã gửi' : controller?.submitting ? 'Đang gửi...' : action}</button>{validationError || controller?.error ? <p className="reveal reveal--fade-up" role="alert">{validationError || controller?.error}</p> : null}</form></div></Section>
 }
 
-function Gift({ data }: { data: AureliaCourtData }) { const [qrOpen, setQrOpen] = useState(false); const qrMedia = data.gift.qrMedia; return <Section sectionKey="gift" className="ac-gift"><div className="ac-gift__card"><img className="ac-gift__crest reveal reveal--zoom-in" src={aureliaCourtArtwork.crest} alt="" aria-hidden="true" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Một lời chúc phúc</p><h2 className="reveal reveal--slide-up">{data.gift.title}</h2><p className="ac-gift__message reveal reveal--fade-up">{data.gift.message}</p><div className="ac-gift__rule" aria-hidden="true"><span>✦</span></div><div className={`ac-gift__qr ${qrMedia ? '' : 'ac-gift__qr--empty'} reveal reveal--zoom-in ${qrOpen ? 'is-open' : ''}`}><button className="ac-gift__qr-trigger" type="button" onClick={() => setQrOpen(true)} aria-expanded={qrOpen} tabIndex={qrOpen ? -1 : 0} aria-label="Mở mã QR mừng cưới"><img src={aureliaCourtArtwork.seal} alt="" aria-hidden="true" /><span>Chạm để xem mã QR</span></button><div className="ac-gift__qr-panel" role="dialog" aria-label="Mã QR mừng cưới" aria-hidden={!qrOpen}>{qrMedia ? <img className="ac-qr" src={qrMedia.src} alt={qrMedia.alt} /> : <div className="ac-gift__qr-placeholder"><span aria-hidden="true" /><small>Mã QR sẽ hiển thị sau khi được thêm.</small></div>}<button className="ac-gift__qr-close" type="button" onClick={() => setQrOpen(false)} tabIndex={qrOpen ? 0 : -1} aria-label="Đóng mã QR">×</button></div></div><p className="ac-gift__thanks reveal reveal--fade-up">{data.gift.thankYouMessage}</p></div></div></Section> }
+function Gift({ data }: { data: AureliaCourtData }) { const [qrOpen, setQrOpen] = useState(false); const qrMedia = data.gift.qrMedia; const qrSrc = typeof qrMedia === 'string' ? qrMedia : qrMedia?.src; const hasQr = Boolean(qrSrc); const qrAlt = typeof qrMedia === 'object' && qrMedia?.alt ? qrMedia.alt : 'Mã QR mừng cưới'; return <Section sectionKey="gift" className="ac-gift"><div className="ac-gift__card"><img className="ac-gift__crest reveal reveal--zoom-in" src={aureliaCourtArtwork.crest} alt="" aria-hidden="true" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">Một lời chúc phúc</p><h2 className="reveal reveal--slide-up">{data.gift.title}</h2><p className="ac-gift__message reveal reveal--fade-up">{data.gift.message}</p><div className="ac-gift__rule" aria-hidden="true"><span>✦</span></div><div className={`ac-gift__qr ${hasQr ? '' : 'ac-gift__qr--empty'} reveal reveal--zoom-in ${qrOpen ? 'is-open' : ''}`}><button className="ac-gift__qr-trigger" type="button" onClick={() => setQrOpen(true)} aria-expanded={qrOpen} tabIndex={qrOpen ? -1 : 0} aria-label="Mở mã QR mừng cưới">{hasQr ? <><img className="ac-qr ac-qr--preview" src={qrSrc} alt={qrAlt} /><span>Chạm để xem lớn hơn</span></> : <><img src={aureliaCourtArtwork.seal} alt="" aria-hidden="true" /><span>Chạm để xem mã QR</span></>}</button><div className="ac-gift__qr-panel" role="dialog" aria-label="Mã QR mừng cưới" aria-hidden={!qrOpen}>{hasQr ? <img className="ac-qr" src={qrSrc} alt={qrAlt} /> : <div className="ac-gift__qr-placeholder"><span aria-hidden="true" /><small>Mã QR sẽ hiển thị sau khi được thêm.</small></div>}<button className="ac-gift__qr-close" type="button" onClick={() => setQrOpen(false)} tabIndex={qrOpen ? 0 : -1} aria-label="Đóng mã QR">×</button></div></div><p className="ac-gift__thanks reveal reveal--fade-up">{data.gift.thankYouMessage}</p></div></div></Section> }
 
 function Footer({ data }: { data: AureliaCourtData }) { const footerStyle = { '--ac-footer-image': data.footer.backgroundMedia ? `url("${data.footer.backgroundMedia.src}")` : 'none' } as React.CSSProperties; return <Section sectionKey="footer" className="ac-footer" style={footerStyle}><img className="ac-seal reveal reveal--zoom-in" src={aureliaCourtArtwork.seal} alt="" /><div className="ac-content"><p className="ac-kicker reveal reveal--fade-up">With love</p><h2 className="reveal reveal--slide-up">{data.footer.title}</h2><p className="reveal reveal--fade-up">{data.footer.message}</p><p className="ac-footer__names reveal reveal--fade-up">{data.couple.brideName} &amp; {data.couple.groomName}</p></div></Section> }

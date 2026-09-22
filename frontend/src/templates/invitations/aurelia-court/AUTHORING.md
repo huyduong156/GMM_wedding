@@ -310,12 +310,9 @@ Shared background vẫn là CSS/layer chung, không tạo một background image
 | ID / file dự kiến | Vai trò | Dùng ở section | Art direction | Output / kích thước dự kiến | Responsive / vùng an toàn |
 | --- | --- | --- | --- | --- | --- |
 | `ac-gatefold-front-v1.png` | Key artwork, mặt ngoài gate-fold | `opening` | Hai cánh thiệp ivory, viền antique gold mảnh, huy hiệu trung tâm, ranunculus vàng champagne ở mép; không có chữ cố định | PNG RGBA, dọc 4:5, khoảng 1600×2000px, mục tiêu ≤ 450KB sau tối ưu | Mobile-first; vùng trung tâm 60% để đặt content bằng HTML; mép hoa có thể crop nhẹ |
-| `ac-gatefold-inner-v1.png` | Key artwork, mặt trong/inner paper | `opening`, chuyển sang `cover` | Giấy mở ra, inner border dập nổi, floral corner bất đối xứng, ánh vàng rất nhẹ; không render text trong ảnh | PNG RGBA, dọc 4:5, khoảng 1600×2000px, mục tiêu ≤ 450KB | Giữ safe area trung tâm ≥ 70%; desktop chỉ scale, không tạo layout khác |
-| `ac-ranunculus-corner-v1.png` | Floral cluster | `cover`, `invitation`, `families` | 1 cụm ranunculus vàng champagne với lá olive/xám xanh, watercolor/editorial botanical, nền trong suốt | PNG RGBA, khoảng 1200×1200px, mục tiêu ≤ 350KB | Có thể mirror; bloom nằm trong 82% trung tâm; không che tên, CTA hoặc family card |
 | `ac-ranunculus-sprig-v1.png` | Floral sprig nhỏ/divider | `invitation`, `timeline`, `footer` | Nhánh ranunculus nhỏ, ít lá, nét thanh, cùng material với corner cluster nhưng silhouette khác | PNG RGBA, ngang 1400×420px, mục tiêu ≤ 180KB | Desktop có thể dài hơn; mobile scale xuống 45–60%, không làm tăng scroll width |
 | `ac-royal-crest-v1.png` | Crest/monogram ornament | `opening`, `cover`, `footer` | Huy hiệu trừu tượng không dùng gia huy thật: vòng nguyệt quế mảnh, chữ `A`/`C` có thể để trống hoặc không render chữ trong ảnh | PNG RGBA, vuông 900×900px, mục tiêu ≤ 180KB | Safe area 80%; dùng nhỏ, không trở thành logo cố định của user |
 | `ac-wax-seal-v1.png` | Seal prop | `opening`, `gift`, `footer` | Sáp champagne/antique gold, dấu hoa đơn giản, không có chữ nhỏ khó đọc | PNG RGBA, vuông 700×700px, mục tiêu ≤ 150KB | Mobile tối đa 64–88px; pointer-events none khi là decor |
-| `ac-embossed-border-v1.png` | Paper frame/mask | `cover`, `families`, `venue` | Viền dập nổi ivory + gold, góc bo nhẹ, nội thất trong suốt; không thêm background riêng | PNG RGBA hoặc SVG nếu đạt chất lượng, ngang/dọc linh hoạt 1600px cạnh dài, ≤ 220KB | Dùng làm border layer; content safe area tối thiểu 88%; có CSS fallback |
 | `ac-family-divider-v1.png` | Section divider | `families`, `eventDetails` | Divider gold mảnh kết hợp một nụ ranunculus, nhẹ hơn corner cluster | PNG RGBA, ngang 1200×260px, ≤ 120KB | Mobile scale theo width, không đặt text trong asset |
 
 ### Asset không tạo bằng AI trong batch này
@@ -328,7 +325,6 @@ Shared background vẫn là CSS/layer chung, không tạo một background image
 
 ### Asset dùng xuyên trang và rule không lặp
 
-- `ac-ranunculus-corner-v1` là signature botanical chính, chỉ dùng tối đa 2 vai trò và phải đổi crop/mirror theo section.
 - `ac-ranunculus-sprig-v1` là divider; không dùng thay corner cluster ở mọi section.
 - Crest và seal là motif phụ, không xuất hiện đồng thời ở mọi section.
 - Mỗi section chỉ có tối đa một floral focal point; section family ưu tiên tên người, hoa không được thành focal point.
@@ -366,18 +362,14 @@ Danh sách cần tạo trước mắt là **8 artwork renderer-owned** ở asset
 Đã generate đủ 8 asset bằng built-in image generation với transparent-background prompt và copy vào bundle. Các file đang ở trạng thái `generated / pending optimization / pending owner approval`; chưa được map vào renderer.
 
 - `ac-gatefold-front-v1.png`
-- `ac-gatefold-inner-v1.png`
-- `ac-ranunculus-corner-v1.png`
 - `ac-ranunculus-sprig-v1.png`
 - `ac-royal-crest-v1.png`
 - `ac-wax-seal-v1.png`
-- `ac-embossed-border-v1.png`
 - `ac-family-divider-v1.png`
 - `ac-ranunculus-botanical-cluster-v2.png`
 - `ac-ranunculus-gatefold-arch-v1.png`
 - `ac-family-botanical-cascade-v1.png`
 
-Ba asset botanical phức tạp là nhóm primary floral artwork. `ac-ranunculus-corner-v1.png` được giữ làm biến thể phụ/fallback, không dùng làm floral focal chính.
 
 ## Phase 3 — Section architecture và visual composition
 

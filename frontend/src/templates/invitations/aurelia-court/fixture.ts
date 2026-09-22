@@ -1,11 +1,11 @@
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 
-const artwork = '/assets/images/templates/aurelia-court/artwork'
+const artwork = '/assets/images/templates/aurelia-court'
 
 export const aureliaCourtFixture: AureliaCourtData = {
   couple: { brideName: 'An Nhiên', groomName: 'Gia Huy' },
   event: { weddingDate: '18 · 10 · 2026', time: '17:30', venueName: 'Maison de Lumière', venueAddress: '88 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh', mapUrl: 'https://maps.google.com', calendarUrl: 'https://calendar.google.com' },
-  opening: { eyebrow: 'The wedding invitation', title: 'Một lời mời trang trọng', message: 'Chạm nhẹ để mở tấm thiệp của chúng mình.' },
+  opening: { eyebrow: 'The wedding invitation', title: 'Một lời mời trang trọng' },
   cover: { eyebrow: 'Trân trọng kính mời', title: 'Lễ thành hôn', message: 'Trân trọng kính mời bạn đến chung vui cùng chúng mình.', heroMedia: null },
   invitation: { message: 'Sự hiện diện của {guestName} là niềm vinh hạnh lớn đối với gia đình chúng mình trong ngày nên duyên.' },
   families: { title: 'Hai gia đình trân trọng báo tin', subtitle: 'Lễ thành hôn của các con chúng tôi', message: 'Kính mời quý khách cùng chứng kiến khoảnh khắc thiêng liêng của hai gia đình.', brideSide: { label: 'Nhà gái', father: 'Trần Minh Quang', mother: 'Lê Thanh Hà', address: 'Quận 3 · TP. Hồ Chí Minh' }, groomSide: { label: 'Nhà trai', father: 'Nguyễn Quốc Bảo', mother: 'Phạm Thu Vân', address: 'Thủ Đức · TP. Hồ Chí Minh' } },
@@ -29,19 +29,15 @@ export const aureliaCourtSectionConfig: AureliaCourtSectionConfig = {
 
 export const aureliaCourtArtwork = {
   front: `${artwork}/ac-gatefold-front-v1.png`,
-  inner: `${artwork}/ac-gatefold-inner-v1.png`,
   corner: `${artwork}/ac-ranunculus-botanical-cluster-v2.png`,
-  coverCorner: `${artwork}/ac-ranunculus-corner-v1.png`,
   sprig: `${artwork}/ac-ranunculus-sprig-v1.png`,
   arch: `${artwork}/ac-ranunculus-gatefold-arch-v1.png`,
   cascade: `${artwork}/ac-family-botanical-cascade-v1.png`,
   crest: `${artwork}/ac-royal-crest-v1.png`,
   seal: `${artwork}/ac-wax-seal-v1.png`,
-  border: `${artwork}/ac-embossed-border-v1.png`,
   divider: `${artwork}/ac-family-divider-v1.png`,
   royalBust: `${artwork}/ac-royal-marble-bust-v1.png`,
   royalBustMale: `${artwork}/ac-royal-marble-bust-male-v1.png`,
-  royalMirror: `${artwork}/ac-ornate-gold-mirror-v1.png`,
   royalColumn: `${artwork}/ac-corinthian-column-v1.png`,
   royalPediment: `${artwork}/ac-royal-architectural-pediment-v1.png`,
   activityBalloons: `${artwork}/ac-activity-balloons-v1.png`,

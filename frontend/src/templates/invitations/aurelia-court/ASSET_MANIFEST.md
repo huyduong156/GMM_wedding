@@ -1,71 +1,34 @@
 # Aurelia Court — Asset manifest
 
-Bundle root: `/assets/images/templates/aurelia-court/artwork/`
+All renderer-owned artwork is served from `/assets/images/templates/aurelia-court/`. The former `artwork/` nesting was removed so the template has one asset level.
 
-Status: all planned artwork generated, reviewed and approved for composition; integrated as renderer-owned assets.
+## Active artwork
 
-## Generated batch 1
+| File | Role |
+| --- | --- |
+| `ac-gatefold-front-v1.png` | Opening gate-fold front |
+| `ac-ranunculus-gatefold-arch-v1.png` | Opening arch ornament |
+| `ac-ranunculus-sprig-v1.png` | Dividers and footer accent |
+| `ac-ranunculus-botanical-cluster-v2.png` | Family botanical cluster |
+| `ac-family-botanical-cascade-v1.png` | Family section cascade |
+| `ac-family-divider-v1.png` | Family divider |
+| `ac-royal-crest-v1.png` | Opening and cover crest |
+| `ac-wax-seal-v1.png` | Opening, interaction and footer seal |
+| `ac-royal-marble-bust-v1.png` | Family portrait placeholder |
+| `ac-royal-marble-bust-male-v1.png` | Family portrait placeholder |
+| `ac-royal-architectural-pediment-v1.png` | Architectural ornament |
+| `ac-corinthian-column-v1.png` | Architectural ornament |
+| `ac-footer-background-v1.png` | Footer artwork |
+| `ac-activity-balloons-v1.png` | Activity demo media |
+| `ac-activity-candy-favors-v1.png` | Activity demo media |
+| `ac-activity-photobooth-v1.png` | Activity demo media |
+| `ac-gallery-couple-v1.png` | Gallery demo media |
+| `ac-gallery-table-v1.png` | Gallery demo media |
+| `ac-gallery-toast-v1.png` | Gallery demo media |
+| `ac-white-botanical-blossom-v2.png` | White floral accent |
 
-| File | Role | Dimensions | Format | Ownership | Status |
-| --- | --- | ---: | --- | --- | --- |
-| `ac-gatefold-front-v1.png` | Gate-fold outer/front key artwork | 1122×1402 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-gatefold-inner-v1.png` | Gate-fold inner paper key artwork | 1122×1402 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-ranunculus-corner-v1.png` | Ranunculus corner cluster | 1214×1295 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-ranunculus-sprig-v1.png` | Ranunculus divider sprig | 2172×724 | PNG RGBA | GMM renderer-owned | Approved; integrated |
+## Removed
 
-## Generation provenance
+Unused candidate artwork was removed together with its renderer map entries and documentation references.
 
-- Tool: built-in image generation skill, default image generation mode.
-- Created: 2026-09-20.
-- Prompt family: transparent European wedding stationery illustration, ivory/champagne/antique-gold palette, pale ranunculus, no text, no watermark.
-- Ownership: newly generated renderer-owned artwork for GMM Wedding; not user-uploaded media.
-- Text policy: all four assets were requested with no text, names, dates, UI copy or watermark.
-- Background policy: genuinely transparent cutout requested; preserve alpha when optimizing.
-- Source originals remain in the Codex generated-image workspace; bundle copies are the project artifacts.
-
-## Generated batch 2
-
-| File | Role | Dimensions | Format | Ownership | Status |
-| --- | --- | ---: | --- | --- | --- |
-| `ac-royal-crest-v1.png` | Abstract royal crest ornament | 1254×1254 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-wax-seal-v1.png` | Wax seal prop | 1254×1254 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-royal-marble-bust-male-v1.png` | Male classical marble bust for groom-side family card | 1024×1536 | PNG RGBA | GMM renderer-owned | Generated; integrated |
-| `ac-embossed-border-v1.png` | Paper frame/border | 1122×1402 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-family-divider-v1.png` | Family/event divider | 2172×724 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-
-## Complex botanical cluster batch
-
-| File | Role | Dimensions | Format | Ownership | Status |
-| --- | --- | ---: | --- | --- | --- |
-| `ac-ranunculus-botanical-cluster-v2.png` | Primary asymmetrical corner cluster | 1145×1374 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-ranunculus-gatefold-arch-v1.png` | Symmetrical gate-fold floral arch | 1122×1402 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-| `ac-family-botanical-cascade-v1.png` | Vertical family-card botanical cascade | 1086×1448 | PNG RGBA | GMM renderer-owned | Approved; integrated |
-
-## Budget notes
-
-## Activity and gallery demo assets
-
-| File | Role | Ownership | Status |
-| --- | --- | --- | --- |
-| `ac-activity-balloons-v1.png` | Children’s balloon-corner activity demo | GMM renderer-owned | Generated; integrated |
-| `ac-activity-candy-favors-v1.png` | Wedding candy-favor activity demo | GMM renderer-owned | Generated; integrated |
-| `ac-activity-photobooth-v1.png` | Photobooth activity demo | GMM renderer-owned | Generated; integrated |
-| `ac-gallery-couple-v1.png` | Wedding couple album demo | GMM renderer-owned | Generated; integrated |
-| `ac-gallery-table-v1.png` | Reception table album demo | GMM renderer-owned | Generated; integrated |
-| `ac-gallery-toast-v1.png` | Champagne toast album demo | GMM renderer-owned | Generated; integrated |
-| `ac-footer-background-v1.png` | Ivory champagne floral footer background demo | GMM renderer-owned | Generated; integrated |
-
-- Tool: built-in image generation skill, default image generation mode.
-- Palette: ivory, champagne gold, muted blush and warm botanical tones to match Aurelia Court.
-- Text policy: no readable text, logos or watermarks were requested in the generated artwork.
-
-Current generated file sizes are above the target bundle budget from the asset brief:
-
-- `ac-gatefold-front-v1.png`: 1,854,183 bytes
-- `ac-gatefold-inner-v1.png`: 2,025,411 bytes
-- `ac-ranunculus-corner-v1.png`: 1,580,360 bytes
-- `ac-ranunculus-sprig-v1.png`: 768,366 bytes
-
-The current bundle keeps PNG RGBA to preserve the approved transparent artwork and avoid changing the established template asset contract. Further format conversion is a separate bundle optimization task, not a Phase 2.5 approval blocker.
-
-All eleven planned/generated assets exist in the bundle. The three complex botanical clusters are the primary floral system; `ac-ranunculus-corner-v1.png` remains a secondary fallback variant. Artwork is approved and mapped to renderer-owned roles; user media remains separate.
+User-uploaded couple, gallery, activity and QR images remain runtime media and are not part of this bundle.
