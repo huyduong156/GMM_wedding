@@ -14,6 +14,7 @@ export type TemplateConfig = {
   defaultData?: Record<string, unknown>
   palettes?: readonly { key: string; label: string; default?: boolean }[]
   sections: readonly TemplateSectionConfig[]
+  normalizeStoredSectionOrder?: (order: string[]) => string[]
   [key: string]: unknown
 }
 

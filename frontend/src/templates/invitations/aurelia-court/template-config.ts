@@ -24,9 +24,15 @@ const sections: Section[] = [
   { sectionKey: 'footer', label: 'Lời cảm ơn cuối thiệp', required: true, canToggle: false, canReorder: false, fields: { title: text('Tiêu đề cuối thiệp', 'footer.title'), message: longText('Lời nhắn cuối thiệp', 'footer.message'), backgroundMedia: image('Ảnh nền cuối thiệp', 'footer.backgroundMedia', 'footer-background') } },
 ]
 
+const normalizeStoredSectionOrder = (order: string[]) => {
+  const invitation = order.indexOf('invitation')
+  const families = order.indexOf('families')
+  return invitation >= 0 && families >= 0 && invitation < families ? [] : order
+}
+
 export const aureliaCourtTemplateConfig = {
   templateKey: 'aurelia-court', displayName: 'Aurelia Court', templateVersion: '0.1.0', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'ready', productType: 'ONLINE_INVITATION', type: 'invitation', previewPath: '/templates/invitations/aurelia-court/preview',
-  quickEdit: [{ contentKey: 'couple.brideName', label: 'Tên cô dâu' }, { contentKey: 'couple.groomName', label: 'Tên chú rể' }, { contentKey: 'event.weddingDate', label: 'Ngày cưới' }], palettes: [{ key: 'aurelia-court', label: 'Ivory champagne', default: true }], defaultData: aureliaCourtFixture,
+  quickEdit: [{ contentKey: 'couple.brideName', label: 'Tên cô dâu' }, { contentKey: 'couple.groomName', label: 'Tên chú rể' }, { contentKey: 'event.weddingDate', label: 'Ngày cưới' }], palettes: [{ key: 'aurelia-court', label: 'Ivory champagne', default: true }], defaultData: aureliaCourtFixture, normalizeStoredSectionOrder,
   capabilities: { commonRsvp: true, guestbook: true, gallery: true, calendar: true, maps: true, gift: true, backgroundMusic: true, reducedMotion: true }, sections,
   theme: { identity: ['aurelia-court', 'royal-stationery', 'champagne-ranunculus', 'ivory-paper'], default: { palette: 'aurelia-court', motionLevel: 'EXPRESSIVE', galleryStyle: 'framed-stationery' }, artworkManifest: 'ASSET_MANIFEST.md' },
   composition: { defaultLayout: 'mobile-royal-stationery-scroll', layouts: { opening: 'gatefold-card', cover: 'royal-cover-card', invitation: 'letter-sheet', families: 'dual-family-panels', eventDetails: 'date-diptych', countdown: 'calendar-countdown', timeline: 'ceremony-route', venue: 'venue-stationery-card', activities: 'framed-activity-stack', gallery: 'stationery-gallery', rsvp: 'reply-card', guestbook: 'wish-card', gift: 'sealed-gift-card', music: 'music-dock', footer: 'closing-seal' }, mobileFallback: 'native-vertical-scroll' },

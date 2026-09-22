@@ -79,12 +79,6 @@ export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[],
   )
 }
 
-function isLegacyAureliaCourtOrder(order: string[]) {
-  const invitation = order.indexOf('invitation')
-  const families = order.indexOf('families')
-  return invitation >= 0 && families >= 0 && invitation < families
-}
-
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {
   ...initialTemplate.fixture,
@@ -231,10 +225,8 @@ export function InvitationEditorLivePage() {
       const rawStoredOrder = hasSavedContent
         ? loaded.sectionConfig.order.filter((key) => validKeys.includes(key))
         : []
-      const storedOrder =
-        loaded.templateVersion.key === 'aurelia-court' && isLegacyAureliaCourtOrder(rawStoredOrder)
-          ? []
-          : rawStoredOrder
+      const normalizeStoredSectionOrder = templateConfig.normalizeStoredSectionOrder as ((order: string[]) => string[]) | undefined
+      const storedOrder = normalizeStoredSectionOrder?.(rawStoredOrder) ?? rawStoredOrder
       const storedEnabled = new Set(
         loaded.sectionConfig.enabled.filter((key) => validKeys.includes(key)),
       )
