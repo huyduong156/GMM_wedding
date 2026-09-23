@@ -4,6 +4,7 @@ import {
   isLiveEditorUpdate,
   liveEditorEvents,
 } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import {
   ChibiDaydreamInvitation,
   type ChibiDaydreamData,
@@ -29,9 +30,7 @@ export function ChibiDaydreamPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<string>(event.data))
-        document
-          .querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: 'smooth' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`)
     }
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)

@@ -6,6 +6,7 @@ import {
 } from '../../../templates/invitations/rose-garden/RoseGardenInvitation'
 import { roseGardenFixture } from '../../../templates/invitations/rose-garden/fixture'
 import { isLiveEditorScroll, isLiveEditorUpdate, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 export function RoseGardenPreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
@@ -21,7 +22,7 @@ export function RoseGardenPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<RoseGardenSectionConfig['order'][number]>(event.data)) {
-        document.querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`, { block: 'start' })
       }
     }
     window.addEventListener('message', receive)

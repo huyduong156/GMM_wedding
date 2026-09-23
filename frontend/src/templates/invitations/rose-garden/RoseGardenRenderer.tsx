@@ -12,6 +12,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
 import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
@@ -422,6 +423,8 @@ export function RoseGardenRenderer({
   const pageRef = useRef<HTMLDivElement>(null)
   const openingTimerRef = useRef<number | null>(null)
   const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>('closed')
+  const opened = openingState === 'opened'
+  useSmoothTemplateScroll(opened)
   const [rsvpChoice, setRsvpChoice] = useState<'attending' | 'declined' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
@@ -436,7 +439,6 @@ export function RoseGardenRenderer({
     [content.event.time, content.event.weddingDate],
   )
   const [countdownClock, setCountdownClock] = useState<CountdownClock>(() => getCountdownClock(weddingTimestamp))
-  const opened = openingState === 'opened'
   const connectedGuestName = interactions?.guestName?.trim() || guestName?.trim() || ''
   const interactionWishItems = interactions?.wishes.items
   const hasGuestName = Boolean(connectedGuestName)

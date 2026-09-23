@@ -14,6 +14,7 @@ import type {
   GreenHydrangeaSectionKey,
 } from './content'
 import { greenHydrangeaFixture, greenHydrangeaSections } from './fixture'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './green-hydrangea.css'
 
 type Props = {
@@ -60,6 +61,7 @@ export function GreenHydrangeaWebsite({
   data = greenHydrangeaFixture,
   sectionConfig = greenHydrangeaSections,
 }: Props) {
+  useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),
     [sent, setSent] = useState(false)

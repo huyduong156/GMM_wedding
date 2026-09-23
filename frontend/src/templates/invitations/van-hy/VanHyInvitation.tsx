@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
-import { useSmoothInvitationScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './van-hy.css'
 
 export type VanHyTimelineItem = { time: string; title: string; detail: string }
@@ -113,7 +113,7 @@ export function VanHyInvitation({ data, sectionConfig, guestName, interactions }
     const sent = interactions ? await interactions.wishes.submit({ guestName: hasGuestName ? undefined : name, content: message }) : true
     if (sent) { setWishSent(true); setWish(''); setWishName('') }
   }
-  useSmoothInvitationScroll(opened && contentReady)
+  useSmoothTemplateScroll(opened && contentReady)
   const openCard = () => { if (!opened && !opening) { setOpening(true); setCurtainsActive(true) } }
   useEffect(() => {
     if (!opening) return

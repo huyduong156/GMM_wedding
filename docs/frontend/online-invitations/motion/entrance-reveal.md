@@ -1,5 +1,14 @@
 # Entrance Reveal
 
+## Implementation contract
+
+- `motion/react` là engine chung cho entrance reveal, section reveal, stagger, modal và state transition có nội dung.
+- Dùng `initial`/`animate` hoặc `whileInView` với `transform` và `opacity`; mỗi element chỉ có một motion owner.
+- Không thêm `.reveal`, `.reveal--slide-up`, `.reveal--fade-up` hoặc `.is-visible` cho element đã được Motion điều khiển.
+- CSS transition/keyframes chỉ dành cho hover, ambient loop và trang trí không tranh quyền điều khiển `transform`/`opacity` với Motion.
+- `frontend/src/shared/styles/reveal-animations.css` là legacy compatibility layer; không dùng cho template mới và sẽ được loại bỏ sau migration các template cũ.
+- Mọi template phải có `useReducedMotion`/`MotionConfig` hoặc fallback tương đương để nội dung vẫn hiển thị khi người dùng giảm chuyển động.
+
 ```yaml
 name: Seal-to-Garden Opening
 category: entrance

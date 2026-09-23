@@ -29,6 +29,10 @@ import {
   isLiveEditorUpdate,
   liveEditorEvents,
 } from '../../../shared/lib/live-template-editor'
+import {
+  smoothScrollTo,
+  useSmoothTemplateScroll,
+} from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './red-spider-lily.css'
 import './red-spider-lily-rails.css'
 import './red-spider-lily-phase4.css'
@@ -693,6 +697,7 @@ export function RedSpiderLilyRecap({
   data?: RedSpiderLilyRecapContent
   sectionConfig?: RecapSectionConfig
 }) {
+  useSmoothTemplateScroll(true)
   const [lightboxItems, setLightboxItems] = useState<RedSpiderLilyMedia[] | null>(null)
   const [data, setData] = useState(initialData)
   const [editorUpdateVersion, setEditorUpdateVersion] = useState(0)
@@ -733,13 +738,13 @@ export function RedSpiderLilyRecap({
       }
       if (href === '#top') {
         event.preventDefault()
-        window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' })
+        smoothScrollTo(0)
         return
       }
       const target = document.querySelector<HTMLElement>(href)
       if (!target) return
       event.preventDefault()
-      target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+      smoothScrollTo(target, { block: 'start' })
     }
     root.addEventListener('click', onAnchorClick)
     if (!('IntersectionObserver' in window) || reducedMotion)
@@ -828,10 +833,10 @@ export function RedSpiderLilyRecap({
         document.documentElement.dataset.recapOrder = order.join(',')
       }
       if (isLiveEditorScroll<string>(event.data)) {
-        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-        document
-          .querySelector<HTMLElement>(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' })
+        smoothScrollTo(
+          `[data-editor-section="${event.data.payload.sectionKey}"]`,
+          { block: 'start' },
+        )
       }
     }
     window.addEventListener('message', onMessage)

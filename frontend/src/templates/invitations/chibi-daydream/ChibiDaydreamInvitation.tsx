@@ -17,6 +17,7 @@ import {
 } from '../../../shared/lib/date/useWeddingCountdown'
 import './chibi-daydream.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 const asset = (name: string) => `/assets/images/templates/chibi-daydream/${name}`
 const gallery = [
@@ -75,6 +76,7 @@ export function ChibiDaydreamInvitation({
     sectionConfig ? { order: sectionConfig.order.indexOf(key) } : undefined
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(editorMode)
+  useSmoothTemplateScroll(opened)
   const [slide, setSlide] = useState(0)
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)

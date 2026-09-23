@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } from '../../../templates/invitations/astral-vow/AstralVowInvitation'
 import { astralVowFixture } from '../../../templates/invitations/astral-vow/fixture'
 import { isLiveEditorScroll, isLiveEditorUpdate, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { weddingApi } from '../../../shared/api/weddings'
 
 export function AstralVowPreviewPage() {
@@ -27,7 +28,7 @@ export function AstralVowPreviewPage() {
     const receive = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent) return
       if (isLiveEditorUpdate<{ data: AstralVowData; sectionConfig: AstralVowSectionConfig }>(event.data)) { setData(event.data.payload.data); setSectionConfig(event.data.payload.sectionConfig) }
-      else if (isLiveEditorScroll<AstralVowSectionConfig['order'][number]>(event.data)) document.querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      else if (isLiveEditorScroll<AstralVowSectionConfig['order'][number]>(event.data)) smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`, { block: 'start' })
     }
     window.addEventListener('message', receive); window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)
     return () => window.removeEventListener('message', receive)

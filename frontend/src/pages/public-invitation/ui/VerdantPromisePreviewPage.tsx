@@ -7,6 +7,7 @@ import type {
 } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { isModernLuxeEditorMessage } from '../../../templates/invitations/modern-luxe/editor-message'
 import { isLiveEditorScroll, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 export function VerdantPromisePreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
@@ -32,9 +33,7 @@ export function VerdantPromisePreviewPage() {
         setData({ ...previewDefaults, ...event.data.payload.data })
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<string>(event.data))
-        document
-          .querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: 'smooth' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`)
     }
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)

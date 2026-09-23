@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowUpRight, CaretLeft, CaretRight, HandTap, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
-import { useSmoothInvitationScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { FallingStars } from '../../../shared/ui/falling-stars/FallingStars'
 import { MusicPlayer, type MusicPlayerHandle } from '../../../shared/ui/music-player'
 import { AstralOpeningCard } from './AstralOpeningCard'
@@ -40,7 +40,7 @@ export function AstralVowInvitation({ data, sectionConfig, editorMode = false, g
   const rootRef = useRef<HTMLElement>(null)
   const musicPlayerRef = useRef<MusicPlayerHandle>(null)
   const [opened, setOpened] = useState(false); const [openingComplete, setOpeningComplete] = useState(false); const [pageHidden, setPageHidden] = useState(false); const [, setTick] = useState(0); const [choice, setChoice] = useState<'ATTENDING' | 'DECLINED' | null>(null); const [rsvpName, setRsvpName] = useState(''); const [rsvpError, setRsvpError] = useState(''); const [rsvpDone, setRsvpDone] = useState(false); const [wishName, setWishName] = useState(''); const [wish, setWish] = useState(''); const [wishError, setWishError] = useState(''); const [wishDone, setWishDone] = useState(false); const [galleryIndex, setGalleryIndex] = useState(0); const [giftOpen, setGiftOpen] = useState(false)
-  useSmoothInvitationScroll(opened && openingComplete)
+  useSmoothTemplateScroll(opened && openingComplete)
   useEffect(() => { const id = window.setInterval(() => setTick((value) => value + 1), 1000); return () => window.clearInterval(id) }, [])
   useEffect(() => { if (opened) window.setTimeout(() => document.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus(), 650) }, [opened])
   useEffect(() => {

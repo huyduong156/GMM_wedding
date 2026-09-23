@@ -12,7 +12,7 @@ import '../../../shared/styles/reveal-animations.css'
 import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
-import { useSmoothInvitationScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 const asset = (name: string) => `/assets/images/templates/peony-veranda/${name}`
 const mediaUrl = (value: unknown, fallback: string) => {
@@ -243,7 +243,7 @@ export function PeonyVerandaInvitation({
   const calendarStart =
     (new Date(Number(weddingYear), Number(weddingMonth) - 1, 1).getDay() + 6) % 7
 
-  useSmoothInvitationScroll(opened)
+  useSmoothTemplateScroll(opened)
   useEffect(() => {
     if (opened) window.setTimeout(() => mainRef.current?.focus({ preventScroll: true }), 0)
   }, [opened])

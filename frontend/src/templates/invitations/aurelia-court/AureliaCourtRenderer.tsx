@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { aureliaCourtArtwork, aureliaCourtFixture, aureliaCourtSectionConfig } from './fixture'
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { PageLoading } from '../../../shared/ui/PageLoading'
@@ -18,6 +19,7 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
   const stageRef = useRef<HTMLDivElement>(null)
   const [openingComplete, setOpeningComplete] = useState(false)
   const [assetsReady, setAssetsReady] = useState(false)
+  useSmoothTemplateScroll(opened && openingComplete)
 
   const [ambientActive, setAmbientActive] = useState(true)
   const active = new Set(sectionConfig.enabled)

@@ -10,6 +10,7 @@ import {
   isLiveEditorUpdate,
   liveEditorEvents,
 } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 export function VanHyPreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
@@ -33,9 +34,7 @@ export function VanHyPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<VanHySectionConfig['order'][number]>(event.data)) {
-        document
-          .querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`, { block: 'start' })
       }
     }
     window.addEventListener('message', receive)

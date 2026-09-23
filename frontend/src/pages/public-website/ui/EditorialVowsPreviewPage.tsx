@@ -9,6 +9,7 @@ import {
   isLiveEditorUpdate,
   liveEditorEvents,
 } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 type PreviewState = { data?: EditorialVowsData; sectionConfig?: EditorialVowsSectionConfig }
 
@@ -29,9 +30,7 @@ export function EditorialVowsPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<EditorialVowsSectionConfig['order'][number]>(event.data))
-        document
-          .querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`, { block: 'center' })
     }
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)

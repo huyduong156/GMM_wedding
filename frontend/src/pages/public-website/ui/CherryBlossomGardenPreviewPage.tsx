@@ -4,6 +4,7 @@ import {
   isLiveEditorUpdate,
   liveEditorEvents,
 } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-blossom-garden/CherryBlossomGardenWebsite'
 import type {
   CherryBlossomData,
@@ -25,9 +26,7 @@ export function CherryBlossomGardenPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<CherrySectionConfig['order'][number]>(event.data))
-        document
-          .querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        smoothScrollTo(`[data-editor-section="${event.data.payload.sectionKey}"]`, { block: 'center' })
     }
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)

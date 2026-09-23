@@ -45,6 +45,9 @@ const previewPaths: Record<string, string> = {
   'chibi-daydream': publicTemplateRoutes.chibiDaydreamPreview,
   'peony-veranda': publicTemplateRoutes.peonyVerandaPreview,
   'astral-vow': publicTemplateRoutes.astralVowPreview,
+  'rose-garden': publicTemplateRoutes.roseGardenPreview,
+  'van-hy': publicTemplateRoutes.vanHyPreview,
+  'aurelia-court': publicTemplateRoutes.aureliaCourtPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
