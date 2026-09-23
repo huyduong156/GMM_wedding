@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useAnimate, useReducedMotion } from 'motion/react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,7 +9,6 @@ import {
   PaperPlaneTilt,
 } from '@phosphor-icons/react'
 import './peony-veranda.css'
-import '../../../shared/styles/reveal-animations.css'
 import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
@@ -31,6 +31,7 @@ const gallery = [
   'peony-gallery-02-v1.png',
   'peony-gallery-03-v1.png',
 ].map(asset)
+const PEONY_MOTION = { duration: 1.92, stagger: 0.08, listStagger: 0.5, ease: [0.22, 1, 0.36, 1] as const }
 
 export type PeonyVerandaData = {
   brideName?: string
@@ -155,7 +156,8 @@ export function PeonyVerandaInvitation({
   const [pendingWish, setPendingWish] = useState(false)
   const [calendarSaved, setCalendarSaved] = useState(false)
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-  const mainRef = useRef<HTMLElement>(null)
+  const [motionScope, animate] = useAnimate()
+  const reducedMotion = useReducedMotion()
 
   const brideName = data?.brideName ?? 'Mai'
   const groomName = data?.groomName ?? 'Đức'
@@ -245,7 +247,7 @@ export function PeonyVerandaInvitation({
 
   useSmoothTemplateScroll(opened)
   useEffect(() => {
-    if (opened) window.setTimeout(() => mainRef.current?.focus({ preventScroll: true }), 0)
+    if (opened) window.setTimeout(() => motionScope.current?.focus({ preventScroll: true }), 0)
   }, [opened])
   useEffect(() => {
     setCountdown(getCountdown(weddingTimestamp))
@@ -264,46 +266,84 @@ export function PeonyVerandaInvitation({
     }
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('.pv-slide'))
-    sections.forEach((section) =>
-      Array.from(
-        section.querySelectorAll<HTMLElement>(
-          'h1,h2,h3,p,span,strong,small,time,em,button,a,img,iframe,article,input,textarea,b',
-        ),
-      ).forEach((element, index) => {
-        element.classList.add(
-          'reveal',
-          index % 3 === 0
-            ? 'reveal--slide-up'
+    if (!opened) return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+    const root = motionScope.current as HTMLElement | null
+    if (!root) return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+    const sections = Array.from(root.querySelectorAll<HTMLElement>('.pv-slide'))
+    const motionSelector = [
+      ':scope > *:not(.pv-wishes-decor-left):not(.pv-wishes-decor-right):not(.pv-couple-petal):not(.pv-couple-orbit):not(.pv-banner-new-art):not(.pv-date-countdown-wash)',
+      'h1,h2,h3,p,span,strong,small,time,em,i,b,button,a,input,textarea,iframe,article',
+      '.pv-banner-new-flower,.pv-banner-new-rule',
+      '.pv-date-card,.pv-date-note',
+      '.pv-countdown-grid > div',
+      '.pv-calendar-grid > small,.pv-calendar-grid > i',
+      '.pv-detail,.pv-map-art,.pv-gallery-stage,.pv-gallery-dots,.pv-wish-form',
+    ].join(',')
+    const isDecorative = (element: HTMLElement) =>
+      element.matches(
+        '.pv-wishes-decor, .pv-wishes-decor *, .pv-couple-petal, .pv-couple-orbit, .pv-couple-orbit *, .pv-banner-new-art, .pv-date-countdown-wash, .pv-announcement-new-ornament img',
+      )
+    root.querySelectorAll<HTMLElement>('[data-motion-variant]').forEach((element) => {
+      if (!isDecorative(element)) return
+      delete element.dataset.motionVariant
+      element.style.removeProperty('transform')
+      element.style.removeProperty('opacity')
+    })
+    sections.forEach((section) => {
+      section.querySelectorAll<HTMLElement>(motionSelector).forEach((element, index) => {
+        if (isDecorative(element)) return
+        element.dataset.motionVariant = element.matches('.pv-banner-new-flower')
+          ? 'fade-only'
+          : index % 3 === 0
+            ? 'fade-up'
             : index % 3 === 1
-              ? 'reveal--slide-left'
-              : 'reveal--zoom-in',
-        )
-        element.style.setProperty('--reveal-delay', `${(index * 0.2).toFixed(1)}s`)
-      }),
-    )
+              ? 'slide-left'
+              : 'zoom-in'
+      })
+    })
+    const markVisible = (section: HTMLElement) => {
+      section.dataset.motionVisible = 'true'
+      Array.from(section.querySelectorAll<HTMLElement>('[data-motion-variant]')).forEach((element, index) => {
+        const variant = element.dataset.motionVariant
+        const listParent = element.parentElement
+        const listIndex = listParent?.matches('.pv-program-list, .pv-activity-grid, .pv-note-grid, .pv-families-grid, .pv-countdown-grid, .pv-gallery-dots')
+          ? Array.from(listParent.children).indexOf(element)
+          : -1
+        void animate(element, variant === 'fade-only' ? { opacity: 1 } : { opacity: 1, x: 0, y: 0, scale: 1 }, {
+          duration: reducedMotion ? 0 : PEONY_MOTION.duration,
+          delay: reducedMotion ? 0 : listIndex >= 0 ? listIndex * PEONY_MOTION.listStagger : Math.min(index * PEONY_MOTION.stagger, 1.1),
+          ease: PEONY_MOTION.ease,
+        })
+      })
+    }
     let observer: IntersectionObserver | null = null
-    if (!('IntersectionObserver' in window))
-      sections.forEach((section) => section.classList.add('is-visible'))
+    if (!('IntersectionObserver' in window)) sections.forEach(markVisible)
     else {
       observer = new IntersectionObserver(
         (entries) =>
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible')
+              markVisible(entry.target as HTMLElement)
               observer?.unobserve(entry.target)
             }
           }),
         { rootMargin: '0px 0px -33% 0px', threshold: 0.01 },
       )
-      sections.forEach((section) => observer?.observe(section))
+      sections.filter((section) => section.getBoundingClientRect().top < window.innerHeight * 0.67).forEach(markVisible)
+      sections.filter((section) => section.getBoundingClientRect().top >= window.innerHeight * 0.67).forEach((section) => observer?.observe(section))
     }
     return () => {
       observer?.disconnect()
       window.removeEventListener('scroll', onScroll)
       if (frame) window.cancelAnimationFrame(frame)
     }
-  }, [])
+  }, [animate, motionScope, opened, reducedMotion])
 
   const open = () => {
     if (opening) return
@@ -434,7 +474,7 @@ export function PeonyVerandaInvitation({
           </div>
         </section>
       )}
-      <main ref={mainRef} className="pv-main" tabIndex={-1}>
+      <main ref={motionScope} className="pv-main" tabIndex={-1}>
         {editorMode && (
           <div data-editor-section="cover" aria-hidden="true" className="pv-editor-cover-marker" />
         )}

@@ -459,14 +459,6 @@
   transform: translate(-50%, -50%);
 }
 
-.ac-family-orbit.reveal--zoom-in {
-  transform: translate(-50%, -50%) scale(.63) !important;
-}
-
-.ac-families.is-visible .ac-family-orbit.reveal--zoom-in {
-  transform: translate(-50%, -50%) scale(.7) !important;
-}
-
 .ac-family-orbit::before,
 .ac-family-orbit::after,
 .ac-family-orbit__ring {
@@ -1290,11 +1282,11 @@
   transform: rotate(-7deg);
 }
 
-.ac-families.is-visible .ac-royal-decor--bust {
+.ac-families[data-motion-visible='true'] .ac-royal-decor--bust {
   animation: ac-bust-float 11s ease-in-out -3s infinite;
 }
 
-.ac-venue.is-visible .ac-royal-decor--mirror {
+.ac-venue[data-motion-visible='true'] .ac-royal-decor--mirror {
   animation: ac-decor-float 10s ease-in-out -3s infinite;
 }
 
@@ -2035,7 +2027,7 @@
 }
 
 .ac-stage.is-opened {
-  animation: ac-opening-content-reveal 520ms cubic-bezier(.16, 1, .3, 1) 1040ms both;
+  animation: ac-opening-content-entrance 520ms cubic-bezier(.16, 1, .3, 1) 1040ms both;
 }
 
 .ac-opening-transition {
@@ -2099,7 +2091,7 @@
   }
 }
 
-@keyframes ac-opening-content-reveal {
+@keyframes ac-opening-content-entrance {
   from {
     opacity: 0;
     transform: translateY(18px) scale(.985);
@@ -2294,10 +2286,6 @@
 }
 
 /* Content typography scale: Waterfall needs a larger optical size without loose leading. */
-:root {
-  --reveal-duration: 2s;
-}
-
 .ac-invitation {
   font-size: 1.4rem;
   line-height: 1.22;
@@ -2326,102 +2314,22 @@
   line-height: 1.15;
 }
 
-/* Aurelia Court choreography: each section resolves in small, readable groups. */
-.ac-section.is-visible .ac-content>.reveal:nth-child(1) {
-  --reveal-delay: .04s;
+/* Preserve Aurelia's deeper entrance distances while sharing the motion contract. */
+.ac-invitation [data-motion-variant='fade-up'],
+.ac-invitation [data-motion-variant='slide-up'] {
+  transform: translate3d(0, 28px, 0);
 }
 
-.ac-section.is-visible .ac-content>.reveal:nth-child(2) {
-  --reveal-delay: .14s;
+.ac-invitation [data-motion-variant='slide-left'] {
+  transform: translate3d(-28px, 0, 0);
 }
 
-.ac-section.is-visible .ac-content>.reveal:nth-child(3) {
-  --reveal-delay: .24s;
+.ac-invitation [data-motion-variant='slide-right'] {
+  transform: translate3d(28px, 0, 0);
 }
 
-.ac-section.is-visible .ac-content>.reveal:nth-child(4) {
-  --reveal-delay: .34s;
-}
-
-.ac-section.is-visible .ac-content>.reveal:nth-child(5) {
-  --reveal-delay: .44s;
-}
-
-.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(1),
-.ac-section.is-visible .ac-activities__track>.reveal:nth-child(1),
-.ac-section.is-visible .ac-choice>button:nth-child(1) {
-  --reveal-delay: .16s;
-}
-
-.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(2),
-.ac-section.is-visible .ac-activities__track>.reveal:nth-child(2),
-.ac-section.is-visible .ac-choice>button:nth-child(2) {
-  --reveal-delay: .26s;
-}
-
-.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(3),
-.ac-section.is-visible .ac-activities__track>.reveal:nth-child(3) {
-  --reveal-delay: .36s;
-}
-
-.ac-section.is-visible .ac-countdown__grid>.reveal:nth-child(4),
-.ac-section.is-visible .ac-activities__track>.reveal:nth-child(4) {
-  --reveal-delay: .46s;
-}
-
-.ac-families.is-visible .ac-family-decor,
-.ac-families.is-visible .ac-family>.reveal:nth-child(2) {
-  --reveal-delay: .16s;
-}
-
-.ac-families.is-visible .ac-family>.reveal:nth-child(3) {
-  --reveal-delay: .28s;
-}
-
-.ac-families.is-visible .ac-family>.reveal:nth-child(4) {
-  --reveal-delay: .38s;
-}
-
-.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(1) {
-  --reveal-delay: .08s;
-}
-
-.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(2) {
-  --reveal-delay: .16s;
-}
-
-.ac-gallery.is-visible .ac-gallery__controls .reveal:nth-child(3) {
-  --reveal-delay: .24s;
-}
-
-.ac-date__top>.reveal--slide-left,
-.ac-date__top>.reveal--slide-right {
-  transition-delay: .18s !important;
-}
-
-.ac-date__top>.reveal--slide-left {
-  transform: translate3d(-28px, 0, 0) !important;
-}
-
-.ac-date__top>.reveal--slide-right {
-  transform: translate3d(28px, 0, 0) !important;
-}
-
-.ac-date__top>.reveal--zoom-in {
-  transform: scale(.82) !important;
-  transition-delay: .28s !important;
-}
-
-.ac-event.is-visible .ac-date__top>.reveal--slide-left,
-.ac-event.is-visible .ac-date__top>.reveal--slide-right,
-.ac-event.is-visible .ac-date__top>.reveal--zoom-in {
-  transform: none !important;
-}
-
-.ac-families.is-visible .ac-floral--family.reveal,
-.ac-countdown.is-visible .ac-floral--countdown.reveal,
-.ac-venue.is-visible .ac-floral--venue.reveal {
-  opacity: 0.6 !important;
+.ac-invitation [data-motion-variant='zoom-in'] {
+  transform: scale(.82);
 }
 
 /* Compact opening CTA and preserve the champagne frame on narrow screens. */

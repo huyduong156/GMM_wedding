@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useAnimate, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, CaretLeft, CaretRight, HandTap, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
@@ -7,7 +8,7 @@ import { MusicPlayer, type MusicPlayerHandle } from '../../../shared/ui/music-pl
 import { AstralOpeningCard } from './AstralOpeningCard'
 import type { AstralVowData, AstralVowSectionConfig, AstralVowSectionKey } from './AstralVowTypes'
 import { astralVowFixture, astralVowSectionConfig } from './fixture'
-import '../../../shared/styles/reveal-animations.css'
+import '../../../shared/styles/template-motion.css'
 import './astral-vow.css'
 
 export type { AstralVowData, AstralVowSectionConfig, AstralVowSectionKey }
@@ -21,10 +22,11 @@ const keys = astralVowSectionConfig.order
 const required = new Set<AstralVowSectionKey>(['opening', 'cover', 'invitation', 'families', 'footer'])
 const src = (value: string | { src: string } | null | undefined) => typeof value === 'string' ? value : value?.src ?? ''
 const withGuest = (value: string | null | undefined, guest?: string | null) => (value ?? '').replaceAll('{guestName}', guest?.trim() || 'Quý khách')
+const ASTRAL_MOTION = { duration: 1.67, stagger: 0.08, listStagger: 0.5, ease: [0.22, 1, 0.36, 1] as const }
 
 function AstralSection({ sectionKey, className = '', children, active, order, style }: { sectionKey: AstralVowSectionKey; className?: string; children: ReactNode; active: Set<AstralVowSectionKey>; order: AstralVowSectionKey[]; style?: CSSProperties }) {
   if (!active.has(sectionKey)) return null
-  return <section className={`av-section av-reveal ${className}`} data-editor-section={sectionKey} tabIndex={-1} style={{ order: order.indexOf(sectionKey), ...style } as CSSProperties}>{children}</section>
+  return <section className={`av-section ${className}`} data-editor-section={sectionKey} tabIndex={-1} style={{ order: order.indexOf(sectionKey), ...style } as CSSProperties}>{children}</section>
 }
 
 function getClock(date: string, time: string) {
@@ -37,47 +39,58 @@ function getClock(date: string, time: string) {
 
 export function AstralVowInvitation({ data, sectionConfig, editorMode = false, guestName, interactions }: { data?: AstralVowData; sectionConfig?: AstralVowSectionConfig; editorMode?: boolean; guestName?: string | null; interactions?: PublicInteractions }) {
   const content = { ...astralVowFixture, ...data, couple: { ...astralVowFixture.couple, ...data?.couple }, event: { ...astralVowFixture.event, ...data?.event }, opening: { ...astralVowFixture.opening, ...data?.opening }, cover: { ...astralVowFixture.cover, ...data?.cover }, invitation: { ...astralVowFixture.invitation, ...data?.invitation }, families: { ...astralVowFixture.families, ...data?.families }, timeline: { ...astralVowFixture.timeline, ...data?.timeline }, venue: { ...astralVowFixture.venue, ...data?.venue }, gallery: { ...astralVowFixture.gallery, ...data?.gallery }, rsvp: { ...astralVowFixture.rsvp, ...data?.rsvp }, guestbook: { ...astralVowFixture.guestbook, ...data?.guestbook }, gift: { ...astralVowFixture.gift, ...data?.gift }, music: { ...astralVowFixture.music, ...data?.music }, footer: { ...astralVowFixture.footer, ...data?.footer } }
-  const rootRef = useRef<HTMLElement>(null)
+  const [motionScope, animate] = useAnimate()
+  const reducedMotion = useReducedMotion()
   const musicPlayerRef = useRef<MusicPlayerHandle>(null)
   const [opened, setOpened] = useState(false); const [openingComplete, setOpeningComplete] = useState(false); const [pageHidden, setPageHidden] = useState(false); const [, setTick] = useState(0); const [choice, setChoice] = useState<'ATTENDING' | 'DECLINED' | null>(null); const [rsvpName, setRsvpName] = useState(''); const [rsvpError, setRsvpError] = useState(''); const [rsvpDone, setRsvpDone] = useState(false); const [wishName, setWishName] = useState(''); const [wish, setWish] = useState(''); const [wishError, setWishError] = useState(''); const [wishDone, setWishDone] = useState(false); const [galleryIndex, setGalleryIndex] = useState(0); const [giftOpen, setGiftOpen] = useState(false)
   useSmoothTemplateScroll(opened && openingComplete)
   useEffect(() => { const id = window.setInterval(() => setTick((value) => value + 1), 1000); return () => window.clearInterval(id) }, [])
   useEffect(() => { if (opened) window.setTimeout(() => document.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus(), 650) }, [opened])
   useEffect(() => {
-    const root = rootRef.current
+    const root = motionScope.current as HTMLElement | null
     if (!root || (!opened && !editorMode)) return
     const sections = Array.from(root.querySelectorAll<HTMLElement>('[data-editor-section]:not([data-music-player])'))
-    const revealSelector = 'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select,img,iframe,article'
+    const motionSelector = 'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select,img,iframe,article'
     sections.forEach((section) => {
-      section.querySelectorAll<HTMLElement>(revealSelector).forEach((element, index) => {
+      section.querySelectorAll<HTMLElement>(motionSelector).forEach((element, index) => {
         if (element.matches('.av-gift > .av-eclipse')) return
         if (element.closest('.av-opening-card')) return
-        element.classList.add('reveal')
-        if (element.matches('.av-gallery-deck figure, .av-gallery-deck img, .av-gift-panel, .av-gift-panel img, .av-gift > .av-eclipse')) {
-          element.classList.add('reveal--fade-only')
-        } else {
-          element.classList.add(index % 3 === 0 ? 'reveal--fade-up' : index % 3 === 1 ? 'reveal--slide-left' : 'reveal--zoom-in')
-        }
-        element.style.setProperty('--reveal-delay', Math.min(index * 0.12, 1.1).toFixed(2) + 's')
+        element.dataset.motionVariant = element.matches('.av-gallery-deck figure, .av-gallery-deck img, .av-gift-panel, .av-gift-panel img')
+          ? 'fade-only'
+          : index % 3 === 0 ? 'fade-up' : index % 3 === 1 ? 'slide-left' : 'zoom-in'
       })
     })
+    const markVisible = (section: HTMLElement) => {
+      section.dataset.motionVisible = 'true'
+      Array.from(section.querySelectorAll<HTMLElement>('[data-motion-variant]')).forEach((element, index) => {
+        const variant = element.dataset.motionVariant
+        const listParent = element.parentElement
+        const listIndex = listParent?.matches('.av-timeline, .av-family-grid, .av-countdown > div, .av-gallery-dots')
+          ? Array.from(listParent.children).indexOf(element)
+          : -1
+        void animate(element, variant === 'fade-only' ? { opacity: 1 } : { opacity: 1, x: 0, y: 0, scale: 1 }, {
+          duration: reducedMotion ? 0 : ASTRAL_MOTION.duration,
+          delay: reducedMotion ? 0 : listIndex >= 0 ? listIndex * ASTRAL_MOTION.listStagger : Math.min(index * ASTRAL_MOTION.stagger, 1.1),
+          ease: ASTRAL_MOTION.ease,
+        })
+      })
+    }
     if (!('IntersectionObserver' in window)) {
-      sections.forEach((section) => section.classList.add('is-visible', 'is-in-view'))
+      sections.forEach(markVisible)
       return
     }
-    const markVisible = (section: Element) => section.classList.add('is-visible', 'is-in-view')
     sections.filter((section) => section.getBoundingClientRect().top < window.innerHeight * 0.67).forEach(markVisible)
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => {
         if (!entry.isIntersecting) return
-        markVisible(entry.target)
+        markVisible(entry.target as HTMLElement)
         observer.unobserve(entry.target)
       }),
       { rootMargin: '0px 0px -33% 0px', threshold: 0.01 },
     )
-    sections.filter((section) => !section.classList.contains('is-visible')).forEach((section) => observer.observe(section))
+    sections.filter((section) => section.getBoundingClientRect().top >= window.innerHeight * 0.67).forEach((section) => observer.observe(section))
     return () => observer.disconnect()
-  }, [opened, openingComplete])
+  }, [animate, editorMode, motionScope, opened, openingComplete, reducedMotion])
   useEffect(() => {
     const sync = () => setPageHidden(document.visibilityState === 'hidden')
     sync(); document.addEventListener('visibilitychange', sync)
@@ -106,7 +119,7 @@ export function AstralVowInvitation({ data, sectionConfig, editorMode = false, g
   const handleOpen = () => { setOpened(true); if (!editorMode && active.has('music') && content.music?.backgroundMusicAutoplay && content.music.backgroundMusicUrl) void musicPlayerRef.current?.play() }
   const submitRsvp = async () => { if (!choice || interactions?.rsvp.submitting) return; const name = connectedGuestName || rsvpName.trim(); if (!name) { setRsvpError('Vui lòng nhập tên trước khi xác nhận phản hồi.'); return }; setRsvpError(''); const accepted = await interactions?.rsvp.submit({ guestName: interactions?.isPersonalized ? undefined : name, attendance: choice, partySize: 1 }); if (accepted !== false) { setRsvpDone(true); setRsvpName('') } }
   const submitWish = async () => { const name = connectedGuestName || wishName.trim(); const message = wish.trim(); if (!name) { setWishError('Vui lòng nhập tên trước khi gửi lời chúc.'); return }; if (!message) { setWishError('Vui lòng nhập lời chúc.'); return }; if (interactions?.wishes.submitting) return; setWishError(''); const accepted = await interactions?.wishes.submit({ guestName: interactions?.isPersonalized ? undefined : name, content: message }); if (accepted !== false) { setWishDone(true); setWishName(''); setWish('') } }
-  return <main ref={rootRef} className={`av-page ${opened ? 'is-opened' : ''} ${pageHidden ? 'is-page-hidden' : ''}`}><div className="av-stars" aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} style={{ '--x': `${index * 53 % 100}%`, '--y': `${index * 71 % 100}%`, '--delay': `${(index * 1.7) % 12}s` } as CSSProperties}/>)}</div>{active.has('music') && (content.music?.backgroundMusicUrl || editorMode) && <MusicPlayer ref={musicPlayerRef} src={content.music?.backgroundMusicUrl} title={content.music?.backgroundMusicName || 'Nhạc nền'} autoplay={content.music?.backgroundMusicAutoplay} active={opened && active.has('music')} editorMode={editorMode} />}{openingComplete && <FallingStars target=".av-page" className="av-page-stars" />}
+  return <main ref={motionScope} className={`av-page ${opened ? 'is-opened' : ''} ${pageHidden ? 'is-page-hidden' : ''}`}><div className="av-stars" aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} style={{ '--x': `${index * 53 % 100}%`, '--y': `${index * 71 % 100}%`, '--delay': `${(index * 1.7) % 12}s` } as CSSProperties}/>)}</div>{active.has('music') && (content.music?.backgroundMusicUrl || editorMode) && <MusicPlayer ref={musicPlayerRef} src={content.music?.backgroundMusicUrl} title={content.music?.backgroundMusicName || 'Nhạc nền'} autoplay={content.music?.backgroundMusicAutoplay} active={opened && active.has('music')} editorMode={editorMode} />}{openingComplete && <FallingStars target=".av-page" className="av-page-stars" />}
     {!openingComplete && <AstralOpeningCard className="av-opening-card" brideName={content.couple?.brideName ?? ''} groomName={content.couple?.groomName ?? ''} date={content.event?.weddingDate} venue={content.event?.venueName} eyebrow={withGuest(content.opening?.title ?? '', guest)} note={withGuest(content.opening?.message ?? '', guest)} leftDecorationSrc={artwork.openingHalos} rightDecorationSrc={artwork.openingRibbon} openLabel="Mở thiệp" openedLabel="Thiệp đã mở" isOpen={false} isOpening={opened && !openingComplete} onOpen={handleOpen} sectionKey="opening" />}
     {(openingComplete || editorMode) && <div className="av-canvas"><div className="av-content">
       <AstralSection active={active} order={order} sectionKey="cover" className="av-cover"><img className="av-cover-frame" src={art} alt=""/><div className="av-cover-astral-rings" aria-hidden="true"><div/><div/><div/><div className="av-cover-rays"><i/><i/><i/><i/></div><i className="av-cover-sun"/></div><span className="av-label">{withGuest(content.cover?.eyebrow ?? '', guest)}</span><h2>{content.couple?.brideName}<b>&</b>{content.couple?.groomName}</h2><p className="av-cover-slogan">{withGuest(content.cover?.title ?? '', guest)}</p><p>{content.event?.weddingDate}</p></AstralSection>

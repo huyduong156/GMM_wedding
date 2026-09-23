@@ -1,0 +1,34 @@
+/* Shared entrance primitives. Motion owns the final inline state. */
+[data-motion-variant] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+[data-motion-variant='fade-up'],
+[data-motion-variant='slide-up'],
+[data-motion-variant='zoom-in'] {
+  transform: translate3d(0, 16px, 0) scale(.985);
+}
+
+[data-motion-variant='slide-left'] {
+  transform: translate3d(-16px, 0, 0) scale(.985);
+}
+
+[data-motion-variant='slide-right'] {
+  transform: translate3d(16px, 0, 0) scale(.985);
+}
+
+[data-motion-variant='fade-only'] {
+  will-change: opacity;
+}
+
+[data-motion-visible='true'] [data-motion-variant] {
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-variant] {
+    opacity: 1;
+    transform: none;
+  }
+}

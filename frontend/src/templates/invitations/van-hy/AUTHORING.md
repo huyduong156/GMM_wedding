@@ -380,7 +380,7 @@ Status: **Complete — motion, interaction and browser smoke validation complete
 | Technique | Sections | UX purpose | Trigger / fallback | Budget |
 | --- | --- | --- | --- | --- |
 | Full-screen card exit choreography | `opening` | Makes opening feel like a real Hỷ card ritual | Tap/Enter/Space; 760ms; static open state for reduced motion | 4 decor nodes plus card transform |
-| Viewport entrance reveal | All body sections | Establishes reading order without hiding content permanently | IntersectionObserver once per section; content remains visible if observer is unavailable | Transform/opacity only, one observer |
+| Viewport entrance reveal | All body sections | Establishes reading order without hiding content permanently | `motion/react` viewport state, one-time per section; content is visible instantly under reduced motion | Transform/opacity only; decorative layers retain their own CSS transforms |
 | CSS 3D depth | `cover` | Gives the red poster a layered paper-plane depth | Static 2D fallback; no pointer lock or scroll hijack | No JS frame loop |
 | Approved decor drift | Opening flower pair and cover fan | Keeps renderer-owned artwork alive while invitation is visible | CSS transform/opacity loop; pauses through reduced-motion rule | 3 artwork files, low opacity |
 | CTA press/focus feedback | RSVP, guestbook, gift, map and music controls | Confirms touch/keyboard action | Native focus and `:active`; no hover dependency | Under 180ms |
@@ -388,7 +388,7 @@ Status: **Complete — motion, interaction and browser smoke validation complete
 ### Motion choreography and accessibility
 
 - Opening uses `ease-out` for the card exit and paired opacity/transform timing; it never blocks the invitation for more than 760ms.
-- Body sections use a once-only `IntersectionObserver` and a 650–750ms ease-out reveal. The observer is disconnected on unmount.
+- Body sections use one-time Motion viewport entrance with the local 1.92s ease-out token; timeline and wish cards use the shared 0.5s list stagger.
 - The cover uses CSS perspective and `translateZ` for depth only; native scrolling remains untouched and mobile has a 2D fallback.
 - Artwork movement uses transform/opacity only. No layout properties, persistent blur animation or uncontrolled requestAnimationFrame loop is used.
 - `prefers-reduced-motion: reduce` removes opening, reveal, fan drift and depth transforms while preserving every heading, CTA, form and artwork identity.
@@ -397,7 +397,7 @@ Status: **Complete — motion, interaction and browser smoke validation complete
 ### Phase 4 acceptance checklist
 
 - [x] Technique map, motion choreography, interaction behavior and performance budget are recorded.
-- [x] Opening, viewport reveal, ambient decor drift, CTA feedback and CSS 3D depth are implemented.
+- [x] Opening, Motion viewport entrance, ambient decor drift, CTA feedback and CSS 3D depth are implemented.
 - [x] Approved renderer-owned artwork is referenced only from renderer decor layers, never from editable media fields.
 - [x] Native scroll, touch and keyboard fallbacks remain available.
 - [x] Reduced-motion fallback disables spatial/ambient motion while preserving content and identity.
