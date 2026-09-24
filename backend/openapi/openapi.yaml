@@ -260,6 +260,16 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      summary: Return the platform administration dashboard overview
+      security:
+        - cookieAuth: []
+      responses:
+        '200': { description: Platform metrics and recent audit activity }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /admin/users:
     get:
       operationId: listAdminUsers
@@ -2176,7 +2186,7 @@ paths:
   /weddings/{weddingId}/media/{mediaId}/upload:
     put:
       operationId: uploadLocalFakeMedia
-      summary: Upload bytes to the local fake-storage adapter
+      summary: Upload image bytes to the backend for WebP conversion
       security: [{ cookieAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/WeddingId'
@@ -2188,7 +2198,6 @@ paths:
           image/jpeg: { schema: { type: string, contentEncoding: binary } }
           image/png: { schema: { type: string, contentEncoding: binary } }
           image/webp: { schema: { type: string, contentEncoding: binary } }
-          image/gif: { schema: { type: string, contentEncoding: binary } }
       responses:
         '200': { description: Bytes accepted }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -2209,6 +2218,41 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
   /weddings/{weddingId}/media/{mediaId}:
+    get:
+      operationId: getWeddingMedia
+      summary: Get one wedding media asset
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/WeddingId'
+        - $ref: '#/components/parameters/MediaId'
+      responses:
+        '200': { description: Media asset detail }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateWeddingMediaMetadata
+      summary: Update wedding media metadata
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/WeddingId'
+        - $ref: '#/components/parameters/MediaId'
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/CsrfProtection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                altText:
+                  type: [string, 'null']
+                  maxLength: 500
+              minProperties: 1
+      responses:
+        '200': { description: Updated media asset }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
     delete:
       operationId: deleteWeddingMedia
       summary: Soft-delete a wedding media asset and remove its object

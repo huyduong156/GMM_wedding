@@ -966,10 +966,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
             },
           })
           if (claimed.count !== 1) throw new WeddingContentConflictError()
-
-          // Saving creates a new draft only. Keep the live immutable snapshot
-          // reachable until the owner explicitly publishes this revision or
-          // unpublishes the surface.
         } else {
           await tx.weddingContent.create({
             data: {
@@ -985,6 +981,13 @@ export class PrismaWeddingRepository implements WeddingRepository {
             },
           })
         }
+
+        // Saving content invalidates the live snapshot for this surface. The
+        // next publish must explicitly create a new immutable snapshot.
+        await tx.publishedWeddingSnapshot.updateMany({
+          where: { weddingId, surface: data.surface, unpublishedAt: null },
+          data: { unpublishedAt: new Date() },
+        })
       })
     } catch (error) {
       if (
@@ -1093,7 +1096,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
       const snapshot = await this.prisma.$transaction(async (tx) => {
         const claimed = await tx.weddingContent.updateMany({
           where: { id: content.id, surface: data.surface, revision: data.revision },
-          data: { status: 'PUBLISHED', publishedAt: new Date(), revision: { increment: 1 } },
+          // Publication changes lifecycle state, not the editable content
+          // revision. Keeping the revision stable lets the editor continue
+          // editing immediately after publishing without a false conflict.
+          data: { status: 'PUBLISHED', publishedAt: new Date() },
         })
         if (claimed.count !== 1) throw new WeddingPublishConflictError()
         await tx.publishedWeddingSnapshot.updateMany({
@@ -1117,10 +1123,6 @@ export class PrismaWeddingRepository implements WeddingRepository {
             rendererApiVersion: templateVersion.rendererApiVersion,
           },
           include: { templateVersion: { include: { template: true } } },
-        })
-        await tx.wedding.update({
-          where: { id: weddingId },
-          data: { status: 'PUBLISHED', publishedAt: new Date() },
         })
         return created
       })
@@ -1153,19 +1155,8 @@ export class PrismaWeddingRepository implements WeddingRepository {
       })
       await tx.weddingContent.updateMany({
         where: { weddingId, surface, status: 'PUBLISHED' },
-        data: { status: 'DRAFT', revision: { increment: 1 } },
+        data: { status: 'DRAFT' },
       })
-      const otherLive = await tx.publishedWeddingSnapshot.count({
-        where: { weddingId, surface: { not: surface }, unpublishedAt: null },
-      })
-      const liveRecap = await tx.publishedRecapSnapshot.count({
-        where: { content: { weddingId }, unpublishedAt: null },
-      })
-      if (otherLive === 0 && liveRecap === 0)
-        await tx.wedding.update({
-          where: { id: weddingId },
-          data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
-        })
     })
     return true
   }
@@ -1185,7 +1176,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
       where: {
         surface,
         unpublishedAt: null,
-        wedding: { slug, status: 'PUBLISHED', deletedAt: null },
+        wedding: { slug, visibility: 'PUBLIC', deletedAt: null },
       },
       include: { templateVersion: { include: { template: true } } },
       orderBy: { version: 'desc' },

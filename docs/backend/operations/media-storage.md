@@ -6,9 +6,10 @@ Backend dùng `ObjectStorage` làm boundary. Local/test mặc định dùng `Fak
 
 Fake flow dùng:
 
-1. `POST /weddings/{weddingId}/media/upload-intents` tạo `MediaAsset(PENDING_UPLOAD)`.
-2. `PUT /weddings/{weddingId}/media/{mediaId}/upload` ghi bytes vào fake storage.
-3. `POST /weddings/{weddingId}/media/{mediaId}/complete` kiểm tra object tồn tại và chuyển sang `READY`.
+1. `POST /weddings/{weddingId}/media/upload-intents` tạo `MediaAsset(PENDING_UPLOAD)` và backend upload intent.
+2. `PUT /weddings/{weddingId}/media/{mediaId}/upload` nhận bytes ảnh tại backend; backend xác thực nội dung, chuyển JPEG/PNG/WebP sang WebP bằng `sharp`, rồi chỉ ghi file WebP vào object storage. Ảnh gốc không được lưu.
+3. `POST /weddings/{weddingId}/media/{mediaId}/complete` kiểm tra object WebP tồn tại và chuyển sang `READY`.
+4. `GET /weddings/{weddingId}/media` liệt kê media; `GET/PATCH /weddings/{weddingId}/media/{mediaId}` xem chi tiết hoặc cập nhật `altText`; `DELETE` soft-delete metadata và xóa object storage.
 
 Không publish asset nếu chưa `READY`. S3 adapter hiện là boundary chưa gắn SDK/provider cụ thể; không được dùng `MEDIA_STORAGE_DRIVER=s3` cho tới khi adapter được cấu hình.
 

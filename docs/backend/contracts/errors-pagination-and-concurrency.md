@@ -41,6 +41,7 @@ Error code là machine-readable contract; message có thể localization. Mappin
 - Editable aggregate có `revision` tăng đơn điệu hoặc ETag mạnh.
 - Client gửi `If-Match`/revision cho mutation có nguy cơ lost update.
 - Mismatch trả `409` hoặc `412` theo convention được khóa trong OpenAPI, kèm revision hiện tại tối thiểu nếu an toàn.
+- Publish/unpublish chỉ đổi lifecycle/publication state; không tăng revision của nội dung editable. Vì vậy editor có thể tiếp tục sửa ngay sau khi publish mà không nhận conflict giả.
 - Không dùng last-write-wins cho content/editor, publish state hoặc dữ liệu nhạy cảm.
 
 ## Idempotency

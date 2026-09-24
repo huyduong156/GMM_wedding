@@ -21,6 +21,12 @@ describe('PrismaWeddingRepository.saveContentOwned', () => {
       weddingContent: {
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },
+      publishedWeddingSnapshot: {
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+        count: vi.fn(),
+      },
+      publishedRecapSnapshot: { count: vi.fn() },
+      wedding: { update: vi.fn() },
     }
     const prisma = {
       wedding: {
