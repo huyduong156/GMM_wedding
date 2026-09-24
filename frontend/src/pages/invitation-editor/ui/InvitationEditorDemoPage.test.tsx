@@ -176,6 +176,15 @@ describe('InvitationEditorLivePage', () => {
         },
       },
     })
+    vi.spyOn(weddingApi, 'dashboard').mockResolvedValue({
+      dashboard: {
+        publication: {
+          invitation: { configured: true, published: false, slug: wedding.slug, templateName: null, templateVersion: null, views: null },
+          website: { configured: false, published: false, slug: null, templateName: null, templateVersion: null, views: null },
+          recap: { configured: false, published: false, slug: null, views: null },
+        },
+      },
+    } as never)
 
     render(
       <NavigationProvider>

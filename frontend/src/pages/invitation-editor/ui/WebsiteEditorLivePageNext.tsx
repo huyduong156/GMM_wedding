@@ -313,6 +313,8 @@ export function WebsiteEditorLivePageNext() {
         revision,
       })
       setRevision(result.content.revision)
+      const dashboard = await weddingApi.dashboard(weddingId)
+      setPublished(dashboard.dashboard.publication.website.published)
       baseline.current = signature(data, order, enabled, theme)
       setDirty(false)
       setNotice('Đã lưu thay đổi website.')

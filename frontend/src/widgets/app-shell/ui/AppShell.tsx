@@ -95,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isCollapsed, setCollapsed] = useState(false)
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const [pendingWeddingId, setPendingWeddingId] = useState<string | null>(null)
+  const [collaboratorNoticeOpen, setCollaboratorNoticeOpen] = useState(false)
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
@@ -124,6 +125,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     : weddingCountdown.complete
       ? 'Ngày cưới đã diễn ra'
       : `Còn ${weddingCountdown.days} ngày đến lễ cưới`
+
+  useEffect(() => {
+    const wedding = weddingWorkspace?.activeWedding
+    const role = weddingWorkspace?.activeRole
+    if (!wedding || !role || role === 'OWNER' || (weddingWorkspace?.weddings.length ?? 0) < 2) {
+      setCollaboratorNoticeOpen(false)
+      return
+    }
+
+    const acknowledged = sessionStorage.getItem(`gmm-collaborator-wedding-notice:${wedding.id}`)
+    setCollaboratorNoticeOpen(!acknowledged)
+  }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding?.id, weddingWorkspace?.weddings.length])
 
   useEffect(() => setSidebarOpen(false), [pathname])
 
@@ -419,6 +432,60 @@ export function AppShell({ children }: { children: ReactNode }) {
                 }}
               >
                 Chuyển Wedding
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+      {collaboratorNoticeOpen && currentWedding && weddingWorkspace?.activeRole !== 'OWNER' ? (
+        <div className="workspace-dialog-backdrop" role="presentation">
+          <section
+            className="workspace-dialog collaborator-wedding-notice-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="collaborator-wedding-notice-title"
+          >
+            <header>
+              <div>
+                <h2 id="collaborator-wedding-notice-title">Bạn đang làm việc trong Wedding khác</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  setCollaboratorNoticeOpen(false)
+                }}
+                aria-label="Đóng thông báo"
+              >
+                <X size={18} />
+              </button>
+            </header>
+            <p>
+              Bạn đang thao tác trên Wedding của <strong>{currentWedding.name}</strong> với vai trò{' '}
+              <strong>{weddingWorkspace.activeRole === 'EDITOR' ? 'Biên tập viên' : 'Chỉ xem'}</strong>.
+            </p>
+            <p>Hãy kiểm tra đúng Wedding trước khi tiếp tục để tránh chỉnh sửa nhầm dữ liệu.</p>
+            <footer>
+              <button
+                type="button"
+                className="button button-secondary"
+                onClick={() => {
+                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  setCollaboratorNoticeOpen(false)
+                }}
+              >
+                Đã biết
+              </button>
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={() => {
+                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  setCollaboratorNoticeOpen(false)
+                  setSwitcherOpen(true)
+                }}
+              >
+                Đổi ngay
               </button>
             </footer>
           </section>

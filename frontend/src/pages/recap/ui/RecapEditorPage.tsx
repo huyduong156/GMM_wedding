@@ -1758,6 +1758,8 @@ export function RecapEditorPage() {
           ? mergeContent(result.recap.content)
           : (result.recap.content as unknown as RedSpiderLilyRecapContent),
       )
+      const dashboard = await weddingApi.dashboard(wedding.id)
+      setPublished(dashboard.dashboard.publication.recap.published)
       setSaved(true)
       notifications.fire({
         toast: true,

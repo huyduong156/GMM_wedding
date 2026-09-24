@@ -453,6 +453,8 @@ export function InvitationEditorLivePage() {
         revision: contentRevision,
       })
       setContentRevision(saved.content.revision)
+      const dashboard = await weddingApi.dashboard(activeWedding.id)
+      setSurfacePublished(dashboard.dashboard.publication.invitation.published)
       baselineRef.current = editorSignature(data, palette, order, enabled)
       setDirty(false)
       setSaveMessage(
