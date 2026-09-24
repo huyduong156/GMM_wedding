@@ -21,7 +21,6 @@ export class PublicInteractionService {
         unpublishedAt: null,
         wedding: {
           slug,
-          status: 'PUBLISHED',
           deletedAt: null,
           ...(requirePublic ? { visibility: 'PUBLIC' as const } : {}),
         },

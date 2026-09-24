@@ -69,6 +69,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | POST | `/auth/reset-password` | Reset token | Implemented | Đặt mật khẩu mới, revoke toàn bộ session |
 | GET | `/me` | Session | Implemented | Lấy profile/actor hiện tại |
 | GET | `/admin/me` | Platform admin session | Implemented | Xác nhận actor và assurance cho admin shell |
+| GET | `/admin/dashboard` | Platform admin session | Implemented | Tổng quan users, weddings, templates, media và audit activity |
 | GET | `/admin/users` | Platform admin session | Implemented | Danh sách user, tìm kiếm/lọc/phân trang và summary trạng thái |
 | GET | `/admin/users/{userId}` | Platform admin session | Implemented | Chi tiết user và system roles đang hiệu lực |
 | PATCH | `/admin/users/{userId}` | Platform admin + CSRF | Implemented | Cập nhật trạng thái user hoặc tập system role; ghi audit và bảo vệ admin cuối cùng |

@@ -190,22 +190,13 @@ export class RecapService {
 
         // A saved edit is a draft, so the previously published recap must no
         // longer be reachable. Publishing later creates the next snapshot.
-        const unpublished = await tx.publishedRecapSnapshot.updateMany({
+        await tx.publishedRecapSnapshot.updateMany({
           where: {
             content: { weddingId, surface: 'RECAP' },
             unpublishedAt: null,
           },
           data: { unpublishedAt: new Date() },
         })
-        const liveWedding = await tx.publishedWeddingSnapshot.count({
-          where: { weddingId, unpublishedAt: null },
-        })
-        if (unpublished.count > 0 && liveWedding === 0) {
-          await tx.wedding.update({
-            where: { id: weddingId },
-            data: { status: 'DRAFT', publishedAt: null, revision: { increment: 1 } },
-          })
-        }
         await tx.recapMediaItem.deleteMany({
           where: {
             contentId:
@@ -364,10 +355,6 @@ export class RecapService {
           },
           include: { templateVersion: { include: { template: true } } },
         })
-        await tx.wedding.update({
-          where: { id: weddingId },
-          data: { status: 'PUBLISHED', publishedAt: new Date() },
-        })
         return snapshot
       })
       return this.snapshotView(created)
@@ -412,17 +399,6 @@ export class RecapService {
           where: { contentId: recap.id, unpublishedAt: null },
           data: { unpublishedAt: new Date() },
         })
-        const liveWedding = await tx.publishedWeddingSnapshot.count({
-          where: { weddingId, unpublishedAt: null },
-        })
-        const liveRecap = await tx.publishedRecapSnapshot.count({
-          where: { contentId: recap.id, unpublishedAt: null },
-        })
-        if (liveWedding === 0 && liveRecap === 0)
-          await tx.wedding.update({
-            where: { id: weddingId },
-            data: { status: 'DRAFT', publishedAt: null },
-          })
       })
     } catch (error) {
       if (error instanceof RecapRevisionConflictError)
@@ -439,7 +415,7 @@ export class RecapService {
     const row = await this.prisma.publishedRecapSnapshot.findFirst({
       where: {
         unpublishedAt: null,
-        content: { wedding: { slug, status: 'PUBLISHED', visibility: 'PUBLIC', deletedAt: null } },
+        content: { wedding: { slug, visibility: 'PUBLIC', deletedAt: null } },
       },
       include: { templateVersion: { include: { template: true } } },
       orderBy: { version: 'desc' },

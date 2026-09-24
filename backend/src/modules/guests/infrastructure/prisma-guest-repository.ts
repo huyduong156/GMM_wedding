@@ -659,7 +659,7 @@ export class PrismaGuestRepository implements GuestRepository {
   }
   async resolvePublicGuestLink(weddingSlug: string, guestSlug: string): Promise<PublicGuestLinkView | null> {
     const row = await this.prisma.guest.findFirst({
-      where: { slug: guestSlug, deletedAt: null, wedding: { slug: weddingSlug, status: 'PUBLISHED', deletedAt: null, snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } } } },
+      where: { slug: guestSlug, deletedAt: null, wedding: { slug: weddingSlug, visibility: 'PUBLIC', deletedAt: null, snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } } } },
       select: { slug: true, maxPartySize: true, name: true, displayName: true },
     })
     if (!row) return null
