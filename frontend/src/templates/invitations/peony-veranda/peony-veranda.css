@@ -572,62 +572,6 @@
   object-fit: contain;
   opacity: 0.55;
 }
-.pv-slide > * {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 620ms cubic-bezier(0.19, 1, 0.22, 1),
-    transform 620ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-.pv-slide.is-visible > * {
-  opacity: 1;
-  transform: none;
-}
-.pv-slide.is-visible > img {
-  transition-delay: 80ms;
-}
-.pv-slide.is-visible > span {
-  transition-delay: 110ms;
-}
-.pv-slide.is-visible > h2 {
-  transition-delay: 160ms;
-}
-.pv-slide.is-visible > p {
-  transition-delay: 220ms;
-}
-.pv-slide.is-visible > .pv-detail,
-.pv-slide.is-visible > .pv-actions,
-.pv-slide.is-visible > .pv-gallery-stage,
-.pv-slide.is-visible > .pv-calendar-card,
-.pv-slide.is-visible > .pv-program-list,
-.pv-slide.is-visible > .pv-activity-grid,
-.pv-slide.is-visible > .pv-wish-form {
-  transition-delay: 280ms;
-}
-.pv-program-list article,
-.pv-activity-grid article,
-.pv-note-grid article {
-  opacity: 0;
-  transform: translateX(-22px);
-  transition:
-    opacity 520ms cubic-bezier(0.19, 1, 0.22, 1),
-    transform 520ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-.pv-slide.is-visible .pv-program-list article,
-.pv-slide.is-visible .pv-activity-grid article,
-.pv-slide.is-visible .pv-note-grid article {
-  opacity: 1;
-  transform: none;
-}
-.pv-slide.is-visible .pv-program-list article:nth-child(2),
-.pv-slide.is-visible .pv-activity-grid article:nth-child(2),
-.pv-slide.is-visible .pv-note-grid article:nth-child(2) {
-  transition-delay: 100ms;
-}
-.pv-slide.is-visible .pv-program-list article:nth-child(3),
-.pv-slide.is-visible .pv-activity-grid article:nth-child(3) {
-  transition-delay: 180ms;
-}
 .pv-gallery-stage img {
   transition:
     opacity 280ms ease,
@@ -686,19 +630,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-slide > *,
-  .pv-slide.is-visible > *,
-  .pv-program-list article,
-  .pv-activity-grid article,
-  .pv-note-grid article,
-  .pv-opening-card,
-  .pv-opening-card h1,
-  .pv-gallery-stage img {
-    opacity: 1;
-    transform: none;
-    transition: none;
-    animation: none;
-  }
 }
 
 /* Phase 4: approved artwork choreography, ambient motion, depth and parallax */
@@ -792,9 +723,6 @@
 .pv-gallery-stage img {
   transform: translateZ(18px);
 }
-.pv-slide.is-visible .pv-gallery-stage img {
-  animation: pv-gallery-in 850ms cubic-bezier(0.19, 1, 0.22, 1) 260ms both;
-}
 @keyframes pv-bg-breathe {
   from {
     background-position: 0% 25%;
@@ -881,20 +809,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-page,
-  .pv-page:before,
-  .pv-veil,
-  .pv-hero-flower,
-  .pv-banner > img:first-child,
-  .pv-banner > img:last-child,
-  .pv-couple > img,
-  .pv-map-art img,
-  .pv-reception > img,
-  .pv-footer > img,
-  .pv-slide:after,
-  .pv-slide.is-visible .pv-gallery-stage img {
-    animation: none;
-  }
   .pv-families-grid article:hover,
   .pv-activity-grid article:hover,
   .pv-calendar-card:hover,
@@ -1064,14 +978,8 @@
   transform: translateX(-28px);
   transition-delay: 120ms;
 }
-.pv-banner.is-visible > div {
-  transform: none;
-}
 .pv-banner > img:first-child {
   transform: translate3d(0, calc(var(--pv-scroll) * -0.45), 0) rotate(-18deg) scale(0.94);
-}
-.pv-banner.is-visible > img:first-child {
-  transform: translate3d(0, calc(var(--pv-scroll) * -0.45), 0) rotate(-16deg) scale(1);
 }
 .pv-announcement > img {
   transform: scaleX(0.2);
@@ -1086,13 +994,6 @@
   transform: translateX(28px);
   transition-delay: 220ms;
 }
-.pv-announcement.is-visible > img {
-  transform: scaleX(1);
-}
-.pv-announcement.is-visible > h2,
-.pv-announcement.is-visible > p {
-  transform: none;
-}
 .pv-families-grid article {
   opacity: 0;
   transform: translateX(-34px) rotateY(-4deg);
@@ -1103,23 +1004,12 @@
 .pv-families-grid article:nth-child(3) {
   transform: translateX(34px) rotateY(4deg);
 }
-.pv-families.is-visible .pv-families-grid article {
-  opacity: 1;
-  transform: none;
-}
-.pv-families.is-visible .pv-families-grid article:nth-child(3) {
-  transition-delay: 90ms;
-}
 .pv-families-grid > b {
   opacity: 0;
   transform: scale(0.4) rotate(-45deg);
   transition:
     opacity 360ms ease,
     transform 520ms cubic-bezier(0.23, 1, 0.32, 1) 150ms;
-}
-.pv-families.is-visible .pv-families-grid > b {
-  opacity: 1;
-  transform: scale(1) rotate(0);
 }
 .pv-couple .pv-couple-ring {
   transform: scale(0.72);
@@ -1128,15 +1018,8 @@
     opacity 600ms ease,
     transform 700ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-couple.is-visible .pv-couple-ring {
-  opacity: 1;
-  transform: scale(1);
-}
 .pv-couple > img {
   transform: rotate(-3deg) translateY(8px);
-}
-.pv-couple.is-visible > img {
-  transform: rotate(2deg) translateY(-5px);
 }
 .pv-date > div:first-child {
   transform: translateX(-30px);
@@ -1145,14 +1028,6 @@
 .pv-date > article {
   transform: translateX(30px);
   opacity: 0;
-}
-.pv-date.is-visible > div:first-child,
-.pv-date.is-visible > article {
-  transform: none;
-  opacity: 1;
-}
-.pv-date.is-visible > article {
-  transition-delay: 120ms;
 }
 .pv-ceremony > h2,
 .pv-reception > h2 {
@@ -1164,35 +1039,14 @@
   transform: translateX(30px);
   opacity: 0;
 }
-.pv-ceremony.is-visible > h2,
-.pv-ceremony.is-visible > p,
-.pv-reception.is-visible > h2,
-.pv-reception.is-visible > p {
-  transform: none;
-  opacity: 1;
-}
-.pv-ceremony.is-visible > p,
-.pv-reception.is-visible > p {
-  transition-delay: 130ms;
-}
 .pv-reception > img {
   transform: scale(0.78) rotate(-8deg);
   opacity: 0;
-}
-.pv-reception.is-visible > img {
-  transform: scale(1) rotate(0);
-  opacity: 0.65;
 }
 
 .pv-calendar-card {
   transform: perspective(700px) rotateX(12deg) scale(0.94);
   opacity: 0;
-}
-
-.pv-calendar.is-visible .pv-calendar-card {
-  transform: perspective(700px) rotateX(0) scale(1);
-  opacity: 1;
-  transition-delay: 140ms;
 }
 .pv-program-list {
   position: relative;
@@ -1209,96 +1063,38 @@
   transform-origin: top;
   transition: transform 800ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-program.is-visible .pv-program-list:before {
-  transform: scaleY(1);
-}
 .pv-program-list article {
   position: relative;
   transform: translateX(26px);
   opacity: 0;
 }
-.pv-program.is-visible .pv-program-list article {
-  transform: none;
-  opacity: 1;
-}
-.pv-program.is-visible .pv-program-list article:nth-child(2) {
-  transition-delay: 90ms;
-}
-.pv-program.is-visible .pv-program-list article:nth-child(3) {
-  transition-delay: 180ms;
-}
 .pv-venue > div:first-child {
   transform: translateX(-28px);
   opacity: 0;
-}
-.pv-map-art {
-  transform: translateX(28px) rotateY(-8deg);
-  opacity: 0;
-}
-.pv-venue.is-visible > div:first-child,
-.pv-venue.is-visible .pv-map-art {
-  transform: none;
-  opacity: 1;
-}
-.pv-venue.is-visible .pv-map-art {
-  transition-delay: 140ms;
 }
 .pv-calendar-actions > h2 {
   transform: scale(0.92);
   opacity: 0;
 }
-.pv-calendar-actions.is-visible > h2 {
-  transform: none;
-  opacity: 1;
-}
 .pv-calendar-actions > a {
   transform: translateY(16px);
   opacity: 0;
-}
-.pv-calendar-actions.is-visible > a {
-  transform: none;
-  opacity: 1;
-  transition-delay: 160ms;
 }
 .pv-activity-grid article {
   transform: translateY(20px) rotateX(8deg);
   opacity: 0;
 }
-.pv-activities.is-visible .pv-activity-grid article {
-  transform: none;
-  opacity: 1;
-}
-.pv-activities.is-visible .pv-activity-grid article:nth-child(2) {
-  transition-delay: 100ms;
-}
-.pv-activities.is-visible .pv-activity-grid article:nth-child(3) {
-  transition-delay: 200ms;
-}
 .pv-rsvp .pv-actions {
   transform: scale(0.96);
   opacity: 0;
-}
-.pv-rsvp.is-visible .pv-actions {
-  transform: none;
-  opacity: 1;
-  transition-delay: 170ms;
 }
 .pv-gallery-stage {
   transform: perspective(900px) rotateY(7deg) scale(0.94);
   opacity: 0;
 }
-.pv-gallery.is-visible .pv-gallery-stage {
-  transform: perspective(900px) rotateY(0) scale(1);
-  opacity: 1;
-}
 .pv-gallery-dots {
   opacity: 0;
   transform: translateY(8px);
-}
-.pv-gallery.is-visible .pv-gallery-dots {
-  opacity: 1;
-  transform: none;
-  transition-delay: 220ms;
 }
 .pv-note-grid article {
   transform: rotate(-2deg) translateX(-18px);
@@ -1307,29 +1103,13 @@
 .pv-note-grid article:nth-child(2) {
   transform: rotate(2deg) translateX(18px);
 }
-.pv-wishes.is-visible .pv-note-grid article {
-  transform: none;
-  opacity: 1;
-}
-.pv-wishes.is-visible .pv-note-grid article:nth-child(2) {
-  transition-delay: 100ms;
-}
 .pv-gift > button {
   transform: translateY(12px);
   opacity: 0;
 }
-.pv-gift.is-visible > button {
-  transform: none;
-  opacity: 1;
-  transition-delay: 130ms;
-}
 .pv-footer > h2 {
   transform: scale(0.86);
   opacity: 0;
-}
-.pv-footer.is-visible > h2 {
-  transform: scale(1);
-  opacity: 1;
 }
 @media (max-width: 700px) {
   .pv-program-list:before {
@@ -1340,11 +1120,6 @@
   .pv-venue > div:first-child,
   .pv-map-art {
     transform: translateY(18px);
-  }
-  .pv-families.is-visible .pv-families-grid article,
-  .pv-venue.is-visible > div:first-child,
-  .pv-venue.is-visible .pv-map-art {
-    transform: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2275,15 +2050,6 @@
 .pv-footer-constellation i:nth-child(3) {
   right: 8%;
   top: 62%;
-}
-.pv-footer.is-visible .pv-footer-constellation i {
-  animation: pv-glint-converge 850ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
-.pv-footer.is-visible .pv-footer-constellation i:nth-child(2) {
-  animation-delay: 80ms;
-}
-.pv-footer.is-visible .pv-footer-constellation i:nth-child(3) {
-  animation-delay: 160ms;
 }
 @keyframes pv-opening-item {
   to {
@@ -4369,11 +4135,6 @@
     opacity 720ms cubic-bezier(0.23, 1, 0.32, 1),
     transform 720ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-page.is-opened .pv-banner > div,
-.pv-banner.is-visible > div {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-banner > img:first-child {
   transform: translate3d(calc(var(--pv-scroll) * -0.42), calc(var(--pv-scroll) * -0.18), 0)
     rotate(-18deg);
@@ -4394,14 +4155,6 @@
   transition:
     opacity 480ms ease-out 180ms,
     transform 480ms cubic-bezier(0.23, 1, 0.32, 1) 180ms;
-}
-.pv-page .pv-announcement.is-visible h2 {
-  opacity: 1;
-  clip-path: inset(0);
-}
-.pv-page .pv-announcement.is-visible p {
-  opacity: 1;
-  transform: none;
 }
 .pv-page .pv-families-grid article:first-child {
   opacity: 0;
@@ -4424,21 +4177,12 @@
     opacity 360ms ease-out 260ms,
     transform 520ms cubic-bezier(0.23, 1, 0.32, 1) 260ms;
 }
-.pv-page .pv-families.is-visible .pv-families-grid article,
-.pv-page .pv-families.is-visible .pv-families-grid b {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-date-card {
   opacity: 0;
   transform: perspective(900px) rotateX(18deg) rotateZ(-3deg) translateY(18px);
   transition:
     opacity 650ms ease-out,
     transform 760ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-date.is-visible .pv-date-card {
-  opacity: 1;
-  transform: perspective(900px) rotateX(0) rotateZ(-3deg) translateY(0);
 }
 .pv-page .pv-date-note {
   opacity: 0;
@@ -4447,29 +4191,12 @@
     opacity 420ms ease-out 220ms,
     transform 420ms cubic-bezier(0.23, 1, 0.32, 1) 220ms;
 }
-.pv-page .pv-date.is-visible .pv-date-note {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-countdown-grid > div {
   opacity: 0;
   transform: scale(0.82);
   transition:
     opacity 420ms ease-out,
     transform 560ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-countdown.is-visible .pv-countdown-grid > div {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-countdown.is-visible .pv-countdown-grid > div:nth-child(2) {
-  transition-delay: 70ms;
-}
-.pv-page .pv-countdown.is-visible .pv-countdown-grid > div:nth-child(3) {
-  transition-delay: 140ms;
-}
-.pv-page .pv-countdown.is-visible .pv-countdown-grid > div:nth-child(4) {
-  transition-delay: 210ms;
 }
 .pv-page .pv-ceremony .pv-detail {
   opacity: 0;
@@ -4478,20 +4205,12 @@
     opacity 520ms ease-out 160ms,
     transform 620ms cubic-bezier(0.23, 1, 0.32, 1) 160ms;
 }
-.pv-page .pv-ceremony.is-visible .pv-detail {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-reception .pv-detail {
   opacity: 0;
   transform: translate3d(26px, 0, 0);
   transition:
     opacity 520ms ease-out 160ms,
     transform 620ms cubic-bezier(0.23, 1, 0.32, 1) 160ms;
-}
-.pv-page .pv-reception.is-visible .pv-detail {
-  opacity: 1;
-  transform: none;
 }
 .pv-page .pv-calendar-card {
   transform: perspective(900px) rotateY(-12deg) rotateX(7deg) translateX(18px);
@@ -4500,10 +4219,6 @@
     opacity 620ms ease-out 120ms,
     transform 760ms cubic-bezier(0.23, 1, 0.32, 1) 120ms;
 }
-.pv-page .pv-calendar.is-visible .pv-calendar-card {
-  transform: perspective(900px) rotateY(0) rotateX(0) translateX(0);
-  opacity: 1;
-}
 .pv-page .pv-program-list {
   position: relative;
 }
@@ -4511,9 +4226,6 @@
   transform-origin: top;
   transform: scaleY(0);
   transition: transform 900ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-program.is-visible .pv-program-list:before {
-  transform: scaleY(1);
 }
 .pv-page .pv-program-list article {
   opacity: 0;
@@ -4524,22 +4236,6 @@
 }
 .pv-page .pv-program-list article:nth-child(even) {
   transform: translateX(24px);
-}
-.pv-page .pv-program.is-visible .pv-program-list article {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-program.is-visible .pv-program-list article:nth-child(1) {
-  transition-delay: 120ms;
-}
-.pv-page .pv-program.is-visible .pv-program-list article:nth-child(2) {
-  transition-delay: 200ms;
-}
-.pv-page .pv-program.is-visible .pv-program-list article:nth-child(3) {
-  transition-delay: 280ms;
-}
-.pv-page .pv-program.is-visible .pv-program-list article:nth-child(4) {
-  transition-delay: 360ms;
 }
 .pv-page .pv-venue > div:first-child {
   opacity: 0;
@@ -4555,20 +4251,12 @@
     opacity 600ms ease-out 120ms,
     transform 780ms cubic-bezier(0.23, 1, 0.32, 1) 120ms;
 }
-.pv-page .pv-venue.is-visible > div {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-calendar-actions > svg {
   transform: rotate(-12deg) scale(0.7);
   opacity: 0;
   transition:
     opacity 420ms ease-out,
     transform 620ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-calendar-actions.is-visible > svg {
-  transform: none;
-  opacity: 1;
 }
 .pv-page .pv-activity-grid article {
   opacity: 0;
@@ -4577,16 +4265,6 @@
     opacity 520ms ease-out,
     transform 620ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-page .pv-activities.is-visible .pv-activity-grid article {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(2) {
-  transition-delay: 100ms;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(3) {
-  transition-delay: 200ms;
-}
 .pv-page .pv-rsvp .pv-actions button {
   opacity: 0;
   transform: scale(0.94);
@@ -4594,19 +4272,9 @@
     opacity 360ms ease-out,
     transform 420ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-page .pv-rsvp.is-visible .pv-actions button {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-rsvp.is-visible .pv-actions button:nth-child(2) {
-  transition-delay: 90ms;
-}
 .pv-page .pv-gallery-stage {
   transform: perspective(900px) rotateY(7deg) scale(0.95);
   transition: transform 620ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-gallery.is-visible .pv-gallery-stage {
-  transform: perspective(900px) rotateY(0) scale(1);
 }
 .pv-page .pv-note-grid article {
   opacity: 0;
@@ -4617,13 +4285,6 @@
 }
 .pv-page .pv-note-grid article:nth-child(2) {
   transform: translateY(14px) rotate(2deg);
-}
-.pv-page .pv-wishes.is-visible .pv-note-grid article {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-wishes.is-visible .pv-note-grid article:nth-child(2) {
-  transition-delay: 120ms;
 }
 .pv-page .pv-gift > button {
   transition:
@@ -4704,10 +4365,6 @@
   position: relative;
   z-index: 3;
 }
-.pv-page .pv-gallery.is-visible .pv-gallery-stage img {
-  animation: none;
-  opacity: 1;
-}
 @media (max-width: 700px) {
   .pv-page .pv-gallery {
     min-height: 520px;
@@ -4759,10 +4416,6 @@
 .pv-page .pv-gallery-dots {
   position: relative;
   z-index: 3;
-}
-.pv-page .pv-gallery.is-visible .pv-gallery-stage img {
-  animation: none;
-  opacity: 1;
 }
 @media (max-width: 700px) {
   .pv-page .pv-gallery {
@@ -4844,22 +4497,9 @@
     transform: perspective(900px) rotateY(0) translate3d(0, 0, 18px) scale(1);
   }
 }
-.pv-page .pv-gallery.is-visible .pv-gallery-stage img {
-  animation: pv-gallery-slide-3d 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
-  transform-origin: center right;
-  backface-visibility: hidden;
-}
 @media (max-width: 700px) {
-  .pv-page .pv-gallery.is-visible .pv-gallery-stage img {
-    animation-duration: 460ms;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-page .pv-gallery.is-visible .pv-gallery-stage img {
-    animation: none;
-    transform: none;
-    opacity: 1;
-  }
 }
 
 /* Keep the document scroll native; clip only horizontal artwork overflow */
@@ -5373,17 +5013,6 @@
     opacity 680ms ease-out 160ms,
     transform 820ms cubic-bezier(0.23, 1, 0.32, 1) 160ms;
 }
-.pv-page .pv-banner.is-visible > img:first-child,
-.pv-page .pv-banner.is-visible > img:last-child {
-  opacity: 1;
-}
-.pv-page .pv-banner.is-visible > img:first-child {
-  transform: translate3d(calc(var(--pv-scroll) * -0.42), calc(var(--pv-scroll) * -0.18), 0)
-    rotate(-18deg);
-}
-.pv-page .pv-banner.is-visible > img:last-child {
-  transform: translate3d(calc(var(--pv-scroll) * 0.2), calc(var(--pv-scroll) * -0.12), 0);
-}
 .pv-page .pv-banner > div {
   transition-delay: 280ms;
 }
@@ -5395,10 +5024,6 @@
   transition:
     opacity 420ms ease-out,
     transform 720ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-announcement.is-visible > img {
-  opacity: 1;
-  transform: scaleX(1);
 }
 /* Families: symmetrical 3D arrival with a connector pop. */
 .pv-page .pv-families-grid article:first-child {
@@ -5413,21 +5038,6 @@
   transition-delay: 290ms;
 }
 /* Couple: medallion scales in; surrounding branch sweeps down from the edge. */
-.pv-page .pv-couple > .pv-couple-ring {
-  opacity: 0;
-  transform: scale(0.78) rotate(-8deg);
-  transition:
-    opacity 760ms ease-out,
-    transform 900ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-couple.is-visible > .pv-couple-ring {
-  opacity: 1;
-  transform: scale(1) rotate(4deg);
-}
-.pv-page .pv-couple.is-visible > img {
-  opacity: 1;
-  transform: rotate(2deg) translateY(-5px);
-}
 /* Date and countdown: paper fold + counter stagger. */
 .pv-page .pv-date-card {
   transform: perspective(900px) rotateX(22deg) rotateZ(-8deg) translateY(30px);
@@ -5444,9 +5054,6 @@
 .pv-page .pv-countdown-grid {
   transform: translateY(30px) scale(0.97);
   transition-delay: 180ms;
-}
-.pv-page .pv-countdown.is-visible .pv-countdown-grid {
-  transform: none;
 }
 /* Ceremony/reception deliberately enter from opposite directions. */
 .pv-page .pv-ceremony > h2,
@@ -5495,10 +5102,6 @@
     opacity 420ms ease-out 280ms,
     transform 520ms cubic-bezier(0.23, 1, 0.32, 1) 280ms;
 }
-.pv-page .pv-calendar-actions.is-visible > a {
-  opacity: 1;
-  transform: none;
-}
 /* Activities: cards lift with alternating tilt instead of another fade-up. */
 .pv-page .pv-activity-grid article:nth-child(odd) {
   transform: perspective(700px) rotateX(12deg) rotateZ(-2deg) translateY(28px);
@@ -5514,25 +5117,6 @@
   transform: translateY(26px) scale(0.97);
 }
 /* Gallery and guestbook: depth transition vs. paper-note rotation. */
-.pv-page .pv-gallery-stage {
-  opacity: 0;
-  transform: perspective(900px) rotateY(12deg) translateX(34px) scale(0.94);
-}
-.pv-page .pv-gallery.is-visible .pv-gallery-stage {
-  opacity: 1;
-  transform: perspective(900px) rotateY(0) translateX(0) scale(1);
-}
-.pv-page .pv-gallery-dots {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 360ms ease-out 360ms,
-    transform 420ms cubic-bezier(0.23, 1, 0.32, 1) 360ms;
-}
-.pv-page .pv-gallery.is-visible .pv-gallery-dots {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-wishes > h2 {
   transform: translateX(22px);
 }
@@ -5540,28 +5124,6 @@
   transform: translateY(22px);
 }
 /* Gift/footer close with disclosure and a quieter botanical fade. */
-.pv-page .pv-gift > button {
-  opacity: 0;
-  transform: translateY(18px) scale(0.96);
-  transition:
-    opacity 420ms ease-out 220ms,
-    transform 500ms cubic-bezier(0.23, 1, 0.32, 1) 220ms;
-}
-.pv-page .pv-gift.is-visible > button {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-footer > img {
-  opacity: 0;
-  transform: translateY(26px) rotate(-8deg);
-  transition:
-    opacity 700ms ease-out,
-    transform 820ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-footer.is-visible > img {
-  opacity: 0.7;
-  transform: none;
-}
 @media (prefers-reduced-motion: reduce) {
   .pv-page .pv-slide > *,
   .pv-page .pv-slide .pv-program-list article,
@@ -6332,10 +5894,6 @@
     opacity 900ms ease-out 120ms,
     transform 1100ms cubic-bezier(0.23, 1, 0.32, 1) 120ms;
 }
-.pv-page .pv-banner-new.is-visible .pv-banner-new-flower {
-  opacity: 0.95;
-  transform: rotate(4deg) translateY(0);
-}
 
 .pv-page .pv-banner-new-stamp {
   position: absolute;
@@ -6496,16 +6054,6 @@
   margin-inline: 7px;
   color: var(--pv-rose);
   font-weight: 400;
-}
-.pv-page .pv-banner-new.is-visible .pv-banner-new-kicker,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-intro,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-content h2,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-rule,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-content time,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-note,
-.pv-page .pv-banner-new.is-visible .pv-banner-new-index {
-  opacity: 1;
-  transform: none;
 }
 @media (max-width: 700px) {
   .pv-page .pv-banner-new {
@@ -6689,10 +6237,6 @@
     opacity 640ms ease-out,
     transform 760ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-announcement-new-kicker {
   color: var(--pv-rose-deep);
   font-size: 10px;
@@ -6716,9 +6260,6 @@
   transform: scaleX(0.2);
   transform-origin: left;
   transition: transform 620ms cubic-bezier(0.23, 1, 0.32, 1) 180ms;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-rule {
-  transform: scaleX(1);
 }
 .pv-page .pv-announcement-new-copy p {
   max-width: 540px;
@@ -6782,9 +6323,6 @@
     padding: 42px 20px 28px;
     background: rgb(255 250 245/0.68);
     transform: translateY(18px);
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy {
-    transform: none;
   }
   .pv-page .pv-announcement-new-copy h2 {
     max-width: 340px;
@@ -6913,29 +6451,10 @@
     opacity 760ms ease-out 140ms,
     transform 980ms cubic-bezier(0.23, 1, 0.32, 1) 140ms;
 }
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-ornament {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-announcement-new-copy {
   transition:
     opacity 900ms ease-out 320ms,
     transform 1050ms cubic-bezier(0.23, 1, 0.32, 1) 320ms;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-kicker {
-  animation: pv-announcement-kicker-in 620ms ease-out 620ms both;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy h2 {
-  animation: pv-announcement-heading-in 900ms cubic-bezier(0.23, 1, 0.32, 1) 700ms both;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-rule {
-  transition-delay: 940ms;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy p {
-  animation: pv-announcement-copy-in 720ms ease-out 1010ms both;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-signoff {
-  animation: pv-announcement-copy-in 620ms ease-out 1130ms both;
 }
 @keyframes pv-announcement-kicker-in {
   from {
@@ -6974,26 +6493,8 @@
     transform: translateY(-16px);
     transition-delay: 100ms;
   }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-ornament {
-    transform: none;
-  }
   .pv-page .pv-announcement-new-copy {
     transition-delay: 250ms;
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-kicker {
-    animation-delay: 540ms;
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy h2 {
-    animation-delay: 620ms;
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-rule {
-    transition-delay: 860ms;
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy p {
-    animation-delay: 930ms;
-  }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-signoff {
-    animation-delay: 1040ms;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -7002,20 +6503,10 @@
     transform: none;
     transition: none;
   }
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-kicker,
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy h2,
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy p,
-  .pv-page .pv-announcement-new.is-visible .pv-announcement-new-signoff {
-    animation: none;
-  }
 }
 .pv-page .pv-announcement-new-copy h2 {
   clip-path: none;
   animation: none;
-}
-.pv-page .pv-announcement-new.is-visible .pv-announcement-new-copy h2 {
-  clip-path: none;
-  animation: pv-announcement-heading-in 900ms cubic-bezier(0.23, 1, 0.32, 1) 700ms both;
 }
 @media (prefers-reduced-motion: reduce) {
   .pv-page .pv-announcement-new-copy h2 {
@@ -7478,9 +6969,6 @@
   letter-spacing: 0.16em;
   color: var(--pv-muted);
 }
-.pv-page .pv-date-new.is-visible .pv-date-new-mark {
-  animation: pv-date-mark-in 900ms cubic-bezier(0.23, 1, 0.32, 1) 300ms both;
-}
 @keyframes pv-date-mark-in {
   from {
     opacity: 0;
@@ -7530,11 +7018,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-page .pv-date-new.is-visible .pv-date-new-mark {
-    animation: none;
-    transform: rotate(12deg);
-    opacity: 1;
-  }
 }
 
 /* Date card refinement: clean editorial paper instead of an oversized organic blob */
@@ -7555,9 +7038,6 @@
   top: 17px;
   width: 54px;
   box-shadow: 0 7px 0 #c9798640;
-}
-.pv-page .pv-date-new.is-visible .pv-date-card {
-  transform: perspective(900px) rotateX(0) rotateZ(-1.2deg) translateY(0);
 }
 @media (max-width: 700px) {
   .pv-page .pv-date-new .pv-date-card {
@@ -7591,9 +7071,6 @@
 .pv-page .pv-date-new .pv-date-note {
   transition-delay: 1220ms;
 }
-.pv-page .pv-date-new.is-visible .pv-date-new-mark {
-  animation-delay: 1300ms;
-}
 .pv-page .pv-date-new .pv-date-card > span,
 .pv-page .pv-date-new .pv-date-card > strong,
 .pv-page .pv-date-new .pv-date-card > small,
@@ -7607,44 +7084,12 @@
 .pv-page .pv-date-new .pv-date-card > strong {
   transform: translateY(16px) scale(0.94);
 }
-.pv-page .pv-date-new.is-visible .pv-date-card > span,
-.pv-page .pv-date-new.is-visible .pv-date-card > strong,
-.pv-page .pv-date-new.is-visible .pv-date-card > small,
-.pv-page .pv-date-new.is-visible .pv-date-card > em {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-date-new.is-visible .pv-date-card > span {
-  transition-delay: 1500ms;
-}
-.pv-page .pv-date-new.is-visible .pv-date-card > strong {
-  transition-delay: 1580ms;
-}
-.pv-page .pv-date-new.is-visible .pv-date-card > small {
-  transition-delay: 1680ms;
-}
-.pv-page .pv-date-new.is-visible .pv-date-card > em {
-  transition-delay: 1760ms;
-}
 .pv-page .pv-date-new .pv-date-note > * {
   opacity: 0;
   transform: translateY(8px);
   transition:
     opacity 480ms ease-out,
     transform 560ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-date-new.is-visible .pv-date-note > * {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-date-new.is-visible .pv-date-note > span {
-  transition-delay: 1420ms;
-}
-.pv-page .pv-date-new.is-visible .pv-date-note > p {
-  transition-delay: 1500ms;
-}
-.pv-page .pv-date-new.is-visible .pv-date-note > b {
-  transition-delay: 1580ms;
 }
 @media (prefers-reduced-motion: reduce) {
   .pv-page .pv-date-new .pv-date-card > span,
@@ -7780,21 +7225,6 @@
 }
 .pv-page .pv-countdown-new .pv-countdown-grid > div:nth-child(4) {
   border-radius: 18px 18px 28px 9px;
-}
-.pv-page .pv-countdown-new.is-visible .pv-countdown-grid > div:nth-child(1) {
-  transition-delay: 220ms;
-}
-.pv-page .pv-countdown-new.is-visible .pv-countdown-grid > div:nth-child(2) {
-  transition-delay: 320ms;
-}
-.pv-page .pv-countdown-new.is-visible .pv-countdown-grid > div:nth-child(3) {
-  transition-delay: 420ms;
-}
-.pv-page .pv-countdown-new.is-visible .pv-countdown-grid > div:nth-child(4) {
-  transition-delay: 520ms;
-}
-.pv-page .pv-countdown-new.is-visible .pv-countdown-grid > div:hover {
-  background: #ffffff22;
 }
 @media (max-width: 700px) {
   .pv-page .pv-countdown-new {
@@ -7969,18 +7399,6 @@
 }
 .pv-page .pv-date-countdown-combo .pv-countdown-grid small {
   color: var(--pv-muted);
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-date-card {
-  opacity: 1;
-  transform: perspective(900px) rotateX(0) rotateZ(-1.2deg) translateY(0);
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-date-note {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-grid > div {
-  opacity: 1;
-  transform: none;
 }
 @media (max-width: 700px) {
   .pv-page .pv-date-countdown-combo {
@@ -8288,26 +7706,12 @@
 .pv-page .pv-date-countdown-combo > .pv-countdown {
   transform: translateX(24px);
 }
-.pv-page .pv-date-countdown-combo.is-visible > .pv-date,
-.pv-page .pv-date-countdown-combo.is-visible > .pv-countdown {
-  opacity: 1;
-  transform: none;
-}
 .pv-page .pv-date-countdown-combo .pv-countdown > span,
 .pv-page .pv-date-countdown-combo .pv-countdown > h2 {
   transform: translateY(20px);
   transition:
     opacity 480ms ease-out,
     transform 560ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown > span,
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown > h2 {
-  opacity: 1;
-  transform: none;
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-grid > div {
-  opacity: 1;
-  transform: none;
 }
 
 /* Date card contrast: separate the paper card from the pale combo background. */
@@ -8953,132 +8357,6 @@
   transition: none !important;
 }
 
-/* Delayed section choreography: reveal starts two seconds after scroll visibility. */
-.pv-page .pv-calendar-grid > small,
-.pv-page .pv-calendar-grid > i {
-  opacity: 0;
-  transform: translateY(12px) scale(0.86);
-  transition:
-    opacity 460ms ease-out,
-    transform 560ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small,
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i {
-  opacity: 1;
-  transform: none;
-  transition-delay: 2s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(2),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 2) {
-  transition-delay: 2.08s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(3),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 3) {
-  transition-delay: 2.16s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(4),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 4) {
-  transition-delay: 2.24s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(5),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 5) {
-  transition-delay: 2.32s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(6),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 6) {
-  transition-delay: 2.4s;
-}
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > small:nth-child(7),
-.pv-page .pv-calendar.is-visible .pv-calendar-grid > i:nth-child(9n + 7) {
-  transition-delay: 2.48s;
-}
-
-.pv-page .pv-ceremony-venue:not(.is-visible) > span:first-child,
-.pv-page .pv-ceremony-venue:not(.is-visible) > h2,
-.pv-page .pv-ceremony-venue:not(.is-visible) > p,
-.pv-page .pv-ceremony-venue:not(.is-visible) > .pv-ceremony-guest,
-.pv-page .pv-ceremony-venue:not(.is-visible) > .pv-detail,
-.pv-page .pv-ceremony-venue:not(.is-visible) .pv-detail-copy,
-.pv-page .pv-ceremony-venue:not(.is-visible) .pv-map-art {
-  opacity: 0 !important;
-  transform: translateY(16px) !important;
-}
-.pv-page .pv-ceremony-venue.is-visible > span:first-child,
-.pv-page .pv-ceremony-venue.is-visible > h2,
-.pv-page .pv-ceremony-venue.is-visible > p,
-.pv-page .pv-ceremony-venue.is-visible > .pv-ceremony-guest,
-.pv-page .pv-ceremony-venue.is-visible > .pv-detail,
-.pv-page .pv-ceremony-venue.is-visible .pv-detail-copy,
-.pv-page .pv-ceremony-venue.is-visible .pv-map-art {
-  opacity: 1 !important;
-  transform: none !important;
-  transition:
-    opacity 620ms ease-out,
-    transform 700ms cubic-bezier(0.23, 1, 0.32, 1);
-  transition-delay: 2s;
-}
-.pv-page .pv-ceremony-venue.is-visible > h2 {
-  transition-delay: 2.08s;
-}
-.pv-page .pv-ceremony-venue.is-visible > p {
-  transition-delay: 2.16s;
-}
-.pv-page .pv-ceremony-venue.is-visible > .pv-ceremony-guest {
-  transition-delay: 2.24s;
-}
-.pv-page .pv-ceremony-venue.is-visible > .pv-detail {
-  transition-delay: 2.32s;
-}
-.pv-page .pv-ceremony-venue.is-visible .pv-map-art {
-  transition-delay: 2.42s;
-}
-
-.pv-page .pv-date-countdown-combo:not(.is-visible) .pv-countdown-new > span,
-.pv-page .pv-date-countdown-combo:not(.is-visible) .pv-countdown-new > h2,
-.pv-page .pv-date-countdown-combo:not(.is-visible) .pv-countdown-new .pv-countdown-grid,
-.pv-page .pv-date-countdown-combo:not(.is-visible) .pv-countdown-new .pv-countdown-grid > div {
-  opacity: 0 !important;
-  transform: translateY(16px) !important;
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new > span,
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new > h2,
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new .pv-countdown-grid,
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new .pv-countdown-grid > div {
-  opacity: 1 !important;
-  transform: none !important;
-  transition:
-    opacity 620ms ease-out,
-    transform 700ms cubic-bezier(0.23, 1, 0.32, 1);
-  transition-delay: 2s;
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new > h2 {
-  transition-delay: 2.08s;
-}
-.pv-page .pv-date-countdown-combo.is-visible .pv-countdown-new .pv-countdown-grid {
-  transition-delay: 2.16s;
-}
-.pv-page
-  .pv-date-countdown-combo.is-visible
-  .pv-countdown-new
-  .pv-countdown-grid
-  > div:nth-child(2) {
-  transition-delay: 2.24s;
-}
-.pv-page
-  .pv-date-countdown-combo.is-visible
-  .pv-countdown-new
-  .pv-countdown-grid
-  > div:nth-child(3) {
-  transition-delay: 2.32s;
-}
-.pv-page
-  .pv-date-countdown-combo.is-visible
-  .pv-countdown-new
-  .pv-countdown-grid
-  > div:nth-child(4) {
-  transition-delay: 2.4s;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pv-page .pv-calendar-grid > small,
   .pv-page .pv-calendar-grid > i,
@@ -9096,105 +8374,6 @@
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
-  }
-}
-
-/* Activities 3D slide: cards travel through depth before settling into place. */
-.pv-page .pv-activities {
-  perspective: 1400px;
-  transform-style: preserve-3d;
-}
-.pv-page .pv-activity-grid {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-.pv-page .pv-activity-grid article {
-  opacity: 0 !important;
-  transform: translate3d(0, 54px, -120px) rotateX(16deg) rotateY(-8deg) scale(0.86) !important;
-  transform-origin: center bottom;
-  transition:
-    opacity 760ms ease-out,
-    transform 860ms cubic-bezier(0.23, 1, 0.32, 1);
-  will-change: opacity, transform;
-}
-.pv-page .pv-activity-grid article:nth-child(even) {
-  transform: translate3d(0, 54px, -120px) rotateX(16deg) rotateY(8deg) scale(0.86) !important;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article {
-  opacity: 1 !important;
-  transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) scale(1) !important;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(1) {
-  transition-delay: 80ms;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(2) {
-  transition-delay: 180ms;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(3) {
-  transition-delay: 280ms;
-}
-.pv-page .pv-activities.is-visible .pv-activity-grid article:nth-child(4) {
-  transition-delay: 380ms;
-}
-@media (hover: hover) and (pointer: fine) {
-  .pv-page .pv-activity-grid article:hover {
-    transform: translate3d(0, -8px, 24px) rotateX(2deg) rotateY(-2deg) scale(1.015) !important;
-    box-shadow: 0 24px 44px #3e293026;
-  }
-}
-@media (max-width: 700px) {
-  .pv-page .pv-activities {
-    perspective: none;
-  }
-  .pv-page .pv-activity-grid {
-    perspective: 900px;
-  }
-  .pv-page .pv-activity-grid article {
-    transform: translate3d(0, 36px, -70px) rotateX(10deg) scale(0.9) !important;
-  }
-  .pv-page .pv-activity-grid article:nth-child(even) {
-    transform: translate3d(0, 36px, -70px) rotateX(10deg) scale(0.9) !important;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pv-page .pv-activity-grid article,
-  .pv-page .pv-activities.is-visible .pv-activity-grid article {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-    will-change: auto;
-  }
-}
-
-/* Activities section slide: the whole section enters from depth, then its cards settle. */
-.pv-page .pv-slide.pv-activities {
-  opacity: 0 !important;
-  transform: perspective(1500px) translate3d(96px, 0, -90px) rotateY(9deg) !important;
-  transform-origin: left center;
-  transition:
-    opacity 820ms ease-out,
-    transform 980ms cubic-bezier(0.23, 1, 0.32, 1) !important;
-  will-change: opacity, transform;
-}
-.pv-page .pv-slide.pv-activities.is-visible {
-  opacity: 1 !important;
-  transform: perspective(1500px) translate3d(0, 0, 0) rotateY(0) !important;
-}
-@media (max-width: 700px) {
-  .pv-page .pv-slide.pv-activities {
-    transform: translate3d(48px, 0, 0) !important;
-  }
-  .pv-page .pv-slide.pv-activities.is-visible {
-    transform: translate3d(0, 0, 0) !important;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pv-page .pv-slide.pv-activities,
-  .pv-page .pv-slide.pv-activities.is-visible {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-    will-change: auto;
   }
 }
 
@@ -9709,10 +8888,6 @@
   background: #fffaf3dd;
   box-shadow: 0 16px 34px #526b5918;
 }
-.pv-page .pv-gift.is-visible:after {
-  opacity: 0.42;
-  transform: rotate(-8deg) scaleX(-1) translateY(-8px);
-}
 @media (max-width: 700px) {
   .pv-page .pv-gift {
     min-height: 600px;
@@ -9803,44 +8978,9 @@
     transform: none;
   }
 }
-
-/* Keep gift content visible; open state only lifts it slightly. */
-.pv-page .pv-gift.is-visible > span,
-.pv-page .pv-gift.is-visible > h2,
-.pv-page .pv-gift.is-visible > p,
-.pv-page .pv-gift.is-visible > button {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
-.pv-page .pv-gift.is-visible[data-gift-open='true'] > span,
-.pv-page .pv-gift.is-visible[data-gift-open='true'] > h2,
-.pv-page .pv-gift.is-visible[data-gift-open='true'] > p,
-.pv-page .pv-gift.is-visible[data-gift-open='true'] > button {
-  opacity: 1 !important;
-  transform: translateY(-5px) !important;
-  transition:
-    transform 520ms cubic-bezier(0.23, 1, 0.32, 1),
-    opacity 420ms ease-out;
-}
-.pv-page .pv-gift.is-visible .pv-gift-details {
-  opacity: 1;
-  transform: none;
-}
 @media (max-width: 700px) {
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > span,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > h2,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > p,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > button {
-    transform: translateY(-4px) !important;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > span,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > h2,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > p,
-  .pv-page .pv-gift.is-visible[data-gift-open='true'] > button {
-    transform: none !important;
-  }
 }
 
 .pv-page .pv-families-grid article strong span {

@@ -1,5 +1,9 @@
 # Common Theme Authoring Contract
 
+## Invitation viewport rule
+
+New invitation templates use a mobile-first canvas with a design/content width capped at `480px`. The renderer must remain fluid below that width, avoid horizontal overflow, and keep larger viewport presentation centered with controlled outer gutters rather than expanding the invitation composition indefinitely. This cap applies to the invitation surface; admin, studio, and wedding website layouts keep their own viewport contracts.
+
 Tài liệu này là contract dùng chung cho mọi theme public của GMM Wedding: Invitation, Wedding Website và Wedding Recap. Domain agent phải đọc tài liệu này trước khi đọc section rules riêng và trước khi tạo hoặc sửa bất kỳ theme nào.
 
 ## 1. Quy trình bắt buộc
@@ -390,7 +394,7 @@ Renderer phải map đúng `sectionKey`, render đủ required sections, hỗ tr
 Các quy tắc dưới đây là contract ổn định cho mọi template mới. Không tự ý tạo biến thể theo từng template; nếu contract cần thay đổi, phải xử lý migration/scanner theo lô.
 
 - `template-config.ts` phải giữ đúng cấu trúc, key, nesting và kiểu dữ liệu đang được các template hiện có sử dụng để scanner, editor, validator và catalog đọc được. Không đổi tên key, đổi shape hoặc thêm cấu trúc riêng chỉ vì một template cần cách biểu diễn khác.
-- Các phần tử nhỏ có vai trò thị giác trong từng section phải có entrance effect riêng, thay vì chỉ animate toàn section. Entrance effect phải dùng chung class/utility scroll reveal đã được thiết kế trong hệ thống; trigger khi người dùng đã scroll qua khoảng hơn một phần ba viewport/section theo convention hiện hành.
+- Các phần tử nhỏ có vai trò thị giác trong từng section phải có entrance effect riêng, thay vì chỉ animate toàn section. Entrance effect dùng `motion/react`, target tường minh và token timing của template; bộ CSS `.reveal`/`.reveal--*` đã bị loại bỏ. Trigger khi người dùng đã scroll qua khoảng hơn một phần ba viewport/section theo convention hiện hành.
 - Entrance effect không được quá nhanh. Giữ đủ thời gian để người dùng nhận biết hierarchy, chỉ animate `transform` và `opacity` khi có thể, đồng thời có fallback hoàn chỉnh cho reduced motion.
 - Luôn xử lý `guestName` trong mọi section có nội dung cá nhân hóa. Khi cần hiển thị tên người nhận, renderer phải lấy từ content/runtime contract đúng chuẩn, không hard-code fixture hoặc bỏ qua khi section được bật/tắt.
 - Section gửi lời chúc và section xác nhận tham dự luôn phải giữ luồng gọi API tương ứng. Cả hai section phải kiểm tra `guestName` để quyết định hiển thị form cá nhân hóa hay input nhập tên dự phòng; không mặc định hiển thị input tên khi đã có tên khách.

@@ -6,6 +6,7 @@ import {
 } from '../../../templates/invitations/peony-veranda/PeonyVerandaInvitation'
 import { peonyVerandaFixture } from '../../../templates/invitations/peony-veranda/fixture'
 import { isLiveEditorScroll, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 export function PeonyVerandaPreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
@@ -23,10 +24,10 @@ export function PeonyVerandaPreviewPage() {
         setData(event.data.payload.data as PeonyVerandaData)
         setSectionConfig(event.data.payload.sectionConfig as PeonyVerandaSectionConfig | undefined)
       } else if (isLiveEditorScroll<string>(event.data)) {
-        const target = document.querySelector(
+        const target = document.querySelector<HTMLElement>(
           `[data-editor-section="${event.data.payload.sectionKey}"]`,
         )
-        target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        if (target) smoothScrollTo(target, { block: 'start' })
       }
     }
     window.addEventListener('message', receive)

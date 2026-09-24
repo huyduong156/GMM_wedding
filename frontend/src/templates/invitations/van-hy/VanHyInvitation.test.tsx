@@ -23,4 +23,14 @@ describe('VanHyInvitation', () => {
     expect(container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="rsvp"]')).toBeInTheDocument()
   })
+
+  it('uses targeted Motion entrances without touching elements that own visual transforms', () => {
+    const { container } = render(<VanHyInvitation data={vanHyFixture} />)
+
+    expect(container.querySelectorAll('.hh-family-grid article[data-motion-variant]')).toHaveLength(2)
+    expect(container.querySelectorAll('.hh-countdown-grid > div[data-motion-variant]')).toHaveLength(4)
+    expect(container.querySelector('.hh-cover-name[data-motion-variant]')).not.toBeInTheDocument()
+    expect(container.querySelector('.hh-section-mark[data-motion-variant]')).not.toBeInTheDocument()
+    expect(container.querySelector('.hh-reveal-item, .hh-reveal-rise, .hh-reveal-slide, .hh-reveal-fade')).not.toBeInTheDocument()
+  })
 })

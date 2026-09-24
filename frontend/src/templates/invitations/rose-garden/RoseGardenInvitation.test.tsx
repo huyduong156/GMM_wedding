@@ -137,7 +137,7 @@ describe('RoseGardenInvitation', () => {
     expect(view.container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()
 
     view.rerender(<RoseGardenInvitation editorMode sectionConfig={roseGardenSectionConfig} />)
-    await waitFor(() => expect(view.container.querySelector('[data-editor-section="gallery"]')).toHaveClass('is-visible'))
+    await waitFor(() => expect(view.container.querySelector('[data-editor-section="gallery"]')).toHaveAttribute('data-motion-visible', 'true'))
   })
 
   it('restores required anchors and normalizes malformed stored order', () => {
@@ -387,7 +387,7 @@ describe('RoseGardenInvitation', () => {
     expect(container.querySelectorAll('.rg-timeline-light')).toHaveLength(1)
     expect(container.querySelectorAll('.rg-timeline-light.rg-motion-static')).toHaveLength(1)
     expect(container.querySelector('.rg-page')).toHaveClass('rg-motion-ready')
-    expect(container.querySelectorAll('.rg-body-section.is-visible').length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('.rg-body-section[data-motion-visible="true"]').length).toBeGreaterThan(0)
   })
 
   it('keeps Phase 5 atmosphere bounded and decorative', () => {

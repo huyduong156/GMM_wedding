@@ -4,6 +4,7 @@ import { AstralVowInvitation } from './AstralVowInvitation'
 import { astralVowFixture, astralVowSectionConfig } from './fixture'
 import { astralVowTemplateConfig } from './template-config'
 import type { TemplateFieldConfig } from '../../template-config'
+import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
 describe('AstralVowInvitation', () => {
   it('keeps the atmosphere sparse and slow-moving', () => {
@@ -94,18 +95,18 @@ describe('AstralVowInvitation', () => {
 
   it('keeps section content visible when viewport-observer motion is unavailable', () => {
     const { container } = render(<AstralVowInvitation editorMode />)
-    expect(container.querySelector('[data-editor-section="cover"]')).toHaveClass('is-in-view')
+    expect(container.querySelector('[data-editor-section="cover"]')).toHaveAttribute('data-motion-visible', 'true')
   })
 
   it('asks anonymous guests for a name in RSVP and guestbook submissions', async () => {
     const submitRsvp = vi.fn().mockResolvedValue(true)
     const submitWish = vi.fn().mockResolvedValue(true)
-    const interactions = {
+    const interactions: PublicInteractions = {
       isPersonalized: false,
       guestName: null,
-      rsvp: { submitting: false, submitted: false, error: null, submit: submitRsvp },
-      wishes: { items: [], submitting: false, submitted: false, error: null, submit: submitWish },
-    } as any
+      rsvp: { isPersonalized: false, submitting: false, submitted: false, error: '', submit: submitRsvp },
+      wishes: { items: [], submitting: false, submitted: false, error: '', submit: submitWish },
+    }
 
     render(<AstralVowInvitation editorMode interactions={interactions} />)
 
@@ -123,12 +124,12 @@ describe('AstralVowInvitation', () => {
   it('does not ask personalized guests for a name and keeps identity out of the payload', async () => {
     const submitRsvp = vi.fn().mockResolvedValue(true)
     const submitWish = vi.fn().mockResolvedValue(true)
-    const interactions = {
+    const interactions: PublicInteractions = {
       isPersonalized: true,
       guestName: 'Anh Ba Hùng',
-      rsvp: { submitting: false, submitted: false, error: null, submit: submitRsvp },
-      wishes: { items: [], submitting: false, submitted: false, error: null, submit: submitWish },
-    } as any
+      rsvp: { isPersonalized: true, submitting: false, submitted: false, error: '', submit: submitRsvp },
+      wishes: { items: [], submitting: false, submitted: false, error: '', submit: submitWish },
+    }
 
     render(<AstralVowInvitation editorMode interactions={interactions} />)
 

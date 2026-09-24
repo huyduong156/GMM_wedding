@@ -20,6 +20,7 @@ import type {
   EditorialVowsSectionKey,
 } from './content'
 import { editorialVowsFixture, editorialVowsSections } from './fixture'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './editorial-vows.css'
 
 type Props = {
@@ -78,6 +79,7 @@ export function EditorialVowsWebsite({
   sectionConfig = editorialVowsSections,
   editorMode = false,
 }: Props) {
+  useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion()
   const [navOpen, setNavOpen] = useState(false),

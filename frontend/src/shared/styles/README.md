@@ -2,20 +2,16 @@
 
 ## Scroll reveal
 
-Import `reveal-animations.css`, add `reveal` to an element, and add one effect class:
+`reveal-animations.css` đã được loại bỏ sau khi không còn consumer. Entrance effects dùng `motion/react`; `template-motion.css` cung cấp trạng thái đầu cho target tường minh. Không khôi phục bộ class legacy bên dưới.
 
-- `reveal--fade-up`
-- `reveal--slide-left`
-- `reveal--slide-right`
-- `reveal--slide-down`
-- `reveal--slide-up`
-- `reveal--zoom-in`
-- `reveal--fade-only`
+Các class đã ngừng sử dụng:
 
-The parent adds `is-visible` when it reaches the reveal trigger. Override `--reveal-delay` per element to create a stagger. The shared duration is `1.5s`.
+- Các class `reveal--*` đã ngừng sử dụng; không thêm lại vào template mới.
+
+Timing dùng token riêng của template (`duration`, `stagger`, `listStagger`, `ease`); Motion sở hữu trạng thái hiển thị và phải hỗ trợ reduced motion.
 
 ## Interaction effects
 
 Import `interaction-effects.css` and add `interaction-ripple` to a positioned button or link. The ripple respects `prefers-reduced-motion`.
 
-`reveal-animations.css` also owns the shared `html { scroll-behavior: smooth; }` rule. JavaScript smooth-scroll or Lenis hooks remain optional and should stay in their respective hooks.
+Public templates use `useSmoothTemplateScroll`; entrance CSS must not introduce a second global smooth-scroll owner.

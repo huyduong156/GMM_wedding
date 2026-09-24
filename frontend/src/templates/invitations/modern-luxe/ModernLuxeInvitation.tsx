@@ -24,7 +24,7 @@ import {
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
-import '../../../shared/styles/reveal-animations.css'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './modern-luxe.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
@@ -238,6 +238,13 @@ const nameInitial = (value: string) =>
 const mediaSource = (value: string | ModernLuxeMedia | null | undefined) =>
   typeof value === 'string' ? value : value?.src ?? ''
 
+const MODERN_LUXE_MOTION = {
+  duration: 1.92,
+  stagger: 0.08,
+  listStagger: 0.5,
+  ease: [0.22, 1, 0.36, 1] as const,
+}
+
 function SectionReveal({
   children,
   className,
@@ -264,7 +271,7 @@ function SectionReveal({
       initial={reduceMotion ? false : { opacity: 0, y: 46 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ amount: 0.12, once: true }}
-      transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: MODERN_LUXE_MOTION.duration, ease: MODERN_LUXE_MOTION.ease }}
     >
       {children}
     </motion.section>
@@ -336,6 +343,7 @@ export function ModernLuxeInvitation({
   const openingTimerRef = useRef<number | undefined>(undefined)
   const focusFrameRef = useRef<number | undefined>(undefined)
   const reduceMotion = useReducedMotion()
+  useSmoothTemplateScroll(opened)
   const connectedGuestName = interactions?.guestName?.trim() ?? ''
   const hasGuestName = Boolean(connectedGuestName)
   const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
@@ -384,38 +392,6 @@ export function ModernLuxeInvitation({
     },
     [],
   )
-
-  useEffect(() => {
-    const main = mainRef.current
-    if (!opened || !main) return
-    const sections = Array.from(
-      main.querySelectorAll<HTMLElement>('[data-editor-section]'),
-    )
-    const revealSelector =
-      'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select'
-    const markSectionDetails = (section: HTMLElement) => {
-      section.querySelectorAll<HTMLElement>(revealSelector).forEach((element, index) => {
-        element.classList.add('reveal', 'reveal--fade-only')
-        element.style.setProperty('--reveal-delay', `${Math.min(index * 0.1, 0.9).toFixed(2)}s`)
-      })
-    }
-    sections.forEach(markSectionDetails)
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      sections.forEach((section) => section.classList.add('is-visible'))
-      return
-    }
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
-          entry.target.classList.add('is-visible')
-          observer.unobserve(entry.target)
-        }),
-      { rootMargin: '0px 0px -33% 0px', threshold: 0.01 },
-    )
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
-  }, [opened, reduceMotion])
 
   const openInvitation = () => {
     if (opened || opening) return
@@ -690,9 +666,9 @@ export function ModernLuxeInvitation({
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true, amount: 0.18 }}
                     transition={{
-                      delay: 0.12 + index * 0.15,
-                      duration: 0.9,
-                      ease: [0.22, 1, 0.36, 1],
+                      delay: 0.12 + index * MODERN_LUXE_MOTION.stagger,
+                      duration: MODERN_LUXE_MOTION.duration,
+                      ease: MODERN_LUXE_MOTION.ease,
                     }}
                   >
                     <img src={image} alt="" loading="lazy" />
@@ -729,7 +705,11 @@ export function ModernLuxeInvitation({
                       initial={reduceMotion ? false : { opacity: 0, y: 24 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: 0.2, duration: 0.7 }}
+                      transition={{
+                        delay: MODERN_LUXE_MOTION.stagger * 2,
+                        duration: MODERN_LUXE_MOTION.duration,
+                        ease: MODERN_LUXE_MOTION.ease,
+                      }}
                     >
                       {content.brideName}
                     </motion.span>
@@ -738,7 +718,11 @@ export function ModernLuxeInvitation({
                       initial={reduceMotion ? false : { opacity: 0, y: 24 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: 0.36, duration: 0.7 }}
+                      transition={{
+                        delay: MODERN_LUXE_MOTION.stagger * 4,
+                        duration: MODERN_LUXE_MOTION.duration,
+                        ease: MODERN_LUXE_MOTION.ease,
+                      }}
                     >
                       {content.groomName}
                     </motion.span>
@@ -973,7 +957,11 @@ export function ModernLuxeInvitation({
                       initial={reduceMotion ? false : { opacity: 0, x: index % 2 ? 24 : -24 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, amount: 0.45 }}
-                      transition={{ delay: index * 0.12 }}
+                      transition={{
+                        delay: index * MODERN_LUXE_MOTION.listStagger,
+                        duration: MODERN_LUXE_MOTION.duration,
+                        ease: MODERN_LUXE_MOTION.ease,
+                      }}
                     >
                       <time>{time}</time>
                       <div className="ml-timeline-mark">
@@ -1273,6 +1261,11 @@ export function ModernLuxeInvitation({
                     }
                     whileInView={{ opacity: 1, y: 0, rotate: 0 }}
                     viewport={{ once: true }}
+                    transition={{
+                      delay: index * MODERN_LUXE_MOTION.listStagger,
+                      duration: MODERN_LUXE_MOTION.duration,
+                      ease: MODERN_LUXE_MOTION.ease,
+                    }}
                   >
                     <Heart weight="fill" />
                     <p>{item.message}</p>

@@ -3,6 +3,7 @@ import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'mo
 import { ArrowDown, ArrowRight, Check, MapPin, PaperPlaneTilt } from '@phosphor-icons/react'
 import type { CherryBlossomData, CherrySectionConfig, CherrySectionKey } from './content'
 import { cherryBlossomFixture, cherryBlossomSections } from './fixture'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { PetalFieldSafe as PetalField } from './PetalFieldSafe'
 import './cherry-blossom-garden.css'
 type Props = { data?: CherryBlossomData; sectionConfig?: CherrySectionConfig }
@@ -42,6 +43,7 @@ export function CherryBlossomGardenWebsite({
   data = cherryBlossomFixture,
   sectionConfig = cherryBlossomSections,
 }: Props) {
+  useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),
     hero = useRef<HTMLElement>(null),

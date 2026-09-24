@@ -1,4 +1,5 @@
-import { Children, cloneElement, isValidElement, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useAnimate, useReducedMotion } from 'motion/react'
 import {
   ArrowUpRight,
   CaretLeft,
@@ -12,10 +13,11 @@ import {
   Sparkle,
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
 import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
-import '../../../shared/styles/reveal-animations.css'
+import '../../../shared/styles/template-motion.css'
 
 import { roseGardenFixture, roseGardenSectionConfig } from './fixture'
 import {
@@ -101,6 +103,7 @@ const rendererDecor = {
   sprig: `${artworkRoot}/rg-botanical-sprig.png`,
 }
 const sectionKeys: RoseGardenSectionKey[] = roseGardenSectionConfig.order
+const ROSE_GARDEN_MOTION = { duration: 1.92, stagger: 0.08, listStagger: 0.5, ease: [0.22, 1, 0.36, 1] as const }
 const fixedLeadingSectionKeys: RoseGardenSectionKey[] = [
   'opening',
   'cover',
@@ -293,38 +296,6 @@ function resolveData(data?: RoseGardenData): ResolvedData {
   }
 }
 
-type MotionElementProps = {
-  className?: string
-  style?: CSSProperties
-  children?: ReactNode
-}
-
-const motionVariants = ['reveal--fade-up', 'reveal--slide-left', 'reveal--slide-right', 'reveal--zoom-in', 'reveal--slide-down'] as const
-
-function motionize(node: ReactNode, depth = 0, siblingIndex = 0): ReactNode {
-  if (!isValidElement<MotionElementProps>(node)) return node
-  const variant = motionVariants[(depth + siblingIndex) % motionVariants.length]
-  const existingClassName = node.props.className ?? ''
-  const isMotionStatic = existingClassName.split(/\s+/).includes('rg-motion-static')
-  const hasRevealClass = existingClassName.split(/\s+/).includes('reveal')
-    || existingClassName.split(/\s+/).includes('rg-date-line')
-    || existingClassName.split(/\s+/).includes('rg-date-heart')
-    || existingClassName.split(/\s+/).includes('rg-invitation-eyebrow')
-    || isMotionStatic
-  const nestedChildren = node.props.children === undefined
-    ? undefined
-    : Children.map(node.props.children, (child, index) => motionize(child, depth + 1, index))
-  return cloneElement(
-    node,
-    {
-      className: hasRevealClass ? existingClassName : `${existingClassName} reveal ${variant}`.trim(),
-      style: hasRevealClass
-        ? node.props.style
-        : { ...node.props.style, '--reveal-delay': `${Math.min((depth + siblingIndex) * 0.08, 0.56)}s` } as CSSProperties,
-    },
-    nestedChildren,
-  )
-}
 function SectionFrame({
   sectionKey,
   order,
@@ -338,16 +309,15 @@ function SectionFrame({
   tabIndex?: number
   children: ReactNode
 }) {
-  const motionChildren = Children.map(children, (child, index) => motionize(child, 0, index))
   return (
     <section
-      className={`rg-body-section rg-motion-content ${sectionKey === 'opening' ? 'is-visible' : ''} ${className}`}
+      className={`rg-body-section rg-motion-content ${className}`}
       data-editor-section={sectionKey}
       data-section-layout={className.replace('rg-', '')}
       tabIndex={tabIndex}
       style={{ order } as CSSProperties}
     >
-      {motionChildren}
+      {children}
     </section>
   )
 }
@@ -419,9 +389,12 @@ export function RoseGardenRenderer({
   interactions?: PublicInteractions
 }) {
   const content = resolveData(data)
-  const pageRef = useRef<HTMLDivElement>(null)
   const openingTimerRef = useRef<number | null>(null)
+  const [motionScope, animate] = useAnimate()
+  const reducedMotion = useReducedMotion()
   const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>('closed')
+  const opened = openingState === 'opened'
+  useSmoothTemplateScroll(opened)
   const [rsvpChoice, setRsvpChoice] = useState<'attending' | 'declined' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false)
@@ -436,7 +409,6 @@ export function RoseGardenRenderer({
     [content.event.time, content.event.weddingDate],
   )
   const [countdownClock, setCountdownClock] = useState<CountdownClock>(() => getCountdownClock(weddingTimestamp))
-  const opened = openingState === 'opened'
   const connectedGuestName = interactions?.guestName?.trim() || guestName?.trim() || ''
   const interactionWishItems = interactions?.wishes.items
   const hasGuestName = Boolean(connectedGuestName)
@@ -484,19 +456,50 @@ export function RoseGardenRenderer({
   )
 
   useEffect(() => {
-    const page = pageRef.current
+    const page = motionScope.current as HTMLDivElement | null
     if (!page || typeof window === 'undefined') return
+    if (!opened && !editorMode) return
 
     const getMediaQuery = (query: string) =>
       typeof window.matchMedia === 'function' ? window.matchMedia(query) : { matches: false }
-    const reduceMotion = getMediaQuery('(prefers-reduced-motion: reduce)').matches
     const handleVisibility = () => page.classList.toggle('rg-document-hidden', document.hidden)
     handleVisibility()
     document.addEventListener('visibilitychange', handleVisibility)
     page.classList.add('rg-motion-ready')
-    if (reduceMotion || typeof IntersectionObserver === 'undefined') {
+    const sections = Array.from(page.querySelectorAll<HTMLElement>('.rg-body-section'))
+    const motionSelector = [
+      ':scope > *',
+      'h1,h2,h3,p,span,strong,small,time,em,b,button,a,input,textarea,select,article,figure,li',
+      '.rg-family-side,.rg-event-card,.rg-event-heading,.rg-event-copy,.rg-countdown-heading,.rg-countdown-plaque',
+    ].join(',')
+    const isStatic = (element: HTMLElement) => element.matches('.rg-motion-static, .rg-motion-static *')
+    sections.forEach((section) => {
+      section.querySelectorAll<HTMLElement>(motionSelector).forEach((element, index) => {
+        if (isStatic(element) || element.matches('[aria-hidden="true"], [aria-hidden="true"] *')) return
+        element.dataset.motionVariant = index % 3 === 0 ? 'fade-up' : index % 3 === 1 ? 'slide-left' : 'zoom-in'
+      })
+    })
+    const markVisible = (section: HTMLElement) => {
+      section.dataset.motionVisible = 'true'
+      void animate(section, { opacity: 1, y: 0, scale: 1 }, {
+        duration: reducedMotion ? 0 : ROSE_GARDEN_MOTION.duration,
+        ease: ROSE_GARDEN_MOTION.ease,
+      })
+      Array.from(section.querySelectorAll<HTMLElement>('[data-motion-variant]')).forEach((element, index) => {
+        const listParent = element.parentElement
+        const listIndex = listParent?.matches('.rg-event-times, .rg-family-columns, .rg-countdown-units')
+          ? Array.from(listParent.children).indexOf(element)
+          : -1
+        void animate(element, { opacity: 1, x: 0, y: 0, scale: 1 }, {
+          duration: reducedMotion ? 0 : ROSE_GARDEN_MOTION.duration,
+          delay: reducedMotion ? 0 : listIndex >= 0 ? listIndex * ROSE_GARDEN_MOTION.listStagger : Math.min(index * ROSE_GARDEN_MOTION.stagger, 1.1),
+          ease: ROSE_GARDEN_MOTION.ease,
+        })
+      })
+    }
+    if (reducedMotion || typeof IntersectionObserver === 'undefined') {
       page.classList.add('rg-atmosphere-active')
-      page.querySelectorAll<HTMLElement>('.rg-body-section:not(.rg-opening)').forEach((section) => section.classList.add('is-visible'))
+      sections.forEach(markVisible)
       return () => document.removeEventListener('visibilitychange', handleVisibility)
     }
 
@@ -504,7 +507,7 @@ export function RoseGardenRenderer({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible')
+            markVisible(entry.target as HTMLElement)
             observer.unobserve(entry.target)
           }
         })
@@ -512,7 +515,8 @@ export function RoseGardenRenderer({
       { threshold: 0.01, rootMargin: '0px 0px -33% 0px' },
     )
     const observeSections = () => {
-      page.querySelectorAll<HTMLElement>('.rg-body-section:not(.rg-opening):not(.is-visible)').forEach((section) => observer.observe(section))
+      sections.filter((section) => section.getBoundingClientRect().top >= window.innerHeight * 0.67).forEach((section) => observer.observe(section))
+      sections.filter((section) => section.getBoundingClientRect().top < window.innerHeight * 0.67).forEach(markVisible)
     }
     observeSections()
 
@@ -543,14 +547,14 @@ export function RoseGardenRenderer({
       page.removeEventListener('pointerleave', resetPointer)
       document.removeEventListener('visibilitychange', handleVisibility)
     }
-  }, [sectionConfig, openingState])
+  }, [animate, editorMode, motionScope, opened, openingState, reducedMotion, sectionConfig])
 
   useEffect(() => () => {
     if (openingTimerRef.current !== null) window.clearTimeout(openingTimerRef.current)
   }, [])
 
   const focusCover = () => {
-    requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus({ preventScroll: true }))
+    requestAnimationFrame(() => ((motionScope.current as HTMLElement | null)?.querySelector('[data-editor-section="cover"]') as HTMLElement | null)?.focus({ preventScroll: true }))
   }
 
   const completeOpening = () => {
@@ -687,7 +691,7 @@ export function RoseGardenRenderer({
             <SectionEyebrow className="rg-invitation-eyebrow">Lời mời từ khu vườn</SectionEyebrow>
             <h2>{personalize(content.invitation.title, connectedGuestName)}</h2>
             <p className="rg-lead">{personalize(content.invitation.message, connectedGuestName)}</p>
-            <Artwork src={rendererDecor.petalCluster} alt="" className="rg-letter-rose-decor reveal reveal--fade-up" />
+            <Artwork src={rendererDecor.petalCluster} alt="" className="rg-letter-rose-decor rg-motion-static" />
             <div className="rg-memory-triptych">
               {memoryImages.map((src, index) => (
                 <figure key={`${src}-${index}`} className={`rg-memory-card rg-memory-card-${index + 1}`}>
@@ -696,7 +700,7 @@ export function RoseGardenRenderer({
                 </figure>
               ))}
             </div>
-            <Artwork src={rendererDecor.sprig} alt="" className="rg-letter-decor reveal reveal--slide-left" />
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-letter-decor rg-motion-static" />
           </SectionFrame>
         )
       case 'families':
@@ -816,7 +820,7 @@ export function RoseGardenRenderer({
       case 'venue':
         return (
           <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-venue">
-            <div className="rg-venue-pin reveal reveal--slide-left"><MapPin weight="fill" className="rg-motion-static" /></div>
+          <div className="rg-venue-pin"><MapPin weight="fill" className="rg-motion-static" /></div>
             <SectionEyebrow>Địa điểm hôn lễ</SectionEyebrow>
             <h2>{content.venue.title}</h2><strong>{content.venue.name}</strong><p>{content.venue.address}</p><p className="rg-muted-copy">{content.venue.message}</p>
             {content.venue.mapUrl ? <a className="rg-venue-map-link" href={content.venue.mapUrl} target="_blank" rel="noreferrer">Mở Google Maps <ArrowUpRight /></a> : null}
@@ -885,7 +889,7 @@ export function RoseGardenRenderer({
                 </div>
               ) : wishes.map((wish, index) => renderWish(wish, index))}
             </div>
-            <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-guestbook-decor" />
+            <Artwork src={rendererDecor.sprig} alt="" className="rg-section-decor rg-guestbook-decor rg-motion-static" />
           </SectionFrame>
         )
       case 'gift':
@@ -908,13 +912,13 @@ export function RoseGardenRenderer({
         return null
       case 'footer':
         return (
-          <footer key={key} className="rg-body-section rg-motion-content is-visible rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}>
-            <Sparkle weight="duotone" className="reveal reveal--zoom-in" />
-            <SectionEyebrow className="reveal reveal--slide-left">{content.footer.title}</SectionEyebrow>
-            <h2 className="reveal reveal--slide-right">{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</h2>
-            <p className="reveal reveal--fade-up">{content.footer.message}</p>
-            {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media reveal reveal--zoom-in" /> : null}
-            <span className="rg-footer-date reveal reveal--slide-down">{content.event.weddingDate}</span>
+          <footer key={key} className="rg-body-section rg-motion-content rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}>
+            <Sparkle weight="duotone" />
+            <SectionEyebrow>{content.footer.title}</SectionEyebrow>
+            <h2>{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</h2>
+            <p>{content.footer.message}</p>
+            {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media" /> : null}
+            <span className="rg-footer-date">{content.event.weddingDate}</span>
             <Artwork src={rendererDecor.botanicalAlt} alt="" className="rg-section-decor rg-footer-decor rg-motion-static" />
           </footer>
         )
@@ -924,7 +928,7 @@ export function RoseGardenRenderer({
   }
 
   return (
-    <div ref={pageRef} className="rg-page">
+    <div ref={motionScope} className="rg-page">
       <div className="rg-backdrop" aria-hidden="true">{glints.map((glint) => <i key={glint.id} className="rg-glint" style={{ left: glint.left, top: glint.top, width: glint.size, height: glint.size, animationDelay: glint.delay, animationDuration: glint.duration }} />)}</div>
       {enabled.has('music') && (content.music.backgroundMusicUrl || editorMode) ? (
         <MusicPlayer

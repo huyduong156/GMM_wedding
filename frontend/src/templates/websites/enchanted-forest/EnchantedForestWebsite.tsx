@@ -17,6 +17,7 @@ import type {
   EnchantedForestSectionKey,
 } from './content'
 import { enchantedForestFixture, enchantedForestSections } from './fixture'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import './enchanted-forest.css'
 type Props = { data?: EnchantedForestData; sectionConfig?: EnchantedForestSectionConfig }
 const root = '/assets/images/templates/enchanted-forest'
@@ -57,6 +58,7 @@ export function EnchantedForestWebsite({
   data = enchantedForestFixture,
   sectionConfig = enchantedForestSections,
 }: Props) {
+  useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),
     [sent, setSent] = useState(false),

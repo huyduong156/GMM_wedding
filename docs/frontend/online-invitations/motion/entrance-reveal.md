@@ -1,5 +1,29 @@
 # Entrance Reveal
 
+## Implementation contract
+
+### Template motion timing
+
+- Each public template must define one local motion token (for example `AURELIA_MOTION` or `ASTRAL_MOTION`) instead of hardcoding entrance timing throughout the renderer.
+- The token should centralize at least `duration`, `stagger`, `listStagger`, and `ease` so a template's choreography can be tuned from one place.
+- The default entrance easing is ease-out: `[0.22, 1, 0.36, 1]`. The animation should start decisively and slow near completion.
+- Repeated cards, timeline rows, gallery items, and similar lists may use `listStagger` (typically around `0.5s`) so each item enters after the previous one. Keep reduced-motion paths at zero delay.
+
+### Motion ownership and decorative layers
+
+- Separate semantic content motion from decorative artwork motion. Motion selectors must be explicit; do not use broad selectors such as `:scope > *` or every `img` when a section contains ornaments, parallax artwork, ambient particles, masks, or carousel surfaces.
+- Decorative elements must not receive Motion inline `transform` or `opacity` styles unless they are intentionally part of that element's entrance choreography. Their rotation, parallax, depth, and ambient animation remain owned by their dedicated CSS or effect system.
+- Prefer explicit semantic selectors or `data-motion-variant` markers for headings, copy, cards, controls, and content containers. Exclude `aria-hidden` artwork and decorative class namespaces from entrance queries.
+- Audit every element that has an initial `opacity: 0` or `transform` rule: it must have exactly one owner that restores its visible state. Never remove a reveal trigger while leaving the element permanently hidden.
+- When a template uses a carousel, map, gallery, or nested visual surface, animate the owning container and preserve the child surface's own `transform` contract.
+
+- `motion/react` là engine chung cho entrance reveal, section reveal, stagger, modal và state transition có nội dung.
+- Dùng `initial`/`animate` hoặc `whileInView` với `transform` và `opacity`; mỗi element chỉ có một motion owner.
+- Không thêm `.reveal`, `.reveal--slide-up`, `.reveal--fade-up` hoặc `.is-visible` cho element đã được Motion điều khiển.
+- CSS transition/keyframes chỉ dành cho hover, ambient loop và trang trí không tranh quyền điều khiển `transform`/`opacity` với Motion.
+- `reveal-animations.css` đã được loại bỏ khi không còn consumer. Không khôi phục bộ class `.reveal`/`.reveal--*` và override `!important` cũ; dùng `motion/react` với target tường minh.
+- Mọi template phải có `useReducedMotion`/`MotionConfig` hoặc fallback tương đương để nội dung vẫn hiển thị khi người dùng giảm chuyển động.
+
 ```yaml
 name: Seal-to-Garden Opening
 category: entrance

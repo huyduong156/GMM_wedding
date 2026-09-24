@@ -218,87 +218,6 @@
     letter-spacing: .18em;
     text-transform: uppercase
 }
-
-.av-reveal {
-    opacity: 1;
-    transform: none
-}
-
-.av-reveal.is-in-view {
-    animation: av-rise 560ms var(--av-ease-out) both;
-    will-change: transform, opacity
-}
-
-.av-reveal > .av-label,
-.av-reveal > h2,
-.av-reveal > h3,
-.av-reveal > p,
-.av-reveal > a,
-.av-reveal > .av-family-grid,
-.av-reveal > .av-timeline,
-.av-reveal > .av-invitation-memories,
-.av-reveal > .av-gallery-grid,
-.av-reveal > .av-rsvp-actions,
-.av-reveal > textarea,
-.av-reveal > button,
-.av-reveal > small {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0) scale(.985);
-}
-
-.av-reveal.is-in-view > .av-label,
-.av-reveal.is-in-view > h2,
-.av-reveal.is-in-view > h3,
-.av-reveal.is-in-view > p,
-.av-reveal.is-in-view > a,
-.av-reveal.is-in-view > .av-family-grid,
-.av-reveal.is-in-view > .av-timeline,
-.av-reveal.is-in-view > .av-invitation-memories,
-.av-reveal.is-in-view > .av-gallery-grid,
-.av-reveal.is-in-view > .av-rsvp-actions,
-.av-reveal.is-in-view > textarea,
-.av-reveal.is-in-view > button,
-.av-reveal.is-in-view > small {
-    animation: av-detail-rise 720ms var(--av-ease-out) both;
-    animation-delay: calc(var(--av-detail-delay, 0ms) + var(--av-stagger, 0ms));
-}
-
-.av-reveal.is-in-view > .av-label { --av-stagger: 40ms; }
-.av-reveal.is-in-view > h2 { --av-stagger: 110ms; }
-.av-reveal.is-in-view > h3,
-.av-reveal.is-in-view > p { --av-stagger: 180ms; }
-.av-reveal.is-in-view > .av-family-grid,
-.av-reveal.is-in-view > .av-timeline,
-.av-reveal.is-in-view > .av-invitation-memories,
-.av-reveal.is-in-view > .av-gallery-grid,
-.av-reveal.is-in-view > .av-rsvp-actions,
-.av-reveal.is-in-view > textarea { --av-stagger: 260ms; }
-.av-reveal.is-in-view > a,
-.av-reveal.is-in-view > button,
-.av-reveal.is-in-view > small { --av-stagger: 330ms; }
-
-@keyframes av-detail-rise {
-    from { opacity: 0; transform: translate3d(0, 16px, 0) scale(.985); }
-    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .av-timeline article>i { animation: none; transform: rotate(0) scale(1); filter: none; opacity: 1; }
-    .av-reveal > .av-label,
-    .av-reveal > h2,
-    .av-reveal > h3,
-    .av-reveal > p,
-    .av-reveal > a,
-    .av-reveal > .av-family-grid,
-    .av-reveal > .av-timeline,
-    .av-reveal > .av-invitation-memories,
-    .av-reveal > .av-gallery-grid,
-    .av-reveal > .av-rsvp-actions,
-    .av-reveal > textarea,
-    .av-reveal > button,
-    .av-reveal > small { opacity: 1; transform: none; animation: none; }
-}
-
 .av-opening {
     display: grid;
     box-sizing: border-box;
@@ -306,75 +225,6 @@
     min-height: 100dvh;
     place-items: center;
     padding: 1.5rem
-}
-
-.av-page.is-opened .av-reveal > .av-label,
-.av-reveal > h2,
-.av-reveal > h3,
-.av-reveal > p,
-.av-reveal > a,
-.av-reveal > .av-family-grid,
-.av-reveal > .av-timeline,
-.av-reveal > .av-invitation-memories,
-.av-reveal > .av-gallery-grid,
-.av-reveal > .av-rsvp-actions,
-.av-reveal > textarea,
-.av-reveal > button,
-.av-reveal > small {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0) scale(.985);
-}
-
-.av-reveal.is-in-view > .av-label,
-.av-reveal.is-in-view > h2,
-.av-reveal.is-in-view > h3,
-.av-reveal.is-in-view > p,
-.av-reveal.is-in-view > a,
-.av-reveal.is-in-view > .av-family-grid,
-.av-reveal.is-in-view > .av-timeline,
-.av-reveal.is-in-view > .av-invitation-memories,
-.av-reveal.is-in-view > .av-gallery-grid,
-.av-reveal.is-in-view > .av-rsvp-actions,
-.av-reveal.is-in-view > textarea,
-.av-reveal.is-in-view > button,
-.av-reveal.is-in-view > small {
-    animation: av-detail-rise 720ms var(--av-ease-out) both;
-    animation-delay: calc(var(--av-detail-delay, 0ms) + var(--av-stagger, 0ms));
-}
-
-.av-reveal.is-in-view > .av-label { --av-stagger: 40ms; }
-.av-reveal.is-in-view > h2 { --av-stagger: 110ms; }
-.av-reveal.is-in-view > h3,
-.av-reveal.is-in-view > p { --av-stagger: 180ms; }
-.av-reveal.is-in-view > .av-family-grid,
-.av-reveal.is-in-view > .av-timeline,
-.av-reveal.is-in-view > .av-invitation-memories,
-.av-reveal.is-in-view > .av-gallery-grid,
-.av-reveal.is-in-view > .av-rsvp-actions,
-.av-reveal.is-in-view > textarea { --av-stagger: 260ms; }
-.av-reveal.is-in-view > a,
-.av-reveal.is-in-view > button,
-.av-reveal.is-in-view > small { --av-stagger: 330ms; }
-
-@keyframes av-detail-rise {
-    from { opacity: 0; transform: translate3d(0, 16px, 0) scale(.985); }
-    to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .av-reveal > .av-label,
-    .av-reveal > h2,
-    .av-reveal > h3,
-    .av-reveal > p,
-    .av-reveal > a,
-    .av-reveal > .av-family-grid,
-    .av-reveal > .av-timeline,
-    .av-reveal > .av-invitation-memories,
-    .av-reveal > .av-gallery-grid,
-    .av-reveal > .av-rsvp-actions,
-    .av-reveal > textarea,
-    .av-reveal > button,
-    .av-reveal > small { opacity: 1; transform: none; animation: none; }
 }
 
 .av-opening {
@@ -534,8 +384,8 @@
     mix-blend-mode: screen
 }
 
-.av-section.is-in-view .av-families-moon,
-.av-section.is-in-view .av-opening-moon { animation: av-moon-drift 8s var(--av-ease-move) infinite alternate }
+.av-section[data-motion-visible='true'] .av-families-moon,
+.av-section[data-motion-visible='true'] .av-opening-moon { animation: av-moon-drift 8s var(--av-ease-move) infinite alternate }
 
 .av-families-moon,
 .av-opening-moon { will-change: transform, opacity }
@@ -1074,7 +924,7 @@
     will-change: transform, filter, opacity;
 }
 
-.av-section.is-in-view .av-timeline article>i {
+.av-section[data-motion-visible='true'] .av-timeline article>i {
     animation: av-timeline-star-pulse 4.6s ease-in-out infinite;
 }
 
@@ -1545,7 +1395,7 @@
     filter: drop-shadow(0 0 8px rgb(231 199 119 / 55%));
 }
 
-.av-section.is-in-view .av-venue-icon {
+.av-section[data-motion-visible='true'] .av-venue-icon {
     animation: av-venue-icon-bounce 3s cubic-bezier(.22, .61, .36, 1) infinite;
 }
 
@@ -1583,7 +1433,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .av-section.is-in-view .av-venue-icon { animation: none; transform: none; }
+    .av-section[data-motion-visible='true'] .av-venue-icon { animation: none; transform: none; }
 }
 
 /* 3D photo deck inspired by the Modern Luxe gallery */
@@ -2002,88 +1852,9 @@
     68% { opacity: .5; transform: scale(.72); }
     100% { opacity: 0; transform: scale(1.85); }
 }
-/* Fine-grained section choreography */
-.av-reveal .av-family-grid > .av-family,
-.av-reveal .av-countdown > div:not(.av-countdown-decor) > strong,
-.av-reveal .av-timeline article,
-.av-reveal .av-venue-map,
-.av-reveal .av-gallery-dots button {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-}
-.av-reveal.is-in-view .av-family-grid > .av-family,
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong,
-.av-reveal.is-in-view .av-timeline article,
-.av-reveal.is-in-view .av-venue-map,
-.av-reveal.is-in-view .av-gallery-dots button {
-    animation: av-child-detail-rise 700ms var(--av-ease-out) both;
-}
-.av-reveal.is-in-view .av-family-grid > .av-family:nth-child(1),
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong:nth-child(1),
-.av-reveal.is-in-view .av-timeline article:nth-child(1),
-.av-reveal.is-in-view .av-gallery-dots button:nth-child(1) { animation-delay: 180ms; }
-.av-reveal.is-in-view .av-family-grid > .av-family:nth-child(2),
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong:nth-child(2),
-.av-reveal.is-in-view .av-timeline article:nth-child(2),
-.av-reveal.is-in-view .av-gallery-dots button:nth-child(2) { animation-delay: 300ms; }
-.av-reveal.is-in-view .av-family-grid > .av-family:nth-child(3),
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong:nth-child(3),
-.av-reveal.is-in-view .av-timeline article:nth-child(3),
-.av-reveal.is-in-view .av-gallery-dots button:nth-child(3) { animation-delay: 420ms; }
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong:nth-child(4),
-.av-reveal.is-in-view .av-gallery-dots button:nth-child(4) { animation-delay: 540ms; }
-
-.av-reveal .av-invitation-memories figure {
-    opacity: 0;
-    transform: translate3d(0, 22px, 0) rotate(var(--av-memory-tilt, 0deg));
-}
-.av-reveal.is-in-view .av-invitation-memories figure {
-    animation: av-memory-detail-rise 760ms var(--av-ease-out) both;
-}
-.av-reveal.is-in-view .av-invitation-memories figure:nth-child(1) { animation-delay: 260ms; }
-.av-reveal.is-in-view .av-invitation-memories figure:nth-child(2) { animation-delay: 380ms; }
-.av-reveal.is-in-view .av-invitation-memories figure:nth-child(3) { animation-delay: 500ms; }
-
-@keyframes av-child-detail-rise {
-    from { opacity: 0; transform: translate3d(0, 18px, 0); }
-    to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-@keyframes av-memory-detail-rise {
-    from { opacity: 0; transform: translate3d(0, 22px, 0) rotate(var(--av-memory-tilt, 0deg)); }
-    to { opacity: 1; transform: translate3d(0, 0, 0) rotate(var(--av-memory-tilt, 0deg)); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .av-reveal .av-family-grid > .av-family,
-    .av-reveal .av-countdown > div:not(.av-countdown-decor) > strong,
-    .av-reveal .av-timeline article,
-    .av-reveal .av-venue-map,
-    .av-reveal .av-gallery-dots button,
-    .av-reveal .av-invitation-memories figure {
-        opacity: 1;
-        transform: none;
-        animation: none;
-    }
-}
-/* Shared reveal tuning: keep the eclipse centered and let details breathe longer. */
-.av-page {
-    --reveal-duration: 1.8s;
-}
-.av-gift > .av-eclipse.reveal {
-    transform: none;
-}
-.av-reveal.is-in-view .av-family-grid > .av-family,
-.av-reveal.is-in-view .av-countdown > div:not(.av-countdown-decor) > strong,
-.av-reveal.is-in-view .av-timeline article,
-.av-reveal.is-in-view .av-venue-map,
-.av-reveal.is-in-view .av-gallery-dots button {
-    animation-duration: 900ms;
-}
-.av-reveal.is-in-view .av-invitation-memories figure {
-    animation-duration: 960ms;
-}
 /* Eclipse is a self-animated control, independent from section detail reveal. */
-.av-reveal.av-gift > .av-eclipse,
-.av-reveal.is-in-view.av-gift > .av-eclipse {
+.av-gift > .av-eclipse,
+.av-gift[data-motion-visible='true'] > .av-eclipse {
     opacity: 1 !important;
     transform: none !important;
     animation: av-gift-eclipse-breathe 4s ease-in-out infinite !important;

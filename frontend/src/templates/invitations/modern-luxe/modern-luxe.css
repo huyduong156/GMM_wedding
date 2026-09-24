@@ -490,11 +490,6 @@
   background: currentColor;
 }
 
-.modern-luxe {
-  --reveal-duration: 1.85s;
-  --reveal-stagger: 0.24s;
-}
-
 .ml-hero {
   --ml-pointer-x: 0;
   --ml-pointer-y: 0;

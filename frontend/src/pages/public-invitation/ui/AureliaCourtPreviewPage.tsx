@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AureliaCourtRenderer } from '../../../templates/invitations/aurelia-court/AureliaCourtRenderer'
 import type { AureliaCourtData, AureliaCourtSectionConfig } from '../../../templates/invitations/aurelia-court/AureliaCourtTypes'
 import { isLiveEditorScroll, isLiveEditorUpdate, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 export function AureliaCourtPreviewPage() {
   const editorMode = new URLSearchParams(window.location.search).get('editor') === '1'
@@ -15,12 +16,11 @@ export function AureliaCourtPreviewPage() {
         setData(event.data.payload.data)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll(event.data)) {
-        const target = document.querySelector(`[data-editor-section="${event.data.payload.sectionKey}"]`)
+        const target = document.querySelector<HTMLElement>(
+          `[data-editor-section="${event.data.payload.sectionKey}"]`,
+        )
         if (target) {
-          window.scrollTo({
-            top: target.getBoundingClientRect().top + window.scrollY,
-            behavior: 'smooth',
-          })
+          smoothScrollTo(target, { block: 'start' })
         }
       }
     }

@@ -7,6 +7,7 @@ import {
 } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { isModernLuxeEditorMessage } from '../../../templates/invitations/modern-luxe/editor-message'
 import { isLiveEditorScroll, liveEditorEvents } from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 const palettes: Array<{ key: ModernLuxePalette; label: string }> = [
   { key: 'champagne', label: 'Champagne' },
@@ -35,18 +36,10 @@ export function ModernLuxePreviewPage() {
         setPalette(event.data.payload.palette)
         setSectionConfig(event.data.payload.sectionConfig)
       } else if (isLiveEditorScroll<ModernLuxeSectionConfig['order'][number]>(event.data)) {
-        const target = document.querySelector(
+        const target = document.querySelector<HTMLElement>(
           `[data-editor-section="${event.data.payload.sectionKey}"]`,
         )
-        if (target) {
-          if (event.data.payload.sectionKey === 'footer')
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          else
-            window.scrollTo({
-              top: target.getBoundingClientRect().top + window.scrollY,
-              behavior: 'smooth',
-            })
-        }
+        if (target) smoothScrollTo(target, { block: 'start' })
       }
     }
     window.addEventListener('message', receive)

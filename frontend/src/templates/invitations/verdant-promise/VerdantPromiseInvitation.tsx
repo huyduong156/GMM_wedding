@@ -20,6 +20,7 @@ import {
   useScroll,
   useTransform,
 } from 'motion/react'
+import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import {
   formatCountdownUnit,
   useWeddingCountdown,
@@ -234,33 +235,7 @@ export function VerdantPromiseInvitation({
   const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)
   const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
 
-  useEffect(() => {
-    if (
-      !opened ||
-      reduceMotion ||
-      typeof window.matchMedia !== 'function' ||
-      !window.matchMedia('(pointer: fine) and (min-width: 701px)').matches
-    )
-      return
-
-    let active = true
-    let smoothScroll: { destroy: () => void } | undefined
-
-    void import('lenis').then(({ default: Lenis }) => {
-      if (!active) return
-      smoothScroll = new Lenis({
-        autoRaf: true,
-        lerp: 0.085,
-        smoothWheel: true,
-        wheelMultiplier: 0.85,
-      })
-    })
-
-    return () => {
-      active = false
-      smoothScroll?.destroy()
-    }
-  }, [opened, reduceMotion])
+  useSmoothTemplateScroll(opened)
 
   useEffect(() => {
     if (!opened || galleryPaused || reduceMotion) return
