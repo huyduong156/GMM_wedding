@@ -104,6 +104,12 @@ export const mediaIntentSchema = z
     altText: z.string().trim().max(500).optional(),
   })
   .strip()
+export const mediaMetadataSchema = z
+  .object({
+    altText: z.union([z.string().trim().max(500), z.null()]).optional(),
+  })
+  .strip()
+  .refine((value) => value.altText !== undefined, 'At least one media field is required')
 export const createWeddingSchema = z
   .object({
     name: z.string().trim().min(1).max(160),

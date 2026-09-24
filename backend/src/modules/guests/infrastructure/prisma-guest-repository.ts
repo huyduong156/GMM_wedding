@@ -51,6 +51,61 @@ const groupSelect = {
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.GuestGroupSelect
+
+type GuestCategoryTreeRow = {
+  id: string
+  parentId: string | null
+  depth: number
+  deletedAt: Date | null
+}
+
+export type GuestCategoryTreeUpdate = {
+  id: string
+  parentId: string | null
+  depth: number
+}
+
+/** Reconnect active descendants around deleted categories and recompute depth. */
+export function rebaseGuestCategoryTree(
+  rows: GuestCategoryTreeRow[],
+  deletedIds: ReadonlySet<string>,
+): GuestCategoryTreeUpdate[] {
+  const byId = new Map(rows.map((row) => [row.id, row]))
+  const activeRows = rows.filter((row) => !deletedIds.has(row.id) && !row.deletedAt)
+  const activeIds = new Set(activeRows.map((row) => row.id))
+  const parentById = new Map<string, string | null>()
+
+  for (const row of activeRows) {
+    let parentId = row.parentId
+    const visited = new Set<string>()
+    while (parentId && !activeIds.has(parentId)) {
+      if (visited.has(parentId))
+        throw new GuestError('GUEST_CATEGORY_CYCLE', 400, 'Category cycle is not allowed')
+      visited.add(parentId)
+      parentId = byId.get(parentId)?.parentId ?? null
+    }
+    parentById.set(row.id, parentId)
+  }
+
+  const depthById = new Map<string, number>()
+  const resolveDepth = (id: string, trail = new Set<string>()): number => {
+    const cached = depthById.get(id)
+    if (cached !== undefined) return cached
+    if (trail.has(id))
+      throw new GuestError('GUEST_CATEGORY_CYCLE', 400, 'Category cycle is not allowed')
+    const parentId = parentById.get(id) ?? null
+    const depth = parentId ? resolveDepth(parentId, new Set(trail).add(id)) + 1 : 1
+    depthById.set(id, depth)
+    return depth
+  }
+
+  return activeRows.flatMap((row) => {
+    const parentId = parentById.get(row.id) ?? null
+    const depth = resolveDepth(row.id)
+    return row.parentId === parentId && row.depth === depth ? [] : [{ id: row.id, parentId, depth }]
+  })
+}
+
 const encode = (value: { createdAt: Date; id: string }) =>
   Buffer.from(JSON.stringify([value.createdAt.toISOString(), value.id])).toString('base64url')
 function decode(cursor?: string) {
@@ -260,6 +315,21 @@ export class PrismaGuestRepository implements GuestRepository {
   }
   async listCategories(userId: string, weddingId: string) {
     if (!(await this.canRead(userId, weddingId))) return null
+    const treeRows = await this.prisma.guestCategory.findMany({
+      where: { weddingId },
+      select: { id: true, parentId: true, depth: true, deletedAt: true },
+    })
+    const updates = rebaseGuestCategoryTree(treeRows, new Set())
+    if (updates.length > 0) {
+      await this.prisma.$transaction(async (tx) => {
+        for (const update of updates) {
+          await tx.guestCategory.updateMany({
+            where: { id: update.id, weddingId, deletedAt: null },
+            data: { parentId: update.parentId, depth: update.depth },
+          })
+        }
+      })
+    }
     return this.prisma.guestCategory.findMany({
       where: { weddingId, deletedAt: null },
       select: categorySelect,
@@ -365,15 +435,29 @@ export class PrismaGuestRepository implements GuestRepository {
     if (!(await this.owns(userId, weddingId))) return null
     const now = new Date()
     return this.prisma.$transaction(async (tx) => {
+      const categories = await tx.guestCategory.findMany({
+        where: { weddingId },
+        select: { id: true, parentId: true, depth: true, deletedAt: true },
+      })
+      const target = categories.find((category) => category.id === categoryId && !category.deletedAt)
+      if (!target) return false
       const result = await tx.guestCategory.updateMany({
         where: { id: categoryId, weddingId, deletedAt: null },
         data: { deletedAt: now },
       })
       if (!result.count) return false
-      await tx.guestCategory.updateMany({
-        where: { weddingId, parentId: categoryId, deletedAt: null },
-        data: { parentId: null, depth: 1 },
-      })
+      const updates = rebaseGuestCategoryTree(
+        categories.map((category) =>
+          category.id === categoryId ? { ...category, deletedAt: now } : category,
+        ),
+        new Set([categoryId]),
+      )
+      for (const update of updates) {
+        await tx.guestCategory.updateMany({
+          where: { id: update.id, weddingId, deletedAt: null },
+          data: { parentId: update.parentId, depth: update.depth },
+        })
+      }
       await tx.guest.updateMany({
         where: { weddingId, categoryId, deletedAt: null },
         data: { categoryId: null },
@@ -385,14 +469,31 @@ export class PrismaGuestRepository implements GuestRepository {
     if (!(await this.owns(userId, weddingId))) return null
     const now = new Date()
     return this.prisma.$transaction(async (tx) => {
+      const categories = await tx.guestCategory.findMany({
+        where: { weddingId },
+        select: { id: true, parentId: true, depth: true, deletedAt: true },
+      })
+      const deletedIds = new Set(
+        categories
+          .filter((category) => categoryIds.includes(category.id) && !category.deletedAt)
+          .map((category) => category.id),
+      )
       const result = await tx.guestCategory.updateMany({
         where: { id: { in: categoryIds }, weddingId, deletedAt: null },
         data: { deletedAt: now },
       })
-      await tx.guestCategory.updateMany({
-        where: { weddingId, parentId: { in: categoryIds }, deletedAt: null },
-        data: { parentId: null, depth: 1 },
-      })
+      const updates = rebaseGuestCategoryTree(
+        categories.map((category) =>
+          deletedIds.has(category.id) ? { ...category, deletedAt: now } : category,
+        ),
+        deletedIds,
+      )
+      for (const update of updates) {
+        await tx.guestCategory.updateMany({
+          where: { id: update.id, weddingId, deletedAt: null },
+          data: { parentId: update.parentId, depth: update.depth },
+        })
+      }
       await tx.guest.updateMany({
         where: { weddingId, categoryId: { in: categoryIds }, deletedAt: null },
         data: { categoryId: null },

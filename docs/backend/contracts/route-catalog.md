@@ -121,11 +121,12 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | GET | `/admin/templates/{templateKey}/versions/{version}` | Platform admin | Implemented | Chi tiết config và trạng thái duyệt của version |
 | POST | `/admin/templates/{templateKey}/versions/{version}/release` | Platform admin + CSRF | Implemented | Phát hành version cho catalog user; từ chối `TEMPLATE_VERSION_INCOMPATIBLE` khi contract version/config không được runtime hỗ trợ |
 | POST | `/admin/templates/{templateKey}/versions/{version}/deprecate` | Platform admin + CSRF | Implemented | Ngừng phân phối version, không xóa tham chiếu cũ |
-| POST | `/weddings/{weddingId}/media/upload-intents` | Owner/editor | Implemented | Tạo presigned/fake upload intent có giới hạn MIME/size |
-| PUT | `/weddings/{weddingId}/media/{mediaId}/upload` | Owner/editor, local fake storage | Implemented | Upload bytes cho fake storage local |
-| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Owner/editor | Implemented | Xác minh object/size/MIME khả dụng rồi chuyển asset READY |
+| POST | `/weddings/{weddingId}/media/upload-intents` | Owner/editor | Implemented | Tạo backend upload intent có giới hạn MIME/size |
+| PUT | `/weddings/{weddingId}/media/{mediaId}/upload` | Owner/editor | Implemented | Backend nhận ảnh, chuyển sang WebP và lưu duy nhất WebP vào object storage |
+| POST | `/weddings/{weddingId}/media/{mediaId}/complete` | Owner/editor | Implemented | Xác minh object WebP/size/MIME rồi chuyển asset READY |
 | GET | `/weddings/{weddingId}/media` | Owner/editor | Implemented | Danh sách media |
 | DELETE | `/weddings/{weddingId}/media/{mediaId}` | Owner/editor | Implemented | Xóa/retire media |
+| GET/PATCH | `/weddings/{weddingId}/media/{mediaId}` | Owner/editor | Implemented | Xem chi tiết hoặc cập nhật alt text của media |
 
 ## Nhạc nền dùng chung
 

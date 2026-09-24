@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   linkWishGuestSchema,
+  mediaMetadataSchema,
   publishWeddingSchema,
   promoteWishSchema,
   saveWeddingContentSchema,
@@ -75,5 +76,15 @@ describe('wish schemas', () => {
     expect(
       linkWishGuestSchema.parse({ guestId: '11111111-1111-4111-8111-111111111111' }).guestId,
     ).toBeTruthy()
+  })
+})
+
+describe('media schemas', () => {
+  it('accepts alt text updates and explicit clearing', () => {
+    expect(mediaMetadataSchema.parse({ altText: '  ảnh cưới  ' })).toEqual({
+      altText: 'ảnh cưới',
+    })
+    expect(mediaMetadataSchema.parse({ altText: null })).toEqual({ altText: null })
+    expect(mediaMetadataSchema.safeParse({}).success).toBe(false)
   })
 })

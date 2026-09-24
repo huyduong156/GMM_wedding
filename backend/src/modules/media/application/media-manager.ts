@@ -1,14 +1,21 @@
 import { randomUUID } from 'node:crypto'
 import type { PrismaClient } from '@prisma/client'
 import type { ObjectStorage } from '@/platform/storage/object-storage'
+import { ImageConversionService } from './image-conversion-service'
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024
 const MIME_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/gif': 'gif',
 }
+
+export function toWebpFileName(fileName: string) {
+  const lastDot = fileName.lastIndexOf('.')
+  const stem = lastDot > 0 ? fileName.slice(0, lastDot) : fileName
+  return `${stem}.webp`
+}
+
 export class MediaError extends Error {
   constructor(
     readonly code: string,
@@ -23,6 +30,7 @@ export class MediaManager {
   constructor(
     private readonly prisma: PrismaClient,
     private readonly storage: ObjectStorage,
+    private readonly imageConverter = new ImageConversionService(),
   ) {}
   private async owner(userId: string, weddingId: string) {
     return this.prisma.wedding.findFirst({
@@ -50,11 +58,16 @@ export class MediaManager {
       throw new MediaError(
         'MEDIA_INVALID',
         400,
-        'Only image/jpeg, image/png, image/webp and image/gif up to 10MB are supported',
+        'Only image/jpeg, image/png and image/webp up to 10MB are supported',
       )
     const id = randomUUID()
-    const key = `weddings/${weddingId}/${id}.${MIME_EXT[input.mimeType]}`
-    const intent = await this.storage.createUploadIntent(key, input.mimeType, input.sizeBytes)
+    const key = `weddings/${weddingId}/${id}.webp`
+    const intent = {
+      uploadUrl: 'backend-upload',
+      method: 'PUT' as const,
+      headers: { 'content-type': input.mimeType },
+      expiresAt: new Date(Date.now() + 15 * 60_000),
+    }
     const asset = await this.prisma.mediaAsset.create({
       data: {
         id,
@@ -64,7 +77,7 @@ export class MediaManager {
         mimeType: input.mimeType,
         sizeBytes: input.sizeBytes,
         ...(input.originalName !== undefined
-          ? { originalName: input.originalName.slice(0, 255) }
+          ? { originalName: toWebpFileName(input.originalName).slice(0, 255) }
           : {}),
         ...(input.altText !== undefined ? { altText: input.altText.slice(0, 500) } : {}),
       },
@@ -102,7 +115,34 @@ export class MediaManager {
         400,
         'Uploaded object does not match the requested image',
       )
-    await this.storage.put(asset.storageKey, body, mimeType)
+    let converted
+    try {
+      converted = await this.imageConverter.convert(body, mimeType)
+      await this.storage.put(asset.storageKey, converted.body, converted.mimeType)
+    } catch (error) {
+      await this.prisma.mediaAsset.update({
+        where: { id: mediaId },
+        data: { status: 'FAILED' },
+      })
+      if (error instanceof Error && error.name === 'ImageConversionError') {
+        throw new MediaError('MEDIA_INVALID', 400, error.message)
+      }
+      throw error
+    }
+
+    await this.prisma.mediaAsset.update({
+      where: { id: mediaId },
+      data: {
+        mimeType: converted.mimeType,
+        sizeBytes: converted.sizeBytes,
+        width: converted.width,
+        height: converted.height,
+        status: 'PROCESSING',
+        ...(asset.originalName !== null
+          ? { originalName: toWebpFileName(asset.originalName).slice(0, 255) }
+          : {}),
+      },
+    })
     return { accepted: true, mediaId }
   }
   async complete(userId: string, weddingId: string, mediaId: string) {
@@ -117,7 +157,7 @@ export class MediaManager {
     if (
       stored.sizeBytes !== Number(asset.sizeBytes) ||
       stored.sizeBytes > MAX_IMAGE_BYTES ||
-      (stored.mimeType !== 'application/octet-stream' && stored.mimeType !== asset.mimeType)
+      (stored.mimeType !== 'application/octet-stream' && stored.mimeType !== 'image/webp')
     )
       throw new MediaError(
         'MEDIA_INVALID',
@@ -171,6 +211,66 @@ export class MediaManager {
       sizeBytes: Number(row.sizeBytes),
       publicUrl: this.storage.publicUrl(row.storageKey),
     }))
+  }
+  async get(userId: string, weddingId: string, mediaId: string) {
+    if (!(await this.owner(userId, weddingId)))
+      throw new MediaError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
+    const row = await this.prisma.mediaAsset.findFirst({
+      where: { id: mediaId, weddingId, deletedAt: null },
+      select: {
+        id: true,
+        storageKey: true,
+        originalName: true,
+        mimeType: true,
+        sizeBytes: true,
+        width: true,
+        height: true,
+        status: true,
+        altText: true,
+        createdAt: true,
+      },
+    })
+    if (!row) throw new MediaError('MEDIA_NOT_FOUND', 404, 'Media asset not found')
+    return {
+      ...row,
+      sizeBytes: Number(row.sizeBytes),
+      publicUrl: this.storage.publicUrl(row.storageKey),
+    }
+  }
+  async updateMetadata(
+    userId: string,
+    weddingId: string,
+    mediaId: string,
+    input: { altText?: string | null },
+  ) {
+    if (!(await this.owner(userId, weddingId)))
+      throw new MediaError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
+    const row = await this.prisma.mediaAsset.findFirst({
+      where: { id: mediaId, weddingId, deletedAt: null },
+      select: { id: true },
+    })
+    if (!row) throw new MediaError('MEDIA_NOT_FOUND', 404, 'Media asset not found')
+    const updated = await this.prisma.mediaAsset.update({
+      where: { id: mediaId },
+      data: input,
+      select: {
+        id: true,
+        storageKey: true,
+        originalName: true,
+        mimeType: true,
+        sizeBytes: true,
+        width: true,
+        height: true,
+        status: true,
+        altText: true,
+        createdAt: true,
+      },
+    })
+    return {
+      ...updated,
+      sizeBytes: Number(updated.sizeBytes),
+      publicUrl: this.storage.publicUrl(updated.storageKey),
+    }
   }
   async remove(userId: string, weddingId: string, mediaId: string) {
     if (!(await this.owner(userId, weddingId)))
