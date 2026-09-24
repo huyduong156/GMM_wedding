@@ -79,7 +79,7 @@ export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig
     <>
       <AureliaEditorModeContext.Provider value={editorMode}>
         <main className={`ac-page ${opened ? 'is-opened' : ''} ${editorMode ? 'is-editor-preview' : ''}`} aria-label="Thiệp cưới Aurelia Court">
-          <Opening data={data} opened={opened} openingComplete={openingComplete} ambientActive={ambientActive} onOpen={() => setOpened(true)} />
+          <Opening data={data} opened={opened} openingComplete={openingComplete} onOpen={() => setOpened(true)} />
           <div ref={stageRef} className={`ac-stage ${opened ? 'is-opened' : ''} ${ambientActive ? 'is-ambient-active' : ''}`} data-template-shell="aurelia-court">
             <div className="ac-shared-background" aria-hidden="true" />
             <div className="ac-ambient" aria-hidden="true"><i /><i /><i /><i /><i /></div>
@@ -151,7 +151,7 @@ function Section({ sectionKey, className = '', style, children }: { sectionKey: 
   return <section ref={scope} className={`ac-section ${className}`.trim()} data-editor-section={sectionKey} data-motion-visible={visible ? 'true' : 'false'} style={style}>{children}</section>
 }
 
-function Opening({ data, opened, openingComplete, ambientActive, onOpen }: { data: AureliaCourtData; opened: boolean; openingComplete: boolean; ambientActive: boolean; onOpen: () => void }) {
+function Opening({ data, opened, openingComplete, onOpen }: { data: AureliaCourtData; opened: boolean; openingComplete: boolean; onOpen: () => void }) {
   if (openingComplete) return null
   return <section className={`ac-opening-shell ${opened ? 'is-opening' : ''}`} data-editor-section="opening" aria-label="Mở thiệp Aurelia Court" aria-hidden={opened}>
     <div className="ac-opening-petals" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} />)}</div>
@@ -240,7 +240,7 @@ function getNewMoonDay(k: number, timeZone: number) {
   const t2 = t * t
   const t3 = t2 * t
   const dr = Math.PI / 180
-  let jd = 2415020.75933 + 29.53058868 * k + 0.0001178 * t2 - 0.000000155 * t3 + 0.00033 * Math.sin((166.56 + 132.87 * t - 0.009173 * t2) * dr)
+  const jd = 2415020.75933 + 29.53058868 * k + 0.0001178 * t2 - 0.000000155 * t3 + 0.00033 * Math.sin((166.56 + 132.87 * t - 0.009173 * t2) * dr)
   const m = 359.2242 + 29.10535608 * k - 0.0000333 * t2 - 0.00000347 * t3
   const mPrime = 306.0253 + 385.81691806 * k + 0.0107306 * t2 + 0.00001236 * t3
   const f = 21.2964 + 390.67050646 * k - 0.0016528 * t2 - 0.00000239 * t3

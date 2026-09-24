@@ -1,4 +1,4 @@
-import type { TemplateConfig, TemplateFieldConfig, TemplateSectionConfig } from '../../template-config'
+import type { TemplateConfig, TemplateSectionConfig } from '../../template-config'
 import { astralVowFixture } from './fixture'
 
 const text = (label: string, contentKey: string, required = false) => ({ type: 'string' as const, label, contentKey, ...(required ? { required: true } : {}) })

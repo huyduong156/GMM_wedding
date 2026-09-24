@@ -572,22 +572,6 @@
   object-fit: contain;
   opacity: 0.55;
 }
-.pv-slide > *:not(.pv-wishes-decor-left):not(.pv-wishes-decor-right):not(.pv-couple-petal):not(.pv-couple-orbit):not(.pv-banner-new-art):not(.pv-date-countdown-wash) {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 620ms cubic-bezier(0.19, 1, 0.22, 1),
-    transform 620ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-.pv-program-list article,
-.pv-activity-grid article,
-.pv-note-grid article {
-  opacity: 0;
-  transform: translateX(-22px);
-  transition:
-    opacity 520ms cubic-bezier(0.19, 1, 0.22, 1),
-    transform 520ms cubic-bezier(0.19, 1, 0.22, 1);
-}
 .pv-gallery-stage img {
   transition:
     opacity 280ms ease,
@@ -1086,10 +1070,6 @@
 }
 .pv-venue > div:first-child {
   transform: translateX(-28px);
-  opacity: 0;
-}
-.pv-map-art {
-  transform: translateX(28px) rotateY(-8deg);
   opacity: 0;
 }
 .pv-calendar-actions > h2 {
@@ -5058,13 +5038,6 @@
   transition-delay: 290ms;
 }
 /* Couple: medallion scales in; surrounding branch sweeps down from the edge. */
-.pv-page .pv-couple > .pv-couple-ring {
-  opacity: 0;
-  transform: scale(0.78) rotate(-8deg);
-  transition:
-    opacity 760ms ease-out,
-    transform 900ms cubic-bezier(0.23, 1, 0.32, 1);
-}
 /* Date and countdown: paper fold + counter stagger. */
 .pv-page .pv-date-card {
   transform: perspective(900px) rotateX(22deg) rotateZ(-8deg) translateY(30px);
@@ -5144,17 +5117,6 @@
   transform: translateY(26px) scale(0.97);
 }
 /* Gallery and guestbook: depth transition vs. paper-note rotation. */
-.pv-page .pv-gallery-stage {
-  opacity: 0;
-  transform: perspective(900px) rotateY(12deg) translateX(34px) scale(0.94);
-}
-.pv-page .pv-gallery-dots {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 360ms ease-out 360ms,
-    transform 420ms cubic-bezier(0.23, 1, 0.32, 1) 360ms;
-}
 .pv-page .pv-wishes > h2 {
   transform: translateX(22px);
 }
@@ -5162,20 +5124,6 @@
   transform: translateY(22px);
 }
 /* Gift/footer close with disclosure and a quieter botanical fade. */
-.pv-page .pv-gift > button {
-  opacity: 0;
-  transform: translateY(18px) scale(0.96);
-  transition:
-    opacity 420ms ease-out 220ms,
-    transform 500ms cubic-bezier(0.23, 1, 0.32, 1) 220ms;
-}
-.pv-page .pv-footer > img {
-  opacity: 0;
-  transform: translateY(26px) rotate(-8deg);
-  transition:
-    opacity 700ms ease-out,
-    transform 820ms cubic-bezier(0.23, 1, 0.32, 1);
-}
 @media (prefers-reduced-motion: reduce) {
   .pv-page .pv-slide > *,
   .pv-page .pv-slide .pv-program-list article,

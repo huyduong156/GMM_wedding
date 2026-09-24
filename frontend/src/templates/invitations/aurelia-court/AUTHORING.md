@@ -11,7 +11,7 @@ Template-specific working record. Phase artifacts, spatial decisions and review 
 | 2 — media contract | Complete | User-media matrix, renderer-owned media boundary, crop/loading/fallback rules and media-independence checklist below. |
 | 2.5 — decor pre-production | Complete | `ASSET_MANIFEST.md`, `ARTWORK_PREVIEW.md` and eleven generated PNGs including complex botanical clusters; artwork was approved before Phase 3 and is now integrated by role. |
 | 3 — section composition | Complete; skeleton implemented | Composition map, shared-background seams, `template-config.ts`, fixture, types and skeleton renderer are implemented below. |
-| 4 — motion / interaction | Complete; implementation ready for Phase 5 review | Shared reveal, opening move-out, CSS 3D cover plane, ambient petals, CTA feedback and reduced-motion/mobile fallbacks are implemented below. |
+| 4 — motion / interaction | Complete; implementation ready for Phase 5 review | Motion entrance targets, opening move-out, CSS 3D cover plane, ambient petals, CTA feedback and reduced-motion/mobile fallbacks are implemented below. |
 | 5 — integration / review / release | Complete with known repository baseline errors | Artwork is integrated across the composition, countdown and public RSVP/guestbook controllers are wired, and mobile/reduced-motion review is recorded below. Asset files remain PNG because the current bundle has no approved format-switch contract. |
 
 ## Phase 0 — Preview shell and spatial contract
@@ -101,7 +101,7 @@ Opening dạng **gate-fold royal invitation**. Hai cánh thiệp mở từ trung
 | Typography | `Playfair Display` display, `Be Vietnam Pro` body, `Dancing Script` cho accent rất ngắn. |
 | Material | Giấy ivory, grain nhẹ, viền dập nổi, gold foil tiết chế, wax seal và ribbon mảnh. |
 | Flower | Ranunculus vàng champagne; lá olive/xám xanh chỉ làm secondary foliage. |
-| Motion | Một signature opening; reveal từng phần tử nhỏ dùng shared scroll-reveal convention, không quá nhanh, reduced-motion hoàn chỉnh. |
+| Motion | Một signature opening; entrance từng phần tử nhỏ dùng Motion choreography, không quá nhanh, reduced-motion hoàn chỉnh. |
 | Language | Tiếng Việt là chính; tối đa 3 câu English tagline/quote ngắn. |
 
 ### Shared background rule
@@ -158,7 +158,7 @@ Canonical rule: giữ section key và shape theo invitation template hiện có;
 ### Không đưa vào editor content
 
 - “Mở thiệp”, “Xác nhận tham dự”, placeholder, loading/success/error text hệ thống.
-- Shared background, paper grain, gold foil, ranunculus, leaf, crest, seal, border và scroll-reveal class.
+- Shared background, paper grain, gold foil, ranunculus, leaf, crest, seal và border; entrance do Motion sở hữu.
 - Motion duration, section anchor, CSS namespace và template config key.
 
 ### Guest-aware contract
@@ -380,7 +380,7 @@ Danh sách cần tạo trước mắt là **8 artwork renderer-owned** ở asset
 - Artwork decor chỉ tạo framing và dẫn mắt; tên đôi, family names, ngày giờ, địa chỉ và CTA luôn nằm trong HTML content layer.
 - Section surface trong suốt hoặc paper panel nhỏ; không tạo background chapter riêng.
 - Empty state giữ shared background, heading và semantic action; không để khoảng trống mồ côi khi section optional tắt.
-- Phase 3 chỉ khóa composition tĩnh. Scroll reveal, auto-animation, parallax, 3D depth và API interaction để Phase 4/5.
+- Phase 3 chỉ khóa composition tĩnh. Motion entrance, auto-animation, parallax, 3D depth và API interaction để Phase 4/5.
 
 ### Section composition map
 
@@ -441,7 +441,7 @@ Phase 3 đã tạo và map:
 - [x] Chưa thêm motion choreography/API vào Phase 3.
 - [x] Opening là overlay độc lập, có trạng thái move-out; không chiếm chiều cao như một section nội dung.
 
-Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm motion/interaction trên composition đã khóa; mọi hiệu ứng phải dùng shared scroll-reveal convention và giữ mobile/reduced-motion fallback.
+Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm motion/interaction trên composition đã khóa; mọi entrance phải dùng Motion và giữ mobile/reduced-motion fallback.
 
 ## Phase 4 — Advanced visual experience, interaction và motion
 
@@ -450,7 +450,7 @@ Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm moti
 | Technique | Section / role | UX purpose | Trigger / timing | Mobile / reduced motion | Budget |
 | --- | --- | --- | --- | --- | --- |
 | Full-page opening move-out | `opening` overlay | Tạo nghi thức mở thiệp rồi đưa người nhận vào flow | User click/keyboard; 950ms ease-in-out | Native overlay move-out; reduced motion instant opacity/state | Một lần mỗi page load; transform/opacity only |
-| Shared `.reveal` + `.is-visible` | Mọi section và phần tử nhỏ | Dẫn thứ tự đọc, không để cả trang xuất hiện cùng lúc | IntersectionObserver, `rootMargin: 0px 0px -33% 0px`, 1.5s shared ease-out | Translate ≤30px; reduced motion visible instantly | Observer disconnect sau lần đầu; no per-frame scroll state |
+| Motion entrance targets | Mọi section và phần tử nhỏ | Dẫn thứ tự đọc, không để cả trang xuất hiện cùng lúc | `motion/react`, shared duration/ease-out, stagger theo nhóm | Translate ≤30px; reduced motion visible instantly | Chỉ animate transform/opacity; không thêm observer riêng |
 | Staggered child reveal | Heading, copy, card, divider, CTA | Làm rõ hierarchy trong từng section | Parent section enters; delay chỉ theo CSS variable khi cần | Mobile giữ 2–3 nhóm chính; reduced motion none | Transform/opacity only |
 | CSS 3D cover plane | `cover` | Tạo chiều sâu giấy hoàng gia nhẹ, không biến thành website 3D | Fine pointer hover; 520ms ease-in-out | Không hover choreography trên touch; reduced motion none | Một plane, no canvas/RAF |
 | Ambient floating paper petals | Page edge / shared background | Tạo nền sống nhẹ quanh canvas, không che content | CSS loop 17–24s; chỉ khi stage visible + tab visible | 5 sprites, travel nhỏ; reduced motion static/hidden | ≤5 elements, pointer-events none |
@@ -461,7 +461,7 @@ Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm moti
 1. Opening overlay hiển thị tĩnh với gate-fold art và nội dung đọc được ngay.
 2. User click/Enter/Space vào “Mở thiệp”; overlay move-out bằng transform, không khóa scroll lâu.
 3. `cover` đã tồn tại trong flow và trở thành reading anchor sau khi overlay rời canvas.
-4. Khi scroll, section chỉ bắt đầu reveal khi vùng section đi qua khoảng một phần ba viewport; từng eyebrow, heading, copy, card, divider và CTA dùng shared reveal primitive.
+4. Khi scroll, từng eyebrow, heading, copy, card, divider và CTA dùng target Motion tường minh; các nhóm lặp dùng stagger.
 5. Ambient petals chạy độc lập ở mép canvas, dừng khi stage ra khỏi viewport hoặc tab bị ẩn.
 6. Hover cover chỉ thêm depth rất nhẹ trên fine pointer; không dùng cho touch.
 
@@ -477,7 +477,7 @@ Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm moti
 ### Performance rules
 
 - Chỉ animate `transform` và `opacity`; không animate layout, width, height, top/left hoặc blur nặng.
-- IntersectionObserver dùng một lần cho mỗi section và disconnect sau reveal.
+- Không thêm IntersectionObserver riêng cho entrance; Motion owns visibility state và hỗ trợ reduced motion.
 - Ambient chỉ có 5 sprite, CSS loop nhẹ, pause khi offscreen/hidden tab.
 - Không thêm GSAP, Lenis, Three.js hoặc canvas ở Phase 4 vì composition đạt được bằng CSS/DOM.
 - 3D chỉ là một cover plane; không tạo continuous RAF loop.
@@ -486,8 +486,8 @@ Phase 3 hoàn tất. Phase 4 tiếp theo sẽ lập technique map và thêm moti
 ### Phase 4 acceptance
 
 - [x] Opening là overlay riêng, move-out sau click/keyboard và không chiếm flow section.
-- [x] Mỗi section có reveal riêng; phần tử chính dùng shared `.reveal` class và `.is-visible` trigger.
-- [x] Reveal trigger dùng `rootMargin` khoảng một phần ba viewport, duration không quá nhanh.
+- [x] Mỗi section có entrance riêng; phần tử chính dùng `motion/react` với target tường minh và stagger theo nhóm.
+- [x] Motion dùng duration chung của template, ease-out mặc định và reduced-motion fallback.
 - [x] Có ambient auto-animation dưới nền với visibility pause.
 - [x] Có một section 3D nhẹ ở cover, chỉ fine pointer.
 - [x] Có hover/press feedback cho CTA với touch/reduced-motion fallback.
@@ -523,7 +523,7 @@ Phase 4 hoàn tất ở mức motion implementation. Phase 5 hoàn tất phần 
 | --- | --- | --- |
 | Mobile 375×812 | Pass | Direct preview opened; no horizontal overflow observed; opening overlay and first cover section reviewed with Playwright. |
 | Opening interaction | Pass | Click changes overlay to `is-opening`, `aria-hidden` is applied and cover becomes the first flow section. |
-| Scroll reveal | Pass | First cover section receives `is-visible`; shared reveal classes remain attached to content/decor anchors. |
+| Scroll entrance | Pass | First cover section và các content target nhận trạng thái hiển thị từ Motion; decor giữ transform CSS riêng. |
 | Reduced motion | Pass by implementation | Ambient loop, 3D transform and overlay transition are disabled by the reduced-motion CSS fallback. |
 | Desktop/tablet | Pass by constrained layout contract | Stage remains capped at 480px and outer gutter is atmosphere-only; no desktop-only content branch exists. |
 | Typecheck | Baseline blocked | No Aurelia error remains. Four pre-existing errors remain in unrelated editor/recap tests and `AppShell.tsx`. |
@@ -532,7 +532,7 @@ Phase 4 hoàn tất ở mức motion implementation. Phase 5 hoàn tất phần 
 
 - [x] `template-config.ts` shape and section keys remain aligned with the existing invitation scanner contract.
 - [x] Approved artwork is referenced from the template-local manifest and renderer-owned media is not exposed as editor image input.
-- [x] Shared background, mobile canvas, opening overlay, reveal system and reduced-motion fallback are all present.
+- [x] Shared background, mobile canvas, opening overlay, Motion entrance system and reduced-motion fallback are all present.
 - [x] Required and optional sections render according to `sectionConfig.enabled` and `sectionConfig.order`.
 - [x] API interaction boundary is ready for the public invitation host through the `PublicInteractions` prop.
 - [x] Template config is marked `ready`; repository-wide typecheck was rerun and only the four unrelated baseline errors listed above remain.

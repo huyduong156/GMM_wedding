@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { useAnimate, useReducedMotion } from 'motion/react'
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarBlank,
   Heart,
@@ -13,6 +12,7 @@ import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import '../../../shared/styles/template-motion.css'
 
 const asset = (name: string) => `/assets/images/templates/peony-veranda/${name}`
 const mediaUrl = (value: unknown, fallback: string) => {
@@ -163,7 +163,7 @@ export function PeonyVerandaInvitation({
   const groomName = data?.groomName ?? 'Đức'
   const weddingDate = data?.weddingDate ?? '20 · 12 · 2026'
   const dateMatch =
-    weddingDate.match(/(\d{1,2})\s*[·\/-]\s*(\d{1,2})\s*[·\/-]\s*(\d{4})/) ??
+    weddingDate.match(/(\d{1,2})\s*[·/-]\s*(\d{1,2})\s*[·/-]\s*(\d{4})/) ??
     weddingDate.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
   const weddingDay = dateMatch ? (dateMatch[3].length === 4 ? dateMatch[1] : dateMatch[3]) : '20'
   const weddingMonth = dateMatch ? dateMatch[2] : '12'
@@ -248,13 +248,13 @@ export function PeonyVerandaInvitation({
   useSmoothTemplateScroll(opened)
   useEffect(() => {
     if (opened) window.setTimeout(() => motionScope.current?.focus({ preventScroll: true }), 0)
-  }, [opened])
+  }, [motionScope, opened])
   useEffect(() => {
     setCountdown(getCountdown(weddingTimestamp))
     const timer = window.setInterval(() => setCountdown(getCountdown(weddingTimestamp)), 1000)
     return () => window.clearInterval(timer)
   }, [weddingTimestamp])
-  useEffect(() => {
+  useLayoutEffect(() => {
     const page = document.querySelector<HTMLElement>('.pv-page')
     let frame = 0
     const update = () => {
@@ -277,13 +277,36 @@ export function PeonyVerandaInvitation({
     }
     const sections = Array.from(root.querySelectorAll<HTMLElement>('.pv-slide'))
     const motionSelector = [
-      ':scope > *:not(.pv-wishes-decor-left):not(.pv-wishes-decor-right):not(.pv-couple-petal):not(.pv-couple-orbit):not(.pv-banner-new-art):not(.pv-date-countdown-wash)',
-      'h1,h2,h3,p,span,strong,small,time,em,i,b,button,a,input,textarea,iframe,article',
-      '.pv-banner-new-flower,.pv-banner-new-rule',
-      '.pv-date-card,.pv-date-note',
-      '.pv-countdown-grid > div',
-      '.pv-calendar-grid > small,.pv-calendar-grid > i',
-      '.pv-detail,.pv-map-art,.pv-gallery-stage,.pv-gallery-dots,.pv-wish-form',
+      '.pv-banner-new-content > .pv-banner-new-kicker',
+      '.pv-banner-new-content > .pv-banner-new-intro',
+      '.pv-banner-new-content > h2',
+      '.pv-banner-new-content > .pv-banner-new-rule',
+      '.pv-banner-new-content > time',
+      '.pv-banner-new-content > .pv-banner-new-note',
+      '.pv-banner-new-content > .pv-banner-new-index',
+      '.pv-banner-new-flower',
+      '.pv-announcement-new-copy',
+      '.pv-announcement-new-copy > .pv-announcement-new-kicker',
+      '.pv-announcement-new-copy > h2',
+      '.pv-announcement-new-copy > p',
+      '.pv-announcement-new-copy > .pv-announcement-new-signoff',
+      '.pv-families > h2,.pv-families > p,.pv-families-grid > article',
+      '.pv-couple-ring-content > .pv-couple-person',
+      '.pv-couple > .pv-couple-ring',
+      '.pv-date-countdown-combo > .pv-date,.pv-date-countdown-combo > .pv-countdown',
+      '.pv-date > .pv-date-card,.pv-date > .pv-date-note',
+      '.pv-date-new .pv-date-card > strong,.pv-date-new .pv-date-card > small,.pv-date-new .pv-date-card > em',
+      '.pv-date-new .pv-date-note > *',
+      '.pv-countdown > span,.pv-countdown > h2,.pv-countdown-grid > div',
+      '.pv-ceremony-venue > h2,.pv-ceremony-venue > p,.pv-detail,.pv-detail-copy > *,.pv-detail > .pv-map-art',
+      '.pv-calendar-intro > *,.pv-calendar-card,.pv-calendar-card > .pv-calendar-grid',
+      '.pv-program > h2,.pv-program > p,.pv-program-list > article',
+      '.pv-activities > span,.pv-activities > h2,.pv-activity-track > article',
+      '.pv-rsvp > h2,.pv-rsvp > p,.pv-actions > button',
+      '.pv-gallery > h2,.pv-gallery > p,.pv-gallery-stage,.pv-gallery-dots',
+      '.pv-wishes > h2,.pv-wishes > p,.pv-note-grid > article',
+      '.pv-gift > h2,.pv-gift > p,.pv-gift > button,.pv-gift-qr',
+      '.pv-footer > h2,.pv-footer > p,.pv-footer > img',
     ].join(',')
     const isDecorative = (element: HTMLElement) =>
       element.matches(
@@ -298,7 +321,9 @@ export function PeonyVerandaInvitation({
     sections.forEach((section) => {
       section.querySelectorAll<HTMLElement>(motionSelector).forEach((element, index) => {
         if (isDecorative(element)) return
-        element.dataset.motionVariant = element.matches('.pv-banner-new-flower')
+        element.dataset.motionVariant = element.matches(
+          '.pv-banner-new-flower,.pv-couple > .pv-couple-ring,.pv-gallery-stage,.pv-gallery-dots,.pv-gift > button,.pv-footer > img',
+        )
           ? 'fade-only'
           : index % 3 === 0
             ? 'fade-up'

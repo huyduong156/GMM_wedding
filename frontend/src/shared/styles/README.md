@@ -6,13 +6,7 @@
 
 Các class đã ngừng sử dụng:
 
-- `reveal--fade-up`
-- `reveal--slide-left`
-- `reveal--slide-right`
-- `reveal--slide-down`
-- `reveal--slide-up`
-- `reveal--zoom-in`
-- `reveal--fade-only`
+- Các class `reveal--*` đã ngừng sử dụng; không thêm lại vào template mới.
 
 Timing dùng token riêng của template (`duration`, `stagger`, `listStagger`, `ease`); Motion sở hữu trạng thái hiển thị và phải hỗ trợ reduced motion.
 
