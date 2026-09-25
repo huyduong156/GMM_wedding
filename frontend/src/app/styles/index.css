@@ -8027,6 +8027,64 @@ kbd {
 .admin-queue small {
   display: block;
 }
+.admin-dashboard-state {
+  min-height: 360px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.admin-dashboard-state h1,
+.admin-dashboard-state p {
+  margin: 0;
+}
+.admin-dashboard-state p {
+  color: var(--fg-muted);
+}
+.admin-dashboard-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 18px 18px;
+}
+.admin-dashboard-breakdown > div {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.62);
+}
+.admin-dashboard-breakdown span {
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.admin-dashboard-breakdown strong {
+  font-size: 20px;
+}
+.admin-dashboard-inline-error {
+  margin: 16px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+.admin-dashboard-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+}
+.admin-dashboard-queue-item:last-child {
+  border-bottom: 0;
+}
+.admin-dashboard-queue-item > span:nth-child(2) {
+  min-width: 0;
+}
 .admin-queue strong {
   font-size: 11px;
 }

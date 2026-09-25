@@ -84,6 +84,20 @@ const defaultTimeline = [
 
 const edgePetals = Array.from({ length: 8 }, (_, index) => index + 1)
 
+function getGalleryCardPosition(index: number, activeIndex: number, length: number) {
+  if (length <= 1) return 'active'
+
+  let offset = index - activeIndex
+  const midpoint = length / 2
+  if (offset > midpoint) offset -= length
+  if (offset < -midpoint) offset += length
+
+  if (offset === 0) return 'active'
+  if (offset === -1) return 'prev'
+  if (offset === 1) return 'next'
+  return offset < 0 ? 'far-prev' : 'far-next'
+}
+
 function EdgeAtmosphere() {
   return (
     <div className="vp-edge-atmosphere" aria-hidden="true">
@@ -686,18 +700,12 @@ export function VerdantPromiseInvitation({
                 }}
               >
                 {gallery.map((src, index) => (
-                  <motion.img
+                  <img
                     key={src}
-                    className={index === slide ? 'is-active' : ''}
+                    className={`vp-gallery-card vp-gallery-card--${getGalleryCardPosition(index, slide, gallery.length)}`}
                     src={src}
                     alt={`Khoảnh khắc của cặp đôi ${index + 1}`}
-                    animate={
-                      index === slide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.08 }
-                    }
-                    transition={{
-                      opacity: { duration: 0.9 },
-                      scale: { duration: reduceMotion ? 0 : 5.4 },
-                    }}
+                    aria-hidden={index === slide ? undefined : true}
                   />
                 ))}
                 <div className="vp-gallery-matte" aria-hidden="true">

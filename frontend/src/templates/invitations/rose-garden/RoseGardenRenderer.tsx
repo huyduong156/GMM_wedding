@@ -92,11 +92,12 @@ const rendererDecor = {
   openingTriangle: `${artworkRoot}/rg-opening-triangle-flap.png`,
   openingFront: `${artworkRoot}/rg-opening-front-frame.png`,
   envelopeVignette: `${artworkRoot}/rg-garden-envelope-vignette-v1.png`,
+  openingFlowerLeft: `${artworkRoot}/rg-opening-flower-left-v2.png`,
+  openingFlowerRight: `${artworkRoot}/rg-opening-flower-right-v2.png`,
   botanical: `${artworkRoot}/rg-botanical-cluster-v1.png`,
   botanicalAlt: `${artworkRoot}/rg-botanical-cluster.png`,
   divider: `${artworkRoot}/rg-pressed-flower-divider.png`,
   giftCharm: `${artworkRoot}/rg-gift-botanical-charm.png`,
-  timelineBloom: `${artworkRoot}/rg-timeline-bloom.png`,
   petalCluster: `${artworkRoot}/rg-center-rose-petal-cluster.png`,
   wreath: `${artworkRoot}/rg-botanical-wreath.png`,
   centerCluster: `${artworkRoot}/rg-center-floral-cluster.png`,
@@ -805,7 +806,7 @@ export function RoseGardenRenderer({
               return (
                 <li key={`${item.time}-${item.title}-${index}`}>
                   <time>{item.time}</time>
-                  <span className="rg-timeline-node"><Artwork src={rendererDecor.timelineBloom} alt="" className="rg-timeline-bloom" /><span>{String(index + 1).padStart(2, '0')}</span></span>
+                  <span className="rg-timeline-node"><span>{String(index + 1).padStart(2, '0')}</span></span>
                   <div>
                     <strong>{item.title}</strong>
                     <p>{item.description}</p>
@@ -913,13 +914,15 @@ export function RoseGardenRenderer({
       case 'footer':
         return (
           <footer key={key} className="rg-body-section rg-motion-content rg-footer" data-editor-section={key} style={{ order: sectionIndex } as CSSProperties}>
-            <Sparkle weight="duotone" />
-            <SectionEyebrow>{content.footer.title}</SectionEyebrow>
-            <h2>{content.couple.brideName} <i>&amp;</i> {content.couple.groomName}</h2>
-            <p>{content.footer.message}</p>
-            {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media" /> : null}
-            <span className="rg-footer-date">{content.event.weddingDate}</span>
-            <Artwork src={rendererDecor.botanicalAlt} alt="" className="rg-section-decor rg-footer-decor rg-motion-static" />
+            <div className="rg-footer-content">
+              <Sparkle weight="duotone" className="rg-footer-mark" />
+              <SectionEyebrow>{content.footer.title}</SectionEyebrow>
+              <h2><span>{content.couple.brideName}</span><i>&amp;</i><span>{content.couple.groomName}</span></h2>
+              <span className="rg-footer-rule" aria-hidden="true" />
+              <p>{content.footer.message}</p>
+              {content.footerMedia?.src ? <Artwork src={content.footerMedia.src} alt={content.footerMedia.alt || 'Ảnh cuối thiệp'} className="rg-footer-media rg-user-media" /> : null}
+              <span className="rg-footer-date">{content.event.weddingDate}</span>
+            </div>
           </footer>
         )
       default:
@@ -946,8 +949,9 @@ export function RoseGardenRenderer({
         venue={content.event.venueName}
         eyebrow={content.opening.title}
         note={personalize(content.opening.message, connectedGuestName)}
-        leftDecorationSrc={rendererDecor.botanical}
-        rightDecorationSrc={rendererDecor.botanical}
+        leftDecorationSrc={rendererDecor.openingFlowerLeft}
+        rightDecorationSrc={rendererDecor.openingFlowerRight}
+        className="rose-garden-opening"
         openLabel="Chạm để mở thiệp"
         openedLabel="Thiệp đã mở"
         sectionKey="opening"

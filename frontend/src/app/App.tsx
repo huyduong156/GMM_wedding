@@ -4,7 +4,7 @@ import { ForgotPasswordPage } from '../pages/auth/ui/ForgotPasswordPage'
 import { ResetPasswordPage } from '../pages/auth/ui/ResetPasswordPage'
 import { RegisterPage } from '../pages/auth/ui/RegisterPage'
 import { VerifyEmailPage } from '../pages/auth/ui/VerifyEmailPage'
-import { AdminDashboardPage } from '../pages/admin/ui/AdminDashboardPage'
+import { AdminDashboardConnectedPage } from '../pages/admin/ui/AdminDashboardConnectedPage'
 import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
 import { AdminTemplatesApiPage } from '../pages/admin/ui/AdminTemplatesApiPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
@@ -174,7 +174,7 @@ function AppContent() {
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {
     const content =
       pathname === adminRoutes.home ? (
-        <AdminDashboardPage />
+        <AdminDashboardConnectedPage />
       ) : pathname === adminRoutes.users ? (
         <AdminUsersPage />
       ) : pathname === adminRoutes.inviteLibrary ? (

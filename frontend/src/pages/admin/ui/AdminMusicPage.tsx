@@ -1,5 +1,5 @@
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ArrowClockwise,
   Check,
@@ -18,7 +18,6 @@ import {
   type MusicTrack,
   type MusicTrackStatus,
 } from '../../../shared/api/admin-music'
-import { SelectField } from '../../../shared/ui/form-controls/SelectField'
 
 const labels: Record<MusicTrackStatus, string> = {
   DRAFT: 'Bản nháp',
@@ -62,8 +61,7 @@ async function confirmRetire(track: MusicTrack, onConfirm: () => Promise<void>) 
 }
 export function AdminMusicPage() {
   const [items, setItems] = useState<MusicTrack[]>([]),
-    [query, setQuery] = useState(''),
-    [status, setStatus] = useState<MusicTrackStatus | 'ALL'>('ALL')
+    [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true),
     [error, setError] = useState(''),
     [working, setWorking] = useState('')
@@ -87,10 +85,6 @@ export function AdminMusicPage() {
     return () => window.clearTimeout(timer)
   }, [load])
   useEffect(() => () => audioRef.current?.pause(), [])
-  const visible = useMemo(
-    () => items.filter((item) => status === 'ALL' || item.status === status),
-    [items, status],
-  )
   const count = (value: MusicTrackStatus) => items.filter((item) => item.status === value).length
   const mutate = async (key: string, action: () => Promise<unknown>, successMessage?: string) => {
     setWorking(key)
@@ -164,18 +158,6 @@ export function AdminMusicPage() {
               placeholder="Tìm theo tên bài nhạc hoặc nghệ sĩ"
             />
           </label>
-          <SelectField
-            label="Lọc trạng thái"
-            value={status}
-            onChange={(value) => setStatus(value as MusicTrackStatus | 'ALL')}
-            options={[
-              { value: 'ALL', label: 'Tất cả trạng thái' },
-              ...(Object.keys(labels) as MusicTrackStatus[]).map((key) => ({
-                value: key,
-                label: labels[key],
-              })),
-            ]}
-          />
         </div>
         {loading ? (
           <div className="admin-music-state">Đang tải kho nhạc…</div>
@@ -188,7 +170,7 @@ export function AdminMusicPage() {
               <ArrowClockwise /> Thử lại
             </button>
           </div>
-        ) : visible.length ? (
+        ) : items.length ? (
           <div className="admin-table-wrap">
             <table className="admin-music-table">
               <thead>
@@ -204,7 +186,7 @@ export function AdminMusicPage() {
                 </tr>
               </thead>
               <tbody>
-                {visible.map((track) => (
+                {items.map((track) => (
                   <tr key={track.id}>
                     <td>
                       <div className="admin-music-identity">

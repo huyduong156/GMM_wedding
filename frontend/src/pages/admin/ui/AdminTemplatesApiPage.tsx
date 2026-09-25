@@ -159,13 +159,20 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
     version: AdminTemplateVersion,
     action: 'release' | 'deprecate',
   ) => {
-    if (
-      action === 'deprecate' &&
-      !window.confirm(
-        `Ngừng phân phối ${item.name} v${version.version}? ${version.usageCount} đám cưới đang dùng vẫn được giữ.`,
-      )
-    )
-      return
+    if (action === 'deprecate') {
+      const result = await notifications.confirm({
+        icon: 'warning',
+        title: 'Ngừng phân phối template?',
+        text: `${item.name} v${version.version} sẽ không còn được dùng cho Wedding mới. ${version.usageCount} đám cưới đang dùng vẫn được giữ.`,
+        confirmButtonText: 'Ngừng phân phối',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#a43d34',
+        reverseButtons: true,
+        focusCancel: true,
+        heightAuto: false,
+      })
+      if (!result.isConfirmed) return
+    }
     setWorking(version.id)
     setDialogError('')
     try {

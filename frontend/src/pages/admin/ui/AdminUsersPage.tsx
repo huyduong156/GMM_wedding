@@ -1,4 +1,4 @@
-import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { SelectField } from '../../../shared/ui/form-controls/SelectField'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ArrowClockwise,
@@ -221,32 +221,26 @@ export function AdminUsersPage() {
               placeholder="Tìm theo tên hoặc email"
             />
           </label>
-          <label className="admin-filter-select">
-            <span className="sr-only">Lọc trạng thái</span>
-            <NativeSelectField
-              value={status}
-              onChange={(event) => setStatus(event.target.value as AdminUserStatus | 'ALL')}
-            >
-              <option value="ALL">Tất cả trạng thái</option>
-              <option value="ACTIVE">Hoạt động</option>
-              <option value="PENDING_VERIFICATION">Chờ xác minh</option>
-              <option value="SUSPENDED">Tạm khóa</option>
-            </NativeSelectField>
-          </label>
-          <label className="admin-filter-select">
-            <span className="sr-only">Lọc vai trò</span>
-            <NativeSelectField
-              value={role}
-              onChange={(event) => setRole(event.target.value as AdminUserRole | 'ALL')}
-            >
-              <option value="ALL">Tất cả vai trò</option>
-              {Object.entries(roleLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </NativeSelectField>
-          </label>
+          <SelectField
+            label="Lọc trạng thái"
+            value={status}
+            onChange={(value) => setStatus(value as AdminUserStatus | 'ALL')}
+            options={[
+              { value: 'ALL', label: 'Tất cả trạng thái' },
+              { value: 'ACTIVE', label: 'Hoạt động' },
+              { value: 'PENDING_VERIFICATION', label: 'Chờ xác minh' },
+              { value: 'SUSPENDED', label: 'Tạm khóa' },
+            ]}
+          />
+          <SelectField
+            label="Lọc vai trò"
+            value={role}
+            onChange={(value) => setRole(value as AdminUserRole | 'ALL')}
+            options={[
+              { value: 'ALL', label: 'Tất cả vai trò' },
+              ...Object.entries(roleLabels).map(([value, label]) => ({ value, label })),
+            ]}
+          />
         </div>
         {selected.length > 0 && (
           <div className="admin-bulk-bar" role="status">
@@ -644,15 +638,17 @@ function UserDrawer({
           </div>
           <section>
             <h3>Trạng thái tài khoản</h3>
-            <NativeSelectField
+            <SelectField
+              label=""
               value={user.status}
               disabled={Boolean(working)}
-              onChange={(event) => onStatus(event.target.value as AdminUserStatus)}
-            >
-              <option value="ACTIVE">Hoạt động</option>
-              <option value="SUSPENDED">Tạm khóa</option>
-              <option value="PENDING_VERIFICATION">Chờ xác minh</option>
-            </NativeSelectField>
+              onChange={(value) => onStatus(value as AdminUserStatus)}
+              options={[
+                { value: 'ACTIVE', label: 'Hoạt động' },
+                { value: 'SUSPENDED', label: 'Tạm khóa' },
+                { value: 'PENDING_VERIFICATION', label: 'Chờ xác minh' },
+              ]}
+            />
           </section>
           <section>
             <h3>Quyền hệ thống</h3>
