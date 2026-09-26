@@ -14,12 +14,8 @@ import {
   DeviceMobile,
   Eye,
   FloppyDisk,
-  Image,
-  MusicNote,
-  Plus,
   RocketLaunch,
   ShareNetwork,
-  Trash,
   X,
 } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -41,6 +37,7 @@ import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live
 import type { ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { getInvitationTemplate } from '../../../templates/template-registry'
 import { resolveInvitationTemplateConfig } from '../../../templates/invitation-config-resolver'
+import { mergeSectionOrder } from './section-order'
 import {
   resolveEditorSections,
   validateSchemaContent,
@@ -63,21 +60,6 @@ const readQuickEdit = (config: Record<string, unknown> | null | undefined): Quic
         ),
       )
     : []
-export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
-  const pinned = new Set(pinnedKeys)
-  const storedReorderable = [
-    ...new Set(storedKeys.filter((key) => canonicalKeys.includes(key) && !pinned.has(key))),
-  ]
-  const canonicalReorderable = canonicalKeys.filter((key) => !pinned.has(key))
-  const reorderable = [
-    ...storedReorderable,
-    ...canonicalReorderable.filter((key) => !storedReorderable.includes(key)),
-  ]
-  let reorderableIndex = 0
-  return canonicalKeys.map((key) =>
-    pinned.has(key) ? key : reorderable[reorderableIndex++],
-  )
-}
 
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {
@@ -137,7 +119,6 @@ export function InvitationEditorLivePage() {
     setError: setMediaError,
     upload: uploadMedia,
   } = useMediaLibrary({ weddingId: activeWeddingId })
-  const [musicError, setMusicError] = useState('')
   const [expandedSection, setExpandedSection] = useState<Section | null>('cover')
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
   useEditorPreviewScrollLock(mobilePreviewOpen)
@@ -164,7 +145,6 @@ export function InvitationEditorLivePage() {
   const [historyVersion, setHistoryVersion] = useState(0)
   const [publishOpen, setPublishOpen] = useState(false)
   const [unpublishOpen, setUnpublishOpen] = useState(false)
-  const [publishSlug, setPublishSlug] = useState('')
   const [pendingEditorAction, setPendingEditorAction] = useState<'invitation' | 'publish' | null>(
     null,
   )
@@ -341,17 +321,6 @@ export function InvitationEditorLivePage() {
     historyRef.current.push(snapshot())
     restoreSnapshot(next)
   }
-  const update = (key: string, value: EditorValue) => {
-    recordHistory()
-    setData((current) => ({ ...current, [key]: value }))
-    setFieldErrors((current) => {
-      const next = { ...current }
-      delete next[key]
-      return next
-    })
-    setDirty(true)
-    setSaveMessage('')
-  }
   const updatePath = (path: string, value: EditorValue) => {
     recordHistory()
     setData((current) => setNestedValue(current, path, value))
@@ -363,22 +332,6 @@ export function InvitationEditorLivePage() {
     setPalette(value)
     setDirty(true)
     setSaveMessage('')
-  }
-  const uploadMusic = async (files: FileList | null) => {
-    const file = files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('audio/') || file.size > 15 * 1024 * 1024) {
-      setMusicError('Chỉ nhận file âm thanh tối đa 15MB.')
-      return
-    }
-    const url = await new Promise<string>((resolve) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(String(reader.result))
-      reader.readAsDataURL(file)
-    })
-    setMusicError('')
-    setData((current) => ({ ...current, backgroundMusicUrl: url, backgroundMusicName: file.name }))
-    setDirty(true)
   }
   const focusPreviewSection = (key: Section) => {
     if (key !== 'music') scrollToSection(key)
@@ -453,6 +406,8 @@ export function InvitationEditorLivePage() {
         revision: contentRevision,
       })
       setContentRevision(saved.content.revision)
+      const dashboard = await weddingApi.dashboard(activeWedding.id)
+      setSurfacePublished(dashboard.dashboard.publication.invitation.published)
       baselineRef.current = editorSignature(data, palette, order, enabled)
       setDirty(false)
       setSaveMessage(
@@ -550,7 +505,6 @@ export function InvitationEditorLivePage() {
         revision: contentRevision,
       })
       setPublishOpen(false)
-      setPublishSlug(slug)
       setSurfacePublished(true)
       setSaveMessage('Thiệp đã được xuất bản thành công.')
       await notifications.success('Đã công khai thiệp')
@@ -648,6 +602,20 @@ export function InvitationEditorLivePage() {
           <div>
             <p>Thiệp online · {templateKey ?? 'Đang tải giao diện'}</p>
             <h1 id="invitation-editor-heading">Chỉnh sửa thiệp</h1>
+            <span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>
+              {loading
+                ? 'Đang tải nội dung…'
+                : saving
+                  ? 'Đang lưu…'
+                  : dirty
+                    ? 'Có thay đổi chưa lưu'
+                    : saveMessage ||
+                      (templateVersionId
+                        ? 'Nội dung đã sẵn sàng'
+                        : ready
+                          ? 'Bản xem trước đã sẵn sàng'
+                          : 'Đang chuẩn bị…')}
+            </span>
           </div>
         </div>
         <div className="editor-couple-quick-edit">
@@ -668,20 +636,6 @@ export function InvitationEditorLivePage() {
         </div>
         <div className="editor-toolbar-actions">
           <div className="editor-toolbar-main-actions">
-            <span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>
-              {loading
-                ? 'Đang tải nội dung…'
-                : saving
-                  ? 'Đang lưu…'
-                  : dirty
-                    ? 'Có thay đổi chưa lưu'
-                    : saveMessage ||
-                      (templateVersionId
-                        ? 'Nội dung đã sẵn sàng'
-                        : ready
-                          ? 'Bản xem trước đã sẵn sàng'
-                          : 'Đang chuẩn bị…')}
-            </span>
             <div className="editor-history-actions" data-history-version={historyVersion}>
               <button
                 type="button"
@@ -874,10 +828,8 @@ export function InvitationEditorLivePage() {
                   setPalette={choosePalette}
                   paletteOptions={paletteOptions}
                   showPalette={index === 0 && paletteOptions.length > 1}
-                  uploadMusic={uploadMusic}
                   openMediaManager={openMediaManager}
                   useMediaManager={Boolean(activeWedding)}
-                  musicError={musicError}
                 />
               </EditorSectionCard>
             ))}
@@ -1400,39 +1352,6 @@ function Input({
     </label>
   )
 }
-function FamilyPersonFields({
-  person,
-  title,
-  name,
-  updateTitle,
-  updateName,
-}: {
-  person: string
-  title?: string
-  name?: string
-  updateTitle: (value: string) => void
-  updateName: (value: string) => void
-}) {
-  return (
-    <div className="editor-family-person-fields">
-      <strong>{person}</strong>
-      <div className="editor-family-person-grid">
-        <Input
-          label="Danh xưng"
-          ariaLabel={`Danh xưng ${person.toLowerCase()}`}
-          value={title}
-          onChange={updateTitle}
-        />
-        <Input
-          label="Họ tên"
-          ariaLabel={`Họ tên ${person.toLowerCase()}`}
-          value={name}
-          onChange={updateName}
-        />
-      </div>
-    </div>
-  )
-}
 type FieldsProps = {
   section: Section
   definition?: EditorSectionDefinition
@@ -1441,7 +1360,6 @@ type FieldsProps = {
   fieldErrors: FieldErrors
   update: (key: string, value: EditorValue) => void
   setPalette: (p: string) => void
-  uploadMusic: (files: FileList | null) => Promise<void>
   openMediaManager: (target: {
     kind: 'field'
     path: string
@@ -1450,7 +1368,6 @@ type FieldsProps = {
     mediaValue?: 'url' | 'object'
   }) => void
   useMediaManager: boolean
-  musicError: string
   paletteOptions: Array<{ key: string; label: string }>
   showPalette: boolean
 }
@@ -1461,10 +1378,8 @@ function Fields({
   fieldErrors,
   update,
   setPalette,
-  uploadMusic,
   openMediaManager,
   useMediaManager,
-  musicError,
   paletteOptions,
   showPalette,
 }: FieldsProps) {
@@ -1493,8 +1408,6 @@ function Fields({
           update={update}
           openMediaManager={openMediaManager}
           useMediaManager={useMediaManager}
-          uploadMusic={uploadMusic}
-          musicError={musicError}
         />
       ) : (
         <div className="editor-fixed-section">
@@ -1515,8 +1428,6 @@ function SchemaFields({
   update,
   openMediaManager,
   useMediaManager,
-  uploadMusic,
-  musicError,
 }: {
   definition: EditorSectionDefinition
   data: EditorData
@@ -1524,8 +1435,6 @@ function SchemaFields({
   update: FieldsProps['update']
   openMediaManager: FieldsProps['openMediaManager']
   useMediaManager: boolean
-  uploadMusic: FieldsProps['uploadMusic']
-  musicError: string
 }) {
   return (
     <TemplateSchemaFields
@@ -1534,8 +1443,6 @@ function SchemaFields({
       update={update}
       errors={errors}
       mediaEnabled={useMediaManager}
-      uploadAudio={uploadMusic}
-      audioError={musicError}
       openMediaManager={(target) => openMediaManager({ kind: 'field', ...target })}
       layout={definition.editorLayout}
     />

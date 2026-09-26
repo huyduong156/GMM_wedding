@@ -4,7 +4,7 @@ import { ForgotPasswordPage } from '../pages/auth/ui/ForgotPasswordPage'
 import { ResetPasswordPage } from '../pages/auth/ui/ResetPasswordPage'
 import { RegisterPage } from '../pages/auth/ui/RegisterPage'
 import { VerifyEmailPage } from '../pages/auth/ui/VerifyEmailPage'
-import { AdminDashboardPage } from '../pages/admin/ui/AdminDashboardPage'
+import { AdminDashboardConnectedPage } from '../pages/admin/ui/AdminDashboardConnectedPage'
 import { AdminLoginPage } from '../pages/admin/ui/AdminLoginPage'
 import { AdminTemplatesApiPage } from '../pages/admin/ui/AdminTemplatesApiPage'
 import { AdminUsersPage } from '../pages/admin/ui/AdminUsersPage'
@@ -18,6 +18,7 @@ import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSetting
 import { WorkspaceMembersPage } from '../pages/workspace-members/ui/WorkspaceMembersPage'
 import { WorkspaceAccessPage } from '../pages/workspace-access/ui/WorkspaceAccessPage'
 import { ProfilePage } from '../pages/profile/ui/ProfilePage'
+import { MediaLibraryPage } from '../pages/media/ui/MediaLibraryPage'
 import { GuestsPageConnected } from '../pages/guests/ui/GuestsPageConnected'
 import { GuestCategoriesConnectedV2 } from '../pages/guest-categories/ui/GuestCategoriesConnectedV2'
 import { TemplatesApiPage } from '../pages/templates/ui/TemplatesApiPage'
@@ -60,7 +61,8 @@ import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
 import { RecapThemesPage } from '../pages/recap/ui/RecapThemesPage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
 import { useOptionalAuth } from '../features/auth/model/auth-context'
-import { StatusPage, statusPathToKind } from '../pages/status/ui/StatusPage'
+import { StatusPage } from '../pages/status/ui/StatusPage'
+import { statusPathToKind } from '../pages/status/ui/status-routes'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 const studioPages: Record<string, React.ReactNode> = {
@@ -84,6 +86,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
   [studioRoutes.profile]: <ProfilePage />,
+  [studioRoutes.media]: <MediaLibraryPage />,
 }
 
 const adminPageNames: Record<string, string> = {
@@ -174,7 +177,7 @@ function AppContent() {
   if (pathname === adminRoutes.home || pathname.startsWith(`${adminRoutes.home}/`)) {
     const content =
       pathname === adminRoutes.home ? (
-        <AdminDashboardPage />
+        <AdminDashboardConnectedPage />
       ) : pathname === adminRoutes.users ? (
         <AdminUsersPage />
       ) : pathname === adminRoutes.inviteLibrary ? (

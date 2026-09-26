@@ -1191,27 +1191,60 @@
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #cbd7c7;
-  box-shadow: 0 32px 80px #1d3f291e;
+  background: transparent;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  box-shadow: none;
 }
 .vp-slider::after {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   inset: 0;
   content: '';
   background: linear-gradient(180deg, transparent 54%, #071d17a6);
   pointer-events: none;
 }
-.vp-slider > img {
+.vp-gallery-card {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  width: 82%;
   height: 100%;
+  border: 1px solid #fffbed80;
   object-fit: cover;
+  transform: translateX(-50%) translateZ(-120px) rotateY(22deg) scale(0.82);
+  transform-style: preserve-3d;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition:
+    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 520ms ease,
+    box-shadow 760ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.vp-gallery-card--active {
+  z-index: 2;
+  transform: translateX(-50%) translateZ(0) rotateY(0deg) scale(1);
+  opacity: 1;
+  box-shadow: 0 24px 48px #1d3f2940;
+  pointer-events: auto;
+}
+.vp-gallery-card--prev {
+  transform: translateX(-83%) translateZ(-72px) rotateY(12deg) scale(0.88);
+  opacity: 0.8;
+}
+.vp-gallery-card--next {
+  transform: translateX(-17%) translateZ(-72px) rotateY(-12deg) scale(0.88);
+  opacity: 0.8;
+}
+.vp-gallery-card--far-prev {
+  transform: translateX(-50%) translateZ(-120px) rotateY(0deg) scale(0.82);
   opacity: 0;
 }
-.vp-slider > img.is-active {
-  opacity: 1;
+.vp-gallery-card--far-next {
+  transform: translateX(-50%) translateZ(-120px) rotateY(0deg) scale(0.82);
+  opacity: 0;
 }
 .vp-gallery-matte {
   position: absolute;
@@ -2056,6 +2089,19 @@
   .vp-gallery > h2 {
     margin-inline: 20px;
   }
+  .vp-gallery .vp-slider {
+    aspect-ratio: 5 / 6;
+    margin-inline: 10px;
+  }
+  .vp-gallery-card {
+    width: 78%;
+  }
+  .vp-gallery-card--prev {
+    transform: translateX(-88%) translateZ(-58px) rotateY(9deg) scale(0.9);
+  }
+  .vp-gallery-card--next {
+    transform: translateX(-12%) translateZ(-58px) rotateY(-9deg) scale(0.9);
+  }
   .vp-rsvp {
     padding-inline: 27px;
   }
@@ -2117,6 +2163,13 @@
   }
   .vp-timeline li {
     grid-template-columns: 55px 38px 1fr;
+  }
+  .vp-gallery-card {
+    transition: none;
+  }
+  .vp-gallery-card:not(.vp-gallery-card--active) {
+    transform: translateX(-50%) translateZ(0) scale(1);
+    opacity: 0;
   }
 }
 

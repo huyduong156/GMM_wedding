@@ -33,6 +33,14 @@ describe('RoseGardenInvitation', () => {
     expect(container.querySelector('.rg-cover-art-index')).not.toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="opening"]')).toHaveClass('classic-card-cover')
     expect(container.querySelectorAll('.classic-card-cover__flower')).toHaveLength(2)
+    expect(container.querySelector('.classic-card-cover__flower--left')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-flower-left-v2.png',
+    )
+    expect(container.querySelector('.classic-card-cover__flower--right')).toHaveAttribute(
+      'src',
+      '/assets/images/templates/rose-garden/artwork-drafts/rg-opening-flower-right-v2.png',
+    )
     const hearts = container.querySelectorAll<HTMLElement>('.classic-card-cover__heart')
     expect(hearts).toHaveLength(24)
     expect(container.querySelectorAll('.classic-card-cover__heart--large')).toHaveLength(3)
@@ -380,10 +388,11 @@ describe('RoseGardenInvitation', () => {
     )
   })
 
-  it('includes the Phase 4 timeline bloom and motion-ready surface', () => {
+  it('keeps timeline nodes minimal and preserves the motion-ready surface', () => {
     const { container } = render(<RoseGardenInvitation editorMode data={roseGardenFixture} />)
 
-    expect(container.querySelectorAll('.rg-timeline-bloom')).toHaveLength(3)
+    expect(container.querySelectorAll('.rg-timeline-bloom')).toHaveLength(0)
+    expect(container.querySelectorAll('.rg-timeline-node')).toHaveLength(3)
     expect(container.querySelectorAll('.rg-timeline-light')).toHaveLength(1)
     expect(container.querySelectorAll('.rg-timeline-light.rg-motion-static')).toHaveLength(1)
     expect(container.querySelector('.rg-page')).toHaveClass('rg-motion-ready')

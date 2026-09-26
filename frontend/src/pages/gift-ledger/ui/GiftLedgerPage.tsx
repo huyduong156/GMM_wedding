@@ -662,6 +662,7 @@ export function GiftLedgerPage() {
               <input
                 id="gift-guest"
                 autoFocus
+                autoComplete="off"
                 value={guestName}
                 readOnly={Boolean(selectedGuestId)}
                 onChange={(event) => setGuestName(event.target.value)}

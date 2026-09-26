@@ -778,6 +778,56 @@
   gap: 8px;
   margin-top: 20px;
 }
+.collaborator-wedding-notice-dialog {
+  width: min(100%, 420px);
+  padding: 24px;
+  border: 1px solid rgb(211 177 132 / 0.55);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fffdf9 0%, #fff8ed 100%);
+  box-shadow: 0 28px 70px rgb(39 29 20 / 0.24);
+}
+.collaborator-wedding-notice-dialog > header {
+  position: relative;
+  padding-left: 18px;
+}
+.collaborator-wedding-notice-dialog > header::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--brand);
+}
+.collaborator-wedding-notice-dialog h2 {
+  font-size: 19px;
+  line-height: 1.25;
+}
+.collaborator-wedding-notice-dialog > p {
+  margin: 16px 0 0;
+  color: var(--fg-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.collaborator-wedding-notice-dialog > p + p {
+  margin-top: 8px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+.collaborator-wedding-notice-dialog > footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 24px;
+}
+.collaborator-wedding-notice-dialog > footer .button {
+  min-height: 48px;
+  width: 100%;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 700;
+}
 .settings-layout {
   display: grid;
   gap: 14px;
@@ -7977,6 +8027,64 @@ kbd {
 .admin-queue small {
   display: block;
 }
+.admin-dashboard-state {
+  min-height: 360px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.admin-dashboard-state h1,
+.admin-dashboard-state p {
+  margin: 0;
+}
+.admin-dashboard-state p {
+  color: var(--fg-muted);
+}
+.admin-dashboard-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 18px 18px;
+}
+.admin-dashboard-breakdown > div {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.62);
+}
+.admin-dashboard-breakdown span {
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.admin-dashboard-breakdown strong {
+  font-size: 20px;
+}
+.admin-dashboard-inline-error {
+  margin: 16px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+.admin-dashboard-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+}
+.admin-dashboard-queue-item:last-child {
+  border-bottom: 0;
+}
+.admin-dashboard-queue-item > span:nth-child(2) {
+  min-width: 0;
+}
 .admin-queue strong {
   font-size: 11px;
 }
@@ -9205,12 +9313,12 @@ kbd {
   background: #f3f1ee;
 }
 .editor-toolbar {
-  min-height: 76px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  padding: 12px 20px;
+  gap: 14px;
+  padding: 8px 16px;
   border-bottom: 1px solid #ded9d3;
   background: #fff;
 }
@@ -9220,19 +9328,154 @@ kbd {
 .editor-toolbar-public-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .editor-toolbar-main-actions,
 .editor-toolbar-public-actions {
   flex: 0 0 auto;
 }
+.profile-avatar-select {
+  border: 0;
+  padding: 0;
+  color: var(--brand);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+.profile-avatar-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.media-library-heading {
+  align-items: flex-end;
+}
+.media-library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.media-library-upload {
+  position: relative;
+  overflow: hidden;
+}
+.media-library-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.media-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  max-width: 1100px;
+}
+.media-library-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.media-library-card.is-selected {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgb(183 96 22 / 0.16);
+}
+.media-library-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--raised);
+}
+.media-library-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  color: var(--fg-secondary);
+  font-size: 12px;
+}
+.media-library-select {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+.media-library-select input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.media-library-select span {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  color: #fff;
+  background: var(--surface);
+}
+.media-library-select input:checked + span {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+.media-library-card-footer > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.media-library-delete {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--danger);
+  background: transparent;
+  cursor: pointer;
+}
+.media-library-delete:hover {
+  background: #fff0ee;
+}
+.media-library-error,
+.media-library-state,
+.media-library-empty {
+  max-width: 1100px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--fg-secondary);
+  background: var(--surface);
+}
+.media-library-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.editor-toolbar .button {
+  min-height: 34px;
+  gap: 6px;
+  padding-inline: 11px;
+  font-size: 11px;
+}
 .editor-toolbar-title > a {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border: 1px solid #ded9d3;
-  border-radius: 9px;
+  border-radius: 8px;
   color: #5f5a56;
 }
 .editor-toolbar-title p {
@@ -9242,7 +9485,7 @@ kbd {
 }
 .editor-toolbar-title h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
 }
 .editor-toolbar-title h1 span {
   display: inline-flex;
@@ -9262,14 +9505,14 @@ kbd {
 }
 .editor-device-toggle {
   display: flex;
-  padding: 3px;
+  padding: 2px;
   border: 1px solid #ded9d3;
   border-radius: 8px;
   background: #f6f4f2;
 }
 .editor-device-toggle button {
-  width: 30px;
-  height: 28px;
+  width: 27px;
+  height: 25px;
   display: grid;
   place-items: center;
   border: 0;
@@ -9633,9 +9876,9 @@ kbd {
 .editor-live-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: #8c7562;
-  font-size: 9px;
+  font-size: 8px;
 }
 .editor-live-status::before {
   content: '';
@@ -9715,8 +9958,8 @@ kbd {
   gap: 3px;
 }
 .editor-history-actions button {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid #ddd5ce;
@@ -10607,18 +10850,22 @@ kbd {
 }
 .editor-couple-quick-edit {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   margin-top: 12px;
 }
 .editor-couple-quick-edit .editor-field {
+  min-width: 0;
   gap: 4px;
 }
 .editor-couple-quick-edit .editor-field > span {
-  font-size: 8px;
+  font-size: 7px;
 }
 .editor-couple-quick-edit input {
-  padding: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 5px 6px;
+  font-size: 10px;
 }
 .editor-timeline-fields {
   display: grid;
@@ -10915,8 +11162,8 @@ kbd {
 }
 @media (max-width: 800px) {
   .editor-toolbar {
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 9px;
+    padding: 9px 12px;
   }
   .editor-toolbar-title {
     width: 100%;
@@ -10955,7 +11202,7 @@ kbd {
     font-size: 16px;
   }
   .editor-couple-quick-edit {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     max-width: none;
   }
   .editor-toolbar-actions {
@@ -15582,7 +15829,7 @@ input[type='file'] {
     min-height: 0;
     max-width: 100%;
     max-height: 100%;
-    aspect-ratio: 550 / 985;
+    aspect-ratio: 450 / 985;
     display: flex;
     flex-direction: column;
   }

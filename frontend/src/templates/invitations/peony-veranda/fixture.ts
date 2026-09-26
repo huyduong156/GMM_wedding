@@ -3,6 +3,7 @@ import type { PeonyVerandaData } from './PeonyVerandaInvitation'
 export const peonyVerandaFixture: PeonyVerandaData = {
   brideName: 'Mai',
   groomName: 'Đức',
+  coverEyebrow: 'Thiệp mời ngày vui',
   brideRole: 'Trưởng nữ',
   groomRole: 'Trưởng nam',
   weddingDate: '20 · 12 · 2026',

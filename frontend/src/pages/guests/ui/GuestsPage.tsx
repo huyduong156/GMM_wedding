@@ -1,4 +1,5 @@
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useDeferredValue, useMemo, useState } from 'react'
 import {
   Archive,
@@ -108,7 +109,11 @@ export function GuestsPage() {
           <p>Theo dõi danh sách, thiệp mời và xác nhận tham dự trong một nơi.</p>
         </div>
         <div className="page-actions">
-          <button className="button button-secondary" type="button">
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => void notifications.info('Tính năng nhập danh sách hiện chưa khả dụng.', 'Vui lòng quay lại sau.')}
+          >
             <UploadSimple size={17} /> Nhập danh sách
           </button>
           <button className="button button-primary" type="button">
@@ -418,7 +423,7 @@ export function GuestsPage() {
         </footer>
       </div>
 
-      <button className="guest-mobile-add" type="button" aria-label="Thêm khách mời">
+      <button className="guest-mobile-add mobile-floating-action" type="button" aria-label="Thêm khách mời">
         <Plus size={22} weight="bold" />
       </button>
     </section>

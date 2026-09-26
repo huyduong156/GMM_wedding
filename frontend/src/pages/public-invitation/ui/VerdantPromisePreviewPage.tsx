@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { VerdantPromiseInvitation } from '../../../templates/invitations/verdant-promise/VerdantPromiseInvitation'
 import { modernLuxeEditorFixture } from '../../../templates/template-registry'
 import type {
@@ -15,9 +15,10 @@ export function VerdantPromisePreviewPage() {
     data?: ModernLuxeData
     sectionConfig?: ModernLuxeSectionConfig
   }>()
-  const previewDefaults: Pick<ModernLuxeData, 'coverBackgroundMedia'> = {
-    coverBackgroundMedia: modernLuxeEditorFixture.coverBackgroundMedia,
-  }
+  const previewDefaults = useMemo<Pick<ModernLuxeData, 'coverBackgroundMedia'>>(
+    () => ({ coverBackgroundMedia: modernLuxeEditorFixture.coverBackgroundMedia }),
+    [],
+  )
   const [data, setData] = useState<ModernLuxeData | undefined>(() => ({
     ...previewDefaults,
     ...stored?.data,
@@ -38,7 +39,7 @@ export function VerdantPromisePreviewPage() {
     window.addEventListener('message', receive)
     window.parent.postMessage({ type: liveEditorEvents.ready, version: 1 }, window.location.origin)
     return () => window.removeEventListener('message', receive)
-  }, [editorMode])
+  }, [editorMode, previewDefaults])
   return (
     <>
       {!editorMode ? (

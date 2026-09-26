@@ -10,6 +10,7 @@ import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-b
 
 export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) {
   const auth = useOptionalAuth()
+  const checkUserSession = auth?.checkUserSession
   const [snapshot, setSnapshot] = useState<PublishedWeddingSnapshot>()
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -25,7 +26,7 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
         if (active) setSnapshot(result.snapshot)
         return
       } catch {
-        const signedIn = auth?.checkUserSession ? await auth.checkUserSession() : false
+        const signedIn = checkUserSession ? await checkUserSession() : false
         if (!signedIn) {
           if (active) setNotFound(true)
           return
@@ -67,7 +68,7 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
     return () => {
       active = false
     }
-  }, [auth?.checkUserSession, weddingSlug])
+  }, [checkUserSession, weddingSlug])
   if (notFound) return <StatusPage kind="not-found" />
   if (loading || !snapshot)
     return (

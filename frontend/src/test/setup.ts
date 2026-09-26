@@ -36,3 +36,5 @@ class IntersectionObserverMock implements IntersectionObserver {
 
 globalThis.IntersectionObserver = IntersectionObserverMock
 window.scrollTo = vi.fn()
+HTMLMediaElement.prototype.load = vi.fn()
+HTMLMediaElement.prototype.pause = vi.fn()

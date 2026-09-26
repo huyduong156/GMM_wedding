@@ -28,6 +28,7 @@ type Snapshot = PublishedWeddingSnapshot
 
 export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
   const auth = useOptionalAuth()
+  const checkUserSession = auth?.checkUserSession
   const [snapshot, setSnapshot] = useState<Snapshot>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
@@ -39,24 +40,11 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
         setError(cause instanceof Error ? cause.message : 'Không thể tải website cưới.'),
       )
   }, [weddingSlug])
-  if (error)
-    return (
-      <main style={{ padding: 32 }}>
-        <h1>Không thể mở website</h1>
-        <p>{error}</p>
-      </main>
-    )
-  if (!snapshot)
-    return (
-      <main style={{ padding: 32 }}>
-        <p>Đang tải website cưới…</p>
-      </main>
-    )
   useEffect(() => {
     if (!error || snapshot) return
     let active = true
     void (async () => {
-      const signedIn = auth?.checkUserSession ? await auth.checkUserSession() : false
+      const signedIn = checkUserSession ? await checkUserSession() : false
       if (!signedIn) {
         if (active) setNotFound(true)
         return
@@ -97,7 +85,14 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
     return () => {
       active = false
     }
-  }, [auth?.checkUserSession, error, snapshot, weddingSlug])
+  }, [checkUserSession, error, snapshot, weddingSlug])
+  if (error)
+    return (
+      <main style={{ padding: 32 }}>
+        <h1>Không thể mở website</h1>
+        <p>{error}</p>
+      </main>
+    )
   if (notFound) return <StatusPage kind="not-found" />
   if (!snapshot)
     return (

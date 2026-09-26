@@ -1,8 +1,9 @@
 import { ArrowLeft, House, LockKey, Warning, WarningCircle } from '@phosphor-icons/react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
-import { marketingRoutes, statusRoutes, studioRoutes } from '../../../shared/config/routes'
+import { marketingRoutes } from '../../../shared/config/routes'
+import type { StatusKind } from './status-routes'
+import { statusHome } from './status-routes'
 
-type StatusKind = 'unauthorized' | 'forbidden' | 'not-found' | 'server-error'
 type StatusIcon = typeof LockKey
 const content: Record<
   StatusKind,
@@ -42,7 +43,7 @@ export function StatusPage({
   onRetry?: () => void
 }) {
   const item = content[kind]
-  const home = kind === 'unauthorized' ? marketingRoutes.login : studioRoutes.home
+  const home = statusHome(kind)
   const homeLabel = kind === 'unauthorized' ? 'Đăng nhập' : 'Về studio'
   return (
     <main className="status-page" aria-labelledby="status-page-title">
@@ -75,10 +76,4 @@ export function StatusPage({
       </div>
     </main>
   )
-}
-export const statusPathToKind: Record<string, StatusKind> = {
-  [statusRoutes.unauthorized]: 'unauthorized',
-  [statusRoutes.forbidden]: 'forbidden',
-  [statusRoutes.notFound]: 'not-found',
-  [statusRoutes.serverError]: 'server-error',
 }

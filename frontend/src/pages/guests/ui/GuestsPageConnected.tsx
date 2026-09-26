@@ -1,6 +1,6 @@
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Archive,
   ArrowSquareOut,
@@ -109,7 +109,7 @@ function GuestShareDialog({
     return () => {
       active = false
     }
-  }, [guest.id, weddingId, weddingSlug])
+  }, [guest.id, guest.slug, weddingId, weddingSlug])
 
   const copy = async () => {
     if (!url) return
@@ -265,6 +265,7 @@ function GuestDialog({
           id="guest-name"
           autoFocus
           maxLength={160}
+          autoComplete="off"
           aria-invalid={Boolean(nameError)}
           onBlur={() => setNameTouched(true)}
           value={form.name}
@@ -277,6 +278,7 @@ function GuestDialog({
         </label>
         <input
           id="guest-display-name"
+          autoComplete="off"
           value={form.displayName}
           onChange={(event) => change('displayName', event.target.value)}
           placeholder="Ví dụ: anh Ba Hưng"
@@ -390,17 +392,18 @@ function GuestsPageConnectedContent({
   const [creating, setCreating] = useState(false)
   const [busy, setBusy] = useState(false)
   const [bulkCategoryAction, setBulkCategoryAction] = useState('')
-  const load = async () => {
-    if (!activeWedding) return
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) return
     setLoading(true)
     setError('')
     try {
       const [guestResult, categoryResult] = await Promise.all([
-        guestApi.list(activeWedding.id, {
+        guestApi.list(weddingId, {
           q: query.trim() || undefined,
           categoryId: categoryId || undefined,
         }),
-        guestCategoryApi.list(activeWedding.id),
+        guestCategoryApi.list(weddingId),
       ])
       setGuests(guestResult.items)
       setCategories(categoryResult.items)
@@ -410,12 +413,10 @@ function GuestsPageConnectedContent({
     } finally {
       setLoading(false)
     }
-  }
-  // The request inputs are the explicit refresh boundary; load itself is intentionally local to this screen.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryId, query, weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id, query, categoryId])
+  }, [load])
   const totalParty = useMemo(
     () => guests.reduce((sum, guest) => sum + guest.maxPartySize, 0),
     [guests],
@@ -584,7 +585,11 @@ function GuestsPageConnectedContent({
           <p>Danh sách riêng tư của đám cưới, được đồng bộ trực tiếp với máy chủ.</p>
         </div>
         <div className="page-actions">
-          <button className="button button-secondary" type="button" disabled>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => void notifications.info('Tính năng nhập danh sách hiện chưa khả dụng.', 'Vui lòng quay lại sau.')}
+          >
             <UploadSimple size={17} /> Nhập danh sách
           </button>
           {canEdit ? (
@@ -861,7 +866,7 @@ function GuestsPageConnectedContent({
       </div>
       {canEdit ? (
         <button
-          className="guest-mobile-add"
+          className="guest-mobile-add mobile-floating-action"
           type="button"
           onClick={openCreate}
           aria-label="Thêm khách mời"

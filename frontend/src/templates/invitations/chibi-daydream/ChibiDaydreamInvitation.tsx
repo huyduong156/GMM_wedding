@@ -81,8 +81,6 @@ export function ChibiDaydreamInvitation({
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)
   const submittedRsvpRef = useRef(false)
-  const [rsvpName, setRsvpName] = useState('')
-  const [partySize, setPartySize] = useState(1)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
   const [wishes, setWishes] = useState([
@@ -139,14 +137,14 @@ export function ChibiDaydreamInvitation({
       attendance: attendance === 'yes' ? 'ATTENDING' : 'DECLINED',
       partySize: 1,
     })
-  }, [attendance, interactions?.isPersonalized, interactions?.rsvp.submit, rsvpSent])
+  }, [attendance, interactions, interactions?.isPersonalized, interactions?.rsvp.submit, rsvpSent])
 
   useEffect(() => {
     if (interactions)
       setWishes(
         interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
       )
-  }, [interactions?.wishes.items])
+  }, [interactions])
 
   return (
     <div className={`cd-wrap ${opened ? 'is-opened' : ''}`}>

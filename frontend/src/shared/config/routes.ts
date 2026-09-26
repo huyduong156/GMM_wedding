@@ -19,6 +19,7 @@ export const studioRoutes = {
   events: '/studio/events',
   settings: '/studio/settings',
   profile: '/studio/profile',
+  media: '/studio/media',
 } as const
 
 export const adminRoutes = {
@@ -54,6 +55,7 @@ export const legacyStudioRoutes: Record<string, string> = {
   events: studioRoutes.events,
   settings: studioRoutes.settings,
   profile: studioRoutes.profile,
+  media: studioRoutes.media,
 }
 
 export const publicTemplateRoutes = {

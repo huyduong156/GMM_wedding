@@ -37,7 +37,7 @@ export function VerifyEmailPage() {
 
   useEffect(() => {
     if (!token) return
-    verification.current ??= authApi.verifyEmail(token)
+    verification.current ??= authApi.verifyEmail(token).then((result) => result ?? {})
     let active = true
     void verification.current
       .then((result) => {

@@ -85,9 +85,23 @@
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 10px;
 }
+.media-manager-load-more {
+  display: block;
+  margin: 16px auto 2px;
+  border: 1px solid #c99383;
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #713b31;
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+.media-manager-load-more:hover {
+  background: #f2e8df;
+}
 .media-manager-asset {
   content-visibility: auto;
-  contain-intrinsic-size: 150px;
+  contain-intrinsic-size: 180px 180px;
   position: relative;
   min-width: 0;
   overflow: hidden;

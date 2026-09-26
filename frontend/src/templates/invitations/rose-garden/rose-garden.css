@@ -1035,17 +1035,22 @@
 .rg-footer {
   position: relative;
   isolation: isolate;
-  min-height: 390px;
-  background: radial-gradient(circle at 50% 0%, #94566b 0, #713b4a 48%, #542b3a 100%);
+  min-height: 460px;
+  overflow: hidden;
+  padding: 76px 28px 64px;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(255 255 255 / 0.86), transparent 34%),
+    linear-gradient(160deg, #f7ecee 0%, #fffaf7 58%, #ead7dc 100%);
+  color: var(--rg-ink);
 }
 
 .rg-footer::before {
   position: absolute;
-  top: 28px;
+  top: 36px;
   left: 50%;
-  width: 220px;
-  height: 220px;
-  border: 1px solid rgb(240 185 187 / 0.2);
+  width: min(72vw, 300px);
+  height: 300px;
+  border: 1px solid rgb(169 87 104 / 0.16);
   border-radius: 50%;
   content: '';
   pointer-events: none;
@@ -1054,11 +1059,11 @@
 
 .rg-footer::after {
   position: absolute;
-  top: 31px;
+  top: 48px;
   left: 50%;
-  width: 48px;
+  width: 68px;
   height: 1px;
-  background: rgb(240 185 187 / 0.58);
+  background: linear-gradient(90deg, transparent, var(--rg-rose), transparent);
   content: '';
   transform: translateX(-50%);
 }
@@ -3329,6 +3334,67 @@
   color: #f6dfe0;
 }
 
+/* Rose Garden opening: keep the gate in the template's blush/mauve family. */
+.classic-card-cover.rose-garden-opening {
+  background: #f1e5e8;
+}
+
+.classic-card-cover.rose-garden-opening .classic-card-cover__wash {
+  background:
+    radial-gradient(circle at 50% 18%, rgb(255 252 253 / 0.9), transparent 44%),
+    linear-gradient(135deg, #e8d8dd 0%, #f5e9ed 52%, #d9c4ce 100%);
+}
+
+.classic-card-cover.rose-garden-opening .classic-card-cover__open {
+  background: #b87898;
+  border-color: rgb(255 244 247 / 0.72);
+}
+
+.classic-card-cover.rose-garden-opening .classic-card-cover__flower--left {
+  left: 0.5%;
+  bottom: -8%;
+  transform: rotate(0deg);
+}
+
+.classic-card-cover.rose-garden-opening .classic-card-cover__flower--right {
+  top: -16%;
+  right: -1.5%;
+  transform: rotate(-4deg);
+}
+
+/* Keep the custom resting angles aligned with the opening zoom animation. */
+.classic-card-cover.rose-garden-opening.is-opening .classic-card-cover__flower--left {
+  animation: rose-garden-opening-flower-left 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-card-cover.rose-garden-opening.is-opening .classic-card-cover__flower--right {
+  animation: rose-garden-opening-flower-right 1500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rose-garden-opening-flower-left {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(0deg) scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes rose-garden-opening-flower-right {
+  0% {
+    transform: rotate(-4deg) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-4deg) scale(4);
+    opacity: 0;
+  }
+}
+
 .rg-opening-trigger {
   position: relative;
   z-index: 2;
@@ -3358,8 +3424,13 @@
 .rg-footer {
   position: relative;
   isolation: isolate;
-  min-height: 390px;
-  background: radial-gradient(circle at 50% 0%, #94566b 0, #713b4a 48%, #542b3a 100%);
+  min-height: 460px;
+  overflow: hidden;
+  padding: 76px 28px 64px;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(255 255 255 / 0.94), transparent 38%),
+    linear-gradient(160deg, #fffaf8 0%, #fffdfb 58%, #f0e1e4 100%);
+  color: #4c303d;
 }
 
 .rg-footer::before {
@@ -3386,19 +3457,90 @@
   transform: translateX(-50%);
 }
 
-.rg-footer > *:not(.rg-footer-decor) {
+.rg-footer-content {
   position: relative;
   z-index: 1;
+  display: grid;
+  justify-items: center;
+  width: min(100%, 360px);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.rg-footer-mark {
+  margin-bottom: 18px;
+  color: #98516e;
+  font-size: 28px;
+}
+
+.rg-footer .rg-eyebrow {
+  color: #874662;
+}
+
+.rg-footer h2 {
+  display: grid;
+  gap: 2px;
+  margin: 18px 0 15px;
+  color: #65394b;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(38px, 10vw, 50px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+}
+
+.rg-footer h2 i {
+  color: #98516e;
+  font-family: var(--font-wedding-script);
+  font-size: 0.68em;
+  font-style: normal;
+  line-height: 0.55;
+}
+
+.rg-footer-rule {
+  width: 72px;
+  height: 1px;
+  margin-bottom: 18px;
+  background: linear-gradient(90deg, transparent, var(--rg-rose), transparent);
+}
+
+.rg-footer p {
+  max-width: 280px;
+  margin: 0;
+  color: #5f4b53;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.rg-footer-media {
+  display: block;
+  width: min(100%, 300px);
+  aspect-ratio: 16 / 10;
+  max-height: none;
+  margin-top: 24px;
+  border: 1px solid rgb(169 87 104 / 0.18);
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: center 35%;
+  box-shadow: 0 18px 32px rgb(113 59 74 / 0.12);
+}
+
+.rg-footer-date {
+  margin-top: 27px;
+  color: #874662;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
 }
 
 .rg-footer-decor,
 .rg-motion-ready .rg-footer.rg-motion-content[data-motion-visible='true'] > .rg-footer-decor {
-  left: -90px;
-  right: auto;
-  bottom: -230px;
+  right: -92px;
+  bottom: -78px;
   z-index: 0;
-  width: 650px;
-  opacity: 0.8;
-  transform: rotate(330deg);
+  width: 330px;
+  opacity: 0.18;
+  transform: rotate(-8deg);
   animation: none;
 }

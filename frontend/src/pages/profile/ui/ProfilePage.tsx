@@ -3,6 +3,9 @@ import { Check, FloppyDisk, ImageSquare, Phone, UserCircle, X } from '@phosphor-
 import { useAuth } from '../../../features/auth/model/auth-context'
 import { AuthApiError } from '../../../shared/api/auth'
 import { SelectField } from '../../../shared/ui/form-controls/SelectField'
+import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
+import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 
 function initials(name: string | null, email: string) {
   const source = name?.trim() || email
@@ -17,6 +20,9 @@ function initials(name: string | null, email: string) {
 
 export function ProfilePage() {
   const { user, updateProfile } = useAuth()
+  const weddingWorkspace = useOptionalWeddingWorkspace()
+  const media = useMediaLibrary({ weddingId: weddingWorkspace?.activeWedding?.id ?? null })
+  const [mediaManagerOpen, setMediaManagerOpen] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const [phone, setPhone] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -93,6 +99,14 @@ export function ProfilePage() {
                 <span className="profile-avatar profile-avatar-fallback">{avatarInitials}</span>
               )}
               <span className="profile-avatar-note">Ảnh đại diện</span>
+              <button
+                className="profile-avatar-select"
+                type="button"
+                onClick={() => setMediaManagerOpen(true)}
+                disabled={!weddingWorkspace?.activeWedding}
+              >
+                Chọn từ kho ảnh
+              </button>
             </div>
             <div className="profile-fields">
               <label>
@@ -196,6 +210,20 @@ export function ProfilePage() {
           </button>
         </div>
       </form>
+      <MediaManagerModal
+        open={mediaManagerOpen}
+        assets={media.assets}
+        selectedIds={new Set(media.assets.filter((asset) => asset.publicUrl === avatarUrl).map((asset) => asset.id))}
+        loading={media.loading}
+        uploading={media.uploading}
+        error={media.error}
+        onClose={() => setMediaManagerOpen(false)}
+        onUpload={media.upload}
+        onConfirm={(selected) => {
+          setAvatarUrl(selected[0]?.publicUrl ?? '')
+          setMediaManagerOpen(false)
+        }}
+      />
     </div>
   )
 }

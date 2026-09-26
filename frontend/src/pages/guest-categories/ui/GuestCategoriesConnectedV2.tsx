@@ -1,5 +1,5 @@
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   CaretDown,
   CaretRight,
@@ -57,12 +57,13 @@ function GuestCategoriesContent({
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const load = async () => {
-    if (!activeWedding) return
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) return
     setLoading(true)
     setError('')
     try {
-      const result = await guestCategoryApi.list(activeWedding.id)
+      const result = await guestCategoryApi.list(weddingId)
       setItems(result.items)
       setExpanded(new Set(result.items.filter((item) => item.depth < 3).map((item) => item.id)))
     } catch (cause) {
@@ -70,12 +71,10 @@ function GuestCategoriesContent({
     } finally {
       setLoading(false)
     }
-  }
-  // The wedding id is the refresh boundary for this screen.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id])
+  }, [load])
 
   const roots = useMemo(() => items.filter((item) => item.parentId === null), [items])
   const childrenOf = (id: string) => items.filter((item) => item.parentId === id)
@@ -280,6 +279,7 @@ function GuestCategoriesContent({
               id="category-name"
               autoFocus
               value={name}
+              autoComplete="off"
               onChange={(event) => {
                 setName(event.target.value)
                 setError('')
