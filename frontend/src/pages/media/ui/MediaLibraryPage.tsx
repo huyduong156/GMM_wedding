@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Check, ImageSquare, Trash } from '@phosphor-icons/react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -12,9 +12,16 @@ export function MediaLibraryPage() {
   const weddingId = workspace?.activeWedding?.id ?? null
   const canManage = workspace?.activeRole !== 'VIEWER'
   const media = useMediaLibrary({ weddingId })
+  const setMediaError = media.setError
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    setSelectedIds(new Set())
+    setPendingDeleteIds(new Set())
+    setMediaError('')
+  }, [setMediaError, weddingId])
 
   const requestDelete = useCallback((ids: string[]) => {
     const assets = media.assets.filter((asset) => ids.includes(asset.id))
