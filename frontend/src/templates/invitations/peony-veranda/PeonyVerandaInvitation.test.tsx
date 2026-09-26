@@ -142,6 +142,9 @@ describe('PeonyVerandaInvitation', () => {
       guestName: 'Ngọc Anh',
       content: 'Chúc hai bạn luôn vui vẻ.',
     })
+    await waitFor(() =>
+      expect(screen.getByText('Cảm ơn bạn đã gửi lời chúc đến chúng mình.')).toBeInTheDocument(),
+    )
   })
   it('keeps gallery keyboard controls and gift QR usable', () => {
     render(

@@ -37,6 +37,7 @@ import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live
 import type { ModernLuxeData } from '../../../templates/invitations/modern-luxe/ModernLuxeInvitation'
 import { getInvitationTemplate } from '../../../templates/template-registry'
 import { resolveInvitationTemplateConfig } from '../../../templates/invitation-config-resolver'
+import { mergeSectionOrder } from './section-order'
 import {
   resolveEditorSections,
   validateSchemaContent,
@@ -59,21 +60,6 @@ const readQuickEdit = (config: Record<string, unknown> | null | undefined): Quic
         ),
       )
     : []
-export function mergeSectionOrder(canonicalKeys: string[], storedKeys: string[], pinnedKeys: string[] = []) {
-  const pinned = new Set(pinnedKeys)
-  const storedReorderable = [
-    ...new Set(storedKeys.filter((key) => canonicalKeys.includes(key) && !pinned.has(key))),
-  ]
-  const canonicalReorderable = canonicalKeys.filter((key) => !pinned.has(key))
-  const reorderable = [
-    ...storedReorderable,
-    ...canonicalReorderable.filter((key) => !storedReorderable.includes(key)),
-  ]
-  let reorderableIndex = 0
-  return canonicalKeys.map((key) =>
-    pinned.has(key) ? key : reorderable[reorderableIndex++],
-  )
-}
 
 const initialTemplate = getInvitationTemplate('modern-luxe')!
 const initialData: ModernLuxeData = {

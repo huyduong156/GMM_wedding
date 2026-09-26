@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { CheckCircle, MagnifyingGlass, Question, UsersThree, XCircle } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { rsvpApi, type Rsvp, type RsvpAttendance } from '../../../shared/api/weddings'
@@ -42,12 +42,13 @@ function RsvpsContent({ activeWedding }: { activeWedding: { id: string; name: st
   const [error, setError] = useState('')
   const deferredQuery = useDeferredValue(query)
 
-  const load = async () => {
-    if (!activeWedding) return
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) return
     setLoading(true)
     setError('')
     try {
-      const result = await rsvpApi.list(activeWedding.id, {
+      const result = await rsvpApi.list(weddingId, {
         q: deferredQuery.trim() || undefined,
         attendance: status === 'all' ? undefined : status,
       })
@@ -57,12 +58,10 @@ function RsvpsContent({ activeWedding }: { activeWedding: { id: string; name: st
     } finally {
       setLoading(false)
     }
-  }
-  // The selected wedding and server-side filters define the refresh boundary.
-   
+  }, [deferredQuery, status, weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id, deferredQuery, status])
+  }, [load])
 
   const summary = useMemo(
     () => ({

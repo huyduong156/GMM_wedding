@@ -60,7 +60,8 @@ import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
 import { RecapThemesPage } from '../pages/recap/ui/RecapThemesPage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
 import { useOptionalAuth } from '../features/auth/model/auth-context'
-import { StatusPage, statusPathToKind } from '../pages/status/ui/StatusPage'
+import { StatusPage } from '../pages/status/ui/StatusPage'
+import { statusPathToKind } from '../pages/status/ui/status-routes'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 const studioPages: Record<string, React.ReactNode> = {

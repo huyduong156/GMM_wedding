@@ -14,6 +14,18 @@ export default defineConfig({
     },
   },
   preview: { port: 4173 },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          icons: ['@phosphor-icons/react'],
+          motion: ['motion', 'lenis'],
+          particles: ['@tsparticles/react', '@tsparticles/slim'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

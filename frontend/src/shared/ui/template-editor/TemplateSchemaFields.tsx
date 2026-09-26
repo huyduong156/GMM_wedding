@@ -221,6 +221,7 @@ function TemplateAudioField({
   const audioRef = useRef<HTMLAudioElement>(null)
   const playRequestRef = useRef(0)
   useEffect(() => {
+    const audio = audioRef.current
     let active = true
     void musicApi
       .list()
@@ -237,7 +238,7 @@ function TemplateAudioField({
     return () => {
       active = false
       playRequestRef.current += 1
-      audioRef.current?.pause()
+      audio?.pause()
     }
   }, [])
   const currentName = nameKey ? String(getPath(data, nameKey) ?? '') : ''

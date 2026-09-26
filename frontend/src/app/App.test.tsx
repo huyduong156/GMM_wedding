@@ -142,14 +142,14 @@ describe('Owner Workspace', () => {
     expect(screen.getAllByText('Cấp cuối')).not.toHaveLength(0)
   })
 
-  it('renders the theme gallery without the detailed editor', () => {
+  it('renders the theme gallery without the detailed editor', async () => {
     window.history.replaceState(null, '', '/studio/invites/themes')
     render(
       <NavigationProvider>
         <App />
       </NavigationProvider>,
     )
-    expect(screen.getByRole('heading', { name: 'Chọn giao diện thiệp' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Chọn giao diện thiệp' })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Xem trước' })).toHaveLength(7)
     expect(screen.getAllByText('Élan d’Amour')).not.toHaveLength(0)
     fireEvent.click(screen.getAllByRole('button', { name: 'Xem trước' })[0])
@@ -158,14 +158,14 @@ describe('Owner Workspace', () => {
     ).toHaveAttribute('href', '/templates/invitations/modern-luxe/preview')
   })
 
-  it('renders a separate website theme gallery', () => {
+  it('renders a separate website theme gallery', async () => {
     window.history.replaceState(null, '', '/studio/site/themes')
     render(
       <NavigationProvider>
         <App />
       </NavigationProvider>,
     )
-    expect(screen.getByRole('heading', { name: 'Chọn giao diện website' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Chọn giao diện website' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Kho thiệp' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Kho website' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Website của bạn' })).toBeInTheDocument()
@@ -310,14 +310,14 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('button', { name: 'Hiện tổng tiền mừng' })).toBeInTheDocument()
   })
 
-  it('renders the separate admin invitation library', () => {
+  it('renders the separate admin invitation library', async () => {
     window.history.replaceState(null, '', '/gmm_admin/library/invites')
     render(
       <NavigationProvider>
         <App />
       </NavigationProvider>,
     )
-    expect(screen.getByRole('heading', { name: 'Kho thiệp online' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Kho thiệp online' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Đồng bộ template/i })).toBeInTheDocument()
   })
 

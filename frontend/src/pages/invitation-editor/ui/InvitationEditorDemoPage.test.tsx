@@ -4,7 +4,8 @@ import { vi } from 'vitest'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import { WeddingContext } from '../../../entities/wedding/model/wedding-context'
 import { weddingApi, type Wedding } from '../../../shared/api/weddings'
-import { InvitationEditorLivePage, mergeSectionOrder } from './InvitationEditorLivePage'
+import { InvitationEditorLivePage } from './InvitationEditorLivePage'
+import { mergeSectionOrder } from './section-order'
 
 const wedding: Wedding = {
   id: '00000000-0000-4000-8000-000000000001',

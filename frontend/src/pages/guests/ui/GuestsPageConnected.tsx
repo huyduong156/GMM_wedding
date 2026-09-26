@@ -1,6 +1,6 @@
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { notifications } from '../../../shared/ui/notifications/notifications'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Archive,
   ArrowSquareOut,
@@ -109,7 +109,7 @@ function GuestShareDialog({
     return () => {
       active = false
     }
-  }, [guest.id, weddingId, weddingSlug])
+  }, [guest.id, guest.slug, weddingId, weddingSlug])
 
   const copy = async () => {
     if (!url) return
@@ -390,17 +390,18 @@ function GuestsPageConnectedContent({
   const [creating, setCreating] = useState(false)
   const [busy, setBusy] = useState(false)
   const [bulkCategoryAction, setBulkCategoryAction] = useState('')
-  const load = async () => {
-    if (!activeWedding) return
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) return
     setLoading(true)
     setError('')
     try {
       const [guestResult, categoryResult] = await Promise.all([
-        guestApi.list(activeWedding.id, {
+        guestApi.list(weddingId, {
           q: query.trim() || undefined,
           categoryId: categoryId || undefined,
         }),
-        guestCategoryApi.list(activeWedding.id),
+        guestCategoryApi.list(weddingId),
       ])
       setGuests(guestResult.items)
       setCategories(categoryResult.items)
@@ -410,12 +411,10 @@ function GuestsPageConnectedContent({
     } finally {
       setLoading(false)
     }
-  }
-  // The request inputs are the explicit refresh boundary; load itself is intentionally local to this screen.
-   
+  }, [categoryId, query, weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id, query, categoryId])
+  }, [load])
   const totalParty = useMemo(
     () => guests.reduce((sum, guest) => sum + guest.maxPartySize, 0),
     [guests],

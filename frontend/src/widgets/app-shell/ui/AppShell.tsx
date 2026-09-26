@@ -136,7 +136,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     const acknowledged = sessionStorage.getItem(`gmm-collaborator-wedding-notice:${wedding.id}`)
     setCollaboratorNoticeOpen(!acknowledged)
-  }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding?.id, weddingWorkspace?.weddings.length])
+  }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding, weddingWorkspace?.weddings.length])
 
   useEffect(() => setSidebarOpen(false), [pathname])
 

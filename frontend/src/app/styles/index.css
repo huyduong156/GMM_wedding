@@ -15686,6 +15686,7 @@ input[type='file'] {
     overflow: hidden;
   }
   .invitation-editor .editor-iframe-shell.is-mobile {
+    width: min(100%, 480px);
     height: calc(100% - 4px);
     min-height: 0;
     max-width: 100%;

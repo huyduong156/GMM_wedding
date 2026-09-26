@@ -60,14 +60,12 @@ export function MediaManagerModal({
 }: MediaManagerModalProps) {
   const [draftIds, setDraftIds] = useState<Set<string>>(new Set(selectedIds))
   const closeRef = useRef<HTMLButtonElement>(null)
-  const selectedKey = Array.from(selectedIds).sort().join('|')
-
   useEffect(() => {
     if (open) {
       setDraftIds(new Set(selectedIds))
       closeRef.current?.focus()
     }
-  }, [open, selectedKey])
+  }, [open, selectedIds])
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {

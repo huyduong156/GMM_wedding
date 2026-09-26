@@ -333,7 +333,7 @@ export function VerdantPromiseInvitation({
     setWishes(
       interactions.wishes.items.map((item) => ({ name: item.authorName, message: item.content })),
     )
-  }, [interactions?.wishes.items])
+  }, [interactions])
 
   useEffect(() => {
     if (interactions?.rsvp.submitted) setRsvpSubmitted(true)

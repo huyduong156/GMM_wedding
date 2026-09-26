@@ -189,7 +189,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   useEffect(() => {
     void weddingApi
       .templateStyles()
-      .then((result) => setStyles(result.items))
+      .then((result) => setStyles(Array.isArray(result.items) ? result.items : []))
       .catch(() => setStyles([]))
   }, [])
   useEffect(() => {
@@ -226,7 +226,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       previewPath: previewPaths[selected.key],
       unavailable: true,
     }
-  }, [content, themes])
+  }, [content, kind, themes])
   const visible = useMemo(() => {
     const value = deferredQuery.trim().toLocaleLowerCase('vi')
     const matches = themes.filter(
@@ -239,7 +239,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
     return active
       ? [active, ...matches.filter((theme) => theme.versionId !== active.versionId)]
       : matches
-  }, [activeVersionId, deferredQuery, filter, themes, unavailableActiveTheme])
+  }, [activeVersionId, deferredQuery, themes, unavailableActiveTheme])
 
   const selectTheme = async (theme: Theme) => {
     if (!canEdit || !activeWedding || !content) {

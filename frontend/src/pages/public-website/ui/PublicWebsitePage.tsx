@@ -28,6 +28,7 @@ type Snapshot = PublishedWeddingSnapshot
 
 export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
   const auth = useOptionalAuth()
+  const checkUserSession = auth?.checkUserSession
   const [snapshot, setSnapshot] = useState<Snapshot>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
@@ -43,7 +44,7 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
     if (!error || snapshot) return
     let active = true
     void (async () => {
-      const signedIn = auth?.checkUserSession ? await auth.checkUserSession() : false
+      const signedIn = checkUserSession ? await checkUserSession() : false
       if (!signedIn) {
         if (active) setNotFound(true)
         return
@@ -84,7 +85,7 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
     return () => {
       active = false
     }
-  }, [auth?.checkUserSession, error, snapshot, weddingSlug])
+  }, [checkUserSession, error, snapshot, weddingSlug])
   if (error)
     return (
       <main style={{ padding: 32 }}>

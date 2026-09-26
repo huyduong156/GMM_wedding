@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { Check, EyeSlash, Heart, MagnifyingGlass, PushPin, Sparkle, X } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { wishApi, type Wish, type WishStatus } from '../../../shared/api/weddings'
@@ -54,8 +54,9 @@ function WishesContent({
   const [error, setError] = useState('')
   const deferredQuery = useDeferredValue(query)
 
-  const load = async () => {
-    if (!activeWedding) {
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) {
       setWishes([])
       setLoading(false)
       return
@@ -63,7 +64,7 @@ function WishesContent({
     setLoading(true)
     setError('')
     try {
-      const result = await wishApi.list(activeWedding.id, {
+      const result = await wishApi.list(weddingId, {
         q: deferredQuery.trim() || undefined,
         limit: 100,
       })
@@ -73,12 +74,10 @@ function WishesContent({
     } finally {
       setLoading(false)
     }
-  }
-  // The selected wedding and search query define the refresh boundary.
-   
+  }, [deferredQuery, weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id, deferredQuery])
+  }, [load])
 
   const counts = useMemo(
     () => ({

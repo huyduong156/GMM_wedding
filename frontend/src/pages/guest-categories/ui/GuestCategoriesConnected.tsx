@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import {
   CaretDown,
@@ -29,11 +29,12 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const load = async () => {
-    if (!activeWedding) return
+  const weddingId = activeWedding?.id
+  const load = useCallback(async () => {
+    if (!weddingId) return
     setLoading(true)
     try {
-      const result = await guestCategoryApi.list(activeWedding.id)
+      const result = await guestCategoryApi.list(weddingId)
       setItems(result.items)
       setExpanded(new Set(result.items.filter((item) => item.depth < 3).map((item) => item.id)))
     } catch (cause) {
@@ -41,10 +42,10 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
     } finally {
       setLoading(false)
     }
-  }  
+  }, [weddingId])
   useEffect(() => {
     void load()
-  }, [activeWedding?.id])
+  }, [load])
   const roots = useMemo(() => items.filter((item) => item.parentId === null), [items])
   const children = (id: string) => items.filter((item) => item.parentId === id)
   const open = (value: GuestCategory | null) => {

@@ -1,5 +1,5 @@
 import { MusicNote, Pause, Play } from '@phosphor-icons/react'
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import './music-player.css'
 
 export type MusicPlayerVariant = 'rotating-fab'
@@ -31,7 +31,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
   const [playing, setPlaying] = useState(false)
   const available = Boolean(src)
 
-  const playAudio = async () => {
+  const playAudio = useCallback(async () => {
     const audio = audioRef.current
     if (!audio || !available) return false
     try {
@@ -42,9 +42,9 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
       setPlaying(false)
       return false
     }
-  }
+  }, [available])
 
-  useImperativeHandle(ref, () => ({ play: playAudio }), [available])
+  useImperativeHandle(ref, () => ({ play: playAudio }), [playAudio])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -53,7 +53,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     setPlaying(false)
     if (!active || editorMode || !autoplay || !src) return
     void playAudio()
-  }, [active, autoplay, editorMode, src])
+  }, [active, autoplay, editorMode, playAudio, src])
 
   const toggle = async () => {
     const audio = audioRef.current

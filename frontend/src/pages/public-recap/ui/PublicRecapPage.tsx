@@ -35,6 +35,7 @@ const mergeRecapContent = (stored: Record<string, unknown>): RedSpiderLilyRecapC
 
 export function PublicRecapPage({ slug }: { slug: string }) {
   const auth = useOptionalAuth()
+  const checkUserSession = auth?.checkUserSession
   const [content, setContent] = useState<RedSpiderLilyRecapContent>()
   const [sectionConfig, setSectionConfig] = useState<SectionConfig>()
   const [error, setError] = useState('')
@@ -58,7 +59,7 @@ export function PublicRecapPage({ slug }: { slug: string }) {
 
       try {
         let payload: DraftPayload | null = null
-        const signedIn = auth?.checkUserSession ? await auth.checkUserSession() : false
+        const signedIn = checkUserSession ? await checkUserSession() : false
 
         if (signedIn) payload = await loadOwnerDraft()
         if (!payload)
@@ -88,7 +89,7 @@ export function PublicRecapPage({ slug }: { slug: string }) {
     return () => {
       active = false
     }
-  }, [auth?.checkUserSession, slug])
+  }, [checkUserSession, slug])
 
   if (notFound) return <StatusPage kind="not-found" />
   if (error) return <StatusPage kind="server-error" />
