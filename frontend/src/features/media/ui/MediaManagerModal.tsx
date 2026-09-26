@@ -3,6 +3,8 @@ import { Check, ImageSquare, X } from '@phosphor-icons/react'
 import type { MediaAsset } from '../../../shared/api/weddings'
 import './media-manager.css'
 
+const MEDIA_PAGE_SIZE = 40
+
 type MediaManagerModalProps = {
   open: boolean
   assets: MediaAsset[]
@@ -59,10 +61,12 @@ export function MediaManagerModal({
   onConfirm,
 }: MediaManagerModalProps) {
   const [draftIds, setDraftIds] = useState<Set<string>>(new Set(selectedIds))
+  const [visibleCount, setVisibleCount] = useState(MEDIA_PAGE_SIZE)
   const closeRef = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (open) {
       setDraftIds(new Set(selectedIds))
+      setVisibleCount(MEDIA_PAGE_SIZE)
       closeRef.current?.focus()
     }
   }, [open, selectedIds])
@@ -91,6 +95,12 @@ export function MediaManagerModal({
   if (!open) return null
 
   const confirm = () => onConfirm(assets.filter((asset) => draftIds.has(asset.id)))
+  const selectedAssets = assets.filter((asset) => draftIds.has(asset.id))
+  const visibleAssets = assets.slice(0, visibleCount)
+  const assetsToRender = [
+    ...selectedAssets,
+    ...visibleAssets.filter((asset) => !draftIds.has(asset.id)),
+  ]
 
   return (
     <div
@@ -157,7 +167,7 @@ export function MediaManagerModal({
         ) : assets.length ? (
           <div className="media-manager-grid-scroll">
             <div className="media-manager-grid">
-              {assets.map((asset) => (
+              {assetsToRender.map((asset) => (
                 <MediaAssetCard
                   key={asset.id}
                   asset={asset}
@@ -166,6 +176,15 @@ export function MediaManagerModal({
                 />
               ))}
             </div>
+            {visibleCount < assets.length ? (
+              <button
+                type="button"
+                className="media-manager-load-more"
+                onClick={() => setVisibleCount((count) => Math.min(count + MEDIA_PAGE_SIZE, assets.length))}
+              >
+                Tải thêm ảnh ({Math.min(MEDIA_PAGE_SIZE, assets.length - visibleCount)})
+              </button>
+            ) : null}
           </div>
         ) : (
           <p className="media-manager-empty">Chưa có ảnh trong kho.</p>

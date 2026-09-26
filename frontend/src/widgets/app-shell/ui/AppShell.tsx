@@ -88,6 +88,7 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
       { to: studioRoutes.analytics, label: 'Thống kê', icon: ChartLineUp },
       { to: studioRoutes.members, label: 'Thành viên', icon: UsersThree },
       { to: studioRoutes.settings, label: 'Cài đặt', icon: GearSix },
+      { to: studioRoutes.media, label: 'Kho ảnh', icon: ImagesSquare },
     ],
   },
 ]
@@ -112,6 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     studioRoutes.giftLedger,
     studioRoutes.members,
     studioRoutes.settings,
+    studioRoutes.media,
   ])
   const currentWedding = weddingWorkspace?.activeWedding
   const visibleNavGroups = navGroups.map((group) => ({

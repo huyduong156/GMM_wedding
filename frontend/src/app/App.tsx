@@ -18,6 +18,7 @@ import { WeddingSettingsPage } from '../pages/wedding-settings/ui/WeddingSetting
 import { WorkspaceMembersPage } from '../pages/workspace-members/ui/WorkspaceMembersPage'
 import { WorkspaceAccessPage } from '../pages/workspace-access/ui/WorkspaceAccessPage'
 import { ProfilePage } from '../pages/profile/ui/ProfilePage'
+import { MediaLibraryPage } from '../pages/media/ui/MediaLibraryPage'
 import { GuestsPageConnected } from '../pages/guests/ui/GuestsPageConnected'
 import { GuestCategoriesConnectedV2 } from '../pages/guest-categories/ui/GuestCategoriesConnectedV2'
 import { TemplatesApiPage } from '../pages/templates/ui/TemplatesApiPage'
@@ -85,6 +86,7 @@ const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.events]: <WeddingEventsPage />,
   [studioRoutes.settings]: <WeddingSettingsPage />,
   [studioRoutes.profile]: <ProfilePage />,
+  [studioRoutes.media]: <MediaLibraryPage />,
 }
 
 const adminPageNames: Record<string, string> = {

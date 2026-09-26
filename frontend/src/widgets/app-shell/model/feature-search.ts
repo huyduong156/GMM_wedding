@@ -22,6 +22,7 @@ const keywords: Record<string, string[]> = {
   [studioRoutes.members]: ['cộng tác viên', 'phân quyền'],
   [studioRoutes.settings]: ['thiết lập', 'thông tin đám cưới'],
   [studioRoutes.profile]: ['tài khoản', 'hồ sơ', 'thông tin cá nhân'],
+  [studioRoutes.media]: ['kho ảnh', 'hình ảnh', 'quản lý ảnh', 'media'],
 }
 
 export function normalizeFeatureQuery(value: string) {
