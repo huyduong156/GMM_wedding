@@ -9313,12 +9313,12 @@ kbd {
   background: #f3f1ee;
 }
 .editor-toolbar {
-  min-height: 76px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  padding: 12px 20px;
+  gap: 14px;
+  padding: 8px 16px;
   border-bottom: 1px solid #ded9d3;
   background: #fff;
 }
@@ -9328,19 +9328,25 @@ kbd {
 .editor-toolbar-public-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .editor-toolbar-main-actions,
 .editor-toolbar-public-actions {
   flex: 0 0 auto;
 }
+.editor-toolbar .button {
+  min-height: 34px;
+  gap: 6px;
+  padding-inline: 11px;
+  font-size: 11px;
+}
 .editor-toolbar-title > a {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   border: 1px solid #ded9d3;
-  border-radius: 9px;
+  border-radius: 8px;
   color: #5f5a56;
 }
 .editor-toolbar-title p {
@@ -9350,7 +9356,7 @@ kbd {
 }
 .editor-toolbar-title h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
 }
 .editor-toolbar-title h1 span {
   display: inline-flex;
@@ -9370,14 +9376,14 @@ kbd {
 }
 .editor-device-toggle {
   display: flex;
-  padding: 3px;
+  padding: 2px;
   border: 1px solid #ded9d3;
   border-radius: 8px;
   background: #f6f4f2;
 }
 .editor-device-toggle button {
-  width: 30px;
-  height: 28px;
+  width: 27px;
+  height: 25px;
   display: grid;
   place-items: center;
   border: 0;
@@ -9741,9 +9747,9 @@ kbd {
 .editor-live-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: #8c7562;
-  font-size: 9px;
+  font-size: 8px;
 }
 .editor-live-status::before {
   content: '';
@@ -9823,8 +9829,8 @@ kbd {
   gap: 3px;
 }
 .editor-history-actions button {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid #ddd5ce;
@@ -10715,18 +10721,22 @@ kbd {
 }
 .editor-couple-quick-edit {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
   margin-top: 12px;
 }
 .editor-couple-quick-edit .editor-field {
+  min-width: 0;
   gap: 4px;
 }
 .editor-couple-quick-edit .editor-field > span {
-  font-size: 8px;
+  font-size: 7px;
 }
 .editor-couple-quick-edit input {
-  padding: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 5px 6px;
+  font-size: 10px;
 }
 .editor-timeline-fields {
   display: grid;
@@ -11023,8 +11033,8 @@ kbd {
 }
 @media (max-width: 800px) {
   .editor-toolbar {
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 9px;
+    padding: 9px 12px;
   }
   .editor-toolbar-title {
     width: 100%;
@@ -11063,7 +11073,7 @@ kbd {
     font-size: 16px;
   }
   .editor-couple-quick-edit {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     max-width: none;
   }
   .editor-toolbar-actions {
@@ -15686,12 +15696,11 @@ input[type='file'] {
     overflow: hidden;
   }
   .invitation-editor .editor-iframe-shell.is-mobile {
-    width: min(100%, 480px);
     height: calc(100% - 4px);
     min-height: 0;
     max-width: 100%;
     max-height: 100%;
-    aspect-ratio: 550 / 985;
+    aspect-ratio: 450 / 985;
     display: flex;
     flex-direction: column;
   }

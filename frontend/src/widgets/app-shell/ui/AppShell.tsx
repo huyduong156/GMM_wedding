@@ -235,16 +235,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="plan-meter">
-            <div className="plan-meter-title">
-              <span>Gói miễn phí</span>
-              <strong>42%</strong>
-            </div>
-            <div className="meter-track">
-              <span style={{ width: '42%' }} />
-            </div>
-            <small>8 trong 20 khách mời</small>
-          </div>
+          {/* TODO: Hiển thị plan meter khi tính năng gói đăng ký được triển khai. */}
           <button
             className="collapse-button"
             type="button"

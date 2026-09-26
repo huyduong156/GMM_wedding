@@ -602,6 +602,20 @@ export function InvitationEditorLivePage() {
           <div>
             <p>Thiệp online · {templateKey ?? 'Đang tải giao diện'}</p>
             <h1 id="invitation-editor-heading">Chỉnh sửa thiệp</h1>
+            <span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>
+              {loading
+                ? 'Đang tải nội dung…'
+                : saving
+                  ? 'Đang lưu…'
+                  : dirty
+                    ? 'Có thay đổi chưa lưu'
+                    : saveMessage ||
+                      (templateVersionId
+                        ? 'Nội dung đã sẵn sàng'
+                        : ready
+                          ? 'Bản xem trước đã sẵn sàng'
+                          : 'Đang chuẩn bị…')}
+            </span>
           </div>
         </div>
         <div className="editor-couple-quick-edit">
@@ -622,20 +636,6 @@ export function InvitationEditorLivePage() {
         </div>
         <div className="editor-toolbar-actions">
           <div className="editor-toolbar-main-actions">
-            <span className={`editor-live-status ${ready ? 'is-ready' : ''}`}>
-              {loading
-                ? 'Đang tải nội dung…'
-                : saving
-                  ? 'Đang lưu…'
-                  : dirty
-                    ? 'Có thay đổi chưa lưu'
-                    : saveMessage ||
-                      (templateVersionId
-                        ? 'Nội dung đã sẵn sàng'
-                        : ready
-                          ? 'Bản xem trước đã sẵn sàng'
-                          : 'Đang chuẩn bị…')}
-            </span>
             <div className="editor-history-actions" data-history-version={historyVersion}>
               <button
                 type="button"
