@@ -46,7 +46,10 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Sidebar 248px expanded, 72px collapsed; collapse preference persisted.
 - Top bar 56px sticky. Sidebar sticky independently nhưng tránh nested content scrolling. Owner account hiển thị countdown số ngày đến lễ cưới ngay dưới tên khi wedding context đã có `weddingDate`; nếu chưa có thì hiển thị “Vui lòng nhập ngày cưới của bạn”. Mobile dùng pill ngày cưới rút gọn trong top bar vì account copy được ẩn.
 - Wedding switcher nằm đầu sidebar; trạng thái `Draft/Published` hiển thị kèm text, không chỉ màu.
-- Global command menu `Ctrl/Cmd + K`: chuyển wedding, tìm khách, mở page/action.
+- Tìm tính năng trên topbar (`Ctrl/Cmd + K`): lọc cục bộ từ menu sidebar đã lọc quyền và hồ sơ tài khoản; tên/URL dùng chung với menu, từ đồng nghĩa khai báo tại `widgets/app-shell/model/feature-search.ts`. Tìm không dấu, không phân biệt hoa thường, hỗ trợ `đ/d`; ưu tiên khớp tên trước từ khóa phụ. Chọn kết quả để chuyển trang qua navigation adapter, hỗ trợ ↑/↓/Enter/Escape, focus và modal native trên desktop/mobile. Chỉ tìm tính năng, không tìm dữ liệu khách hay gọi API.
+- Chuông thông báo hiện hiển thị thông báo chưa khả dụng qua hệ thống notification chung; không hiển thị chấm/số chưa đọc giả trước khi backend thông báo được triển khai.
+- Mobile dưới 768px có nút ba gạch cố định góc dưới bên phải, tôn trọng safe-area. Menu nhanh mở hình quạt với icon/nhãn Khách mời, Sổ tiền mừng, Todolist, Thành viên theo quyền menu hiện tại; chỉ owner thấy Sổ tiền mừng. Chọn trang, bấm ngoài, Escape hoặc tab ra ngoài để thu menu. Chuyển động 180ms và tắt với reduced motion.
+- Nút menu nhanh và nút Thêm khách mời mobile dùng chung class `mobile-floating-action` và token `--mobile-fab-*` tại `mobile-quick-menu.css`: nút tròn 56px, cùng màu/border/shadow, cùng mép phải. Thêm khách mời nằm phía trên menu nhanh với gap 12px; bottom có safe-area và nội dung cuối trang có padding để cuộn qua cả hai nút.
 - Breadcrumb dùng khi sâu từ ba cấp; mọi trang có URL/deep link và giữ filter khi back.
 - Dưới 1024px sidebar thành drawer; mobile dùng top bar + contextual navigation, không nhồi bottom nav cho toàn bộ admin.
 
@@ -81,6 +84,8 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Bulk action bar chỉ hiện khi selection: gán nhóm, tạo link, export, xóa/lưu trữ.
 - Row click mở detail side sheet; action phụ vào overflow menu nhưng vẫn keyboard-accessible.
 - Import CSV là wizard: upload -> map cột -> validate/preview lỗi -> commit -> report.
+- Trong UI hiện tại, nút `Nhập danh sách` chỉ hiển thị thông báo chưa khả dụng bằng hệ thống notification chung; chưa mở wizard hay gọi API import.
+- Các field nhập tự do thường có dữ liệu thay đổi theo từng lần nhập (tên khách, tên hiển thị trên thiệp, tên danh mục, tên công việc và tên khách trong modal sổ tiền mừng) dùng `autoComplete="off"`; placeholder hướng dẫn vẫn được giữ nguyên.
 - Mobile dùng prioritized columns/card rows, không co bảng desktop đến mức không đọc được.
 - `Danh mục khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây tối đa 3 cấp. Mỗi row hiển thị tên, cấp, tổng khách và thao tác thêm cấp con; cấp 3 hiển thị rõ là cấp cuối.
 

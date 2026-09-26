@@ -219,8 +219,9 @@ export function GuestCategoriesPage() {
             <input
               id="category-name"
               autoFocus
-              value={name}
-              onChange={(event) => {
+                value={name}
+                autoComplete="off"
+                onChange={(event) => {
                 setName(event.target.value)
                 setError('')
               }}

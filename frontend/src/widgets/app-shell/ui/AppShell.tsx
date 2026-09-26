@@ -13,7 +13,6 @@ import {
   CurrencyCircleDollar,
   ImagesSquare,
   List,
-  MagnifyingGlass,
   Palette,
   PaperPlaneTilt,
   SidebarSimple,
@@ -32,6 +31,9 @@ import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbien
 import { studioRoutes } from '../../../shared/config/routes'
 import { marketingRoutes } from '../../../shared/config/routes'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
+import { FeatureSearch } from './FeatureSearch'
+import { MobileQuickMenu } from './MobileQuickMenu'
+import { notifications } from '../../../shared/ui/notifications/notifications'
 
 type NavItem = {
   label: string
@@ -112,6 +114,20 @@ export function AppShell({ children }: { children: ReactNode }) {
     studioRoutes.settings,
   ])
   const currentWedding = weddingWorkspace?.activeWedding
+  const visibleNavGroups = navGroups.map((group) => ({
+    ...group,
+    items: group.items.filter((item) =>
+      (!weddingWorkspace || weddingWorkspace.activeRole === 'OWNER' || item.to !== studioRoutes.giftLedger) &&
+      (!isViewer || ((!item.to || !viewerHiddenRoutes.has(item.to)) &&
+        !(item.heading && item.icon === ImagesSquare))),
+    ),
+  }))
+  const searchFeatures = [
+    ...visibleNavGroups.flatMap((group) => group.items.flatMap((item) =>
+      item.to ? [{ label: item.to === studioRoutes.recapThemes ? 'Kho giao diện Recap' : item.label, to: item.to, group: group.label }] : [],
+    )),
+    { label: 'Hồ sơ tài khoản', to: studioRoutes.profile, group: 'Tài khoản' },
+  ]
   const activeWedding = currentWedding
     ? {
         id: currentWedding.id,
@@ -197,17 +213,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         </button>
 
         <nav className="primary-nav">
-          {navGroups.map((group) => (
+          {visibleNavGroups.map((group) => (
             <div className="nav-group" key={group.label || 'main'}>
               {group.label ? <p className="nav-group-label">{group.label}</p> : null}
-              {group.items
-                .filter(
-                  (item) =>
-                    !isViewer ||
-                    (!item.to || !viewerHiddenRoutes.has(item.to)) &&
-                      !(item.heading && item.icon === ImagesSquare),
-                )
-                .map(({ to, label, icon: Icon, badge, child, heading }) =>
+              {group.items.map(({ to, label, icon: Icon, badge, child, heading }) =>
                 heading ? (
                   <div className="nav-section-heading" key={label}>
                     <Icon size={19} weight="regular" aria-hidden="true" />
@@ -259,11 +268,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <List size={21} />
           </button>
-          <button className="command-search" type="button">
-            <MagnifyingGlass size={17} />
-            <span>Tìm khách mời, trang hoặc thao tác</span>
-            <kbd>⌘ K</kbd>
-          </button>
+          <FeatureSearch features={searchFeatures} />
           <div
             className={`mobile-wedding-countdown ${activeWedding.weddingDate ? '' : 'is-empty'}`}
             role="status"
@@ -281,10 +286,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="topbar-actions">
             <button
               className="icon-button notification-button"
-              aria-label="Thông báo, có 3 thông báo mới"
+              type="button"
+              aria-label="Thông báo"
+              onClick={() => void notifications.info('Tính năng thông báo hiện chưa khả dụng.', 'Vui lòng quay lại sau.')}
             >
               <Bell size={19} />
-              <span />
             </button>
             <button
               className="account-button"
@@ -325,6 +331,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+      <MobileQuickMenu features={searchFeatures} />
       {switcherOpen ? (
         <div
           className="workspace-dialog-backdrop"

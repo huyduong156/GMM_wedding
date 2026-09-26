@@ -237,6 +237,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
               id="category-name"
               autoFocus
               value={name}
+              autoComplete="off"
               onChange={(event) => {
                 setName(event.target.value)
                 setError('')

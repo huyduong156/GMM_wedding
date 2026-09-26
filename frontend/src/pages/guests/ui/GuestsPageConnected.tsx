@@ -265,6 +265,7 @@ function GuestDialog({
           id="guest-name"
           autoFocus
           maxLength={160}
+          autoComplete="off"
           aria-invalid={Boolean(nameError)}
           onBlur={() => setNameTouched(true)}
           value={form.name}
@@ -277,6 +278,7 @@ function GuestDialog({
         </label>
         <input
           id="guest-display-name"
+          autoComplete="off"
           value={form.displayName}
           onChange={(event) => change('displayName', event.target.value)}
           placeholder="Ví dụ: anh Ba Hưng"
@@ -583,7 +585,11 @@ function GuestsPageConnectedContent({
           <p>Danh sách riêng tư của đám cưới, được đồng bộ trực tiếp với máy chủ.</p>
         </div>
         <div className="page-actions">
-          <button className="button button-secondary" type="button" disabled>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => void notifications.info('Tính năng nhập danh sách hiện chưa khả dụng.', 'Vui lòng quay lại sau.')}
+          >
             <UploadSimple size={17} /> Nhập danh sách
           </button>
           {canEdit ? (
@@ -860,7 +866,7 @@ function GuestsPageConnectedContent({
       </div>
       {canEdit ? (
         <button
-          className="guest-mobile-add"
+          className="guest-mobile-add mobile-floating-action"
           type="button"
           onClick={openCreate}
           aria-label="Thêm khách mời"

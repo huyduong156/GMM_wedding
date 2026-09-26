@@ -101,6 +101,9 @@
 
 ## Working agreements
 
+- Studio feature search is frontend-only: topbar and Ctrl/Cmd+K search visible sidebar entries plus profile, normalize Vietnamese accents and use route-keyed synonyms. Results follow current wedding-role visibility and navigate through the existing adapter; no guest-data search or search API. Notification bell shows a temporary unavailable notice without fake unread state until notification backend is implemented.
+- Mobile Studio has a bottom-right radial quick menu for guests, owner-only gift ledger, todos and members, filtered from visible navigation. Its trigger and guest-add FAB share `mobile-floating-action` styling and `--mobile-fab-*` tokens; guest-add sits one button height plus a 12px gap above the trigger, with safe-area offsets.
+
 - Đọc `docs/README.md` và tài liệu liên quan trước thay đổi lớn.
 - Mỗi chức năng/endpoint mới phải có test đầy đủ trong cùng change theo `docs/backend/quality/testing-strategy.md`; không đánh dấu `Implemented` khi test bắt buộc chưa tồn tại và chưa qua CI.
 - Mọi Google/web search dùng repo skill `.agents/skills/web-research-agent`: giao cho sub-agent chuyên research và chỉ đưa brief có nguồn về context chính; xem `docs/shared/workflows/web-research-workflow.md`.
