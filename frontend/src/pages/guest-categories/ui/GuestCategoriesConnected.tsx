@@ -41,7 +41,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
     } finally {
       setLoading(false)
     }
-  } // eslint-disable-next-line react-hooks/exhaustive-deps
+  }  
   useEffect(() => {
     void load()
   }, [activeWedding?.id])

@@ -75,7 +75,7 @@ function WishesContent({
     }
   }
   // The selected wedding and search query define the refresh boundary.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     void load()
   }, [activeWedding?.id, deferredQuery])

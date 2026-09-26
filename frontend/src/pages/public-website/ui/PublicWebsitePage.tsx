@@ -39,19 +39,6 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
         setError(cause instanceof Error ? cause.message : 'Không thể tải website cưới.'),
       )
   }, [weddingSlug])
-  if (error)
-    return (
-      <main style={{ padding: 32 }}>
-        <h1>Không thể mở website</h1>
-        <p>{error}</p>
-      </main>
-    )
-  if (!snapshot)
-    return (
-      <main style={{ padding: 32 }}>
-        <p>Đang tải website cưới…</p>
-      </main>
-    )
   useEffect(() => {
     if (!error || snapshot) return
     let active = true
@@ -98,6 +85,13 @@ export function PublicWebsitePage({ weddingSlug }: { weddingSlug: string }) {
       active = false
     }
   }, [auth?.checkUserSession, error, snapshot, weddingSlug])
+  if (error)
+    return (
+      <main style={{ padding: 32 }}>
+        <h1>Không thể mở website</h1>
+        <p>{error}</p>
+      </main>
+    )
   if (notFound) return <StatusPage kind="not-found" />
   if (!snapshot)
     return (

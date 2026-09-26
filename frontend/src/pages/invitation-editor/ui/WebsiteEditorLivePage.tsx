@@ -11,9 +11,6 @@ import {
   DeviceMobile,
   Eye,
   FloppyDisk,
-  Image,
-  Plus,
-  Trash,
   X,
 } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -24,11 +21,10 @@ import {
   type TemplateSectionConfig,
   type TemplateFieldConfig,
 } from '../../../shared/api/weddings'
-import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
+import { studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { EditorPreviewModal } from '../../../shared/ui/EditorPreviewModal'
 import { TemplateSchemaFields } from '../../../shared/ui/template-editor/TemplateSchemaFields'
-import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
 import { useEditorPreviewScrollLock } from '../../../shared/ui/useEditorPreviewScrollLock'
 import { useDraggablePreviewPosition } from '../../../shared/ui/useDraggablePreviewPosition'
 import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
@@ -88,14 +84,6 @@ const mergeSections = (key: string, remote?: TemplateSectionConfig[]) => {
   })
 }
 const clone = <T,>(value: T): T => structuredClone(value)
-const getPath = (data: WebsiteData, path: string) =>
-  path
-    .split('.')
-    .reduce<unknown>(
-      (value, part) =>
-        value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined,
-      data,
-    )
 const setPath = (data: WebsiteData, path: string, value: unknown) => {
   const next = clone(data)
   const parts = path.split('.')
@@ -164,14 +152,6 @@ export function WebsiteEditorLivePage() {
   const history = useRef<HistoryState[]>([]),
     future = useRef<HistoryState[]>([]),
     serverKeys = useRef<string[]>([])
-  const [publishOpen, setPublishOpen] = useState(false),
-    [unpublishOpen, setUnpublishOpen] = useState(false),
-    [publishing, setPublishing] = useState(false),
-    [pendingAction, setPendingAction] = useState<'website' | 'publish' | null>(null)
-  const siteOrigin = typeof window === 'undefined' ? '' : window.location.origin
-  const websiteUrl = workspace?.activeWedding?.slug
-    ? `${siteOrigin}/${encodeURIComponent(workspace.activeWedding.slug)}/website`
-    : ''
   const [mediaManagerOpen, setMediaManagerOpen] = useState(false)
   const [mediaTarget, setMediaTarget] = useState<MediaTarget | null>(null)
   const {
@@ -369,54 +349,6 @@ export function WebsiteEditorLivePage() {
       JSON.stringify({ data, sectionConfig: { enabled, order } }),
     )
     window.open(`${route}?editor=0`, '_blank', 'noopener,noreferrer')
-  }
-  const hasUnsavedChanges = useCallback(() => dirty, [dirty])
-  const openMyWebsite = () => {
-    if (websiteUrl) window.open(websiteUrl, '_blank', 'noopener,noreferrer')
-  }
-  const requestAction = (action: 'website' | 'publish') => {
-    if (hasUnsavedChanges()) setPendingAction(action)
-    else action === 'website' ? openMyWebsite() : setPublishOpen(true)
-  }
-  const continueAction = async () => {
-    if (!pendingAction) return
-    const action = pendingAction
-    await save()
-    setPendingAction(null)
-    action === 'website' ? openMyWebsite() : setPublishOpen(true)
-  }
-  const publish = async () => {
-    if (!weddingId || !workspace?.activeWedding?.slug || revision === null) return
-    setPublishing(true)
-    setError('')
-    try {
-      await weddingApi.publish(weddingId, { surface: 'WEDDING_WEBSITE', revision })
-      setPublishOpen(false)
-      setNotice('Website đã được công khai.')
-      await workspace.refresh()
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể công khai website.')
-    } finally {
-      setPublishing(false)
-    }
-  }
-  const unpublish = async () => {
-    if (!weddingId) return
-    setPublishing(true)
-    setError('')
-    try {
-      await weddingApi.unpublish(weddingId, {
-        surface: 'WEDDING_WEBSITE',
-        revision: revision ?? undefined,
-      })
-      setUnpublishOpen(false)
-      setNotice('Website đã được tạm đóng.')
-      await workspace?.refresh()
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể tạm đóng website.')
-    } finally {
-      setPublishing(false)
-    }
   }
   if (!workspace) return null
   if (missing && !loading)
@@ -698,40 +630,6 @@ function WebsiteSectionCard({
         <div className="editor-accordion-content-inner">{children}</div>
       </div>
     </li>
-  )
-}
-function Input({
-  label,
-  value,
-  onChange,
-  area = false,
-  type = 'text',
-}: {
-  label: string
-  value: unknown
-  onChange: (value: string) => void
-  area?: boolean
-  type?: 'text' | 'date'
-}) {
-  return (
-    <label className="editor-field">
-      <span>{label}</span>
-      {type === 'date' ? (
-        <NativeDateField
-          value={String(value ?? '')}
-          onChange={(event) => onChange(event.target.value)}
-          aria-label={label}
-        />
-      ) : area ? (
-        <textarea
-          rows={4}
-          value={String(value ?? '')}
-          onChange={(event) => onChange(event.target.value)}
-        />
-      ) : (
-        <input value={String(value ?? '')} onChange={(event) => onChange(event.target.value)} />
-      )}
-    </label>
   )
 }
 function WebsiteFields({

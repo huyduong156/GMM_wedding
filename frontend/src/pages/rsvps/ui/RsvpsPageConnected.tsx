@@ -59,7 +59,7 @@ function RsvpsContent({ activeWedding }: { activeWedding: { id: string; name: st
     }
   }
   // The selected wedding and server-side filters define the refresh boundary.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     void load()
   }, [activeWedding?.id, deferredQuery, status])

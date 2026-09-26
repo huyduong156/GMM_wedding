@@ -16,7 +16,6 @@ import {
   Minus,
   PaperPlaneTilt,
   Plus,
-  Quotes,
   ShareNetwork,
   X,
 } from '@phosphor-icons/react'
@@ -273,14 +272,6 @@ const mergeRecords = (
         : value
     return result
   }, clone(base))
-const recapSlug = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 56) || 'wedding-recap'
 const mergeContent = (stored: Record<string, unknown>): RedSpiderLilyRecapContent => {
   const merged = mergeRecords(
     clone(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>,
@@ -821,7 +812,6 @@ function CardList({
   update,
   isOpen,
   galleryField,
-  maxMediaPerItem,
 }: {
   path: string
   fields: Array<{ key: string; label: string; multiline?: boolean; maxLength?: number }>
@@ -1690,33 +1680,6 @@ export function RecapEditorPage() {
       return additions.length
         ? { ...current, mediaItems: [...current.mediaItems, ...additions] }
         : current
-    })
-    setSaved(false)
-  }
-  const toggleMedia = (asset: MediaAsset) => {
-    if (mediaTarget) {
-      attachMediaAsset(asset, mediaTarget)
-      setMediaManagerOpen(false)
-      return
-    }
-    setRecap((current) => {
-      if (!current) return current
-      const mediaItems = selectedMediaIds.has(asset.id)
-        ? current.mediaItems.filter((item) => item.mediaAssetId !== asset.id)
-        : [
-            ...current.mediaItems,
-            {
-              id: asset.id,
-              mediaAssetId: asset.id,
-              caption: null,
-              sortOrder: current.mediaItems.length,
-              publicUrl: asset.publicUrl,
-            },
-          ]
-      return {
-        ...current,
-        mediaItems: mediaItems.map((item, index) => ({ ...item, sortOrder: index })),
-      }
     })
     setSaved(false)
   }

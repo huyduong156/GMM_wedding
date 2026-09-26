@@ -44,7 +44,6 @@ function addLayer(target: string, count: number | CountRange, className: string)
   const range = typeof count === 'number' ? { min: count, max: count } : count
   let frame = 0
   const render = () => {
-    const rect = host.getBoundingClientRect()
     const total = Math.floor(randomBetween(range.min, range.max + 1))
     layer.replaceChildren(...Array.from({ length: total }, () => {
       const star = document.createElement('i')

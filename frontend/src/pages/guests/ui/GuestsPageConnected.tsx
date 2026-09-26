@@ -412,7 +412,7 @@ function GuestsPageConnectedContent({
     }
   }
   // The request inputs are the explicit refresh boundary; load itself is intentionally local to this screen.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     void load()
   }, [activeWedding?.id, query, categoryId])

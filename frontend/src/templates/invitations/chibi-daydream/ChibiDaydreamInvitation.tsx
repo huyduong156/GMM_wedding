@@ -81,8 +81,6 @@ export function ChibiDaydreamInvitation({
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)
   const submittedRsvpRef = useRef(false)
-  const [rsvpName, setRsvpName] = useState('')
-  const [partySize, setPartySize] = useState(1)
   const [wishName, setWishName] = useState('')
   const [wish, setWish] = useState('')
   const [wishes, setWishes] = useState([

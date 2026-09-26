@@ -345,14 +345,16 @@ export function WebsiteEditorLivePageNext() {
   }
   const request = (action: 'website' | 'publish') => {
     if (dirty && signature(data, order, enabled, theme) !== baseline.current) setPending(action)
-    else action === 'website' ? openMine() : setPublishOpen(true)
+    else if (action === 'website') openMine()
+    else setPublishOpen(true)
   }
   const continuePending = async () => {
     if (!pending) return
     const action = pending
     if (!(await save())) return
     setPending(null)
-    action === 'website' ? openMine() : setPublishOpen(true)
+    if (action === 'website') openMine()
+    else setPublishOpen(true)
   }
   const publish = async () => {
     if (!weddingId || !slug || revision === null) return

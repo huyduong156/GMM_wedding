@@ -72,7 +72,7 @@ function GuestCategoriesContent({
     }
   }
   // The wedding id is the refresh boundary for this screen.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     void load()
   }, [activeWedding?.id])

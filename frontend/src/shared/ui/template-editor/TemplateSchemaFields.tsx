@@ -18,14 +18,11 @@ export type TemplateSchemaFieldsProps = {
   update: (path: string, value: unknown) => void
   openMediaManager?: TemplateMediaPicker
   mediaEnabled?: boolean
-  uploadAudio?: (files: FileList | null) => Promise<void>
-  audioError?: string
   errors?: Record<string, string>
   emptyState?: ReactNode
   layout?: string
 }
 
-const clone = <T,>(value: T): T => structuredClone(value)
 const getPath = (data: Record<string, unknown>, path: string) =>
   path
     .split('.')
@@ -44,8 +41,6 @@ export function TemplateSchemaFields({
   update,
   openMediaManager,
   mediaEnabled = false,
-  uploadAudio,
-  audioError = '',
   errors = {},
   emptyState,
   layout,
@@ -71,8 +66,6 @@ export function TemplateSchemaFields({
           update={update}
           openMediaManager={openMediaManager}
           mediaEnabled={mediaEnabled}
-          uploadAudio={uploadAudio}
-          audioError={audioError}
           errors={errors}
         />
       ))}
@@ -87,8 +80,6 @@ function TemplateField({
   update,
   openMediaManager,
   mediaEnabled,
-  uploadAudio,
-  audioError,
   errors,
 }: {
   fieldKey: string
@@ -97,8 +88,6 @@ function TemplateField({
   update: (path: string, value: unknown) => void
   openMediaManager?: TemplateMediaPicker
   mediaEnabled: boolean
-  uploadAudio?: (files: FileList | null) => Promise<void>
-  audioError: string
   errors: Record<string, string>
 }) {
   const path = field.contentKey ?? fieldKey
@@ -116,7 +105,6 @@ function TemplateField({
         update={update}
         openMediaManager={openMediaManager}
         mediaEnabled={mediaEnabled}
-        errors={errors}
       />
     )
   if (field.type === 'audio')
@@ -423,7 +411,6 @@ function TemplateItems({
   update,
   openMediaManager,
   mediaEnabled,
-  errors,
 }: {
   path: string
   label: string
@@ -435,7 +422,6 @@ function TemplateItems({
   update: (path: string, value: unknown) => void
   openMediaManager?: TemplateMediaPicker
   mediaEnabled: boolean
-  errors: Record<string, string>
 }) {
   const change = (index: number, key: string, next: unknown) =>
     update(
@@ -483,7 +469,6 @@ function TemplateItems({
                 change={(next) => change(index, key, next)}
                 openMediaManager={openMediaManager}
                 mediaEnabled={mediaEnabled}
-                errors={errors}
               />
             ))}
           </article>
@@ -515,7 +500,6 @@ function TemplateItemField({
   change,
   openMediaManager,
   mediaEnabled,
-  errors,
 }: {
   path: string
   fieldKey: string
@@ -524,7 +508,6 @@ function TemplateItemField({
   change: (value: unknown) => void
   openMediaManager?: TemplateMediaPicker
   mediaEnabled: boolean
-  errors: Record<string, string>
 }) {
   if (field.type === 'image' || field.type === 'images')
     return (

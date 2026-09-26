@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import { adminTemplateApi, type AdminTemplate } from '../../../shared/api/admin-templates'
+import { adminTemplateStylesApi } from '../../../shared/api/admin-template-styles'
 import { AdminTemplatesApiPage } from './AdminTemplatesApiPage'
 
 const template: AdminTemplate = {
@@ -37,6 +38,10 @@ const template: AdminTemplate = {
 }
 
 describe('AdminTemplatesApiPage', () => {
+  beforeEach(() => {
+    vi.spyOn(adminTemplateStylesApi, 'list').mockResolvedValue({ items: [] })
+  })
+
   it('loads templates and releases a ready pending version', async () => {
     vi.spyOn(adminTemplateApi, 'list').mockResolvedValue({
       pendingReviewCount: 1,

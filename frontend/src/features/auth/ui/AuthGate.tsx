@@ -33,7 +33,7 @@ export function AuthGate({
   if (checking)
     return (
       <PageLoading
-        label="Đang xác thực phiên đăng nhập"
+        label="Đang kiểm tra phiên đăng nhập"
         detail="Đang kiểm tra không gian làm việc của bạn."
       />
     )

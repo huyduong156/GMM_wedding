@@ -3,6 +3,7 @@ import { vi } from 'vitest'
 import { App } from './App'
 import { NavigationProvider } from './providers/navigation/NavigationProvider'
 import { AuthProvider } from '../features/auth/model/AuthProvider'
+import { adminDashboardApi } from '../shared/api/admin-dashboard'
 
 describe('Owner Workspace', () => {
   it('renders the public home page with working product links', () => {
@@ -212,14 +213,30 @@ describe('Owner Workspace', () => {
     expect(screen.getByRole('button', { name: /Đăng nhập để tham gia/i })).toBeInTheDocument()
   })
 
-  it('renders the platform admin dashboard with its own navigation', () => {
+  it('renders the platform admin dashboard with its own navigation', async () => {
     window.history.replaceState(null, '', '/gmm_admin')
+    vi.spyOn(adminDashboardApi, 'overview').mockResolvedValue({
+      dashboard: {
+        users: { total: 1, active: 1, pendingVerification: 0, suspended: 0 },
+        weddings: { total: 1, draft: 0, published: 1, archived: 0 },
+        templates: {
+          total: 1,
+          active: 1,
+          draft: 0,
+          deprecated: 0,
+          releasedVersions: 1,
+          pendingReviewVersions: 0,
+        },
+        media: { total: 1, ready: 1, processing: 0, failed: 0, totalSizeBytes: '0' },
+        recentAuditLogs: [],
+      },
+    })
     render(
       <NavigationProvider>
         <App />
       </NavigationProvider>,
     )
-    expect(screen.getByRole('heading', { name: /Chào buổi sáng, Admin/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /Chào buổi sáng, Admin/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Gói đăng ký' })).toHaveAttribute(
       'href',
       '/gmm_admin/subscriptions',
@@ -263,7 +280,7 @@ describe('Owner Workspace', () => {
     expect(
       screen.getByRole('progressbar', { name: /công việc đã hoàn thành/i }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Thêm công việc' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Thêm công việc' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Sổ tiền mừng' })).toHaveAttribute(
       'href',
       '/studio/gift-ledger',
