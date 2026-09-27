@@ -1,13 +1,14 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowRight, Eye, EyeSlash, LockKey, ShieldCheck } from '@phosphor-icons/react'
 import { marketingRoutes, studioRoutes } from '../../../shared/config/routes'
 import { WeddingAmbient } from '../../../shared/ui/wedding-ambient/WeddingAmbient'
 import { useAuth } from '../../../features/auth/model/auth-context'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
-import { AuthApiError } from '../../../shared/api/auth'
+import { AuthApiError, authApi } from '../../../shared/api/auth'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 
 const workspaceAccessReturnKey = 'gmm-workspace-access-return'
+const googleLoginEnabled = import.meta.env.VITE_GOOGLE_LOGIN_ENABLED === 'true'
 
 function consumeWorkspaceAccessReturn() {
   const destination = sessionStorage.getItem(workspaceAccessReturnKey)
@@ -27,13 +28,28 @@ function loginError(error: unknown) {
 }
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, checkUserSession } = useAuth()
   const { navigate } = useNavigation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('oauthError')) {
+      setError('Không thể đăng nhập bằng Google. Vui lòng thử lại.')
+      return
+    }
+    if (params.get('oauth') !== 'success') return
+    setSubmitting(true)
+    void checkUserSession().then((authenticated) => {
+      if (authenticated) navigate(consumeWorkspaceAccessReturn(), true)
+      else setError('Không thể hoàn tất đăng nhập bằng Google. Vui lòng thử lại.')
+      setSubmitting(false)
+    })
+  }, [checkUserSession, navigate])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -125,6 +141,18 @@ export function LoginPage() {
             {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}{' '}
             {!submitting ? <ArrowRight size={17} /> : null}
           </button>
+          <div className="login-oauth-divider"><span>hoặc</span></div>
+          <button
+            className="button button-secondary login-google-submit"
+            type="button"
+            onClick={() => window.location.assign(authApi.googleLoginUrl())}
+            disabled={submitting || !googleLoginEnabled}
+          >
+            <strong aria-hidden="true">G</strong> Tiếp tục với Google
+          </button>
+          {!googleLoginEnabled ? (
+            <small className="login-oauth-notice">Đăng nhập bằng Google hiện chưa khả dụng.</small>
+          ) : null}
           <p className="login-register">
             Chưa có tài khoản?{' '}
             <AppLink to={marketingRoutes.register}>Tạo tài khoản miễn phí</AppLink>

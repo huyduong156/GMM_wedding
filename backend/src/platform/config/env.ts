@@ -24,6 +24,10 @@ const serverEnvSchema = z
     AUTH_RATE_LIMIT_SECRET: z.string().min(32),
     AUTH_RATE_LIMIT_DRIVER: z.enum(['disabled', 'memory', 'redis']).default('memory'),
     REDIS_URL: z.string().url().optional(),
+    GOOGLE_CLIENT_ID: optionalNonEmpty,
+    GOOGLE_CLIENT_SECRET: optionalNonEmpty,
+    GOOGLE_REDIRECT_URI: optionalUrl,
+    GOOGLE_SUCCESS_REDIRECT: optionalUrl,
     SMTP_HOST: z.string().min(1).default('localhost'),
     SMTP_PORT: z.coerce.number().int().positive().max(65_535).default(1025),
     SMTP_SECURE: booleanEnv.default(false),
@@ -92,6 +96,13 @@ const serverEnvSchema = z
         code: z.ZodIssueCode.custom,
         path: ['SMTP_USER'],
         message: 'SMTP_USER and SMTP_PASSWORD must be configured together',
+      })
+    }
+    if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['GOOGLE_CLIENT_ID'],
+        message: 'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be configured together',
       })
     }
   })

@@ -72,6 +72,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const authApi = {
+  googleLoginUrl() {
+    return `${apiBaseUrl}/auth/google/start`
+  },
   register(
     email: string,
     password: string,

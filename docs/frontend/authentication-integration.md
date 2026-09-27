@@ -9,6 +9,13 @@ Frontend uses the backend opaque HTTP-only session and never stores credentials 
 | Owner workspace | `POST /api/auth/login` | `GET /api/me` | `/studio/*` |
 | Platform admin | `POST /api/auth/admin/login` | `GET /api/admin/me` | `/gmm_admin/*` except `/gmm_admin/login` |
 
+Owner login also supports Google OAuth through `GET /api/auth/google/start`. The
+backend validates the Google authorization code with PKCE, requires
+`email_verified=true`, then creates the same opaque session used by password
+login. Configure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GOOGLE_REDIRECT_URI` and `GOOGLE_SUCCESS_REDIRECT` in the backend. Google OAuth
+is not enabled for the platform-admin login surface.
+
 All requests use `credentials: include`. Before the first unsafe request, the client calls `GET /api/auth/csrf`; the backend returns a random token and sets a non-HttpOnly `gmm_csrf`/`__Host-gmm_csrf` cookie. Unsafe requests send JSON and `X-CSRF-Token` with the returned token. The backend compares the cookie and header, and also validates the browser `Origin`/Fetch Metadata. Backend `APP_ORIGIN` must exactly match the frontend origin.
 
 ## Public invitation URL

@@ -15,6 +15,9 @@ export type AuthErrorCode =
   | 'REQUEST_ORIGIN_REJECTED'
   | 'RATE_LIMITED'
   | 'SERVICE_UNAVAILABLE'
+  | 'GOOGLE_LOGIN_UNAVAILABLE'
+  | 'GOOGLE_AUTH_FAILED'
+  | 'GOOGLE_EMAIL_UNVERIFIED'
 
 export class AuthError extends Error {
   constructor(

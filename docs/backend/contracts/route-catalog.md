@@ -64,6 +64,8 @@ Core slice và security boundary được thiết kế tại [authentication imp
 | POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần; trả outcome claim workspace nếu có |
 | POST | `/auth/resend-verification` | Public pending account | Implemented | Gửi lại verification không lộ account; token cũ bị vô hiệu |
 | POST | `/auth/login` | Public | Implemented | Tạo session |
+| GET | `/auth/google/start` | Public | Implemented | Bắt đầu Google OAuth với state/PKCE |
+| GET | `/auth/google/callback` | Public callback | Implemented | Xác minh Google profile và tạo owner session |
 | POST | `/auth/admin/login` | Public + active `ADMIN` role | Implemented | Tạo session cho bề mặt platform admin |
 | POST | `/auth/logout` | Session | Implemented | Thu hồi session hiện tại |
 | POST | `/auth/forgot-password` | Public user account | Implemented | Gửi reset flow trung tính; không áp dụng admin |

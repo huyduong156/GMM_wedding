@@ -94,6 +94,12 @@ Endpoint dự kiến: `POST /api/auth/login`.
 
 Login thành công không nhúng membership role vào cookie. Platform admin cần policy MFA/step-up riêng trước production.
 
+Owner cũng có thể đăng nhập qua Google OAuth. Callback chỉ chấp nhận authorization
+code có PKCE, state cookie hợp lệ và Google profile có `email_verified=true`. User
+mới được tạo ở trạng thái `ACTIVE`; user hiện có cùng email được liên kết thêm
+`Account(provider=google)` mà không thay đổi password. OAuth dùng cùng opaque
+session/cookie với password login và không cấp quyền platform admin.
+
 ## Logout và quản lý session
 
 Endpoint dự kiến: `POST /api/auth/logout`.

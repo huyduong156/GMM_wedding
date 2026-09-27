@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { App } from '../../../app/App'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import { AuthProvider } from '../model/AuthProvider'
+import { resetCsrfTokenForTests } from '../../../shared/api/csrf'
 
 function renderApp(pathname: string) {
   window.history.replaceState(null, '', pathname)
@@ -30,14 +31,14 @@ describe('frontend authentication', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllEnvs()
+    resetCsrfTokenForTests()
   })
 
   it('submits owner credentials and enters studio', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ user }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(JSON.stringify({ user }), { status: 200 }),
     )
     renderApp('/login')
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
@@ -49,11 +50,10 @@ describe('frontend authentication', () => {
   })
 
   it('registers an owner and shows the generic verification notice', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ message: 'Accepted' }), {
-        status: 202,
-        headers: { 'content-type': 'application/json' },
-      }),
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(JSON.stringify({ message: 'Accepted' }), { status: 202 }),
     )
     renderApp('/register')
     fireEvent.change(screen.getByLabelText(/Tên hiển thị/), { target: { value: 'Mai & Đức' } })
@@ -76,20 +76,11 @@ describe('frontend authentication', () => {
 
   it('resends verification when the backend feature is enabled', async () => {
     vi.stubEnv('VITE_AUTH_RESEND_ENABLED', 'true')
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ message: 'Accepted' }), {
-          status: 202,
-          headers: { 'content-type': 'application/json' },
-        }),
-      )
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ message: 'Accepted' }), {
-          status: 202,
-          headers: { 'content-type': 'application/json' },
-        }),
-      )
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(JSON.stringify({ message: 'Accepted' }), { status: 202 }),
+    )
     renderApp('/register')
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
     fireEvent.change(screen.getByLabelText('Mật khẩu'), {
@@ -102,7 +93,7 @@ describe('frontend authentication', () => {
     const resendButton = await screen.findByRole('button', { name: /Gửi lại email xác minh/ })
     fireEvent.click(resendButton)
     await screen.findByText('Nếu tài khoản đang chờ xác minh, một email mới đã được gửi.')
-    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(fetchSpy).toHaveBeenCalledTimes(3)
     expect(fetchSpy).toHaveBeenLastCalledWith(
       expect.stringContaining('/auth/resend-verification'),
       expect.objectContaining({ method: 'POST', credentials: 'include' }),
@@ -110,13 +101,15 @@ describe('frontend authentication', () => {
   })
 
   it('verifies an email token once and offers login', async () => {
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(new Response(null, { status: 204 }))
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(null, { status: 204 }),
+    )
     renderApp('/verify-email?token=verification-token-value')
     await screen.findByText('Email đã được xác minh')
     expect(screen.getByRole('link', { name: /Đăng nhập ngay/ })).toHaveAttribute('href', '/login')
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
     expect(fetchSpy).toHaveBeenCalledWith(
       expect.stringContaining('/auth/verify-email'),
       expect.objectContaining({ method: 'POST', credentials: 'include' }),
@@ -157,11 +150,10 @@ describe('frontend authentication', () => {
   })
 
   it('requests a password reset without revealing account existence', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ message: 'Accepted' }), {
-        status: 202,
-        headers: { 'content-type': 'application/json' },
-      }),
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(JSON.stringify({ message: 'Accepted' }), { status: 202 }),
     )
     renderApp('/forgot-password')
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
@@ -174,9 +166,11 @@ describe('frontend authentication', () => {
   })
 
   it('resets the password from the email token', async () => {
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue(new Response(null, { status: 204 }))
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/auth/csrf')
+        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+        : new Response(null, { status: 204 }),
+    )
     window.history.replaceState(null, '', '/reset-password?token=reset-token')
     render(
       <NavigationProvider>

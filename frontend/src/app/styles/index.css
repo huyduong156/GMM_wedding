@@ -17324,6 +17324,38 @@ input[type='file'] {
   font-weight: 700;
   letter-spacing: 0.01em;
 }
+.login-oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 0;
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.login-oauth-divider::before,
+.login-oauth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-google-submit {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 12px;
+}
+.login-google-submit strong {
+  margin-right: 8px;
+  font-size: 17px;
+  font-weight: 750;
+}
+.login-oauth-notice {
+  display: block;
+  margin-top: 8px;
+  color: var(--fg-muted);
+  font-size: 11px;
+  text-align: center;
+}
 @media (max-width: 767px) {
   .guest-dialog-mobile-note {
     display: inline-flex;
