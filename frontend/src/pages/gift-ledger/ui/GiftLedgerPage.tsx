@@ -497,6 +497,14 @@ export function GiftLedgerPage() {
           Thêm khoản mừng
         </button>
       </header>
+      <button
+        className="gift-mobile-add mobile-floating-action"
+        type="button"
+        aria-label="Thêm khoản mừng"
+        onClick={openCreate}
+      >
+        <Plus size={24} weight="bold" />
+      </button>
       <div className="gift-privacy">
         <LockKey size={19} weight="fill" />
         <div>
@@ -634,11 +642,15 @@ export function GiftLedgerPage() {
             if (event.target === event.currentTarget && !isMobileViewport()) closeDialog()
           }}
         >
-          <div
+          <form
             className="gift-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="gift-dialog-title"
+            onSubmit={(event) => {
+              event.preventDefault()
+              void addEntry()
+            }}
           >
             <header>
               <div>
@@ -663,6 +675,7 @@ export function GiftLedgerPage() {
                 id="gift-guest"
                 autoFocus
                 autoComplete="off"
+                enterKeyHint="done"
                 value={guestName}
                 readOnly={Boolean(selectedGuestId)}
                 onChange={(event) => setGuestName(event.target.value)}
@@ -717,6 +730,7 @@ export function GiftLedgerPage() {
                 <input
                   id="gift-amount"
                   inputMode="numeric"
+                  enterKeyHint="done"
                   value={amount}
                   onChange={(event) => setAmount(event.target.value)}
                   placeholder="Ví dụ: 1.000.000"
@@ -730,6 +744,7 @@ export function GiftLedgerPage() {
                     type="number"
                     min="0.1"
                     step="0.1"
+                    enterKeyHint="done"
                     value={goldWeight}
                     onChange={(event) => setGoldWeight(event.target.value)}
                     placeholder="Ví dụ: 2"
@@ -755,6 +770,7 @@ export function GiftLedgerPage() {
                 <label htmlFor="gift-description">Tên hoặc mô tả quà</label>
                 <input
                   id="gift-description"
+                  enterKeyHint="done"
                   value={giftDescription}
                   onChange={(event) => setGiftDescription(event.target.value)}
                   placeholder="Ví dụ: Bộ chăn ga cưới"
@@ -806,8 +822,7 @@ export function GiftLedgerPage() {
               </button>
               <button
                 className="button button-primary"
-                type="button"
-                onClick={addEntry}
+                type="submit"
                 disabled={
                   !guestName.trim() || !detailValid || saving || (Boolean(editing) && !editDirty)
                 }
@@ -816,7 +831,7 @@ export function GiftLedgerPage() {
                 {saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Lưu khoản mừng'}
               </button>
             </footer>
-          </div>
+          </form>
         </div>
       )}
       {guestPickerOpen && (

@@ -41,6 +41,10 @@
     right: var(--mobile-fab-right);
     bottom: calc(var(--mobile-fab-bottom) + var(--mobile-fab-size) + var(--mobile-fab-gap));
   }
+  .app-shell .gift-mobile-add {
+    right: var(--mobile-fab-right);
+    bottom: calc(var(--mobile-fab-bottom) + var(--mobile-fab-size) + var(--mobile-fab-gap));
+  }
   .app-shell .mobile-floating-action:focus-visible {
     outline: 2px solid var(--brand);
     outline-offset: 4px;
@@ -120,6 +124,11 @@
     padding-bottom: calc(var(--mobile-fab-bottom) + var(--mobile-fab-size) + 24px);
   }
   .app-shell .main-content:has(.guest-mobile-add) {
+    padding-bottom: calc(
+      var(--mobile-fab-bottom) + var(--mobile-fab-size) * 2 + var(--mobile-fab-gap) + 24px
+    );
+  }
+  .app-shell .main-content:has(.gift-mobile-add) {
     padding-bottom: calc(
       var(--mobile-fab-bottom) + var(--mobile-fab-size) * 2 + var(--mobile-fab-gap) + 24px
     );

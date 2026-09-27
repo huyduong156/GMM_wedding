@@ -6493,6 +6493,9 @@ kbd {
   color: var(--fg-secondary);
   cursor: pointer;
 }
+.gift-mobile-add {
+  display: none;
+}
 .gift-dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -17348,13 +17351,6 @@ input[type='file'] {
   margin-right: 8px;
   font-size: 17px;
   font-weight: 750;
-}
-.login-oauth-notice {
-  display: block;
-  margin-top: 8px;
-  color: var(--fg-muted);
-  font-size: 11px;
-  text-align: center;
 }
 @media (max-width: 767px) {
   .guest-dialog-mobile-note {

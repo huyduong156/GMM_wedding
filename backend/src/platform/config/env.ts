@@ -41,7 +41,7 @@ const serverEnvSchema = z
     DATABASE_QUERY_LOGGING: booleanEnv.default(false),
     DATABASE_QUERY_LOG_PARAMS: booleanEnv.default(false),
     API_DOCS_ENABLED: booleanEnv.default(false),
-    MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3']).default('fake'),
+    MEDIA_STORAGE_DRIVER: z.enum(['fake', 's3', 'r2']).default('fake'),
     MEDIA_FAKE_ROOT: z.string().min(1).default('s3_upload_fake'),
     MEDIA_PUBLIC_BASE_URL: optionalUrl,
     S3_ENDPOINT: optionalUrl,
@@ -51,6 +51,12 @@ const serverEnvSchema = z
     S3_REGION: z.string().min(1).default('auto'),
     S3_ACCESS_KEY_ID: optionalNonEmpty,
     S3_SECRET_ACCESS_KEY: optionalNonEmpty,
+    R2_ENDPOINT: optionalUrl,
+    R2_PUBLIC_BASE_URL: optionalUrl,
+    R2_BUCKET: optionalNonEmpty,
+    R2_REGION: z.string().min(1).default('auto'),
+    R2_ACCESS_KEY_ID: optionalNonEmpty,
+    R2_SECRET_ACCESS_KEY: optionalNonEmpty,
   })
   .superRefine((env, context) => {
     if (env.AUTH_RATE_LIMIT_DRIVER === 'redis' && !env.REDIS_URL) {
@@ -60,7 +66,7 @@ const serverEnvSchema = z
         message: 'REDIS_URL is required when AUTH_RATE_LIMIT_DRIVER=redis',
       })
     }
-    if (env.APP_ENV === 'production' && env.MEDIA_STORAGE_DRIVER !== 's3') {
+    if (env.APP_ENV === 'production' && !['s3', 'r2'].includes(env.MEDIA_STORAGE_DRIVER)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['MEDIA_STORAGE_DRIVER'],
@@ -103,6 +109,16 @@ const serverEnvSchema = z
         code: z.ZodIssueCode.custom,
         path: ['GOOGLE_CLIENT_ID'],
         message: 'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be configured together',
+      })
+    }
+    if (
+      env.MEDIA_STORAGE_DRIVER === 'r2' &&
+      (!env.R2_ENDPOINT || !env.R2_BUCKET || !env.R2_ACCESS_KEY_ID || !env.R2_SECRET_ACCESS_KEY)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['R2_ENDPOINT'],
+        message: 'R2 endpoint, bucket and credentials are required when MEDIA_STORAGE_DRIVER=r2',
       })
     }
   })

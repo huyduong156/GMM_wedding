@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
-    allowedHosts: ['mywedding.com'],
+    port: 80,
+    allowedHosts: ['ourday.asia.local', 'ourday.asia'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

@@ -42,7 +42,7 @@ Upload flow: gọi upload-intent, PUT bytes vào `uploadUrl` với headers trả
 - Allowlist: `audio/mpeg`, `audio/mp4`, `audio/ogg`; tối đa 15 MB.
 - Complete đọc metadata object; không tin extension/MIME/size client gửi. MIME `application/octet-stream` chỉ được chấp nhận khi storage provider không trả content type, còn size vẫn phải khớp.
 - User không thể đọc hoặc retire PERSONAL track của user khác. System track không có owner user.
-- Storage driver chọn bằng `MEDIA_STORAGE_DRIVER=fake|s3`. S3 dùng `S3_ENDPOINT`, `S3_BUCKET`, credentials, `S3_FORCE_PATH_STYLE`; local Compose cung cấp MinIO tại port 9000.
+- Storage driver chọn bằng `MEDIA_STORAGE_DRIVER=fake|s3|r2`. S3 dùng `S3_ENDPOINT`, `S3_BUCKET`, credentials, `S3_FORCE_PATH_STYLE`; local Compose cung cấp MinIO tại port 9000. R2 dùng nhóm biến `R2_*`, tương thích S3 và không thay đổi media/music contract.
 - MinIO local: S3 API http://localhost:9000, Console http://localhost:9001, username minioadmin, password minioadmin, bucket gmm-wedding. Đây là credentials development trong ackend/compose.yaml, không dùng cho staging/production.
 - Không trả storage key, secret hoặc signed URL log ra response/log.
 

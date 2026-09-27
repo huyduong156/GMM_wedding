@@ -6,6 +6,7 @@ import { useAuth } from '../../../features/auth/model/auth-context'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { AuthApiError, authApi } from '../../../shared/api/auth'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { notifications } from '../../../shared/ui/notifications/notifications'
 
 const workspaceAccessReturnKey = 'gmm-workspace-access-return'
 const googleLoginEnabled = import.meta.env.VITE_GOOGLE_LOGIN_ENABLED === 'true'
@@ -63,6 +64,14 @@ export function LoginPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function startGoogleLogin() {
+    if (!googleLoginEnabled) {
+      void notifications.error('Chức năng chưa khả dụng', 'Đăng nhập bằng Google hiện chưa khả dụng.')
+      return
+    }
+    window.location.assign(authApi.googleLoginUrl())
   }
 
   return (
@@ -145,14 +154,11 @@ export function LoginPage() {
           <button
             className="button button-secondary login-google-submit"
             type="button"
-            onClick={() => window.location.assign(authApi.googleLoginUrl())}
-            disabled={submitting || !googleLoginEnabled}
+            onClick={startGoogleLogin}
+            disabled={submitting}
           >
             <strong aria-hidden="true">G</strong> Tiếp tục với Google
           </button>
-          {!googleLoginEnabled ? (
-            <small className="login-oauth-notice">Đăng nhập bằng Google hiện chưa khả dụng.</small>
-          ) : null}
           <p className="login-register">
             Chưa có tài khoản?{' '}
             <AppLink to={marketingRoutes.register}>Tạo tài khoản miễn phí</AppLink>
