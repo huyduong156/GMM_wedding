@@ -45,3 +45,12 @@
 
 Root Compose orchestration dùng backend, PostgreSQL và Redis khi feature cần. Migration/seed chạy command riêng; application startup không tự mutate schema. Developer có thể chạy backend trực tiếp và dependency bằng container nếu contract môi trường giống CI.
 
+## CI/CD artifact flow
+
+GitHub Actions được định nghĩa trong `.github/workflows/`:
+
+- `ci.yml` chạy frontend/backend checks cho pull request và các nhánh `develop`, `staging`, `production`.
+- `build-images.yml` chỉ chạy sau khi CI thành công, build frontend, backend runner và migration image từ đúng commit đã kiểm tra rồi publish lên GHCR bằng tag `sha-<commit>`.
+
+Các môi trường phải promote cùng image SHA/digest; production không build lại source hoặc dùng tag `latest`. Workflow deploy sẽ pull frontend/backend/migration image tương ứng, chạy migration one-off, rồi healthcheck trước khi hoàn tất rollout. Secrets và database/bucket được tách theo GitHub Environment (`development`, `staging`, `production`); không commit credential vào workflow hay image.
+
