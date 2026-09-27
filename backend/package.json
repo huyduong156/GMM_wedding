@@ -28,6 +28,8 @@
     "db:reset-templates": "node scripts/reset-templates.mjs",
     "db:seed": "node prisma/seed.mjs",
     "db:backfill-wedding-slugs": "node scripts/backfill-wedding-slugs.mjs",
+    "retention:purge-soft-deleted": "node scripts/purge-soft-deleted.mjs",
+    "retention:worker": "node scripts/retention-worker.mjs",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {

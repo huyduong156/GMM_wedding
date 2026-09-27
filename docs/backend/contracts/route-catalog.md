@@ -59,7 +59,8 @@ Core slice và security boundary được thiết kế tại [authentication imp
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| POST | `/auth/register` | Public | Implemented | Đăng ký; nhận tùy chọn `workspaceAccessToken` để giữ claim quyền chờ xác minh |
+| GET | `/auth/csrf` | Public | Implemented | Phát token CSRF random và cookie double-submit cho các mutation |
+| POST | `/auth/register` | Public + CSRF token | Implemented | Đăng ký; nhận tùy chọn `workspaceAccessToken` để giữ claim quyền chờ xác minh |
 | POST | `/auth/verify-email` | Verification token | Implemented | Xác minh email một lần; trả outcome claim workspace nếu có |
 | POST | `/auth/resend-verification` | Public pending account | Implemented | Gửi lại verification không lộ account; token cũ bị vô hiệu |
 | POST | `/auth/login` | Public | Implemented | Tạo session |

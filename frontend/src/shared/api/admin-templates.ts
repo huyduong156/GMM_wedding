@@ -1,3 +1,5 @@
+import { csrfHeaders } from './csrf'
+
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
 ).replace(/\/$/, '')
@@ -80,11 +82,13 @@ export class AdminTemplateApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const tokenHeaders = await csrfHeaders(init)
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: 'include',
     headers: {
-      ...(init?.body ? { 'content-type': 'application/json', 'x-csrf-protection': '1' } : {}),
+      ...(init?.body ? { 'content-type': 'application/json' } : {}),
+      ...tokenHeaders,
       ...init?.headers,
     },
   })
@@ -147,13 +151,13 @@ export const adminTemplateApi = {
   release(key: string, version: string) {
     return request<{ version: AdminTemplateVersion }>(
       `/admin/templates/${segment(key)}/versions/${segment(version)}/release`,
-      { method: 'POST', headers: { 'content-type': 'application/json', 'x-csrf-protection': '1' } },
+      { method: 'POST', headers: { 'content-type': 'application/json' } },
     )
   },
   deprecate(key: string, version: string) {
     return request<{ version: AdminTemplateVersion }>(
       `/admin/templates/${segment(key)}/versions/${segment(version)}/deprecate`,
-      { method: 'POST', headers: { 'content-type': 'application/json', 'x-csrf-protection': '1' } },
+      { method: 'POST', headers: { 'content-type': 'application/json' } },
     )
   },
 }

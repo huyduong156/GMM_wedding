@@ -11,6 +11,22 @@ servers:
     description: Local developmenta
 security: []
 paths:
+  /auth/csrf:
+    get:
+      summary: Issue a CSRF double-submit token
+      operationId: getCsrfToken
+      tags: [Authentication]
+      responses:
+        '200':
+          description: CSRF token and cookie issued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [csrfToken]
+                properties:
+                  csrfToken:
+                    type: string
   /auth/register:
     post:
       operationId: registerUser

@@ -9,7 +9,7 @@ Frontend uses the backend opaque HTTP-only session and never stores credentials 
 | Owner workspace | `POST /api/auth/login` | `GET /api/me` | `/studio/*` |
 | Platform admin | `POST /api/auth/admin/login` | `GET /api/admin/me` | `/gmm_admin/*` except `/gmm_admin/login` |
 
-All requests use `credentials: include`. Unsafe requests send JSON and `X-CSRF-Protection: 1`; the browser supplies the `Origin` header. Backend `APP_ORIGIN` must exactly match the frontend origin.
+All requests use `credentials: include`. Before the first unsafe request, the client calls `GET /api/auth/csrf`; the backend returns a random token and sets a non-HttpOnly `gmm_csrf`/`__Host-gmm_csrf` cookie. Unsafe requests send JSON and `X-CSRF-Token` with the returned token. The backend compares the cookie and header, and also validates the browser `Origin`/Fetch Metadata. Backend `APP_ORIGIN` must exactly match the frontend origin.
 
 ## Public invitation URL
 

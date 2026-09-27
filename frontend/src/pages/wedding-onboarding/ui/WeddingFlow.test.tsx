@@ -44,6 +44,7 @@ describe('connected Wedding workspace', () => {
     window.history.replaceState(null, '', '/studio')
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
       const url = String(input)
+      if (url.endsWith('/auth/csrf')) return json({ csrfToken: 'test-csrf-token' })
       if (url.endsWith('/me')) return json({ user })
       if (url.endsWith('/weddings') && init?.method === 'POST') return json({ wedding }, 201)
       if (url.endsWith('/weddings')) return json({ items: [] })
@@ -105,7 +106,7 @@ describe('connected Wedding workspace', () => {
     const createCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')
     expect(createCall?.[1]?.headers).toMatchObject({
       'content-type': 'application/json',
-      'x-csrf-protection': '1',
+      'x-csrf-token': 'test-csrf-token',
     })
   })
 

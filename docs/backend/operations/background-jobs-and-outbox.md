@@ -42,3 +42,13 @@ Outbox không cần triển khai trước mọi feature. Bắt buộc khi mất 
 
 Scheduler chỉ enqueue command/job idempotent. Một scheduler leader hoặc external scheduler gọi endpoint/CLI được bảo vệ; không để mỗi replica tự chạy cron.
 
+## Soft-delete retention
+
+`npm run retention:purge-soft-deleted` là command chạy một lần, được scheduler gọi vào
+00:00 sáng thứ 7 theo timezone vận hành. Command chỉ hard-delete `Guest`,
+`GuestCategory`, `GuestGroup`, `WeddingTask` và `GiftLedgerEntry` có `deletedAt` quá
+14 ngày. Job xử lý theo batch, có thể chạy lại an toàn; category được xóa từ lá lên
+để tôn trọng self-reference. Compose có `backend-retention` là worker đơn dành cho
+lịch này; production chỉ chạy một worker/scheduler instance, không chạy trong web
+replica. Có thể override `RETENTION_TIMEZONE`, mặc định `Asia/Ho_Chi_Minh`.
+

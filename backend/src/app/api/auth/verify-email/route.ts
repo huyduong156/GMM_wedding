@@ -19,8 +19,11 @@ export async function POST(request: Request) {
     assertSafeMutation(request)
     const input = await parseJson(request, verifyEmailRequestSchema)
     const workspaceAccessOutcome = await getAuthService().verifyEmail(input.token, clientIp(request))
+    if (!workspaceAccessOutcome) {
+      return withApiHeaders(new Response(null, { status: 204 }), requestId)
+    }
     return withApiHeaders(
-      jsonResponse({ ...(workspaceAccessOutcome ? { workspaceAccessOutcome } : {}) }),
+      jsonResponse({ workspaceAccessOutcome }),
       requestId,
     )
   } catch (error) {

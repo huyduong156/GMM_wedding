@@ -230,6 +230,11 @@ function GuestDialog({
   close: () => void
 }) {
   const [nameTouched, setNameTouched] = useState(false)
+  useEffect(() => {
+    // The create dialog stays open on mobile and clears the form after a
+    // successful save. Start the next entry with a clean validation state.
+    if (!form.name.trim()) setNameTouched(false)
+  }, [form.name])
   const nameError = nameTouched
     ? !form.name.trim()
       ? 'Vui lòng nhập tên khách mời.'
@@ -255,6 +260,11 @@ function GuestDialog({
           <div>
             <h2 id="guest-dialog-title">{editing ? 'Chỉnh sửa khách mời' : 'Thêm khách mời'}</h2>
             <p>Thông tin riêng tư trong không gian cưới của bạn.</p>
+            {!editing && (
+              <span className="guest-dialog-mobile-note">
+                Hộp thoại sẽ không đóng cho đến khi bạn tắt nó.
+              </span>
+            )}
           </div>
           <button type="button" onClick={close} aria-label="Đóng">
             <X size={18} />

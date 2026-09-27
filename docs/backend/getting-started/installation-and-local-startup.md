@@ -129,11 +129,13 @@ Backend Dockerfile và Compose service đã được triển khai:
 
 ```powershell
 docker compose -f .\backend\compose.yaml up -d --build backend postgres
+docker compose -f .\backend\compose.yaml up -d --build backend-retention
 docker compose -f .\backend\compose.yaml ps
 docker compose -f .\backend\compose.yaml logs backend
+docker compose -f .\backend\compose.yaml logs -f backend-retention
 ```
 
-Compose project hiển thị với tên `gmm_wedding_BE`. Các container gồm `gmm_wedding_BE`, `gmm_wedding_BE_postgres`, `gmm_wedding_BE_migrate` và `gmm_wedding_BE_redis` (khi bật profile queue). URL API là `http://localhost:3000/api`.
+Compose project hiển thị với tên `gmm_wedding_BE`. Các container gồm `gmm_wedding_BE`, `gmm_wedding_BE_postgres`, `gmm_wedding_BE_retention` và `gmm_wedding_BE_redis` (khi bật profile queue). URL API là `http://localhost:3000/api`. `backend-retention` là worker dọn các bản ghi soft-delete quá 14 ngày vào 00:00 sáng thứ 7 theo `Asia/Ho_Chi_Minh`.
 
 Migration vẫn chạy one-off:
 

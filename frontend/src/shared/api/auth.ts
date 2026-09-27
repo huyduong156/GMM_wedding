@@ -1,3 +1,5 @@
+import { csrfHeaders } from './csrf'
+
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
 ).replace(/\/$/, '')
@@ -41,11 +43,13 @@ export class AuthApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const tokenHeaders = await csrfHeaders(init)
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: 'include',
     headers: {
-      ...(init?.body ? { 'content-type': 'application/json', 'x-csrf-protection': '1' } : {}),
+      ...(init?.body ? { 'content-type': 'application/json' } : {}),
+      ...tokenHeaders,
       ...init?.headers,
     },
   })

@@ -29,5 +29,6 @@ FROM dependencies AS migration
 WORKDIR /app
 ENV NODE_ENV=production
 COPY prisma ./prisma
+COPY scripts ./scripts
 RUN npm run db:generate
 CMD ["npm", "run", "db:migrate:deploy"]

@@ -1,14 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { PrismaClient } from '@prisma/client'
 
 const apiBase = process.env.AUTH_INTEGRATION_BASE_URL ?? 'http://localhost:3000/api'
 const mailpitBase = process.env.MAILPIT_BASE_URL ?? 'http://localhost:8025'
 const appOrigin = process.env.AUTH_INTEGRATION_APP_ORIGIN ?? 'http://localhost:8080'
-const mutationHeaders = {
-  'content-type': 'application/json',
-  origin: appOrigin,
-  'x-csrf-protection': '1',
-}
+let mutationHeaders: Record<string, string>
+let csrfCookie: string
 
 type MailpitMessage = { ID: string; Subject: string; To: Array<{ Address: string }> }
 let firstOwnerWeddingId: string | undefined
@@ -35,6 +32,25 @@ async function capturedMessageFor(email: string, subject?: string, excludedToken
 }
 
 describe.sequential('authentication journey', () => {
+  beforeAll(async () => {
+    const csrf = await fetch(`${apiBase}/auth/csrf`, { headers: { origin: appOrigin } })
+    expect(csrf.status).toBe(200)
+    const body = (await csrf.json()) as { csrfToken: string }
+    csrfCookie = csrf.headers.get('set-cookie')?.split(';', 1)[0] ?? ''
+    expect(csrfCookie).toBeTruthy()
+    mutationHeaders = {
+      'content-type': 'application/json',
+      origin: appOrigin,
+      cookie: csrfCookie,
+      'x-csrf-token': body.csrfToken,
+    }
+  })
+
+  const mutationHeadersFor = (sessionCookie: string) => ({
+    ...mutationHeaders,
+    cookie: `${csrfCookie}; ${sessionCookie}`,
+  })
+
   it('registers, verifies, logs in, authenticates, and logs out', async () => {
     const email = `auth-integration-${Date.now()}@example.test`
     const password = 'Correct-Horse-Battery-42'
@@ -133,7 +149,7 @@ describe.sequential('authentication journey', () => {
 
     const createWedding = await fetch(`${apiBase}/weddings`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: cookie as string },
+      headers: mutationHeadersFor(cookie as string),
       body: JSON.stringify({ name: 'Mai & Đức', primaryDate: '2099-12-12T09:00:00+07:00' }),
     })
     expect(createWedding.status).toBe(201)
@@ -154,7 +170,7 @@ describe.sequential('authentication journey', () => {
 
     const staleUpdate = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: cookie as string },
+      headers: mutationHeadersFor(cookie as string),
       body: JSON.stringify({ name: 'Tên stale', revision: createdWedding.wedding.revision + 1 }),
     })
     expect(staleUpdate.status).toBe(409)
@@ -164,7 +180,7 @@ describe.sequential('authentication journey', () => {
 
     const createEvent = await fetch(`${apiBase}/weddings/${firstOwnerWeddingId}/events`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: cookie as string },
+      headers: mutationHeadersFor(cookie as string),
       body: JSON.stringify({
         name: 'Lễ thành hôn',
         eventType: 'CEREMONY',
@@ -238,7 +254,7 @@ describe.sequential('authentication journey', () => {
 
     const logout = await fetch(`${apiBase}/auth/logout`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: resetCookie as string },
+      headers: mutationHeadersFor(resetCookie as string),
       body: '{}',
     })
     expect(logout.status).toBe(204)

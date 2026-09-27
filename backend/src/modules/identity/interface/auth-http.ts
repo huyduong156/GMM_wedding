@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { ZodError, type ZodType, type ZodTypeDef } from 'zod'
 
 import { AuthError } from '../domain/auth-error'
+import { csrfTokensMatch, getCsrfCookiePolicy } from '@/platform/auth/csrf'
 import { getServerEnv } from '@/platform/config/env'
 import {
   apiError,
@@ -45,10 +46,16 @@ export function assertSafeMutation(
   const fetchSite = request.headers.get('sec-fetch-site')
   const contentType = request.headers.get('content-type')?.split(';')[0]?.trim()
   const allowedContentTypes = options?.contentTypes ?? ['application/json']
+  const env = getServerEnv()
+  const csrfCookie = getCsrfCookiePolicy(new URL(env.APP_ORIGIN).protocol === 'https:')
+  const csrfCookieValue = request.headers
+    .get('cookie')
+    ?.match(new RegExp(`(?:^|;\\s*)${csrfCookie.name}=([^;]+)`))?.[1]
+  const csrfHeader = request.headers.get('x-csrf-token')
   if (
     !allowedOrigins().has(origin ?? '') ||
     fetchSite === 'cross-site' ||
-    request.headers.get('x-csrf-protection') !== '1' ||
+    !csrfTokensMatch(csrfCookieValue, csrfHeader) ||
     !allowedContentTypes.includes(contentType ?? '')
   ) {
     throw new AuthError(
@@ -104,7 +111,7 @@ export function optionsResponse(request?: Request) {
       'access-control-allow-origin': origin,
       'access-control-allow-credentials': 'true',
       'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-      'access-control-allow-headers': 'content-type,x-csrf-protection,x-request-id',
+      'access-control-allow-headers': 'content-type,x-csrf-token,x-request-id',
       ...(requestId ? { 'x-request-id': requestId } : {}),
       vary: 'Origin',
     },

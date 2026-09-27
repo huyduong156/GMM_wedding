@@ -1,3 +1,5 @@
+import { csrfHeaders } from './csrf'
+
 const apiBaseUrl = (
   import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api')
 ).replace(/\/$/, '')
@@ -362,11 +364,13 @@ export class WeddingApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const tokenHeaders = await csrfHeaders(init)
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: 'include',
     headers: {
-      ...(init?.body ? { 'content-type': 'application/json', 'x-csrf-protection': '1' } : {}),
+      ...(init?.body ? { 'content-type': 'application/json' } : {}),
+      ...tokenHeaders,
       ...init?.headers,
     },
   })
@@ -401,7 +405,10 @@ async function uploadMediaFile(weddingId: string, file: File): Promise<MediaAsse
     method: intent.upload.method,
     body: file,
     credentials: isBackendUpload ? 'include' : 'omit',
-    headers: { ...intent.upload.headers, ...(isBackendUpload ? { 'x-csrf-protection': '1' } : {}) },
+    headers: {
+      ...intent.upload.headers,
+      ...(isBackendUpload ? await csrfHeaders({ method: 'POST' }) : {}),
+    },
   })
   if (!uploaded.ok)
     throw new WeddingApiError(

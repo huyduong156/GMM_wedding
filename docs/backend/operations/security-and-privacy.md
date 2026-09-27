@@ -9,7 +9,7 @@ Account takeover, IDOR/cross-tenant, đoán slug/token, spam RSVP/wish, upload �
 ## Kiểm soát bắt buộc
 
 - Password hash theo auth library uy tín; email/reset token ngắn hạn một lần.
-- Cookie `HttpOnly`, `Secure`, `SameSite`; CSRF/origin check.
+- Session cookie `HttpOnly`, `Secure`, `SameSite`; unsafe mutations use a random double-submit CSRF token (`GET /api/auth/csrf`, cookie + `X-CSRF-Token`) plus exact-origin/Fetch Metadata checks.
 - Authorization theo resource ở mọi endpoint/service; test cross-tenant bắt buộc.
 - Invite token >=128-bit entropy, chỉ lưu hash.
 - Rate limit theo IP + wedding/token; honeypot và CAPTCHA thích ứng.

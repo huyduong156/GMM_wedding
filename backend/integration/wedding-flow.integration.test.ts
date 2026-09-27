@@ -8,11 +8,8 @@ import { hashOpaqueToken } from '../src/platform/auth/opaque-token'
 const prisma = new PrismaClient()
 const apiBase = process.env.AUTH_INTEGRATION_BASE_URL ?? 'http://localhost:3000/api'
 const appOrigin = process.env.AUTH_INTEGRATION_APP_ORIGIN ?? 'http://localhost:8080'
-const mutationHeaders = {
-  'content-type': 'application/json',
-  origin: appOrigin,
-  'x-csrf-protection': '1',
-}
+let mutationHeaders: Record<string, string>
+let csrfCookie: string
 
 type TestActor = { userId: string; cookie: string }
 type ApiBody = {
@@ -56,8 +53,24 @@ async function body(response: Response) {
 
 describe.sequential('wedding API contract and persistence', () => {
   beforeAll(async () => {
+    const csrf = await fetch(`${apiBase}/auth/csrf`, { headers: { origin: appOrigin } })
+    expect(csrf.status).toBe(200)
+    const csrfBody = (await csrf.json()) as { csrfToken: string }
+    csrfCookie = csrf.headers.get('set-cookie')?.split(';', 1)[0] ?? ''
+    expect(csrfCookie).toBeTruthy()
+    mutationHeaders = {
+      'content-type': 'application/json',
+      origin: appOrigin,
+      cookie: csrfCookie as string,
+      'x-csrf-token': csrfBody.csrfToken,
+    }
     owner = await actor('owner')
     otherOwner = await actor('other-owner')
+  })
+
+  const mutationHeadersFor = (sessionCookie: string) => ({
+    ...mutationHeaders,
+    cookie: `${csrfCookie}; ${sessionCookie}`,
   })
 
   afterAll(async () => {
@@ -76,7 +89,7 @@ describe.sequential('wedding API contract and persistence', () => {
       (
         await fetch(`${apiBase}/weddings`, {
           method: 'POST',
-          headers: { ...mutationHeaders, origin: 'https://attacker.example', cookie: owner.cookie },
+          headers: { ...mutationHeadersFor(owner.cookie), origin: 'https://attacker.example' },
           body: JSON.stringify({ name: 'Blocked wedding' }),
         })
       ).status,
@@ -85,7 +98,7 @@ describe.sequential('wedding API contract and persistence', () => {
       (
         await fetch(`${apiBase}/weddings`, {
           method: 'POST',
-          headers: { ...mutationHeaders, cookie: owner.cookie },
+          headers: mutationHeadersFor(owner.cookie),
           body: JSON.stringify({ name: '' }),
         })
       ).status,
@@ -93,7 +106,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const create = await fetch(`${apiBase}/weddings`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ name: 'Mai & Đức', primaryDate: '2099-12-12T09:00:00+07:00' }),
     })
     expect(create.status).toBe(201)
@@ -115,7 +128,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const archive = await fetch(`${apiBase}/weddings/${weddingId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ status: 'ARCHIVED', revision: 1 }),
     })
     expect(archive.status).toBe(200)
@@ -123,7 +136,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const stale = await fetch(`${apiBase}/weddings/${weddingId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ name: 'Stale', revision: 1 }),
     })
     expect(stale.status).toBe(409)
@@ -131,7 +144,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const reopen = await fetch(`${apiBase}/weddings/${weddingId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ status: 'DRAFT', revision: 2 }),
     })
     expect(reopen.status).toBe(200)
@@ -145,7 +158,7 @@ describe.sequential('wedding API contract and persistence', () => {
   it('validates event time, scopes event mutations, and rejects stale event revisions', async () => {
     const invalid = await fetch(`${apiBase}/weddings/${weddingId}/events`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({
         name: 'Invalid',
         eventType: 'CEREMONY',
@@ -159,7 +172,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const create = await fetch(`${apiBase}/weddings/${weddingId}/events`, {
       method: 'POST',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({
         name: 'Lễ thành hôn',
         eventType: 'CEREMONY',
@@ -177,7 +190,7 @@ describe.sequential('wedding API contract and persistence', () => {
       (
         await fetch(`${apiBase}/weddings/${weddingId}/events/${eventId}`, {
           method: 'PATCH',
-          headers: { ...mutationHeaders, cookie: otherOwner.cookie },
+          headers: mutationHeadersFor(otherOwner.cookie),
           body: JSON.stringify({ name: 'Forbidden', revision: 1 }),
         })
       ).status,
@@ -185,7 +198,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const update = await fetch(`${apiBase}/weddings/${weddingId}/events/${eventId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ name: 'Tiệc thành hôn', revision: 1 }),
     })
     expect(update.status).toBe(200)
@@ -193,7 +206,7 @@ describe.sequential('wedding API contract and persistence', () => {
 
     const stale = await fetch(`${apiBase}/weddings/${weddingId}/events/${eventId}`, {
       method: 'PATCH',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
       body: JSON.stringify({ name: 'Stale event', revision: 1 }),
     })
     expect(stale.status).toBe(409)
@@ -204,7 +217,7 @@ describe.sequential('wedding API contract and persistence', () => {
   it('soft-delete is terminal and prevents subsequent reads and event creation', async () => {
     const remove = await fetch(`${apiBase}/weddings/${weddingId}`, {
       method: 'DELETE',
-      headers: { ...mutationHeaders, cookie: owner.cookie },
+      headers: mutationHeadersFor(owner.cookie),
     })
     expect(remove.status).toBe(204)
     expect(
@@ -215,7 +228,7 @@ describe.sequential('wedding API contract and persistence', () => {
       (
         await fetch(`${apiBase}/weddings/${weddingId}/events`, {
           method: 'POST',
-          headers: { ...mutationHeaders, cookie: owner.cookie },
+          headers: mutationHeadersFor(owner.cookie),
           body: JSON.stringify({
             name: 'After delete',
             eventType: 'CEREMONY',

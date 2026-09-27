@@ -19,11 +19,14 @@ File này xác định nhánh base code structure đã có gì, chưa có gì v�
 
 ## Cố ý chưa triển khai trong base branch
 
-- Register/login/logout/verify/reset endpoints.
-- Password hashing/email/CSRF concrete adapters.
-- Wedding/guest/RSVP business repositories và use cases.
-- Object storage, Redis rate limiter, queue worker và providers.
-- Production CI/CD, telemetry vendor và managed infrastructure.
+- Preview-token cho draft preview.
+- Background music catalog/admin management.
+- Production MFA/step-up, queue worker và managed infrastructure.
+- Production CI/CD, telemetry vendor và managed security scans.
+
+Auth, Wedding base, Guest core, RSVP/wish public interaction, object storage và
+Redis rate limiter đã được triển khai ở mức MVP; các route tương ứng phải giữ
+trạng thái `Implemented` trong route catalog và được kiểm tra bằng integration test.
 
 Không đánh dấu planned route là implemented và không thêm mock handler trả thành công giả.
 

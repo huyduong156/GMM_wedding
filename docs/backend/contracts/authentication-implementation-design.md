@@ -4,7 +4,9 @@
 
 Tài liệu này biến authentication contract thành thiết kế triển khai cho nhánh `BE-project/Auth-system`. Source of truth quyết định dài hạn là [ADR 0006](../../shared/architecture/adr/0006-server-managed-session-authentication.md).
 
-Trạng thái: design-ready, implementation chưa bắt đầu. Không đổi route catalog/OpenAPI sang `Implemented` cho đến khi code, migration, test và image smoke cùng tồn tại.
+Trạng thái: implemented MVP. Core auth code, migration, OpenAPI, unit/integration
+test và Docker build đã tồn tại. Các production gate còn lại (MFA/step-up,
+managed delivery/observability và CI security scan) không thuộc core slice.
 
 ## Identity và role model
 
@@ -243,14 +245,8 @@ Unexpected/Prisma/provider error chỉ map thành stable internal error cùng re
 - Redis unavailable fails closed; PostgreSQL unavailable readiness/auth behavior đúng.
 - End-to-end register -> captured email -> verify -> login -> `/me` -> logout -> `/me` 401.
 
-## Thứ tự triển khai
+## Lịch sử triển khai và bước production tiếp theo
 
-1. Nâng Node 24/Docker/CI, wire environment fail-fast và benchmark Argon2; accept ADR 0006.
-2. Tạo application ports, domain policy và unit tests.
-3. Tạo migration/index/constraint auth cần thiết và Prisma repository integration tests.
-4. Implement register + local/test email capture + encrypted outbox boundary.
-5. Implement verify-email.
-6. Implement login + request authenticator + `/me` + logout.
-7. Implement Redis limiter, origin/CORS guard và negative security tests.
-8. Cập nhật OpenAPI/route catalog sang Implemented chỉ sau full journey và image smoke xanh.
-9. Slice kế tiếp: session management, MFA/step-up và cleanup worker.
+1. Giữ Node/Docker/environment fail-fast và benchmark Argon2 trong CI.
+2. Hoàn tất image smoke, OpenAPI breaking-change, migration drift và security scans.
+3. Slice production tiếp theo: MFA/step-up, cleanup worker và managed observability.

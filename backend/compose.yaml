@@ -98,6 +98,22 @@ services:
     profiles: ['tools']
     command: ['sh', '-lc', 'npx prisma migrate reset --force --skip-seed && npm run db:seed']
 
+  backend-retention:
+    container_name: gmm_wedding_BE_retention
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migration
+    image: gmm-wedding-backend-migration:local
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gmm_wedding}:${POSTGRES_PASSWORD:-gmm_wedding_local}@postgres:5432/${POSTGRES_DB:-gmm_wedding}?schema=public
+      RETENTION_TIMEZONE: ${RETENTION_TIMEZONE:-Asia/Ho_Chi_Minh}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: ['npm', 'run', 'retention:worker']
+
   minio:
     container_name: gmm_wedding_BE_minio
     image: minio/minio:RELEASE.2025-02-28T09-55-16Z
