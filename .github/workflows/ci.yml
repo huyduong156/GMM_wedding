@@ -29,10 +29,10 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20.19.0
           cache: npm
@@ -58,15 +58,33 @@ jobs:
   backend:
     name: Backend checks
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      APP_ENV: test
+      APP_ORIGIN: http://localhost:8080
+      APP_ORIGINS: http://localhost:8080,http://localhost:5173
+      DATABASE_URL: postgresql://gmm_wedding:gmm_wedding_ci@localhost:5432/gmm_wedding?schema=public
+      AUTH_SECRET: ci-auth-secret-change-me-1234567890
+      AUTH_TOKEN_ENCRYPTION_KEY: ci-token-encryption-key-change-me-1234567890
+      AUTH_RATE_LIMIT_SECRET: ci-rate-limit-secret-change-me-1234567890
+      AUTH_RATE_LIMIT_DRIVER: disabled
+      SMTP_HOST: localhost
+      SMTP_PORT: 1025
+      SMTP_SECURE: false
+      SMTP_FROM: no-reply@gmm-wedding.local
+      API_DOCS_ENABLED: false
+      MEDIA_STORAGE_DRIVER: fake
+      MEDIA_FAKE_ROOT: s3_upload_fake
+      MEDIA_PUBLIC_BASE_URL: http://localhost:3000/api/media/fake-assets
     defaults:
       run:
         working-directory: backend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20.19.0
           cache: npm
