@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: backendRoot,
   },
+  experimental: {
+    cpus: 1,
+  },
 }
 
 export default nextConfig
