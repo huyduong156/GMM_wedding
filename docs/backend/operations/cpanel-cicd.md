@@ -22,7 +22,7 @@ Workflow cần các GitHub Actions Secrets:
 | `CPANEL_SSH_HOST` | hostname SSH của hosting |
 | `CPANEL_SSH_PORT` | port SSH, thường `22` |
 | `CPANEL_SSH_USER` | user cPanel/SSH |
-| `CPANEL_DEPLOY_PATH` | application root, ví dụ `/home/fruitsho/repositories/GMM_wedding/backend` |
+| `CPANEL_DEPLOY_PATH` | đúng **App Root Directory** trong cPanel, ví dụ `/home/fruitsho/gmm-wedding-production-backend` |
 | `CPANEL_SSH_PRIVATE_KEY` | private key dùng để SSH, chỉ lưu trong GitHub Secrets |
 | `CPANEL_KNOWN_HOSTS` | output của `ssh-keyscan -p <port> <host>` |
 
