@@ -62,6 +62,7 @@ Module nhạc nền dùng chung: [backend nhạc nền cưới](./modules/backgr
 4. [Scalability và reliability](./architecture/scalability-and-reliability.md)
 5. [Backend Docker guide](./operations/backend-docker.md)
 6. [Deployment và runtime](./operations/deployment-and-runtime.md)
+7. [Deploy cPanel bằng CI/CD](./operations/cpanel-cicd.md)
 
 ## Cây tài liệu
 
