@@ -83,17 +83,18 @@ jobs:
           printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 644 "$HOME/.ssh/known_hosts"
 
-      - name: Upload bundle
+      - name: Stream bundle over SSH
         shell: bash
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          scp -O -P "$port" -i "$HOME/.ssh/deploy_key" \
+          archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+          ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o ConnectTimeout=30 \
             -o ServerAliveInterval=15 \
             -o ServerAliveCountMax=3 \
-            "$BUNDLE_ARCHIVE" \
-            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST:/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            "cat > '$archive'" < "$BUNDLE_ARCHIVE"
 
       - name: Activate release and restart Passenger app
         shell: bash
