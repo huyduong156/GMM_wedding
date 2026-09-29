@@ -88,7 +88,10 @@ jobs:
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          scp -P "$port" -i "$HOME/.ssh/deploy_key" \
+          scp -O -P "$port" -i "$HOME/.ssh/deploy_key" \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
             "$BUNDLE_ARCHIVE" \
             "$CPANEL_SSH_USER@$CPANEL_SSH_HOST:/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
 
@@ -100,6 +103,9 @@ jobs:
           archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
 
           ssh -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
             "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
             bash -s -- "$CPANEL_DEPLOY_PATH" "$archive" <<'REMOTE'
           set -euo pipefail
