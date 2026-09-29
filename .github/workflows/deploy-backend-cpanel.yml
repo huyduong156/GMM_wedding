@@ -1,0 +1,117 @@
+name: Deploy backend to cPanel
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-backend-cpanel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy backend standalone bundle
+    if: >-
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      CPANEL_SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+      CPANEL_SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
+      CPANEL_SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+      CPANEL_DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
+      CPANEL_SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+      CPANEL_KNOWN_HOSTS: ${{ secrets.CPANEL_KNOWN_HOSTS }}
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Build backend standalone bundle
+        working-directory: backend
+        run: npm run build
+
+      - name: Package standalone bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle_dir="$RUNNER_TEMP/gmm-wedding-backend"
+          archive="$RUNNER_TEMP/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+
+          rm -rf "$bundle_dir" "$archive"
+          mkdir -p "$bundle_dir/.next"
+          cp -a backend/.next/standalone/. "$bundle_dir/"
+          cp -a backend/.next/static "$bundle_dir/.next/static"
+
+          if [[ -d backend/public ]]; then
+            cp -a backend/public "$bundle_dir/public"
+          fi
+          if [[ -d backend/openapi ]]; then
+            cp -a backend/openapi "$bundle_dir/openapi"
+          fi
+
+          tar -C "$bundle_dir" -czf "$archive" .
+          echo "BUNDLE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$CPANEL_SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
+          chmod 600 "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+
+      - name: Upload bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          scp -P "$port" -i "$HOME/.ssh/deploy_key" \
+            "$BUNDLE_ARCHIVE" \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST:/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+
+      - name: Activate release and restart Passenger app
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+
+          ssh -p "$port" -i "$HOME/.ssh/deploy_key" \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            bash -s -- "$CPANEL_DEPLOY_PATH" "$archive" <<'REMOTE'
+          set -euo pipefail
+          deploy_path="$1"
+          archive="$2"
+          staging="${deploy_path}/.deploy-${GITHUB_SHA:-release}"
+
+          mkdir -p "$deploy_path" "$staging"
+          tar -xzf "$archive" -C "$staging"
+          cp -a "$staging/." "$deploy_path/"
+          rm -rf "$staging" "$archive"
+
+          mkdir -p "$deploy_path/tmp"
+          touch "$deploy_path/tmp/restart.txt"
+          REMOTE
