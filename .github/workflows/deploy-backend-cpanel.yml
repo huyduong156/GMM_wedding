@@ -94,7 +94,7 @@ jobs:
           printf -v archive_q '%q' "$archive"
           printf -v staging_q '%q' "$staging"
 
-          remote_command="set -e; cat > ${archive_q}; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt"
+          remote_command="set -e; cat > ${archive_q}; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o ConnectTimeout=30 \
