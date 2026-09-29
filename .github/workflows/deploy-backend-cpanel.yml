@@ -102,23 +102,16 @@ jobs:
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
           archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+          staging="${CPANEL_DEPLOY_PATH}/.deploy-${GITHUB_SHA}"
+          printf -v deploy_path_q '%q' "$CPANEL_DEPLOY_PATH"
+          printf -v archive_q '%q' "$archive"
+          printf -v staging_q '%q' "$staging"
 
-          ssh -p "$port" -i "$HOME/.ssh/deploy_key" \
+          remote_command="set -e; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt"
+
+          ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o ConnectTimeout=30 \
             -o ServerAliveInterval=15 \
             -o ServerAliveCountMax=3 \
             "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
-            bash -s -- "$CPANEL_DEPLOY_PATH" "$archive" <<'REMOTE'
-          set -euo pipefail
-          deploy_path="$1"
-          archive="$2"
-          staging="${deploy_path}/.deploy-${GITHUB_SHA:-release}"
-
-          mkdir -p "$deploy_path" "$staging"
-          tar -xzf "$archive" -C "$staging"
-          cp -a "$staging/." "$deploy_path/"
-          rm -rf "$staging" "$archive"
-
-          mkdir -p "$deploy_path/tmp"
-          touch "$deploy_path/tmp/restart.txt"
-          REMOTE
+            "$remote_command"
