@@ -1,0 +1,97 @@
+name: Deploy frontend to cPanel
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-frontend-cpanel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy frontend static bundle
+    if: >-
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository) ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      CPANEL_SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+      CPANEL_SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
+      CPANEL_SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+      CPANEL_FRONTEND_PATH: ${{ secrets.CPANEL_FRONTEND_PATH }}
+      CPANEL_SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+      CPANEL_KNOWN_HOSTS: ${{ secrets.CPANEL_KNOWN_HOSTS }}
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20.19.1
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: https://api.ourday.asia/api
+        run: npm run build
+
+      - name: Package frontend bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle_dir="$RUNNER_TEMP/gmm-wedding-frontend"
+          archive="$RUNNER_TEMP/gmm-wedding-frontend-${GITHUB_SHA}.tar.gz"
+
+          rm -rf "$bundle_dir" "$archive"
+          mkdir -p "$bundle_dir"
+          cp -a frontend/dist/. "$bundle_dir/"
+          tar -C "$bundle_dir" -czf "$archive" .
+          echo "BUNDLE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$CPANEL_SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
+          chmod 600 "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+
+      - name: Upload and activate frontend over one SSH session
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          archive="/tmp/gmm-wedding-frontend-${GITHUB_SHA}.tar.gz"
+          staging="${CPANEL_FRONTEND_PATH}/.deploy-${GITHUB_SHA}"
+          printf -v deploy_path_q '%q' "$CPANEL_FRONTEND_PATH"
+          printf -v archive_q '%q' "$archive"
+          printf -v staging_q '%q' "$staging"
+
+          remote_command="set -e; cat > ${archive_q}; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}"
+
+          ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            "$remote_command" < "$BUNDLE_ARCHIVE"
