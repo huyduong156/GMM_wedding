@@ -34,6 +34,8 @@ import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { FeatureSearch } from './FeatureSearch'
 import { MobileQuickMenu } from './MobileQuickMenu'
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { GuideHelpButton } from '../../../features/user-guide/ui/GuideHelpButton'
+import { ProductGuide } from '../../../features/user-guide/ui/ProductGuide'
 
 type NavItem = {
   label: string
@@ -181,6 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         id="primary-sidebar"
         className={`sidebar ${isSidebarOpen ? 'is-open' : ''}`}
         aria-label="Điều hướng chính"
+        data-guide="sidebar"
       >
         <div className="brand-row">
           <div className="brand-mark">
@@ -260,13 +263,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="workspace">
-        <header className="topbar">
+        <header className="topbar" data-guide="topbar">
           <button
             className="icon-button mobile-menu"
             onClick={() => setSidebarOpen(true)}
             aria-label="Mở menu"
             aria-expanded={isSidebarOpen}
             aria-controls="primary-sidebar"
+            data-guide="mobile-sidebar-trigger"
           >
             <List size={21} />
           </button>
@@ -294,6 +298,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Bell size={19} />
             </button>
+            <GuideHelpButton pathname={pathname} />
             <button
               className="account-button"
               type="button"
@@ -334,6 +339,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <MobileQuickMenu features={searchFeatures} />
+      <ProductGuide pathname={pathname} />
       {switcherOpen ? (
         <div
           className="workspace-dialog-backdrop"

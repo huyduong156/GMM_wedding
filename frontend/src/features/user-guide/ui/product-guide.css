@@ -1,0 +1,14 @@
+.guide-help-button {
+  color: var(--text-muted, #76685d);
+}
+
+.guide-help-button:hover,
+.guide-help-button:focus-visible {
+  color: var(--accent, #a66a3f);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-help-button {
+    transition: none;
+  }
+}

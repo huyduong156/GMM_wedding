@@ -36,6 +36,7 @@ export function MobileQuickMenu({ features }: { features: SearchFeature[] }) {
   return (
     <div
       className={`mobile-quick-menu${open ? ' is-open' : ''}`}
+      data-guide="mobile-quick-menu"
       onKeyDown={(event) => {
         if (event.key === 'Escape' && open) {
           event.preventDefault()

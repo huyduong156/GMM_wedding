@@ -446,7 +446,7 @@ export function WebsiteEditorLivePageNext() {
     )
   return (
     <section className="invitation-editor website-editor">
-      <header className="editor-toolbar">
+      <header className="editor-toolbar" data-guide="editor-toolbar">
         <div className="editor-toolbar-title">
           <AppLink to={studioRoutes.siteThemes} ariaLabel="Quay lại kho giao diện website">
             <ArrowLeft />
@@ -560,7 +560,7 @@ export function WebsiteEditorLivePageNext() {
         </div>
       </header>
       <div className="editor-workspace editor-workspace-two-column">
-        <aside className="editor-sections editor-section-accordion" aria-label="Cấu trúc website">
+        <aside className="editor-sections editor-section-accordion" aria-label="Cấu trúc website" data-guide="editor-sections">
           <header>
             <div>
               <strong>Cấu trúc website</strong>
@@ -620,6 +620,7 @@ export function WebsiteEditorLivePageNext() {
         </aside>
         <main
           className={`editor-iframe-canvas ${mobileOpen ? 'is-mobile-preview-open' : ''}`}
+          data-guide="editor-preview"
           style={mobileOpen ? undefined : draggable.style}
           {...draggable.dragHandlers}
         >

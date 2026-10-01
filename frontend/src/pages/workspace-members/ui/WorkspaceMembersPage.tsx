@@ -7,8 +7,8 @@ export function WorkspaceMembersPage() {
   const activeWedding = useOptionalWeddingWorkspace()?.activeWedding ?? fallbackWedding
 
   return (
-    <div className="wedding-page workspace-members-page">
-      <header className="workspace-page-heading">
+    <div className="wedding-page workspace-members-page" data-guide="member-content">
+      <header className="workspace-page-heading" data-guide="member-heading">
         <div>
           <p className="eyebrow">Vận hành</p>
           <h1>Thành viên Wedding</h1>
