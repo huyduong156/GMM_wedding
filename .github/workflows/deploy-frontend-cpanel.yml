@@ -1,4 +1,4 @@
-name: Deploy backend to cPanel
+name: Deploy frontend to cPanel
 
 on:
   workflow_run:
@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-backend-cpanel
+  group: deploy-frontend-cpanel
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Build and deploy backend standalone bundle
+    name: Build and deploy frontend static bundle
     if: >-
       (github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
@@ -27,7 +27,7 @@ jobs:
       CPANEL_SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
       CPANEL_SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
       CPANEL_SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
-      CPANEL_DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
+      CPANEL_FRONTEND_PATH: ${{ secrets.CPANEL_FRONTEND_PATH }}
       CPANEL_SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
       CPANEL_KNOWN_HOSTS: ${{ secrets.CPANEL_KNOWN_HOSTS }}
     steps:
@@ -37,14 +37,14 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 2
 
-      - name: Detect backend changes
+      - name: Detect frontend changes
         id: changes
         shell: bash
         run: |
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only HEAD^ HEAD | grep -qE '^(backend/|\.github/workflows/deploy-backend-cpanel\.yml)'; then
+          elif git diff --name-only HEAD^ HEAD | grep -qE '^(frontend/|\.github/workflows/deploy-frontend-cpanel\.yml)'; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -54,40 +54,33 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 20.19.1
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Install backend dependencies
+      - name: Install frontend dependencies
         if: steps.changes.outputs.changed == 'true'
-        working-directory: backend
+        working-directory: frontend
         run: npm ci
 
-      - name: Build backend standalone bundle
+      - name: Build frontend
         if: steps.changes.outputs.changed == 'true'
-        working-directory: backend
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: https://api.ourday.asia/api
         run: npm run build
 
-      - name: Package standalone bundle
+      - name: Package frontend bundle
         if: steps.changes.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          bundle_dir="$RUNNER_TEMP/gmm-wedding-backend"
-          archive="$RUNNER_TEMP/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+          bundle_dir="$RUNNER_TEMP/gmm-wedding-frontend"
+          archive="$RUNNER_TEMP/gmm-wedding-frontend-${GITHUB_SHA}.tar.gz"
 
           rm -rf "$bundle_dir" "$archive"
-          mkdir -p "$bundle_dir/.next"
-          cp -a backend/.next/standalone/. "$bundle_dir/"
-          cp -a backend/.next/static "$bundle_dir/.next/static"
-
-          if [[ -d backend/public ]]; then
-            cp -a backend/public "$bundle_dir/public"
-          fi
-          if [[ -d backend/openapi ]]; then
-            cp -a backend/openapi "$bundle_dir/openapi"
-          fi
-
+          mkdir -p "$bundle_dir"
+          cp -a frontend/dist/. "$bundle_dir/"
           tar -C "$bundle_dir" -czf "$archive" .
           echo "BUNDLE_ARCHIVE=$archive" >> "$GITHUB_ENV"
 
@@ -102,19 +95,19 @@ jobs:
           printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 644 "$HOME/.ssh/known_hosts"
 
-      - name: Upload and activate release over one SSH session
+      - name: Upload and activate frontend over one SSH session
         if: steps.changes.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
-          staging="${CPANEL_DEPLOY_PATH}/.deploy-${GITHUB_SHA}"
-          printf -v deploy_path_q '%q' "$CPANEL_DEPLOY_PATH"
+          archive="/tmp/gmm-wedding-frontend-${GITHUB_SHA}.tar.gz"
+          staging="${CPANEL_FRONTEND_PATH}/.deploy-${GITHUB_SHA}"
+          printf -v deploy_path_q '%q' "$CPANEL_FRONTEND_PATH"
           printf -v archive_q '%q' "$archive"
           printf -v staging_q '%q' "$staging"
 
-          remote_command="set -e; cat > ${archive_q}; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt"
+          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; cat > ${archive_q}; mkdir -p ${deploy_path_q}; find ${deploy_path_q} -mindepth 1 -maxdepth 1 ! -name .well-known -exec rm -rf -- {} +; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; cp -a ${staging_q}/. ${deploy_path_q}/"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o ConnectTimeout=30 \
