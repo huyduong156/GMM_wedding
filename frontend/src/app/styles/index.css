@@ -13910,6 +13910,27 @@ kbd {
 [class*='-picker'] button:active {
   transform: scale(0.97);
 }
+
+/* Close controls should read as interactive controls in every modal family. */
+[class*='-dialog'] header > button,
+[class*='-modal'] header > button,
+.workspace-dialog > header > button {
+  color: var(--fg-muted, #76685d);
+  background: transparent;
+}
+[class*='-dialog'] header > button:hover:not(:disabled),
+[class*='-modal'] header > button:hover:not(:disabled),
+.workspace-dialog > header > button:hover:not(:disabled) {
+  color: var(--fg, #2e2823);
+  background: var(--raised, #f3eee8);
+  transform: translateY(-1px);
+}
+[class*='-dialog'] header > button:focus-visible,
+[class*='-modal'] header > button:focus-visible,
+.workspace-dialog > header > button:focus-visible {
+  outline: 2px solid var(--brand, #a66a3f);
+  outline-offset: 2px;
+}
 @media (prefers-reduced-motion: reduce) {
   [class*='-dialog-backdrop'],
   [class*='-modal-backdrop'],
@@ -17327,6 +17348,33 @@ input[type='file'] {
   font-weight: 700;
   letter-spacing: 0.01em;
 }
+.modal-saving-dialog {
+  position: relative;
+}
+.modal-saving-status {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border-radius: inherit;
+  color: #fff;
+  background: rgb(28 23 20 / 0.66);
+  backdrop-filter: blur(2px);
+  cursor: wait;
+}
+.modal-saving-status svg {
+  color: #f5d3ad;
+  animation: guest-dialog-loading-spin 850ms linear infinite;
+}
+.modal-saving-status span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
 .login-oauth-divider {
   display: flex;
   align-items: center;
@@ -17374,6 +17422,9 @@ input[type='file'] {
 }
 @media (prefers-reduced-motion: reduce) {
   .guest-dialog-loading svg {
+    animation: none;
+  }
+  .modal-saving-status svg {
     animation: none;
   }
 }

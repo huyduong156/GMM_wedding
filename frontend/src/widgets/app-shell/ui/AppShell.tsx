@@ -247,7 +247,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     to={to!}
                     className={`nav-item ${child ? 'is-child' : ''} ${pathname === to ? 'is-active' : ''}`}
                     ariaCurrent={pathname === to ? 'page' : undefined}
-                    data-guide={
+                    dataGuide={
                       to === studioRoutes.todos
                         ? 'sidebar-todos'
                         : to === studioRoutes.giftLedger
