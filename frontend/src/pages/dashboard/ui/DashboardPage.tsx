@@ -203,7 +203,7 @@ export function DashboardPage() {
         </aside>
       </div>
 
-      <section className="quick-links" aria-label="Thao tác nhanh">
+      <section className="quick-links" aria-label="Thao tác nhanh" data-guide="dashboard-quick-links">
         <AppLink to={studioRoutes.guests}>
           <span>
             <Users size={19} />

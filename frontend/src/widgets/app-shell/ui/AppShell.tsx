@@ -219,7 +219,21 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="primary-nav">
           {visibleNavGroups.map((group) => (
-            <div className="nav-group" key={group.label || 'main'}>
+            <div
+              className="nav-group"
+              key={group.label || 'main'}
+              data-guide={
+                group.label === 'Hiện diện online'
+                  ? 'sidebar-online'
+                  : group.label === 'Khách & phản hồi'
+                    ? 'sidebar-guests'
+                    : group.label === 'Chuẩn bị'
+                      ? 'sidebar-preparation'
+                      : group.label === 'Vận hành'
+                        ? 'sidebar-operations'
+                        : undefined
+              }
+            >
               {group.label ? <p className="nav-group-label">{group.label}</p> : null}
               {group.items.map(({ to, label, icon: Icon, badge, child, heading }) =>
                 heading ? (
@@ -233,6 +247,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                     to={to!}
                     className={`nav-item ${child ? 'is-child' : ''} ${pathname === to ? 'is-active' : ''}`}
                     ariaCurrent={pathname === to ? 'page' : undefined}
+                    data-guide={
+                      to === studioRoutes.todos
+                        ? 'sidebar-todos'
+                        : to === studioRoutes.giftLedger
+                          ? 'sidebar-gift-ledger'
+                          : to === studioRoutes.members
+                            ? 'sidebar-members'
+                            : undefined
+                    }
                   >
                     <Icon size={19} weight="regular" aria-hidden="true" />
                     <span>{label}</span>

@@ -618,7 +618,7 @@ export function InvitationEditorLivePage() {
             </span>
           </div>
         </div>
-        <div className="editor-couple-quick-edit">
+        <div className="editor-couple-quick-edit" data-guide="editor-quick-edit">
           {quickEditFields.map((field) => (
             <Input
               key={field.contentKey}
@@ -685,7 +685,7 @@ export function InvitationEditorLivePage() {
               </button>
             </div>
           </div>
-          <div className="editor-toolbar-public-actions">
+          <div className="editor-toolbar-public-actions" data-guide="editor-actions">
             <button className="button button-secondary" type="button" onClick={openFullPreview}>
               <Eye /> Xem thiệp mẫu
             </button>
@@ -848,6 +848,7 @@ export function InvitationEditorLivePage() {
             type="button"
             onClick={() => setMobilePreviewOpen((current) => !current)}
             aria-expanded={mobilePreviewOpen}
+            data-guide="editor-mobile-preview"
           >
             <span className="editor-preview-drag-handle" data-preview-drag-handle>
               {mobilePreviewOpen ? <X /> : <ArrowsOut />}

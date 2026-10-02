@@ -8,6 +8,11 @@ export function ProductGuide({ pathname }: { pathname: string }) {
   const { guideList, activeGuide, startGuide, finishGuide, closeGuide } = useGuide()
   const [isMobile, setIsMobile] = useState(false)
   const routeGuide = guideKeyForPath(pathname)
+  const [welcomeOpen, setWelcomeOpen] = useState(false)
+
+  useEffect(() => {
+    setWelcomeOpen(routeGuide === 'started' && !guideList.started && !activeGuide)
+  }, [activeGuide, guideList.started, routeGuide])
 
   useEffect(() => {
     if (activeGuide && activeGuide !== routeGuide) closeGuide()
@@ -22,9 +27,9 @@ export function ProductGuide({ pathname }: { pathname: string }) {
   }, [])
 
   useEffect(() => {
-    if (!routeGuide || activeGuide || guideList[routeGuide]) return
+    if (!routeGuide || activeGuide || welcomeOpen || guideList[routeGuide]) return
     const timer = window.setInterval(() => {
-      const targetReady = guideFor(routeGuide, isMobile).some((item) => {
+      const targetReady = guideFor(routeGuide, isMobile, pathname).every((item) => {
         if (typeof item.target !== 'string') return true
         return Boolean(document.querySelector(item.target))
       })
@@ -36,15 +41,44 @@ export function ProductGuide({ pathname }: { pathname: string }) {
     }, 200)
 
     return () => window.clearInterval(timer)
-  }, [activeGuide, guideList, isMobile, routeGuide, startGuide])
+  }, [activeGuide, guideList, isMobile, pathname, routeGuide, startGuide, welcomeOpen])
 
   const steps = useMemo<Step[]>(() => {
     if (!activeGuide) return []
-    return guideFor(activeGuide, isMobile).filter((item) => {
+    return guideFor(activeGuide, isMobile, pathname).filter((item) => {
       if (typeof item.target !== 'string') return true
       return typeof document !== 'undefined' && Boolean(document.querySelector(item.target))
     })
-  }, [activeGuide, isMobile])
+  }, [activeGuide, isMobile, pathname])
+
+  if (welcomeOpen) {
+    return (
+      <div className="guide-welcome-backdrop" role="presentation">
+        <section
+          className="guide-welcome-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="guide-welcome-title"
+        >
+          <span className="guide-welcome-kicker">GMM Wedding</span>
+          <h2 id="guide-welcome-title">Chào mừng bạn đến với không gian Wedding</h2>
+          <p>
+            Mình sẽ giới thiệu nhanh những khu vực quan trọng để bạn bắt đầu tạo thiệp, quản lý khách mời và chuẩn bị cho ngày cưới.
+          </p>
+          <button
+            className="button button-primary"
+            type="button"
+            onClick={() => {
+              setWelcomeOpen(false)
+              startGuide('started', true)
+            }}
+          >
+            Xem hướng dẫn sử dụng web
+          </button>
+        </section>
+      </div>
+    )
+  }
 
   if (!activeGuide || !steps.length) return null
 

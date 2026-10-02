@@ -512,7 +512,7 @@ export function WebsiteEditorLivePageNext() {
               </button>
             </div>
           </div>
-          <div className="editor-toolbar-public-actions">
+          <div className="editor-toolbar-public-actions" data-guide="editor-actions">
             <button className="button button-secondary" type="button" onClick={sample}>
               <Eye /> Xem website mẫu
             </button>
@@ -628,6 +628,7 @@ export function WebsiteEditorLivePageNext() {
             className="editor-mobile-preview-toggle"
             type="button"
             onClick={() => setMobileOpen((x) => !x)}
+            data-guide="editor-mobile-preview"
           >
             <span>{mobileOpen ? <X /> : '↗'}</span>
             {mobileOpen ? 'Thu nhỏ' : 'Xem desktop'}
