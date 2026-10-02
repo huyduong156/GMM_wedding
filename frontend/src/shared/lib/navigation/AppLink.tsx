@@ -7,9 +7,10 @@ type AppLinkProps = {
   className?: string
   ariaLabel?: string
   ariaCurrent?: 'page'
+  dataGuide?: string
 }
 
-export function AppLink({ to, children, className, ariaLabel, ariaCurrent }: AppLinkProps) {
+export function AppLink({ to, children, className, ariaLabel, ariaCurrent, dataGuide }: AppLinkProps) {
   const { navigate } = useNavigation()
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -26,6 +27,7 @@ export function AppLink({ to, children, className, ariaLabel, ariaCurrent }: App
       className={className}
       aria-label={ariaLabel}
       aria-current={ariaCurrent}
+      data-guide={dataGuide}
     >
       {children}
     </a>

@@ -32,7 +32,11 @@ function timed(options: SweetAlertOptions): Promise<SweetAlertResult> {
     () => undefined,
     () => undefined,
   )
-  return next
+
+  // Toasts are feedback, not a step in the mutation flow. Resolve immediately
+  // so an awaited success/error toast never keeps a modal or form open until
+  // the toast timer finishes. The queue still controls how toasts are shown.
+  return Promise.resolve({ isDismissed: true } as SweetAlertResult)
 }
 
 export const notifications = {

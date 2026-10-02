@@ -1,0 +1,69 @@
+.guide-help-button {
+  color: var(--text-muted, #76685d);
+}
+
+.guide-help-button:hover,
+.guide-help-button:focus-visible {
+  color: var(--accent, #a66a3f);
+}
+
+.guide-welcome-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(29, 24, 20, 0.58);
+}
+
+.guide-welcome-modal {
+  width: min(100%, 470px);
+  padding: 32px;
+  border: 1px solid rgba(166, 106, 63, 0.18);
+  border-radius: 24px;
+  background: #fffdf9;
+  box-shadow: 0 24px 80px rgba(52, 35, 24, 0.24);
+  color: #2e2823;
+}
+
+.guide-welcome-kicker {
+  color: #a66a3f;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.guide-welcome-modal h2 {
+  margin: 12px 0 10px;
+  font-size: clamp(24px, 4vw, 32px);
+  line-height: 1.1;
+}
+
+.guide-welcome-modal p {
+  margin: 0 0 24px;
+  color: #76685d;
+  line-height: 1.65;
+}
+
+@media (max-width: 767px) {
+  .guide-welcome-modal {
+    padding: 26px 22px;
+    border-radius: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-welcome-backdrop,
+  .guide-welcome-modal {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-help-button {
+    transition: none;
+  }
+}

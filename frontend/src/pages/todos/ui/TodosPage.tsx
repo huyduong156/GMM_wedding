@@ -24,6 +24,7 @@ import {
   type WeddingTask,
 } from '../../../shared/api/weddings'
 import { TODO_CHECKLIST_PRESETS, type TodoChecklistPreset } from '../checklist-presets'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 
 const statusLabels: Record<TaskStatus, string> = {
   TODO: 'Cần làm',
@@ -525,7 +526,7 @@ export function TodosPage() {
       {open ? (
         <div className="todo-dialog-backdrop" role="presentation">
           <form
-            className="todo-dialog"
+            className="todo-dialog modal-saving-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="todo-dialog-title"
@@ -605,6 +606,7 @@ export function TodosPage() {
                 {saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Thêm công việc'}
               </button>
             </footer>
+            {saving ? <ModalSavingStatus /> : null}
           </form>
         </div>
       ) : null}

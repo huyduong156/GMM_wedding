@@ -4,6 +4,7 @@ import { WeddingProvider } from '../../../entities/wedding/model/WeddingProvider
 import { useWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { WeddingOnboardingPage } from '../../../pages/wedding-onboarding/ui/WeddingOnboardingPage'
 import { AppShell } from './AppShell'
+import { GuideProvider } from '../../../features/user-guide/ui/GuideProvider'
 
 function ConnectedWorkspace({ children }: { children: ReactNode }) {
   const { activeWedding, loading, error, refresh } = useWeddingWorkspace()
@@ -30,10 +31,17 @@ function ConnectedWorkspace({ children }: { children: ReactNode }) {
 
 export function WeddingWorkspace({ children }: { children: ReactNode }) {
   const auth = useOptionalAuth()
-  if (!auth) return <AppShell>{children}</AppShell>
+  if (!auth)
+    return (
+      <GuideProvider>
+        <AppShell>{children}</AppShell>
+      </GuideProvider>
+    )
   return (
     <WeddingProvider>
-      <ConnectedWorkspace>{children}</ConnectedWorkspace>
+      <GuideProvider>
+        <ConnectedWorkspace>{children}</ConnectedWorkspace>
+      </GuideProvider>
     </WeddingProvider>
   )
 }

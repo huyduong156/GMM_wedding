@@ -1,6 +1,7 @@
 import { MagnifyingGlass, PencilSimple, Plus, Tag, Trash, X } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 import {
   adminTemplateStylesApi,
   type TemplateStyle,
@@ -194,7 +195,7 @@ export function AdminStylesPage() {
             if (event.target === event.currentTarget && !saving) setShowForm(false)
           }}
         >
-          <form className="admin-style-modal" onSubmit={submit}>
+          <form className="admin-style-modal modal-saving-dialog" onSubmit={submit}>
             <header>
               <div>
                 <p>{editing ? 'Chỉnh sửa' : 'Tạo mới'}</p>
@@ -258,6 +259,7 @@ export function AdminStylesPage() {
                 {saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Tạo danh mục'}
               </button>
             </footer>
+            {saving ? <ModalSavingStatus /> : null}
           </form>
         </div>
       ) : null}

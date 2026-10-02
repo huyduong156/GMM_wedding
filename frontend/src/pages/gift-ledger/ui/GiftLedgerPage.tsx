@@ -24,6 +24,7 @@ import {
   type Guest,
 } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 import {
   initialGiftEntries,
   methodLabels,
@@ -643,7 +644,7 @@ export function GiftLedgerPage() {
           }}
         >
           <form
-            className="gift-dialog"
+            className="gift-dialog modal-saving-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="gift-dialog-title"
@@ -831,6 +832,7 @@ export function GiftLedgerPage() {
                 {saving ? 'Đang lưu…' : editing ? 'Lưu thay đổi' : 'Lưu khoản mừng'}
               </button>
             </footer>
+            {saving ? <ModalSavingStatus /> : null}
           </form>
         </div>
       )}
