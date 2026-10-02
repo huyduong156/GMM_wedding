@@ -539,7 +539,23 @@ export class PrismaIdentityRepository implements IdentityRepository {
   async markOutboxCompleted(outboxId: string, now: Date) {
     await this.db.outboxEvent.update({
       where: { id: outboxId },
-      data: { status: 'COMPLETED', processedAt: now, attempts: { increment: 1 } },
+      data: {
+        status: 'COMPLETED',
+        processedAt: now,
+        attempts: { increment: 1 },
+        lastError: null,
+      },
+    })
+  }
+
+  async markOutboxAttemptFailed(outboxId: string, lastError: string) {
+    await this.db.outboxEvent.update({
+      where: { id: outboxId },
+      data: {
+        status: 'PENDING',
+        attempts: { increment: 1 },
+        lastError,
+      },
     })
   }
 }
