@@ -12,6 +12,7 @@ import {
   X,
 } from '@phosphor-icons/react'
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 import {
   AdminUserApiError,
   adminUserApi,
@@ -402,7 +403,7 @@ export function AdminUsersPage() {
             if (event.target === event.currentTarget) setInviteOpen(false)
           }}
         >
-          <form className="admin-user-modal" onSubmit={(event) => void invite(event)}>
+          <form className="admin-user-modal modal-saving-dialog" onSubmit={(event) => void invite(event)}>
             <header>
               <div>
                 <h2>Mời người dùng</h2>
@@ -451,6 +452,7 @@ export function AdminUsersPage() {
                 {working === 'invite' ? 'Đang gửi…' : 'Gửi lời mời'}
               </button>
             </footer>
+            {working === 'invite' ? <ModalSavingStatus /> : null}
           </form>
         </div>
       )}

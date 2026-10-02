@@ -412,6 +412,7 @@ function GuestsPageConnectedContent({
         guestApi.list(weddingId, {
           q: query.trim() || undefined,
           categoryId: categoryId || undefined,
+          limit: 50,
         }),
         guestCategoryApi.list(weddingId),
       ])
@@ -586,7 +587,7 @@ function GuestsPageConnectedContent({
   ) : null
   return (
     <section className="guests-page">
-      <header className="guests-heading">
+      <header className="guests-heading" data-guide="guest-heading">
         <div>
           <p className="breadcrumb">
             Đám cưới <span>/</span> Khách mời
@@ -594,7 +595,7 @@ function GuestsPageConnectedContent({
           <h1>Quản lý khách mời</h1>
           <p>Danh sách riêng tư của đám cưới, được đồng bộ trực tiếp với máy chủ.</p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions" data-guide="guest-actions">
           <button
             className="button button-secondary"
             type="button"
@@ -633,7 +634,7 @@ function GuestsPageConnectedContent({
           <small>Đã được phân loại</small>
         </div>
       </div>
-      <div className="guest-directory panel">
+      <div className="guest-directory panel" data-guide="guest-directory">
         <div className="guest-toolbar">
           <label className="guest-search">
             <MagnifyingGlass size={17} aria-hidden="true" />

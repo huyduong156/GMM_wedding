@@ -594,7 +594,7 @@ export function InvitationEditorLivePage() {
     )
   return (
     <section className="invitation-editor" aria-labelledby="invitation-editor-heading">
-      <header className="editor-toolbar">
+      <header className="editor-toolbar" data-guide="editor-toolbar">
         <div className="editor-toolbar-title">
           <AppLink to={studioRoutes.inviteThemes} ariaLabel="Quay lại kho giao diện">
             <ArrowLeft />
@@ -618,7 +618,7 @@ export function InvitationEditorLivePage() {
             </span>
           </div>
         </div>
-        <div className="editor-couple-quick-edit">
+        <div className="editor-couple-quick-edit" data-guide="editor-quick-edit">
           {quickEditFields.map((field) => (
             <Input
               key={field.contentKey}
@@ -685,7 +685,7 @@ export function InvitationEditorLivePage() {
               </button>
             </div>
           </div>
-          <div className="editor-toolbar-public-actions">
+          <div className="editor-toolbar-public-actions" data-guide="editor-actions">
             <button className="button button-secondary" type="button" onClick={openFullPreview}>
               <Eye /> Xem thiệp mẫu
             </button>
@@ -778,6 +778,7 @@ export function InvitationEditorLivePage() {
           className="editor-sections editor-section-accordion"
           aria-label="Cấu trúc và nội dung thiệp"
           aria-busy={loading}
+          data-guide="editor-sections"
         >
           <header>
             <div>
@@ -838,6 +839,7 @@ export function InvitationEditorLivePage() {
         <main
           className={`editor-canvas editor-iframe-canvas ${mobilePreviewOpen ? 'is-mobile-preview-open' : ''}`}
           aria-label="Bản xem trước thiệp"
+          data-guide="editor-preview"
           style={mobilePreviewOpen ? undefined : draggablePreview.style}
           {...draggablePreview.dragHandlers}
         >
@@ -846,6 +848,7 @@ export function InvitationEditorLivePage() {
             type="button"
             onClick={() => setMobilePreviewOpen((current) => !current)}
             aria-expanded={mobilePreviewOpen}
+            data-guide="editor-mobile-preview"
           >
             <span className="editor-preview-drag-handle" data-preview-drag-handle>
               {mobilePreviewOpen ? <X /> : <ArrowsOut />}

@@ -1,4 +1,5 @@
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   CaretDown,
@@ -260,7 +261,7 @@ function GuestCategoriesContent({
             if (event.target === event.currentTarget) closeDialog()
           }}
         >
-          <section className="category-dialog" role="dialog" aria-modal="true">
+          <section className="category-dialog modal-saving-dialog" role="dialog" aria-modal="true">
             <header>
               <div>
                 <h2>{parent ? 'Thêm danh mục con' : 'Thêm danh mục gốc'}</h2>
@@ -303,6 +304,7 @@ function GuestCategoriesContent({
                 Tạo danh mục
               </button>
             </footer>
+            {busy ? <ModalSavingStatus /> : null}
           </section>
         </div>
       )}

@@ -4,7 +4,7 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { searchFeatures, type SearchFeature } from '../model/feature-search'
 import './feature-search.css'
 
-export function FeatureSearch({ features }: { features: SearchFeature[] }) {
+export function FeatureSearch({ features, className = '' }: { features: SearchFeature[]; className?: string }) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const { pathname } = useNavigation()
@@ -34,7 +34,7 @@ export function FeatureSearch({ features }: { features: SearchFeature[] }) {
     <>
       <button
         ref={triggerRef}
-        className="command-search"
+        className={`command-search ${className}`.trim()}
         type="button"
         aria-label="Tìm tính năng"
         aria-haspopup="dialog"

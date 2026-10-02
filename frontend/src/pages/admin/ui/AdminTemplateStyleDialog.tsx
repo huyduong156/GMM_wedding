@@ -5,6 +5,7 @@ import {
   type TemplateStyle,
 } from '../../../shared/api/admin-template-styles'
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 
 export function AdminTemplateStyleDialog({
   templateKey,
@@ -71,7 +72,7 @@ export function AdminTemplateStyleDialog({
       }}
     >
       <section
-        className="admin-template-dialog admin-template-style-dialog"
+        className="admin-template-dialog admin-template-style-dialog modal-saving-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="template-style-dialog-title"
@@ -151,6 +152,7 @@ export function AdminTemplateStyleDialog({
             <FloppyDisk /> {saving ? 'Đang lưu…' : 'Lưu danh mục'}
           </button>
         </footer>
+        {saving ? <ModalSavingStatus /> : null}
       </section>
     </div>
   )

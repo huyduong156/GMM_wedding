@@ -6,12 +6,14 @@ import { AuthProvider } from './features/auth/model/AuthProvider'
 import './app/styles/index.css'
 import './app/styles/fonts.css'
 
+const app = (
+  <NavigationProvider>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </NavigationProvider>
+)
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <NavigationProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </NavigationProvider>
-  </React.StrictMode>,
+  import.meta.env.DEV ? <React.StrictMode>{app}</React.StrictMode> : app,
 )
