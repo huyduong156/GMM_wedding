@@ -72,8 +72,8 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
         icon: FolderSimple,
         child: true,
       },
-      { to: studioRoutes.rsvps, label: 'Xác nhận tham dự', icon: List, badge: '12' },
-      { to: studioRoutes.wishes, label: 'Lời chúc', icon: Heart, badge: '5' },
+      { to: studioRoutes.rsvps, label: 'Xác nhận tham dự', icon: List },
+      { to: studioRoutes.wishes, label: 'Lời chúc', icon: Heart },
     ],
   },
   {
@@ -101,6 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const [pendingWeddingId, setPendingWeddingId] = useState<string | null>(null)
   const [collaboratorNoticeOpen, setCollaboratorNoticeOpen] = useState(false)
+  const [isTopbarScrolled, setTopbarScrolled] = useState(false)
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
@@ -159,6 +160,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding, weddingWorkspace?.weddings.length])
 
   useEffect(() => setSidebarOpen(false), [pathname])
+  useEffect(() => {
+    const onScroll = () => setTopbarScrolled(window.scrollY > 4)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   function openSwitcher() {
     setSwitcherOpen(true)
@@ -217,6 +224,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <CaretDown size={16} aria-hidden="true" />
         </button>
 
+        <div className="mobile-sidebar-search">
+          <FeatureSearch features={searchFeatures} />
+        </div>
+
         <nav className="primary-nav">
           {visibleNavGroups.map((group) => (
             <div
@@ -272,6 +283,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="sidebar-footer">
+          <button
+            className="mobile-sidebar-logout"
+            type="button"
+            onClick={() => void auth?.logout().then(() => navigate(marketingRoutes.login, true))}
+          >
+            <SignOut size={18} />
+            <span>Đăng xuất</span>
+          </button>
           {/* TODO: Hiển thị plan meter khi tính năng gói đăng ký được triển khai. */}
           <button
             className="collapse-button"
@@ -286,7 +305,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="workspace">
-        <header className="topbar" data-guide="topbar">
+        <div className="topbar-slot">
+          <header className={`topbar ${isTopbarScrolled ? 'is-scrolled' : ''}`} data-guide="topbar">
           <button
             className="icon-button mobile-menu"
             onClick={() => setSidebarOpen(true)}
@@ -297,7 +317,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <List size={21} />
           </button>
-          <FeatureSearch features={searchFeatures} />
+          <FeatureSearch features={searchFeatures} className="topbar-search" />
           <div
             className={`mobile-wedding-countdown ${activeWedding.weddingDate ? '' : 'is-empty'}`}
             role="status"
@@ -348,7 +368,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <CaretRight size={14} aria-hidden="true" />
             </button>
             <button
-              className="icon-button"
+              className="icon-button topbar-logout"
               type="button"
               aria-label="Đăng xuất"
               onClick={() => void auth?.logout().then(() => navigate(marketingRoutes.login, true))}
@@ -356,12 +376,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <SignOut size={19} />
             </button>
           </div>
-        </header>
+          </header>
+        </div>
         <main id="main-content" className="main-content" tabIndex={-1}>
           {children}
         </main>
       </div>
-      <MobileQuickMenu features={searchFeatures} />
+      <MobileQuickMenu />
       <ProductGuide pathname={pathname} />
       {switcherOpen ? (
         <div

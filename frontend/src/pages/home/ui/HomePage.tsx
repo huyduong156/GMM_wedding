@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import {
   ArrowRight,
   CalendarCheck,
@@ -43,6 +43,15 @@ const journey = [
 
 export function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
+
+  function scrollToOverview(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault()
+    document.getElementById('home-overview')?.scrollIntoView({
+      behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    })
+    window.history.replaceState(null, '', '#home-overview')
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsLoading(false), 1150)
@@ -108,7 +117,7 @@ export function HomePage() {
           <span>Wedding, beautifully organized</span>
           <h1>Ngày trọng đại bắt đầu từ một lời mời đẹp.</h1>
           <p>Tạo không gian cưới mang dấu ấn riêng của hai bạn.</p>
-          <a href="#home-overview">
+          <a href="#home-overview" onClick={scrollToOverview}>
             Bắt đầu khám phá <ArrowRight />
           </a>
         </div>
@@ -136,8 +145,9 @@ export function HomePage() {
           </AppLink>
           <div className="home-nav-links">
             <a href="#how-it-works">Tính năng</a>
-            <a href="#templates">Giao diện mẫu</a>
-            <a href="#how-it-works">Cách hoạt động</a>
+            <AppLink to={marketingRoutes.invitationTemplates}>Giao diện mẫu</AppLink>
+            <AppLink to={marketingRoutes.howItWorks}>Cách hoạt động</AppLink>
+            <AppLink to={marketingRoutes.faq}>Hỏi đáp</AppLink>
           </div>
           <div className="home-nav-actions">
             <AppLink to={marketingRoutes.login} className="home-text-link">
@@ -488,6 +498,7 @@ export function HomePage() {
         <nav aria-label="Điều hướng cuối trang">
           <AppLink to={marketingRoutes.login}>Đăng nhập</AppLink>
           <AppLink to={studioRoutes.inviteThemes}>Kho giao diện</AppLink>
+          <AppLink to={marketingRoutes.faq}>Hỏi đáp</AppLink>
           <AppLink to={publicTemplateRoutes.modernLuxePreview}>Thiệp mẫu</AppLink>
         </nav>
       </footer>

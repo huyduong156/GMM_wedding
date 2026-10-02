@@ -28,13 +28,9 @@ const dashboardDesktopSteps: GuideStep[] = [
 ]
 
 const dashboardMobileSteps: GuideStep[] = [
-  step('mobile-topbar', '[data-guide="topbar"]', 'Thanh điều khiển', 'Tìm kiếm, hồ sơ và nút trợ giúp luôn nằm ở khu vực này để bạn không phải đi vòng qua nhiều màn hình.'),
-  step('mobile-sidebar', '[data-guide="mobile-sidebar-trigger"]', 'Mở toàn bộ không gian Wedding', 'Chạm vào đây khi muốn chuyển giữa thiệp, khách mời, Todolist hoặc các phần cài đặt.', 'bottom'),
-  step('mobile-quick-menu', '[data-guide="mobile-quick-menu"]', 'Menu nhanh ở góc phải', 'Đây là lối tắt cho các việc hay dùng khi đang cầm điện thoại, như xem khách mời hoặc checklist.', 'top-start'),
-  step('mobile-todos', '[data-guide="mobile-quick-menu"]', 'Todolist', 'Mở menu nhanh và chọn Todolist để lập danh sách những việc cần làm cho đám cưới, theo dõi hạn hoàn thành và đánh dấu từng việc khi đã xong.', 'top-start'),
-  step('mobile-members', '[data-guide="mobile-quick-menu"]', 'Thành viên', 'Trong menu nhanh, chọn Thành viên để thêm người cùng quản lý đám cưới và phối hợp chuẩn bị mà không cần dùng chung tài khoản.', 'top-start'),
-  step('mobile-dashboard-main', '[data-guide="dashboard-main"]', 'Tổng quan Wedding', 'Màn hình này giúp bạn kiểm tra nhanh Wedding đang ở đâu mà không cần nhớ từng con số.', 'top'),
-  step('mobile-dashboard-quick-links', '[data-guide="dashboard-quick-links"]', 'Bắt đầu từ một việc cụ thể', 'Chọn lối tắt phù hợp với việc bạn đang muốn làm thay vì phải mở menu trước.', 'top'),
+  step('mobile-sidebar', '[data-guide="topbar"]', 'Sidebar', 'Thanh điều hướng chính của Wedding. Khi cần chuyển sang thiệp, khách mời hoặc các công cụ chuẩn bị, hãy mở menu này.', 'bottom'),
+  step('mobile-menu-icon', '[data-guide="mobile-sidebar-trigger"]', 'Icon menu', 'Chạm vào icon này để mở sidebar và xem đầy đủ các khu vực trong Wedding.', 'bottom'),
+  step('mobile-quick-menu', '[data-guide="mobile-quick-menu"]', 'Menu nhanh', 'Nút ở góc dưới phải gom các mục hay dùng như Khách mời, Sổ tiền mừng, Todolist và Thành viên.', 'top-start'),
 ]
 
 const screenSteps: Record<Exclude<GuideKey, 'started'>, GuideStep[]> = {

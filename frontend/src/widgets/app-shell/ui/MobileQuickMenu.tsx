@@ -9,7 +9,6 @@ import {
 } from '@phosphor-icons/react'
 import { studioRoutes } from '../../../shared/config/routes'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
-import type { SearchFeature } from '../model/feature-search'
 import './mobile-quick-menu.css'
 
 const shortcuts = [
@@ -19,12 +18,12 @@ const shortcuts = [
   { to: studioRoutes.members, label: 'Thành viên', icon: UsersThree },
 ]
 
-export function MobileQuickMenu({ features }: { features: SearchFeature[] }) {
+export function MobileQuickMenu() {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const { pathname, navigate } = useNavigation()
   const id = useId()
-  const items = shortcuts.filter((item) => features.some((feature) => feature.to === item.to))
+  const items = shortcuts
 
   useEffect(() => setOpen(false), [pathname])
 

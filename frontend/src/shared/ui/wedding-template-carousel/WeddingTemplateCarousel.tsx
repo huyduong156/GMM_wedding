@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { AppLink } from '../../lib/navigation/AppLink'
 import { publicTemplateRoutes } from '../../config/routes'
+import { weddingApi, type WeddingTemplate } from '../../api/weddings'
 import './wedding-template-carousel.css'
 
 const slides = [
@@ -43,21 +44,52 @@ const slides = [
   },
 ]
 
+const previewPaths: Record<string, string> = {
+  'modern-luxe': publicTemplateRoutes.modernLuxePreview,
+  'verdant-promise': publicTemplateRoutes.verdantPromisePreview,
+  'chibi-daydream': publicTemplateRoutes.chibiDaydreamPreview,
+  'peony-veranda': publicTemplateRoutes.peonyVerandaPreview,
+  'astral-vow': publicTemplateRoutes.astralVowPreview,
+  'rose-garden': publicTemplateRoutes.roseGardenPreview,
+  'van-hy': publicTemplateRoutes.vanHyPreview,
+  'aurelia-court': publicTemplateRoutes.aureliaCourtPreview,
+}
+
+function apiSlides(items: WeddingTemplate[]) {
+  return items.slice(0, 6).map((item, index) => ({
+    name: item.name,
+    style: item.description ?? 'Thiệp online',
+    image: index % 2 ? '/assets/images/templates/modern-luxe/wedding-detail.jpg' : '/assets/images/templates/modern-luxe/couple-portrait.jpg',
+    position: 'center',
+    href: previewPaths[item.key] ?? publicTemplateRoutes.modernLuxePreview,
+  }))
+}
+
 export function WeddingTemplateCarousel() {
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [items, setItems] = useState(slides)
+
+  useEffect(() => {
+    let activeRequest = true
+    void weddingApi.templates('ONLINE_INVITATION').then((result) => {
+      const next = apiSlides(result.items)
+      if (activeRequest && next.length) setItems(next)
+    }).catch(() => undefined)
+    return () => { activeRequest = false }
+  }, [])
 
   useEffect(() => {
     if (paused || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
     const timer = window.setInterval(
-      () => setActive((current) => (current + 1) % slides.length),
+      () => setActive((current) => (current + 1) % items.length),
       4200,
     )
     return () => window.clearInterval(timer)
-  }, [paused])
+  }, [items.length, paused])
 
   const move = (direction: number) =>
-    setActive((current) => (current + direction + slides.length) % slides.length)
+    setActive((current) => (current + direction + items.length) % items.length)
 
   return (
     <div
@@ -68,10 +100,10 @@ export function WeddingTemplateCarousel() {
       onBlur={() => setPaused(false)}
     >
       <div className="template-carousel-stage" aria-live="polite">
-        {slides.map((slide, index) => {
+        {items.map((slide, index) => {
           let offset = index - active
-          if (offset > slides.length / 2) offset -= slides.length
-          if (offset < -slides.length / 2) offset += slides.length
+          if (offset > items.length / 2) offset -= items.length
+          if (offset < -items.length / 2) offset += items.length
           const boundedOffset = Math.max(-3, Math.min(3, offset))
           const depth = Math.abs(boundedOffset)
           const slideStyle = {
@@ -85,7 +117,7 @@ export function WeddingTemplateCarousel() {
           } as React.CSSProperties
           return (
             <AppLink
-              to={publicTemplateRoutes.modernLuxePreview}
+              to={'href' in slide && typeof slide.href === 'string' ? slide.href : publicTemplateRoutes.modernLuxePreview}
               className="template-slide"
               ariaLabel={`Xem mẫu ${slide.name}`}
               key={slide.name}
@@ -107,7 +139,7 @@ export function WeddingTemplateCarousel() {
         </button>
         <span>
           <strong>{String(active + 1).padStart(2, '0')}</strong> /{' '}
-          {String(slides.length).padStart(2, '0')}
+          {String(items.length).padStart(2, '0')}
         </span>
         <button type="button" onClick={() => move(1)} aria-label="Mẫu thiệp tiếp theo">
           <CaretRight />

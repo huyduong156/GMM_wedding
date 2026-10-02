@@ -76,6 +76,11 @@ export const publicTemplateRoutes = {
 
 export const marketingRoutes = {
   home: '/',
+  invitationTemplates: '/templates/invitations',
+  websiteTemplates: '/templates/websites',
+  recapTemplates: '/templates/recaps',
+  howItWorks: '/how-it-works',
+  faq: '/faq',
   login: '/login',
   register: '/register',
   verifyEmail: '/verify-email',

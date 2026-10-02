@@ -412,6 +412,7 @@ function GuestsPageConnectedContent({
         guestApi.list(weddingId, {
           q: query.trim() || undefined,
           categoryId: categoryId || undefined,
+          limit: 50,
         }),
         guestCategoryApi.list(weddingId),
       ])
