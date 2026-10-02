@@ -6,7 +6,11 @@ import './product-guide.css'
 
 export function ProductGuide({ pathname }: { pathname: string }) {
   const { guideList, activeGuide, startGuide, finishGuide, closeGuide } = useGuide()
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(max-width: 767px)').matches
+      : false,
+  )
   const routeGuide = guideKeyForPath(pathname)
   const [welcomeOpen, setWelcomeOpen] = useState(false)
 
@@ -19,6 +23,8 @@ export function ProductGuide({ pathname }: { pathname: string }) {
   }, [activeGuide, closeGuide, routeGuide])
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+
     const media = window.matchMedia('(max-width: 767px)')
     const update = () => setIsMobile(media.matches)
     update()
