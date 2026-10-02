@@ -2,7 +2,7 @@ name: Deploy backend to cPanel
 
 on:
   workflow_run:
-    workflows: ['CI']
+    workflows: ["CI"]
     types: [completed]
     branches: [production]
   workflow_dispatch:
@@ -102,23 +102,57 @@ jobs:
           printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 644 "$HOME/.ssh/known_hosts"
 
-      - name: Upload and activate release over one SSH session
+      - name: Verify cPanel SSH and deploy directory
         if: steps.changes.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          archive="/tmp/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+          printf -v deploy_path_q '%q' "$CPANEL_DEPLOY_PATH"
+
+          ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o BatchMode=yes \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            "set -e; command -v tar >/dev/null; mkdir -p ${deploy_path_q}; test -w ${deploy_path_q}; printf 'SSH preflight OK\\n'; df -Pk ${deploy_path_q} | tail -n 1"
+
+      - name: Upload backend release archive
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          archive="${CPANEL_DEPLOY_PATH}/.incoming-${GITHUB_SHA}.tar.gz"
+          printf -v archive_q '%q' "$archive"
+
+          ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o BatchMode=yes \
+            -o ConnectTimeout=30 \
+            -o ServerAliveInterval=15 \
+            -o ServerAliveCountMax=3 \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            "set -e; cat > ${archive_q}; test -s ${archive_q}" < "$BUNDLE_ARCHIVE"
+
+      - name: Activate backend release and restart Passenger
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          archive="${CPANEL_DEPLOY_PATH}/.incoming-${GITHUB_SHA}.tar.gz"
           staging="${CPANEL_DEPLOY_PATH}/.deploy-${GITHUB_SHA}"
           printf -v deploy_path_q '%q' "$CPANEL_DEPLOY_PATH"
           printf -v archive_q '%q' "$archive"
           printf -v staging_q '%q' "$staging"
 
-          remote_command="set -e; cat > ${archive_q}; mkdir -p ${deploy_path_q} ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; rm -rf ${staging_q} ${archive_q}; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt"
+          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; test -s ${archive_q}; rm -rf ${staging_q}; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; test -f ${staging_q}/server.js; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt; printf 'Backend release activated\\n'"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o BatchMode=yes \
             -o ConnectTimeout=30 \
             -o ServerAliveInterval=15 \
             -o ServerAliveCountMax=3 \
             "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
-            "$remote_command" < "$BUNDLE_ARCHIVE"
+            "$remote_command"
