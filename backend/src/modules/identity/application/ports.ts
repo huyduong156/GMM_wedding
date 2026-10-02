@@ -109,4 +109,5 @@ export interface IdentityRepository {
   touchSession(sessionId: string, seenBefore: Date, now: Date): Promise<void>
   revokeSession(sessionHash: string, now: Date): Promise<void>
   markOutboxCompleted(outboxId: string, now: Date): Promise<void>
+  markOutboxAttemptFailed(outboxId: string, lastError: string): Promise<void>
 }

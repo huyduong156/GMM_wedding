@@ -63,11 +63,22 @@ Endpoint dự kiến: `POST /api/auth/register`.
 6. Trả response trung tính; không trả password hash/token database.
 7. Email link chứa raw token một lần; backend hash token để lookup.
 
-Duplicate email trả response không tiết lộ tài khoản tồn tại nếu threat model yêu cầu. Nếu resend verification, revoke/expire token cũ theo policy.
+Duplicate email luôn trả response trung tính để không tiết lộ tài khoản tồn tại. Nếu row hiện có vẫn
+`PENDING_VERIFICATION`, có password credential và chưa xác minh email, register được xem như một
+yêu cầu gửi lại: backend vô hiệu token chưa dùng, phát token/outbox mới và gửi lại email xác minh.
+Mật khẩu đã hash của row pending không bị ghi đè bởi lần đăng ký lặp để tránh một bên thứ ba gây
+account lockout. Tài khoản đã active/suspended hoặc tài khoản không có password credential không
+phát email từ registration lặp.
 
 ## Gửi lại email xác minh
 
 Endpoint đã triển khai: `POST /api/auth/resend-verification`.
+
+Mỗi lần gửi email xác minh/reset qua SMTP được ghi nhận trong outbox. Khi SMTP từ chối hoặc
+không kết nối được, backend giữ event ở `PENDING`, tăng `attempts`, ghi `lastError` đã loại bỏ
+PII/secret và phát structured error log chỉ chứa operation, outbox ID cùng mã lỗi SMTP an toàn.
+HTTP response vẫn trung tính và không trả chi tiết provider cho client; vận hành kiểm tra lỗi qua
+runtime log và outbox thay vì dựa vào response đăng ký.
 
 Endpoint luôn trả `202` trung tính. Chỉ tài khoản `PENDING_VERIFICATION`, có password credential và chưa xác minh email mới được phát token TTL 24 giờ. Transaction kiểm tra lại trạng thái user, consume mọi verification token cũ chưa dùng, tạo token/outbox mới và ghi audit. Rate limit là 5/IP/giờ và 3/email/giờ.
 
