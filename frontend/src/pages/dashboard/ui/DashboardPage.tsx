@@ -76,7 +76,7 @@ export function DashboardPage() {
       </section>
 
       <div className="dashboard-layout">
-        <div className="dashboard-primary">
+        <div className="dashboard-primary" data-guide="dashboard-main">
           <section className="panel trend-panel">
             <header className="panel-header">
               <div>
@@ -155,7 +155,7 @@ export function DashboardPage() {
           </section>
         </div>
 
-        <aside className="dashboard-rail" aria-label="Sự kiện và hoạt động">
+        <aside className="dashboard-rail" aria-label="Sự kiện và hoạt động" data-guide="dashboard-rail">
           <section className="panel next-event-panel">
             <div className="event-date">
               <span>18</span>
@@ -203,7 +203,7 @@ export function DashboardPage() {
         </aside>
       </div>
 
-      <section className="quick-links" aria-label="Thao tác nhanh">
+      <section className="quick-links" aria-label="Thao tác nhanh" data-guide="dashboard-quick-links">
         <AppLink to={studioRoutes.guests}>
           <span>
             <Users size={19} />

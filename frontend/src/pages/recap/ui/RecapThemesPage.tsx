@@ -222,7 +222,7 @@ export function RecapThemesPage() {
   const activeVersionId = recap?.templateVersion.id
   return (
     <section className="recap-themes-page" aria-labelledby="recap-themes-heading">
-      <header className="recap-page-heading">
+      <header className="recap-page-heading" data-guide="recap-template-heading">
         <div>
           <p className="breadcrumb">
             {wedding?.name ?? 'Đám cưới của bạn'} <span>/</span> Wedding Recap <span>/</span> Kho
@@ -241,7 +241,7 @@ export function RecapThemesPage() {
           </span>
         ) : null}
       </header>
-      <div className="recap-library-toolbar">
+      <div className="recap-library-toolbar" data-guide="recap-template-controls">
         <div className="recap-library-filters">
           <label className="recap-library-search">
             <MagnifyingGlass size={17} />
@@ -288,7 +288,7 @@ export function RecapThemesPage() {
           </button>
         </div>
       ) : visible.length ? (
-        <div className="recap-library-grid">
+        <div className="recap-library-grid" data-guide="recap-template-grid">
           {visible.map((theme) => {
             const active = activeVersionId === theme.versionId
             return (

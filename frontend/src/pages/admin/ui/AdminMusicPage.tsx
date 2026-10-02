@@ -1,4 +1,5 @@
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ArrowClockwise,
@@ -364,7 +365,7 @@ function UploadDialog({ close, onDone }: { close: () => void; onDone: () => void
         if (event.target === event.currentTarget && !working) close()
       }}
     >
-      <form className="admin-music-modal" onSubmit={(event) => void submit(event)}>
+      <form className="admin-music-modal modal-saving-dialog" onSubmit={(event) => void submit(event)}>
         <header>
           <div>
             <h2>Thêm nhạc hệ thống</h2>
@@ -438,6 +439,7 @@ function UploadDialog({ close, onDone }: { close: () => void; onDone: () => void
             {working ? 'Đang tải lên…' : 'Thêm nhạc'}
           </button>
         </footer>
+        {working ? <ModalSavingStatus /> : null}
       </form>
     </div>
   )
@@ -511,7 +513,7 @@ function EditDialog({ track, onDone }: { track: MusicTrack; onDone: () => void }
         if (event.target === event.currentTarget && !working) closeAnimated()
       }}
     >
-      <form className="admin-music-modal" onSubmit={(event) => void submit(event)}>
+      <form className="admin-music-modal modal-saving-dialog" onSubmit={(event) => void submit(event)}>
         <header>
           <div>
             <h2>Sửa thông tin nhạc</h2>
@@ -574,6 +576,7 @@ function EditDialog({ track, onDone }: { track: MusicTrack; onDone: () => void }
             {working ? 'Đang lưu…' : 'Lưu thông tin nhạc'}
           </button>
         </footer>
+        {working ? <ModalSavingStatus /> : null}
       </form>
     </div>
   )

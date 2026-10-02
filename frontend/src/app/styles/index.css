@@ -1895,6 +1895,9 @@ a:focus-visible {
   max-width: 100vw;
   overflow-x: clip;
 }
+.topbar-slot {
+  height: 58px;
+}
 .topbar {
   position: sticky;
   top: 0;
@@ -1907,6 +1910,14 @@ a:focus-visible {
   border-bottom: 1px solid var(--border);
   background: rgb(255 255 255 / 0.86);
   backdrop-filter: blur(18px) saturate(120%);
+  transition: box-shadow 180ms ease, background 180ms ease;
+}
+.topbar.is-scrolled {
+  box-shadow: 0 8px 24px rgb(77 62 45 / 0.08);
+}
+.mobile-sidebar-search,
+.mobile-sidebar-logout {
+  display: none;
 }
 .command-search {
   width: min(460px, 46vw);
@@ -4969,7 +4980,51 @@ kbd {
     display: none;
   }
   .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 70;
     padding: 0 18px;
+  }
+  .workspace {
+    overflow: visible;
+  }
+  .mobile-sidebar-search {
+    display: block;
+    margin: 0 10px 8px;
+  }
+  .mobile-sidebar-search .command-search {
+    width: 100%;
+    height: 40px;
+    justify-content: flex-start;
+    padding: 0 12px;
+  }
+  .mobile-sidebar-search .command-search span {
+    display: block;
+  }
+  .mobile-sidebar-search .command-search kbd {
+    display: none;
+  }
+  .mobile-sidebar-logout {
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 9px;
+    color: var(--danger);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+  }
+  .mobile-sidebar-logout:hover {
+    background: var(--raised);
+  }
+  .topbar-logout {
+    display: none;
   }
   .main-content {
     padding: 26px 20px 44px;
@@ -4996,7 +5051,18 @@ kbd {
 
 @media (max-width: 767px) {
   .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 70;
     padding: 0 14px;
+  }
+  .topbar > .topbar-search {
+    display: none !important;
+  }
+  .topbar.is-scrolled {
+    position: fixed;
+    inset: 0 0 auto;
+    width: 100%;
   }
   .icon-button {
     width: 44px;
@@ -13910,6 +13976,27 @@ kbd {
 [class*='-picker'] button:active {
   transform: scale(0.97);
 }
+
+/* Close controls should read as interactive controls in every modal family. */
+[class*='-dialog'] header > button,
+[class*='-modal'] header > button,
+.workspace-dialog > header > button {
+  color: var(--fg-muted, #76685d);
+  background: transparent;
+}
+[class*='-dialog'] header > button:hover:not(:disabled),
+[class*='-modal'] header > button:hover:not(:disabled),
+.workspace-dialog > header > button:hover:not(:disabled) {
+  color: var(--fg, #2e2823);
+  background: var(--raised, #f3eee8);
+  transform: translateY(-1px);
+}
+[class*='-dialog'] header > button:focus-visible,
+[class*='-modal'] header > button:focus-visible,
+.workspace-dialog > header > button:focus-visible {
+  outline: 2px solid var(--brand, #a66a3f);
+  outline-offset: 2px;
+}
 @media (prefers-reduced-motion: reduce) {
   [class*='-dialog-backdrop'],
   [class*='-modal-backdrop'],
@@ -17327,6 +17414,33 @@ input[type='file'] {
   font-weight: 700;
   letter-spacing: 0.01em;
 }
+.modal-saving-dialog {
+  position: relative;
+}
+.modal-saving-status {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border-radius: inherit;
+  color: #fff;
+  background: rgb(28 23 20 / 0.66);
+  backdrop-filter: blur(2px);
+  cursor: wait;
+}
+.modal-saving-status svg {
+  color: #f5d3ad;
+  animation: guest-dialog-loading-spin 850ms linear infinite;
+}
+.modal-saving-status span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
 .login-oauth-divider {
   display: flex;
   align-items: center;
@@ -17374,6 +17488,9 @@ input[type='file'] {
 }
 @media (prefers-reduced-motion: reduce) {
   .guest-dialog-loading svg {
+    animation: none;
+  }
+  .modal-saving-status svg {
     animation: none;
   }
 }

@@ -7,6 +7,7 @@ import { formatDateTime } from '../../../shared/lib/date/date-format'
 import { buildEventInput } from '../model/event-input'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/ConfirmDialog'
 import { notifications } from '../../../shared/ui/notifications/notifications'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 
 const blank = {
   name: '',
@@ -217,7 +218,7 @@ export function WeddingEventsPage() {
             if (event.target === event.currentTarget) setOpen(false)
           }}
         >
-          <form className="workspace-dialog" onSubmit={save}>
+          <form className="workspace-dialog modal-saving-dialog" onSubmit={save}>
             <header>
               <div>
                 <p className="eyebrow">{editing ? 'Chỉnh sửa' : 'Sự kiện mới'}</p>
@@ -316,6 +317,7 @@ export function WeddingEventsPage() {
                 {saving ? 'Đang lưu…' : 'Lưu sự kiện'}
               </button>
             </footer>
+            {saving ? <ModalSavingStatus /> : null}
           </form>
         </div>
       ) : null}

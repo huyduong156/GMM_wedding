@@ -57,6 +57,9 @@ import { PublicInvitationPage } from '../pages/public-invitation/ui/PublicInvita
 import { PublicWebsitePageNext as PublicWebsitePage } from '../pages/public-website/ui/PublicWebsitePageNext'
 import { publicTemplateRoutes } from '../shared/config/routes'
 import { HomePage } from '../pages/home/ui/HomePage'
+import { PublicTemplateLibraryPage } from '../pages/public-templates/ui/PublicTemplateLibraryPage'
+import { HowItWorksPage } from '../pages/how-it-works/ui/HowItWorksPage'
+import { FaqPage } from '../pages/faq/ui/FaqPage'
 import { RecapEditorPage } from '../pages/recap/ui/RecapEditorPage'
 import { RecapThemesPage } from '../pages/recap/ui/RecapThemesPage'
 import { AuthGate } from '../features/auth/ui/AuthGate'
@@ -128,6 +131,14 @@ function AppContent() {
   }, [navigate, pathname])
 
   if (pathname === '/') return <HomePage />
+  if (pathname === marketingRoutes.invitationTemplates)
+    return <PublicTemplateLibraryPage productType="ONLINE_INVITATION" />
+  if (pathname === marketingRoutes.websiteTemplates)
+    return <PublicTemplateLibraryPage productType="WEDDING_WEBSITE" />
+  if (pathname === marketingRoutes.recapTemplates)
+    return <PublicTemplateLibraryPage productType="RECAP" />
+  if (pathname === marketingRoutes.howItWorks) return <HowItWorksPage />
+  if (pathname === marketingRoutes.faq) return <FaqPage />
   if (pathname === marketingRoutes.login) return <LoginPage />
   if (pathname === marketingRoutes.register) return <RegisterPage />
   if (pathname === marketingRoutes.verifyEmail) return <VerifyEmailPage />

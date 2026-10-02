@@ -27,6 +27,7 @@ import {
 } from '../../../shared/api/admin-template-styles'
 import { AdminTemplateStyleDialog } from './AdminTemplateStyleDialog'
 import { AdminStyleFilterSelect } from './AdminStyleFilterSelect'
+import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
 type Filter = 'ALL' | AdminTemplateReviewStatus
 const labels: Record<AdminTemplateReviewStatus, string> = {
   PENDING_REVIEW: 'Chờ kiểm duyệt',
@@ -540,12 +541,14 @@ function Dialog({
   subtitle,
   icon,
   children,
+  loading = false,
 }: {
   close: () => void
   title: string
   subtitle: string
   icon: React.ReactNode
   children: React.ReactNode
+  loading?: boolean
 }) {
   const dialogRef = useRef<HTMLElement>(null),
     returnFocus = useRef<HTMLElement | null>(document.activeElement as HTMLElement | null)
@@ -588,7 +591,7 @@ function Dialog({
     >
       <section
         ref={dialogRef}
-        className="admin-template-dialog"
+        className={`admin-template-dialog${loading ? ' modal-saving-dialog' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -606,6 +609,7 @@ function Dialog({
           </button>
         </header>
         {children}
+        {loading ? <ModalSavingStatus label="Đang phát hành thiệp…" /> : null}
       </section>
     </div>
   )
@@ -634,7 +638,8 @@ function ManageDialog({
       close={close}
       title={item.name}
       subtitle={`${item.key} · ${item.productType}`}
-      icon={<Code />}
+       icon={<Code />}
+       loading={Boolean(working)}
     >
       <div className="admin-template-version-list">
         {item.versions.map((version) => (

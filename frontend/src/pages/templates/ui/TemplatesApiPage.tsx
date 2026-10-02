@@ -292,8 +292,15 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   }
   if (!workspace) return <TemplatesPage kind={kind} />
   return (
-    <section className="templates-page" aria-labelledby="templates-heading">
-      <header className="templates-heading">
+    <section
+      className="templates-page"
+      aria-labelledby="templates-heading"
+      data-guide={kind === 'invitation' ? 'invitation-template-screen' : 'wedding-template-screen'}
+    >
+      <header
+        className="templates-heading"
+        data-guide={kind === 'invitation' ? 'invitation-template-heading' : 'wedding-template-heading'}
+      >
         <div>
           <p className="breadcrumb">
             {activeWedding?.name ?? 'Đám cưới của bạn'} <span>/</span>{' '}
@@ -330,7 +337,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
           </div>
         </div>
       ) : null}
-      <div className="templates-controls">
+      <div className="templates-controls" data-guide="template-controls">
         <label className="template-search">
           <span className="sr-only">Tìm giao diện</span>
           <MagnifyingGlass size={17} />
@@ -373,7 +380,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
           </button>
         </div>
       ) : visible.length ? (
-        <div className="theme-grid">
+        <div className="theme-grid" data-guide="template-grid">
           {visible.map((theme) => {
             const active = activeVersionId === theme.versionId
             return (
