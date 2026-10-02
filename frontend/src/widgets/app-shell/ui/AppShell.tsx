@@ -102,6 +102,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [pendingWeddingId, setPendingWeddingId] = useState<string | null>(null)
   const [collaboratorNoticeOpen, setCollaboratorNoticeOpen] = useState(false)
   const [isTopbarScrolled, setTopbarScrolled] = useState(false)
+  const [isMobileLayout, setMobileLayout] = useState(() =>
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(max-width: 1023px)').matches
+      : false,
+  )
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
   const weddingWorkspace = useOptionalWeddingWorkspace()
@@ -166,6 +171,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+
+    const media = window.matchMedia('(max-width: 1023px)')
+    const update = () => setMobileLayout(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
 
   function openSwitcher() {
     setSwitcherOpen(true)
@@ -224,9 +238,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <CaretDown size={16} aria-hidden="true" />
         </button>
 
-        <div className="mobile-sidebar-search">
-          <FeatureSearch features={searchFeatures} />
-        </div>
+        {isMobileLayout ? (
+          <div className="mobile-sidebar-search">
+            <FeatureSearch features={searchFeatures} />
+          </div>
+        ) : null}
 
         <nav className="primary-nav">
           {visibleNavGroups.map((group) => (
@@ -317,7 +333,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <List size={21} />
           </button>
-          <FeatureSearch features={searchFeatures} className="topbar-search" />
+          {!isMobileLayout ? (
+            <FeatureSearch features={searchFeatures} className="topbar-search" />
+          ) : null}
           <div
             className={`mobile-wedding-countdown ${activeWedding.weddingDate ? '' : 'is-empty'}`}
             role="status"
@@ -382,7 +400,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
-      <MobileQuickMenu />
+      <MobileQuickMenu features={searchFeatures} />
       <ProductGuide pathname={pathname} />
       {switcherOpen ? (
         <div
