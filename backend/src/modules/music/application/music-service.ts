@@ -110,6 +110,31 @@ export class MusicService {
     return this.createIntent(adminUserId, 'SYSTEM', input)
   }
 
+  async uploadAdminBytes(
+    adminUserId: string,
+    trackId: string,
+    body: Uint8Array,
+    mimeType: string,
+  ) {
+    void adminUserId
+    const row = await this.prisma.musicTrack.findFirst({
+      where: { id: trackId, scope: 'SYSTEM', status: 'DRAFT' },
+    })
+    if (!row) throw new MusicError('MUSIC_TRACK_NOT_FOUND', 404, 'Music track not found')
+    if (
+      body.byteLength !== Number(row.sizeBytes) ||
+      body.byteLength > MAX_AUDIO_BYTES ||
+      row.mimeType !== mimeType
+    )
+      throw new MusicError(
+        'MUSIC_INVALID_OBJECT',
+        400,
+        'Uploaded object does not match the requested music track',
+      )
+    await this.storage.put(row.storageKey, body, mimeType)
+    return { accepted: true, trackId }
+  }
+
   private async createIntent(userId: string, scope: MusicTrackScope, input: CreateInput) {
     this.validateInput(input)
     const id = randomUUID()

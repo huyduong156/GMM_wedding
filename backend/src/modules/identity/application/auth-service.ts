@@ -17,10 +17,43 @@ import {
 } from '@/platform/auth/session-policy'
 import type { TokenProtector } from '@/platform/auth/token-protector'
 import { rateLimitKey } from '@/platform/auth/rate-limiter'
+import { log } from '@/shared/observability/logger'
 
 const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1_000
 const PASSWORD_RESET_TTL_MS = 30 * 60 * 1_000
 const SESSION_TOUCH_INTERVAL_MS = 5 * 60 * 1_000
+
+type EmailDeliveryOperation =
+  | 'registration-verification'
+  | 'duplicate-registration-verification'
+  | 'verification-resend'
+  | 'password-reset'
+
+function smtpFailureDetails(error: unknown) {
+  const candidate =
+    typeof error === 'object' && error !== null
+      ? (error as Record<string, unknown>)
+      : undefined
+  const value = (key: string) => {
+    const field = candidate?.[key]
+    return typeof field === 'string' || typeof field === 'number' ? field : undefined
+  }
+  return {
+    errorName: error instanceof Error ? error.name : typeof error,
+    errorCode: value('code'),
+    smtpCommand: value('command'),
+    smtpResponseCode: value('responseCode'),
+    syscall: value('syscall'),
+  }
+}
+
+function smtpFailureSummary(details: ReturnType<typeof smtpFailureDetails>) {
+  return Object.entries(details)
+    .filter((entry): entry is [string, string | number] => entry[1] !== undefined)
+    .map(([key, value]) => `${key}=${String(value).slice(0, 120)}`)
+    .join(' ')
+    .slice(0, 1_000)
+}
 
 export type PublicUser = Omit<IdentityUser, 'passwordHash'>
 
@@ -49,6 +82,69 @@ export class AuthService {
     private readonly rateLimitSecret: string,
   ) {}
 
+  private async recordEmailDeliveryFailure(
+    operation: EmailDeliveryOperation,
+    outboxId: string,
+    error: unknown,
+  ) {
+    const details = smtpFailureDetails(error)
+    log('error', 'Identity email delivery failed', { operation, outboxId, ...details })
+    try {
+      await this.repository.markOutboxAttemptFailed(outboxId, smtpFailureSummary(details))
+    } catch (metadataError) {
+      log('error', 'Failed to record identity email delivery attempt', {
+        operation,
+        outboxId,
+        metadataErrorName: metadataError instanceof Error ? metadataError.name : typeof metadataError,
+      })
+    }
+  }
+
+  private async deliverVerificationEmail(input: {
+    email: string
+    token: string
+    expiresAt: Date
+    outboxId: string
+    operation: EmailDeliveryOperation
+  }) {
+    try {
+      await this.emailSender.sendVerificationEmail({
+        email: input.email,
+        token: input.token,
+        expiresAt: input.expiresAt,
+      })
+      await this.repository.markOutboxCompleted(input.outboxId, new Date())
+    } catch (error) {
+      await this.recordEmailDeliveryFailure(input.operation, input.outboxId, error)
+    }
+  }
+
+  private async reissuePendingVerification(
+    user: IdentityUser,
+    email: string,
+    operation: 'duplicate-registration-verification' | 'verification-resend',
+  ) {
+    if (!user.passwordHash || user.status !== 'PENDING_VERIFICATION' || user.emailVerifiedAt) return
+
+    const token = createOpaqueToken()
+    const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS)
+    const result = await this.repository.createVerificationResend({
+      userId: user.id,
+      email,
+      tokenHash: hashOpaqueToken(token),
+      tokenExpiresAt: expiresAt,
+      encryptedToken: this.tokenProtector.encrypt(token),
+    })
+    if (!result.created || !result.outboxId) return
+    await this.deliverVerificationEmail({
+      email,
+      token,
+      expiresAt,
+      outboxId: result.outboxId,
+      operation,
+    })
+  }
+
   private async limit(scope: string, value: string, max: number, windowSeconds: number) {
     const result = await this.rateLimiter.consume(
       rateLimitKey(this.rateLimitSecret, scope, value || 'unknown'),
@@ -69,7 +165,11 @@ export class AuthService {
       this.limit('register-ip', ip, 5, 60 * 60),
       this.limit('register-email', email, 3, 60 * 60),
     ])
-    if (await this.repository.findUserByEmail(email)) return
+    const existingUser = await this.repository.findUserByEmail(email)
+    if (existingUser) {
+      await this.reissuePendingVerification(existingUser, email, 'duplicate-registration-verification')
+      return
+    }
 
     const passwordHash = await this.passwordHasher.hash(input.password)
     const token = createOpaqueToken()
@@ -104,12 +204,13 @@ export class AuthService {
     }
     if (!result.created || !result.outboxId) return
 
-    try {
-      await this.emailSender.sendVerificationEmail({ email, token, expiresAt })
-      await this.repository.markOutboxCompleted(result.outboxId, new Date())
-    } catch {
-      // The durable outbox event remains pending for a retry worker.
-    }
+    await this.deliverVerificationEmail({
+      email,
+      token,
+      expiresAt,
+      outboxId: result.outboxId,
+      operation: 'registration-verification',
+    })
   }
 
   async verifyEmail(token: string, ip: string) {
@@ -132,25 +233,8 @@ export class AuthService {
       this.limit('resend-verification-email', email, 3, 60 * 60),
     ])
     const user = await this.repository.findUserByEmail(email)
-    if (!user?.passwordHash || user.status !== 'PENDING_VERIFICATION' || user.emailVerifiedAt)
-      return
-
-    const token = createOpaqueToken()
-    const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS)
-    const result = await this.repository.createVerificationResend({
-      userId: user.id,
-      email,
-      tokenHash: hashOpaqueToken(token),
-      tokenExpiresAt: expiresAt,
-      encryptedToken: this.tokenProtector.encrypt(token),
-    })
-    if (!result.created || !result.outboxId) return
-    try {
-      await this.emailSender.sendVerificationEmail({ email, token, expiresAt })
-      await this.repository.markOutboxCompleted(result.outboxId, new Date())
-    } catch {
-      // The durable outbox event remains pending for a retry worker.
-    }
+    if (!user) return
+    await this.reissuePendingVerification(user, email, 'verification-resend')
   }
 
   async forgotPassword(emailInput: string, ip: string) {
@@ -174,8 +258,8 @@ export class AuthService {
     try {
       await this.emailSender.sendPasswordResetEmail({ email, token, expiresAt })
       await this.repository.markOutboxCompleted(result.outboxId, new Date())
-    } catch {
-      // The durable outbox event remains pending for a retry worker.
+    } catch (error) {
+      await this.recordEmailDeliveryFailure('password-reset', result.outboxId, error)
     }
   }
 
