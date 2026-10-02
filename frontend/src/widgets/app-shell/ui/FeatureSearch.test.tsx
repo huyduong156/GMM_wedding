@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NavigationProvider } from '../../../app/providers/navigation/NavigationProvider'
 import {
   WeddingContext,
@@ -9,6 +9,8 @@ import { notifications } from '../../../shared/ui/notifications/notifications'
 import { studioRoutes } from '../../../shared/config/routes'
 import { normalizeFeatureQuery, searchFeatures } from '../model/feature-search'
 import { AppShell } from './AppShell'
+import { defaultGuideList, GUIDE_STORAGE_KEY } from '../../../features/user-guide/model/guide-storage'
+import { GuideProvider } from '../../../features/user-guide/ui/GuideProvider'
 
 vi.mock('../../../shared/ui/wedding-ambient/WeddingAmbient', () => ({ WeddingAmbient: () => null }))
 
@@ -37,6 +39,14 @@ afterAll(() => {
     else Reflect.deleteProperty(HTMLDialogElement.prototype, method)
   }
 })
+beforeEach(() => {
+  window.localStorage.setItem(
+    GUIDE_STORAGE_KEY,
+    JSON.stringify(
+      Object.fromEntries(Object.keys(defaultGuideList).map((key) => [key, true])),
+    ),
+  )
+})
 
 function renderShell(role: 'OWNER' | 'EDITOR' | 'VIEWER' = 'OWNER') {
   window.history.replaceState(null, '', studioRoutes.home)
@@ -56,9 +66,11 @@ function renderShell(role: 'OWNER' | 'EDITOR' | 'VIEWER' = 'OWNER') {
   return render(
     <NavigationProvider>
       <WeddingContext.Provider value={context}>
-        <AppShell>
-          <h1>Nội dung trang</h1>
-        </AppShell>
+        <GuideProvider>
+          <AppShell>
+            <h1>Nội dung trang</h1>
+          </AppShell>
+        </GuideProvider>
       </WeddingContext.Provider>
     </NavigationProvider>,
   )
