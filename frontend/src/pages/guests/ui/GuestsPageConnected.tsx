@@ -60,8 +60,21 @@ const initials = (name: string) =>
     .toUpperCase() || '?'
 const date = (value: string) =>
   new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit' }).format(new Date(value))
-const catName = (categories: GuestCategory[], id: string | null) =>
-  categories.find((item) => item.id === id)?.name ?? 'Chưa phân loại'
+const categoryPath = (categories: GuestCategory[], category: GuestCategory) => {
+  const names = [category.name]
+  let parentId = category.parentId
+  while (parentId) {
+    const parent = categories.find((item) => item.id === parentId)
+    if (!parent) break
+    names.unshift(parent.name)
+    parentId = parent.parentId
+  }
+  return names.join(' / ')
+}
+const catName = (categories: GuestCategory[], id: string | null) => {
+  const category = categories.find((item) => item.id === id)
+  return category ? categoryPath(categories, category) : 'Chưa phân loại'
+}
 
 function GuestShareDialog({
   weddingId,
@@ -324,8 +337,8 @@ function GuestDialog({
             />
           </label>
         </div>
-        <label>
-          Danh mục
+        <label className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}>
+          <span>Danh mục {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
           <NativeSelectField
             value={form.categoryId}
             onChange={(event) => change('categoryId', event.target.value)}
@@ -333,11 +346,11 @@ function GuestDialog({
             <option value="">Chưa phân loại</option>
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
-                {'— '.repeat(item.depth - 1)}
-                {item.name}
+                {categoryPath(categories, item)}
               </option>
             ))}
           </NativeSelectField>
+          {form.categoryId ? <small>Danh mục này sẽ được giữ lại sau khi thêm khách.</small> : null}
         </label>
         <label>
           Ghi chú
@@ -488,12 +501,9 @@ function GuestsPageConnectedContent({
         setGuests((items) => [result.guest, ...items])
       }
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
-      const keepCreateDialogOpen =
-        !editing &&
-        typeof window !== 'undefined' &&
-        window.matchMedia?.('(max-width: 767px)').matches
+      const keepCreateDialogOpen = !editing
       if (keepCreateDialogOpen) {
-        setForm({ ...blank })
+        setForm({ ...blank, categoryId: form.categoryId })
         setFeedback('')
       } else {
         close()
@@ -617,7 +627,7 @@ function GuestsPageConnectedContent({
             <Users size={17} /> Tổng khách mời
           </span>
           <strong>{guests.length}</strong>
-          <small>Đang hiển thị theo bộ lọc</small>
+          <small>{query || categoryId ? 'Theo bộ lọc hiện tại' : 'Tổng danh sách'}</small>
         </div>
         <div>
           <span>
@@ -654,8 +664,7 @@ function GuestsPageConnectedContent({
               <option value="">Tất cả danh mục</option>
               {categories.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {'— '.repeat(item.depth - 1)}
-                  {item.name}
+                  {categoryPath(categories, item)}
                 </option>
               ))}
             </NativeSelectField>

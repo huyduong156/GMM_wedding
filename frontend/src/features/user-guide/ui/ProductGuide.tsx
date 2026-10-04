@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { EVENTS, Joyride, STATUS, type EventData, type Step } from 'react-joyride'
 import { guideFor, guideKeyForPath } from '../model/guide-content'
 import { useGuide } from './GuideProvider'
@@ -13,14 +13,30 @@ export function ProductGuide({ pathname }: { pathname: string }) {
   )
   const routeGuide = guideKeyForPath(pathname)
   const [welcomeOpen, setWelcomeOpen] = useState(false)
+  const [gateVersion, setGateVersion] = useState(0)
+  const editorGuideBlocked = useCallback(
+    () =>
+    typeof document !== 'undefined' &&
+    ((pathname === '/studio/invites' &&
+      Boolean(document.querySelector('[data-editor-template-missing]'))) ||
+      Boolean(document.querySelector('[data-mobile-editor-advice]'))),
+    [pathname],
+  )
+
+  useEffect(() => {
+    const update = () => setGateVersion((value) => value + 1)
+    window.addEventListener('gmm-editor-advice-closed', update)
+    return () => window.removeEventListener('gmm-editor-advice-closed', update)
+  }, [])
 
   useEffect(() => {
     setWelcomeOpen(routeGuide === 'started' && !guideList.started && !activeGuide)
   }, [activeGuide, guideList.started, routeGuide])
 
   useEffect(() => {
-    if (activeGuide && activeGuide !== routeGuide) closeGuide()
-  }, [activeGuide, closeGuide, routeGuide])
+    if ((activeGuide && activeGuide !== routeGuide) || (activeGuide && editorGuideBlocked()))
+      closeGuide()
+  }, [activeGuide, closeGuide, editorGuideBlocked, gateVersion, routeGuide])
 
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return
@@ -35,6 +51,7 @@ export function ProductGuide({ pathname }: { pathname: string }) {
   useEffect(() => {
     if (!routeGuide || activeGuide || welcomeOpen || guideList[routeGuide]) return
     const timer = window.setInterval(() => {
+      if (editorGuideBlocked()) return
       const targetReady = guideFor(routeGuide, isMobile, pathname).every((item) => {
         if (typeof item.target !== 'string') return true
         return Boolean(document.querySelector(item.target))
@@ -47,15 +64,25 @@ export function ProductGuide({ pathname }: { pathname: string }) {
     }, 200)
 
     return () => window.clearInterval(timer)
-  }, [activeGuide, guideList, isMobile, pathname, routeGuide, startGuide, welcomeOpen])
+  }, [
+    activeGuide,
+    editorGuideBlocked,
+    gateVersion,
+    guideList,
+    isMobile,
+    pathname,
+    routeGuide,
+    startGuide,
+    welcomeOpen,
+  ])
 
   const steps = useMemo<Step[]>(() => {
-    if (!activeGuide) return []
+    if (!activeGuide || editorGuideBlocked()) return []
     return guideFor(activeGuide, isMobile, pathname).filter((item) => {
       if (typeof item.target !== 'string') return true
       return typeof document !== 'undefined' && Boolean(document.querySelector(item.target))
     })
-  }, [activeGuide, isMobile, pathname])
+  }, [activeGuide, editorGuideBlocked, isMobile, pathname])
 
   if (welcomeOpen) {
     return (

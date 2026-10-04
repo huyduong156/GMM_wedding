@@ -10,11 +10,19 @@
 .guide-welcome-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10001;
+  z-index: 20000;
   display: grid;
   place-items: center;
   padding: 24px;
   background: rgba(29, 24, 20, 0.58);
+}
+
+.react-joyride__portal,
+.react-joyride__overlay,
+.react-joyride__spotlight,
+.react-joyride__tooltip,
+.react-joyride__floater {
+  z-index: 21000 !important;
 }
 
 .guide-welcome-modal {
@@ -51,6 +59,11 @@
   .guide-welcome-modal {
     padding: 26px 22px;
     border-radius: 20px;
+  }
+
+  .react-joyride__tooltip {
+    max-width: calc(100vw - 28px) !important;
+    box-sizing: border-box;
   }
 }
 
