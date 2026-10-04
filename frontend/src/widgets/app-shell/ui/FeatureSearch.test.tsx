@@ -141,7 +141,7 @@ describe('Feature search', () => {
     renderShell('EDITOR')
     fireEvent.click(screen.getByRole('button', { name: 'Tìm tính năng' }))
     expect(screen.getByRole('option', { name: /Thiệp của bạn/ })).toBeInTheDocument()
-    expect(screen.queryByRole('option', { name: /Sổ tiền mừng/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /Sổ tiền mừng/ })).toBeInTheDocument()
   })
 
   it('explains the unavailable notification feature without a fake unread badge', () => {
