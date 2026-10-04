@@ -42,7 +42,7 @@ Guest slug được sinh ổn định từ tên đã normalize, unique trong ph�
 authorize owner/editor policy
   -> acquire optimistic revision
   -> validate canonical content + media readiness
-  -> resolve immutable template version
+  -> resolve the selected template UI major and its current revision
   -> build deterministic public DTO
   -> remove private fields
   -> transaction: snapshot + version + publication pointer + outbox

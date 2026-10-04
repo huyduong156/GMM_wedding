@@ -1,4 +1,4 @@
-import { csrfHeaders } from './csrf'
+import { requestWithCsrfRetry } from './csrf'
 
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
@@ -32,16 +32,17 @@ class TemplateStyleApiError extends Error {
   }
 }
 async function request<T>(path: string, init?: RequestInit) {
-  const tokenHeaders = await csrfHeaders(init)
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      ...(init?.body ? { 'content-type': 'application/json' } : {}),
-      ...tokenHeaders,
-      ...init?.headers,
-    },
-  })
+  const response = await requestWithCsrfRetry(init, (tokenHeaders) =>
+    fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        ...(init?.body ? { 'content-type': 'application/json' } : {}),
+        ...tokenHeaders,
+        ...init?.headers,
+      },
+    }),
+  )
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as {
       error?: { code?: string; message?: string }

@@ -7,14 +7,17 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "predev": "npm run templates:bundle",
     "dev": "vite --host 0.0.0.0",
+    "prebuild": "npm run templates:bundle",
     "build": "tsc -b && vite build",
     "lint": "eslint . --max-warnings 0",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false",
     "format": "prettier --write src",
-    "format:check": "prettier --check src"
+    "format:check": "prettier --check src",
+    "templates:bundle": "node scripts/generate-template-release-bundle.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.7",

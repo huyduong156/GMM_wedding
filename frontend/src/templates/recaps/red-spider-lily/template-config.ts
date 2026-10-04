@@ -108,7 +108,7 @@ export const redSpiderLilyRecapTemplateConfig = {
   templateKey: 'red-spider-lily-recap',
   displayName: 'Dấu Son Bỉ Ngạn',
   productType: 'WEDDING_RECAP',
-  templateVersion: '0.1.0',
+  templateVersion: '1.0.0',
   templateConfigVersion: 1,
   contentSchemaVersion: 1,
   rendererApiVersion: 1,

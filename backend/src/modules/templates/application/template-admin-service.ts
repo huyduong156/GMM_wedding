@@ -19,7 +19,108 @@ export function stableJson(value: unknown): string {
 }
 
 export function templateConfigHash(config: unknown) {
+  if (config && typeof config === 'object' && !Array.isArray(config)) {
+    const { sourceContentHash: _sourceContentHash, ...persistedConfig } = config as Record<
+      string,
+      unknown
+    >
+    void _sourceContentHash
+    return createHash('sha256').update(stableJson(persistedConfig)).digest('hex')
+  }
   return createHash('sha256').update(stableJson(config)).digest('hex')
+}
+
+function sourceContentHash(config: unknown) {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) return null
+  const value = (config as Record<string, unknown>).sourceContentHash
+  return typeof value === 'string' ? value : null
+}
+
+function comparableLegacyConfig(config: unknown) {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) return config
+  const {
+    sourceHash: _sourceHash,
+    sourceContentHash: _sourceContentHash,
+    ...comparable
+  } = config as Record<string, unknown>
+  void _sourceHash
+  void _sourceContentHash
+  return comparable
+}
+
+export function templateContentChanged(
+  existingConfig: unknown,
+  existingConfigHash: string,
+  incomingConfig: unknown,
+) {
+  const incomingConfigHash = templateConfigHash(incomingConfig)
+  if (existingConfigHash === incomingConfigHash) return false
+
+  const existingContentHash = sourceContentHash(existingConfig)
+  const incomingContentHash = sourceContentHash(incomingConfig)
+  if (existingContentHash && incomingContentHash)
+    return existingContentHash !== incomingContentHash
+
+  // Scanner-era rows predate sourceContentHash. Compare their persisted
+  // contract fields during the one-way migration so a status-only sourceHash
+  // change does not look like an immutable template change.
+  return (
+    stableJson(comparableLegacyConfig(existingConfig)) !==
+    stableJson(comparableLegacyConfig(incomingConfig))
+  )
+}
+
+type ParsedTemplateVersion = {
+  major: number
+  minor: number
+  patch: number
+  prerelease: string[]
+}
+
+function parseTemplateVersion(version: string): ParsedTemplateVersion {
+  const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(version)
+  if (!match)
+    throw new TemplateAdminError(
+      'TEMPLATE_VERSION_INVALID',
+      409,
+      `Stored template version is invalid: ${version}`,
+    )
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+    prerelease: match[4]?.split('.') ?? [],
+  }
+}
+
+export function templateVersionMajor(version: string) {
+  return parseTemplateVersion(version).major
+}
+
+export function compareTemplateVersions(left: string, right: string) {
+  const a = parseTemplateVersion(left)
+  const b = parseTemplateVersion(right)
+  for (const key of ['major', 'minor', 'patch'] as const) {
+    if (a[key] !== b[key]) return a[key] > b[key] ? 1 : -1
+  }
+  if (!a.prerelease.length && !b.prerelease.length) return 0
+  if (!a.prerelease.length) return 1
+  if (!b.prerelease.length) return -1
+  const length = Math.max(a.prerelease.length, b.prerelease.length)
+  for (let index = 0; index < length; index += 1) {
+    const leftIdentifier = a.prerelease[index]
+    const rightIdentifier = b.prerelease[index]
+    if (leftIdentifier === undefined) return -1
+    if (rightIdentifier === undefined) return 1
+    if (leftIdentifier === rightIdentifier) continue
+    const leftNumeric = /^\d+$/.test(leftIdentifier)
+    const rightNumeric = /^\d+$/.test(rightIdentifier)
+    if (leftNumeric && rightNumeric)
+      return Number(leftIdentifier) > Number(rightIdentifier) ? 1 : -1
+    if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1
+    return leftIdentifier.localeCompare(rightIdentifier) > 0 ? 1 : -1
+  }
+  return 0
 }
 
 function reviewStatus(version: { releasedAt: Date | null; deprecatedAt: Date | null }) {
@@ -58,7 +159,10 @@ export function templateCompatibility(version: {
 }
 
 export class TemplateAdminService {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(
+    private readonly db: PrismaClient,
+    private readonly options: { allowSameVersionMutation?: boolean } = {},
+  ) {}
 
   async list(query: AdminTemplateListQuery) {
     const rows = await this.db.template.findMany({
@@ -79,7 +183,9 @@ export class TemplateAdminService {
     })
     const templateIds = rows.map((template) => template.id)
     const styleRows = templateIds.length
-      ? await this.db.$queryRaw<Array<{ templateId: string; id: string; key: string; name: string }>>`
+      ? await this.db.$queryRaw<
+          Array<{ templateId: string; id: string; key: string; name: string }>
+        >`
           SELECT a."templateId", s.id, s.key, s.name
           FROM "TemplateStyleAssignment" a
           JOIN "TemplateStyle" s ON s.id = a."styleId"
@@ -137,14 +243,21 @@ export class TemplateAdminService {
       }))
       .filter(
         (template) =>
-          template.versions.length > 0 && (!query.reviewStatus || template.versions.length > 0) && (!query.styleKey || template.styles.some((style) => style.key === query.styleKey)),
+          template.versions.length > 0 &&
+          (!query.reviewStatus || template.versions.length > 0) &&
+          (!query.styleKey || template.styles.some((style) => style.key === query.styleKey)),
       )
     const pendingReviewCount = rows.reduce(
       (count, template) =>
         count +
         template.versions.filter(
           (version) =>
-            version.sourceStatus !== 'DEVELOPMENT' && reviewStatus(version) === 'PENDING_REVIEW' && (!query.styleKey || (stylesByTemplate.get(template.id) ?? []).some((style) => style.key === query.styleKey)),
+            version.sourceStatus !== 'DEVELOPMENT' &&
+            reviewStatus(version) === 'PENDING_REVIEW' &&
+            (!query.styleKey ||
+              (stylesByTemplate.get(template.id) ?? []).some(
+                (style) => style.key === query.styleKey,
+              )),
         ).length,
       0,
     )
@@ -170,130 +283,252 @@ export class TemplateAdminService {
   }
 
   async sync(actor: PlatformAdminActor, bundle: TemplateReleaseBundle, requestId: string) {
-    return this.db.$transaction(async (tx) => {
-      let created = 0
-      let unchanged = 0
-      const results: Array<{
-        templateKey: string
-        version: string
-        result: 'CREATED' | 'UNCHANGED'
-      }> = []
-      for (const entry of bundle.templates) {
-        const hash = templateConfigHash(entry.config)
-        const template = await tx.template.upsert({
-          where: { key: entry.templateKey },
-          create: {
-            key: entry.templateKey,
-            name: entry.displayName,
-            productType: entry.productType,
-            description: entry.description ?? null,
-          },
-          update: { name: entry.displayName, description: entry.description ?? null },
-        })
-        if (template.productType !== entry.productType)
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await this.syncTransaction(actor, bundle, requestId)
+      } catch (error) {
+        const code =
+          error && typeof error === 'object' && 'code' in error
+            ? String((error as { code?: unknown }).code)
+            : null
+        const concurrencyConflict = code === 'P2002' || code === 'P2034'
+        const transactionTimeout = code === 'P2028'
+        if (concurrencyConflict && attempt < 2) continue
+        if (transactionTimeout && attempt < 1) continue
+        if (concurrencyConflict)
           throw new TemplateAdminError(
-            'TEMPLATE_PRODUCT_TYPE_CONFLICT',
+            'TEMPLATE_SYNC_CONFLICT',
             409,
-            `Product type cannot change for ${entry.templateKey}`,
+            'Template catalog changed during sync; retry with the current release bundle',
           )
-        const existing = await tx.templateVersion.findUnique({
-          where: {
-            templateId_version: { templateId: template.id, version: entry.templateVersion },
-          },
-        })
-        if (entry.sourceStatus === 'DEVELOPMENT') {
-          if (existing?.releasedAt)
+        if (transactionTimeout)
+          throw new TemplateAdminError(
+            'TEMPLATE_SYNC_DATABASE_TIMEOUT',
+            503,
+            'Template sync timed out while writing the database; retry the operation',
+          )
+        throw error
+      }
+    }
+    throw new TemplateAdminError('TEMPLATE_SYNC_CONFLICT', 409, 'Template sync conflict')
+  }
+
+  private syncTransaction(
+    actor: PlatformAdminActor,
+    bundle: TemplateReleaseBundle,
+    requestId: string,
+  ) {
+    return this.db.$transaction(
+      async (tx) => {
+        let created = 0
+        let updated = 0
+        let unchanged = 0
+        const results: Array<{
+          templateKey: string
+          version: string
+          result: 'CREATED' | 'UPDATED' | 'UNCHANGED'
+        }> = []
+        for (const entry of bundle.templates) {
+          const hash = templateConfigHash(entry.config)
+          const incomingMajor = templateVersionMajor(entry.templateVersion)
+          const template = await tx.template.upsert({
+            where: { key: entry.templateKey },
+            create: {
+              key: entry.templateKey,
+              name: entry.displayName,
+              productType: entry.productType,
+              description: entry.description ?? null,
+            },
+            update: { name: entry.displayName, description: entry.description ?? null },
+          })
+          if (template.productType !== entry.productType)
             throw new TemplateAdminError(
-              'TEMPLATE_VERSION_IMMUTABLE',
+              'TEMPLATE_PRODUCT_TYPE_CONFLICT',
               409,
-              'Released template cannot move back to development',
+              `Product type cannot change for ${entry.templateKey}`,
             )
-          if (existing && existing.sourceStatus !== 'DEVELOPMENT')
-            await tx.templateVersion.update({
-              where: { id: existing.id },
-              data: { sourceStatus: 'DEVELOPMENT' },
-            })
-          unchanged += existing ? 1 : 0
-          if (existing)
-            results.push({
-              templateKey: entry.templateKey,
+          const majorVersions = (
+            await tx.templateVersion.findMany({ where: { templateId: template.id } })
+          ).filter((version) => templateVersionMajor(version.version) === incomingMajor)
+          if (majorVersions.length > 1)
+            throw new TemplateAdminError(
+              'TEMPLATE_MAJOR_VERSION_CONFLICT',
+              409,
+              `Template ${entry.templateKey} has multiple stored rows for major version ${incomingMajor}; reset or consolidate the test catalog`,
+            )
+          const existing = majorVersions[0]
+          if (existing) {
+            const versionComparison = compareTemplateVersions(
+              entry.templateVersion,
+              existing.version,
+            )
+            if (versionComparison < 0)
+              throw new TemplateAdminError(
+                'TEMPLATE_VERSION_DOWNGRADE',
+                409,
+                `Template ${entry.templateKey} major ${incomingMajor} cannot move from ${existing.version} back to ${entry.templateVersion}`,
+              )
+            const contentChanged = templateContentChanged(
+              existing.config,
+              existing.configHash,
+              entry.config,
+            )
+            const contractChanged =
+              existing.templateConfigVersion !== entry.templateConfigVersion ||
+              existing.contentSchemaVersion !== entry.contentSchemaVersion ||
+              existing.rendererApiVersion !== entry.rendererApiVersion
+            const definitionChanged = contentChanged || contractChanged
+            const localSameVersionOverride =
+              Boolean(this.options.allowSameVersionMutation) &&
+              versionComparison === 0 &&
+              definitionChanged
+            if (
+              existing.releasedAt &&
+              versionComparison > 0 &&
+              entry.sourceStatus !== 'READY' &&
+              entry.sourceStatus !== 'DEPRECATED'
+            )
+              throw new TemplateAdminError(
+                'TEMPLATE_SOURCE_NOT_READY',
+                409,
+                `Template ${entry.templateKey}@${entry.templateVersion} must be READY before updating its released major`,
+              )
+            const incomingCompatibility = templateCompatibility(entry)
+            if (
+              existing.releasedAt &&
+              versionComparison > 0 &&
+              !incomingCompatibility.compatible
+            )
+              throw new TemplateAdminError(
+                'TEMPLATE_VERSION_INCOMPATIBLE',
+                409,
+                incomingCompatibility.issues.join('; '),
+              )
+            const migrateReleasedFingerprint =
+              Boolean(existing.releasedAt || existing.deprecatedAt) &&
+              !sourceContentHash(existing.config) &&
+              Boolean(sourceContentHash(entry.config)) &&
+              !contentChanged
+            if (versionComparison === 0 && definitionChanged && !localSameVersionOverride)
+              throw new TemplateAdminError(
+                'TEMPLATE_VERSION_HASH_CONFLICT',
+                409,
+                `Template ${entry.templateKey}@${entry.templateVersion} changed without a version bump`,
+              )
+            const lifecycleChanged =
+              existing.sourceStatus !== entry.sourceStatus ||
+              Boolean(existing.deprecatedAt) !== (entry.sourceStatus === 'DEPRECATED')
+            const metadataChanged = existing.configHash !== hash
+            const shouldUpdate =
+              versionComparison > 0 ||
+              definitionChanged ||
+              lifecycleChanged ||
+              metadataChanged ||
+              migrateReleasedFingerprint
+            if (shouldUpdate) {
+              await tx.templateVersion.update({
+                where: { id: existing.id },
+                data: {
+                  version: entry.templateVersion,
+                  configHash: hash,
+                  templateConfigVersion: entry.templateConfigVersion,
+                  contentSchemaVersion: entry.contentSchemaVersion,
+                  rendererApiVersion: entry.rendererApiVersion,
+                  codeRevision: bundle.sourceRevision,
+                  sourceStatus: migrateReleasedFingerprint
+                    ? existing.sourceStatus
+                    : entry.sourceStatus,
+                  ...(migrateReleasedFingerprint
+                    ? {}
+                    : entry.sourceStatus === 'DEPRECATED'
+                      ? { deprecatedAt: existing.deprecatedAt ?? new Date() }
+                      : { deprecatedAt: null }),
+                  config: entry.config as Prisma.InputJsonValue,
+                },
+              })
+              await tx.auditLog.create({
+                data: {
+                  actorUserId: actor.userId,
+                  action: localSameVersionOverride
+                    ? 'template.version_synced_local_override'
+                    : 'template.version_updated',
+                  resourceType: 'TemplateVersion',
+                  resourceId: existing.id,
+                  requestId,
+                  metadata: {
+                    templateKey: entry.templateKey,
+                    previousVersion: existing.version,
+                    version: entry.templateVersion,
+                    sourceRevision: bundle.sourceRevision,
+                  },
+                },
+              })
+            }
+            if (entry.sourceStatus === 'DEPRECATED')
+              await tx.template.update({
+                where: { id: template.id },
+                data: { status: 'DEPRECATED' },
+              })
+            if (shouldUpdate) {
+              updated += 1
+              results.push({
+                templateKey: entry.templateKey,
+                version: entry.templateVersion,
+                result: 'UPDATED',
+              })
+            } else {
+              unchanged += 1
+              results.push({
+                templateKey: entry.templateKey,
+                version: entry.templateVersion,
+                result: 'UNCHANGED',
+              })
+            }
+            continue
+          }
+          const createdVersion = await tx.templateVersion.create({
+            data: {
+              templateId: template.id,
               version: entry.templateVersion,
-              result: 'UNCHANGED',
-            })
-          continue
-        }
-        if (existing) {
-          if (existing.releasedAt && existing.configHash !== hash) {
-            throw new TemplateAdminError(
-              'TEMPLATE_VERSION_IMMUTABLE',
-              409,
-              `Released template ${entry.templateKey}@${entry.templateVersion} cannot be changed; create a new version`,
-            )
-          }
-          if (!existing.releasedAt) {
-            await tx.templateVersion.update({
-              where: { id: existing.id },
-              data: {
-                configHash: hash,
-                templateConfigVersion: entry.templateConfigVersion,
-                contentSchemaVersion: entry.contentSchemaVersion,
-                rendererApiVersion: entry.rendererApiVersion,
-                codeRevision: bundle.sourceRevision,
-                sourceStatus: entry.sourceStatus,
-                ...(entry.sourceStatus === 'DEPRECATED'
-                  ? { deprecatedAt: existing.deprecatedAt ?? new Date() }
-                  : { deprecatedAt: null }),
-                config: entry.config as Prisma.InputJsonValue,
+              configHash: hash,
+              templateConfigVersion: entry.templateConfigVersion,
+              contentSchemaVersion: entry.contentSchemaVersion,
+              rendererApiVersion: entry.rendererApiVersion,
+              codeRevision: bundle.sourceRevision,
+              sourceStatus: entry.sourceStatus,
+              ...(entry.sourceStatus === 'DEPRECATED' ? { deprecatedAt: new Date() } : {}),
+              config: entry.config as Prisma.InputJsonValue,
+            },
+          })
+          await tx.auditLog.create({
+            data: {
+              actorUserId: actor.userId,
+              action: 'template.version_synced',
+              resourceType: 'TemplateVersion',
+              resourceId: createdVersion.id,
+              requestId,
+              metadata: {
+                templateKey: entry.templateKey,
+                version: entry.templateVersion,
+                sourceRevision: bundle.sourceRevision,
               },
-            })
-          }
-          if (entry.sourceStatus === 'DEPRECATED')
-            await tx.template.update({ where: { id: template.id }, data: { status: 'DEPRECATED' } })
-          unchanged += 1
+            },
+          })
+          created += 1
           results.push({
             templateKey: entry.templateKey,
             version: entry.templateVersion,
-            result: 'UNCHANGED',
+            result: 'CREATED',
           })
-          continue
         }
-        const createdVersion = await tx.templateVersion.create({
-          data: {
-            templateId: template.id,
-            version: entry.templateVersion,
-            configHash: hash,
-            templateConfigVersion: entry.templateConfigVersion,
-            contentSchemaVersion: entry.contentSchemaVersion,
-            rendererApiVersion: entry.rendererApiVersion,
-            codeRevision: bundle.sourceRevision,
-            sourceStatus: entry.sourceStatus,
-            ...(entry.sourceStatus === 'DEPRECATED' ? { deprecatedAt: new Date() } : {}),
-            config: entry.config as Prisma.InputJsonValue,
-          },
-        })
-        await tx.auditLog.create({
-          data: {
-            actorUserId: actor.userId,
-            action: 'template.version_synced',
-            resourceType: 'TemplateVersion',
-            resourceId: createdVersion.id,
-            requestId,
-            metadata: {
-              templateKey: entry.templateKey,
-              version: entry.templateVersion,
-              sourceRevision: bundle.sourceRevision,
-            },
-          },
-        })
-        created += 1
-        results.push({
-          templateKey: entry.templateKey,
-          version: entry.templateVersion,
-          result: 'CREATED',
-        })
-      }
-      return { created, unchanged, results }
-    })
+        return { created, updated, unchanged, results }
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 10_000,
+        timeout: 30_000,
+      },
+    )
   }
 
   release(actor: PlatformAdminActor, templateKey: string, version: string, requestId: string) {

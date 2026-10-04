@@ -1,13 +1,14 @@
 import { defineConfig } from 'vitest/config'
 import { loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import { liveTemplateReleaseBundle } from './scripts/live-template-release-bundle-plugin.mjs'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
-  const apiTarget = env.VITE_DEV_API_TARGET ?? 'http://localhost:3001'
+  const apiTarget = env.VITE_DEV_API_TARGET ?? 'http://localhost:3000'
 
   return {
-    plugins: [react()],
+    plugins: [react(), liveTemplateReleaseBundle()],
     server: {
       port: 80,
       allowedHosts: ['ourday.asia.local', 'ourday.asia'],

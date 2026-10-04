@@ -59,14 +59,14 @@ CSR có thể yếu hơn SSR về SEO/first-load; đo Core Web Vitals trước b
 ## Template engine
 
 - Template là code được review, không cho user upload script/HTML tùy ý.
-- `Template` giữ identity/catalog metadata; `TemplateVersion` bất biến chứa renderer, template config hash, section hỗ trợ và các contract version.
+- `Template` giữ family/catalog metadata; mỗi `TemplateVersion` đại diện một UI major và chứa revision SemVer hiện tại, config hash, section hỗ trợ cùng các contract version. Patch/minor tương thích cập nhật tại chỗ để user hiện hữu nhận bugfix; major mới tạo row/renderer mới.
 - Template config là contract dùng chung cho editor, backend validator, migration và renderer; `templateConfigVersion`, content schema version và renderer API version được quản lý độc lập với SemVer của template.
 - `WeddingContent` stores template-owned content independently per `(weddingId, surface)`. Each invitation, website and recap surface has its own template version, content JSON, theme/section config, publication status and revision; the template defines the field contract.
-- Wedding cũ giữ version cũ cho đến khi migration chủ động.
-- Sync template là idempotent, chỉ thêm version mới; cùng key/version nhưng khác hash phải thất bại. Version cũ được deprecate thay vì xóa khi còn tham chiếu.
-- Template source lifecycle: development bị bỏ qua khi admin sync; eview chỉ hiển thị để feedback; eady mới được release; sau release version immutable và thay đổi phải tạo version mới. Preview trước release là admin-only, public preview chỉ mở sau release.
+- Wedding đang dùng một UI major giữ nguyên `TemplateVersion.id` và tự nhận patch/minor tương thích; chuyển sang major UI khác là thao tác chọn/migration chủ động.
+- Sync template là idempotent: cùng key/major cập nhật revision hiện tại, major mới tạo row mới, downgrade hoặc đổi content trên đúng cùng SemVer phải thất bại. Major cũ được deprecate thay vì xóa khi còn tham chiếu.
+- Template source lifecycle: development bị loại khỏi release bundle; review chỉ hiển thị để feedback; ready mới được release. Preview trước release là admin-only, public preview chỉ mở sau release.
 
-Chi tiết quyết định và hệ quả deploy xem [ADR 0004](./adr/0004-code-template-contract-and-versioning.md).
+Chi tiết quyết định và hệ quả deploy xem [ADR 0004](./adr/0004-code-template-contract-and-versioning.md) và [ADR 0014](./adr/0014-template-major-ui-and-mutable-revision.md).
 
 ## Media
 

@@ -98,7 +98,7 @@ describe('AdminTemplatesApiPage', () => {
     vi.spyOn(adminTemplateApi, 'list').mockResolvedValue({ pendingReviewCount: 0, items: [] })
     const sync = vi
       .spyOn(adminTemplateApi, 'sync')
-      .mockResolvedValue({ created: 1, unchanged: 0, results: [] })
+      .mockResolvedValue({ created: 1, updated: 0, unchanged: 0, results: [] })
     render(
       <NavigationProvider>
         <AdminTemplatesApiPage kind="invitation" />

@@ -16,7 +16,7 @@ login. Configure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
 `GOOGLE_REDIRECT_URI` and `GOOGLE_SUCCESS_REDIRECT` in the backend. Google OAuth
 is not enabled for the platform-admin login surface.
 
-All requests use `credentials: include`. Before the first unsafe request, the client calls `GET /api/auth/csrf`; the backend returns a random token and sets a non-HttpOnly `gmm_csrf`/`__Host-gmm_csrf` cookie. Unsafe requests send JSON and `X-CSRF-Token` with the returned token. The backend compares the cookie and header, and also validates the browser `Origin`/Fetch Metadata. Backend `APP_ORIGIN` must exactly match the frontend origin.
+All requests use `credentials: include`. Before the first unsafe request, the client calls `GET /api/auth/csrf`; the backend returns a random token and sets a non-HttpOnly `gmm_csrf`/`__Host-gmm_csrf` cookie. Unsafe requests send JSON and `X-CSRF-Token` with the returned token. The backend compares the cookie and header, and also validates the browser `Origin`/Fetch Metadata. If an unsafe request is rejected with `REQUEST_ORIGIN_REJECTED`, the client invalidates its cached token, initializes CSRF again, and retries that mutation once. A persistent origin, Fetch Metadata, or content-type failure is returned after the retry. Backend `APP_ORIGIN` must exactly match the frontend origin.
 
 ## Public invitation URL
 
@@ -43,6 +43,6 @@ The owner-facing public URL is `/{weddingSlug}/invitation`.
 
 ## Configuration
 
-`VITE_API_BASE_URL` is compiled into the Vite bundle. Local Docker defaults to `http://localhost:3000/api` while the frontend is served at `http://localhost:8080`.
+`VITE_API_BASE_URL` is compiled into the Vite bundle. Local Docker defaults to `http://localhost:3000/api` while the frontend is served at `http://localhost:8080`. Vite development uses the same backend port through its `/api` proxy; `VITE_DEV_API_TARGET` may override that target.
 
 When running Vite directly at `http://localhost:5173`, start the backend with `APP_ORIGIN=http://localhost:5173`. Do not use wildcard credentialed CORS.

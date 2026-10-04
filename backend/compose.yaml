@@ -37,7 +37,6 @@ services:
       DATABASE_QUERY_LOGGING: ${DATABASE_QUERY_LOGGING:-true}
       DATABASE_QUERY_LOG_PARAMS: ${DATABASE_QUERY_LOG_PARAMS:-false}
       API_DOCS_ENABLED: true
-      TEMPLATE_SOURCE_ROOT: /workspace/frontend/src/templates
       MEDIA_STORAGE_DRIVER: ${MEDIA_STORAGE_DRIVER:-s3}
       MEDIA_FAKE_ROOT: ${MEDIA_FAKE_ROOT:-s3_upload_fake}
       S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
@@ -67,8 +66,6 @@ services:
       minio:
         condition: service_healthy
     restart: on-failure:5
-    volumes:
-      - ../frontend:/workspace/frontend:ro
     healthcheck:
       test:
         [
@@ -153,7 +150,9 @@ services:
         condition: service_healthy
     entrypoint: ['/bin/sh', '-c']
     command:
-      ['mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}" && mc mb --ignore-existing local/$${S3_BUCKET} && mc anonymous set download local/$${S3_BUCKET}']
+      [
+        'mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}" && mc mb --ignore-existing local/$${S3_BUCKET} && mc anonymous set download local/$${S3_BUCKET}',
+      ]
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
