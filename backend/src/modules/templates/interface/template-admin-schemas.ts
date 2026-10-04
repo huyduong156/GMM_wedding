@@ -10,7 +10,7 @@ const templateKeySchema = z
   .min(2)
   .max(80)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Must be a lowercase kebab-case key')
-const templateSourceStatusSchema = z.enum(['DEVELOPMENT', 'REVIEW', 'READY', 'DEPRECATED'])
+const templateSourceStatusSchema = z.enum(['REVIEW', 'READY', 'DEPRECATED'])
 
 export const templateReleaseBundleSchema = z
   .object({
@@ -38,12 +38,13 @@ export const templateReleaseBundleSchema = z
   .superRefine((bundle, context) => {
     const seen = new Set<string>()
     bundle.templates.forEach((template, index) => {
-      const identity = `${template.templateKey}@${template.templateVersion}`
+      const major = template.templateVersion.split('.')[0]
+      const identity = `${template.templateKey}@${major}`
       if (seen.has(identity))
         context.addIssue({
           code: 'custom',
           path: ['templates', index],
-          message: `Duplicate template version: ${identity}`,
+          message: `Duplicate template major version: ${identity}`,
         })
       seen.add(identity)
     })

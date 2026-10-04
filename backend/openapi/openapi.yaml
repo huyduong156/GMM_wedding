@@ -1886,7 +1886,7 @@ paths:
   /admin/templates/sync:
     post:
       operationId: syncTemplateReleaseBundle
-      summary: Sync a template release bundle as versions awaiting review
+      summary: Reconcile template majors and their current SemVer revisions
       security: [{ cookieAuth: [] }]
       parameters:
         [
@@ -1899,11 +1899,11 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/TemplateReleaseBundle' }
       responses:
-        '200': { description: Created and unchanged version counts }
+        '200': { description: Created, updated, and unchanged version counts }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
-        '409': { description: Immutable version conflict }
+        '409': { description: Version downgrade, same-version content, or catalog conflict }
   /admin/templates/{templateKey}/versions/{version}:
     get:
       operationId: getAdminTemplateVersion
@@ -2159,7 +2159,11 @@ paths:
       responses:
         '200':
           description: Personalized invitation
-          content: { application/json: { schema: { $ref: '#/components/schemas/PublicInvitationEnvelope' } } }
+          content:
+            {
+              application/json:
+                { schema: { $ref: '#/components/schemas/PublicInvitationEnvelope' } },
+            }
         '404': { $ref: '#/components/responses/NotFound' }
   /public/invitations/{weddingSlug}/{guestSlug}/wishes:
     post:
@@ -2438,6 +2442,7 @@ components:
                 displayName,
                 productType,
                 templateVersion,
+                sourceStatus,
                 templateConfigVersion,
                 contentSchemaVersion,
                 rendererApiVersion,
@@ -2448,6 +2453,7 @@ components:
               displayName: { type: string, maxLength: 160 }
               productType: { type: string, enum: [ONLINE_INVITATION, WEDDING_WEBSITE, RECAP] }
               templateVersion: { type: string, example: 1.0.0 }
+              sourceStatus: { type: string, enum: [REVIEW, READY, DEPRECATED] }
               templateConfigVersion: { type: integer, minimum: 1 }
               contentSchemaVersion: { type: integer, minimum: 1 }
               rendererApiVersion: { type: integer, minimum: 1 }

@@ -28,7 +28,7 @@ const astralVowConfiguredSections = astralVowSections.map((section) => {
 })
 
 export const astralVowTemplateConfig = {
-  templateKey: 'astral-vow', displayName: 'Astral Vow', templateVersion: '1.0.1', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'ready', productType: 'ONLINE_INVITATION', type: 'invitation',
+  templateKey: 'astral-vow', displayName: 'Astral Vow', templateVersion: '1.0.0', templateConfigVersion: '1.0', contentSchemaVersion: '1.0', rendererApiVersion: '1.0', status: 'ready', productType: 'ONLINE_INVITATION', type: 'invitation',
   previewPath: '/templates/invitations/astral-vow/preview',
   quickEdit: [{ contentKey: 'couple.brideName', label: 'Tên cô dâu' }, { contentKey: 'couple.groomName', label: 'Tên chú rể' }, { contentKey: 'event.weddingDate', label: 'Ngày cưới' }], palettes: [{ key: 'astral-vow', label: 'Tinh hà huyền bí', default: true }], defaultData: astralVowDefaultData,
   capabilities: { commonRsvp: true, guestbook: true, gallery: true, calendar: true, maps: true, gift: true, backgroundMusic: true, reducedMotion: false },

@@ -1,4 +1,4 @@
-import { csrfHeaders } from './csrf'
+import { requestWithCsrfRetry } from './csrf'
 
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
@@ -55,7 +55,7 @@ export type TemplateReleaseBundle = {
     displayName: string
     productType: AdminTemplate['productType']
     templateVersion: string
-    sourceStatus: AdminTemplateSourceStatus
+    sourceStatus: Exclude<AdminTemplateSourceStatus, 'DEVELOPMENT'>
     templateConfigVersion: number
     contentSchemaVersion: number
     rendererApiVersion: number
@@ -75,6 +75,7 @@ export class AdminTemplateApiError extends Error {
     public readonly status: number,
     public readonly code: string,
     message: string,
+    public readonly requestId?: string,
   ) {
     super(message)
     this.name = 'AdminTemplateApiError'
@@ -82,18 +83,19 @@ export class AdminTemplateApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const tokenHeaders = await csrfHeaders(init)
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      ...(init?.body ? { 'content-type': 'application/json' } : {}),
-      ...tokenHeaders,
-      ...init?.headers,
-    },
-  })
+  const response = await requestWithCsrfRetry(init, (tokenHeaders) =>
+    fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        ...(init?.body ? { 'content-type': 'application/json' } : {}),
+        ...tokenHeaders,
+        ...init?.headers,
+      },
+    }),
+  )
   if (!response.ok) {
-    let body: { error?: { code?: string; message?: string } } = {}
+    let body: { error?: { code?: string; message?: string; requestId?: string } } = {}
     try {
       body = (await response.json()) as typeof body
     } catch {
@@ -102,13 +104,34 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new AdminTemplateApiError(
       response.status,
       body.error?.code ?? 'ADMIN_TEMPLATE_REQUEST_FAILED',
-      body.error?.message ?? 'KhÃ´ng thá»ƒ káº¿t ná»‘i Ä‘áº¿n mÃ¡y chá»§.',
+      body.error?.message ?? 'Không thể kết nối đến máy chủ.',
+      body.error?.requestId ?? response.headers.get('x-request-id') ?? undefined,
     )
   }
   return response.status === 204 ? (undefined as T) : (response.json() as Promise<T>)
 }
 
 const segment = encodeURIComponent
+
+async function loadTemplateReleaseBundle() {
+  const response = await fetch('/template-release-bundle.json', { cache: 'no-store' })
+  if (!response.ok)
+    throw new AdminTemplateApiError(
+      response.status,
+      'TEMPLATE_RELEASE_BUNDLE_UNAVAILABLE',
+      'Không tải được gói phát hành template của bản frontend hiện tại.',
+    )
+  try {
+    return (await response.json()) as TemplateReleaseBundle
+  } catch {
+    throw new AdminTemplateApiError(
+      500,
+      'TEMPLATE_RELEASE_BUNDLE_INVALID',
+      'Gói phát hành template không phải JSON hợp lệ.',
+    )
+  }
+}
+
 export const adminTemplateApi = {
   async list(productType: AdminTemplate['productType'], styleKey?: string) {
     const result = await request<{ pendingReviewCount: number; items: LegacyAdminTemplate[] }>(
@@ -141,12 +164,18 @@ export const adminTemplateApi = {
       `/admin/templates/${segment(key)}/versions/${segment(version)}`,
     )
   },
-  sync(bundle?: TemplateReleaseBundle) {
+  async sync(bundle?: TemplateReleaseBundle) {
+    const releaseBundle = bundle ?? (await loadTemplateReleaseBundle())
     return request<{
       created: number
+      updated: number
       unchanged: number
-      results: Array<{ templateKey: string; version: string; result: 'CREATED' | 'UNCHANGED' }>
-    }>('/admin/templates/sync', { method: 'POST', body: JSON.stringify(bundle ?? {}) })
+      results: Array<{
+        templateKey: string
+        version: string
+        result: 'CREATED' | 'UPDATED' | 'UNCHANGED'
+      }>
+    }>('/admin/templates/sync', { method: 'POST', body: JSON.stringify(releaseBundle) })
   },
   release(key: string, version: string) {
     return request<{ version: AdminTemplateVersion }>(

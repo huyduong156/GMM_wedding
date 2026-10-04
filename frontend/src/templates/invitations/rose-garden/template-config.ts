@@ -31,7 +31,7 @@ const image = (
 export const roseGardenTemplateConfig = {
   templateKey: 'rose-garden',
   displayName: 'Rose Garden',
-  templateVersion: '0.1.1',
+  templateVersion: '1.0.0',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',

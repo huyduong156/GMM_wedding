@@ -15,7 +15,7 @@ export const modernLuxeDisplayStyles = {
 export const modernLuxeTemplateConfig = {
   templateKey: 'modern-luxe',
   displayName: 'Élan d’Amour',
-  templateVersion: '2.3.1',
+  templateVersion: '1.0.0',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',

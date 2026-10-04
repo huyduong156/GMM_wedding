@@ -1,4 +1,4 @@
-import { csrfHeaders } from './csrf'
+import { requestWithCsrfRetry } from './csrf'
 
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api')
@@ -36,16 +36,17 @@ export class AdminMusicApiError extends Error {
   }
 }
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const tokenHeaders = await csrfHeaders(init)
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      ...(init?.body ? { 'content-type': 'application/json' } : {}),
-      ...tokenHeaders,
-      ...init?.headers,
-    },
-  })
+  const response = await requestWithCsrfRetry(init, (tokenHeaders) =>
+    fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        ...(init?.body ? { 'content-type': 'application/json' } : {}),
+        ...tokenHeaders,
+        ...init?.headers,
+      },
+    }),
+  )
   if (!response.ok) {
     let body: { error?: { code?: string; message?: string } } = {}
     try {
@@ -101,18 +102,19 @@ export const adminMusicApi = {
     request<{ track: MusicTrack }>(trackPath(id), { method: 'PATCH', body: JSON.stringify(input) }),
   uploadBytes: async (intent: MusicUploadIntent, file: File) => {
     const backendUpload = intent.upload.uploadUrl === 'backend-upload'
-    const response = await fetch(
-      backendUpload ? `${apiBaseUrl}${trackPath(intent.track.id)}/upload` : intent.upload.uploadUrl,
-      {
-        method: intent.upload.method,
-        body: file,
-        credentials: backendUpload ? 'include' : 'omit',
-        headers: {
-          ...intent.upload.headers,
-          ...(backendUpload ? await csrfHeaders({ method: 'PUT' }) : {}),
+    const uploadInit: RequestInit = { method: intent.upload.method, body: file }
+    const sendUpload = (tokenHeaders: Record<string, string>) =>
+      fetch(
+        backendUpload ? `${apiBaseUrl}${trackPath(intent.track.id)}/upload` : intent.upload.uploadUrl,
+        {
+          ...uploadInit,
+          credentials: backendUpload ? 'include' : 'omit',
+          headers: { ...intent.upload.headers, ...tokenHeaders },
         },
-      },
-    )
+      )
+    const response = backendUpload
+      ? await requestWithCsrfRetry(uploadInit, sendUpload)
+      : await sendUpload({})
     if (!response.ok)
       throw new AdminMusicApiError(
         response.status,

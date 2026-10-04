@@ -70,4 +70,35 @@ describe('auth API mutation safety contract', () => {
       }),
     )
   })
+
+  it('refreshes a stale CSRF token and retries a rejected mutation once', async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrfToken: 'stale-csrf-token' }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: { code: 'REQUEST_ORIGIN_REJECTED', message: 'Request rejected' },
+          }),
+          { status: 403, headers: { 'content-type': 'application/json' } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrfToken: 'fresh-csrf-token' }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ user: { id: 'user-1' } }), { status: 200 }),
+      )
+
+    await authApi.login('owner@example.test', 'password')
+
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+    expect(fetchMock.mock.calls[3]?.[1]).toEqual(
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'x-csrf-token': 'fresh-csrf-token' }),
+      }),
+    )
+  })
 })

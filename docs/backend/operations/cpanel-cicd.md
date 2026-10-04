@@ -41,6 +41,17 @@ chạy thủ công từ tab **Actions** bằng `workflow_dispatch`.
 3. Kiểm tra các biến môi trường production và kết nối database.
 4. Migration database vẫn chạy riêng bằng quy trình migration đã review; workflow
    deploy không tự động sửa schema.
+5. Template sync không đọc source từ backend bundle. Workflow frontend phải build và deploy
+   `template-release-bundle.json`; sau deploy, kiểm tra file này trả `200` từ frontend domain.
+
+Với app root `/home/fruitsho/gmm-wedding-production-backend`, theo dõi riêng log mới trong lúc bấm Sync:
+
+```bash
+cd /home/fruitsho/gmm-wedding-production-backend
+tail -n 0 -F ./stderr.log
+```
+
+Khi mutation bị chặn, dòng `Safe mutation rejected` ghi `reasons` gồm `origin`, `fetch-site`, `csrf` hoặc `content-type`, cùng các cờ có/không có cookie và header. Log không ghi giá trị CSRF token.
 
 Nếu workflow trả SSH exit code `255`, xem phase bị lỗi:
 

@@ -7,8 +7,10 @@ vi.mock('@/platform/config/env', () => ({
     APP_ORIGINS: 'http://localhost:8080,http://localhost:5173',
   }),
 }))
+vi.mock('@/shared/observability/logger', () => ({ log: vi.fn() }))
 
 import { assertSafeMutation } from './auth-http'
+import { log } from '@/shared/observability/logger'
 
 const request = (headers: Record<string, string> = {}) =>
   new Request('http://localhost:3000/api/weddings', {
@@ -56,5 +58,22 @@ describe('assertSafeMutation', () => {
         { contentTypes: ['image/webp'] },
       ),
     ).not.toThrow()
+  })
+
+  it('logs safe rejection diagnostics without logging cookie or header values', () => {
+    expect(() =>
+      assertSafeMutation(request({ cookie: '', 'x-csrf-token': '', 'content-type': 'text/plain' })),
+    ).toThrow()
+
+    expect(log).toHaveBeenLastCalledWith(
+      'warn',
+      'Safe mutation rejected',
+      expect.objectContaining({
+        reasons: ['csrf', 'content-type'],
+        csrfCookiePresent: false,
+        csrfHeaderPresent: false,
+      }),
+    )
+    expect(JSON.stringify(vi.mocked(log).mock.lastCall)).not.toContain('test-csrf-token')
   })
 })
