@@ -203,6 +203,9 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
   const activeKey = content?.templateVersion?.key
   const activeVersionId = content?.templateVersion?.id
   const unavailableActiveTheme = useMemo<Theme | null>(() => {
+    // A retired active version is useful context only in the unfiltered
+    // library. It must not bypass a style filter that excludes it.
+    if (filter) return null
     const selected = content?.templateVersion
     if (!selected || themes.some((theme) => theme.versionId === selected.id)) return null
     const meta = localMeta[selected.key]
@@ -226,7 +229,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       previewPath: previewPaths[selected.key],
       unavailable: true,
     }
-  }, [content, kind, themes])
+  }, [content, filter, kind, themes])
   const visible = useMemo(() => {
     const value = deferredQuery.trim().toLocaleLowerCase('vi')
     const matches = themes.filter(

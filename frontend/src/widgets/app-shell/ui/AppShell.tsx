@@ -127,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const visibleNavGroups = navGroups.map((group) => ({
     ...group,
     items: group.items.filter((item) =>
-      (!weddingWorkspace || weddingWorkspace.activeRole === 'OWNER' || item.to !== studioRoutes.giftLedger) &&
+      (!weddingWorkspace || weddingWorkspace.activeRole !== 'VIEWER' || item.to !== studioRoutes.giftLedger) &&
       (!isViewer || ((!item.to || !viewerHiddenRoutes.has(item.to)) &&
         !(item.heading && item.icon === ImagesSquare))),
     ),
@@ -165,6 +165,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding, weddingWorkspace?.weddings.length])
 
   useEffect(() => setSidebarOpen(false), [pathname])
+  useEffect(() => {
+    const previous = document.body.style.overflow
+    if (isSidebarOpen && isMobileLayout) document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [isMobileLayout, isSidebarOpen])
   useEffect(() => {
     const onScroll = () => setTopbarScrolled(window.scrollY > 4)
     onScroll()
