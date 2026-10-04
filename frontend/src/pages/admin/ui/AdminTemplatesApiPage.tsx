@@ -246,7 +246,13 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
       await notifications.fire({
         icon: 'success',
         title: 'Đồng bộ thành công',
-        text: result.created + ' version mới, ' + result.unchanged + ' version không thay đổi.',
+        text:
+          result.created +
+          ' version mới, ' +
+          (result.updated ?? 0) +
+          ' version đã cập nhật, ' +
+          result.unchanged +
+          ' version không thay đổi.',
         timer: 1400,
         timerProgressBar: true,
         showConfirmButton: false,
@@ -254,9 +260,11 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
       })
     } catch (cause) {
       const message =
-        cause instanceof AdminTemplateApiError || cause instanceof Error
-          ? cause.message
-          : 'Không thể quét và đồng bộ template. Vui lòng thử lại.'
+        cause instanceof AdminTemplateApiError
+          ? `${cause.message}${cause.requestId ? ` (Request ID: ${cause.requestId})` : ''}`
+          : cause instanceof Error
+            ? cause.message
+            : 'Không thể quét và đồng bộ template. Vui lòng thử lại.'
       setDialogError(message)
       await notifications.fire({
         icon: 'error',
@@ -638,8 +646,8 @@ function ManageDialog({
       close={close}
       title={item.name}
       subtitle={`${item.key} · ${item.productType}`}
-       icon={<Code />}
-       loading={Boolean(working)}
+      icon={<Code />}
+      loading={Boolean(working)}
     >
       <div className="admin-template-version-list">
         {item.versions.map((version) => (

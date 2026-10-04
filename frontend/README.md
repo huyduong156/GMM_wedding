@@ -15,6 +15,10 @@ npm run dev
 
 Ở chế độ Vite development, API client mặc định gọi `/api`; Vite proxy chuyển request sang `http://localhost:3000` và dùng origin `http://localhost:8080` đã được backend local cho phép. Nhờ đó cả FE dev `5173` và FE Docker `8080` dùng được cùng backend mà không cần mở rộng CORS trên nhánh frontend. Nếu đặt `VITE_API_BASE_URL`, giá trị đó sẽ ghi đè proxy mặc định.
 
+Khi admin local tải `/template-release-bundle.json` để Sync, Vite tạo bundle trực tiếp từ source template hiện tại rồi mới trả response. Vì vậy không cần nhớ chạy lại generator sau mỗi lần sửa `template-config.ts`. Production không chạy generator theo request; `prebuild` sinh file tĩnh tương ứng chính xác với bản frontend được deploy.
+
+Quy ước template: major SemVer đại diện một UI/folder; tăng patch hoặc minor cập nhật revision của chính UI major đó và không tạo lựa chọn catalog mới. Chỉ renderer/folder mới mới tăng major. Release bundle loại source `development` và từ chối hai config cùng `templateKey + major`.
+
 ## Chạy bằng Docker
 
 Từ thư mục gốc của repository:

@@ -23,7 +23,7 @@
 
 ## Editor và template
 
-- Template version bất biến; đổi template không làm mất nội dung tương thích.
+- Mỗi template major là một UI ổn định; patch/minor tương thích cập nhật cho user hiện hữu, còn đổi UI major không làm mất nội dung tương thích.
 - Section: hero, couple, story, events, gallery, countdown, map, RSVP, wishes, gift, footer.
 - Template cung cấp bố cục, section, theme và thứ tự mặc định ngay khi được chọn; user không phải cấu hình section trước bước chọn template.
 - Sau khi chọn template, editor hiển thị trực tiếp preview để user bật/tắt và sắp xếp section, sửa nội dung, ảnh, màu/font/nền/hiệu ứng trong giới hạn template.

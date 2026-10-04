@@ -1,4 +1,4 @@
-import { csrfHeaders } from './csrf'
+import { requestWithCsrfRetry } from './csrf'
 
 const apiBaseUrl = (
   import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api')
@@ -364,16 +364,17 @@ export class WeddingApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const tokenHeaders = await csrfHeaders(init)
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      ...(init?.body ? { 'content-type': 'application/json' } : {}),
-      ...tokenHeaders,
-      ...init?.headers,
-    },
-  })
+  const response = await requestWithCsrfRetry(init, (tokenHeaders) =>
+    fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        ...(init?.body ? { 'content-type': 'application/json' } : {}),
+        ...tokenHeaders,
+        ...init?.headers,
+      },
+    }),
+  )
   if (!response.ok) {
     let body: ApiErrorEnvelope = {}
     try {
@@ -401,15 +402,16 @@ async function uploadMediaFile(weddingId: string, file: File): Promise<MediaAsse
   const uploadUrl = isBackendUpload
     ? `${apiBaseUrl}/weddings/${weddingId}/media/${intent.media.id}/upload`
     : intent.upload.uploadUrl
-  const uploaded = await fetch(uploadUrl, {
-    method: intent.upload.method,
-    body: file,
-    credentials: isBackendUpload ? 'include' : 'omit',
-    headers: {
-      ...intent.upload.headers,
-      ...(isBackendUpload ? await csrfHeaders({ method: 'POST' }) : {}),
-    },
-  })
+  const uploadInit: RequestInit = { method: intent.upload.method, body: file }
+  const sendUpload = (tokenHeaders: Record<string, string>) =>
+    fetch(uploadUrl, {
+      ...uploadInit,
+      credentials: isBackendUpload ? 'include' : 'omit',
+      headers: { ...intent.upload.headers, ...tokenHeaders },
+    })
+  const uploaded = isBackendUpload
+    ? await requestWithCsrfRetry(uploadInit, sendUpload)
+    : await sendUpload({})
   if (!uploaded.ok)
     throw new WeddingApiError(
       uploaded.status,

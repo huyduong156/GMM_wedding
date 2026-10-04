@@ -25,11 +25,22 @@ describe('templateReleaseBundleSchema', () => {
   it('accepts a release bundle', () => {
     expect(templateReleaseBundleSchema.parse(validBundle).templates).toHaveLength(1)
   })
-  it('rejects duplicate template versions', () => {
+  it('rejects multiple source entries for the same template major version', () => {
     expect(() =>
       templateReleaseBundleSchema.parse({
         ...validBundle,
-        templates: [validBundle.templates[0], validBundle.templates[0]],
+        templates: [
+          validBundle.templates[0],
+          { ...validBundle.templates[0], templateVersion: '1.0.1' },
+        ],
+      }),
+    ).toThrow()
+  })
+  it('rejects development sources because they must not enter a release bundle', () => {
+    expect(() =>
+      templateReleaseBundleSchema.parse({
+        ...validBundle,
+        templates: [{ ...validBundle.templates[0], sourceStatus: 'DEVELOPMENT' }],
       }),
     ).toThrow()
   })

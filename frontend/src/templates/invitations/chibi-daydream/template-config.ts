@@ -2,7 +2,7 @@ import type { TemplateConfig } from '../../template-config'
 export const chibiDaydreamTemplateConfig = {
   templateKey: 'chibi-daydream',
   displayName: 'Mây Hồng Có Đôi',
-  templateVersion: '1.1.1',
+  templateVersion: '1.0.0',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',

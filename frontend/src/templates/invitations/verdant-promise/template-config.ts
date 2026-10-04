@@ -2,7 +2,7 @@ import type { TemplateConfig } from '../../template-config'
 export const verdantPromiseTemplateConfig = {
   templateKey: 'verdant-promise',
   displayName: 'Verdant Promise',
-  templateVersion: '1.3.2',
+  templateVersion: '1.0.0',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',

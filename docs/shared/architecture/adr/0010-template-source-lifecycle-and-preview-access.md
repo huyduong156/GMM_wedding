@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-08-16
+- Amended by: [ADR 0014](./0014-template-major-ui-and-mutable-revision.md) for mutable patch/minor revisions within one UI major.
 
 ## Context
 
@@ -9,7 +10,7 @@ Template source cần có giai đoạn development/review trước khi admin rel
 
 ## Decision
 
-Platform admin chủ động gọi template sync. Scanner bỏ qua source `development`, sync `review`, `ready` và `deprecated`. Chỉ source `ready` mới được release. Version sau khi released hoặc deprecated là immutable; chỉnh sửa tạo version mới.
+Platform admin chủ động gọi template sync. Release bundle bỏ qua source `development`, sync `review`, `ready` và `deprecated`. Chỉ source `ready` mới được release. Theo amendment ADR 0014, patch/minor tương thích cập nhật cùng row đã release để user hiện hữu nhận bugfix; major UI mới mới tạo row mới.
 
 Preview trước release là admin-only qua authenticated preview surface/token. Public preview chỉ được mở cho version released.
 
