@@ -107,7 +107,7 @@ jobs:
           printf -v archive_q '%q' "$archive"
           printf -v staging_q '%q' "$staging"
 
-          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; cat > ${archive_q}; mkdir -p ${deploy_path_q}; find ${deploy_path_q} -mindepth 1 -maxdepth 1 ! -name .well-known -exec rm -rf -- {} +; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; cp -a ${staging_q}/. ${deploy_path_q}/"
+          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; cat > ${archive_q}; mkdir -p ${deploy_path_q}; find ${deploy_path_q} -mindepth 1 -maxdepth 1 ! -name .well-known -exec rm -rf -- {} +; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; find ${staging_q} -mindepth 1 -maxdepth 1 -exec mv -- {} ${deploy_path_q}/ \;"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o ConnectTimeout=30 \
