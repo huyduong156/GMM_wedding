@@ -53,7 +53,7 @@ export function VanHyPreviewPage() {
           <a href="/studio/invites/themes">Đóng xem trước</a>
         </aside>
       ) : null}
-      <VanHyInvitation data={data} sectionConfig={sectionConfig} />
+      <VanHyInvitation data={data} sectionConfig={sectionConfig} editorMode={editorMode} />
     </>
   )
 }
