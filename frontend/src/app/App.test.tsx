@@ -363,6 +363,20 @@ describe('Owner Workspace', () => {
     expect(document.querySelectorAll('[data-editor-section]')).toHaveLength(12)
   })
 
+  it('renders the Nắng Trên Lụa Phase 0 preview shell', () => {
+    window.history.replaceState(null, '', '/templates/invitations/sunlit-silk/preview')
+    render(
+      <NavigationProvider>
+        <App />
+      </NavigationProvider>,
+    )
+    expect(
+      screen.getByRole('main', { name: 'Bản xem trước thiệp cưới Nắng Trên Lụa' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Nắng Trên Lụa' })).toBeInTheDocument()
+    expect(document.querySelector('[data-template-shell="sunlit-silk"]')).toBeInTheDocument()
+  })
+
   it('renders the Verdant Promise invitation with botanical interactions', () => {
     window.history.replaceState(null, '', '/templates/invitations/verdant-promise/preview')
     render(

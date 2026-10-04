@@ -1,0 +1,146 @@
+.ss-page {
+  min-height: 100dvh;
+  overflow-x: clip;
+  color: #584b3f;
+  background:
+    radial-gradient(circle at 50% 14%, rgb(245 239 228 / 0.9), transparent 32rem),
+    #d8c9b1;
+  font-family: var(--font-wedding-body);
+}
+
+.ss-page *,
+.ss-page *::before,
+.ss-page *::after {
+  box-sizing: border-box;
+}
+
+.ss-stage {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 480px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(92deg, transparent 0 31px, rgb(88 75 63 / 0.018) 32px),
+    linear-gradient(165deg, #f8f3e9 0%, #f1e8d9 48%, #e8dcc7 100%);
+  box-shadow: 0 0 0 1px rgb(88 75 63 / 0.08), 0 24px 70px rgb(88 75 63 / 0.16);
+}
+
+.ss-stage__light {
+  position: absolute;
+  inset: -12% -35% auto;
+  height: 64dvh;
+  background: linear-gradient(116deg, transparent 30%, rgb(255 255 255 / 0.72) 48%, transparent 66%);
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+.ss-stage__ribbon {
+  position: absolute;
+  top: 12%;
+  left: -18%;
+  width: 136%;
+  height: clamp(90px, 24vw, 132px);
+  border-block: 1px solid rgb(154 128 88 / 0.2);
+  background: linear-gradient(180deg, rgb(228 215 193 / 0.38), rgb(200 179 142 / 0.28));
+  box-shadow: 0 22px 42px rgb(88 75 63 / 0.08);
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+
+.ss-stage__petals { position: absolute; z-index: 0; top: 34%; right: -28%; width: 70%; opacity: .1; pointer-events: none; animation: ss-petal-drift 18s ease-in-out infinite alternate; }
+.ss-stage__petals img { display: block; width: 100%; }
+
+.ss-opening-gate { position: absolute; inset: 0; z-index: 5; display: grid; place-content: center; gap: 10px; padding: 32px; background: linear-gradient(145deg, rgb(248 243 233 / .98), rgb(232 220 199 / .96)); text-align: center; transition: opacity 560ms cubic-bezier(.22,1,.36,1), transform 700ms cubic-bezier(.22,1,.36,1); }
+.ss-stage--opened .ss-opening-gate { pointer-events: none; opacity: 0; transform: translateY(-8%) scale(1.02); }
+.ss-opening-gate p, .ss-opening-gate span { margin: 0; color: #806e59; font-size: .68rem; letter-spacing: .17em; line-height: 1.6; text-transform: uppercase; }
+.ss-opening-gate h1 { margin: 12px 0 8px; color: #584b3f; font-family: var(--font-wedding-display); font-size: clamp(3.4rem, 16vw, 5.2rem); font-weight: 400; letter-spacing: -.06em; line-height: .84; }
+.ss-opening-gate button { min-height: 46px; margin: 22px auto 0; padding: 0 25px; border: 1px solid #9a8058; border-radius: 999px; background: #f5efe4; color: #584b3f; font: inherit; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; transition: transform 180ms ease, background-color 180ms ease; }
+.ss-opening-gate button:hover { background: #fffaf1; transform: translateY(-2px); }
+.ss-opening-gate button:active { transform: translateY(0) scale(.98); }
+
+.ss-shell-marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  min-height: 100dvh;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.ss-shell-marker p,
+.ss-shell-marker span {
+  margin: 0;
+  color: #806e59;
+  font-size: 0.7rem;
+  letter-spacing: 0.17em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.ss-shell-marker h1 {
+  max-width: 9ch;
+  margin: 18px auto 20px;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(3.1rem, 15vw, 5rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 0.88;
+}
+
+.ss-sections { position: relative; z-index: 1; display: grid; gap: 18px; padding: 12px 16px 56px; }
+.ss-section { position: relative; min-width: 0; scroll-margin-block: 24px; opacity: 0; transform: translateY(20px); transition: opacity 650ms cubic-bezier(.22,1,.36,1), transform 650ms cubic-bezier(.22,1,.36,1); }
+.ss-section--visible { opacity: 1; transform: translateY(0); }
+.ss-section:nth-child(3n + 2) { transition-delay: 50ms; }
+.ss-section:nth-child(3n) { transition-delay: 90ms; }
+.ss-section__eyebrow { margin: 0 0 7px 8px; color: #806e59; font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; }
+.ss-section__surface { position: relative; min-height: 132px; overflow: hidden; padding: 24px 20px; border: 1px solid rgb(154 128 88 / .22); border-radius: 2px 18px 2px 18px; background: rgb(255 252 246 / .58); box-shadow: 0 14px 28px rgb(88 75 63 / .08), inset 0 0 0 1px rgb(255 255 255 / .28); }
+.ss-decor { position: absolute; z-index: 0; display: block; max-width: none; pointer-events: none; user-select: none; }
+.ss-section__surface > h2, .ss-section__surface > p { position: relative; z-index: 1; }
+.ss-decor--opening-ribbon { inset: 10% -28% auto; width: 156%; opacity: .16; transform: rotate(-7deg); }
+.ss-decor--floral-cluster { right: -9%; bottom: -13%; width: 40%; opacity: .18; transform: rotate(-8deg); }
+.ss-decor--ribbon-tail { right: -22%; bottom: -12%; width: 72%; opacity: .18; transform: rotate(-7deg); }
+.ss-decor--envelope { right: -16%; bottom: -12%; width: 48%; opacity: .16; transform: rotate(-5deg); }
+.ss-decor--floral-sculpture { right: -12%; bottom: -18%; width: 35%; opacity: .2; transform: rotate(5deg); }
+.ss-decor--paper-stack { right: -12%; bottom: -16%; width: 42%; opacity: .16; transform: rotate(-7deg); }
+.ss-decor--linen-fold { right: -18%; bottom: -24%; width: 58%; opacity: .14; transform: rotate(-4deg); }
+.ss-section:nth-child(3n + 2) .ss-section__surface { border-radius: 18px 2px 18px 2px; background: rgb(244 236 222 / .64); }
+.ss-section:nth-child(3n) .ss-section__surface { border-radius: 10px; background: rgb(250 246 237 / .76); }
+.ss-section h2 { margin: 0; color: #584b3f; font-family: var(--font-wedding-display); font-size: clamp(1.45rem, 6vw, 2rem); font-weight: 400; letter-spacing: -.035em; line-height: 1; }
+.ss-section p { max-width: 34rem; margin: 14px 0 0; color: #6e5f4f; font-size: .85rem; line-height: 1.65; }
+.ss-section--opening .ss-section__surface, .ss-section--cover .ss-section__surface, .ss-section--footer .ss-section__surface { min-height: 190px; display: grid; place-content: center; text-align: center; }
+.ss-section--opening .ss-section__surface { min-height: 230px; border-radius: 28px 2px 28px 2px; }
+.ss-section--families .ss-section__surface, .ss-section--eventDetails .ss-section__surface { min-height: 170px; }
+.ss-section--gallery .ss-section__surface { transform: perspective(900px) rotateX(1deg); transform-origin: center bottom; }
+.ss-section--gallery .ss-section__surface:hover { transform: perspective(900px) rotateX(0deg) translateY(-3px); }
+
+@keyframes ss-petal-drift { from { transform: translate3d(-3%, -2%, 0) rotate(-4deg); } to { transform: translate3d(4%, 5%, 0) rotate(5deg); } }
+
+@media (min-width: 600px) { .ss-sections { padding-inline: 22px; } }
+
+@media (min-width: 600px) {
+  .ss-page {
+    padding-block: 24px;
+  }
+
+  .ss-stage,
+  .ss-shell-marker {
+    min-height: calc(100dvh - 48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-page *,
+  .ss-page *::before,
+  .ss-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ss-opening-gate, .ss-section, .ss-stage__petals { animation: none; transition: none; }
+  .ss-section { opacity: 1; transform: none; }
+}

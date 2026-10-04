@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#f5efe4"/>
+  <text x="64" y="70" fill="#282521" font-family="Georgia, serif" font-size="38">Nắng Trên Lụa · Phase 2.5</text>
+  <text x="66" y="102" fill="#806e59" font-family="Arial, sans-serif" font-size="15" letter-spacing="3">ASSET PREVIEW SHEET · PROJECT-AUTHORED SVG</text>
+  <g transform="translate(70 150)">
+    <rect width="520" height="220" rx="14" fill="#e4d7c1" fill-opacity=".38" stroke="#9a8058" stroke-opacity=".35"/>
+    <text x="24" y="34" fill="#584b3f" font-family="Arial, sans-serif" font-size="14">KEY ARTWORK · RAW SILK + BRASS CLASP V2</text>
+    <image x="0" y="55" width="520" height="120" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-ribbon-clasp-v2-optimized.png"/>
+  </g>
+  <g transform="translate(650 150)">
+    <rect width="480" height="220" rx="14" fill="#e4d7c1" fill-opacity=".38" stroke="#9a8058" stroke-opacity=".35"/>
+    <text x="24" y="34" fill="#584b3f" font-family="Arial, sans-serif" font-size="14">FLOWER DECOR · ANTHURIUM + ORCHID</text>
+    <image x="160" y="48" width="160" height="180" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-cluster-v1-optimized.png"/>
+  </g>
+  <g transform="translate(70 420)">
+    <rect width="520" height="180" rx="14" fill="#e4d7c1" fill-opacity=".38" stroke="#9a8058" stroke-opacity=".35"/>
+    <text x="24" y="34" fill="#584b3f" font-family="Arial, sans-serif" font-size="14">OPENING COMPOSITION · FLOWER + RIBBON</text>
+    <image x="40" y="48" width="440" height="132" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-ribbon-clasp-v2-optimized.png"/>
+    <image x="40" y="48" width="170" height="220" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-sculpture-v1-optimized.png"/>
+  </g>
+  <g transform="translate(650 420)">
+    <rect width="480" height="180" rx="14" fill="#e4d7c1" fill-opacity=".38" stroke="#9a8058" stroke-opacity=".35"/>
+    <text x="24" y="34" fill="#584b3f" font-family="Arial, sans-serif" font-size="14">MATERIAL DETAIL · PATINA + LINEN</text>
+    <image x="35" y="56" width="410" height="108" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-ribbon-clasp-v2-optimized.png" opacity=".78"/>
+  </g>
+  <g transform="translate(70 650)">
+    <rect width="1060" height="180" rx="14" fill="#e4d7c1" fill-opacity=".38" stroke="#9a8058" stroke-opacity=".35"/>
+    <text x="24" y="34" fill="#584b3f" font-family="Arial, sans-serif" font-size="14">FINALE PROP · CLOSING KNOT</text>
+    <image x="370" y="47" width="320" height="140" href="../../../../public/assets/images/templates/sunlit-silk/artwork/ss-linen-envelope-v1-optimized.png"/>
+  </g>
+</svg>
