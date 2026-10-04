@@ -4,6 +4,8 @@ const apiBaseUrl = (
 
 let csrfTokenPromise: Promise<string> | undefined
 
+type CsrfRequest = (headers: Record<string, string>) => Promise<Response>
+
 async function loadCsrfToken() {
   const response = await fetch(`${apiBaseUrl}/auth/csrf`, { credentials: 'include' })
   if (!response.ok) throw new Error('Không thể khởi tạo bảo vệ CSRF.')
@@ -21,12 +23,41 @@ export function getCsrfToken() {
   })
 }
 
-export function resetCsrfTokenForTests() {
+export function invalidateCsrfToken() {
   csrfTokenPromise = undefined
+}
+
+export function resetCsrfTokenForTests() {
+  invalidateCsrfToken()
 }
 
 export async function csrfHeaders(init?: RequestInit): Promise<Record<string, string>> {
   const method = (init?.method ?? 'GET').toUpperCase()
   if (['GET', 'HEAD', 'OPTIONS'].includes(method)) return {}
   return { 'x-csrf-token': await getCsrfToken() }
+}
+
+async function wasRejectedForCsrf(response: Response) {
+  if (response.status !== 403) return false
+  try {
+    const body = (await response.clone().json()) as { error?: { code?: string } }
+    return body.error?.code === 'REQUEST_ORIGIN_REJECTED'
+  } catch {
+    return false
+  }
+}
+
+export async function requestWithCsrfRetry(init: RequestInit | undefined, send: CsrfRequest) {
+  const method = (init?.method ?? 'GET').toUpperCase()
+  const mutation = !['GET', 'HEAD', 'OPTIONS'].includes(method)
+  let response = await send(await csrfHeaders(init))
+
+  if (!mutation || !(await wasRejectedForCsrf(response))) return response
+
+  // The readable CSRF cookie can expire or be replaced while this SPA still holds
+  // the previous token. Refresh it and retry the mutation once; persistent origin,
+  // fetch-metadata, or content-type failures still return the second 403 unchanged.
+  invalidateCsrfToken()
+  response = await send(await csrfHeaders(init))
+  return response
 }

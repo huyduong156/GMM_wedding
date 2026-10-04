@@ -15,7 +15,7 @@ Danh sách trường, kiểu dữ liệu và quan hệ đã triển khai xem [da
 
 - `User`, `Account`, `Session`, `VerificationToken`.
 - `Wedding`, `WeddingMember(role)`, `WeddingEvent`, `WeddingContent`.
-- `Template`, immutable `TemplateVersion`, `PublishedWeddingSnapshot`.
+- `Template`, UI-major `TemplateVersion`, `PublishedWeddingSnapshot` bất biến.
 - `MediaAsset`, `MediaVariant`.
 - `MusicTrack` catalog dùng chung, tham chiếu audio asset và metadata quyền sử dụng.
 - `GuestCategory`, `GuestGroup`, `Guest`, `RsvpResponse`, `RsvpEventSelection`, `RsvpCompanion`.
@@ -50,7 +50,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 - Slug 3-64 ký tự, lowercase chữ/số/gạch nối, chặn reserved words.
 - `partySize >= 0` và không vượt `maxPartySize` trừ owner override.
 - Publish chỉ khi slug/template/schema/media đều hợp lệ.
-- Unique `(templateId, version)` cho `TemplateVersion`; version đã phát hành không được ghi đè. Lưu `configHash`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion` và code revision để sync/audit.
+- Unique `(templateId, version)` cho `TemplateVersion`; application giữ tối đa một row cho mỗi `templateId + major`. Patch/minor tương thích cập nhật version trên cùng row, major mới tạo row mới. Lưu `configHash`, contract versions và code revision để sync/audit.
 - `WeddingContent` lưu template-owned content, theme/section config, template selection và publication lifecycle theo surface. Các surface không dùng chung payload.
 - Cấu hình nhạc theo surface lưu `musicTrackId | null`, `enabled`, `autoplayRequested`; `MusicTrack` phải `ACTIVE` và audio asset `READY` tại lần publish. Bytes/URL ký không nằm trong JSON canonical.
 - Xóa wedding thu hồi public access ngay; hard delete theo retention job.

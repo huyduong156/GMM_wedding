@@ -10,7 +10,7 @@ Mỗi module sở hữu business rules, application use cases và quyền ghi v�
 |---|---|---|---|
 | `identity` | User, account, session, verification | User/Account/Session | platform email/audit |
 | `weddings` | Wedding lifecycle, membership, event and surface-scoped content | Wedding/Member/Event/WeddingContent | identity, audit |
-| `templates` | Template registry, immutable versions, compatibility | Template/TemplateVersion | media, weddings contract |
+| `templates` | Template registry, UI-major revisions, compatibility | Template/TemplateVersion | media, weddings contract |
 | `publications` | Publish/unpublish, snapshot, public lookup | PublishedWeddingSnapshot | weddings, templates, media |
 | `guests` | Guest/category/group/import/export | Guest/Category/Group | weddings |
 | `rsvps` | Attendance response và event selection | RsvpResponse/Selection/Companion | guests, wedding events |

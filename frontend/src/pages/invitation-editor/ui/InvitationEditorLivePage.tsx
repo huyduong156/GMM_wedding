@@ -581,6 +581,7 @@ export function InvitationEditorLivePage() {
       <section
         className="invitation-editor-empty"
         aria-labelledby="invitation-editor-empty-heading"
+        data-editor-template-missing
       >
         <div className="invitation-editor-empty-card">
           <CheckCircle size={48} weight="duotone" aria-hidden="true" />

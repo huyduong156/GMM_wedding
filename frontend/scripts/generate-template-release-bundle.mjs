@@ -1,17 +1,18 @@
 import { createHash } from 'node:crypto'
-import { readdir, readFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { TemplateReleaseBundle } from '../interface/template-admin-schemas'
+import { fileURLToPath } from 'node:url'
 
-const sourceRoot = () =>
-  process.env.TEMPLATE_SOURCE_ROOT
-    ? path.resolve(process.env.TEMPLATE_SOURCE_ROOT)
-    : path.resolve(process.cwd(), '..', 'frontend', 'src', 'templates')
-const readField = (source: string, field: string) =>
-  source.match(new RegExp(`${field}\\s*:\\s*['\"]([^'\"]+)['\"]`))?.[1] ?? null
-const readNumberField = (source: string, field: string) =>
+const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const sourceRoot = path.join(frontendRoot, 'src', 'templates')
+const outputFile = path.join(frontendRoot, 'public', 'template-release-bundle.json')
+
+const readField = (source, field) =>
+  source.match(new RegExp(`${field}\\s*:\\s*['"]([^'"]+)['"]`))?.[1] ?? null
+const readNumberField = (source, field) =>
   Number(readField(source, field) ?? source.match(new RegExp(`${field}\\s*:\\s*(\\d+)`))?.[1] ?? 0)
-function matchingArray(source: string, start: number) {
+
+function matchingArray(source, start) {
   const open = source.indexOf('[', start)
   if (open < 0) return null
   let depth = 0
@@ -38,26 +39,24 @@ function matchingArray(source: string, start: number) {
   return null
 }
 
-const unique = (keys: Array<string | undefined>) =>
-  [...new Set(keys.filter((key): key is string => Boolean(key)))].map((sectionKey) => ({
-    sectionKey,
-  }))
-const stringLiterals = (value: string) =>
+const unique = (keys) => [...new Set(keys.filter(Boolean))].map((sectionKey) => ({ sectionKey }))
+const stringLiterals = (value) =>
   [...value.matchAll(/['"]([^'"\n]+)['"]/g)].flatMap((match) => (match[1] ? [match[1]] : []))
-const firstTupleValues = (value: string) =>
+const firstTupleValues = (value) =>
   [...value.matchAll(/(?:\[|,)\s*\[\s*['"]([^'"\n]+)['"]/g)].flatMap((match) =>
     match[1] ? [match[1]] : [],
   )
-const mappedArrayNames = (value: string) =>
+const mappedArrayNames = (value) =>
   [...value.matchAll(/\b([A-Za-z_$][\w$]*)\.map\s*\(/g)].flatMap((match) =>
     match[1] ? [match[1]] : [],
   )
-function declaredArray(source: string, name: string) {
+
+function declaredArray(source, name) {
   const declaration = new RegExp(`(?:const|let|var)\\s+${name}\\s*=\\s*`).exec(source)
   return declaration ? matchingArray(source, declaration.index + declaration[0].length) : null
 }
 
-export function readSectionKeys(source: string) {
+function readSectionKeys(source) {
   const configuredKeys = [...source.matchAll(/\bsectionKey\s*:\s*['"]([^'"\n]+)['"]/g)].map(
     (match) => match[1],
   )
@@ -86,24 +85,26 @@ export function readSectionKeys(source: string) {
   const tupleKeys = firstTupleValues(array)
   return unique(tupleKeys.length ? tupleKeys : stringLiterals(array))
 }
-async function configFiles(directory: string, rootDirectory = directory): Promise<string[]> {
+
+async function configFiles(directory, rootDirectory = directory) {
   const entries = await readdir(directory, { withFileTypes: true })
   const nested = await Promise.all(
     entries.map(async (entry) => {
       const absolute = path.join(directory, entry.name)
       if (entry.isDirectory()) return configFiles(absolute, rootDirectory)
-      // The source root contains the shared TemplateConfig type contract. Only
-      // config files inside a concrete template directory are release sources.
       return directory !== rootDirectory && entry.name === 'template-config.ts' ? [absolute] : []
     }),
   )
   return nested.flat()
 }
 
-export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
-  const root = sourceRoot()
-  const files = (await configFiles(root)).sort()
-  if (!files.length) throw new Error(`No template-config.ts files found in ${root}`)
+const sha256 = (value) => createHash('sha256').update(value).digest('hex')
+const withoutLifecycleStatus = (source) =>
+  source.replace(/\bstatus\s*:\s*(['"])[^'"]+\1/, "status: '__LIFECYCLE_STATUS__'")
+
+export async function generateTemplateReleaseBundle() {
+  const files = (await configFiles(sourceRoot)).sort()
+  if (!files.length) throw new Error(`No template-config.ts files found in ${sourceRoot}`)
   const scanned = await Promise.all(
     files.map(async (file) => {
       const source = await readFile(file, 'utf8')
@@ -123,10 +124,10 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
         (type === 'website' ? 'WEDDING_WEBSITE' : type === 'recap' ? 'RECAP' : 'ONLINE_INVITATION')
       const productType = rawProductType === 'WEDDING_RECAP' ? 'RECAP' : rawProductType
       return {
-        sourceStatus: sourceStatus as 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DEPRECATED',
+        sourceStatus,
         templateKey,
         displayName,
-        productType: productType as 'ONLINE_INVITATION' | 'WEDDING_WEBSITE' | 'RECAP',
+        productType,
         templateVersion,
         templateConfigVersion: readNumberField(source, 'templateConfigVersion'),
         contentSchemaVersion: readNumberField(source, 'contentSchemaVersion'),
@@ -134,26 +135,53 @@ export async function scanTemplateSource(): Promise<TemplateReleaseBundle> {
         description: readField(source, 'description'),
         config: {
           sections,
-          sourceFile: path.relative(root, file).replaceAll(path.sep, '/'),
-          sourceHash: createHash('sha256').update(source).digest('hex'),
+          sourceFile: path.relative(sourceRoot, file).replaceAll(path.sep, '/'),
+          sourceHash: sha256(source),
+          sourceContentHash: sha256(withoutLifecycleStatus(source)),
           ...(previewPath ? { previewPath } : {}),
         },
         source,
       }
     }),
-  ).then((items) => items.filter((item): item is NonNullable<typeof item> => item !== null))
-  const sourceRevision = createHash('sha256')
-    .update(scanned.map((item) => item.source).join('\n'))
-    .digest('hex')
-    .slice(0, 64)
+  )
+  const releasable = scanned.filter((template) => template.sourceStatus !== 'DEVELOPMENT')
+  if (!releasable.length) throw new Error('No reviewable template versions found')
+  const identities = new Set()
+  for (const template of releasable) {
+    const identity = `${template.templateKey}@${template.templateVersion.split('.')[0]}`
+    if (identities.has(identity)) throw new Error(`Duplicate template major version: ${identity}`)
+    identities.add(identity)
+    if (!['DEVELOPMENT', 'REVIEW', 'READY', 'DEPRECATED'].includes(template.sourceStatus))
+      throw new Error(`Invalid source status for ${identity}: ${template.sourceStatus}`)
+    if (
+      ![
+        template.templateConfigVersion,
+        template.contentSchemaVersion,
+        template.rendererApiVersion,
+      ].every((value) => Number.isInteger(value) && value > 0)
+    )
+      throw new Error(`Invalid contract version for ${identity}`)
+  }
   return {
     bundleVersion: 1,
     generatedAt: new Date().toISOString(),
-    sourceRevision,
-    templates: scanned.map((item) => {
-      const { source, ...template } = item
+    sourceRevision: sha256(releasable.map((item) => item.source).join('\n')).slice(0, 64),
+    templates: releasable.map(({ source, ...template }) => {
       void source
       return template
     }),
   }
 }
+
+export async function writeTemplateReleaseBundle() {
+  const bundle = await generateTemplateReleaseBundle()
+  await mkdir(path.dirname(outputFile), { recursive: true })
+  await writeFile(outputFile, `${JSON.stringify(bundle, null, 2)}\n`, 'utf8')
+  console.log(
+    `Generated ${path.relative(frontendRoot, outputFile)} with ${bundle.templates.length} templates.`,
+  )
+  return bundle
+}
+
+const invokedFile = process.argv[1] ? path.resolve(process.argv[1]) : null
+if (invokedFile === fileURLToPath(import.meta.url)) await writeTemplateReleaseBundle()

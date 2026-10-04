@@ -79,6 +79,21 @@ function GuestCategoriesContent({
 
   const roots = useMemo(() => items.filter((item) => item.parentId === null), [items])
   const childrenOf = (id: string) => items.filter((item) => item.parentId === id)
+  const categoryPath = (item: GuestCategory) => {
+    const names = [item.name]
+    let parentId = item.parentId
+    while (parentId) {
+      const parent = items.find((candidate) => candidate.id === parentId)
+      if (!parent) break
+      names.unshift(parent.name)
+      parentId = parent.parentId
+    }
+    return names.join(' / ')
+  }
+  const totalGuestCount = useMemo(
+    () => items.filter((item) => !items.some((child) => child.parentId === item.id)).reduce((sum, item) => sum + (item.guestCount ?? 0), 0),
+    [items],
+  )
   const closeDialog = () => {
     setParent(undefined)
     setName('')
@@ -181,6 +196,7 @@ function GuestCategoriesContent({
             <span>
               Cấp {item.depth} · {item.guestCount ?? 0} khách
             </span>
+            <small className="category-parent-path">{categoryPath(item)}</small>
           </div>
           {canEdit && item.depth < 3 && (
             <button className="category-add-child" type="button" onClick={() => openCreate(item)}>
@@ -212,6 +228,12 @@ function GuestCategoriesContent({
           <TreeStructure size={19} />
           <span>
             <strong>{items.length}</strong> danh mục
+          </span>
+        </div>
+        <div>
+          <UsersThree size={19} />
+          <span>
+            <strong>{totalGuestCount}</strong> khách mời
           </span>
         </div>
         <p>

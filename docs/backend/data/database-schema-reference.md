@@ -96,7 +96,7 @@ Identity catalog ổn định. Trường: `id`, `key` unique, `name`, `productTy
 
 ### `TemplateVersion`
 
-Version renderer bất biến. Trường: `id`, `templateId`, `version`, `configHash`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion`, `codeRevision`, `config` JSON, `releasedAt?`, `deprecatedAt?`, `createdAt`. `(templateId, version)` và `(templateId, configHash)` unique; version đã phát hành không update.
+Một row đại diện một UI major và giữ SemVer revision hiện tại. Trường: `id`, `templateId`, `version`, `configHash`, `templateConfigVersion`, `contentSchemaVersion`, `rendererApiVersion`, `codeRevision`, `config` JSON, `releasedAt?`, `deprecatedAt?`, `createdAt`. `(templateId, version)` và `(templateId, configHash)` unique; patch/minor tương thích update cùng row, major mới tạo row mới. Application enforce tối đa một row cho mỗi `templateId + major`.
 
 ### `PublishedWeddingSnapshot`
 

@@ -11,6 +11,7 @@ import {
   withApiHeaders,
   type ApiErrorBody,
 } from '@/shared/http/api-response'
+import { log } from '@/shared/observability/logger'
 export { withApiHeaders }
 
 function allowedOrigins() {
@@ -52,12 +53,28 @@ export function assertSafeMutation(
     .get('cookie')
     ?.match(new RegExp(`(?:^|;\\s*)${csrfCookie.name}=([^;]+)`))?.[1]
   const csrfHeader = request.headers.get('x-csrf-token')
-  if (
-    !allowedOrigins().has(origin ?? '') ||
-    fetchSite === 'cross-site' ||
-    !csrfTokensMatch(csrfCookieValue, csrfHeader) ||
-    !allowedContentTypes.includes(contentType ?? '')
-  ) {
+  const originAllowed = allowedOrigins().has(origin ?? '')
+  const fetchSiteAllowed = fetchSite !== 'cross-site'
+  const csrfMatched = csrfTokensMatch(csrfCookieValue, csrfHeader)
+  const contentTypeAllowed = allowedContentTypes.includes(contentType ?? '')
+  if (!originAllowed || !fetchSiteAllowed || !csrfMatched || !contentTypeAllowed) {
+    const reasons = [
+      ...(!originAllowed ? ['origin'] : []),
+      ...(!fetchSiteAllowed ? ['fetch-site'] : []),
+      ...(!csrfMatched ? ['csrf'] : []),
+      ...(!contentTypeAllowed ? ['content-type'] : []),
+    ]
+    log('warn', 'Safe mutation rejected', {
+      method: request.method,
+      path: new URL(request.url).pathname,
+      reasons,
+      origin,
+      fetchSite,
+      contentType,
+      csrfCookieName: csrfCookie.name,
+      csrfCookiePresent: Boolean(csrfCookieValue),
+      csrfHeaderPresent: Boolean(csrfHeader),
+    })
     throw new AuthError(
       'REQUEST_ORIGIN_REJECTED',
       403,
