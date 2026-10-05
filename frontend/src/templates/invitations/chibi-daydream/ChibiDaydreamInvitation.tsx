@@ -563,7 +563,7 @@ export function ChibiDaydreamInvitation({
           <strong>
             Khánh An <i>&amp;</i> Đức Minh
           </strong>
-          <small>Made with love by GMM Wedding</small>
+          <small>Made with love by ourday</small>
         </footer>
         <div className="cd-ambient" aria-hidden="true">
           <img src={asset('chibi_bridal-bouquet_v2.png')} alt="" />

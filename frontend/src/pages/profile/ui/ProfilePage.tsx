@@ -79,7 +79,7 @@ export function ProfilePage() {
         <div>
           <p className="eyebrow">Tài khoản</p>
           <h1>Thông tin cá nhân</h1>
-          <p>Quản lý thông tin hiển thị và cách GMM Wedding liên hệ với bạn.</p>
+          <p>Quản lý thông tin hiển thị và cách ourday liên hệ với bạn.</p>
         </div>
       </header>
       <form className="profile-layout" onSubmit={save}>

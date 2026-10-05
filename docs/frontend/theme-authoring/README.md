@@ -4,7 +4,7 @@
 
 New invitation templates use a mobile-first canvas with a design/content width capped at `480px`. The renderer must remain fluid below that width, avoid horizontal overflow, and keep larger viewport presentation centered with controlled outer gutters rather than expanding the invitation composition indefinitely. This cap applies to the invitation surface; admin, studio, and wedding website layouts keep their own viewport contracts.
 
-Tài liệu này là contract dùng chung cho mọi theme public của GMM Wedding: Invitation, Wedding Website và Wedding Recap. Domain agent phải đọc tài liệu này trước khi đọc section rules riêng và trước khi tạo hoặc sửa bất kỳ theme nào.
+Tài liệu này là contract dùng chung cho mọi theme public của ourday: Invitation, Wedding Website và Wedding Recap. Domain agent phải đọc tài liệu này trước khi đọc section rules riêng và trước khi tạo hoặc sửa bất kỳ theme nào.
 
 ## 1. Quy trình bắt buộc
 

@@ -7,28 +7,28 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  color: #211f1b;
-  background: #f7f6f2;
+  color: #3d2b22;
+  background: #f5ebdd;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --canvas: #f7f6f2;
-  --sidebar: #fbfaf7;
-  --surface: #ffffff;
-  --surface-glass: rgb(255 255 255 / 0.74);
-  --raised: #f3f0e9;
-  --subtle: #eeeae2;
-  --fg: #211f1b;
-  --fg-secondary: #5f5a52;
-  --fg-muted: #7d756b;
-  --border: #e4ded4;
-  --border-strong: #cbc2b6;
-  --brand: #b76016;
-  --brand-hover: #97490d;
-  --brand-subtle: #fff0dc;
+  --canvas: #f5ebdd;
+  --sidebar: #fbf5ec;
+  --surface: #fffdf9;
+  --surface-glass: rgb(255 253 249 / 0.78);
+  --raised: #f0e0cf;
+  --subtle: #ead9c6;
+  --fg: #3d2b22;
+  --fg-secondary: #6f5647;
+  --fg-muted: #8a7465;
+  --border: #e3d2c0;
+  --border-strong: #cdb49e;
+  --brand: #7a4e36;
+  --brand-hover: #5e3a29;
+  --brand-subtle: #f2e4d5;
   --success: #16794b;
   --warning: #a45d08;
   --danger: #c73b45;
-  --focus: #b76016;
+  --focus: #7a4e36;
 }
 .profile-layout {
   display: grid;

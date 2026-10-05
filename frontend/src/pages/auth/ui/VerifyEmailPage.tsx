@@ -67,8 +67,8 @@ export function VerifyEmailPage() {
     <AuthRecoveryLayout titleId="verify-email-title">
       <div className="login-card auth-recovery-card">
         <div className="login-mobile-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <strong>GMM Wedding</strong>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <strong>Ourday</strong>
         </div>
         <span className="login-kicker">Xác minh tài khoản</span>
         <h2 id="verify-email-title">Xác minh email</h2>

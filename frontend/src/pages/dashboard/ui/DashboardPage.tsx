@@ -48,7 +48,7 @@ export function DashboardPage() {
             </span>
             <div>
               <strong>Thiệp đã xuất bản</strong>
-              <p>gmmwedding.vn/mai-va-duc</p>
+              <p>ourday.asia/mai-va-duc</p>
             </div>
           </div>
           <div className="status-strip-actions">

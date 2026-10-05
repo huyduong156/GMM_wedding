@@ -4,6 +4,7 @@ import {
 } from '@phosphor-icons/react'
 import { marketingRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { BrandLogo } from '../../../shared/ui/BrandLogo'
 import './faq-page.css'
 
 const features = [
@@ -34,7 +35,7 @@ export function FaqPage() {
   return (
     <div className="faq-page">
       <header className="faq-nav">
-        <AppLink to={marketingRoutes.home} className="faq-brand" ariaLabel="GMM Wedding - Trang chủ"><img src="/assets/logo/wedding_logo.png" alt="" /><span>GMM Wedding</span></AppLink>
+        <AppLink to={marketingRoutes.home} className="faq-brand" ariaLabel="Ourday - Trang chủ"><BrandLogo /></AppLink>
         <nav aria-label="Điều hướng trang hỏi đáp">
           <AppLink to={marketingRoutes.invitationTemplates}>Giao diện mẫu</AppLink>
           <AppLink to={marketingRoutes.howItWorks}>Cách hoạt động</AppLink>
@@ -49,7 +50,7 @@ export function FaqPage() {
           <div className="faq-hero-copy">
             <span className="faq-eyebrow"><Heart weight="fill" /> Hiểu rõ trước khi bắt đầu</span>
             <h1 id="faq-page-title">Mọi điều bạn cần biết, trong một nơi dễ tìm.</h1>
-            <p>Khám phá những gì GMM Wedding có thể giúp hai bạn và tìm câu trả lời nhanh cho các thắc mắc thường gặp trong quá trình chuẩn bị.</p>
+            <p>Khám phá những gì Ourday có thể giúp hai bạn và tìm câu trả lời nhanh cho các thắc mắc thường gặp trong quá trình chuẩn bị.</p>
           </div>
           <div className="faq-hero-note" aria-hidden="true"><Question weight="duotone" /><span>Câu hỏi nhỏ.<br /><strong>Kế hoạch rõ ràng hơn.</strong></span></div>
         </section>
@@ -84,7 +85,7 @@ export function FaqPage() {
         </section>
       </main>
 
-      <footer className="faq-footer"><AppLink to={marketingRoutes.home}>GMM Wedding</AppLink><span>Không gian số cho một ngày thật đáng nhớ.</span><AppLink to={studioRoutes.inviteThemes}>Bắt đầu tạo <ArrowRight size={15} /></AppLink></footer>
+      <footer className="faq-footer"><AppLink to={marketingRoutes.home}>Ourday</AppLink><span>Không gian số cho một ngày thật đáng nhớ.</span><AppLink to={studioRoutes.inviteThemes}>Bắt đầu tạo <ArrowRight size={15} /></AppLink></footer>
     </div>
   )
 }

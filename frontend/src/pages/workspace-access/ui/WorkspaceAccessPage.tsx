@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CheckCircle, EnvelopeSimple, LockKey, WarningCircle, UsersThree } from '@phosphor-icons/react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { AuthRecoveryLayout } from '../../auth/ui/AuthRecoveryLayout'
@@ -7,6 +7,7 @@ import { marketingRoutes, studioRoutes, workspaceAccessRoute } from '../../../sh
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { PageLoading } from '../../../shared/ui/PageLoading'
+import { usePageMetadata } from '../../../shared/lib/page-metadata'
 
 const workspaceAccessReturnKey = 'gmm-workspace-access-return'
 
@@ -34,6 +35,17 @@ export function WorkspaceAccessPage({ token }: { token: string }) {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [accepted, setAccepted] = useState(false)
+  const metadata = useMemo(
+    () => ({
+      title: access ? `Lời mời tham gia ${access.weddingName} | Ourday` : 'Lời mời tham gia Wedding | Ourday',
+      description: access
+        ? `Bạn được mời tham gia không gian Wedding “${access.weddingName}” trên Ourday.`
+        : 'Bạn nhận được một lời mời cộng tác trong không gian Wedding trên Ourday.',
+      robots: 'noindex,nofollow',
+    }),
+    [access],
+  )
+  usePageMetadata(metadata)
 
   useEffect(() => {
     let current = true
@@ -83,8 +95,8 @@ export function WorkspaceAccessPage({ token }: { token: string }) {
     <AuthRecoveryLayout titleId="workspace-access-title">
       <section className="login-card auth-recovery-card workspace-access-claim" aria-live="polite">
         <div className="login-mobile-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <strong>GMM Wedding</strong>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <strong>Ourday</strong>
         </div>
         {error && !access ? (
           <>

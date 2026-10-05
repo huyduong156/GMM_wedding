@@ -93,7 +93,7 @@ export function ProductGuide({ pathname }: { pathname: string }) {
           aria-modal="true"
           aria-labelledby="guide-welcome-title"
         >
-          <span className="guide-welcome-kicker">GMM Wedding</span>
+          <span className="guide-welcome-kicker">ourday</span>
           <h2 id="guide-welcome-title">Chào mừng bạn đến với không gian Wedding</h2>
           <p>
             Mình sẽ giới thiệu nhanh những khu vực quan trọng để bạn bắt đầu tạo thiệp, quản lý khách mời và chuẩn bị cho ngày cưới.

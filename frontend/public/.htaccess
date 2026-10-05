@@ -2,6 +2,16 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+
+  # Social/search crawlers do not execute the React app. Serve the same SPA shell
+  # with publication metadata injected before falling back to index.html.
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
+  RewriteRule ^([^/]+)/invitation(?:/[^/]+)?/?$ /share-meta.php?surface=invitation&slug=$1 [L,QSA]
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
+  RewriteRule ^([^/]+)/website/?$ /share-meta.php?surface=website&slug=$1 [L,QSA]
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
+  RewriteRule ^(?:public/)?recaps/([^/]+)/?$ /share-meta.php?surface=recap&slug=$1 [L,QSA]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
