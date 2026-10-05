@@ -76,9 +76,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         aria-label="Điều hướng quản trị hệ thống"
       >
         <div className="admin-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
+          <img src="/assets/logo/ourday-logo.png" alt="" />
           <div>
-            <strong>GMM Wedding</strong>
+            <strong>Ourday</strong>
             <span>Platform Admin</span>
           </div>
         </div>

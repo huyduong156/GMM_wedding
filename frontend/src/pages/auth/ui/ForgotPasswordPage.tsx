@@ -33,8 +33,8 @@ export function ForgotPasswordPage() {
     <AuthRecoveryLayout titleId="forgot-password-title">
       <form className="login-card auth-recovery-card" onSubmit={submit}>
         <div className="login-mobile-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <strong>GMM Wedding</strong>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <strong>Ourday</strong>
         </div>
         <span className="login-kicker">Khôi phục tài khoản</span>
         <h2 id="forgot-password-title">Quên mật khẩu?</h2>

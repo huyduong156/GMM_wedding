@@ -11,10 +11,10 @@ export function AuthRecoveryLayout({
 }) {
   return (
     <main className="login-page">
-      <section className="login-story" aria-label="Giới thiệu GMM Wedding">
+      <section className="login-story" aria-label="Giới thiệu ourday">
         <div className="login-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <span>GMM Wedding</span>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <span>Ourday</span>
         </div>
         <div className="login-story-copy">
           <span className="login-eyebrow">Một nơi cho ngày trọng đại</span>

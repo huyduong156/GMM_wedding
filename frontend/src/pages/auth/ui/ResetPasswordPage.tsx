@@ -44,8 +44,8 @@ export function ResetPasswordPage() {
     <AuthRecoveryLayout titleId="reset-password-title">
       <form className="login-card auth-recovery-card" onSubmit={submit}>
         <div className="login-mobile-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <strong>GMM Wedding</strong>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <strong>Ourday</strong>
         </div>
         <span className="login-kicker">Bảo mật tài khoản</span>
         <h2 id="reset-password-title">Đặt lại mật khẩu</h2>

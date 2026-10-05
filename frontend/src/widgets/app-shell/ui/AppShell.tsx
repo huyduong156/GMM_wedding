@@ -215,10 +215,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className="brand-row">
           <div className="brand-mark">
-            <img src="/assets/logo/wedding_logo.png" alt="" aria-hidden="true" />
+            <img src="/assets/logo/ourday-logo.png" alt="" aria-hidden="true" />
           </div>
           <div className="brand-copy">
-            <strong>GMM Wedding</strong>
+            <strong>Ourday</strong>
             <span>Không gian quản lý</span>
           </div>
           <button

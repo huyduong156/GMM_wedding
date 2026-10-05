@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import {
   WeddingApiError,
@@ -37,6 +37,7 @@ import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
 import { usePublicWishes } from '../../../shared/lib/navigation/usePublicWishes'
 import { usePublicGuest } from '../../../shared/lib/navigation/usePublicGuest'
+import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
 
 type Props = { weddingSlug: string; guestSlug?: string }
 type Snapshot = PublishedWeddingSnapshot
@@ -48,6 +49,19 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
   const [snapshot, setSnapshot] = useState<Snapshot>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
+  const metadata = useMemo(() => {
+    if (!snapshot) return undefined
+    const canonicalPath = `/${encodeURIComponent(weddingSlug)}/invitation`
+    const currentPath = guestSlug
+      ? `${canonicalPath}/${encodeURIComponent(guestSlug)}`
+      : canonicalPath
+    return {
+      ...publicSurfaceMetadata(snapshot.payload, 'invitation', canonicalPath),
+      url: currentPath,
+      ...(guestSlug ? { robots: 'noindex,nofollow' } : {}),
+    }
+  }, [guestSlug, snapshot, weddingSlug])
+  usePageMetadata(metadata)
   useEffect(() => {
     let active = true
     const load = async () => {
