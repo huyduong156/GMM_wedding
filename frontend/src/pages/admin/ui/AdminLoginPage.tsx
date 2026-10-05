@@ -37,9 +37,9 @@ export function AdminLoginPage() {
     <main className="admin-login-page">
       <section className="admin-login-intro" aria-label="Giới thiệu khu vực quản trị">
         <AppLink to="/login" className="admin-login-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="GMM Wedding" />
+          <img src="/assets/logo/ourday-logo.png" alt="Ourday" />
           <span>
-            <strong>GMM Wedding</strong>
+            <strong>Ourday</strong>
             <small>Control center</small>
           </span>
         </AppLink>
@@ -74,7 +74,7 @@ export function AdminLoginPage() {
             <LockKey size={16} weight="fill" /> Khu vực nội bộ
           </div>
           <header>
-            <p>GMM ADMIN</p>
+            <p>OURDAY ADMIN</p>
             <h1>Đăng nhập quản trị</h1>
             <span>Sử dụng tài khoản quản trị đã được cấp quyền.</span>
           </header>
@@ -84,7 +84,7 @@ export function AdminLoginPage() {
               <input
                 type="email"
                 autoComplete="username"
-                placeholder="admin@gmmwedding.vn"
+                placeholder="admin@ourday.asia"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required

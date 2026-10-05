@@ -14,7 +14,7 @@ Tài liệu này tổng hợp pattern UI/motion có thể tham khảo khi thiế
 
 ## Nguyên tắc art direction
 
-Khuyến nghị mặc định cho GMM Wedding là:
+Khuyến nghị mặc định cho ourday là:
 
 > Ảnh editorial + typography tiết chế + một signature moment + micro-motion hỗ trợ.
 

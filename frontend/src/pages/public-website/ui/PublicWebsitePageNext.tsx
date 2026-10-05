@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { weddingApi, type PublishedWeddingSnapshot } from '../../../shared/api/weddings'
 import { PageLoading } from '../../../shared/ui/PageLoading'
@@ -7,6 +7,7 @@ import { EditorialVowsWebsite } from '../../../templates/websites/editorial-vows
 import { GreenHydrangeaWebsite } from '../../../templates/websites/green-hydrangea/GreenHydrangeaWebsite'
 import { EnchantedForestWebsite } from '../../../templates/websites/enchanted-forest/EnchantedForestWebsite'
 import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-blossom-garden/CherryBlossomGardenWebsite'
+import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
 
 export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) {
   const auth = useOptionalAuth()
@@ -15,6 +16,18 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [error, setError] = useState('')
+  const metadata = useMemo(
+    () =>
+      snapshot
+        ? publicSurfaceMetadata(
+            snapshot.payload,
+            'website',
+            `/${encodeURIComponent(weddingSlug)}/website`,
+          )
+        : undefined,
+    [snapshot, weddingSlug],
+  )
+  usePageMetadata(metadata)
   useEffect(() => {
     let active = true
     setLoading(true)

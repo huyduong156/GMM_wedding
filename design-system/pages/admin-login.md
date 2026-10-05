@@ -10,7 +10,7 @@
 
 - Desktop: panel giới thiệu graphite bên trái, form sáng bên phải; form có chiều rộng tối đa 430px.
 - Mobile/tablet: xếp dọc, rút gọn phần assurance để ưu tiên form.
-- Logo dùng asset chính thức `/assets/logo/wedding_logo.png`.
+- Logo dùng asset chính thức `/assets/logo/ourday-logo.png`.
 
 ## Trạng thái triển khai
 

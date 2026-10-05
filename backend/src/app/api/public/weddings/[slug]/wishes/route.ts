@@ -15,8 +15,11 @@ export const OPTIONS = optionsResponse
 export async function GET(request: NextRequest, context: Context) {
   const requestId = getRequestId(request)
   try {
-    return jsonResponse(
-      await getPublicInteractionService().approvedWishes((await context.params).slug),
+    return withApiHeaders(
+      jsonResponse(
+        await getPublicInteractionService().approvedWishes((await context.params).slug),
+      ),
+      requestId,
     )
   } catch (error) {
     return guestErrorResponse(error, requestId)
