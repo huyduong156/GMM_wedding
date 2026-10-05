@@ -173,6 +173,9 @@ $groom = first_string($content, [
     ['hero', 'groomName'],
 ]);
 $couple = implode(' & ', array_values(array_filter([$bride, $groom])));
+if ($couple === '') {
+    $couple = first_string($content, [['hero', 'couple'], ['couple']]) ?? '';
+}
 $label = $surface === 'invitation' ? 'Thiệp cưới' : ($surface === 'website' ? 'Website cưới' : 'Wedding Recap');
 $title = first_string($payload, [['ogTitle']]) ?? ($couple !== '' ? $couple . ' | ' . $label : $label . ' | Ourday');
 $defaultDescription = $couple === ''

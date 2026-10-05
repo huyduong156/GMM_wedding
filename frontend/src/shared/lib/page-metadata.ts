@@ -64,28 +64,36 @@ export function publicSurfaceMetadata(
     ['couple', 'groomName'],
     ['hero', 'groomName'],
   ])
-  const coupleName = [brideName, groomName].filter(Boolean).join(' & ')
-  const image = firstNestedMedia(content, [
-    ['ogImageUrl'],
-    ['heroMedia'],
-    ['openingMediaFront'],
-    ['coverBackgroundMedia'],
-    ['hero', 'image'],
-    ['hero', 'media'],
-    ['cover', 'heroMedia'],
-    ['cover', 'image'],
-  ])
+  const explicitTitle = firstNestedString(payload, [['ogTitle']])
+  const explicitDescription = firstNestedString(payload, [['ogDescription']])
+  const coupleName =
+    [brideName, groomName].filter(Boolean).join(' & ') ||
+    firstNestedString(content, [['hero', 'couple'], ['couple']])
+  const image =
+    firstNestedMedia(payload, [['ogImageUrl']]) ??
+    firstNestedMedia(content, [
+      ['ogImageUrl'],
+      ['heroMedia'],
+      ['openingMediaFront'],
+      ['coverBackgroundMedia'],
+      ['hero', 'image'],
+      ['hero', 'media'],
+      ['cover', 'heroMedia'],
+      ['cover', 'image'],
+    ])
 
   const label =
     surface === 'invitation' ? 'Thiệp cưới' : surface === 'website' ? 'Website cưới' : 'Wedding Recap'
-  const title = coupleName ? `${coupleName} | ${label}` : `${label} | Ourday`
-  const description = coupleName
-    ? surface === 'recap'
-      ? `Cùng nhìn lại những khoảnh khắc đáng nhớ trong ngày cưới của ${coupleName}.`
-      : surface === 'website'
-        ? `Cùng khám phá câu chuyện và những thông tin về ngày cưới của ${coupleName}.`
-        : `Trân trọng mời bạn đến chung vui trong ngày cưới của ${coupleName}.`
-    : 'Một không gian cưới được tạo bằng Ourday.'
+  const title = explicitTitle ?? (coupleName ? `${coupleName} | ${label}` : `${label} | Ourday`)
+  const description =
+    explicitDescription ??
+    (coupleName
+      ? surface === 'recap'
+        ? `Cùng nhìn lại những khoảnh khắc đáng nhớ trong ngày cưới của ${coupleName}.`
+        : surface === 'website'
+          ? `Cùng khám phá câu chuyện và những thông tin về ngày cưới của ${coupleName}.`
+          : `Trân trọng mời bạn đến chung vui trong ngày cưới của ${coupleName}.`
+      : 'Một không gian cưới được tạo bằng Ourday.')
 
   return { title, description, image, canonicalUrl: canonicalPath, url: canonicalPath }
 }

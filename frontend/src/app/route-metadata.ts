@@ -8,7 +8,7 @@ const descriptions = {
 }
 
 const exactTitles: Record<string, string> = {
-  [marketingRoutes.home]: 'Ourday | Ngày trọng đại, được chuẩn bị thật nhẹ nhàng',
+  [marketingRoutes.home]: 'Ourday | Không gian cưới của riêng bạn',
   [marketingRoutes.invitationTemplates]: 'Mẫu thiệp cưới online | Ourday',
   [marketingRoutes.websiteTemplates]: 'Mẫu website cưới | Ourday',
   [marketingRoutes.recapTemplates]: 'Mẫu Wedding Recap | Ourday',
@@ -54,6 +54,13 @@ const exactTitles: Record<string, string> = {
   [publicTemplateRoutes.astralVowPreview]: 'Astral Vow – Mẫu thiệp cưới | Ourday',
   [publicTemplateRoutes.vanHyPreview]: 'Vạn Hỷ – Mẫu thiệp cưới | Ourday',
   [publicTemplateRoutes.aureliaCourtPreview]: 'Aurelia Court – Mẫu thiệp cưới | Ourday',
+  [publicTemplateRoutes.editorialVowsPreview]: 'Editorial Vows – Mẫu website cưới | Ourday',
+  [publicTemplateRoutes.greenHydrangeaPreview]: 'Green Hydrangea – Mẫu website cưới | Ourday',
+  [publicTemplateRoutes.enchantedForestPreview]: 'Enchanted Forest – Mẫu website cưới | Ourday',
+  [publicTemplateRoutes.cherryBlossomGardenPreview]:
+    'Cherry Blossom Garden – Mẫu website cưới | Ourday',
+  [publicTemplateRoutes.redSpiderLilyRecapPreview]:
+    'Red Spider Lily – Mẫu Wedding Recap | Ourday',
 }
 
 export function routeMetadata(pathname: string): PageMetadata {
