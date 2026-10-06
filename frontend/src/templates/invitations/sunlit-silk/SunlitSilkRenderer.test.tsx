@@ -1,34 +1,62 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SunlitSilkRenderer } from './SunlitSilkRenderer'
+import { sunlitSilkSectionConfig } from './fixture'
 
-describe('SunlitSilkRenderer Phase 5 contract', () => {
-  beforeEach(() => {
-    class MockIntersectionObserver {
-      observe = (element: Element) => element.classList.add('ss-section--visible')
-      disconnect = vi.fn()
-      unobserve = vi.fn()
-      constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
-    }
-    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+describe('SunlitSilkRenderer rebuild contract', () => {
+  afterEach(() => vi.useRealTimers())
+
+  it('keeps the new opening in the DOM until its exit choreography completes', () => {
+    vi.useFakeTimers()
+    render(<SunlitSilkRenderer />)
+    expect(document.documentElement).toHaveClass('ss-opening-lock')
+    const button = screen.getByRole('button', { name: 'Mở thiệp' })
+    fireEvent.click(button)
+    expect(screen.getByRole('dialog')).toHaveClass('is-celebrating')
+    expect(screen.getByRole('dialog')).not.toHaveClass('is-opening')
+    expect(document.body).toHaveClass('ss-opening-lock')
+
+    act(() => vi.advanceTimersByTime(300))
+    expect(screen.getByRole('dialog')).toHaveClass('is-opening')
+
+    act(() => vi.advanceTimersByTime(1_500))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(document.documentElement).not.toHaveClass('ss-opening-lock')
   })
 
-  it('opens the invitation and exposes all 16 section anchors', () => {
-    render(<SunlitSilkRenderer />)
-    expect(screen.getByRole('button', { name: 'Mở thiệp' })).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Mở thiệp' }))
-
-    const sections = screen.getAllByRole('region')
-    expect(sections).toHaveLength(16)
-    expect(sections[0]).toHaveAttribute('data-section-key', 'opening')
-    expect(sections.at(-1)).toHaveAttribute('data-section-key', 'footer')
-    expect(sections.every((section) => section.getAttribute('data-layout'))).toBe(true)
+  it('exposes all 16 editor anchors and distinct interactive surfaces', () => {
+    const { container } = render(
+      <SunlitSilkRenderer
+        editorMode
+        sectionConfig={{ ...sunlitSilkSectionConfig, enabled: sunlitSilkSectionConfig.order }}
+      />,
+    )
+    expect(container.querySelectorAll('[data-editor-section]')).toHaveLength(16)
+    expect(screen.getByRole('link', { name: /mở bản đồ/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ảnh tiếp theo/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /gửi phản hồi/i })).toBeDisabled()
   })
 
   it('keeps decorative artwork hidden from assistive technology', () => {
-    render(<SunlitSilkRenderer />)
-    fireEvent.click(screen.getByRole('button', { name: 'Mở thiệp' }))
-    expect(Array.from(document.querySelectorAll('img')).every((image) => image.getAttribute('aria-hidden') === 'true')).toBe(true)
+    const { container } = render(<SunlitSilkRenderer editorMode />)
+    expect(
+      Array.from(container.querySelectorAll('.ss-decor')).every(
+        (image) => image.getAttribute('aria-hidden') === 'true',
+      ),
+    ).toBe(true)
+  })
+
+  it('removes disabled optional sections without leaving placeholders', () => {
+    const { container } = render(
+      <SunlitSilkRenderer
+        editorMode
+        sectionConfig={{
+          enabled: ['opening', 'cover', 'invitation', 'families', 'eventDetails', 'footer'],
+          order: ['opening', 'cover', 'invitation', 'families', 'eventDetails', 'footer'],
+        }}
+      />,
+    )
+    expect(container.querySelector('[data-editor-section="gallery"]')).not.toBeInTheDocument()
+    expect(container.querySelector('[data-editor-section="footer"]')).toBeInTheDocument()
   })
 })

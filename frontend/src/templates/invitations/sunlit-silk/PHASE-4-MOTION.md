@@ -1,6 +1,6 @@
 # Sunlit Silk - Phase 4 motion and interaction map
 
-Status: **Complete; ready for Phase 5 asset integration/release review**
+Status: **Rebuilt; code gate complete, browser gate pending**
 
 ## Motion tokens
 
@@ -39,6 +39,6 @@ Status: **Complete; ready for Phase 5 asset integration/release review**
 - [x] Ambient layer is restrained, decorative and bounded to the stage.
 - [x] At least one CSS 3D/depth section exists with flat fallback.
 - [x] Mobile and reduced-motion behavior are defined.
-- [x] Full visual review and performance capture across 375/390/480/tablet/desktop (layout/overflow audit plus lint/typecheck/build gates).
+- [ ] Repeat full visual review across 375/390/480/tablet/desktop after the Phase 3 rebuild.
 
-Phase 5 will integrate the approved raster artwork into the real content renderer and run the final screen/release audit.
+Phase 5 remains open for asset optimization and the final screen/release audit.

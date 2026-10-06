@@ -11,9 +11,9 @@ Product type: `ONLINE_INVITATION`
 | 1 — product meaning / content system | Complete | Product meaning, theme brief, viewer journey, section/content matrix, fixture/editor plan and acceptance checklist below. |
 | 2 — media contract / media independence | Complete | Per-section media matrix, ownership/editability, responsive crop/fallback rules, future config mapping and replacement tests below. |
 | 2.5 — decor pre-production | Approved | Approved renderer-owned artwork set is recorded in [`PHASE-2.5.md`](./PHASE-2.5.md) and [`ASSET-MANIFEST.md`](./ASSET-MANIFEST.md). |
-| 3 — section architecture | Complete | All 16 section anchors render in the skeleton, with layout keys, approved decor ownership, responsive/fallback rules and shared-shape config recorded in [`PHASE-3-COMPOSITION.md`](./PHASE-3-COMPOSITION.md) and [`template-config.ts`](./template-config.ts). |
-| 4 — motion / interaction | Complete | Opening gate, bounded section reveals, restrained petal atmosphere, gallery depth, reduced-motion fallback and validation gates are documented in [`PHASE-4-MOTION.md`](./PHASE-4-MOTION.md). |
-| 5 — asset integration / release | Implementation complete; visual gate pending | Approved decor is integrated by section with image-error fallbacks, reduced-motion behavior and renderer contract tests in [`PHASE-5-REVIEW.md`](./PHASE-5-REVIEW.md); only browser screenshot review remains. |
+| 3 — section architecture | Rebuilt; code gate complete | All 16 anchors now map to real invitation layouts and editor fields instead of a shared placeholder card. The renderer includes family hierarchy, date ledger, calendar, timeline, venue, gallery and interaction surfaces. |
+| 4 — motion / interaction | Rebuilt; code gate complete | The opening remains mounted through its exit choreography, section entrances use `motion/react`, atmosphere pauses with page visibility, and reduced-motion keeps content immediately available. |
+| 5 — asset integration / release | Reopened; pending | The earlier Phase 5 claim was invalidated by browser review. Asset-size optimization and the complete 375/390/480/tablet/desktop visual gate remain open. |
 
 ## Phase 0 brief
 
@@ -26,7 +26,7 @@ The shell intentionally contains no invitation business section, API integration
 ## Spatial contract
 
 - `.ss-page` owns the full viewport and desktop/tablet atmosphere. It clips horizontal overflow at the page boundary.
-- `.ss-stage` is the only invitation canvas. It is fluid below `480px`, capped at `480px`, centered on wider screens and clips every renderer-owned layer.
+- `.ss-stage` is the only invitation canvas. It is fluid below `480px`, capped at `480px`, centered on wider screens and clips every renderer-owned layer. Its material background is shared by every invitation section; section wrappers stay transparent so the reading experience feels like one continuous sheet.
 - Critical content and final decor must remain inside `.ss-stage`; desktop gutters never carry information or interactive controls.
 - Mobile uses the full viewport width and at least `100dvh`; no fixed minimum width is allowed.
 - From `600px`, a controlled `24px` top/bottom gutter separates the paper canvas from the surrounding atmosphere. The invitation never expands into a full-width website layout.
@@ -91,7 +91,7 @@ Thông tin cốt lõi xuất hiện sớm và có thể scan nhanh. Phần album
 | Signature opening | Một đai lụa gấp chéo đang che một phần tên. Tap/Enter/Space tháo chốt kim loại nhỏ; dải lụa trượt và mở nếp để lộ tấm thiệp. Full motion là mặc định. Reduced motion đổi ngay sang trạng thái đai đã tháo, giữ dải lụa tĩnh và toàn bộ nội dung đọc được. |
 | Material | Lụa thô, linen, giấy cotton ép chìm, chỉ may mảnh, đồng cũ; không marble, glassmorphism, pampas hay kraft rustic. |
 | Decor direction | Renderer-owned ribbon, đường may, bóng nắng qua rèm và dấu ép chìm trừu tượng. Hoa nếu có chỉ là chi tiết phụ rất tiết chế, không phải hệ nhận diện. |
-| Motion direction | Một choreography chính cho opening; sau đó dải lụa dịch chuyển có kiểm soát, semantic entrance bằng `motion/react`, list stagger cho item lặp và ambient light rất chậm. Mobile/touch dùng native scroll. |
+| Motion direction | Một choreography chính cho opening; sau đó dải lụa dịch chuyển có kiểm soát, semantic entrance bằng `motion/react`, list stagger cho item lặp, ambient light và lớp “lụa phấn” gồm các hạt bụi ánh nắng trôi rất chậm. Mobile/touch dùng native scroll. |
 | Accessibility | Full motion là trải nghiệm mặc định nhưng không mang semantic state. `prefers-reduced-motion` bắt buộc tắt translate/scale/rotate/parallax, delay bằng 0, giữ state tức thời, focus và nội dung đầy đủ. |
 | Language | Tiếng Việt là chính. Chỉ dùng tối đa **1** English tagline ngắn trong toàn thiệp; mặc định không cần English. |
 
@@ -110,7 +110,8 @@ Không thêm terracotta/cam đất. Màu trạng thái hệ thống phải đạ
 
 ### Typography đã có trong repository
 
-- **Cormorant Garamond GMM** qua `--font-wedding-display`: display serif cho tên cặp đôi, ngày lớn và heading trang trọng; dùng từ khoảng 28px, không dùng cho body dài. Font đã self-host, có Vietnamese subset và SIL OFL 1.1 theo typography contract.
+- **Allura** qua package tự host `@fontsource/allura`: script accent cho title opening, tên cặp đôi trên cover, lời mời trọng tâm và closing title. Font có Vietnamese subset và SIL OFL 1.1; không faux-bold và không dùng cho body dài. Nguồn chọn font: [FontSpace](https://www.fontspace.com/allura-font-f13411), bản webfont/package: [Fontsource](https://fontsource.org/fonts/allura/about).
+- **Cormorant Garamond GMM** qua `--font-wedding-display`: display serif cho ngày lớn và heading thông tin trang trọng; dùng từ khoảng 28px, không dùng cho body dài. Font đã self-host, có Vietnamese subset và SIL OFL 1.1 theo typography contract.
 - **Be Vietnam Pro GMM** qua `--font-wedding-body`: body, địa chỉ, vai vế, form, nút và nội dung dài. Đây là font được thiết kế cho tiếng Việt, self-host và có SIL OFL 1.1.
 - Không dùng script/accent font trong mặc định. Utility label dùng chính Be Vietnam Pro với chữ hoa nhỏ và tracking có kiểm soát, tránh tải thêm family chỉ để trang trí.
 
@@ -118,10 +119,10 @@ Chuỗi kiểm tra bắt buộc ở phase implementation: `Trân trọng kính m
 
 ### Motion contract cho các phase sau
 
-- Full motion là mặc định: tháo đai lụa 0.9–1.3s; entrance semantic theo local token có `duration`, `stagger`, `listStagger`, ease `[0.22, 1, 0.36, 1]`; ambient light chậm và không ảnh hưởng layout.
+- Full motion là mặc định: tháo đai lụa 0.9–1.3s; entrance semantic theo local token có `duration`, `stagger`, `listStagger`, ease `[0.22, 1, 0.36, 1]`; ambient light và “lụa phấn” là lớp renderer-owned bounded, hạt thưa, không ảnh hưởng layout.
 - Heading, copy, card, control và item lặp phải có target tường minh; decor/ribbon/ambient có motion owner riêng. Không dùng broad selector hoặc khôi phục `.reveal` legacy.
 - CTA và thông tin không bị khóa quá 1.5s. Opening có thể bỏ qua và luôn mở bằng keyboard.
-- Reduced motion là fallback bắt buộc: không smooth-scroll interception, parallax, scrub, rotate, scale hoặc ribbon travel; trạng thái mở xuất hiện tức thời, delay bằng 0, nội dung luôn visible.
+- Reduced motion là fallback bắt buộc: không smooth-scroll interception, parallax, scrub, rotate, scale hoặc ribbon travel; trạng thái mở xuất hiện tức thời, delay bằng 0, nội dung luôn visible. While the opening gate is active, `html` and `body` carry `ss-opening-lock` so the page cannot scroll behind the full-viewport ritual.
 - Motion không truyền đạt RSVP success/error một mình; text, `aria-live` và focus management có trước decoration.
 
 ## Section inventory
@@ -284,7 +285,7 @@ Phase này chỉ mô tả contract. Chưa có file artwork, asset manifest, prom
 | `music.trackId` | System catalog selection | Có select/toggle theo capability, không upload trực tiếp | Không | Playback logic dùng shared player |
 | Map URL/embed | Owner-provided URL → external surface | Có URL field; validation trước render | Không | Address text vẫn canonical trong event data |
 | Ribbon, stitch, clasp, paper/linen texture | Renderer-owned | Không expose image input | Có | Phase 2.5 mới quyết định file/CSS form, size và provenance |
-| Sunlight/shadow atmosphere | Renderer-owned | Không expose | Có | Có thể là CSS hoặc approved raster; reduced motion tĩnh |
+| Sunlight/shadow atmosphere | Renderer-owned | Không expose | Có | Gồm dải sáng CSS và lớp hạt bụi “lụa phấn” bounded theo canvas; reduced motion giữ vài hạt tĩnh thưa |
 | Emboss/seal/dividers/frames/mattes | Renderer-owned | Không expose | Có | Không được dùng user photo thay thế |
 | System icons, calendar grid, countdown numerals | Code-native/system | Không expose như media | Hỗ trợ, không phải nguồn nhận diện duy nhất | Phải usable khi CSS/artwork lỗi |
 

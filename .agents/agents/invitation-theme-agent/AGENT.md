@@ -30,7 +30,7 @@ Viewer phải cảm thấy mình đang nhận và mở một tấm thiệp thậ
 
 ### Experience arc
 
-`opening ritual → mở thiệp → lời báo hỷ → gia đình → cô dâu/chú rể → ngày giờ/nghi lễ/tiệc → action RSVP/maps/calendar → album/lời chúc → kết thúc`
+`opening ritual → mở thiệp → lời mời + hai gia đình + ngày/địa điểm + lời đón tiếp → cô dâu/chú rể → nghi lễ/tiệc → countdown/calendar → action RSVP/maps → album/lời chúc → kết thúc`
 
 Opening và invitation card là signature của product. Motion phải tạo cảm giác mở phong bì, kéo rèm, lật thiệp, mở gate-fold hoặc nghi thức tương đương; không biến trang thành long-form editorial website.
 
@@ -50,7 +50,7 @@ Opening và invitation card là signature của product. Motion phải tạo c�
 
 ## Domain responsibilities
 
-- Giữ đúng nội dung thiệp Việt Nam, family announcement, vai vế, nghi lễ, tiệc, lời mời và các section bắt buộc của invitation contract.
+- Giữ đúng nội dung thiệp Việt Nam, vai vế, nghi lễ, tiệc, lời mời và các section bắt buộc của invitation contract. Với template bắt đầu mới từ 06/10/2026, gộp lời mời và hai gia đình vào `invitation`, đồng thời gộp countdown/calendar vào `countdownCalendar`; không áp dụng hồi tố cho template hiện có.
 - Chọn layout riêng cho từng section; không copy cấu trúc của website hoặc recap.
 - Bảo đảm opening/invitation-card/banner/RSVP/gallery interaction đúng ngữ cảnh thiệp.
 - Gọi common asset/motion/image rules trước khi dùng fixture hoặc bắt đầu viết renderer.
@@ -62,9 +62,10 @@ Trước khi code: brief art direction, section map, asset/decor plan, motion pl
 
 ## Non-negotiable implementation checks
 
-- Giữ nguyên shape của `template-config.ts` theo các template invitation hiện có để scanner/editor/validator đọc được; không tạo schema riêng cho từng template.
+- Giữ nguyên outer shape của `template-config.ts` để scanner/editor/validator đọc được; không tạo schema riêng cho từng template. Section key của template mới phải theo catalog đã version hóa, gồm `invitation` và `countdownCalendar`; đây là thay đổi contract được duyệt, không phải schema tùy tiện.
 - Mỗi phần tử nhỏ có vai trò trong section phải có entrance effect riêng, dùng chung scroll-reveal class/utility của hệ thống và trigger theo convention sau khi scroll hơn một phần ba trang/viewport. Hiệu ứng phải đủ chậm để nhìn thấy, có reduced-motion fallback.
 - Luôn truyền và xử lý `guestName` ở các section cần cá nhân hóa. RSVP và guestbook phải giữ API flow tương ứng, đồng thời kiểm tra `guestName` trước khi quyết định có hiển thị input nhập tên hay không.
 - Label/title của field trong editor phải đầy đủ tiếng Việt. Không biến button text, placeholder hoặc copy chung chung thành field content editable.
 - Decor nền renderer-owned không expose image input; chỉ expose ảnh user upload hoặc ảnh cặp đôi được dùng ở vị trí content/background đã định nghĩa.
-- Family section phải làm tên cha mẹ/thành viên nổi bật hơn danh xưng, địa chỉ và metadata.
+- Với template mới, section `invitation` phải làm tên cha mẹ/thành viên nổi bật hơn danh xưng, địa chỉ và metadata; thứ tự nội dung là lời mời → hai gia đình → ngày cưới và tên địa điểm → lời kết đón tiếp. Mọi nội dung trong chuỗi này phải tùy chỉnh được.
+- Template invitation bắt đầu mới từ 06/10/2026 không tạo `families`, `countdown` hoặc `calendar` thành section độc lập. Dùng `invitation` cho lời mời + gia đình và `countdownCalendar` cho một hoặc cả hai presentation thời gian. Template đã tồn tại giữ nguyên contract cũ.

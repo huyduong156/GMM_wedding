@@ -8,6 +8,14 @@ Website cưới là sản phẩm riêng, có thể ưu tiên câu chuyện tình
 
 Tài liệu này là contract thiết kế cho mọi template thiệp sau này. Template được phép thay đổi art direction, typography, motion và cách sắp xếp; không được làm mất dữ liệu cốt lõi. Các section tùy chọn phải bật/tắt độc lập theo lựa chọn user mà không phá bố cục hoặc validation của section khác.
 
+### Phạm vi áp dụng contract section mới
+
+Từ ngày 06/10/2026, template invitation bắt đầu authoring mới phải dùng contract hợp nhất dưới đây:
+
+- `invitation` và `families` là **một section duy nhất**, dùng key semantic `invitation`. Không tạo section `families` độc lập.
+- `countdown` và `calendar` là **một section duy nhất**, dùng key semantic `countdownCalendar`. Section này có thể hiển thị countdown, calendar hoặc cả hai tùy art direction, nhưng không tách thành hai section trong config/editor.
+- Các template đã tồn tại trước mốc này giữ nguyên section key, content shape, renderer và tài liệu phase hiện có. Không hồi tố merge, rename hay migration chỉ để khớp contract mới.
+
 ### Cách dùng tài liệu này khi tạo template mới
 
 Đây là **blueprint gốc bắt buộc** cho mọi loại thiệp online mới. Trước khi thiết kế hoặc code, người thực hiện phải:
@@ -28,14 +36,12 @@ Tên option là vocabulary chung giữa designer, developer và template config.
 |---|---|---|
 | Popup / opening | `envelope-reveal`, `gate-fold`, `book-cover`, `curtain-reveal`, `floral-bloom`, `minimal-monogram` | Chọn một opening thể hiện rõ chất liệu và key visual của theme; luôn có CTA và fallback mở ngay. |
 | Banner sau khi mở | `full-bleed-photo`, `editorial-split`, `centered-portrait`, `layered-paper-theatre`, `botanical-frame`, `minimal-typographic` | Ưu tiên tên cặp đôi và ngày cưới; chỉ dùng depth/parallax khi banner là focal point. |
-| Lời báo hỷ | `formal-centered`, `ornamental-plaque`, `editorial-lead`, `seal-and-ribbon` | Đoạn ngắn, trang trọng, không biến thành hero thứ hai. |
-| Hai bên gia đình | `dual-cards`, `split-columns`, `ceremonial-scroll`, `family-tree-lite`, `stacked-mobile-cards` | Phải phân biệt hai bên và đọc tốt với tên dài; front chữ trên mobile không quá to để tránh tên bị tràn dòng; mobile mặc định xếp dọc. |
+| Lời mời và hai bên gia đình | `formal-dual-family`, `invitation-ledger`, `ceremonial-scroll`, `family-diptych`, `stacked-mobile-invitation` | Một section, theo đúng thứ tự: lời mời → thông tin hai gia đình → ngày cưới và tên địa điểm → lời kết “Rất hân hạnh...” hoặc nội dung tùy chỉnh tương đương. Phải phân biệt hai bên, đọc tốt với tên dài và xếp dọc trên mobile. |
 | Cô dâu và chú rể | `portrait-pair`, `name-monogram`, `split-profile`, `overlapping-polaroids`, `editorial-introduction` | Dùng ảnh khi asset đủ tốt; nếu không có ảnh, chuyển sang typography/monogram hoàn chỉnh. |
 | Ngày và giờ | `date-diptych`, `oversized-date`, `calendar-card`, `ticket-stub`, `clock-and-date`, `minimal-rule` | Thông tin thời gian phải quét nhanh; không đặt chữ quan trọng trên ảnh thiếu tương phản. |
-| Countdown | `four-unit-grid`, `flip-clock`, `circular-dials`, `inline-minimal`, `floating-counters` | Luôn đủ ngày–giờ–phút–giây khi bật; reduced motion giữ số cập nhật nhưng bỏ animation. |
+| Countdown và calendar | `countdown-only`, `calendar-only`, `countdown-with-calendar`, `flip-clock-calendar`, `illustrated-almanac-counter` | Chọn hiển thị một hoặc cả hai thành phần trong cùng section. Countdown luôn đủ ngày–giờ–phút–giây; calendar đánh dấu ngày bằng shape/text; reduced motion giữ dữ liệu nhưng bỏ animation. |
 | Nghi lễ thành hôn | `ceremony-card`, `vertical-program`, `temple-arch`, `editorial-columns`, `photo-overlay` | Hợp với dữ liệu một hoặc nhiều nghi lễ; địa điểm và giờ không được phụ thuộc icon. |
 | Thông tin tiệc cưới | `invitation-card`, `banquet-ticket`, `venue-poster`, `split-details`, `personalized-letter` | Làm nổi lời kính mời cá nhân hóa, giờ đón khách, giờ khai tiệc và địa chỉ. |
-| Lịch trực quan | `month-grid`, `tear-off-calendar`, `date-circle`, `calendar-diptych`, `illustrated-almanac` | Ngày được chọn phải nhận biết được bằng cả shape/text, không chỉ màu. |
 | Lịch trình | `vertical-timeline`, `horizontal-timeline`, `marquee-journey`, `step-cards`, `route-map`, `accordion-program` | Ít mốc dùng step cards; nhiều mốc dùng timeline; marquee chỉ là presentation và phải có scroll-snap/list fallback. |
 | Hành trình tình yêu | `vertical-timeline`, `alternating-timeline`, `horizontal-marquee`, `story-cards-grid`, `photo-slide`, `chapter-scroll`, `map-route` | Đây là section tùy chọn. Chọn timeline cho mốc thời gian, marquee cho nhịp kể liên tục, grid cho nội dung quét nhanh, slide cho câu chuyện thiên về ảnh. |
 | Địa điểm và Google Maps | `map-split`, `venue-card-over-map`, `full-map-panel`, `illustrated-map`, `multi-venue-tabs` | Luôn có địa chỉ text và nút chỉ đường; nhiều địa điểm mới dùng tabs/list. |
@@ -62,7 +68,7 @@ Tên option là vocabulary chung giữa designer, developer và template config.
 1. **Opening popup:** khi vừa tải trang, phủ một lớp mở đầu có vật thể thiệp hoặc phong bì, tên cặp đôi, ngày cưới, tên khách nếu được cá nhân hóa và CTA “Mở thiệp”. Popup phải mang đúng chất liệu, màu sắc, typography và họa tiết của template, không dùng một modal đại trà cho mọi mẫu.
 2. **Opening transition:** click/tap/keyboard kích hoạt chuỗi motion 600-1200 ms mô phỏng mở phong bì, lật thiệp, kéo rèm, nở hoa hoặc một chuyển cảnh phù hợp concept. Khóa double activation, không tự phát âm thanh trước user gesture và không làm mất nội dung nếu animation lỗi.
 3. **Opened banner:** popup rời khỏi luồng, focus chuyển vào banner đầu thiệp. Banner luôn ghi tên cô dâu, chú rể, ngày cưới và có composition riêng của template; không được tái sử dụng nguyên một hero chung chỉ đổi màu.
-4. **Invitation:** tiếp tục theo thứ tự lời báo hỷ, hai gia đình, thông tin cô dâu chú rể, nghi lễ và tiệc cưới như nội dung của một thiệp giấy.
+4. **Invitation:** section lời mời hợp nhất phải đọc theo thứ tự lời mời, hai gia đình, ngày cưới và tên địa điểm, rồi kết bằng lời “Rất hân hạnh...” tùy chỉnh; sau đó mới tiếp tục sang thông tin cô dâu chú rể, nghi lễ và tiệc cưới.
 5. **Action:** Google Maps, thêm lịch và RSVP dễ tìm, touch target tối thiểu 44px.
 6. **Memory:** album, sổ lưu bút/lời chúc, thông tin quà mừng và lời cảm ơn hoàn tất trải nghiệm.
 
@@ -74,14 +80,12 @@ Mọi motion phải dùng transform/opacity khi có thể và có `prefers-reduc
 |---|---:|---:|---:|---|
 | Popup / opening | Bật | Có | Không | Tên cặp đôi, ngày cưới, khách/nhóm khách nếu cá nhân hóa, CTA mở thiệp và motion riêng theo concept |
 | Banner sau khi mở | Bật | Có | Không | Tên cô dâu chú rể, ngày cưới, key visual và composition riêng của template |
-| Lời báo hỷ | Bật | Có | Không | “Trân trọng báo tin lễ thành hôn của con chúng tôi” hoặc nội dung tùy chỉnh tương đương |
-| Hai bên gia đình | Bật | Có | Có | Nhà trai/nhà gái, ông bà hoặc người đại diện, địa chỉ/quê quán; cho phép ẩn từng trường thiếu dữ liệu |
+| Lời mời và hai bên gia đình | Bật | Có | Không | Theo thứ tự bắt buộc: lời mời tùy chỉnh; nhà trai/nhà gái, ông bà hoặc người đại diện và địa chỉ/quê quán; ngày cưới và text tên địa điểm; lời kết “Rất hân hạnh...” tùy chỉnh. Cho phép ẩn từng field gia đình bị thiếu, không tách thành section `families` riêng |
 | Cô dâu và chú rể | Bật | Có | Không | Họ tên, vai vế như trưởng nam/thứ nam/trưởng nữ/thứ nữ/con út hoặc nhãn tùy chỉnh |
 | Ngày và giờ | Bật | Có | Không | Ngày dương lịch, thứ, giờ đón khách, giờ nghi lễ/khai tiệc |
-| Countdown | Bật | Không | Có | Số ngày/giờ còn lại; hết hạn chuyển sang trạng thái “Hôm nay” hoặc “Đã diễn ra” |
+| Countdown và calendar | Bật | Có khả năng hiển thị | Có | Một section có mode `countdown`, `calendar` hoặc `both`; phải bật ít nhất một thành phần. Countdown hết hạn chuyển sang “Hôm nay”/“Đã diễn ra”; calendar đánh dấu đúng ngày cưới |
 | Nghi lễ thành hôn | Bật | Có | Có | “Được cử hành tại”, địa điểm, ngày giờ âm/dương lịch nếu user cung cấp và ghi chú trang phục tùy chọn |
 | Thông tin tiệc cưới | Bật | Có | Có | “Kính mời {tên khách}” hoặc “Kính mời Quý khách”, giờ đón khách, giờ khai tiệc, nơi tổ chức và địa chỉ |
-| Lịch trực quan | Bật | Có khả năng hiển thị | Có | Tháng/năm dạng calendar, đánh dấu ngày cưới; visual phải biến đổi theo template |
 | Lịch trình | Bật | Có khả năng hiển thị | Có | Các mốc đón khách, nghi lễ, khai tiệc và hoạt động tùy chỉnh |
 | Địa điểm và Google Maps | Bật | Có khả năng hiển thị | Có | Địa chỉ dạng text, embed map, nút mở Google Maps và fallback khi iframe lỗi |
 | Thêm vào lịch | Bật | Có khả năng hiển thị | Đi cùng ngày giờ | Google Calendar và file ICS ở giai đoạn backend |
@@ -92,12 +96,12 @@ Mọi motion phải dùng transform/opacity khi có thể và có `prefers-reduc
 | Quà mừng | Tắt | Có khả năng hiển thị | Có | Lời nhắn, QR và thông tin tài khoản do chủ thiệp chủ động bật; không dùng fixture chứa dữ liệu thật |
 | Lời cảm ơn/footer | Bật | Có | Cuối | Lời cảm ơn khách đã dành thời gian chung vui, tên cặp đôi và thương hiệu tối giản |
 
-“Có khả năng hiển thị” nghĩa là template bắt buộc phải thiết kế và triển khai section đó. Chủ thiệp có quyền bật/tắt khi cấu hình. Khi tắt, section phải rời DOM và bố cục tự nối lại. Popup, banner, lời báo hỷ, tên cặp đôi, ngày giờ chính và lời cảm ơn là xương sống, không được bỏ khỏi một template thiệp cơ bản.
+“Có khả năng hiển thị” nghĩa là template bắt buộc phải thiết kế và triển khai section đó. Chủ thiệp có quyền bật/tắt khi cấu hình. Khi tắt, section phải rời DOM và bố cục tự nối lại. Popup, banner, section lời mời và hai bên gia đình, tên cặp đôi, ngày giờ chính và lời cảm ơn là xương sống, không được bỏ khỏi một template thiệp cơ bản.
 
 ## 4. Dữ liệu cốt lõi
 
 - Cặp đôi: tên hiển thị, tên đầy đủ, monogram, đại từ/xưng hô và vai vế tùy chọn. Vai vế là free-text có preset, không hard-code giới tính hay thứ tự con.
-- Hai gia đình: nhãn nhà trai/nhà gái hoặc cách gọi tùy chỉnh; ông, bà, người đại diện, địa chỉ hoặc quê quán. Mỗi người và mỗi địa chỉ có thể vắng mặt độc lập.
+- Lời mời và hai gia đình: lời mời mở đầu; nhãn nhà trai/nhà gái hoặc cách gọi tùy chỉnh; ông, bà, người đại diện, địa chỉ hoặc quê quán; ngày cưới; tên địa điểm; lời kết đón tiếp. Mọi nội dung đều tùy chỉnh được. Mỗi người và mỗi địa chỉ có thể vắng mặt độc lập, nhưng renderer phải giữ đúng thứ tự nội dung của section.
 - Nội dung nghi lễ: câu báo hỷ, câu “được cử hành tại”, ngày âm/dương lịch, giờ làm lễ và ghi chú tùy chọn.
 - Tiệc cưới: lời kính mời có placeholder người nhận, giờ đón khách, giờ khai tiệc, địa điểm, địa chỉ và dress code tùy chọn.
 - Sự kiện: loại sự kiện, ngày, múi giờ, giờ bắt đầu/kết thúc, địa điểm và lịch trình. Một thiệp có thể có lễ gia tiên, lễ thành hôn và tiệc ở các thời điểm/địa điểm khác nhau.
@@ -158,8 +162,8 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 
 - Cover mở được bằng click, Enter và Space; không double-open.
 - Popup và banner có art direction/motion riêng, banner hiện đúng tên cô dâu chú rể sau khi mở.
-- Nội dung đọc theo cấu trúc thiệp giấy: người báo tin, hai gia đình, vai vế, cặp đôi, nghi lễ, tiệc, ngày giờ và địa điểm.
-- Template triển khai đủ album, calendar, RSVP, map, lịch trình, hoạt động trong tiệc, lời chúc, quà mừng và cảm ơn; kiểm thử trạng thái bật/tắt độc lập.
+- Section `invitation` đọc đúng thứ tự lời mời → hai gia đình → ngày cưới và tên địa điểm → lời kết đón tiếp; toàn bộ nội dung chỉnh sửa được và không có section `families` độc lập.
+- Template triển khai đủ section `countdownCalendar`, album, RSVP, map, lịch trình, hoạt động trong tiệc, lời chúc, quà mừng và cảm ơn; `countdownCalendar` hỗ trợ countdown, calendar hoặc cả hai nhưng không tách thành hai section.
 - Mobile 375px, tablet 768px và desktop không có horizontal overflow.
 - Tên dài, thiếu tên phụ huynh, nhiều sự kiện và địa chỉ dài không phá layout.
 - Palette đạt tương phản đọc được; focus visible và touch target đạt 44px.
@@ -170,11 +174,11 @@ Mỗi template phải có một motion direction riêng, không chỉ đổi mà
 - Mọi section optional được thử cả trạng thái bật và tắt.
 - Fixture không chứa dữ liệu thật; asset có nguồn/license; không hotlink asset của website tham khảo.
 
-### Family focal và thời gian thực
+### Invitation–family focal và section thời gian
 
-`families` là section bắt buộc, không được tắt ở mọi thiệp online. Đây là khối thông tin trọng yếu theo tập quán thiệp cưới Việt Nam nên phải có hierarchy rõ hơn section nội dung thường: phân biệt nhà gái/nhà trai, đại diện cha mẹ, vai vế và họ tên cô dâu/chú rể, tư gia/địa chỉ và lời kính mời. Danh xưng như `Ông`, `Bà`, `Trưởng nam`, `Trưởng nữ` phải nằm trên dòng nhãn riêng, không ghép cùng dòng họ tên. Danh xưng và họ tên cũng phải là các field content riêng; renderer không suy luận danh xưng bằng cách parse chuỗi họ tên, ngoại trừ fallback tạm thời cho dữ liệu legacy. Trên mobile, hai gia đình xếp dọc, dấu kết duyên nằm giữa nhưng không che chữ; typography ưu tiên khả năng đọc thay vì phóng đại trang trí. Dấu kết duyên có thể dùng ripple chậm, giới hạn hai vòng lan và phản hồi hover/tap; reduced motion phải giữ dấu ở trạng thái tĩnh.
+Với template mới, `invitation` là section bắt buộc và chứa luôn thông tin hai bên gia đình. Section phải bắt đầu bằng lời mời, tiếp đến hai khối gia đình, sau đó là ngày cưới cùng tên địa điểm và kết bằng lời đón tiếp như “Rất hân hạnh được đón tiếp...” hoặc nội dung tùy chỉnh tương đương. Đây là khối thông tin trọng yếu theo tập quán thiệp cưới Việt Nam nên phải có hierarchy rõ: phân biệt nhà gái/nhà trai, đại diện cha mẹ, vai vế, tư gia/địa chỉ, ngày và địa điểm. Danh xưng và họ tên là các field riêng; renderer không parse họ tên để suy luận danh xưng. Tên phải nổi bật hơn danh xưng và metadata. Trên mobile, hai gia đình xếp dọc và typography ưu tiên khả năng đọc.
 
-Theme có countdown phải tính lại từ timestamp sự kiện mỗi giây và hiển thị đủ ngày, giờ, phút, giây bằng tabular numerals. Calendar theo đúng art direction nên được giữ hoặc bổ sung cạnh countdown; timer dùng `aria-live="off"` để tránh screen reader đọc lại mỗi giây, tự dừng ở 0 và không phụ thuộc animation nên vẫn chính xác dưới reduced motion.
+`countdownCalendar` là một section presentation duy nhất. Template chọn mode countdown, calendar hoặc cả hai; config/editor không cung cấp hai section toggle độc lập. Nếu có countdown, timer tính lại từ timestamp sự kiện mỗi giây, hiển thị đủ ngày, giờ, phút, giây bằng tabular numerals, dùng `aria-live="off"`, tự dừng ở 0 và vẫn chính xác dưới reduced motion. Nếu có calendar, ngày cưới phải được nhận biết bằng shape/text chứ không chỉ bằng màu.
 
 ## 10. Các mẫu hiện có
 
@@ -184,7 +188,7 @@ Theme có countdown phải tính lại từ timestamp sự kiện mỗi giây v�
 
 `Mây Hồng Có Đôi` v1.1 là implementation chibi storybook tại `/templates/invitations/chibi-daydream/preview`. Mẫu dùng coral, powder blue và ivory; popup phong bì 3D, ảnh cặp đôi/album do GMM tạo và vật phẩm từ `assets/icons/chibi`. Family announcement là section bắt buộc với hai card chibi tách biệt, dấu trái tim kết duyên, vai vế và tư gia rõ ràng. Calendar giấy được giữ và bổ sung countdown realtime đủ ngày–giờ–phút–giây; slideshow, RSVP, Maps, sổ lưu bút, QR minh họa và reduced-motion fallback tiếp tục được hỗ trợ.
 
-Các mẫu hiện tại cần tiếp tục được đối chiếu với contract mở rộng ở tài liệu này. Việc một section đang có fixture UI không đồng nghĩa API, cá nhân hóa invite token, moderation, upload QR hoặc lưu RSVP đã hoàn tất.
+Các mẫu hiện tại là implementation legacy hợp lệ và giữ nguyên section contract của chúng; không merge hoặc rename hồi tố. Contract hợp nhất chỉ áp dụng cho template bắt đầu mới từ 06/10/2026. Việc một section đang có fixture UI không đồng nghĩa API, cá nhân hóa invite token, moderation, upload QR hoặc lưu RSVP đã hoàn tất.
 
 ## 11. Nguồn tham khảo UX
 

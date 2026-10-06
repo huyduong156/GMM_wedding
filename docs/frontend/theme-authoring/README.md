@@ -4,6 +4,8 @@
 
 New invitation templates use a mobile-first canvas with a design/content width capped at `480px`. The renderer must remain fluid below that width, avoid horizontal overflow, and keep larger viewport presentation centered with controlled outer gutters rather than expanding the invitation composition indefinitely. This cap applies to the invitation surface; admin, studio, and wedding website layouts keep their own viewport contracts.
 
+Invitation templates whose Phase 1 authoring starts on or after 06/10/2026 use the consolidated section contract in `docs/frontend/online-invitations/section-layout-catalog.md`: `invitation` contains the invitation copy, both families, wedding date, venue-name text and closing welcome line in that order; `countdownCalendar` contains countdown, calendar or both. Existing templates retain their current keys and shapes without retroactive migration.
+
 Tài liệu này là contract dùng chung cho mọi theme public của ourday: Invitation, Wedding Website và Wedding Recap. Domain agent phải đọc tài liệu này trước khi đọc section rules riêng và trước khi tạo hoặc sửa bất kỳ theme nào.
 
 ## 1. Quy trình bắt buộc
@@ -393,7 +395,7 @@ Renderer phải map đúng `sectionKey`, render đủ required sections, hỗ tr
 
 Các quy tắc dưới đây là contract ổn định cho mọi template mới. Không tự ý tạo biến thể theo từng template; nếu contract cần thay đổi, phải xử lý migration/scanner theo lô.
 
-- `template-config.ts` phải giữ đúng cấu trúc, key, nesting và kiểu dữ liệu đang được các template hiện có sử dụng để scanner, editor, validator và catalog đọc được. Không đổi tên key, đổi shape hoặc thêm cấu trúc riêng chỉ vì một template cần cách biểu diễn khác.
+- `template-config.ts` phải giữ đúng outer structure, nesting và kiểu dữ liệu chung để scanner, editor, validator và catalog đọc được. Section key phải theo contract domain đã version hóa; với invitation template mới dùng `invitation` và `countdownCalendar` theo catalog. Không đổi shape hoặc thêm cấu trúc riêng chỉ vì một template cần cách biểu diễn khác.
 - Các phần tử nhỏ có vai trò thị giác trong từng section phải có entrance effect riêng, thay vì chỉ animate toàn section. Entrance effect dùng `motion/react`, target tường minh và token timing của template; bộ CSS `.reveal`/`.reveal--*` đã bị loại bỏ. Trigger khi người dùng đã scroll qua khoảng hơn một phần ba viewport/section theo convention hiện hành.
 - Entrance effect không được quá nhanh. Giữ đủ thời gian để người dùng nhận biết hierarchy, chỉ animate `transform` và `opacity` khi có thể, đồng thời có fallback hoàn chỉnh cho reduced motion.
 - Luôn xử lý `guestName` trong mọi section có nội dung cá nhân hóa. Khi cần hiển thị tên người nhận, renderer phải lấy từ content/runtime contract đúng chuẩn, không hard-code fixture hoặc bỏ qua khi section được bật/tắt.
@@ -401,4 +403,4 @@ Các quy tắc dưới đây là contract ổn định cho mọi template mới.
 - Tất cả label, title và hướng dẫn của input trong editor phải đầy đủ bằng tiếng Việt, rõ nghĩa và phù hợp với dữ liệu người dùng cần nhập.
 - Không đưa text cố định của button, placeholder, câu hướng dẫn chung chung hoặc copy hệ thống vào input content của editor. Chỉ khai báo các giá trị thực sự là nội dung người dùng cần chỉnh sửa.
 - Decor renderer-owned như hoa nền, lá, khung, texture và ornament không cần input image để user thay đổi. Chỉ expose input cho ảnh user upload hoặc vị trí đặc biệt có chủ đích, như ảnh cô dâu/chú rể dùng làm background.
-- Section hai bên gia đình phải ưu tiên tên cha mẹ và tên thành viên gia đình trong hierarchy: tên phải lớn/nổi bật hơn danh xưng, địa chỉ và metadata; trên mobile vẫn phải đọc rõ từng tên và vai vế.
+- Với invitation template mới, section `invitation` hợp nhất phải ưu tiên tên cha mẹ và tên thành viên gia đình trong hierarchy: tên phải lớn/nổi bật hơn danh xưng, địa chỉ và metadata; trên mobile vẫn phải đọc rõ từng tên và vai vế. Không tạo `families` riêng; các template hiện có giữ nguyên shape legacy.

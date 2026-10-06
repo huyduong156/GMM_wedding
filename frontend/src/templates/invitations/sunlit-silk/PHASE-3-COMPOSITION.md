@@ -1,8 +1,10 @@
 # Sunlit Silk - Phase 3 section architecture
 
-Status: **Complete; ready for Phase 4 motion/interaction**
+Status: **Rebuilt; code gate complete**
 
-Phase 3 locks the reading skeleton before motion or raster integration. The invitation remains a vertical paper/linen card inside the 480px stage. Required information stays text-first; approved artwork is decorative and never owns content.
+The first implementation only rendered the section map through one generic card. The current renderer replaces that skeleton with distinct cover, letter, family diptych, date ledger, countdown, calendar, stitched timeline, venue ticket, activity list, gallery deck, RSVP, guestbook, gift, music and closing compositions. Content now comes from typed fixture/runtime props and the editor schema is populated.
+
+Phase 3 locks the reading skeleton before motion or raster integration. The invitation reads as one continuous paper/linen canvas inside the 480px stage: section wrappers do not introduce independent color bands or card backgrounds. Required information stays text-first; approved artwork is decorative and never owns content. The opening is a separate full-viewport gate above the canvas, and it locks document scrolling until the clasp ritual completes.
 
 ## Composition map
 
@@ -51,6 +53,6 @@ Phase 3 locks the reading skeleton before motion or raster integration. The invi
 - [x] Empty, missing-media and reduced-motion behavior is defined.
 - [x] Skeleton config mirrors the shared invitation config shape.
 - [x] Skeleton renderer is expanded from shell into section components.
-- [x] Phase 3 visual review at 375px, 390px, 480px, tablet and desktop (shell constraints and type/layout audit).
+- [ ] Repeat the complete 375px, 390px, 480px, tablet and desktop visual review after the rebuild. The 390px cover pass caught and corrected a cropped-name regression.
 
-Phase 4 may now start: the shell, section order, layout anchors and fallback boundaries are locked.
+Phase 4 code has been rebuilt on this architecture. The multi-breakpoint visual gate remains part of the open Phase 5 release review.
