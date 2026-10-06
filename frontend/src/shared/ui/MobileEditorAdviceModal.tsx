@@ -8,8 +8,13 @@ type Props = {
 export function MobileEditorAdviceModal({ open, onClose }: Props) {
   if (!open) return null
 
+  const close = () => {
+    onClose()
+    window.dispatchEvent(new Event('gmm-editor-advice-closed'))
+  }
+
   return (
-    <div className="editor-mobile-advice-backdrop" role="presentation">
+      <div className="editor-mobile-advice-backdrop" role="presentation" data-mobile-editor-advice>
       <section
         className="editor-mobile-advice"
         role="dialog"
@@ -22,7 +27,7 @@ export function MobileEditorAdviceModal({ open, onClose }: Props) {
           Bạn vẫn có thể chỉnh sửa đầy đủ trên điện thoại. Với màn hình lớn, việc nhập nội dung và
           quan sát toàn bộ thiệp sẽ trực quan hơn.
         </p>
-        <button className="button button-primary" type="button" onClick={onClose}>
+        <button className="button button-primary" type="button" onClick={close}>
           Đã hiểu, tiếp tục
         </button>
       </section>

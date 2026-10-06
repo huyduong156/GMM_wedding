@@ -1,11 +1,11 @@
 .home-page {
-  --home-bg: #f6f8f5;
-  --home-surface: rgb(255 255 255 / 0.82);
-  --home-ink: #20342d;
-  --home-muted: #5f7069;
-  --home-line: #d8e0db;
-  --home-accent: #a9562f;
-  --home-accent-dark: #7d3d22;
+  --home-bg: #f5ebdd;
+  --home-surface: rgb(255 253 249 / 0.84);
+  --home-ink: #3d2b22;
+  --home-muted: #765f51;
+  --home-line: #e1cfbc;
+  --home-accent: #7a4e36;
+  --home-accent-dark: #5e3a29;
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
@@ -135,11 +135,9 @@
   white-space: nowrap;
 }
 .home-brand img {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  object-fit: cover;
-  box-shadow: 0 6px 20px rgb(41 67 57 / 0.12);
+  width: 132px;
+  height: auto;
+  object-fit: contain;
 }
 .home-nav-links {
   margin-left: auto;
@@ -1420,12 +1418,10 @@
   text-align: center;
 }
 .home-intro-content > img {
-  width: 82px;
-  height: 82px;
+  width: min(310px, 70vw);
+  height: auto;
   margin-bottom: 22px;
-  border: 1px solid rgb(255 255 255 / 0.35);
-  border-radius: 24px;
-  box-shadow: 0 25px 70px rgb(23 9 4 / 0.3);
+  filter: drop-shadow(0 18px 34px rgb(23 9 4 / 0.2));
 }
 .home-intro-content > span {
   margin-bottom: 22px;

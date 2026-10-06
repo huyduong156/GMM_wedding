@@ -235,11 +235,13 @@ export function VanHyInvitation({
   sectionConfig,
   guestName,
   interactions,
+  editorMode = false,
 }: {
   data?: VanHyData
   sectionConfig?: VanHySectionConfig
   guestName?: string | null
   interactions?: PublicInteractions
+  editorMode?: boolean
 }) {
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
@@ -1069,6 +1071,7 @@ export function VanHyInvitation({
                 title={data?.backgroundMusicName ?? 'Nhạc nền'}
                 autoplay={data?.backgroundMusicAutoplay}
                 active={contentReady}
+                editorMode={editorMode}
               />
             )}
             {showSection('footer', sectionConfig) && (

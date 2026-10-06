@@ -1,4 +1,4 @@
-# GMM Wedding - Persistent Project Context
+# ourday - Persistent Project Context
 
 - CSS reveal migration complete: `frontend/src/shared/styles/reveal-animations.css` đã được xóa vì không còn consumer. Thông tin legacy compatibility bên dưới là lịch sử; không khôi phục `.reveal`/`.reveal--*`. Entrance dùng `motion/react` và target tường minh.
 

@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { RedSpiderLilyRecap } from '../../../templates/recaps/red-spider-lily/RedSpiderLilyRecap'
 import type { RedSpiderLilyRecapContent } from '../../../templates/recaps/red-spider-lily/content'
 import { redSpiderLilyRecapFixture } from '../../../templates/recaps/red-spider-lily/fixture'
 import { WeddingApiError, weddingApi } from '../../../shared/api/weddings'
 import { StatusPage } from '../../status/ui/StatusPage'
+import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
 
 type SectionConfig = { enabled: string[]; order: string[] }
 type DraftPayload = { content?: unknown; theme?: unknown }
@@ -40,6 +41,18 @@ export function PublicRecapPage({ slug }: { slug: string }) {
   const [sectionConfig, setSectionConfig] = useState<SectionConfig>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
+  const metadata = useMemo(
+    () =>
+      content
+        ? publicSurfaceMetadata(
+            { content: content as unknown as Record<string, unknown> },
+            'recap',
+            `/${encodeURIComponent(slug)}/recaps`,
+          )
+        : undefined,
+    [content, slug],
+  )
+  usePageMetadata(metadata)
 
   useEffect(() => {
     let active = true

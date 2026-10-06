@@ -55,7 +55,7 @@ EXTERNAL_ALBUM_LINK
 
 `INTERNAL_ALBUM` dùng media đã được hệ thống kiểm tra và có thể cung cấp grid/masonry/editorial gallery, fullscreen viewer, previous/next, download và swipe trên mobile.
 
-`EXTERNAL_ALBUM_LINK` cho phép owner gắn link album bên ngoài để CTA redirect trực tiếp, phục vụ trường hợp owner không muốn upload ảnh lên GMM Wedding hoặc đã có album ở dịch vụ khác. URL phải được validate; hành vi mở cùng tab/tab mới là cấu hình của renderer và phải có accessible label. External link không được giả vờ là gallery nội bộ nếu hệ thống không quản lý được ảnh/download.
+`EXTERNAL_ALBUM_LINK` cho phép owner gắn link album bên ngoài để CTA redirect trực tiếp, phục vụ trường hợp owner không muốn upload ảnh lên ourday hoặc đã có album ở dịch vụ khác. URL phải được validate; hành vi mở cùng tab/tab mới là cấu hình của renderer và phải có accessible label. External link không được giả vờ là gallery nội bộ nếu hệ thống không quản lý được ảnh/download.
 
 Theme có thể trình bày photo delivery như CTA tối giản, album index, fullscreen invitation-to-gallery hoặc editorial portal; không bắt buộc mọi theme phải có modal gallery giống nhau.
 

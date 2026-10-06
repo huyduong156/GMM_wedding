@@ -8,7 +8,7 @@ Preview sheet: [ARTWORK_PREVIEW.md](./ARTWORK_PREVIEW.md)
 
 ## Locked art direction and source record
 
-The batch was generated specifically for GMM Wedding with OpenAI image generation during
+The batch was generated specifically for Ourday with OpenAI image generation during
 Phase 2.5. It does not incorporate a third-party stock library or external copyrighted asset.
 No separate third-party license is attached; use remains subject to the project's applicable
 OpenAI output terms. The raw tool invocation transcript was not retained, so the prompt records

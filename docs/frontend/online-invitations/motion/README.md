@@ -28,4 +28,4 @@ Tham khảo pattern xuyên sản phẩm cho thiệp online, website cưới và 
 
 Truy cập ngày 02/08/2026: [Motion React](https://motion.dev/docs/react), [Motion layout](https://motion.dev/docs/react-layout-animations), [MotionConfig](https://motion.dev/docs/react-motion-config), [GSAP SplitText](https://gsap.com/docs/v3/Plugins/SplitText/), [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/), [Rive state machines](https://rive.app/docs/runtimes/state-machines), [Rive best practices](https://rive.app/docs/getting-started/best-practices), [tsParticles React](https://particles.js.org/guides/react), [Lenis](https://github.com/darkroomengineering/lenis), [MDN reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion), [web.dev animation performance](https://web.dev/articles/animations-and-performance).
 
-Các capability là thông tin từ tài liệu chính thức; tên pattern, thời lượng và art direction là khuyến nghị nội bộ cho GMM Wedding.
+Các capability là thông tin từ tài liệu chính thức; tên pattern, thời lượng và art direction là khuyến nghị nội bộ cho ourday.

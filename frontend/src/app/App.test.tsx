@@ -14,7 +14,7 @@ describe('Owner Workspace', () => {
       </NavigationProvider>,
     )
     expect(
-      screen.getByRole('status', { name: 'Đang mở không gian GMM Wedding' }),
+      screen.getByRole('status', { name: 'Đang mở không gian Ourday' }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Ngày trọng đại bắt đầu từ một lời mời đẹp.' }),
