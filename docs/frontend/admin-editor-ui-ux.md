@@ -5,7 +5,7 @@
 Frontend quản trị có hai lớp trải nghiệm trong cùng React app:
 
 1. **Owner workspace:** dành cho cặp đôi/cộng tác viên quản lý wedding, nội dung, khách, RSVP, lời chúc và chia sẻ.
-2. **Platform admin:** dành cho đội vận hành GMM Wedding quản lý toàn hệ thống, template, user, report và cấu hình.
+2. **Platform admin:** dành cho đội vận hành ourday quản lý toàn hệ thống, template, user, report và cấu hình.
 
 Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hiển thị platform admin navigation cho user thường.
 

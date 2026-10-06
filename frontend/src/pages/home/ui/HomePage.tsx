@@ -22,6 +22,7 @@ import { marketingRoutes, publicTemplateRoutes, studioRoutes } from '../../../sh
 import './home-page.css'
 import { HomeAmbient } from '../../../shared/ui/home-ambient/HomeAmbient'
 import { WeddingTemplateCarousel } from '../../../shared/ui/wedding-template-carousel/WeddingTemplateCarousel'
+import { BrandLogo } from '../../../shared/ui/BrandLogo'
 
 const journey = [
   {
@@ -82,15 +83,15 @@ export function HomePage() {
   return (
     <div className="home-page">
       {isLoading && (
-        <div className="home-loader" role="status" aria-label="Đang mở không gian GMM Wedding">
+        <div className="home-loader" role="status" aria-label="Đang mở không gian Ourday">
           <div className="home-loader-envelope">
-            <img src="/assets/logo/wedding_logo.png" alt="" />
+            <img src="/assets/logo/ourday-logo.png" alt="" />
             <i />
-            <span>GMM Wedding</span>
+            <span>Ourday</span>
           </div>
         </div>
       )}
-      <section className="home-intro" aria-label="Chào mừng đến GMM Wedding">
+      <section className="home-intro" aria-label="Chào mừng đến Ourday">
         <div className="home-intro-grain" aria-hidden="true" />
         <img
           className="intro-object intro-rings"
@@ -113,7 +114,7 @@ export function HomePage() {
           alt=""
         />
         <div className="home-intro-content">
-          <img src="/assets/logo/wedding_logo.png" alt="GMM Wedding" />
+          <BrandLogo variant="hero" tone="light" />
           <span>Wedding, beautifully organized</span>
           <h1>Ngày trọng đại bắt đầu từ một lời mời đẹp.</h1>
           <p>Tạo không gian cưới mang dấu ấn riêng của hai bạn.</p>
@@ -138,10 +139,9 @@ export function HomePage() {
           <AppLink
             to={marketingRoutes.home}
             className="home-brand"
-            ariaLabel="GMM Wedding - Trang chủ"
+            ariaLabel="Ourday - Trang chủ"
           >
-            <img src="/assets/logo/wedding_logo.png" alt="" />
-            <span>GMM Wedding</span>
+            <BrandLogo />
           </AppLink>
           <div className="home-nav-links">
             <a href="#how-it-works">Tính năng</a>
@@ -491,8 +491,7 @@ export function HomePage() {
 
       <footer className="home-footer">
         <div className="home-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <span>GMM Wedding</span>
+          <BrandLogo />
         </div>
         <p>Không gian số cho một ngày thật đáng nhớ.</p>
         <nav aria-label="Điều hướng cuối trang">

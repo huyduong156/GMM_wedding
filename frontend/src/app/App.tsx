@@ -67,6 +67,8 @@ import { useOptionalAuth } from '../features/auth/model/auth-context'
 import { StatusPage } from '../pages/status/ui/StatusPage'
 import { statusPathToKind } from '../pages/status/ui/status-routes'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { applyPageMetadata } from '../shared/lib/page-metadata'
+import { routeMetadata } from './route-metadata'
 
 const studioPages: Record<string, React.ReactNode> = {
   [studioRoutes.home]: <DashboardPage />,
@@ -121,6 +123,10 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 function AppContent() {
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
+
+  useEffect(() => {
+    applyPageMetadata(routeMetadata(pathname))
+  }, [pathname])
 
   useEffect(() => {
     const legacyMatch = pathname.match(/^\/app\/weddings\/[^/]+\/([^/]+)\/?$/)

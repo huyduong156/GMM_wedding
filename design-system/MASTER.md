@@ -1,4 +1,4 @@
-# GMM Wedding Admin Design System
+# ourday Admin Design System
 
 Status: Accepted foundation
 Source: UI/UX Pro Max search, adjusted for a data-dense web administration product.
@@ -17,24 +17,24 @@ Modern daylight operational UI: calm, compact, readable and fast. Wedding person
 
 ```css
 :root[data-theme="light"] {
-  --bg-canvas: #f7f6f2;
-  --bg-sidebar: #fbfaf7;
-  --bg-surface: #ffffff;
-  --bg-surface-raised: #f3f0e9;
-  --bg-subtle: #eeeae2;
-  --fg-primary: #211f1b;
-  --fg-secondary: #5f5a52;
-  --fg-muted: #7d756b;
-  --border-subtle: #e4ded4;
-  --border-strong: #cbc2b6;
-  --brand: #b76016;
-  --brand-hover: #97490d;
-  --brand-subtle: #fff0dc;
+  --bg-canvas: #f5ebdd;
+  --bg-sidebar: #fbf5ec;
+  --bg-surface: #fffdf9;
+  --bg-surface-raised: #f0e0cf;
+  --bg-subtle: #ead9c6;
+  --fg-primary: #3d2b22;
+  --fg-secondary: #6f5647;
+  --fg-muted: #8a7465;
+  --border-subtle: #e3d2c0;
+  --border-strong: #cdb49e;
+  --brand: #7a4e36;
+  --brand-hover: #5e3a29;
+  --brand-subtle: #f2e4d5;
   --info: #60a5fa;
   --success: #16794b;
   --warning: #a45d08;
   --danger: #c73b45;
-  --focus: #b76016;
+  --focus: #7a4e36;
 }
 ```
 

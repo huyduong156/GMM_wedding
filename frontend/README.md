@@ -1,4 +1,4 @@
-# GMM Wedding Frontend
+# ourday Frontend
 
 React + Vite + TypeScript cho Owner Workspace, editor và public wedding renderer.
 

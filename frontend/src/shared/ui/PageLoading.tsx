@@ -14,7 +14,7 @@ export function PageLoading({
         <span />
         <Heart size={18} weight="fill" />
       </div>
-      <p className="page-loading-kicker">GMM Wedding</p>
+      <p className="page-loading-kicker">ourday</p>
       <h1>{label}</h1>
       <p className="page-loading-detail">{detail}</p>
     </main>

@@ -76,10 +76,10 @@ export function LoginPage() {
 
   return (
     <main className="login-page">
-      <section className="login-story" aria-label="Giới thiệu GMM Wedding">
+      <section className="login-story" aria-label="Giới thiệu ourday">
         <div className="login-brand">
-          <img src="/assets/logo/wedding_logo.png" alt="" />
-          <span>GMM Wedding</span>
+          <img src="/assets/logo/ourday-logo.png" alt="" />
+          <span>Ourday</span>
         </div>
         <div className="login-story-copy">
           <span className="login-eyebrow">Một nơi cho ngày trọng đại</span>
@@ -95,8 +95,8 @@ export function LoginPage() {
         <WeddingAmbient variant="login" />
         <form className="login-card" onSubmit={submit}>
           <div className="login-mobile-brand">
-            <img src="/assets/logo/wedding_logo.png" alt="" />
-            <strong>GMM Wedding</strong>
+            <img src="/assets/logo/ourday-logo.png" alt="" />
+            <strong>Ourday</strong>
           </div>
           <span className="login-kicker">Chào mừng trở lại</span>
           <h2 id="login-title">Đăng nhập</h2>
