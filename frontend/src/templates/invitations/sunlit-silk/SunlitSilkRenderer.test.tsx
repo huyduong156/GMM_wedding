@@ -46,6 +46,21 @@ describe('SunlitSilkRenderer rebuild contract', () => {
     ).toBe(true)
   })
 
+  it('renders the default bride and groom demo portraits in the cover', () => {
+    const { container } = render(<SunlitSilkRenderer editorMode />)
+    const portraits = container.querySelectorAll('.ss-portrait-cover__photo img')
+
+    expect(portraits).toHaveLength(2)
+    expect(portraits[0]).toHaveAttribute(
+      'src',
+      '/assets/images/templates/green-hydrangea/bride-portrait.png',
+    )
+    expect(portraits[1]).toHaveAttribute(
+      'src',
+      '/assets/images/templates/green-hydrangea/groom-portrait.png',
+    )
+  })
+
   it('removes disabled optional sections without leaving placeholders', () => {
     const { container } = render(
       <SunlitSilkRenderer

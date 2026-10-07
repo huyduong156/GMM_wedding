@@ -34,15 +34,22 @@ import './sunlit-silk-opening.css'
 
 export type { SunlitSilkData, SunlitSilkSectionConfig, SunlitSilkSectionKey }
 
+const coverPhraseFrom = 'Hai người, một lời hẹn'
+const coverPhraseTo = 'Mình thương, mình ở lại'
+const coverPhraseLength = Math.max(coverPhraseFrom.length, coverPhraseTo.length)
+
 const artwork = {
   ribbon: '/assets/images/templates/sunlit-silk/artwork/ss-ribbon-clasp-v2-optimized.png',
   floralCluster:
     '/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-cluster-v1-optimized.png',
   floralSculpture:
     '/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-sculpture-v1-optimized.png',
+  coverBotanical:
+    '/assets/images/templates/sunlit-silk/artwork/ss-modern-botanical-white-eucalyptus-v1-generated.png',
   petals: '/assets/images/templates/sunlit-silk/artwork/ss-modern-orchid-petals-v1-optimized.png',
   envelope: '/assets/images/templates/sunlit-silk/artwork/ss-linen-envelope-v1-optimized.png',
   paperStack: '/assets/images/templates/sunlit-silk/artwork/ss-cotton-paper-stack-v1-optimized.png',
+  paperFrame: '/assets/images/templates/sunlit-silk/artwork/ss-opening-paper-v2.png',
   linenFold: '/assets/images/templates/sunlit-silk/artwork/ss-linen-fold-v1-optimized.png',
   ribbonTail: '/assets/images/templates/sunlit-silk/artwork/ss-linen-ribbon-tail-v2-optimized.png',
 } as const
@@ -85,12 +92,22 @@ const mediaAlt = (value: string | SunlitSilkMedia | null | undefined, fallback: 
   typeof value === 'string' ? fallback : value?.alt || fallback
 const personalize = (value: string | null | undefined, guestName?: string | null) =>
   (value ?? '').replaceAll('{guestName}', guestName?.trim() || 'Quý khách')
+const lastNameInitial = (value?: string | null) => {
+  const words = value?.trim().split(/\s+/).filter(Boolean) ?? []
+  return words.at(-1)?.slice(0, 1).toUpperCase() || '•'
+}
 
 function mergeContent(data?: SunlitSilkData): SunlitSilkData {
+  const couple = { ...sunlitSilkFixture.couple, ...data?.couple }
+
   return {
     ...sunlitSilkFixture,
     ...data,
-    couple: { ...sunlitSilkFixture.couple, ...data?.couple },
+    couple: {
+      ...couple,
+      brideMedia: couple.brideMedia || sunlitSilkFixture.couple?.brideMedia,
+      groomMedia: couple.groomMedia || sunlitSilkFixture.couple?.groomMedia,
+    },
     event: { ...sunlitSilkFixture.event, ...data?.event },
     opening: { ...sunlitSilkFixture.opening, ...data?.opening },
     cover: { ...sunlitSilkFixture.cover, ...data?.cover },
@@ -131,6 +148,38 @@ function getCountdown(target: number | null) {
     Math.floor(remaining / 60_000) % 60,
     Math.floor(remaining / 1_000) % 60,
   ]
+}
+
+const vietnameseWeekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
+const vietnameseMonths = ['Một', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy', 'Tám', 'Chín', 'Mười', 'Mười một', 'Mười hai']
+
+function getWeddingDateParts(value = '') {
+  const match = value.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/)
+  if (!match) return { day: value || '—', month: '—', year: '—', weekday: '—', lunar: '—' }
+
+  const day = Number(match[1])
+  const monthIndex = Number(match[2]) - 1
+  const year = Number(match[3])
+  const date = new Date(year, monthIndex, day)
+  let lunar = '—'
+
+  try {
+    lunar = new Intl.DateTimeFormat('vi-VN-u-ca-chinese', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(date)
+  } catch {
+    // Keep the fixture fallback when the browser has no Chinese calendar support.
+  }
+
+  return {
+    day: String(day).padStart(2, '0'),
+    month: vietnameseMonths[monthIndex] ?? String(monthIndex + 1),
+    year: String(year),
+    weekday: vietnameseWeekdays[date.getDay()] ?? '—',
+    lunar,
+  }
 }
 
 function DecorImage({
@@ -344,6 +393,7 @@ export function SunlitSilkRenderer({
   const guest = connectedGuestName || null
   const showGuestNameInput = !interactions?.isPersonalized && !connectedGuestName
   const countdown = getCountdown(getTargetTime(content.event?.weddingDate, content.event?.time))
+  const weddingDateParts = getWeddingDateParts(content.event?.weddingDate)
   const galleryImages = (content.galleryImages ?? [])
     .map((item) => ({
       src: mediaSource(item),
@@ -410,7 +460,6 @@ export function SunlitSilkRenderer({
         data-phase="3-rebuild"
         data-editor-section="opening"
       >
-        <div className="ss-stage__light" aria-hidden="true" />
         <SunlitDust />
         <DecorImage
           src={artwork.petals}
@@ -498,31 +547,88 @@ export function SunlitSilkRenderer({
         <div className="ss-sections" aria-hidden={!openingComplete}>
           <motion.section
             ref={coverRef}
-            className="ss-section ss-section--cover"
+            className="ss-section ss-section--portrait-cover"
             data-editor-section="cover"
             tabIndex={-1}
             style={{ order: order.indexOf('cover') }}
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.985 }}
-            animate={openingComplete ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.985 }}
-            transition={
-              reduceMotion ? { duration: 0 } : { duration: 0.9, ease: revealTransition.ease }
-            }
+            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+            animate={openingComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.78, ease: revealTransition.ease }}
           >
             <DecorImage
-              src={artwork.floralCluster}
-              className="ss-cover-floral"
+              src={artwork.floralSculpture}
+              className="ss-portrait-cover__floral"
               width={768}
               height={1152}
               eager
             />
-            <div className="ss-cover-sun" aria-hidden="true" />
-            <div className="ss-cover-copy">
+            <DecorImage
+              src={artwork.coverBotanical}
+              className="ss-portrait-cover__botanical"
+              width={768}
+              height={1152}
+              eager
+            />
+            <div className="ss-portrait-cover__header">
               <span>{content.cover?.eyebrow}</span>
-              <h2 id="ss-cover-title">
-                <b>{content.couple?.brideName}</b>
-                <i>&amp;</i>
-                <b>{content.couple?.groomName}</b>
-              </h2>
+              <p className="ss-portrait-cover__phrase" aria-label={coverPhraseTo}>
+                <span className="ss-portrait-cover__phrase-line" aria-hidden="true">
+                  {Array.from({ length: coverPhraseLength }, (_, index) => {
+                    const fromCharacter = coverPhraseFrom[index] ?? ' '
+                    const toCharacter = coverPhraseTo[index] ?? ' '
+
+                    return (
+                      <span
+                        key={`${fromCharacter}-${toCharacter}-${index}`}
+                        className="ss-portrait-cover__glyph"
+                        style={{ '--ss-letter-index': index } as CSSProperties}
+                      >
+                        <span className="ss-portrait-cover__glyph-face ss-portrait-cover__glyph-face--from">
+                          {fromCharacter === ' ' ? '\u00a0' : fromCharacter}
+                        </span>
+                        <span className="ss-portrait-cover__glyph-face ss-portrait-cover__glyph-face--to">
+                          {toCharacter === ' ' ? '\u00a0' : toCharacter}
+                        </span>
+                      </span>
+                    )
+                  })}
+                </span>
+              </p>
+            </div>
+            <div className="ss-portrait-cover__portraits">
+              <figure className="ss-portrait-cover__bride">
+                <div className="ss-portrait-cover__paper">
+                  <div className="ss-portrait-cover__photo">
+                    {mediaSource(content.couple?.brideMedia) ? (
+                      <img src={mediaSource(content.couple?.brideMedia)} alt={mediaAlt(content.couple?.brideMedia, `Ảnh cô dâu ${content.couple?.brideName ?? ''}`)} loading="eager" decoding="async" />
+                    ) : (
+                      <span aria-hidden="true">{content.couple?.brideName?.slice(0, 1)}</span>
+                    )}
+                  </div>
+                </div>
+                <figcaption>
+                  <small>Cô dâu</small>
+                  <b>{content.couple?.brideName}</b>
+                </figcaption>
+              </figure>
+              <span className="ss-portrait-cover__seal" aria-hidden="true">&amp;</span>
+              <figure className="ss-portrait-cover__groom">
+                <div className="ss-portrait-cover__paper">
+                  <div className="ss-portrait-cover__photo">
+                    {mediaSource(content.couple?.groomMedia) ? (
+                      <img src={mediaSource(content.couple?.groomMedia)} alt={mediaAlt(content.couple?.groomMedia, `Ảnh chú rể ${content.couple?.groomName ?? ''}`)} loading="eager" decoding="async" />
+                    ) : (
+                      <span aria-hidden="true">{content.couple?.groomName?.slice(0, 1)}</span>
+                    )}
+                  </div>
+                </div>
+                <figcaption>
+                  <small>Chú rể</small>
+                  <b>{content.couple?.groomName}</b>
+                </figcaption>
+              </figure>
+            </div>
+            <div className="ss-portrait-cover__footer">
               <time>{content.event?.weddingDate}</time>
               <p>{content.cover?.message}</p>
             </div>
@@ -533,21 +639,25 @@ export function SunlitSilkRenderer({
             order={order}
             className="ss-letter-section"
           >
-            <DecorImage
-              src={artwork.ribbonTail}
-              className="ss-letter-ribbon"
-              width={1280}
-              height={547}
-            />
             <article className="ss-letter">
-              <span className="ss-letter__stamp">M • H</span>
-              <SectionHeading id="ss-invitation-title" kicker="Lời báo hỷ">
-                {personalize(content.invitation?.title, guest)}
-              </SectionHeading>
-              <p>{personalize(content.invitation?.message, guest)}</p>
-              <strong>
-                {content.couple?.brideName} <i>&amp;</i> {content.couple?.groomName}
-              </strong>
+              <DecorImage
+                src={artwork.envelope}
+                className="ss-letter__corner-paper"
+                width={1280}
+                height={1600}
+                eager
+              />
+              <div className="ss-letter__content">
+                <span className="ss-letter__stamp ss-letter__stamp--dynamic">
+                  {lastNameInitial(content.couple?.brideName)} · {lastNameInitial(content.couple?.groomName)}
+                </span>
+                <span className="ss-letter__stamp">M • H</span>
+                <SectionHeading id="ss-invitation-title" kicker="Lời báo hỷ">
+                  Trân trọng kính mời {guest || 'Quý khách'}
+                </SectionHeading>
+                <p>{personalize(content.invitation?.message, guest)}</p>
+                <strong>Trân trọng</strong>
+              </div>
             </article>
           </SilkSection>
           <SilkSection sectionKey="families" active={active} order={order}>
@@ -558,6 +668,34 @@ export function SunlitSilkRenderer({
                 &amp;
               </span>
               <FamilyCard side={content.families?.groomSide} />
+            </div>
+            <div className="ss-family-date">
+              <div className="ss-family-date__row">
+                <div className="ss-family-date__weekday">
+                  <small>{weddingDateParts.weekday}</small>
+                </div>
+                <div className="ss-family-date__day">
+                  <small>Ngày</small>
+                  <time>{weddingDateParts.day}</time>
+                </div>
+                <div className="ss-family-date__month">
+                  <small>Tháng {weddingDateParts.month}</small>
+                </div>
+              </div>
+              <div className="ss-family-date__year">
+                <strong>{weddingDateParts.year}</strong>
+              </div>
+              <span className="ss-family-date__lunar">(Âm lịch: {weddingDateParts.lunar})</span>
+            </div>
+            <div className="ss-family-couple">
+              <div>
+                <small>{content.couple?.brideRole}</small>
+                <strong>{content.couple?.brideName}</strong>
+              </div>
+              <div>
+                <small>{content.couple?.groomRole}</small>
+                <strong>{content.couple?.groomName}</strong>
+              </div>
             </div>
             <p className="ss-family-note">{personalize(content.families?.message, guest)}</p>
           </SilkSection>

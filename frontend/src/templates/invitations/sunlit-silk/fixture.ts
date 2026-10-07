@@ -22,7 +22,24 @@ const demoMedia = {
 } as const
 
 export const sunlitSilkFixture: SunlitSilkData = {
-  couple: { brideName: 'Thu Hà', groomName: 'Minh An' },
+  couple: {
+    brideName: 'Thu Hà',
+    brideRole: 'Trưởng nữ',
+    brideMedia: {
+      src: '/assets/images/templates/green-hydrangea/bride-portrait.png',
+      alt: 'Ảnh demo cô dâu',
+      mediaAssetId: 'sunlit-silk-demo-bride',
+      role: 'cover-bride',
+    },
+    groomName: 'Minh An',
+    groomRole: 'Trưởng nam',
+    groomMedia: {
+      src: '/assets/images/templates/green-hydrangea/groom-portrait.png',
+      alt: 'Ảnh demo chú rể',
+      mediaAssetId: 'sunlit-silk-demo-groom',
+      role: 'cover-groom',
+    },
+  },
   event: {
     weddingDate: '16.01.2027',
     time: '09:00',

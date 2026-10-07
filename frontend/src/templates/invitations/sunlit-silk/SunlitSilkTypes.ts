@@ -44,7 +44,14 @@ export type SunlitSilkTimelineItem = {
 }
 
 export type SunlitSilkData = {
-  couple?: { brideName?: string; groomName?: string }
+  couple?: {
+    brideName?: string
+    groomName?: string
+    brideRole?: string
+    groomRole?: string
+    brideMedia?: SunlitSilkMedia | string | null
+    groomMedia?: SunlitSilkMedia | string | null
+  }
   event?: {
     weddingDate?: string
     time?: string

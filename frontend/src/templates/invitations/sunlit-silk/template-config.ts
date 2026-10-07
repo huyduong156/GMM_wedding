@@ -13,6 +13,13 @@ const longText = (label: string, contentKey: string, maxLength = 300) => ({
   contentKey,
   maxLength,
 })
+const image = (label: string, contentKey: string, mediaRole: string) => ({
+  type: 'image' as const,
+  label,
+  contentKey,
+  mediaRole,
+  mediaValue: 'object' as const,
+})
 type SunlitSectionConfig = Exclude<TemplateSectionConfig, string>
 
 const sections: SunlitSectionConfig[] = [
@@ -35,7 +42,9 @@ const sections: SunlitSectionConfig[] = [
     canReorder: false,
     fields: {
       brideName: text('Tên cô dâu', 'couple.brideName', true),
+      brideMedia: image('Ảnh cô dâu', 'couple.brideMedia', 'cover-bride'),
       groomName: text('Tên chú rể', 'couple.groomName', true),
+      groomMedia: image('Ảnh chú rể', 'couple.groomMedia', 'cover-groom'),
       weddingDate: text('Ngày cưới', 'event.weddingDate', true),
       eyebrow: text('Dòng giới thiệu', 'cover.eyebrow'),
       message: longText('Lời nhắn trên bìa', 'cover.message', 180),
@@ -48,7 +57,6 @@ const sections: SunlitSectionConfig[] = [
     canToggle: false,
     canReorder: false,
     fields: {
-      title: text('Tiêu đề lời mời', 'invitation.title', true),
       message: longText('Nội dung lời mời', 'invitation.message', 400),
     },
   },
