@@ -390,17 +390,11 @@
 }
 
 .ss-date-ledger,
-.ss-date-copy .ss-section-heading>span,
-.ss-date-copy .ss-section-heading h2,
-.ss-event-times time {
+.ss-event-copy .ss-section-heading>span,
+.ss-event-copy .ss-section-heading h2 {
   color: var(--ss-ink);
 }
 
-.ss-event-times {
-  border-top-color: var(--ss-line);
-}
-
-.ss-event-times span,
 .ss-gallery>p,
 .ss-gallery-index,
 .ss-footer p {
@@ -1579,7 +1573,7 @@ body.ss-opening-lock {
 }
 
 .ss-section--families {
-  padding: 100px 22px 112px;
+  padding: 100px 22px 50px;
   background: var(--ss-paper);
   text-align: center;
 }
@@ -1598,7 +1592,9 @@ body.ss-opening-lock {
 
 .ss-family-card {
   position: relative;
+  isolation: isolate;
   min-width: 0;
+  overflow: hidden;
   padding: 30px 15px 28px;
   border: 1px solid rgb(125 100 84 / 0.24);
   background: linear-gradient(145deg, rgb(255 251 245 / 0.62), rgb(239 228 216 / 0.32));
@@ -1609,9 +1605,45 @@ body.ss-opening-lock {
 .ss-family-card::before {
   position: absolute;
   inset: 9px;
+  z-index: 2;
   border: 1px solid rgb(125 100 84 / 0.14);
+  border-radius: inherit;
   content: '';
   pointer-events: none;
+}
+
+.ss-family-card::after {
+  position: absolute;
+  inset: -4px;
+  z-index: 0;
+  content: '';
+  opacity: 0.1;
+  pointer-events: none;
+  filter: saturate(0.7) sepia(0.12);
+  mix-blend-mode: multiply;
+}
+
+.ss-family-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ss-family-card:first-child::after {
+  inset: 8px 4px 10px 4px;
+  background-image: url('/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-cluster-v1-optimized.png');
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  background-size: 82% auto;
+  transform: rotate(6deg);
+}
+
+.ss-family-card:nth-child(3)::after {
+  inset: 10px 4px 8px 4px;
+  background-image: url('/assets/images/templates/sunlit-silk/artwork/ss-modern-floral-sculpture-v1-optimized.png');
+  background-position: right top;
+  background-repeat: no-repeat;
+  background-size: 82% auto;
+  transform: scaleX(-1) rotate(6deg);
 }
 
 .ss-family-card:first-child {
@@ -1672,23 +1704,55 @@ body.ss-opening-lock {
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
+  width: 58px;
+  height: 58px;
+  isolation: isolate;
+  border: 1px solid rgb(205 180 133 / 0.78);
   border-radius: 50%;
-  background: var(--ss-olive);
+  background: linear-gradient(145deg, #847562 0%, var(--ss-olive) 58%, #5d5548 100%);
   color: var(--ss-paper);
   font-family: var(--font-wedding-display);
   font-size: 1.7rem;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgb(54 45 37 / 0.28);
   transform: translate(-50%, -50%);
+  box-shadow:
+    0 12px 22px rgb(88 75 63 / 0.2),
+    inset 0 1px 0 rgb(255 249 237 / 0.32);
+}
+
+.ss-family-knot::before {
+  position: absolute;
+  inset: 5px;
+  z-index: 0;
+  border: 1px solid rgb(244 234 213 / 0.34);
+  border-radius: 50%;
+  content: '';
+}
+
+.ss-family-knot::after {
+  position: absolute;
+  top: 9px;
+  right: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(255 249 237 / 0.62);
+  box-shadow: 0 0 8px rgb(255 249 237 / 0.4);
+  content: '';
+  opacity: 0.8;
 }
 
 .ss-family-note {
-  max-width: 34ch;
-  margin: 42px auto 0;
+  max-width: 30ch;
+  margin: 46px auto 0;
+  color: var(--ss-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.8;
 }
 
 .ss-family-date {
-  margin-top: 80px;
+  margin-top: 30px;
   margin-bottom: 30px;
   color: var(--ss-ink);
   text-align: center;
@@ -1729,11 +1793,43 @@ body.ss-opening-lock {
 }
 
 .ss-family-date__day time {
+  position: relative;
+  display: inline-block;
   color: var(--ss-ink);
   font-family: var(--font-wedding-waterfall);
   font-size: clamp(3.4rem, 17vw, 5rem);
   letter-spacing: -0.08em;
   line-height: 0.78;
+}
+
+.ss-family-date__day time::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  content: attr(data-ripple-text);
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: center;
+  animation: ss-family-date-ripple 2.8s ease-out infinite;
+}
+
+@keyframes ss-family-date-ripple {
+  0% {
+    opacity: 0.34;
+    transform: scale(1);
+  }
+
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(1.72);
+  }
 }
 
 .ss-family-date__month strong {
@@ -1769,7 +1865,7 @@ body.ss-opening-lock {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 5px;
-  width: min(100%, 360px);
+  width: 100%;
   margin: 60px 0 20px;
   text-align: center;
 }
@@ -1801,224 +1897,473 @@ body.ss-opening-lock {
   color: #f3efe5;
 }
 
-.ss-date-paper {
-  right: -42%;
-  bottom: -12%;
-  width: 92%;
-  opacity: 0.24;
-  transform: rotate(-7deg);
+.ss-event-floral {
+  top: -11%;
+  right: 31%;
+  z-index: 0;
+  width: 90%;
+  opacity: 0.14;
+  transform: rotate(29deg);
+  filter: saturate(0.62) sepia(0.12);
+  mix-blend-mode: multiply;
 }
 
-.ss-date-mark {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: flex-end;
-  gap: 18px;
-  align-self: start;
-}
-
-.ss-date-mark strong {
-  font-family: var(--font-wedding-display);
-  font-size: 9.2rem;
-  font-weight: 400;
-  letter-spacing: -0.1em;
-  line-height: 0.7;
-}
-
-.ss-date-mark span {
-  padding-bottom: 8px;
-  color: #d7c9ae;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-}
-
-.ss-date-copy {
+.ss-event-copy {
   position: relative;
   z-index: 2;
   align-self: end;
 }
 
-.ss-date-copy .ss-section-heading>span,
-.ss-date-copy .ss-section-heading h2 {
-  color: #f3efe5;
-}
-
-.ss-event-times {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 40px;
-  border-top: 1px solid rgb(243 239 229 / 0.24);
-}
-
-.ss-event-times>div {
-  display: grid;
-  gap: 8px;
-  padding-top: 18px;
-}
-
-.ss-event-times time {
-  color: #f3efe5;
-  font-size: 1.35rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.ss-event-times span {
-  color: #c9c5b8;
-  font-size: 0.72rem;
-  line-height: 1.5;
-}
-
-.ss-countdown {
-  padding: 78px 20px 82px;
-  background: #efe5de;
-}
-
-.ss-countdown .ss-section-heading h2 {
+.ss-event-copy .ss-section-heading {
+  max-width: 28rem;
   margin-inline: auto;
   text-align: center;
 }
 
-.ss-countdown-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-top: 42px;
-  border-block: 1px solid var(--ss-line);
-}
-
-.ss-countdown-grid>div {
-  display: grid;
-  gap: 7px;
-  padding: 22px 6px;
-  text-align: center;
-}
-
-.ss-countdown-grid>div+div {
-  border-left: 1px solid var(--ss-line);
-}
-
-.ss-countdown-grid strong {
-  color: var(--ss-ink);
-  font-family: var(--font-wedding-display);
-  font-size: clamp(2rem, 10vw, 3.1rem);
-  font-variant-numeric: tabular-nums;
-  font-weight: 400;
-}
-
-.ss-countdown-grid span {
-  color: var(--ss-ink-soft);
-  font-size: 0.62rem;
-  letter-spacing: 0.11em;
+.ss-event-copy .ss-section-heading > span {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--ss-brass);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.ss-calendar {
-  padding: 92px 28px 110px;
+.ss-event-copy .ss-section-heading h2 {
+  max-width: none;
+  margin-inline: auto;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+
+.ss-event-carousel {
+  position: relative;
+  height: 184px;
+  margin-top: 40px;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+}
+
+.ss-event-carousel article {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 9px;
+  width: min(72%, 250px);
+  margin-inline: auto;
+  padding: 22px 18px;
+  border: 1px solid var(--ss-line);
+  background-color: #8b7868;
+  background-image:
+    linear-gradient(180deg, rgb(47 39 33 / 0.08), rgb(47 39 33 / 0.78)),
+    var(--ss-event-card-image);
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 20px 34px rgb(80 63 50 / 0.2);
+  text-align: center;
+  transition:
+    opacity 420ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ss-event-carousel article.is-active {
+  z-index: 3;
+  opacity: 1;
+  transform: translate3d(0, 0, 48px) rotateY(0) rotateZ(0) scale(1.02);
+}
+
+.ss-event-carousel article.is-previous {
+  z-index: 1;
+  opacity: 0.42;
+  transform: translate3d(-48%, 3px, -76px) rotateY(28deg) rotateZ(-3deg) scale(0.8);
+}
+
+.ss-event-carousel article.is-next {
+  z-index: 2;
+  opacity: 0.56;
+  transform: translate3d(48%, 3px, -76px) rotateY(-28deg) rotateZ(3deg) scale(0.84);
+}
+
+.ss-event-carousel article.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 0, -180px) scale(0.7);
+}
+
+.ss-event-carousel article > span {
+  position: relative;
+  z-index: 1;
+  color: #f4d49d;
+  font-family: var(--font-wedding-display);
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+}
+
+.ss-event-carousel article > strong {
+  position: relative;
+  z-index: 1;
+  max-width: 16ch;
+  color: #fff9ed;
+  font-family: var(--font-wedding-display);
+  font-size: clamp(1.15rem, 5vw, 1.5rem);
+  font-weight: 400;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+
+.ss-event-carousel article > span {
+  text-transform: uppercase;
+}
+
+.ss-event-carousel button {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ss-line);
+  border-radius: 50%;
   background: var(--ss-paper);
+  color: var(--ss-ink);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.ss-event-carousel button.is-prev {
+  left: 0;
+}
+
+.ss-event-carousel button.is-next {
+  right: 0;
+}
+
+.ss-event-carousel button:focus-visible {
+  outline: 2px solid var(--ss-brass);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ss-event-carousel button:hover:not(:disabled) {
+    transform: translateY(-50%) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-event-carousel button:hover:not(:disabled) {
+    transform: translateY(-50%);
+  }
+}
+
+.ss-countdown {
+  position: relative;
+  overflow: hidden;
+  padding: 88px 22px 98px;
+  background: transparent !important;
+}
+
+.ss-countdown .ss-section-heading h2 {
+  max-width: none;
+  margin-inline: auto;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(2.05rem, 9vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  text-align: center;
+}
+
+.ss-countdown .ss-section-heading > span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--ss-ink-soft);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ss-countdown-paper {
+  right: -34%;
+  bottom: 5%;
+  z-index: 0;
+  width: 92%;
+  opacity: 0.3;
+  transform: rotate(-14deg);
+  filter: saturate(0.7) sepia(0.14);
+  mix-blend-mode: multiply;
+}
+
+.ss-countdown-petals {
+  top: -10%;
+  right: -16%;
+  z-index: 0;
+  width: 52%;
+  opacity: 0.22;
+  transform: rotate(24deg);
+  filter: saturate(0.62) sepia(0.18);
+  mix-blend-mode: multiply;
+}
+
+.ss-countdown > .ss-section-heading,
+.ss-countdown-ornament,
+.ss-countdown-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.ss-countdown-ornament {
+  display: block;
+  width: 118px;
+  height: 14px;
+  margin: 24px auto 0;
+  border-top: 1px solid rgb(154 128 88 / 0.38);
+}
+
+.ss-countdown-ornament::after {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--ss-brass);
+  border-radius: 50%;
+  background: var(--ss-paper);
+  content: '';
+  transform: translateX(-50%);
+}
+
+.ss-countdown-grid {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  width: min(100%, 380px);
+  margin: 42px auto 0;
+  padding: 28px 12px 24px;
+  border: 1px solid rgb(125 100 84 / 0.2);
+  border-radius: 26px 8px 26px 8px;
+  background:
+    linear-gradient(135deg, rgb(255 252 244 / 0.78), rgb(237 226 210 / 0.62)),
+    repeating-linear-gradient(92deg, transparent 0 25px, rgb(88 75 63 / 0.018) 26px);
+  box-shadow:
+    0 18px 36px rgb(105 83 65 / 0.08),
+    inset 0 1px 0 rgb(255 252 244 / 0.8);
+}
+
+.ss-countdown-grid::before {
+  position: absolute;
+  inset: 8px;
+  z-index: 0;
+  border: 1px solid rgb(125 100 84 / 0.1);
+  border-radius: 20px 4px 20px 4px;
+  content: '';
+}
+
+.ss-countdown-unit {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.ss-countdown-unit + .ss-countdown-unit {
+  border-left: 1px solid rgb(125 100 84 / 0.16);
+}
+
+.ss-countdown-unit strong {
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-waterfall);
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.8;
+}
+
+.ss-countdown-unit.is-primary {
+  min-height: 116px;
+}
+
+.ss-countdown-unit.is-primary strong {
+  color: var(--ss-brass);
+  font-size: clamp(2.7rem, 13vw, 4rem);
+}
+
+.ss-countdown-unit span {
+  color: var(--ss-ink-soft);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+
+.ss-countdown-calendar {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 300px);
+  margin: 38px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgb(125 100 84 / 0.2);
 }
 
 .ss-calendar-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 22px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--ss-ink-soft);
 }
 
 .ss-calendar-header .ss-section-heading h2 {
-  font-size: 2.7rem;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 1.12rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.ss-calendar-header .ss-section-heading h2 span {
+  color: var(--ss-brass);
+  font-size: 0.8em;
 }
 
 .ss-month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-top: 54px;
-  border-top: 1px solid var(--ss-line);
-  border-left: 1px solid var(--ss-line);
+  gap: 3px;
+  margin-top: 18px;
 }
 
 .ss-month-grid>span {
   display: grid;
   place-items: center;
-  min-height: 50px;
-  border-right: 1px solid var(--ss-line);
-  border-bottom: 1px solid var(--ss-line);
+  min-height: 27px;
   color: var(--ss-ink-soft);
-  font-size: 0.75rem;
+  font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
 }
 
 .ss-month-grid .ss-weekday {
-  min-height: 38px;
-  background: rgb(170 149 128 / 0.1);
-  font-size: 0.61rem;
+  min-height: 22px;
+  color: var(--ss-ink);
+  font-size: 0.54rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .ss-month-grid .is-wedding-day {
   position: relative;
-  background: var(--ss-olive);
-  color: #fffdf7;
+  border: 1px solid var(--ss-brass);
+  border-radius: 50%;
+  background: rgb(195 163 110 / 0.18);
+  color: var(--ss-ink);
   font-weight: 700;
 }
 
 .ss-month-grid .is-wedding-day::after {
   content: '';
   position: absolute;
-  inset: 5px;
-  border: 1px solid rgb(255 255 255 / 0.44);
+  inset: 3px;
+  border: 1px solid rgb(154 128 88 / 0.42);
   border-radius: 50%;
 }
 
 .ss-timeline-section {
   overflow: hidden;
-  padding: 104px 28px 120px;
-  background: #ede3dc;
+  padding: 92px 24px 40px;
+  background: transparent !important;
+  text-align: center;
 }
 
-.ss-timeline-section>p {
+.ss-timeline-section .ss-section-heading h2 {
+  max-width: none;
+  margin-inline: auto;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(2rem, 9vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.ss-timeline-section .ss-section-heading > span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--ss-brass);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ss-timeline-intro {
   max-width: 31ch;
+  margin: 16px auto 0;
+  color: var(--ss-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.75;
 }
 
 .ss-timeline-floral {
-  right: -26%;
-  top: 3%;
-  width: 52%;
-  opacity: 0.64;
+  right: -30%;
+  top: -4%;
+  width: 58%;
+  opacity: 0.18;
+  filter: saturate(0.6) sepia(0.16);
+  mix-blend-mode: multiply;
 }
 
 .ss-timeline {
   position: relative;
   z-index: 2;
-  margin-top: 72px;
-  padding-left: 16px;
+  width: min(100%, 380px);
+  margin: 48px auto 0;
+  padding-left: 0;
 }
 
 .ss-timeline::before {
   content: '';
   position: absolute;
-  top: 12px;
-  bottom: 18px;
-  left: 61px;
+  top: 13px;
+  bottom: 28px;
+  left: 82px;
   width: 1px;
-  background: var(--ss-olive);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--ss-brass) 0 7px,
+    transparent 7px 13px
+  );
 }
 
 .ss-timeline article {
   display: grid;
-  grid-template-columns: 55px 28px 1fr;
+  grid-template-columns: 55px 34px 1fr;
   gap: 10px;
-  min-height: 128px;
+  min-height: 132px;
+  text-align: left;
 }
 
 .ss-timeline time {
-  padding-top: 3px;
+  padding-top: 18px;
   color: var(--ss-ink);
-  font-size: 0.76rem;
+  font-family: var(--font-wedding-display);
+  font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 400;
+  text-align: right;
 }
 
 .ss-timeline article>span {
@@ -2026,31 +2371,71 @@ body.ss-opening-lock {
   z-index: 2;
   display: grid;
   place-items: center;
+  justify-self: center;
   align-self: start;
   width: 26px;
   height: 26px;
-  border: 1px solid var(--ss-olive);
+  margin-top: 14px;
+  border: 1px solid rgb(154 128 88 / 0.44);
   border-radius: 50%;
-  background: #ede3dc;
-  color: var(--ss-olive);
+  background-color: var(--ss-paper);
+  background-image: url('/assets/images/templates/sunlit-silk/artwork/ss-opening-paper-seal-v2.png');
+  background-position: center;
+  background-size: 180% 180%;
+  color: #665344;
   font-size: 0.54rem;
+  filter: brightness(1.18) saturate(0.92);
+  text-shadow: 0 1px 0 rgb(255 250 240 / 0.5);
+}
+
+.ss-timeline article > div {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding: 17px 16px 18px;
+  border: 1px solid rgb(125 100 84 / 0.18);
+  border-radius: 18px 5px 18px 5px;
+  background: rgb(255 251 244 / 0.55);
+  box-shadow: 0 14px 26px rgb(105 83 65 / 0.06);
+}
+
+.ss-timeline article > div::after {
+  position: absolute;
+  top: -18px;
+  right: -20px;
+  width: 108px;
+  height: 92px;
+  background: url('/assets/images/templates/sunlit-silk/artwork/ss-linen-ribbon-tail-v2-optimized.png')
+    center / contain no-repeat;
+  content: '';
+  opacity: 0.24;
+  pointer-events: none;
+  transform: rotate(12deg);
 }
 
 .ss-timeline h3 {
+  position: relative;
+  z-index: 1;
   margin: 0;
   color: var(--ss-ink);
-  font-size: 1.45rem;
+  font-family: var(--font-wedding-display);
+  font-size: 1.28rem;
+  font-weight: 400;
+  line-height: 1.15;
 }
 
 .ss-timeline p {
+  position: relative;
+  z-index: 1;
   margin: 7px 0 0;
   font-size: 0.78rem;
 }
 
 .ss-venue {
   overflow: hidden;
-  padding: 96px 24px;
+  padding: 20px 24px 70px;
   background: var(--ss-paper);
+  margin-bottom: 40px;
 }
 
 .ss-venue-envelope {
@@ -2069,6 +2454,44 @@ body.ss-opening-lock {
   border: 1px solid var(--ss-line);
   background: rgb(248 245 237 / 0.9);
   box-shadow: 0 24px 60px rgb(105 83 65 / 0.12);
+}
+
+.ss-venue-pin {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--ss-brass);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  animation: ss-venue-pin-hop 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes ss-venue-pin-hop {
+  0% {
+    transform: translateY(0) rotateY(0deg);
+  }
+
+  12% {
+    transform: translateY(-7px) rotateY(180deg);
+  }
+
+  25% {
+    transform: translateY(-15px) rotateY(540deg);
+  }
+
+  40% {
+    transform: translateY(-4px) rotateY(900deg);
+  }
+
+  55% {
+    transform: translateY(0) rotateY(1080deg);
+  }
+
+  68%,
+  100% {
+    transform: translateY(0) rotateY(1080deg);
+  }
 }
 
 .ss-venue-ticket address {
@@ -2131,117 +2554,154 @@ body.ss-opening-lock {
 
 .ss-gallery {
   overflow: hidden;
-  padding: 98px 24px 72px;
-  background: #756860;
-  color: #f5f1e8;
+  padding: 96px 22px 82px;
+  background: transparent !important;
+  color: var(--ss-ink);
   text-align: center;
 }
 
 .ss-gallery .ss-section-heading h2 {
+  max-width: none;
   margin-inline: auto;
-  color: #f5f1e8;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: clamp(2.05rem, 9vw, 3rem);
+  font-weight: 400;
+  line-height: 1.05;
 }
 
-.ss-gallery>p {
+.ss-gallery .ss-section-heading > span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--ss-brass);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ss-gallery > p {
   max-width: 30ch;
-  margin-inline: auto;
-  color: #c7cbc4;
+  margin: 16px auto 0;
+  color: var(--ss-ink-soft);
+  font-size: 0.78rem;
+  line-height: 1.75;
 }
 
-.ss-gallery-deck {
+.ss-gallery-filmstrip {
   position: relative;
-  height: 440px;
-  margin-top: 44px;
-  perspective: 1100px;
+  width: min(100%, 380px);
+  margin: 38px auto 0;
+  padding: 12px;
+  border: 1px solid rgb(125 100 84 / 0.2);
+  border-radius: 24px 7px 24px 7px;
+  background: linear-gradient(145deg, rgb(255 252 244 / 0.82), rgb(234 222 205 / 0.6));
+  box-shadow: 0 20px 38px rgb(105 83 65 / 0.1);
 }
 
-.ss-gallery-deck figure {
-  position: absolute;
-  inset: 0;
-  width: 68%;
-  margin: auto;
-  transition:
-    opacity 420ms ease,
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+.ss-gallery-main {
+  position: relative;
+  height: 370px;
 }
 
-.ss-gallery-deck figure img {
+.ss-gallery-main figure {
+  height: 100%;
+  margin: 0;
+}
+
+.ss-gallery-main figure img {
   display: block;
   width: 100%;
   height: 100%;
-  border: 10px solid #ebe6dc;
+  border: 8px solid #f3ede1;
+  border-radius: 17px 4px 17px 4px;
   object-fit: cover;
-  box-shadow: 0 30px 70px rgb(0 0 0 / 0.3);
+  box-shadow: 0 16px 30px rgb(105 83 65 / 0.16);
 }
 
-.ss-gallery-deck figure.is-active {
-  z-index: 3;
-  opacity: 1;
-  transform: translateX(0) rotateY(0) scale(1);
-}
-
-.ss-gallery-deck figure.is-previous {
-  z-index: 1;
-  opacity: 0.38;
-  transform: translateX(-30%) rotateY(18deg) scale(0.84);
-}
-
-.ss-gallery-deck figure.is-next {
-  z-index: 2;
-  opacity: 0.55;
-  transform: translateX(30%) rotateY(-18deg) scale(0.88);
-}
-
-.ss-gallery-deck figure.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.78);
-}
-
-.ss-gallery-deck button {
+.ss-gallery-main button {
   position: absolute;
   top: 50%;
-  z-index: 5;
+  z-index: 2;
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
-  border: 1px solid rgb(245 241 232 / 0.4);
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgb(255 252 244 / 0.7);
   border-radius: 50%;
-  background: rgb(98 82 71 / 0.84);
-  color: #fff;
+  background: rgb(88 75 63 / 0.74);
+  color: #fffaf0;
   cursor: pointer;
   transform: translateY(-50%);
 }
 
-.ss-gallery-deck button.is-prev {
-  left: 0;
+.ss-gallery-main button.is-prev {
+  left: 12px;
 }
 
-.ss-gallery-deck button.is-next {
-  right: 0;
+.ss-gallery-main button.is-next {
+  right: 12px;
 }
 
-.ss-gallery-deck button:focus-visible {
-  outline: 2px solid #fff;
+.ss-gallery-main button:focus-visible,
+.ss-gallery-thumbs button:focus-visible {
+  outline: 2px solid var(--ss-brass);
   outline-offset: 3px;
 }
 
+.ss-gallery-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-top: 12px;
+  padding: 2px 1px 4px;
+  scrollbar-width: none;
+}
+
+.ss-gallery-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.ss-gallery-thumbs button {
+  flex: 0 0 58px;
+  height: 68px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: 9px 3px 9px 3px;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.58;
+  transition: opacity 180ms ease, border-color 180ms ease;
+}
+
+.ss-gallery-thumbs button.is-active {
+  border-color: var(--ss-brass);
+  opacity: 1;
+}
+
+.ss-gallery-thumbs img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px 2px 6px 2px;
+  object-fit: cover;
+}
+
 .ss-gallery-index {
-  color: #c7cbc4 !important;
+  margin-top: 14px !important;
+  color: var(--ss-ink-soft) !important;
   font-size: 0.68rem !important;
   letter-spacing: 0.08em;
 }
 
 .ss-gallery-index span {
-  color: #fff;
+  color: var(--ss-brass);
   font-size: 1rem;
 }
 
 .ss-rsvp,
 .ss-guestbook {
   overflow: hidden;
-  padding: 102px 26px 112px;
+  padding: 50px 26px 50px;
 }
 
 .ss-rsvp {
@@ -2310,6 +2770,46 @@ body.ss-opening-lock {
 .ss-guestbook textarea:focus {
   border-color: var(--ss-ink);
   box-shadow: 0 2px 0 var(--ss-ink);
+}
+
+.ss-wish-list {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  margin-top: 42px;
+}
+
+.ss-wish-list h3 {
+  margin: 0 0 4px;
+  color: var(--ss-ink);
+  font-family: var(--font-wedding-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.ss-wish-list article {
+  padding: 16px 18px;
+  border: 1px solid rgb(125 100 84 / 0.18);
+  border-radius: 16px 4px 16px 4px;
+  background: rgb(255 251 244 / 0.52);
+  text-align: left;
+}
+
+.ss-wish-list article p {
+  margin: 0;
+  color: var(--ss-ink);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.ss-wish-list article small {
+  display: block;
+  margin-top: 9px;
+  color: var(--ss-ink-soft);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
 }
 
 .ss-choice-grid {
@@ -2393,11 +2893,12 @@ body.ss-opening-lock {
 
 .ss-guestbook {
   background: var(--ss-paper);
+  margin-bottom: 40px;
 }
 
 .ss-guestbook-paper {
-  right: -52%;
-  bottom: -10%;
+  right: -40%;
+  bottom: 10%;
   width: 98%;
   opacity: 0.24;
   transform: rotate(-8deg);
@@ -2463,13 +2964,38 @@ body.ss-opening-lock {
 }
 
 .ss-footer {
+  position: relative;
   display: grid;
   place-content: center;
   overflow: hidden;
-  padding: 90px 28px;
-  background: #6f625b;
+  min-height: 520px;
+  padding: 108px 28px 96px;
+  background: #5d5149;
   color: #f3efe6;
   text-align: center;
+}
+
+.ss-footer::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgb(42 34 29 / 0.2), rgb(42 34 29 / 0.84)),
+    radial-gradient(circle at 50% 34%, transparent 0 18%, rgb(42 34 29 / 0.34) 100%);
+  content: '';
+  pointer-events: none;
+}
+
+.ss-footer-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.72) sepia(0.12);
 }
 
 .ss-footer>span {
@@ -2482,24 +3008,56 @@ body.ss-opening-lock {
   margin: 0 auto 42px;
   border: 1px solid rgb(243 239 230 / 0.44);
   border-radius: 50%;
-  color: #d3c4a8;
+  color: #f2d6a3;
   font-family: var(--font-wedding-display);
 }
 
+.ss-footer-monogram::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgb(242 214 163 / 0.72);
+  border-radius: 50%;
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: center;
+  animation: ss-footer-monogram-ripple 3.2s ease-out infinite;
+}
+
+@keyframes ss-footer-monogram-ripple {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(1.72);
+  }
+}
+
 .ss-footer h2 {
-  max-width: 9ch;
+  position: relative;
+  z-index: 2;
+  max-width: 12ch;
   margin: 0 auto;
-  color: #f3efe6;
+  color: #fffaf0;
   font-family: var(--ss-font-script);
   font-size: clamp(3.7rem, 16vw, 5.2rem);
   letter-spacing: -0.015em;
   line-height: 1.08;
+  text-shadow: 0 2px 18px rgb(35 27 23 / 0.5);
 }
 
 .ss-footer p {
+  position: relative;
+  z-index: 2;
   max-width: 30ch;
   margin: 26px auto 0;
-  color: #c9cec7;
+  color: #fff5e5;
+  text-shadow: 0 1px 12px rgb(35 27 23 / 0.6);
 }
 
 .ss-footer-linen {
@@ -2522,7 +3080,8 @@ body.ss-opening-lock {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .ss-gallery-deck button:hover {
+  .ss-gallery-main button:hover:not(:disabled) {
+    transform: translateY(-50%) scale(1.08);
     background: #f3efe6;
     color: var(--ss-ink);
   }
@@ -2561,8 +3120,17 @@ body.ss-opening-lock {
   }
 
   .ss-opening-gate,
-  .ss-gallery-deck figure {
+  .ss-gallery-main button,
+  .ss-gallery-thumbs button {
     transition: none;
+  }
+
+  .ss-venue-pin {
+    animation: none;
+  }
+
+  .ss-gallery-main button:hover:not(:disabled) {
+    transform: translateY(-50%);
   }
 
   .ss-opening-gate.is-opening {

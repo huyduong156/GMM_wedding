@@ -8,7 +8,6 @@ export type SunlitSilkSectionKey =
   | 'calendar'
   | 'timeline'
   | 'venue'
-  | 'activities'
   | 'gallery'
   | 'rsvp'
   | 'guestbook'
@@ -60,31 +59,40 @@ export type SunlitSilkData = {
     mapUrl?: string
   }
   opening?: { title?: string; message?: string }
-  cover?: { eyebrow?: string; message?: string }
+  cover?: {
+    eyebrow?: string
+    message?: string
+    phraseFrom?: string
+    phraseTo?: string
+  }
   invitation?: { title?: string; message?: string }
   families?: {
     title?: string
+    note?: string
+    /** @deprecated Use note for new content. Kept so older drafts still render. */
     message?: string
     brideSide?: SunlitSilkFamilySide
     groomSide?: SunlitSilkFamilySide
   }
   eventDetails?: {
     title?: string
+    items?: Array<{ title?: string; image?: SunlitSilkMedia | string | null }>
+    /** @deprecated Kept for older drafts; eventDetails now renders activity items. */
     ceremonyLabel?: string
     ceremonyTime?: string
+    /** @deprecated Kept for older drafts; eventDetails now renders activity items. */
     receptionLabel?: string
     receptionTime?: string
   }
   calendar?: { month?: string; year?: string; day?: number | string }
   timeline?: { title?: string; message?: string; items?: SunlitSilkTimelineItem[] }
   venue?: { title?: string; name?: string; address?: string; mapUrl?: string; message?: string }
-  activities?: { title?: string; items?: Array<{ title?: string }> }
-  gallery?: { title?: string; message?: string }
+  gallery?: { kicker?: string; title?: string; message?: string }
   galleryImages?: Array<string | SunlitSilkMedia>
   rsvp?: {
+    kicker?: string
     title?: string
     message?: string
-    deadline?: string
     successMessage?: string
     attendingLabel?: string
     notAttendingLabel?: string
@@ -97,5 +105,9 @@ export type SunlitSilkData = {
     backgroundMusicName?: string
     backgroundMusicAutoplay?: boolean
   }
-  footer?: { title?: string; message?: string }
+  footer?: {
+    title?: string
+    message?: string
+    image?: SunlitSilkMedia | string | null
+  }
 }

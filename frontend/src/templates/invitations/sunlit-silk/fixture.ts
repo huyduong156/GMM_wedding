@@ -54,6 +54,8 @@ export const sunlitSilkFixture: SunlitSilkData = {
   cover: {
     eyebrow: 'Lễ Thành Hôn',
     message: 'Một ngày dịu nắng. Hai gia đình. Một lời hẹn trăm năm.',
+    phraseFrom: 'Hai người, một lời hẹn',
+    phraseTo: 'Mình thương, mình ở lại',
   },
   invitation: {
     title: 'Trân trọng kính mời {guestName}',
@@ -61,8 +63,7 @@ export const sunlitSilkFixture: SunlitSilkData = {
   },
   families: {
     title: 'Hai gia đình trân trọng báo tin',
-    message:
-      'Sự hiện diện của {guestName} là niềm vui quý giá trong ngày thành hôn của các con chúng tôi.',
+    note: 'Hôn lễ cử hành tại tư gia vào lúc',
     brideSide: {
       label: 'Nhà gái',
       fatherTitle: 'Ông',
@@ -81,13 +82,13 @@ export const sunlitSilkFixture: SunlitSilkData = {
     },
   },
   eventDetails: {
-    title: 'Ngày chúng mình thành đôi',
-    ceremonyLabel: 'Lễ Thành Hôn',
-    ceremonyTime: '09:00',
-    receptionLabel: 'Tiệc Chung Vui',
-    receptionTime: '11:00',
+    title: 'Một vài điều dành cho bạn',
+    items: [
+      { title: 'Photobook lưu giữ khoảnh khắc', image: demoMedia.portrait },
+      { title: 'In dấu vân tay cùng chúng mình', image: demoMedia.garden },
+      { title: 'Ký tên và gửi lời chúc mừng', image: demoMedia.gate },
+    ],
   },
-  calendar: { month: 'Tháng Một', year: '2027', day: 16 },
   timeline: {
     title: 'Một buổi sáng bên nhau',
     message: 'Mỗi dấu mốc được may lại bằng một đường chỉ nhỏ trên nền lụa.',
@@ -116,23 +117,16 @@ export const sunlitSilkFixture: SunlitSilkData = {
     mapUrl: 'https://maps.google.com',
     message: 'Một khu vườn gần biển, nơi nắng sớm đi qua những tấm rèm linen.',
   },
-  activities: {
-    title: 'Dành một khoảng vui cho bạn',
-    items: [
-      { title: 'Góc ảnh dưới nắng' },
-      { title: 'Bàn viết lời chúc' },
-      { title: 'Tiệc trà bên hiên' },
-    ],
-  },
   gallery: {
+    kicker: 'Những ngày đầy nắng',
     title: 'Chúng mình trong những ngày đầy nắng',
     message: 'Ba lát cắt nhỏ trước khi hành trình mới bắt đầu.',
   },
   galleryImages: [demoMedia.portrait, demoMedia.garden, demoMedia.gate],
   rsvp: {
+    kicker: 'Hồi âm trước ngày lễ',
     title: 'Bạn sẽ đến chung vui chứ?',
     message: 'Một lời hồi đáp giúp hai gia đình chuẩn bị đón bạn chu đáo hơn.',
-    deadline: '05.01.2027',
     successMessage: 'Cảm ơn bạn. Phản hồi đã được gửi đến hai gia đình.',
     attendingLabel: 'Mình sẽ tham dự',
     notAttendingLabel: 'Mình chưa thể tham dự',
@@ -151,6 +145,7 @@ export const sunlitSilkFixture: SunlitSilkData = {
   footer: {
     title: 'Hẹn gặp bạn trong ngày vui',
     message: 'Thu Hà và Minh An chân thành cảm ơn bạn đã mở tấm thiệp này.',
+    image: demoMedia.garden,
   },
 }
 
@@ -162,13 +157,12 @@ export const sunlitSilkSectionConfig: SunlitSilkSectionConfig = {
     'families',
     'eventDetails',
     'countdown',
-    'calendar',
     'timeline',
     'venue',
-    'activities',
     'gallery',
     'rsvp',
     'guestbook',
+    'gift',
     'footer',
   ],
   order: [
@@ -178,10 +172,8 @@ export const sunlitSilkSectionConfig: SunlitSilkSectionConfig = {
     'families',
     'eventDetails',
     'countdown',
-    'calendar',
     'timeline',
     'venue',
-    'activities',
     'gallery',
     'rsvp',
     'guestbook',

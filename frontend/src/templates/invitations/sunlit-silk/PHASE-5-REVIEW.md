@@ -29,7 +29,7 @@ All artwork is renderer-owned, `aria-hidden`, `pointer-events: none`, and remove
 - [x] Opening-only screenshot review at 390×844 after the warm-palette redesign: champagne/beige canvas dominates, Allura renders Vietnamese accents, the CTA aligns with the physical brass clasp and retains readable contrast.
 - [x] Added a theme-specific “lụa phấn” ambient layer: deterministic sparse dust particles with page-visibility pause and reduced-motion static fallback.
 - [ ] Full browser screenshot review at 375px, 390px, 480px, tablet and desktop.
-- [x] Renderer runtime contract audit: 16 editor anchors, decor accessibility, opening exit lifecycle, optional-section removal and interactive surfaces are covered by `SunlitSilkRenderer.test.tsx`.
+- [x] Renderer runtime contract audit: 15 editor anchors, decor accessibility, opening exit lifecycle, optional-section removal and interactive surfaces are covered by `SunlitSilkRenderer.test.tsx`.
 - [ ] Optimize the 9 renderer-owned PNG files. The current bundle is about 9.86 MB and the largest file is about 2.29 MB.
 - [ ] Run the final production build after asset optimization and browser fixes.
 

@@ -14,7 +14,7 @@ Phase 3 locks the reading skeleton before motion or raster integration. The invi
 | 2 | `cover` | `layered-paper-theatre` | Couple names/date on cotton-paper plane | floral sculpture, linen fold | typography/monogram-only fallback |
 | 3 | `invitation` | `seal-and-ribbon` | Guest-name line and embossed rule | ribbon tail, orchid petals | plain paper sheet |
 | 4 | `families` | `dual-cards` | Two family columns with center seam | floral cluster at low density | stacked mobile cards |
-| 5 | `eventDetails` | `date-diptych` | Ceremony/reception time blocks | brass clasp detail from key art only | text rows, no media dependency |
+| 5 | `eventDetails` | `activity-carousel` | Guest-participation activity carousel | restrained paper card treatment | text-only activity items, no media dependency |
 | 6 | `countdown` | `floating-counters` | Four-unit countdown on linen rail | orchid petals at 8% opacity | static numerals, 2x2 mobile grid |
 | 7 | `calendar` | `linen-month-grid` | Selected date shape + text | linen fold edge bleed | native month grid |
 | 8 | `timeline` | `vertical-timeline` | Stitched vertical route | orchid petals, CSS stitch | plain list when empty |

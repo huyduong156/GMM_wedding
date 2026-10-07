@@ -47,6 +47,8 @@ const sections: SunlitSectionConfig[] = [
       groomMedia: image('Ảnh chú rể', 'couple.groomMedia', 'cover-groom'),
       weddingDate: text('Ngày cưới', 'event.weddingDate', true),
       eyebrow: text('Dòng giới thiệu', 'cover.eyebrow'),
+      phraseFrom: text('Dòng chữ trước hiệu ứng', 'cover.phraseFrom'),
+      phraseTo: text('Dòng chữ sau hiệu ứng', 'cover.phraseTo'),
       message: longText('Lời nhắn trên bìa', 'cover.message', 180),
     },
   },
@@ -68,7 +70,7 @@ const sections: SunlitSectionConfig[] = [
     canReorder: false,
     fields: {
       title: text('Tiêu đề', 'families.title'),
-      message: longText('Lời kính mời', 'families.message', 300),
+      note: longText('Dòng dẫn ngày cưới', 'families.note', 180),
       brideFatherTitle: text('Danh xưng bố cô dâu', 'families.brideSide.fatherTitle'),
       brideFather: text('Tên bố cô dâu', 'families.brideSide.father'),
       brideMotherTitle: text('Danh xưng mẹ cô dâu', 'families.brideSide.motherTitle'),
@@ -83,23 +85,22 @@ const sections: SunlitSectionConfig[] = [
   },
   {
     sectionKey: 'eventDetails',
-    label: 'Ngày và giờ',
+    label: 'Hoạt động trong tiệc',
     required: true,
     canToggle: false,
     canReorder: false,
     fields: {
-      title: text('Tiêu đề', 'eventDetails.title'),
-      ceremonyLabel: text('Tên nghi lễ', 'eventDetails.ceremonyLabel'),
-      ceremonyTime: {
-        type: 'time' as const,
-        label: 'Giờ làm lễ',
-        contentKey: 'eventDetails.ceremonyTime',
-      },
-      receptionLabel: text('Tên tiệc', 'eventDetails.receptionLabel'),
-      receptionTime: {
-        type: 'time' as const,
-        label: 'Giờ khai tiệc',
-        contentKey: 'eventDetails.receptionTime',
+      title: text('Tiêu đề hoạt động', 'eventDetails.title'),
+      items: {
+        type: 'items' as const,
+        label: 'Các hoạt động khách có thể tham gia',
+        contentKey: 'eventDetails.items',
+        recommendedMinItems: 3,
+        maxItems: 6,
+        itemFields: {
+          title: { type: 'string' as const, label: 'Tên hoạt động', required: true },
+          image: image('Ảnh hoạt động', 'image', 'event-activity'),
+        },
       },
     },
   },
@@ -110,17 +111,6 @@ const sections: SunlitSectionConfig[] = [
     canReorder: true,
     emptyMessage: 'Đếm ngược tự lấy ngày giờ từ thông tin sự kiện.',
     fields: {},
-  },
-  {
-    sectionKey: 'calendar',
-    label: 'Lịch trực quan',
-    canToggle: true,
-    canReorder: true,
-    fields: {
-      month: text('Tên tháng', 'calendar.month'),
-      year: text('Năm', 'calendar.year'),
-      day: text('Ngày được đánh dấu', 'calendar.day'),
-    },
   },
   {
     sectionKey: 'timeline',
@@ -158,27 +148,12 @@ const sections: SunlitSectionConfig[] = [
     },
   },
   {
-    sectionKey: 'activities',
-    label: 'Hoạt động trong tiệc',
-    canToggle: true,
-    canReorder: true,
-    fields: {
-      title: text('Tiêu đề', 'activities.title'),
-      items: {
-        type: 'items' as const,
-        label: 'Danh sách hoạt động',
-        contentKey: 'activities.items',
-        maxItems: 6,
-        itemFields: { title: { type: 'string' as const, label: 'Tên hoạt động', required: true } },
-      },
-    },
-  },
-  {
     sectionKey: 'gallery',
     label: 'Album ảnh',
     canToggle: true,
     canReorder: true,
     fields: {
+      kicker: text('Dòng dẫn album', 'gallery.kicker'),
       title: text('Tiêu đề album', 'gallery.title'),
       message: longText('Mô tả album', 'gallery.message', 240),
       images: {
@@ -197,9 +172,9 @@ const sections: SunlitSectionConfig[] = [
     canToggle: true,
     canReorder: true,
     fields: {
+      kicker: text('Dòng dẫn RSVP', 'rsvp.kicker'),
       title: text('Tiêu đề RSVP', 'rsvp.title'),
       message: longText('Lời nhắn RSVP', 'rsvp.message', 240),
-      deadline: text('Hạn phản hồi', 'rsvp.deadline'),
       successMessage: longText('Lời cảm ơn sau phản hồi', 'rsvp.successMessage', 240),
     },
   },
@@ -216,7 +191,7 @@ const sections: SunlitSectionConfig[] = [
   },
   {
     sectionKey: 'gift',
-    label: 'Thông tin mừng cưới',
+    label: 'Gửi tiền mừng',
     canToggle: true,
     canReorder: true,
     fields: {
@@ -261,18 +236,19 @@ const sections: SunlitSectionConfig[] = [
     fields: {
       title: text('Tiêu đề cuối thiệp', 'footer.title'),
       message: longText('Lời cảm ơn', 'footer.message', 300),
+      image: image('Ảnh cuối thiệp', 'footer.image', 'footer'),
     },
   },
 ]
 
 export const sunlitSilkTemplateConfig = {
   templateKey: 'sunlit-silk',
-  displayName: 'Nắng Trên Lụa',
+  displayName: 'Sunlit Silk',
   templateVersion: '0.3.0',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',
-  status: 'draft',
+  status: 'ready',
   productType: 'ONLINE_INVITATION',
   type: 'invitation',
   previewPath: '/templates/invitations/sunlit-silk/preview',
@@ -292,7 +268,7 @@ export const sunlitSilkTemplateConfig = {
     backgroundMusic: true,
     reducedMotion: true,
   },
-  palettes: [{ key: 'sunlit-silk', label: 'Nắng trên lụa', default: true }],
+  palettes: [{ key: 'sunlit-silk', label: 'Sunlit Silk', default: true }],
   sections,
   composition: {
     defaultLayout: 'sunlit-silk-paper-scroll',
@@ -301,12 +277,10 @@ export const sunlitSilkTemplateConfig = {
       cover: 'layered-paper-theatre',
       invitation: 'seal-and-ribbon',
       families: 'dual-cards',
-      eventDetails: 'date-diptych',
+      eventDetails: 'activity-carousel',
       countdown: 'floating-counters',
-      calendar: 'linen-month-grid',
       timeline: 'vertical-timeline',
       venue: 'venue-card-over-map',
-      activities: 'stitched-list',
       gallery: 'linen-stack',
       rsvp: 'reply-card',
       guestbook: 'stacked-notes',
