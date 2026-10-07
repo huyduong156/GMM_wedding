@@ -10,7 +10,7 @@ Product type: `ONLINE_INVITATION`
 | 0 — preview shell / spatial contract | Complete | Isolated renderer/CSS shell, direct preview route and focused route test. |
 | 1 — product meaning / content system | Complete | Product meaning, theme brief, viewer journey, section/content matrix, fixture/editor plan and acceptance checklist below. |
 | 2 — media contract / media independence | Complete | Per-section media matrix, ownership/editability, responsive crop/fallback rules, future config mapping and replacement tests below. |
-| 2.5 — decor pre-production | Approved | Approved renderer-owned artwork set is recorded in [`PHASE-2.5.md`](./PHASE-2.5.md) and [`ASSET-MANIFEST.md`](./ASSET-MANIFEST.md). |
+| 2.5 — decor pre-production | Approved | Renderer-owned artwork is kept in the template artwork directory and referenced directly by the renderer/CSS. |
 | 3 — section architecture | Rebuilt; code gate complete | All 15 anchors now map to real invitation layouts and editor fields instead of a shared placeholder card. The renderer includes family hierarchy, date ledger, calendar, timeline, venue, gallery and interaction surfaces. |
 | 4 — motion / interaction | Rebuilt; code gate complete | The opening remains mounted through its exit choreography, section entrances use `motion/react`, atmosphere pauses with page visibility, and reduced-motion keeps content immediately available. |
 | 5 — asset integration / release | Reopened; pending | The earlier Phase 5 claim was invalidated by browser review. Asset-size optimization and the complete 375/390/480/tablet/desktop visual gate remain open. |

@@ -292,6 +292,5 @@ export const sunlitSilkTemplateConfig = {
   },
   theme: {
     identity: ['sunlit-silk', 'raw-linen', 'antique-brass', 'quiet-editorial'],
-    artworkManifest: 'ASSET-MANIFEST.md',
   },
 } as const satisfies TemplateConfig

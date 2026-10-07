@@ -54,7 +54,7 @@ const artwork = {
 
 const eventCardArtwork = [artwork.floralCluster, artwork.floralSculpture, artwork.coverBotanical]
 
-const sunlitDust = Array.from({ length: 28 }, (_, index) => ({
+const sunlitDust = Array.from({ length: 50 }, (_, index) => ({
   id: index,
   left: `${8 + ((index * 37) % 84)}%`,
   top: `${4 + ((index * 61) % 92)}%`,
@@ -62,7 +62,7 @@ const sunlitDust = Array.from({ length: 28 }, (_, index) => ({
   delay: `${-((index * 1.7) % 16)}s`,
   duration: `${14 + (index % 7) * 2}s`,
   drift: `${index % 2 === 0 ? 1 : -1}`,
-  variant: index % 6 === 0 ? 'is-glint' : '',
+  variant: index % 7 === 0 ? 'is-glint' : '',
 }))
 
 const openingLightParticles = Array.from({ length: 10 }, (_, index) => index)
@@ -122,7 +122,6 @@ function mergeContent(data?: SunlitSilkData): SunlitSilkData {
     invitation: { ...sunlitSilkFixture.invitation, ...data?.invitation },
     families: { ...sunlitSilkFixture.families, ...data?.families },
     eventDetails: { ...sunlitSilkFixture.eventDetails, ...data?.eventDetails },
-    calendar: { ...sunlitSilkFixture.calendar, ...data?.calendar },
     timeline: { ...sunlitSilkFixture.timeline, ...data?.timeline },
     venue: { ...sunlitSilkFixture.venue, ...data?.venue },
     gallery: { ...sunlitSilkFixture.gallery, ...data?.gallery },
@@ -321,6 +320,48 @@ function FamilyCard({
   )
 }
 
+function CountdownGrid({ target }: { target: number | null }) {
+  const reduceMotion = useReducedMotion()
+  const [countdown, setCountdown] = useState(() => getCountdown(target))
+
+  useEffect(() => {
+    let interval: number | undefined
+
+    const stop = () => {
+      if (interval !== undefined) window.clearInterval(interval)
+      interval = undefined
+    }
+    const sync = () => {
+      setCountdown(getCountdown(target))
+      stop()
+      if (!document.hidden) {
+        interval = window.setInterval(() => setCountdown(getCountdown(target)), 1_000)
+      }
+    }
+
+    sync()
+    document.addEventListener('visibilitychange', sync)
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', sync)
+    }
+  }, [target])
+
+  return (
+    <motion.div className="ss-countdown-grid" aria-live="off" {...elementReveal(Boolean(reduceMotion), 0.1)}>
+      {countdown.map((value, index) => (
+        <div
+          className={`ss-countdown-unit ${index === 0 ? 'is-primary' : ''}`}
+          key={['Ngày', 'Giờ', 'Phút', 'Giây'][index]}
+        >
+          <strong>{String(value).padStart(2, '0')}</strong>
+          <span>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</span>
+        </div>
+      ))}
+    </motion.div>
+  )
+}
+
 export function SunlitSilkRenderer({
   data,
   sectionConfig,
@@ -344,7 +385,6 @@ export function SunlitSilkRenderer({
   const [openingComplete, setOpeningComplete] = useState(editorMode)
   const [editorOpeningVisible, setEditorOpeningVisible] = useState(editorMode)
   const [pageHidden, setPageHidden] = useState(false)
-  const [, setClockTick] = useState(0)
   const [eventIndex, setEventIndex] = useState(0)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [attendance, setAttendance] = useState<'ATTENDING' | 'DECLINED' | null>(null)
@@ -359,10 +399,6 @@ export function SunlitSilkRenderer({
   const coverRef = useRef<HTMLElement>(null)
 
   useSmoothTemplateScroll(openingComplete)
-  useEffect(() => {
-    const interval = window.setInterval(() => setClockTick((tick) => tick + 1), 1_000)
-    return () => window.clearInterval(interval)
-  }, [])
   useEffect(() => {
     const sync = () => setPageHidden(document.visibilityState === 'hidden')
     sync()
@@ -422,7 +458,6 @@ export function SunlitSilkRenderer({
   const guest = connectedGuestName || null
   const hasGuestName = Boolean(connectedGuestName)
   const showGuestNameInput = !hasGuestName
-  const countdown = getCountdown(getTargetTime(content.event?.weddingDate, content.event?.time))
   const weddingDateParts = getWeddingDateParts(content.event?.weddingDate)
   const galleryImages = (content.galleryImages ?? [])
     .map((item) => ({
@@ -839,17 +874,7 @@ export function SunlitSilkRenderer({
               Hẹn gặp nhau trong
             </SectionHeading>
             <span className="ss-countdown-ornament" aria-hidden="true" />
-            <motion.div className="ss-countdown-grid" aria-live="off" {...elementReveal(Boolean(reduceMotion), 0.1)}>
-              {countdown.map((value, index) => (
-                <div
-                  className={`ss-countdown-unit ${index === 0 ? 'is-primary' : ''}`}
-                  key={['Ngày', 'Giờ', 'Phút', 'Giây'][index]}
-                >
-                  <strong>{String(value).padStart(2, '0')}</strong>
-                  <span>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</span>
-                </div>
-              ))}
-            </motion.div>
+            <CountdownGrid target={getTargetTime(content.event?.weddingDate, content.event?.time)} />
             <div className="ss-countdown-calendar" aria-labelledby="ss-calendar-title">
                 <motion.div className="ss-calendar-header" {...elementReveal(Boolean(reduceMotion), 0.18)}>
                   <CalendarBlank size={18} weight="thin" />

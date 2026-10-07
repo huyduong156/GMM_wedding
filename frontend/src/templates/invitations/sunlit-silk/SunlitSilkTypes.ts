@@ -5,7 +5,6 @@ export type SunlitSilkSectionKey =
   | 'families'
   | 'eventDetails'
   | 'countdown'
-  | 'calendar'
   | 'timeline'
   | 'venue'
   | 'gallery'
@@ -84,7 +83,6 @@ export type SunlitSilkData = {
     receptionLabel?: string
     receptionTime?: string
   }
-  calendar?: { month?: string; year?: string; day?: number | string }
   timeline?: { title?: string; message?: string; items?: SunlitSilkTimelineItem[] }
   venue?: { title?: string; name?: string; address?: string; mapUrl?: string; message?: string }
   gallery?: { kicker?: string; title?: string; message?: string }

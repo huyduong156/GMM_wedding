@@ -28,82 +28,12 @@
     0 24px 70px rgb(88 75 63 / 0.16);
 }
 
-.ss-stage__ribbon {
-  position: absolute;
-  top: 12%;
-  left: -18%;
-  width: 136%;
-  height: clamp(90px, 24vw, 132px);
-  border-block: 1px solid rgb(154 128 88 / 0.2);
-  background: linear-gradient(180deg, rgb(228 215 193 / 0.38), rgb(200 179 142 / 0.28));
-  box-shadow: 0 22px 42px rgb(88 75 63 / 0.08);
-  transform: rotate(-7deg);
-  pointer-events: none;
-}
-
-.ss-stage__petals {
-  position: absolute;
-  z-index: 0;
-  top: 34%;
-  right: -28%;
-  width: 70%;
-  opacity: 0.1;
-  pointer-events: none;
-  animation: ss-petal-drift 18s ease-in-out infinite alternate;
-}
-
-.ss-stage__petals img {
-  display: block;
-  width: 100%;
-}
-
-.ss-shell-marker {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-content: center;
-  min-height: 100dvh;
-  padding: 40px 24px;
-  text-align: center;
-}
-
-.ss-shell-marker p,
-.ss-shell-marker span {
-  margin: 0;
-  color: #806e59;
-  font-size: 0.7rem;
-  letter-spacing: 0.17em;
-  line-height: 1.6;
-  text-transform: uppercase;
-}
-
-.ss-shell-marker h1 {
-  max-width: 9ch;
-  margin: 18px auto 20px;
-  font-family: var(--font-wedding-names);
-  font-size: clamp(3.1rem, 15vw, 5rem);
-  font-weight: 400;
-  letter-spacing: -0.045em;
-  line-height: 0.88;
-}
-
-@keyframes ss-petal-drift {
-  from {
-    transform: translate3d(-3%, -2%, 0) rotate(-4deg);
-  }
-
-  to {
-    transform: translate3d(4%, 5%, 0) rotate(5deg);
-  }
-}
-
 @media (min-width: 600px) {
   .ss-page {
     padding-block: 24px;
   }
 
-  .ss-stage,
-  .ss-shell-marker {
+  .ss-stage {
     min-height: calc(100dvh - 48px);
   }
 }
@@ -119,9 +49,7 @@
     transition-duration: 0.01ms !important;
   }
 
-  .ss-opening-gate,
-  .ss-section,
-  .ss-stage__petals {
+  .ss-section {
     animation: none;
     transition: none;
   }
@@ -132,7 +60,8 @@
   }
 }
 
-/* Opening redesign: a quiet stationery ritual with a real clasp as the CTA. */
+/* Legacy opening v1 retained only as historical reference; active opening styles live in sunlit-silk-opening.css. */
+/*
 .ss-opening-gate {
   display: grid;
   place-items: center;
@@ -371,20 +300,19 @@
   }
 }
 
+*/
+
 /* Shared invitation canvas: section rhythm comes from composition, not color bands. */
 .ss-letter-section,
 .ss-section--families,
 .ss-date-ledger,
 .ss-countdown,
-.ss-calendar,
 .ss-timeline-section,
 .ss-venue,
-.ss-activities,
 .ss-gallery,
 .ss-rsvp,
 .ss-guestbook,
 .ss-gift,
-.ss-music,
 .ss-footer {
   background: transparent !important;
 }
@@ -466,16 +394,22 @@ body.ss-opening-lock {
   width: var(--dust-size);
   height: var(--dust-size);
   border-radius: 50%;
-  background: rgb(157 126 99 / 0.58);
-  box-shadow: 0 0 0 1px rgb(255 250 241 / 0.18);
+  background: rgb(246 225 190 / 0.92);
+  box-shadow:
+    0 0 3px 2px rgb(255 251 235 / 0.9),
+    0 0 13px 4px rgb(237 207 159 / 0.72),
+    0 0 26px 9px rgb(255 244 210 / 0.34);
   opacity: 0;
   animation: ss-dust-float var(--dust-duration) ease-in-out var(--dust-delay) infinite;
   transform: translate3d(0, 0, 0) scale(0.72);
 }
 
 .ss-sunlit-dust__particle.is-glint {
-  background: rgb(255 245 224 / 0.8);
-  box-shadow: 0 0 12px rgb(218 185 151 / 0.55);
+  background: rgb(255 253 242 / 1);
+  box-shadow:
+    0 0 5px 3px rgb(255 255 246 / 1),
+    0 0 20px 7px rgb(255 232 179 / 0.86),
+    0 0 34px 12px rgb(255 248 220 / 0.48);
 }
 
 @keyframes ss-dust-float {
@@ -492,7 +426,7 @@ body.ss-opening-lock {
 
   52% {
     opacity: 0.28;
-    transform: translate3d(calc(var(--dust-drift) * 14px), -18px, 0) scale(1);
+    transform: translate3d(calc(var(--dust-drift) * 22px), -52px, 0) scale(1);
   }
 
   78% {
@@ -1128,6 +1062,10 @@ body.ss-opening-lock {
   background: transparent;
 }
 
+.ss-page .ss-section--portrait-cover:focus {
+  outline: none;
+}
+
 .ss-page .ss-section--portrait-cover::before {
   position: absolute;
   bottom: -48%;
@@ -1398,8 +1336,7 @@ body.ss-opening-lock {
 }
 
 /* The invitation is one continuous canvas: section seams must not crop overlaps or decor. */
-.ss-page .ss-section,
-.ss-page .ss-section__surface {
+.ss-page .ss-section {
   overflow: visible;
 }
 
@@ -2520,38 +2457,6 @@ body.ss-opening-lock {
   text-underline-offset: 5px;
 }
 
-.ss-activities {
-  padding: 90px 26px 104px;
-  background: #f0e5de;
-}
-
-.ss-activities ol {
-  margin: 48px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ss-activities li {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  align-items: center;
-  min-height: 78px;
-  border-bottom: 1px solid var(--ss-line);
-}
-
-.ss-activities li span {
-  color: var(--ss-brass);
-  font-size: 0.66rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.ss-activities li strong {
-  color: var(--ss-ink);
-  font-family: var(--font-wedding-display);
-  font-size: 1.62rem;
-  font-weight: 400;
-}
-
 .ss-gallery {
   overflow: hidden;
   padding: 96px 22px 82px;
@@ -2937,32 +2842,6 @@ body.ss-opening-lock {
   margin-inline: auto;
 }
 
-.ss-music {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 16px;
-  align-items: center;
-  padding: 28px;
-  border-block: 1px solid var(--ss-line);
-  background: var(--ss-paper);
-}
-
-.ss-music h2 {
-  margin: 0;
-  color: var(--ss-ink);
-  font-size: 1.35rem;
-}
-
-.ss-music p {
-  margin: 3px 0 0;
-  font-size: 0.72rem;
-}
-
-.ss-music audio {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-
 .ss-footer {
   position: relative;
   display: grid;
@@ -3096,18 +2975,6 @@ body.ss-opening-lock {
   }
 }
 
-@media (min-width: 600px) {
-  .ss-opening-gate {
-    top: 0;
-    bottom: 0;
-    min-height: 100dvh;
-  }
-
-  .ss-section--cover {
-    min-height: calc(100dvh - 48px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .ss-atmosphere-petals {
     animation: none;
@@ -3119,7 +2986,6 @@ body.ss-opening-lock {
     transform: none;
   }
 
-  .ss-opening-gate,
   .ss-gallery-main button,
   .ss-gallery-thumbs button {
     transition: none;
@@ -3133,8 +2999,4 @@ body.ss-opening-lock {
     transform: translateY(-50%);
   }
 
-  .ss-opening-gate.is-opening {
-    opacity: 0;
-    transform: none;
-  }
 }
