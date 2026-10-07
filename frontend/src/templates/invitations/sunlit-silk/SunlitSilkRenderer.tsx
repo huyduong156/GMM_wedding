@@ -561,7 +561,7 @@ export function SunlitSilkRenderer({
                 eager
               />
               <div className="ss-opening-v4-copy">
-                <p>{content.opening?.title}</p>
+                <h2>{content.opening?.title}</h2>
                 <small>№ 01 · {content.event?.weddingDate}</small>
                 <h1 id="ss-opening-title">
                   <span>{content.couple?.brideName}</span>

@@ -79,7 +79,7 @@
   animation: ss-opening-v4-element-enter 760ms cubic-bezier(0.22, 1, 0.36, 1) 260ms both;
 }
 
-.ss-opening-v4-copy p {
+.ss-opening-v4-copy h2 {
   margin: 0 0 14px;
   color: #8e7654;
   font-size: 0.62rem;
