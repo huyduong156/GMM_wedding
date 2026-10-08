@@ -1,8 +1,11 @@
+export type GuestFamilySide = 'BRIDE' | 'GROOM'
+
 export interface GuestView {
   id: string
   weddingId: string
   categoryId: string | null
   groupId: string | null
+  familySide: GuestFamilySide | null
   name: string
   slug: string
   displayName: string | null
@@ -45,6 +48,7 @@ export interface CreateGuestData {
   displayName?: string | null | undefined
   categoryId?: string | null | undefined
   groupId?: string | null | undefined
+  familySide?: GuestFamilySide | null | undefined
   phone?: string | null | undefined
   email?: string | null | undefined
   note?: string | null | undefined
@@ -77,6 +81,7 @@ export interface GuestImportRow {
   displayName?: string | null | undefined
   categoryPath?: string | undefined
   groupName?: string | undefined
+  familySide?: GuestFamilySide | null | undefined
   phone?: string | null | undefined
   email?: string | null | undefined
   note?: string | null | undefined
@@ -94,7 +99,10 @@ export interface GuestExportRow extends GuestView {
   groupName: string | null
 }
 export interface GuestRepository {
-  resolvePublicGuestLink(weddingSlug: string, guestSlug: string): Promise<PublicGuestLinkView | null>
+  resolvePublicGuestLink(
+    weddingSlug: string,
+    guestSlug: string,
+  ): Promise<PublicGuestLinkView | null>
   listOwned(
     userId: string,
     weddingId: string,
@@ -102,6 +110,7 @@ export interface GuestRepository {
       query?: string | undefined
       categoryId?: string | null | undefined
       groupId?: string | null | undefined
+      familySide?: GuestFamilySide | null | undefined
       limit: number
       cursor?: string | undefined
     },
@@ -125,6 +134,12 @@ export interface GuestRepository {
     weddingId: string,
     guestIds: string[],
     categoryId: string | null,
+  ): Promise<{ updatedCount: number } | null>
+  bulkAssignFamilySide(
+    userId: string,
+    weddingId: string,
+    guestIds: string[],
+    familySide: GuestFamilySide | null,
   ): Promise<{ updatedCount: number } | null>
   listCategories(userId: string, weddingId: string): Promise<GuestCategoryView[] | null>
   createCategory(

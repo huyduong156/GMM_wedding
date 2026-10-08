@@ -21,26 +21,27 @@ platform admin và public snapshot không được đọc trực tiếp dữ li�
 
 ## Private API
 
-| Method | Path | Mục đích |
-|---|---|---|
-| GET/POST | `/weddings/{weddingId}/guests` | List/filter bằng cursor hoặc tạo guest |
-| GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}` | Đọc, cập nhật hoặc soft-delete guest |
-| POST | `/weddings/{weddingId}/guests/bulk-delete` | Soft-delete tối đa 200 guest IDs |
-| POST | `/weddings/{weddingId}/guests/bulk-assign-category` | Gắn hoặc gỡ category cho tối đa 200 guest |
-| GET/POST | `/weddings/{weddingId}/guest-categories` | Đọc/tạo cây category tối đa 3 cấp |
-| PATCH/DELETE | `/weddings/{weddingId}/guest-categories/{categoryId}` | Đổi tên, di chuyển hoặc soft-delete category |
-| POST/DELETE | `/weddings/{weddingId}/guest-categories/bulk-delete` | Soft-delete nhiều category |
-| GET/POST | `/weddings/{weddingId}/guest-groups` | Đọc/tạo group |
-| PATCH/DELETE | `/weddings/{weddingId}/guest-groups/{groupId}` | Cập nhật hoặc soft-delete group |
-| POST | `/weddings/{weddingId}/guests/import/preview` | Validate batch, chưa ghi database |
-| POST | `/weddings/{weddingId}/guests/import/commit` | Ghi batch hợp lệ trong transaction |
-| GET | `/weddings/{weddingId}/guests/export` | CSV UTF-8 BOM, không chứa dữ liệu public private |
+| Method           | Path                                                   | Mục đích                                         |
+| ---------------- | ------------------------------------------------------ | ------------------------------------------------ |
+| GET/POST         | `/weddings/{weddingId}/guests`                         | List/filter bằng cursor hoặc tạo guest           |
+| GET/PATCH/DELETE | `/weddings/{weddingId}/guests/{guestId}`               | Đọc, cập nhật hoặc soft-delete guest             |
+| POST             | `/weddings/{weddingId}/guests/bulk-delete`             | Soft-delete tối đa 200 guest IDs                 |
+| POST             | `/weddings/{weddingId}/guests/bulk-assign-category`    | Gắn hoặc gỡ category cho tối đa 200 guest        |
+| POST             | `/weddings/{weddingId}/guests/bulk-assign-family-side` | Gán hoặc gỡ phía gia đình cho tối đa 200 guest   |
+| GET/POST         | `/weddings/{weddingId}/guest-categories`               | Đọc/tạo cây category tối đa 3 cấp                |
+| PATCH/DELETE     | `/weddings/{weddingId}/guest-categories/{categoryId}`  | Đổi tên, di chuyển hoặc soft-delete category     |
+| POST/DELETE      | `/weddings/{weddingId}/guest-categories/bulk-delete`   | Soft-delete nhiều category                       |
+| GET/POST         | `/weddings/{weddingId}/guest-groups`                   | Đọc/tạo group                                    |
+| PATCH/DELETE     | `/weddings/{weddingId}/guest-groups/{groupId}`         | Cập nhật hoặc soft-delete group                  |
+| POST             | `/weddings/{weddingId}/guests/import/preview`          | Validate batch, chưa ghi database                |
+| POST             | `/weddings/{weddingId}/guests/import/commit`           | Ghi batch hợp lệ trong transaction               |
+| GET              | `/weddings/{weddingId}/guests/export`                  | CSV UTF-8 BOM, không chứa dữ liệu public private |
 
 Không có owner CRUD hoặc token lifecycle cho `Invitation`. Guest link cá nhân chỉ dùng `Guest.slug`.
 
 ## Guest fields
 
-Guest gồm `id`, `weddingId`, `slug`, `name` bắt buộc và `displayName` tùy chọn (nullable), cùng phone/email, note, table name, `maxPartySize`, tags, category và group. `slug` được sinh server-side từ `name` sau khi normalize (lowercase, bỏ dấu và ký tự đặc biệt), ổn định sau khi tạo và unique theo `(weddingId, slug)`; nếu trùng, hệ thống thêm hậu tố số `-1`, `-2`, ... . `maxPartySize` nằm trong khoảng 1–50. Query list hỗ trợ `q`, `categoryId`, `groupId`, `limit` tối đa 100 và opaque cursor.
+Guest gồm `id`, `weddingId`, `slug`, `name` bắt buộc và `displayName` tùy chọn (nullable), cùng phone/email, note, table name, `maxPartySize`, tags, category, group và `familySide`. `familySide` nhận `BRIDE` (nhà gái), `GROOM` (nhà trai) hoặc `null` (chưa xác định); đây là thuộc tính độc lập với category. `slug` được sinh server-side từ `name` sau khi normalize (lowercase, bỏ dấu và ký tự đặc biệt), ổn định sau khi tạo và unique theo `(weddingId, slug)`; nếu trùng, hệ thống thêm hậu tố số `-1`, `-2`, ... . `maxPartySize` nằm trong khoảng 1–50. Query list hỗ trợ `q`, `categoryId`, `groupId`, `familySide`, `limit` tối đa 100 và opaque cursor.
 
 ## Public guest link
 

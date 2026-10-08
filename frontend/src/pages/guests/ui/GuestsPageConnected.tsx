@@ -36,9 +36,11 @@ type FormState = {
   tableName: string
   maxPartySize: string
   categoryId: string
+  familySide: '' | 'BRIDE' | 'GROOM'
   note: string
 }
 const REMOVE_CATEGORY = '__remove_category__'
+const REMOVE_FAMILY_SIDE = '__remove_family_side__'
 const blank: FormState = {
   name: '',
   displayName: '',
@@ -47,6 +49,7 @@ const blank: FormState = {
   tableName: '',
   maxPartySize: '1',
   categoryId: '',
+  familySide: '',
   note: '',
 }
 const guestName = (guest: Guest) => guest.name || guest.displayName || 'Chưa có tên'
@@ -75,6 +78,8 @@ const catName = (categories: GuestCategory[], id: string | null) => {
   const category = categories.find((item) => item.id === id)
   return category ? categoryPath(categories, category) : 'Chưa phân loại'
 }
+const familySideName = (side: Guest['familySide']) =>
+  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chưa xác định'
 
 function GuestShareDialog({
   weddingId,
@@ -337,7 +342,9 @@ function GuestDialog({
             />
           </label>
         </div>
-        <label className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}>
+        <label
+          className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}
+        >
           <span>Danh mục {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
           <NativeSelectField
             value={form.categoryId}
@@ -351,6 +358,19 @@ function GuestDialog({
             ))}
           </NativeSelectField>
           {form.categoryId ? <small>Danh mục này sẽ được giữ lại sau khi thêm khách.</small> : null}
+        </label>
+        <label>
+          Phía gia đình
+          <NativeSelectField
+            value={form.familySide}
+            onChange={(event) =>
+              change('familySide', event.target.value as FormState['familySide'])
+            }
+          >
+            <option value="">Chưa xác định</option>
+            <option value="BRIDE">Nhà gái</option>
+            <option value="GROOM">Nhà trai</option>
+          </NativeSelectField>
         </label>
         <label>
           Ghi chú
@@ -406,6 +426,7 @@ function GuestsPageConnectedContent({
   const [categories, setCategories] = useState<GuestCategory[]>([])
   const [query, setQuery] = useState('')
   const [categoryId, setCategoryId] = useState('')
+  const [familySide, setFamilySide] = useState<'' | 'BRIDE' | 'GROOM'>('')
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -415,6 +436,7 @@ function GuestsPageConnectedContent({
   const [creating, setCreating] = useState(false)
   const [busy, setBusy] = useState(false)
   const [bulkCategoryAction, setBulkCategoryAction] = useState('')
+  const [bulkFamilySideAction, setBulkFamilySideAction] = useState('')
   const weddingId = activeWedding?.id
   const load = useCallback(async () => {
     if (!weddingId) return
@@ -425,6 +447,7 @@ function GuestsPageConnectedContent({
         guestApi.list(weddingId, {
           q: query.trim() || undefined,
           categoryId: categoryId || undefined,
+          familySide: familySide || undefined,
           limit: 50,
         }),
         guestCategoryApi.list(weddingId),
@@ -437,7 +460,7 @@ function GuestsPageConnectedContent({
     } finally {
       setLoading(false)
     }
-  }, [categoryId, query, weddingId])
+  }, [categoryId, familySide, query, weddingId])
   useEffect(() => {
     void load()
   }, [load])
@@ -466,6 +489,7 @@ function GuestsPageConnectedContent({
       tableName: guest.tableName ?? '',
       maxPartySize: String(guest.maxPartySize),
       categoryId: guest.categoryId ?? '',
+      familySide: guest.familySide ?? '',
       note: guest.note ?? '',
     })
     setFeedback('')
@@ -491,6 +515,7 @@ function GuestsPageConnectedContent({
       note: form.note || null,
       maxPartySize: Math.max(1, Math.min(50, Number(form.maxPartySize) || 1)),
       categoryId: form.categoryId || null,
+      familySide: form.familySide || null,
     }
     try {
       if (editing) {
@@ -503,7 +528,7 @@ function GuestsPageConnectedContent({
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
       const keepCreateDialogOpen = !editing
       if (keepCreateDialogOpen) {
-        setForm({ ...blank, categoryId: form.categoryId })
+        setForm({ ...blank, categoryId: form.categoryId, familySide: form.familySide })
         setFeedback('')
       } else {
         close()
@@ -576,6 +601,30 @@ function GuestsPageConnectedContent({
     setBulkCategoryAction('')
     void assign(value === REMOVE_CATEGORY ? '' : value)
   }
+  const handleBulkFamilySideChange = (value: string) => {
+    setBulkFamilySideAction('')
+    if (!activeWedding || !selected.length) return
+    setBusy(true)
+    void guestApi
+      .assignFamilySide(
+        activeWedding.id,
+        selected,
+        value === REMOVE_FAMILY_SIDE ? null : (value as 'BRIDE' | 'GROOM'),
+      )
+      .then(() => {
+        const familySide = value === REMOVE_FAMILY_SIDE ? null : (value as 'BRIDE' | 'GROOM')
+        setGuests((items) =>
+          items.map((item) => (selected.includes(item.id) ? { ...item, familySide } : item)),
+        )
+        setSelected([])
+        setFeedback('Đã cập nhật phía gia đình.')
+        return notifications.success('Đã cập nhật phía gia đình')
+      })
+      .catch((cause) => {
+        setFeedback(cause instanceof Error ? cause.message : 'Không thể cập nhật phía gia đình.')
+      })
+      .finally(() => setBusy(false))
+  }
   const dialog = sharingGuest ? (
     <GuestShareDialog
       weddingId={activeWedding?.id ?? ''}
@@ -609,7 +658,12 @@ function GuestsPageConnectedContent({
           <button
             className="button button-secondary"
             type="button"
-            onClick={() => void notifications.info('Tính năng nhập danh sách hiện chưa khả dụng.', 'Vui lòng quay lại sau.')}
+            onClick={() =>
+              void notifications.info(
+                'Tính năng nhập danh sách hiện chưa khả dụng.',
+                'Vui lòng quay lại sau.',
+              )
+            }
           >
             <UploadSimple size={17} /> Nhập danh sách
           </button>
@@ -619,7 +673,9 @@ function GuestsPageConnectedContent({
             </button>
           ) : null}
         </div>
-        {!canEdit ? <p className="workspace-readonly-note">Bạn có quyền chỉ xem danh sách khách mời.</p> : null}
+        {!canEdit ? (
+          <p className="workspace-readonly-note">Bạn có quyền chỉ xem danh sách khách mời.</p>
+        ) : null}
       </header>
       <div className="guest-summary">
         <div>
@@ -669,6 +725,17 @@ function GuestsPageConnectedContent({
               ))}
             </NativeSelectField>
           </label>
+          <label className="guest-group-filter">
+            <span>Phía gia đình</span>
+            <NativeSelectField
+              value={familySide}
+              onChange={(event) => setFamilySide(event.target.value as typeof familySide)}
+            >
+              <option value="">Tất cả</option>
+              <option value="BRIDE">Nhà gái</option>
+              <option value="GROOM">Nhà trai</option>
+            </NativeSelectField>
+          </label>
         </div>
         {canEdit && selected.length > 0 && (
           <div className="guest-bulk-bar">
@@ -688,6 +755,19 @@ function GuestsPageConnectedContent({
                       {item.name}
                     </option>
                   ))}
+                </NativeSelectField>
+              </label>
+              <label className="bulk-category-select">
+                Gán phía gia đình{' '}
+                <NativeSelectField
+                  value={bulkFamilySideAction}
+                  disabled={busy}
+                  onChange={(event) => handleBulkFamilySideChange(event.target.value)}
+                >
+                  <option value="">Chọn…</option>
+                  <option value="BRIDE">Nhà gái</option>
+                  <option value="GROOM">Nhà trai</option>
+                  <option value={REMOVE_FAMILY_SIDE}>Bỏ phân loại</option>
                 </NativeSelectField>
               </label>
               <button
@@ -752,6 +832,7 @@ function GuestsPageConnectedContent({
                     <th>Khách mời</th>
                     <th>Tên hiển thị</th>
                     <th>Danh mục</th>
+                    <th>Phía gia đình</th>
                     <th>Số người</th>
                     {canEdit ? <th /> : null}
                   </tr>
@@ -801,17 +882,20 @@ function GuestsPageConnectedContent({
                           {catName(categories, guest.categoryId)}
                         </span>
                       </td>
+                      <td>{familySideName(guest.familySide)}</td>
                       <td>{guest.maxPartySize}</td>
-                      {canEdit ? <td>
-                        <button
-                          className="row-menu"
-                          type="button"
-                          onClick={() => openEdit(guest)}
-                          aria-label={`Sửa ${guestName(guest)}`}
-                        >
-                          <DotsThree size={20} weight="bold" />
-                        </button>
-                      </td> : null}
+                      {canEdit ? (
+                        <td>
+                          <button
+                            className="row-menu"
+                            type="button"
+                            onClick={() => openEdit(guest)}
+                            aria-label={`Sửa ${guestName(guest)}`}
+                          >
+                            <DotsThree size={20} weight="bold" />
+                          </button>
+                        </td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>
@@ -854,6 +938,7 @@ function GuestsPageConnectedContent({
                           </button>
                         </div>
                         <small>{catName(categories, guest.categoryId)}</small>
+                        <small>{familySideName(guest.familySide)}</small>
                       </div>
                     </div>
                     {canEdit ? (

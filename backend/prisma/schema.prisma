@@ -588,6 +588,11 @@ model GuestCategory {
   @@index([weddingId, parentId, sortOrder])
 }
 
+enum GuestFamilySide {
+  BRIDE
+  GROOM
+}
+
 model GuestGroup {
   id        String    @id @default(uuid()) @db.Uuid
   weddingId String    @db.Uuid
@@ -607,6 +612,7 @@ model Guest {
   weddingId         String            @db.Uuid
   categoryId        String?           @db.Uuid
   groupId           String?           @db.Uuid
+  familySide        GuestFamilySide?
   name              String            @db.VarChar(160)
   slug              String            @db.VarChar(80)
   displayName       String?           @db.VarChar(160)
@@ -629,6 +635,7 @@ model Guest {
   @@unique([weddingId, slug])
   @@index([weddingId, groupId])
   @@index([weddingId, categoryId])
+  @@index([weddingId, familySide])
   @@index([weddingId, name])
 }
 

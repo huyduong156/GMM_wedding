@@ -19,6 +19,7 @@ const guestSelect = {
   weddingId: true,
   categoryId: true,
   groupId: true,
+  familySide: true,
   name: true,
   slug: true,
   displayName: true,
@@ -183,6 +184,7 @@ export class PrismaGuestRepository implements GuestRepository {
       query?: string | undefined
       categoryId?: string | undefined
       groupId?: string | undefined
+      familySide?: 'BRIDE' | 'GROOM' | undefined
       limit: number
       cursor?: string | undefined
     },
@@ -195,6 +197,7 @@ export class PrismaGuestRepository implements GuestRepository {
         deletedAt: null,
         ...(filter.categoryId ? { categoryId: filter.categoryId } : {}),
         ...(filter.groupId ? { groupId: filter.groupId } : {}),
+        ...(filter.familySide ? { familySide: filter.familySide } : {}),
         ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
         ...(cursor
           ? {
@@ -231,11 +234,20 @@ export class PrismaGuestRepository implements GuestRepository {
         data: {
           weddingId,
           name: data.name,
-          slug: await newGuestSlug(data.name, async (slug) => Boolean(await this.prisma.guest.findFirst({ where: { weddingId: weddingId, slug }, select: { id: true } }))),          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
+          slug: await newGuestSlug(data.name, async (slug) =>
+            Boolean(
+              await this.prisma.guest.findFirst({
+                where: { weddingId: weddingId, slug },
+                select: { id: true },
+              }),
+            ),
+          ),
+          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
           maxPartySize: data.maxPartySize,
           tags: data.tags,
           ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
           ...(data.groupId !== undefined ? { groupId: data.groupId } : {}),
+          ...(data.familySide !== undefined ? { familySide: data.familySide } : {}),
           ...(data.phone !== undefined ? { phone: data.phone } : {}),
           ...(data.email !== undefined ? { email: data.email } : {}),
           ...(data.note !== undefined ? { note: data.note } : {}),
@@ -310,6 +322,19 @@ export class PrismaGuestRepository implements GuestRepository {
     const result = await this.prisma.guest.updateMany({
       where: { id: { in: guestIds }, weddingId, deletedAt: null },
       data: { categoryId },
+    })
+    return { updatedCount: result.count }
+  }
+  async bulkAssignFamilySide(
+    userId: string,
+    weddingId: string,
+    guestIds: string[],
+    familySide: 'BRIDE' | 'GROOM' | null,
+  ) {
+    if (!(await this.owns(userId, weddingId))) return null
+    const result = await this.prisma.guest.updateMany({
+      where: { id: { in: guestIds }, weddingId, deletedAt: null },
+      data: { familySide },
     })
     return { updatedCount: result.count }
   }
@@ -439,7 +464,9 @@ export class PrismaGuestRepository implements GuestRepository {
         where: { weddingId },
         select: { id: true, parentId: true, depth: true, deletedAt: true },
       })
-      const target = categories.find((category) => category.id === categoryId && !category.deletedAt)
+      const target = categories.find(
+        (category) => category.id === categoryId && !category.deletedAt,
+      )
       if (!target) return false
       const result = await tx.guestCategory.updateMany({
         where: { id: categoryId, weddingId, deletedAt: null },
@@ -640,6 +667,7 @@ export class PrismaGuestRepository implements GuestRepository {
           tags: row.tags ?? [],
           ...(categoryId ? { categoryId } : {}),
           ...(groupId ? { groupId } : {}),
+          ...(row.familySide !== undefined ? { familySide: row.familySide } : {}),
           ...(row.phone !== undefined ? { phone: row.phone } : {}),
           ...(row.email !== undefined ? { email: row.email } : {}),
           ...(row.note !== undefined ? { note: row.note } : {}),
@@ -647,7 +675,21 @@ export class PrismaGuestRepository implements GuestRepository {
         }
         const saved = existing
           ? await tx.guest.update({ where: { id: existing.id }, data, select: guestSelect })
-          : await tx.guest.create({ data: { weddingId, slug: await newGuestSlug(data.name, async (slug) => Boolean(await tx.guest.findFirst({ where: { weddingId: weddingId, slug }, select: { id: true } }))) , ...data }, select: guestSelect })
+          : await tx.guest.create({
+              data: {
+                weddingId,
+                slug: await newGuestSlug(data.name, async (slug) =>
+                  Boolean(
+                    await tx.guest.findFirst({
+                      where: { weddingId: weddingId, slug },
+                      select: { id: true },
+                    }),
+                  ),
+                ),
+                ...data,
+              },
+              select: guestSelect,
+            })
         result.push({
           ...saved,
           categoryPath: row.categoryPath ?? '',
@@ -657,12 +699,30 @@ export class PrismaGuestRepository implements GuestRepository {
       return result
     })
   }
-  async resolvePublicGuestLink(weddingSlug: string, guestSlug: string): Promise<PublicGuestLinkView | null> {
+  async resolvePublicGuestLink(
+    weddingSlug: string,
+    guestSlug: string,
+  ): Promise<PublicGuestLinkView | null> {
     const row = await this.prisma.guest.findFirst({
-      where: { slug: guestSlug, deletedAt: null, wedding: { slug: weddingSlug, visibility: 'PUBLIC', deletedAt: null, snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } } } },
+      where: {
+        slug: guestSlug,
+        deletedAt: null,
+        wedding: {
+          slug: weddingSlug,
+          visibility: 'PUBLIC',
+          deletedAt: null,
+          snapshots: { some: { surface: 'ONLINE_INVITATION', unpublishedAt: null } },
+        },
+      },
       select: { slug: true, maxPartySize: true, name: true, displayName: true },
     })
     if (!row) return null
-    return { weddingSlug, guestSlug: row.slug, guestName: row.displayName ?? row.name, maxPartySize: row.maxPartySize, expiresAt: null }
+    return {
+      weddingSlug,
+      guestSlug: row.slug,
+      guestName: row.displayName ?? row.name,
+      maxPartySize: row.maxPartySize,
+      expiresAt: null,
+    }
   }
 }
