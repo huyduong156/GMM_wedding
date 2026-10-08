@@ -282,6 +282,37 @@ export class TemplateAdminService {
     }
   }
 
+  async updateThumbnail(
+    actor: PlatformAdminActor,
+    templateKey: string,
+    version: string,
+    thumbnailUrl: string | null,
+    requestId: string,
+  ) {
+    const template = await this.db.template.findUnique({
+      where: { key: templateKey },
+      include: { versions: { where: { version } } },
+    })
+    const selected = template?.versions[0]
+    if (!template || !selected)
+      throw new TemplateAdminError('TEMPLATE_VERSION_NOT_FOUND', 404, 'Template version not found')
+    const updated = await this.db.templateVersion.update({
+      where: { id: selected.id },
+      data: { thumbnailUrl },
+    })
+    await this.db.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: thumbnailUrl ? 'template.thumbnail_updated' : 'template.thumbnail_cleared',
+        resourceType: 'TemplateVersion',
+        resourceId: selected.id,
+        requestId,
+        metadata: { templateKey, version },
+      },
+    })
+    return { ...updated, reviewStatus: reviewStatus(updated) }
+  }
+
   async sync(actor: PlatformAdminActor, bundle: TemplateReleaseBundle, requestId: string) {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
