@@ -56,5 +56,15 @@ export const adminTemplateListQuerySchema = z.object({
   styleKey: templateKeySchema.optional(),
 })
 
+export const templateThumbnailSchema = z.object({
+  thumbnailUrl: z
+    .string()
+    .trim()
+    .max(2048)
+    .url()
+    .refine((value) => /^https?:\/\//i.test(value), 'Thumbnail URL must use http or https')
+    .nullable(),
+})
+
 export type TemplateReleaseBundle = z.infer<typeof templateReleaseBundleSchema>
 export type AdminTemplateListQuery = z.infer<typeof adminTemplateListQuerySchema>

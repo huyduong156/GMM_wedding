@@ -499,6 +499,7 @@ model TemplateVersion {
   rendererApiVersion    Int
   codeRevision          String                     @db.VarChar(128)
   config                Json
+  thumbnailUrl          String?                    @db.VarChar(2048)
   sourceStatus          TemplateSourceStatus       @default(REVIEW)
   releasedAt            DateTime?                  @db.Timestamptz(3)
   deprecatedAt          DateTime?                  @db.Timestamptz(3)
