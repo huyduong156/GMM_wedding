@@ -3333,6 +3333,11 @@ kbd {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px rgb(183 96 22 / 0.11);
 }
+.guest-dialog input[type='radio']:focus {
+  border-color: initial;
+  box-shadow: none;
+  outline: none;
+}
 .field-hint {
   color: var(--fg-muted);
   font-weight: 500;
@@ -5760,14 +5765,10 @@ kbd {
 }
 .login-brand img,
 .login-mobile-brand img {
-  width: 64px;
-  height: 64px;
+  width: 320px;
+  height: 320px;
   border-radius: 16px;
-  object-fit: cover;
-}
-.login-brand span {
-  font-size: 17px;
-  font-weight: 750;
+  object-fit: contain;
 }
 .login-story-copy {
   max-width: 560px;
@@ -14974,6 +14975,9 @@ kbd {
 .media-manager-backdrop {
   z-index: 1000;
 }
+.gift-guest-picker-backdrop {
+  z-index: 1100;
+}
 .category-parent-path {
   display: block;
   margin-top: 3px;
@@ -15001,6 +15005,44 @@ kbd {
 .guest-category-field > small {
   display: block;
   margin-top: 5px;
+  color: var(--brand-hover);
+  font-size: 9px;
+}
+.guest-family-side-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.guest-family-side-field legend {
+  padding: 0;
+  color: var(--fg-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+.guest-family-side-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+}
+.guest-family-side-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  font-size: 12px;
+}
+.guest-family-side-options input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+.guest-family-side-field > small {
+  display: block;
+  margin-top: 6px;
   color: var(--brand-hover);
   font-size: 9px;
 }

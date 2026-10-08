@@ -219,6 +219,30 @@ export class PrismaGuestRepository implements GuestRepository {
       nextCursor: hasNextPage && items.length ? encode(items[items.length - 1]!) : null,
     }
   }
+  async listPicker(userId: string, weddingId: string, query?: string) {
+    if (!(await this.canRead(userId, weddingId))) return null
+    const rows = await this.prisma.guest.findMany({
+      where: {
+        weddingId,
+        deletedAt: null,
+        ...(query ? { name: { contains: query, mode: 'insensitive' } } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        familySide: true,
+        category: { select: { name: true } },
+      },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      take: 100,
+    })
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      categoryName: row.category?.name ?? null,
+      familySide: row.familySide,
+    }))
+  }
   async findOwned(userId: string, weddingId: string, guestId: string) {
     if (!(await this.canRead(userId, weddingId))) return null
     return this.prisma.guest.findFirst({

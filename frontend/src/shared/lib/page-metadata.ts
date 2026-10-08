@@ -65,11 +65,18 @@ export function publicSurfaceMetadata(
     ['hero', 'groomName'],
   ])
   const explicitTitle = firstNestedString(payload, [['ogTitle']])
-  const explicitDescription = firstNestedString(payload, [['ogDescription']])
+  const explicitDescription =
+    firstNestedString(payload, [['ogDescription']]) ??
+    (surface === 'recap'
+      ? 'Cùng nhìn lại những khoảnh khắc đáng nhớ trong ngày cưới.'
+      : surface === 'website'
+        ? 'Website cưới của chúng tôi.'
+        : 'Thiệp mời cưới online.')
   const coupleName =
     [brideName, groomName].filter(Boolean).join(' & ') ||
     firstNestedString(content, [['hero', 'couple'], ['couple']])
   const image =
+    firstNestedMedia(payload, [['ownerAvatarUrl'], ['avatarUrl']]) ??
     firstNestedMedia(payload, [['ogImageUrl']]) ??
     firstNestedMedia(content, [
       ['ogImageUrl'],
@@ -84,7 +91,8 @@ export function publicSurfaceMetadata(
 
   const label =
     surface === 'invitation' ? 'Thiệp cưới' : surface === 'website' ? 'Website cưới' : 'Wedding Recap'
-  const title = explicitTitle ?? (coupleName ? `${coupleName} | ${label}` : `${label} | Ourday`)
+  const weddingName = firstNestedString(payload, [['weddingName']])
+  const title = explicitTitle ?? weddingName ?? (coupleName ? `${coupleName} | ${label}` : `${label} | Ourday`)
   const description =
     explicitDescription ??
     (coupleName

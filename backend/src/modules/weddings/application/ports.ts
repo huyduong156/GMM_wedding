@@ -308,6 +308,8 @@ export interface PublishWeddingData {
 export interface PublishedSnapshotView {
   id: string
   weddingId: string
+  weddingName: string
+  ownerAvatarUrl: string | null
   surface: WeddingSurfaceValue
   slug: string
   version: number

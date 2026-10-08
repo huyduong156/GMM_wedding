@@ -228,6 +228,55 @@ function GuestDialogLoading() {
   )
 }
 
+function GuestAssignmentFields({
+  form,
+  categories,
+  change,
+}: {
+  form: FormState
+  categories: GuestCategory[]
+  change: (key: keyof FormState, value: string) => void
+}) {
+  return (
+    <>
+      <label
+        className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}
+      >
+        <span>Danh mục {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
+        <NativeSelectField
+          value={form.categoryId}
+          onChange={(event) => change('categoryId', event.target.value)}
+        >
+          <option value="">Chưa phân loại</option>
+          {categories.map((item) => (
+            <option key={item.id} value={item.id}>
+              {categoryPath(categories, item)}
+            </option>
+          ))}
+        </NativeSelectField>
+        {form.categoryId ? <small>Danh mục này sẽ được giữ lại sau khi thêm khách.</small> : null}
+      </label>
+      <fieldset className="guest-family-side-field">
+        <legend>Phía gia đình</legend>
+        <div className="guest-family-side-options" role="radiogroup" aria-label="Phía gia đình">
+          <label>
+            <input type="radio" name="guest-family-side" value="GROOM" checked={form.familySide === 'GROOM'} onChange={(event) => change('familySide', event.target.value)} />
+            <span>Nhà trai</span>
+          </label>
+          <label>
+            <input type="radio" name="guest-family-side" value="BRIDE" checked={form.familySide === 'BRIDE'} onChange={(event) => change('familySide', event.target.value)} />
+            <span>Nhà gái</span>
+          </label>
+          <label>
+            <input type="radio" name="guest-family-side" value="" checked={form.familySide === ''} onChange={() => change('familySide', '')} />
+            <span>Chưa xác định</span>
+          </label>
+        </div>
+      </fieldset>
+    </>
+  )
+}
+
 function GuestDialog({
   form,
   categories,
@@ -311,6 +360,7 @@ function GuestDialog({
           onChange={(event) => change('displayName', event.target.value)}
           placeholder="Ví dụ: anh Ba Hưng"
         />
+        <GuestAssignmentFields form={form} categories={categories} change={change} />
         <div className="guest-form-grid">
           <label>
             Số điện thoại
@@ -342,36 +392,6 @@ function GuestDialog({
             />
           </label>
         </div>
-        <label
-          className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}
-        >
-          <span>Danh mục {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
-          <NativeSelectField
-            value={form.categoryId}
-            onChange={(event) => change('categoryId', event.target.value)}
-          >
-            <option value="">Chưa phân loại</option>
-            {categories.map((item) => (
-              <option key={item.id} value={item.id}>
-                {categoryPath(categories, item)}
-              </option>
-            ))}
-          </NativeSelectField>
-          {form.categoryId ? <small>Danh mục này sẽ được giữ lại sau khi thêm khách.</small> : null}
-        </label>
-        <label>
-          Phía gia đình
-          <NativeSelectField
-            value={form.familySide}
-            onChange={(event) =>
-              change('familySide', event.target.value as FormState['familySide'])
-            }
-          >
-            <option value="">Chưa xác định</option>
-            <option value="BRIDE">Nhà gái</option>
-            <option value="GROOM">Nhà trai</option>
-          </NativeSelectField>
-        </label>
         <label>
           Ghi chú
           <textarea

@@ -164,6 +164,28 @@ export function WebsiteEditorLivePageNext() {
   const media = useMediaLibrary({ weddingId })
   const [mediaOpen, setMediaOpen] = useState(false)
   const [mediaTarget, setMediaTarget] = useState<MediaTarget | null>(null)
+  const promptReopenAfterSave = async (nextRevision: number) => {
+    const result = await notifications.confirm({
+      icon: 'info',
+      title: 'Website đã tạm đóng',
+      text: 'Website đã được tạm đóng vì bạn vừa cập nhật nội dung. Bạn có muốn mở lại ngay không?',
+      confirmButtonText: 'Mở lại website',
+      cancelButtonText: 'Để sau',
+      reverseButtons: true,
+      focusCancel: true,
+    })
+    if (result.isConfirmed && weddingId) {
+      try {
+        await weddingApi.publish(weddingId, { surface: 'WEDDING_WEBSITE', revision: nextRevision })
+        setPublished(true)
+        setNotice('Website đã được mở lại thành công.')
+        await notifications.success('Đã mở lại website')
+        await workspace?.refresh()
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : 'Không thể mở lại website.')
+      }
+    }
+  }
   useEditorPreviewScrollLock(mobileOpen)
   const draggable = useDraggablePreviewPosition()
   const required = useMemo(
@@ -314,7 +336,10 @@ export function WebsiteEditorLivePageNext() {
       })
       setRevision(result.content.revision)
       const dashboard = await weddingApi.dashboard(weddingId)
-      setPublished(dashboard.dashboard.publication.website.published)
+      const nextPublished = dashboard.dashboard.publication.website.published
+      setPublished(nextPublished)
+      if (published && !nextPublished && pending !== 'publish')
+        void promptReopenAfterSave(result.content.revision)
       baseline.current = signature(data, order, enabled, theme)
       setDirty(false)
       setNotice('Đã lưu thay đổi website.')
