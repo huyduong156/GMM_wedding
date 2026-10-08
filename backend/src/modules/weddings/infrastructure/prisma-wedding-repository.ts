@@ -160,6 +160,15 @@ const legacyTemplateSections: Record<string, string[]> = {
     'footer',
   ],
 }
+
+function effectiveTemplateThumbnail(version: { thumbnailUrl?: string | null; config: unknown }) {
+  if (version.thumbnailUrl) return version.thumbnailUrl
+  if (version.config && typeof version.config === 'object' && !Array.isArray(version.config)) {
+    const configured = (version.config as { thumbnailPath?: unknown }).thumbnailPath
+    if (typeof configured === 'string' && configured.trim()) return configured
+  }
+  return null
+}
 type TemplateSection = { sectionKey?: unknown; key?: unknown; required?: unknown }
 type SectionConfig = { enabled?: unknown; order?: unknown }
 function sectionKey(item: unknown) {
@@ -825,7 +834,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
       status: row.status,
       description: row.description,
       styles: row.styles.map((assignment) => assignment.style),
-      versions: row.versions,
+      versions: row.versions.map((version) => ({
+        ...version,
+        thumbnailUrl: effectiveTemplateThumbnail(version),
+      })),
     }))
   }
   async getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null> {
@@ -848,7 +860,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
       status: row.status,
       description: row.description,
       styles: row.styles.map((assignment) => assignment.style),
-      versions: row.versions,
+      versions: row.versions.map((version) => ({
+        ...version,
+        thumbnailUrl: effectiveTemplateThumbnail(version),
+      })),
     }
   }
   async getContentOwned(

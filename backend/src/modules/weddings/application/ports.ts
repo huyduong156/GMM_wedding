@@ -277,6 +277,7 @@ export interface TemplateView {
     contentSchemaVersion: number
     rendererApiVersion: number
     config: unknown
+    thumbnailUrl: string | null
     releasedAt: Date | null
     deprecatedAt: Date | null
   }>
