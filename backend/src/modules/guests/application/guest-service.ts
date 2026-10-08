@@ -21,6 +21,7 @@ export class GuestService {
       query?: string | undefined
       categoryId?: string | undefined
       groupId?: string | undefined
+      familySide?: 'BRIDE' | 'GROOM' | undefined
       limit: number
       cursor?: string | undefined
     },
@@ -52,6 +53,16 @@ export class GuestService {
   ) {
     return this.require(
       await this.repository.bulkAssignCategory(actor.userId, weddingId, guestIds, categoryId),
+    )
+  }
+  async bulkAssignFamilySide(
+    actor: AuthenticatedUserActor,
+    weddingId: string,
+    guestIds: string[],
+    familySide: 'BRIDE' | 'GROOM' | null,
+  ) {
+    return this.require(
+      await this.repository.bulkAssignFamilySide(actor.userId, weddingId, guestIds, familySide),
     )
   }
   categories(actor: AuthenticatedUserActor, weddingId: string) {
@@ -121,6 +132,7 @@ export class GuestService {
         'Bàn',
         'Ghi chú',
         'Tags',
+        'Phía gia đình',
       ],
     ]
     let section = ''
@@ -143,6 +155,7 @@ export class GuestService {
           '',
           '',
           '',
+          '',
         ])
         section = key
       }
@@ -157,6 +170,7 @@ export class GuestService {
         row.tableName,
         row.note,
         row.tags.join(', '),
+        row.familySide === 'BRIDE' ? 'Nhà gái' : row.familySide === 'GROOM' ? 'Nhà trai' : '',
       ])
     }
     return (

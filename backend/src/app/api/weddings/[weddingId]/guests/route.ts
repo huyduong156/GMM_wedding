@@ -28,6 +28,7 @@ export async function GET(request: NextRequest, context: Context) {
           query: parsed.q,
           categoryId: parsed.categoryId,
           groupId: parsed.groupId,
+          familySide: parsed.familySide,
           limit: parsed.limit,
           cursor: parsed.cursor,
         }),

@@ -245,6 +245,7 @@ export type Guest = {
   weddingId: string
   categoryId: string | null
   groupId: string | null
+  familySide: 'BRIDE' | 'GROOM' | null
   name: string
   displayName: string | null
   slug?: string | null
@@ -275,6 +276,7 @@ export type GuestInput = {
   displayName?: string | null
   categoryId?: string | null
   groupId?: string | null
+  familySide?: 'BRIDE' | 'GROOM' | null
   phone?: string | null
   email?: string | null
   note?: string | null
@@ -548,17 +550,22 @@ export const weddingApi = {
     weddingId: string,
     input: { role: WorkspaceAccessRole; email?: string },
   ) =>
-    request<{ access: WeddingWorkspaceAccess; token: string }>(`/weddings/${weddingId}/workspace-access`, {
-      method: 'POST',
-      body: JSON.stringify(input),
-    }),
+    request<{ access: WeddingWorkspaceAccess; token: string }>(
+      `/weddings/${weddingId}/workspace-access`,
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+    ),
   revokeWorkspaceAccess: (weddingId: string, accessId: string) =>
     request<void>(`/weddings/${weddingId}/workspace-access/${accessId}`, {
       method: 'DELETE',
       body: '{}',
     }),
   resolveWorkspaceAccess: (token: string) =>
-    request<{ access: WorkspaceAccessResolution }>(`/workspace-access/${encodeURIComponent(token)}`),
+    request<{ access: WorkspaceAccessResolution }>(
+      `/workspace-access/${encodeURIComponent(token)}`,
+    ),
   acceptWorkspaceAccess: (token: string) =>
     request<{ member: WeddingMember }>(`/workspace-access/${encodeURIComponent(token)}`, {
       method: 'POST',
@@ -722,11 +729,18 @@ export const weddingApi = {
 export const guestApi = {
   list: (
     weddingId: string,
-    params: { q?: string; categoryId?: string; limit?: number; cursor?: string } = {},
+    params: {
+      q?: string
+      categoryId?: string
+      familySide?: 'BRIDE' | 'GROOM'
+      limit?: number
+      cursor?: string
+    } = {},
   ) => {
     const query = new URLSearchParams()
     if (params.q) query.set('q', params.q)
     if (params.categoryId) query.set('categoryId', params.categoryId)
+    if (params.familySide) query.set('familySide', params.familySide)
     query.set('limit', String(params.limit ?? 100))
     if (params.cursor) query.set('cursor', params.cursor)
     return request<{ items: Guest[]; nextCursor: string | null }>(
@@ -752,6 +766,11 @@ export const guestApi = {
     request<{ updatedCount: number }>(`/weddings/${weddingId}/guests/bulk-assign-category`, {
       method: 'POST',
       body: JSON.stringify({ guestIds, categoryId }),
+    }),
+  assignFamilySide: (weddingId: string, guestIds: string[], familySide: 'BRIDE' | 'GROOM' | null) =>
+    request<{ updatedCount: number }>(`/weddings/${weddingId}/guests/bulk-assign-family-side`, {
+      method: 'POST',
+      body: JSON.stringify({ guestIds, familySide }),
     }),
 }
 
