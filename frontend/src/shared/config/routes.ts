@@ -67,6 +67,7 @@ export const publicTemplateRoutes = {
   astralVowPreview: '/templates/invitations/astral-vow/preview',
   vanHyPreview: '/templates/invitations/van-hy/preview',
   aureliaCourtPreview: '/templates/invitations/aurelia-court/preview',
+  sunlitSilkPreview: '/templates/invitations/sunlit-silk/preview',
   editorialVowsPreview: '/templates/websites/editorial-vows/preview',
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',

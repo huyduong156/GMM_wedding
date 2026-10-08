@@ -32,6 +32,11 @@ import { AstralVowInvitation, type AstralVowData, type AstralVowSectionConfig } 
 import { VanHyInvitation, type VanHyData, type VanHySectionConfig } from '../../../templates/invitations/van-hy/VanHyInvitation'
 import { AureliaCourtRenderer } from '../../../templates/invitations/aurelia-court/AureliaCourtRenderer'
 import type { AureliaCourtData, AureliaCourtSectionConfig } from '../../../templates/invitations/aurelia-court/AureliaCourtTypes'
+import {
+  SunlitSilkRenderer,
+  type SunlitSilkData,
+  type SunlitSilkSectionConfig,
+} from '../../../templates/invitations/sunlit-silk/SunlitSilkRenderer'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
@@ -241,6 +246,15 @@ function InvitationSnapshot({
         <AureliaCourtRenderer
           data={content as AureliaCourtData}
           sectionConfig={sectionConfig as AureliaCourtSectionConfig | undefined}
+          interactions={interactions}
+        />
+      )
+    case 'sunlit-silk':
+      return (
+        <SunlitSilkRenderer
+          data={content as SunlitSilkData}
+          sectionConfig={sectionConfig as SunlitSilkSectionConfig | undefined}
+          guestName={guestName}
           interactions={interactions}
         />
       )
