@@ -1,22 +1,29 @@
 import { z } from 'zod'
 const uuid = z.string().uuid()
+const familySide = z.enum(['BRIDE', 'GROOM'])
 const optionalText = (max: number) => z.string().trim().min(1).max(max).nullable().optional()
-const optionalDisplayName = z.string().trim().max(160).nullable().optional().transform((value) =>
-  value === undefined ? undefined : value || null,
-)
+const optionalDisplayName = z
+  .string()
+  .trim()
+  .max(160)
+  .nullable()
+  .optional()
+  .transform((value) => (value === undefined ? undefined : value || null))
 export const guestIdSchema = uuid
 export const guestQuerySchema = z.object({
   q: z.string().trim().max(160).optional(),
   categoryId: uuid.optional(),
   groupId: uuid.optional(),
+  familySide: familySide.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   cursor: z.string().max(512).optional(),
 })
 const guestFields = {
   name: z.string().trim().min(1).max(160),
-    displayName: optionalDisplayName,
+  displayName: optionalDisplayName,
   categoryId: uuid.nullable().optional(),
   groupId: uuid.nullable().optional(),
+  familySide: familySide.nullable().optional(),
   phone: optionalText(32),
   email: z.string().trim().email().max(320).nullable().optional(),
   note: z.string().trim().max(5000).nullable().optional(),
@@ -73,11 +80,22 @@ export const bulkAssignCategorySchema = z
     categoryId: uuid.nullable(),
   })
   .strip()
+export const bulkAssignFamilySideSchema = z
+  .object({
+    guestIds: z
+      .array(uuid)
+      .min(1)
+      .max(200)
+      .refine((ids) => new Set(ids).size === ids.length, 'IDs must be unique'),
+    familySide: familySide.nullable(),
+  })
+  .strip()
 export const guestImportRowSchema = z
   .object({
     name: z.string().trim().min(1).max(160),
     displayName: optionalDisplayName,
     categoryPath: z.string().trim().max(400).optional(),
+    familySide: familySide.nullable().optional(),
     groupName: z.string().trim().max(120).optional(),
     phone: z.string().trim().max(32).optional(),
     email: z.string().trim().email().max(320).optional(),

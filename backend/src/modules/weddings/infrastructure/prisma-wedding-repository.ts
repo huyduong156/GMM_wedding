@@ -1,4 +1,4 @@
-import { newGuestSlug } from "@/shared/domain/guest-slug"
+import { newGuestSlug } from '@/shared/domain/guest-slug'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { createHash, randomUUID } from 'node:crypto'
 import type {
@@ -198,7 +198,9 @@ function reconcileSectionConfig(rawSections: unknown[], rawConfig: SectionConfig
   const knownSections = new Set([...requestedEnabled, ...rawOrder])
   const newlyDiscovered = sections.filter((key) => !knownSections.has(key))
   const enabled = new Set(
-    !hasUnknownSectionKeys && requestedEnabled.length ? [...requestedEnabled, ...newlyDiscovered] : sections,
+    !hasUnknownSectionKeys && requestedEnabled.length
+      ? [...requestedEnabled, ...newlyDiscovered]
+      : sections,
   )
   for (const key of required) enabled.add(key)
   const requestedOrder = hasUnknownSectionKeys ? [] : rawOrder
@@ -275,6 +277,7 @@ const guestSelect = {
   weddingId: true,
   categoryId: true,
   groupId: true,
+  familySide: true,
   displayName: true,
   phone: true,
   email: true,
@@ -314,8 +317,7 @@ function eventView(row: EventRow): WeddingEventView {
     longitude: row.longitude?.toString() ?? null,
   }
 }
-const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export function collectMediaIds(value: unknown, key = '', result = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
@@ -323,11 +325,7 @@ export function collectMediaIds(value: unknown, key = '', result = new Set<strin
     return result
   }
   if (!value || typeof value !== 'object') {
-    if (
-      typeof value === 'string' &&
-      /(?:media|asset)id$/i.test(key) &&
-      uuidPattern.test(value)
-    )
+    if (typeof value === 'string' && /(?:media|asset)id$/i.test(key) && uuidPattern.test(value))
       result.add(value)
     return result
   }
@@ -568,20 +566,20 @@ export class PrismaWeddingRepository implements WeddingRepository {
       trendRows,
     ] = await Promise.all([
       this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
-      this.prisma.guest.count({where:{weddingId}}),
-      this.prisma.guest.count({where:{weddingId,deletedAt:null}}),
-      this.prisma.rsvpResponse.count({ where: { weddingId,  } }),
+      this.prisma.guest.count({ where: { weddingId } }),
+      this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
+      this.prisma.rsvpResponse.count({ where: { weddingId } }),
       this.prisma.rsvpResponse.groupBy({
         by: ['attendance'],
-        where: { weddingId,  },
+        where: { weddingId },
         _count: { _all: true },
       }),
       this.prisma.rsvpResponse.aggregate({
-        where: { weddingId, attendance: 'ATTENDING',  },
+        where: { weddingId, attendance: 'ATTENDING' },
         _sum: { partySize: true },
       }),
       this.prisma.rsvpCompanion.count({
-        where: { rsvpResponse: { weddingId,  } },
+        where: { rsvpResponse: { weddingId } },
       }),
       this.prisma.wish.groupBy({
         by: ['status'],
@@ -614,7 +612,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         orderBy: { version: 'desc' },
       }),
       this.prisma.rsvpResponse.findMany({
-        where: { weddingId,  },
+        where: { weddingId },
         take: 10,
         orderBy: { submittedAt: 'desc' },
         include: { guest: true },
@@ -625,7 +623,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         orderBy: { submittedAt: 'desc' },
       }),
       this.prisma.rsvpResponse.findMany({
-        where: { weddingId, submittedAt: { gte: since },  },
+        where: { weddingId, submittedAt: { gte: since } },
         select: { submittedAt: true },
       }),
     ])
@@ -718,7 +716,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
     ] = await Promise.all([
       this.prisma.guest.count({ where: { weddingId, deletedAt: null } }),
       this.prisma.rsvpResponse.count({
-        where: { weddingId, attendance: 'ATTENDING',  },
+        where: { weddingId, attendance: 'ATTENDING' },
       }),
       this.prisma.weddingTask.groupBy({
         by: ['status'],
@@ -802,9 +800,17 @@ export class PrismaWeddingRepository implements WeddingRepository {
     styleKey?: string,
   ): Promise<TemplateView[]> {
     const rows = await this.prisma.template.findMany({
-      where: { status: 'ACTIVE', ...(productType ? { productType } : {}), ...(styleKey ? { styles: { some: { style: { key: styleKey, status: 'ACTIVE' } } } } : {}) },
+      where: {
+        status: 'ACTIVE',
+        ...(productType ? { productType } : {}),
+        ...(styleKey ? { styles: { some: { style: { key: styleKey, status: 'ACTIVE' } } } } : {}),
+      },
       include: {
-        styles: { where: { style: { status: 'ACTIVE' } }, include: { style: { select: { id: true, key: true, name: true } } }, orderBy: { style: { sortOrder: 'asc' } } },
+        styles: {
+          where: { style: { status: 'ACTIVE' } },
+          include: { style: { select: { id: true, key: true, name: true } } },
+          orderBy: { style: { sortOrder: 'asc' } },
+        },
         versions: {
           where: { releasedAt: { not: null }, deprecatedAt: null },
           orderBy: { createdAt: 'desc' },
@@ -825,7 +831,14 @@ export class PrismaWeddingRepository implements WeddingRepository {
   async getTemplateVersion(templateKey: string, version: string): Promise<TemplateView | null> {
     const row = await this.prisma.template.findFirst({
       where: { key: templateKey, status: 'ACTIVE' },
-      include: { styles: { where: { style: { status: 'ACTIVE' } }, include: { style: { select: { id: true, key: true, name: true } } }, orderBy: { style: { sortOrder: 'asc' } } }, versions: { where: { version, releasedAt: { not: null }, deprecatedAt: null } } },
+      include: {
+        styles: {
+          where: { style: { status: 'ACTIVE' } },
+          include: { style: { select: { id: true, key: true, name: true } } },
+          orderBy: { style: { sortOrder: 'asc' } },
+        },
+        versions: { where: { version, releasedAt: { not: null }, deprecatedAt: null } },
+      },
     })
     if (!row || row.versions.length === 0) return null
     return {
@@ -875,9 +888,9 @@ export class PrismaWeddingRepository implements WeddingRepository {
     const draftContent = content?.content
     const hasSavedContent = Boolean(
       draftContent &&
-        typeof draftContent === 'object' &&
-        !Array.isArray(draftContent) &&
-        Object.keys(draftContent as Record<string, unknown>).length > 0,
+      typeof draftContent === 'object' &&
+      !Array.isArray(draftContent) &&
+      Object.keys(draftContent as Record<string, unknown>).length > 0,
     )
     // A content row may exist before the invitation has been saved. Its
     // sectionConfig can be stale, so the template order is authoritative until
@@ -1245,7 +1258,14 @@ export class PrismaWeddingRepository implements WeddingRepository {
         OR: [
           { authorName: { contains: filter.query, mode: 'insensitive' } },
           { content: { contains: filter.query, mode: 'insensitive' } },
-          { guest: { OR: [{ name: { contains: filter.query, mode: 'insensitive' } }, { displayName: { contains: filter.query, mode: 'insensitive' } }] } },
+          {
+            guest: {
+              OR: [
+                { name: { contains: filter.query, mode: 'insensitive' } },
+                { displayName: { contains: filter.query, mode: 'insensitive' } },
+              ],
+            },
+          },
         ],
       })
     if (filter.from || filter.to)
@@ -1391,7 +1411,11 @@ export class PrismaWeddingRepository implements WeddingRepository {
         const guest = await tx.guest.create({
           data: {
             weddingId,
-            slug: await newGuestSlug(displayName, async slug => Boolean(await tx.guest.findFirst({ where: { weddingId, slug }, select: { id: true } }))),
+            slug: await newGuestSlug(displayName, async (slug) =>
+              Boolean(
+                await tx.guest.findFirst({ where: { weddingId, slug }, select: { id: true } }),
+              ),
+            ),
             name: displayName,
             maxPartySize: 1,
             tags: [],
@@ -1448,8 +1472,7 @@ export class PrismaWeddingRepository implements WeddingRepository {
         })
         if (!wish) return null
         const existingGuestId = wish.guestId ?? null
-        if (existingGuestId === guestId)
-          return { guest, wishId: wish.id, guestId: wish.guestId }
+        if (existingGuestId === guestId) return { guest, wishId: wish.id, guestId: wish.guestId }
         if (existingGuestId) return 'conflict'
         const updatedWish = await tx.wish.updateMany({
           where: { id: wish.id, weddingId, guestId: null },
