@@ -24,6 +24,7 @@ jobs:
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       CPANEL_SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
       CPANEL_SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
       CPANEL_SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
@@ -90,6 +91,11 @@ jobs:
 
           tar -C "$bundle_dir" -czf "$archive" .
           echo "BUNDLE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - name: Run production database migrations
+        if: steps.changes.outputs.changed == 'true'
+        working-directory: backend
+        run: npm run db:migrate:deploy
 
       - name: Configure SSH
         if: steps.changes.outputs.changed == 'true'
