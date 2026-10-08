@@ -14975,6 +14975,79 @@ kbd {
 .media-manager-backdrop {
   z-index: 1000;
 }
+.admin-theme-preview {
+  position: relative;
+}
+.admin-theme-thumbnail {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.admin-theme-thumbnail + .admin-preview-chrome,
+.admin-theme-thumbnail ~ .admin-preview-canvas,
+.admin-theme-thumbnail ~ .admin-status,
+.admin-theme-thumbnail ~ .admin-theme-style-badges {
+  visibility: hidden;
+}
+.theme-thumbnail-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+.theme-artwork-frame.has-thumbnail {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+.admin-template-thumbnail-editor {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0;
+  padding: 13px;
+  border: 1px solid #e1e6ea;
+  border-radius: 10px;
+  background: #fff;
+}
+.admin-template-thumbnail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.admin-template-thumbnail-heading > div {
+  display: grid;
+  gap: 4px;
+}
+.admin-template-thumbnail-heading span {
+  color: #7b8792;
+  font-size: 12px;
+}
+.admin-template-thumbnail-heading img {
+  width: 72px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #dfe4e8;
+}
+.admin-template-thumbnail-editor input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #dfe4e8;
+  border-radius: 7px;
+}
+.admin-template-thumbnail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .gift-guest-picker-backdrop {
   z-index: 1100;
 }

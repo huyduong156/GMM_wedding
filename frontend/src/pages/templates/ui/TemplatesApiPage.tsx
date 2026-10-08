@@ -36,6 +36,7 @@ type Theme = {
   palette: string
   sections: TemplateSectionConfig[]
   previewPath?: string
+  thumbnailUrl?: string | null
   unavailable?: boolean
 }
 
@@ -90,6 +91,7 @@ function toTheme(template: WeddingTemplate): Theme | null {
         : (meta?.palette ?? 'Theo cấu hình mẫu'),
     sections,
     previewPath: previewPaths[template.key],
+    thumbnailUrl: version.thumbnailUrl ?? null,
   }
 }
 
@@ -128,7 +130,10 @@ function Artwork({ theme }: { theme: Theme }) {
       role="img"
       aria-label={`Xem trước giao diện ${theme.name}`}
     >
-      <div className="theme-artwork-frame">
+      {theme.thumbnailUrl ? (
+        <img className="theme-thumbnail-image" src={theme.thumbnailUrl} alt={`Xem trước giao diện ${theme.name}`} />
+      ) : null}
+      <div className={`theme-artwork-frame${theme.thumbnailUrl ? ' has-thumbnail' : ''}`}>
         <span className="theme-ornament" aria-hidden="true" />
         <p>Save the date</p>
         <strong>
@@ -227,6 +232,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       palette: meta?.palette ?? 'Theo cấu hình mẫu',
       sections,
       previewPath: previewPaths[selected.key],
+      thumbnailUrl: null,
       unavailable: true,
     }
   }, [content, filter, kind, themes])

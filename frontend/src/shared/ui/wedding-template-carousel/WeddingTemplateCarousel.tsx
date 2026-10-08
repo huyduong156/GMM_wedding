@@ -59,7 +59,7 @@ function apiSlides(items: WeddingTemplate[]) {
   return items.slice(0, 6).map((item, index) => ({
     name: item.name,
     style: item.description ?? 'Thiệp online',
-    image: index % 2 ? '/assets/images/templates/modern-luxe/wedding-detail.jpg' : '/assets/images/templates/modern-luxe/couple-portrait.jpg',
+    image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? (index % 2 ? '/assets/images/templates/modern-luxe/wedding-detail.jpg' : '/assets/images/templates/modern-luxe/couple-portrait.jpg'),
     position: 'center',
     href: previewPaths[item.key] ?? publicTemplateRoutes.modernLuxePreview,
   }))

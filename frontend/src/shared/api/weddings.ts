@@ -64,6 +64,7 @@ export type TemplateFieldConfig = {
 export type TemplateVersion = {
   id: string
   version: string
+  thumbnailUrl?: string | null
   configHash: string
   templateConfigVersion: number
   contentSchemaVersion: number
