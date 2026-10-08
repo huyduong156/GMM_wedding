@@ -14,7 +14,6 @@ export function AuthRecoveryLayout({
       <section className="login-story" aria-label="Giới thiệu ourday">
         <div className="login-brand">
           <img src="/assets/logo/ourday-logo.png" alt="" />
-          <span>Ourday</span>
         </div>
         <div className="login-story-copy">
           <span className="login-eyebrow">Một nơi cho ngày trọng đại</span>

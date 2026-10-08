@@ -54,6 +54,7 @@ const exactTitles: Record<string, string> = {
   [publicTemplateRoutes.astralVowPreview]: 'Astral Vow – Mẫu thiệp cưới | Ourday',
   [publicTemplateRoutes.vanHyPreview]: 'Vạn Hỷ – Mẫu thiệp cưới | Ourday',
   [publicTemplateRoutes.aureliaCourtPreview]: 'Aurelia Court – Mẫu thiệp cưới | Ourday',
+  [publicTemplateRoutes.sunlitSilkPreview]: 'Sunlit Silk – Mẫu thiệp cưới | Ourday',
   [publicTemplateRoutes.editorialVowsPreview]: 'Editorial Vows – Mẫu website cưới | Ourday',
   [publicTemplateRoutes.greenHydrangeaPreview]: 'Green Hydrangea – Mẫu website cưới | Ourday',
   [publicTemplateRoutes.enchantedForestPreview]: 'Enchanted Forest – Mẫu website cưới | Ourday',

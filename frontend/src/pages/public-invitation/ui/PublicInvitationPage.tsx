@@ -61,7 +61,11 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
       ? `${canonicalPath}/${encodeURIComponent(guestSlug)}`
       : canonicalPath
     return {
-      ...publicSurfaceMetadata(snapshot.payload, 'invitation', canonicalPath),
+      ...publicSurfaceMetadata(
+        { ...snapshot.payload, weddingName: snapshot.weddingName, ownerAvatarUrl: snapshot.ownerAvatarUrl },
+        'invitation',
+        canonicalPath,
+      ),
       url: currentPath,
       ...(guestSlug ? { robots: 'noindex,nofollow' } : {}),
     }

@@ -22,6 +22,7 @@ import {
   guestApi,
   type GiftLedgerEntry as ApiGiftEntry,
   type Guest,
+  type GuestPickerItem,
 } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
@@ -73,6 +74,12 @@ const money = new Intl.NumberFormat('vi-VN', {
 })
 const isMobileViewport = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches
+const todayInputValue = () => {
+  const today = new Date()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${today.getFullYear()}-${month}-${day}`
+}
 const toast = (title: string, icon: 'success' | 'error' = 'success') =>
   notifications.fire({
     toast: true,
@@ -101,7 +108,7 @@ export function GiftLedgerPage() {
   const [guestPickerClosing, setGuestPickerClosing] = useState(false)
   const [linkingEntry, setLinkingEntry] = useState<GiftEntry | null>(null)
   const [guestQuery, setGuestQuery] = useState('')
-  const [guestList, setGuestList] = useState<Guest[]>([])
+  const [guestList, setGuestList] = useState<GuestPickerItem[]>([])
   const [guestLoading, setGuestLoading] = useState(false)
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null)
   const [guestName, setGuestName] = useState('')
@@ -111,7 +118,7 @@ export function GiftLedgerPage() {
   const [goldType, setGoldType] = useState('Vàng 24K')
   const [giftDescription, setGiftDescription] = useState('')
   const [note, setNote] = useState('')
-  const [receivedDate, setReceivedDate] = useState('2026-07-30')
+  const [receivedDate, setReceivedDate] = useState(todayInputValue)
   const [receiveMethod, setReceiveMethod] = useState<'cash' | 'bankTransfer' | 'physicalGift'>(
     'cash',
   )
@@ -120,7 +127,7 @@ export function GiftLedgerPage() {
     let cancelled = false
     setGuestLoading(true)
     guestApi
-      .list(weddingId, { q: guestQuery.trim() || undefined, limit: 100 })
+      .picker(weddingId, guestQuery.trim() || undefined)
       .then((result) => {
         if (!cancelled) setGuestList(result.items)
       })
@@ -257,7 +264,7 @@ export function GiftLedgerPage() {
     setGiftDescription('')
     setNote('')
     setGoldType('Vàng 24K')
-    setReceivedDate('2026-07-30')
+    setReceivedDate(todayInputValue())
     setReceiveMethod('cash')
     setDialogOpen(true)
   }
@@ -269,7 +276,7 @@ export function GiftLedgerPage() {
     setGuestLoading(true)
     setGuestPickerOpen(true)
   }
-  async function selectGuest(guest: Guest) {
+  async function selectGuest(guest: GuestPickerItem) {
     if (linkingEntry && weddingId) {
       setGuestLoading(true)
       try {
@@ -291,7 +298,7 @@ export function GiftLedgerPage() {
       return
     }
     setSelectedGuestId(guest.id)
-    setGuestName(guest.displayName ?? guest.name ?? '')
+    setGuestName(guest.name ?? '')
     closeGuestPicker()
   }
   function clearSelectedGuest() {
@@ -437,7 +444,7 @@ export function GiftLedgerPage() {
       setGoldWeight('')
       setGiftDescription('')
       setNote('')
-      setReceivedDate('2026-07-30')
+      setReceivedDate(todayInputValue())
       setReceiveMethod('cash')
       setEditing(null)
       if (!isMobileViewport() || wasEditing) closeDialog()
@@ -877,8 +884,12 @@ export function GiftLedgerPage() {
               <div className="gift-guest-list">
                 {guestList.map((guest) => (
                   <button type="button" key={guest.id} onClick={() => selectGuest(guest)}>
-                    <strong>{guest.displayName}</strong>
-                    <small>{guest.phone ?? guest.email ?? 'Chưa có thông tin liên hệ'}</small>
+                    <strong>{guest.name}</strong>
+                    <small>
+                      {[guest.categoryName, guest.familySide === 'BRIDE' ? 'Nhà gái' : guest.familySide === 'GROOM' ? 'Nhà trai' : null]
+                        .filter(Boolean)
+                        .join(' · ') || 'Chưa phân loại'}
+                    </small>
                   </button>
                 ))}
               </div>

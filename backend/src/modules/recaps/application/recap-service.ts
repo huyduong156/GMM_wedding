@@ -47,6 +47,8 @@ export type RecapView = {
 export type PublishedRecapView = {
   id: string
   recapId: string
+  weddingName: string
+  ownerAvatarUrl: string | null
   slug: string
   version: number
   payload: unknown
@@ -321,7 +323,10 @@ export class RecapService {
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
     const live = await this.prisma.publishedRecapSnapshot.findFirst({
       where: { contentId: recap.id, unpublishedAt: null },
-      include: { templateVersion: { include: { template: true } } },
+      include: {
+        templateVersion: { include: { template: true } },
+        content: { include: { wedding: { include: { createdBy: { select: { avatarUrl: true } } } } } },
+      },
       orderBy: { version: 'desc' },
     })
     if (live?.slug === slug && live.payloadHash === payloadHash) return this.snapshotView(live)
@@ -353,7 +358,10 @@ export class RecapService {
             payload: payload as Prisma.InputJsonValue,
             payloadHash,
           },
-          include: { templateVersion: { include: { template: true } } },
+          include: {
+            templateVersion: { include: { template: true } },
+            content: { include: { wedding: { include: { createdBy: { select: { avatarUrl: true } } } } } },
+          },
         })
         return snapshot
       })
@@ -417,7 +425,10 @@ export class RecapService {
         unpublishedAt: null,
         content: { wedding: { slug, visibility: 'PUBLIC', deletedAt: null } },
       },
-      include: { templateVersion: { include: { template: true } } },
+      include: {
+        templateVersion: { include: { template: true } },
+        content: { include: { wedding: { include: { createdBy: { select: { avatarUrl: true } } } } } },
+      },
       orderBy: { version: 'desc' },
     })
     if (!row) throw new RecapError('RECAP_PUBLIC_NOT_FOUND', 404, 'Published recap not found')
@@ -534,12 +545,17 @@ export class RecapService {
 
   private snapshotView(
     row: Prisma.PublishedRecapSnapshotGetPayload<{
-      include: { templateVersion: { include: { template: true } } }
+      include: {
+        templateVersion: { include: { template: true } }
+        content: { include: { wedding: { include: { createdBy: { select: { avatarUrl: true } } } } } }
+      }
     }>,
   ): PublishedRecapView {
     return {
       id: row.id,
       recapId: row.contentId,
+      weddingName: row.content?.wedding?.name ?? '',
+      ownerAvatarUrl: row.content?.wedding?.createdBy?.avatarUrl ?? null,
       slug: row.slug,
       version: row.version,
       payload: row.payload,

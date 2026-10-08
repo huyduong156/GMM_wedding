@@ -79,7 +79,6 @@ export function LoginPage() {
       <section className="login-story" aria-label="Giới thiệu ourday">
         <div className="login-brand">
           <img src="/assets/logo/ourday-logo.png" alt="" />
-          <span>Ourday</span>
         </div>
         <div className="login-story-copy">
           <span className="login-eyebrow">Một nơi cho ngày trọng đại</span>
@@ -96,7 +95,6 @@ export function LoginPage() {
         <form className="login-card" onSubmit={submit}>
           <div className="login-mobile-brand">
             <img src="/assets/logo/ourday-logo.png" alt="" />
-            <strong>Ourday</strong>
           </div>
           <span className="login-kicker">Chào mừng trở lại</span>
           <h2 id="login-title">Đăng nhập</h2>

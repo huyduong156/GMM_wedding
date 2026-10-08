@@ -39,18 +39,24 @@ export function PublicRecapPage({ slug }: { slug: string }) {
   const checkUserSession = auth?.checkUserSession
   const [content, setContent] = useState<RedSpiderLilyRecapContent>()
   const [sectionConfig, setSectionConfig] = useState<SectionConfig>()
+  const [weddingName, setWeddingName] = useState<string>()
+  const [ownerAvatarUrl, setOwnerAvatarUrl] = useState<string | null>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
   const metadata = useMemo(
     () =>
       content
         ? publicSurfaceMetadata(
-            { content: content as unknown as Record<string, unknown> },
+            {
+              content: content as unknown as Record<string, unknown>,
+              weddingName,
+              ownerAvatarUrl,
+            },
             'recap',
             `/${encodeURIComponent(slug)}/recaps`,
           )
         : undefined,
-    [content, slug],
+    [content, ownerAvatarUrl, slug, weddingName],
   )
   usePageMetadata(metadata)
 
@@ -75,8 +81,12 @@ export function PublicRecapPage({ slug }: { slug: string }) {
         const signedIn = checkUserSession ? await checkUserSession() : false
 
         if (signedIn) payload = await loadOwnerDraft()
-        if (!payload)
-          payload = (await weddingApi.publicRecap(slug)).snapshot.payload as DraftPayload
+        if (!payload) {
+          const result = await weddingApi.publicRecap(slug)
+          payload = result.snapshot.payload as DraftPayload
+          setWeddingName(result.snapshot.weddingName)
+          setOwnerAvatarUrl(result.snapshot.ownerAvatarUrl ?? null)
+        }
 
         if (!active) return
         if (!payload.content || typeof payload.content !== 'object') {
