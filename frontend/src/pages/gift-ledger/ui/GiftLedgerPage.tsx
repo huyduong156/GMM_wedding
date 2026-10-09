@@ -21,7 +21,6 @@ import {
   giftApi,
   guestApi,
   type GiftLedgerEntry as ApiGiftEntry,
-  type Guest,
   type GuestPickerItem,
 } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
@@ -72,6 +71,10 @@ const money = new Intl.NumberFormat('vi-VN', {
   currency: 'VND',
   maximumFractionDigits: 0,
 })
+const formatAmountInput = (value: string) => {
+  const digits = value.replace(/\D/g, '')
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
 const isMobileViewport = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches
 const todayInputValue = () => {
@@ -125,20 +128,26 @@ export function GiftLedgerPage() {
   useEffect(() => {
     if (!guestPickerOpen || !weddingId) return
     let cancelled = false
+    const controller = new AbortController()
     setGuestLoading(true)
-    guestApi
-      .picker(weddingId, guestQuery.trim() || undefined)
-      .then((result) => {
-        if (!cancelled) setGuestList(result.items)
-      })
-      .catch(() => {
-        if (!cancelled) setGuestList([])
-      })
-      .finally(() => {
-        if (!cancelled) setGuestLoading(false)
-      })
+    setGuestList([])
+    const timer = window.setTimeout(() => {
+      guestApi
+        .picker(weddingId, guestQuery.trim() || undefined, controller.signal)
+        .then((result) => {
+          if (!cancelled) setGuestList(result.items)
+        })
+        .catch(() => {
+          if (!cancelled) setGuestList([])
+        })
+        .finally(() => {
+          if (!cancelled) setGuestLoading(false)
+        })
+    }, 1100)
     return () => {
       cancelled = true
+      window.clearTimeout(timer)
+      controller.abort()
     }
   }, [guestPickerOpen, guestQuery, weddingId])
   useEffect(() => {
@@ -222,7 +231,7 @@ export function GiftLedgerPage() {
     guestName !== editing.guestName ||
     selectedGuestId !== (editing.guestId ?? null) ||
     kind !== editing.kind ||
-    amount !== String(editing.amount ?? '') ||
+    amount.replace(/\D/g, '') !== String(editing.amount ?? '') ||
     goldWeight !== String(editing.goldWeight ?? '') ||
     goldType !== (editing.goldType ?? 'Vàng 24K') ||
     giftDescription !== (editing.description ?? '') ||
@@ -312,7 +321,7 @@ export function GiftLedgerPage() {
     setLinkingEntry(null)
     setSelectedGuestId(entry.guestId ?? null)
     setGuestName(entry.guestName ?? '')
-    setAmount(entry.amount ? String(entry.amount) : '')
+    setAmount(entry.amount ? formatAmountInput(String(entry.amount)) : '')
     setGoldWeight(entry.goldWeight ? String(entry.goldWeight) : '')
     setGoldType(entry.goldType ?? 'Vàng 24K')
     setGiftDescription(entry.description ?? '')
@@ -740,7 +749,7 @@ export function GiftLedgerPage() {
                   inputMode="numeric"
                   enterKeyHint="done"
                   value={amount}
-                  onChange={(event) => setAmount(event.target.value)}
+                  onChange={(event) => setAmount(formatAmountInput(event.target.value))}
                   placeholder="Ví dụ: 1.000.000"
                 />
               </>
@@ -871,31 +880,35 @@ export function GiftLedgerPage() {
                 <X size={18} />
               </button>
             </header>
-            <input
-              className="gift-guest-search"
-              value={guestQuery}
-              onChange={(event) => setGuestQuery(event.target.value)}
-              placeholder="Tìm theo tên khách mời"
-              autoFocus
-            />
-            {guestLoading ? (
-              <p className="gift-picker-state">Đang tải danh sách khách…</p>
-            ) : guestList.length ? (
-              <div className="gift-guest-list">
-                {guestList.map((guest) => (
-                  <button type="button" key={guest.id} onClick={() => selectGuest(guest)}>
-                    <strong>{guest.name}</strong>
-                    <small>
-                      {[guest.categoryName, guest.familySide === 'BRIDE' ? 'Nhà gái' : guest.familySide === 'GROOM' ? 'Nhà trai' : null]
-                        .filter(Boolean)
-                        .join(' · ') || 'Chưa phân loại'}
-                    </small>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="gift-picker-state">Không tìm thấy khách mời.</p>
-            )}
+            <div className="gift-guest-picker-toolbar">
+              <input
+                className="gift-guest-search"
+                value={guestQuery}
+                onChange={(event) => setGuestQuery(event.target.value)}
+                placeholder="Tìm theo tên khách mời"
+                autoFocus
+              />
+            </div>
+            <div className="gift-guest-picker-list">
+              {guestLoading ? (
+                <p className="gift-picker-state">Đang tải danh sách khách…</p>
+              ) : guestList.length ? (
+                <div className="gift-guest-list">
+                  {guestList.map((guest) => (
+                    <button type="button" key={guest.id} onClick={() => selectGuest(guest)}>
+                      <strong>{guest.name}</strong>
+                      <small>
+                        {[guest.categoryName, guest.familySide === 'BRIDE' ? 'Nhà gái' : guest.familySide === 'GROOM' ? 'Nhà trai' : null]
+                          .filter(Boolean)
+                          .join(' · ') || 'Chưa phân loại'}
+                      </small>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="gift-picker-state">Không tìm thấy khách mời.</p>
+              )}
+            </div>
           </div>
         </div>
       )}

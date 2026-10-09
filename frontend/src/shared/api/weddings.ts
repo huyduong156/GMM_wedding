@@ -64,6 +64,7 @@ export type TemplateFieldConfig = {
 export type TemplateVersion = {
   id: string
   version: string
+  thumbnailUrl?: string | null
   configHash: string
   templateConfigVersion: number
   contentSchemaVersion: number
@@ -762,9 +763,10 @@ export const guestApi = {
       `/weddings/${weddingId}/guests?${query}`,
     )
   },
-  picker: (weddingId: string, query?: string) =>
+  picker: (weddingId: string, query?: string, signal?: AbortSignal) =>
     request<{ items: GuestPickerItem[] }>(
       `/weddings/${weddingId}/guests/picker${query ? `?q=${encodeURIComponent(query)}` : ''}`,
+      signal ? { signal } : undefined,
     ),
   create: (weddingId: string, input: GuestInput) =>
     request<{ guest: Guest }>(`/weddings/${weddingId}/guests`, {

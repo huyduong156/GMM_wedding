@@ -9,6 +9,7 @@ export type AdminTemplateSourceStatus = 'DEVELOPMENT' | 'REVIEW' | 'READY' | 'DE
 export type AdminTemplateVersion = {
   id: string
   version: string
+  thumbnailUrl?: string | null
   configHash: string
   templateConfigVersion: number
   contentSchemaVersion: number
@@ -187,6 +188,39 @@ export const adminTemplateApi = {
     return request<{ version: AdminTemplateVersion }>(
       `/admin/templates/${segment(key)}/versions/${segment(version)}/deprecate`,
       { method: 'POST', headers: { 'content-type': 'application/json' } },
+    )
+  },
+  updateThumbnail(key: string, version: string, thumbnailUrl: string | null) {
+    return request<{ version: AdminTemplateVersion }>(
+      `/admin/templates/${segment(key)}/versions/${segment(version)}`,
+      { method: 'PATCH', body: JSON.stringify({ thumbnailUrl }) },
+    )
+  },
+  async uploadThumbnail(key: string, version: string, file: File) {
+    const intent = await request<{
+      storageKey: string
+      upload: { uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string }
+    }>(
+      `/admin/templates/${segment(key)}/versions/${segment(version)}/thumbnail/upload-intents`,
+      { method: 'POST', body: JSON.stringify({ mimeType: file.type, sizeBytes: file.size }) },
+    )
+    const backendUpload = intent.upload.uploadUrl === 'backend-upload'
+    const uploadPath = `/admin/templates/${segment(key)}/versions/${segment(version)}/thumbnail/upload?storageKey=${encodeURIComponent(intent.storageKey)}`
+    const uploadInit: RequestInit = { method: intent.upload.method, body: file }
+    const sendUpload = (tokenHeaders: Record<string, string>) =>
+      fetch(backendUpload ? `${apiBaseUrl}${uploadPath}` : intent.upload.uploadUrl, {
+        ...uploadInit,
+        credentials: backendUpload ? 'include' : 'omit',
+        headers: { ...intent.upload.headers, ...tokenHeaders },
+      })
+    const uploaded = backendUpload
+      ? await requestWithCsrfRetry(uploadInit, sendUpload)
+      : await sendUpload({})
+    if (!uploaded.ok)
+      throw new AdminTemplateApiError(uploaded.status, 'TEMPLATE_THUMBNAIL_UPLOAD_FAILED', 'Không thể tải ảnh lên kho lưu trữ.')
+    return request<{ version: AdminTemplateVersion }>(
+      `/admin/templates/${segment(key)}/versions/${segment(version)}/thumbnail/complete`,
+      { method: 'POST', body: JSON.stringify({ storageKey: intent.storageKey }) },
     )
   },
 }

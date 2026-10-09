@@ -23,6 +23,7 @@ import {
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import { resolveInvitationTemplateSections } from '../../../templates/invitation-config-resolver'
 
 type Theme = {
@@ -36,6 +37,7 @@ type Theme = {
   palette: string
   sections: TemplateSectionConfig[]
   previewPath?: string
+  thumbnailUrl?: string | null
   unavailable?: boolean
 }
 
@@ -90,6 +92,7 @@ function toTheme(template: WeddingTemplate): Theme | null {
         : (meta?.palette ?? 'Theo cấu hình mẫu'),
     sections,
     previewPath: previewPaths[template.key],
+    thumbnailUrl: version.thumbnailUrl ?? null,
   }
 }
 
@@ -128,7 +131,14 @@ function Artwork({ theme }: { theme: Theme }) {
       role="img"
       aria-label={`Xem trước giao diện ${theme.name}`}
     >
-      <div className="theme-artwork-frame">
+      {theme.thumbnailUrl ? (
+        <TemplateThumbnail
+          className="theme-thumbnail-image"
+          src={theme.thumbnailUrl}
+          alt={`Xem trước giao diện ${theme.name}`}
+        />
+      ) : null}
+      <div className={`theme-artwork-frame${theme.thumbnailUrl ? ' has-thumbnail' : ''}`}>
         <span className="theme-ornament" aria-hidden="true" />
         <p>Save the date</p>
         <strong>
@@ -227,6 +237,7 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
       palette: meta?.palette ?? 'Theo cấu hình mẫu',
       sections,
       previewPath: previewPaths[selected.key],
+      thumbnailUrl: null,
       unavailable: true,
     }
   }, [content, filter, kind, themes])
@@ -405,11 +416,11 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
                 <div className="theme-card-copy">
                   <div>
                     <h2>{theme.name}</h2>
-                    <p>
+                    <p className="theme-card-meta">
                       {theme.style} · {theme.palette} · v{theme.version}
                     </p>
                   </div>
-                  <p>{theme.description}</p>
+                  <p className="theme-card-description">{theme.description}</p>
                 </div>
                 <footer>
                   {theme.previewPath ? (

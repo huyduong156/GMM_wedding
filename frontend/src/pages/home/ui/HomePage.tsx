@@ -173,7 +173,7 @@ export function HomePage() {
                 Bắt đầu tạo <ArrowRight />
               </AppLink>
               <AppLink
-                to={publicTemplateRoutes.modernLuxePreview}
+                to={marketingRoutes.invitationTemplates}
                 className="home-button home-button-ghost"
               >
                 Xem thiệp mẫu
