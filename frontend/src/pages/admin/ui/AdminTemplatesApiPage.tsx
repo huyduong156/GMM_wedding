@@ -7,6 +7,7 @@ import {
   Eye,
   FileArrowUp,
   GearSix,
+  ImageSquare,
   MagnifyingGlass,
   Plus,
   Tag,
@@ -21,6 +22,7 @@ import {
   type AdminTemplateVersion,
 } from '../../../shared/api/admin-templates'
 import { publicTemplateRoutes } from '../../../shared/config/routes'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import {
   adminTemplateStylesApi,
   type TemplateStyle,
@@ -437,7 +439,7 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
                       <article className="admin-theme-card" key={`${item.key}-${version.id}`}>
                         <div className={`admin-theme-preview ${item.key}`}>
                           {version.thumbnailUrl ? (
-                            <img
+                            <TemplateThumbnail
                               className="admin-theme-thumbnail"
                               src={version.thumbnailUrl}
                               alt={`Ảnh đại diện ${item.name}`}
@@ -873,7 +875,17 @@ function ThumbnailEditor({
 }) {
   const [file, setFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState('')
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const busy = working === `thumbnail:${version.id}`
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [file])
   const save = () => { if (file) void uploadThumbnail(item, version, file) }
   const selectFile = (selected: File | undefined) => {
     setFileError('')
@@ -901,6 +913,24 @@ function ThumbnailEditor({
           <img src={version.thumbnailUrl} alt={`Ảnh đại diện ${item.name}`} />
         ) : null}
       </div>
+      <label className="admin-template-thumbnail-upload">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(event) => selectFile(event.target.files?.[0])}
+          aria-label="Chọn ảnh đại diện template"
+          disabled={Boolean(working)}
+        />
+        {previewUrl || version.thumbnailUrl ? (
+          <img src={previewUrl ?? version.thumbnailUrl ?? undefined} alt={`Ảnh đại diện ${item.name}`} />
+        ) : (
+          <span className="admin-template-thumbnail-upload-icon"><ImageSquare size={25} /></span>
+        )}
+        <span className="admin-template-thumbnail-upload-copy">
+          <strong>{file ? file.name : version.thumbnailUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}</strong>
+          <small>JPG, PNG hoặc WebP · tối đa 10 MB</small>
+        </span>
+      </label>
       <input
         type="file"
         accept="image/jpeg,image/png,image/webp"

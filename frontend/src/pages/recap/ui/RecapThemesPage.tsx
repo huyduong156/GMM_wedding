@@ -19,6 +19,7 @@ import {
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import './recap.css'
 
 type RecapTheme = {
@@ -103,7 +104,11 @@ function Artwork({ theme, active }: { theme: RecapTheme; active: boolean }) {
       aria-label={`Xem trước ${theme.name}`}
     >
       {theme.thumbnailUrl ? (
-        <img className="recap-library-thumbnail" src={theme.thumbnailUrl} alt={`Xem trước ${theme.name}`} />
+        <TemplateThumbnail
+          className="recap-library-thumbnail"
+          src={theme.thumbnailUrl}
+          alt={`Xem trước ${theme.name}`}
+        />
       ) : null}
       <div className="recap-library-art-copy">
         <span>WEDDING RECAP · {theme.style}</span>

@@ -763,9 +763,10 @@ export const guestApi = {
       `/weddings/${weddingId}/guests?${query}`,
     )
   },
-  picker: (weddingId: string, query?: string) =>
+  picker: (weddingId: string, query?: string, signal?: AbortSignal) =>
     request<{ items: GuestPickerItem[] }>(
       `/weddings/${weddingId}/guests/picker${query ? `?q=${encodeURIComponent(query)}` : ''}`,
+      signal ? { signal } : undefined,
     ),
   create: (weddingId: string, input: GuestInput) =>
     request<{ guest: Guest }>(`/weddings/${weddingId}/guests`, {

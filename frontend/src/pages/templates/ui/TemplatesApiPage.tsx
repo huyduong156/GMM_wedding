@@ -23,6 +23,7 @@ import {
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { TemplatesPage } from './TemplatesPage'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import { resolveInvitationTemplateSections } from '../../../templates/invitation-config-resolver'
 
 type Theme = {
@@ -131,7 +132,11 @@ function Artwork({ theme }: { theme: Theme }) {
       aria-label={`Xem trước giao diện ${theme.name}`}
     >
       {theme.thumbnailUrl ? (
-        <img className="theme-thumbnail-image" src={theme.thumbnailUrl} alt={`Xem trước giao diện ${theme.name}`} />
+        <TemplateThumbnail
+          className="theme-thumbnail-image"
+          src={theme.thumbnailUrl}
+          alt={`Xem trước giao diện ${theme.name}`}
+        />
       ) : null}
       <div className={`theme-artwork-frame${theme.thumbnailUrl ? ' has-thumbnail' : ''}`}>
         <span className="theme-ornament" aria-hidden="true" />
@@ -411,11 +416,11 @@ export function TemplatesApiPage({ kind }: { kind: 'invitation' | 'website' }) {
                 <div className="theme-card-copy">
                   <div>
                     <h2>{theme.name}</h2>
-                    <p>
+                    <p className="theme-card-meta">
                       {theme.style} · {theme.palette} · v{theme.version}
                     </p>
                   </div>
-                  <p>{theme.description}</p>
+                  <p className="theme-card-description">{theme.description}</p>
                 </div>
                 <footer>
                   {theme.previewPath ? (

@@ -3,46 +3,16 @@ import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { AppLink } from '../../lib/navigation/AppLink'
 import { publicTemplateRoutes } from '../../config/routes'
 import { weddingApi, type WeddingTemplate } from '../../api/weddings'
+import { TemplateThumbnail } from '../TemplateThumbnail'
 import './wedding-template-carousel.css'
 
-const slides = [
-  {
-    name: 'Élan d’Amour',
-    style: 'Thiệp mời hiện đại',
-    image: '/assets/images/templates/modern-luxe/couple-portrait.jpg',
-    position: 'center',
-  },
-  {
-    name: 'Ivory Letter',
-    style: 'Tối giản',
-    image: '/assets/images/login-wedding-luxury.jpg',
-    position: 'center 44%',
-  },
-  {
-    name: 'Botanical Vow',
-    style: 'Tinh tế',
-    image: '/assets/images/templates/modern-luxe/wedding-detail.jpg',
-    position: 'center',
-  },
-  {
-    name: 'Brown Atelier',
-    style: 'Sang trọng',
-    image: '/assets/images/templates/modern-luxe/couple-portrait.jpg',
-    position: '60% center',
-  },
-  {
-    name: 'Silk Ceremony',
-    style: 'Lãng mạn',
-    image: '/assets/images/login-wedding-luxury.jpg',
-    position: '68% center',
-  },
-  {
-    name: 'White Garden',
-    style: 'Trong trẻo',
-    image: '/assets/images/templates/modern-luxe/wedding-detail.jpg',
-    position: '35% center',
-  },
-]
+type CarouselSlide = {
+  name: string
+  style: string
+  image?: string | null
+  position: string
+  href?: string
+}
 
 const previewPaths: Record<string, string> = {
   'modern-luxe': publicTemplateRoutes.modernLuxePreview,
@@ -59,7 +29,7 @@ function apiSlides(items: WeddingTemplate[]) {
   return items.slice(0, 6).map((item, index) => ({
     name: item.name,
     style: item.description ?? 'Thiệp online',
-    image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? (index % 2 ? '/assets/images/templates/modern-luxe/wedding-detail.jpg' : '/assets/images/templates/modern-luxe/couple-portrait.jpg'),
+    image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? null,
     position: 'center',
     href: previewPaths[item.key] ?? publicTemplateRoutes.modernLuxePreview,
   }))
@@ -68,7 +38,7 @@ function apiSlides(items: WeddingTemplate[]) {
 export function WeddingTemplateCarousel() {
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
-  const [items, setItems] = useState(slides)
+  const [items, setItems] = useState<CarouselSlide[]>([])
 
   useEffect(() => {
     let activeRequest = true
@@ -123,7 +93,13 @@ export function WeddingTemplateCarousel() {
               key={slide.name}
             >
               <article data-offset={boundedOffset} style={slideStyle}>
-                <img src={slide.image} alt={`Banner thiệp cưới ${slide.name}`} loading="lazy" />
+                {slide.image ? (
+                  <TemplateThumbnail className="template-carousel-thumbnail" src={slide.image} alt={`Banner thiệp cưới ${slide.name}`} loading="lazy" />
+                ) : (
+                  <div className="template-carousel-thumbnail template-carousel-thumbnail-fallback" aria-label={`Xem mẫu ${slide.name}`}>
+                    <span>{slide.name}</span>
+                  </div>
+                )}
                 <div>
                   <strong>{slide.name}</strong>
                   <span>{slide.style}</span>
