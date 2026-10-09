@@ -18025,3 +18025,5 @@ input[type='file'] {
     line-height: 1;
   }
 }
+.theme-artwork{aspect-ratio:1 / 1.8}
+.admin-theme-preview{height:auto;aspect-ratio:1 / 1.8}

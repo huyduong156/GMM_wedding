@@ -895,11 +895,6 @@ function ThumbnailEditor({
       setFileError('Chỉ hỗ trợ JPG, PNG hoặc WebP.')
       return
     }
-    if (selected.size > 10 * 1024 * 1024) {
-      setFile(null)
-      setFileError('Ảnh không được vượt quá 10 MB.')
-      return
-    }
     setFile(selected)
   }
   return (
@@ -928,7 +923,7 @@ function ThumbnailEditor({
         )}
         <span className="admin-template-thumbnail-upload-copy">
           <strong>{file ? file.name : version.thumbnailUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}</strong>
-          <small>JPG, PNG hoặc WebP · tối đa 10 MB</small>
+          <small>JPG, PNG hoặc WebP · không giới hạn kích thước</small>
         </span>
       </label>
       <input
