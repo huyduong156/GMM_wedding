@@ -26,7 +26,7 @@ const previewPaths: Record<string, string> = {
 }
 
 function apiSlides(items: WeddingTemplate[]) {
-  return items.slice(0, 6).map((item, index) => ({
+  return items.slice(0, 6).map((item) => ({
     name: item.name,
     style: item.description ?? 'Thiệp online',
     image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? null,

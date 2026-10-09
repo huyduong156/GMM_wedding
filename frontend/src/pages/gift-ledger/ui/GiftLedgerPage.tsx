@@ -21,7 +21,6 @@ import {
   giftApi,
   guestApi,
   type GiftLedgerEntry as ApiGiftEntry,
-  type Guest,
   type GuestPickerItem,
 } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
