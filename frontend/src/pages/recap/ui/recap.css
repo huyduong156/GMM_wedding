@@ -1891,3 +1891,4 @@
 .recap-library-thumbnail + .recap-library-art-copy {
   visibility: hidden;
 }
+.recap-library-art{min-height:0;aspect-ratio:1 / 1.8}
