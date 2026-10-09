@@ -1,5 +1,14 @@
 # Deploy backend lên cPanel bằng CI/CD
 
+## Chọn phía cần deploy
+
+FE và BE có marker deploy riêng trên hosting: `.deploy-state/frontend.sha` và
+`.deploy-state/backend.sha`. Marker chỉ được ghi sau khi activate thành công.
+Workflow so sánh marker với toàn bộ commit chưa deploy, nên commit FE-only chỉ
+build/deploy FE, commit BE-only chỉ build/deploy BE, còn commit thay đổi cả hai
+thì chạy cả hai workflow. Nếu deploy lỗi, marker cũ được giữ nguyên để lần CI
+thành công sau retry phần pending; `workflow_dispatch` luôn ép deploy phía tương ứng.
+
 Backend đã dùng Next.js `output: "standalone"`. Workflow
 `.github/workflows/deploy-backend-cpanel.yml` build bundle trên GitHub Actions,
 upload bundle lên cPanel qua SSH và tạo `tmp/restart.txt` để Passenger/cPanel
@@ -32,15 +41,20 @@ Workflow cần các GitHub Actions Secrets:
 | `CPANEL_KNOWN_HOSTS`     | output của `ssh-keyscan -p <port> <host>`                                                       |
 
 Có thể chạy workflow tự động sau khi CI thành công trên branch `production`, hoặc
-chạy thủ công từ tab **Actions** bằng `workflow_dispatch`.
+chạy thủ công từ tab **Actions** bằng `workflow_dispatch`. Backend deploy không còn
+phụ thuộc vào việc commit cuối cùng có thay đổi thư mục `backend/` hay không: mỗi lần
+CI production thành công, workflow build và upload toàn bộ standalone backend bundle.
+Điều này bảo đảm các thay đổi backend tồn đọng từ một commit trước vẫn được deploy
+sau khi một commit FE-only tiếp theo làm CI thành công, đồng thời cho phép manual
+rerun phục hồi một lần deploy bị lỗi.
 
 ## Kiểm tra sau deploy
 
 1. Xem log Node app trong cPanel.
 2. Gọi health endpoint `/api/health/live`.
 3. Kiểm tra các biến môi trường production và kết nối database.
-4. Migration database vẫn chạy riêng bằng quy trình migration đã review; workflow
-   deploy không tự động sửa schema.
+4. Migration database chạy trong workflow deploy sau khi backend build thành công;
+   workflow không tự động sửa schema ngoài các migration đã commit và review.
 5. Template sync không đọc source từ backend bundle. Workflow frontend phải build và deploy
    `template-release-bundle.json`; sau deploy, kiểm tra file này trả `200` từ frontend domain.
 

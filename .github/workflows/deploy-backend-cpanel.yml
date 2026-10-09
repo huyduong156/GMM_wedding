@@ -31,25 +31,55 @@ jobs:
       CPANEL_DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
       CPANEL_SSH_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
       CPANEL_KNOWN_HOSTS: ${{ secrets.CPANEL_KNOWN_HOSTS }}
+      TARGET_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - name: Checkout tested commit
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Detect backend changes
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$CPANEL_SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
+          chmod 600 "$HOME/.ssh/deploy_key"
+          printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+
+      - name: Detect pending backend changes
         id: changes
         shell: bash
         run: |
           set -euo pipefail
+          port="${CPANEL_SSH_PORT:-22}"
+          printf -v marker_q '%q' "${CPANEL_DEPLOY_PATH}/.deploy-state/backend.sha"
+          last_sha="$(ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
+            -o BatchMode=yes -o ConnectTimeout=30 \
+            "$CPANEL_SSH_USER@$CPANEL_SSH_HOST" \
+            "if [ -s ${marker_q} ]; then cat ${marker_q}; fi")"
+
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only HEAD^ HEAD | grep -qE '^(backend/|\.github/workflows/deploy-backend-cpanel\.yml)'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            changed=true
+            reason="manual dispatch"
+          elif [[ -z "$last_sha" ]] || ! git cat-file -e "${last_sha}^{commit}" 2>/dev/null; then
+            changed=true
+            reason="no valid deployed backend marker"
+          elif ! git merge-base --is-ancestor "$last_sha" "$TARGET_SHA"; then
+            changed=true
+            reason="deployed marker is not an ancestor of target"
+          elif git diff --name-only "$last_sha" "$TARGET_SHA" | grep -qE '^(backend/|\.github/workflows/deploy-backend-cpanel\.yml)'; then
+            changed=true
+            reason="backend changes pending"
           else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            changed=false
+            reason="no backend changes since last successful deploy"
           fi
+
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "Backend deploy decision: $changed ($reason)"
 
       - name: Setup Node.js
         if: steps.changes.outputs.changed == 'true'
@@ -75,7 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           bundle_dir="$RUNNER_TEMP/gmm-wedding-backend"
-          archive="$RUNNER_TEMP/gmm-wedding-backend-${GITHUB_SHA}.tar.gz"
+          archive="$RUNNER_TEMP/gmm-wedding-backend-${TARGET_SHA}.tar.gz"
 
           rm -rf "$bundle_dir" "$archive"
           mkdir -p "$bundle_dir/.next"
@@ -96,17 +126,6 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         working-directory: backend
         run: npm run db:migrate:deploy
-
-      - name: Configure SSH
-        if: steps.changes.outputs.changed == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$CPANEL_SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
-          chmod 600 "$HOME/.ssh/deploy_key"
-          printf '%s\n' "$CPANEL_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 644 "$HOME/.ssh/known_hosts"
 
       - name: Verify cPanel SSH and deploy directory
         if: steps.changes.outputs.changed == 'true'
@@ -130,7 +149,7 @@ jobs:
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          archive="${CPANEL_DEPLOY_PATH}/.incoming-${GITHUB_SHA}.tar.gz"
+          archive="${CPANEL_DEPLOY_PATH}/.incoming-${TARGET_SHA}.tar.gz"
           printf -v archive_q '%q' "$archive"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
@@ -147,13 +166,15 @@ jobs:
         run: |
           set -euo pipefail
           port="${CPANEL_SSH_PORT:-22}"
-          archive="${CPANEL_DEPLOY_PATH}/.incoming-${GITHUB_SHA}.tar.gz"
-          staging="${CPANEL_DEPLOY_PATH}/.deploy-${GITHUB_SHA}"
+          archive="${CPANEL_DEPLOY_PATH}/.incoming-${TARGET_SHA}.tar.gz"
+          staging="${CPANEL_DEPLOY_PATH}/.deploy-${TARGET_SHA}"
           printf -v deploy_path_q '%q' "$CPANEL_DEPLOY_PATH"
           printf -v archive_q '%q' "$archive"
           printf -v staging_q '%q' "$staging"
+          printf -v marker_q '%q' "${CPANEL_DEPLOY_PATH}/.deploy-state/backend.sha"
+          printf -v target_sha_q '%q' "$TARGET_SHA"
 
-          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; test -s ${archive_q}; rm -rf ${staging_q}; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; test -f ${staging_q}/server.js; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; mkdir -p ${deploy_path_q}/tmp; touch ${deploy_path_q}/tmp/restart.txt; printf 'Backend release activated\\n'"
+          remote_command="set -e; cleanup(){ rm -rf ${staging_q} ${archive_q}; }; trap cleanup EXIT; test -s ${archive_q}; rm -rf ${staging_q}; mkdir -p ${staging_q}; tar -xzf ${archive_q} -C ${staging_q}; test -f ${staging_q}/server.js; rm -rf ${deploy_path_q}/node_modules ${deploy_path_q}/.next ${deploy_path_q}/server.js ${deploy_path_q}/public ${deploy_path_q}/openapi; cp -a ${staging_q}/. ${deploy_path_q}/; mkdir -p ${deploy_path_q}/tmp ${deploy_path_q}/.deploy-state; touch ${deploy_path_q}/tmp/restart.txt; printf '%s\\n' ${target_sha_q} > ${marker_q}; printf 'Backend release activated\\n'"
 
           ssh -T -p "$port" -i "$HOME/.ssh/deploy_key" \
             -o BatchMode=yes \
