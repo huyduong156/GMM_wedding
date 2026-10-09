@@ -343,7 +343,7 @@ export class TemplateAdminService {
       throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
     await this.findVersion(templateKey, version)
     this.assertThumbnailStorageKey(templateKey, version, storageKey)
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType) || body.byteLength > 10 * 1024 * 1024)
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType))
       throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
     await this.storage.put(storageKey, body, mimeType)
     return { accepted: true, storageKey }
@@ -363,9 +363,8 @@ export class TemplateAdminService {
     const stored = await this.storage.head(storageKey)
     if (!stored) throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INCOMPLETE', 409, 'Thumbnail upload has not completed')
     if (
-      (stored.mimeType !== 'application/octet-stream' &&
-        !['image/jpeg', 'image/png', 'image/webp'].includes(stored.mimeType)) ||
-      stored.sizeBytes > 10 * 1024 * 1024
+      stored.mimeType !== 'application/octet-stream' &&
+      !['image/jpeg', 'image/png', 'image/webp'].includes(stored.mimeType)
     )
       throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
     const updated = await this.db.templateVersion.update({
