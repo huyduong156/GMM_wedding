@@ -32,7 +32,7 @@ describe('Owner Workspace', () => {
     )
     expect(screen.getByRole('link', { name: 'Xem thiệp mẫu' })).toHaveAttribute(
       'href',
-      '/templates/invitations/modern-luxe/preview',
+      '/templates/invitations',
     )
     expect(
       screen.getByRole('heading', { name: 'Chọn một lời mở đầu thật đẹp' }),
