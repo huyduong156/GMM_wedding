@@ -1,7 +1,8 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 
 import type { PlatformAdminActor } from '@/platform/auth/actor-context'
+import type { ObjectStorage } from '@/platform/storage/object-storage'
 import { TemplateAdminError } from '../domain/template-admin-error'
 import type {
   AdminTemplateListQuery,
@@ -162,6 +163,7 @@ export class TemplateAdminService {
   constructor(
     private readonly db: PrismaClient,
     private readonly options: { allowSameVersionMutation?: boolean } = {},
+    private readonly storage?: ObjectStorage,
   ) {}
 
   async list(query: AdminTemplateListQuery) {
@@ -298,8 +300,9 @@ export class TemplateAdminService {
       throw new TemplateAdminError('TEMPLATE_VERSION_NOT_FOUND', 404, 'Template version not found')
     const updated = await this.db.templateVersion.update({
       where: { id: selected.id },
-      data: { thumbnailUrl },
+      data: { thumbnailUrl, thumbnailStorageKey: null },
     })
+    await this.deleteStoredThumbnail(selected.thumbnailStorageKey)
     await this.db.auditLog.create({
       data: {
         actorUserId: actor.userId,
@@ -311,6 +314,102 @@ export class TemplateAdminService {
       },
     })
     return { ...updated, reviewStatus: reviewStatus(updated) }
+  }
+
+  async createThumbnailUploadIntent(
+    _actor: PlatformAdminActor,
+    templateKey: string,
+    version: string,
+    input: { mimeType: string; sizeBytes: number },
+  ) {
+    if (!this.storage)
+      throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
+    await this.findVersion(templateKey, version)
+    const extension = input.mimeType.split('/')[1] === 'jpeg' ? 'jpg' : input.mimeType.split('/')[1]
+    const storageKey = `templates/thumbnails/${templateKey}/${version}/${randomUUID()}.${extension}`
+    const upload = await this.storage.createUploadIntent(storageKey, input.mimeType, input.sizeBytes)
+    return { storageKey, upload }
+  }
+
+  async uploadThumbnailBytes(
+    _actor: PlatformAdminActor,
+    templateKey: string,
+    version: string,
+    storageKey: string,
+    body: Uint8Array,
+    mimeType: string,
+  ) {
+    if (!this.storage)
+      throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
+    await this.findVersion(templateKey, version)
+    this.assertThumbnailStorageKey(templateKey, version, storageKey)
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType) || body.byteLength > 10 * 1024 * 1024)
+      throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
+    await this.storage.put(storageKey, body, mimeType)
+    return { accepted: true, storageKey }
+  }
+
+  async completeThumbnailUpload(
+    actor: PlatformAdminActor,
+    templateKey: string,
+    version: string,
+    storageKey: string,
+    requestId: string,
+  ) {
+    if (!this.storage)
+      throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
+    const selected = await this.findVersion(templateKey, version)
+    this.assertThumbnailStorageKey(templateKey, version, storageKey)
+    const stored = await this.storage.head(storageKey)
+    if (!stored) throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INCOMPLETE', 409, 'Thumbnail upload has not completed')
+    if (
+      (stored.mimeType !== 'application/octet-stream' &&
+        !['image/jpeg', 'image/png', 'image/webp'].includes(stored.mimeType)) ||
+      stored.sizeBytes > 10 * 1024 * 1024
+    )
+      throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
+    const updated = await this.db.templateVersion.update({
+      where: { id: selected.id },
+      data: { thumbnailUrl: this.storage.publicUrl(storageKey), thumbnailStorageKey: storageKey },
+    })
+    await this.deleteStoredThumbnail(selected.thumbnailStorageKey, storageKey)
+    await this.db.auditLog.create({
+      data: {
+        actorUserId: actor.userId,
+        action: 'template.thumbnail_updated',
+        resourceType: 'TemplateVersion',
+        resourceId: selected.id,
+        requestId,
+        metadata: { templateKey, version, storageKey },
+      },
+    })
+    return { ...updated, reviewStatus: reviewStatus(updated) }
+  }
+
+  private async findVersion(templateKey: string, version: string) {
+    const template = await this.db.template.findUnique({
+      where: { key: templateKey },
+      include: { versions: { where: { version } } },
+    })
+    const selected = template?.versions[0]
+    if (!template || !selected)
+      throw new TemplateAdminError('TEMPLATE_VERSION_NOT_FOUND', 404, 'Template version not found')
+    return selected
+  }
+
+  private assertThumbnailStorageKey(templateKey: string, version: string, storageKey: string) {
+    const prefix = `templates/thumbnails/${templateKey}/${version}/`
+    if (!storageKey.startsWith(prefix) || storageKey.includes('..'))
+      throw new TemplateAdminError('TEMPLATE_THUMBNAIL_KEY_INVALID', 400, 'Invalid thumbnail storage key')
+  }
+
+  private async deleteStoredThumbnail(storageKey: string | null, exceptKey?: string) {
+    if (!this.storage || !storageKey || storageKey === exceptKey) return
+    try {
+      await this.storage.delete(storageKey)
+    } catch (error) {
+      console.error('[template-admin] unable to delete thumbnail object', storageKey, error)
+    }
   }
 
   async sync(actor: PlatformAdminActor, bundle: TemplateReleaseBundle, requestId: string) {

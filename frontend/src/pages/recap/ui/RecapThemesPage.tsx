@@ -19,6 +19,7 @@ import {
 import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import './recap.css'
 
 type RecapTheme = {
@@ -32,6 +33,7 @@ type RecapTheme = {
   palette: string
   sections: TemplateSectionConfig[]
   previewPath?: string
+  thumbnailUrl?: string | null
   config: Record<string, unknown>
 }
 
@@ -72,6 +74,7 @@ function toTheme(template: WeddingTemplate): RecapTheme | null {
       typeof version.config.previewPath === 'string'
         ? version.config.previewPath
         : previewPaths[template.key],
+    thumbnailUrl: version.thumbnailUrl ?? null,
     config: version.config,
   }
 }
@@ -100,6 +103,13 @@ function Artwork({ theme, active }: { theme: RecapTheme; active: boolean }) {
       role="img"
       aria-label={`Xem trước ${theme.name}`}
     >
+      {theme.thumbnailUrl ? (
+        <TemplateThumbnail
+          className="recap-library-thumbnail"
+          src={theme.thumbnailUrl}
+          alt={`Xem trước ${theme.name}`}
+        />
+      ) : null}
       <div className="recap-library-art-copy">
         <span>WEDDING RECAP · {theme.style}</span>
         <strong>

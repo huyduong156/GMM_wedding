@@ -1683,7 +1683,7 @@ export function RecapEditorPage() {
     })
     setSaved(false)
   }
-  const save = async (): Promise<boolean> => {
+  const save = async (options?: { suppressRepublishPrompt?: boolean }): Promise<boolean> => {
     if (!wedding || !recap || saving) return false
     const validationErrors =
       recap.templateVersion.key === 'red-spider-lily-recap' ? validateRecapContent(content) : []
@@ -1722,7 +1722,42 @@ export function RecapEditorPage() {
           : (result.recap.content as unknown as RedSpiderLilyRecapContent),
       )
       const dashboard = await weddingApi.dashboard(wedding.id)
-      setPublished(dashboard.dashboard.publication.recap.published)
+      const nextPublished = dashboard.dashboard.publication.recap.published
+      setPublished(nextPublished)
+      if (published && !nextPublished && !options?.suppressRepublishPrompt) {
+        const result = await notifications.confirm({
+          icon: 'info',
+          title: 'Recap đã tạm đóng',
+          text: 'Recap đã được tạm đóng vì bạn vừa cập nhật nội dung. Bạn có muốn mở lại ngay không?',
+          confirmButtonText: 'Mở lại recap',
+          cancelButtonText: 'Để sau',
+          reverseButtons: true,
+          focusCancel: true,
+        })
+        if (result.isConfirmed) {
+          try {
+            const latest = await weddingApi.recap(wedding.id)
+            if (latest.recap) {
+              const publishedResult = await weddingApi.publishRecap(wedding.id, {
+                revision: latest.recap.revision,
+              })
+              const publishedSlug = publishedResult.snapshot.slug || publicWeddingSlug || wedding.slug
+              setPublished(true)
+              if (publishedSlug) {
+                setPublicWeddingSlug(publishedSlug)
+                setShareUrl(
+                  window.location.origin + '/' + encodeURIComponent(publishedSlug) + '/recaps',
+                )
+                setShareOpen(true)
+              }
+              await notifications.success('Đã mở lại recap')
+              await workspace?.refresh()
+            }
+          } catch (cause) {
+            setError(cause instanceof Error ? cause.message : 'Không thể mở lại recap.')
+          }
+        }
+      }
       setSaved(true)
       notifications.fire({
         toast: true,
@@ -1789,7 +1824,7 @@ export function RecapEditorPage() {
     if (!wedding || !recap || saving || publishing) return
     setPublishing(true)
     setError('')
-    const didSave = saved || (await save())
+    const didSave = saved || (await save({ suppressRepublishPrompt: true }))
     if (!didSave) {
       setPublishing(false)
       return

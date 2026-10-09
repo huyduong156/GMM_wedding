@@ -160,6 +160,31 @@ export function InvitationEditorLivePage() {
         status: surfacePublished ? ('PUBLISHED' as const) : ('DRAFT' as const),
       }
     : null
+  const promptReopenAfterSave = async (revision: number) => {
+    const result = await notifications.confirm({
+      icon: 'info',
+      title: 'Thiệp đã tạm đóng',
+      text: 'Thiệp cưới đã được tạm đóng vì bạn vừa cập nhật nội dung. Bạn có muốn mở lại ngay không?',
+      confirmButtonText: 'Mở lại thiệp',
+      cancelButtonText: 'Để sau',
+      reverseButtons: true,
+      focusCancel: true,
+    })
+    if (result.isConfirmed && activeWedding) {
+      try {
+        await weddingApi.publish(activeWedding.id, {
+          surface: 'ONLINE_INVITATION',
+          revision,
+        })
+        setSurfacePublished(true)
+        setSaveMessage('Thiệp đã được mở lại thành công.')
+        await notifications.success('Đã mở lại thiệp')
+        await workspace?.refresh()
+      } catch (cause) {
+        setApiError(friendlyEditorError(cause, 'Không thể mở lại thiệp. Vui lòng thử lại.'))
+      }
+    }
+  }
   const previewDevice = device
   useEffect(() => {
     if (!mobilePreviewOpen) setDevice('mobile')
@@ -407,7 +432,10 @@ export function InvitationEditorLivePage() {
       })
       setContentRevision(saved.content.revision)
       const dashboard = await weddingApi.dashboard(activeWedding.id)
-      setSurfacePublished(dashboard.dashboard.publication.invitation.published)
+      const nextPublished = dashboard.dashboard.publication.invitation.published
+      setSurfacePublished(nextPublished)
+      if (surfacePublished && !nextPublished && pendingEditorAction !== 'publish')
+        void promptReopenAfterSave(saved.content.revision)
       baselineRef.current = editorSignature(data, palette, order, enabled)
       setDirty(false)
       setSaveMessage(

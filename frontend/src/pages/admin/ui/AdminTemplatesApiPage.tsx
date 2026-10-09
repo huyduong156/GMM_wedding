@@ -7,6 +7,7 @@ import {
   Eye,
   FileArrowUp,
   GearSix,
+  ImageSquare,
   MagnifyingGlass,
   Plus,
   Tag,
@@ -21,6 +22,7 @@ import {
   type AdminTemplateVersion,
 } from '../../../shared/api/admin-templates'
 import { publicTemplateRoutes } from '../../../shared/config/routes'
+import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
 import {
   adminTemplateStylesApi,
   type TemplateStyle,
@@ -195,6 +197,52 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
           ? `Chưa thể phát hành: ${cause.message}`
           : 'Không thể cập nhật trạng thái version. Vui lòng thử lại.',
       )
+    } finally {
+      setWorking('')
+    }
+  }
+  const updateThumbnail = async (
+    item: AdminTemplate,
+    version: AdminTemplateVersion,
+    thumbnailUrl: string | null,
+  ) => {
+    setWorking(`thumbnail:${version.id}`)
+    setDialogError('')
+    try {
+      await adminTemplateApi.updateThumbnail(item.key, version.version, thumbnailUrl)
+      setSelected(null)
+      await load()
+      await notifications.fire({
+        icon: 'success',
+        title: thumbnailUrl ? 'Đã cập nhật ảnh đại diện' : 'Đã xóa ảnh đại diện',
+        timer: 1400,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        position: 'center',
+      })
+    } catch (cause) {
+      setDialogError(cause instanceof Error ? cause.message : 'Không thể cập nhật ảnh đại diện.')
+    } finally {
+      setWorking('')
+    }
+  }
+  const uploadThumbnail = async (item: AdminTemplate, version: AdminTemplateVersion, file: File) => {
+    setWorking(`thumbnail:${version.id}`)
+    setDialogError('')
+    try {
+      await adminTemplateApi.uploadThumbnail(item.key, version.version, file)
+      setSelected(null)
+      await load()
+      await notifications.fire({
+        icon: 'success',
+        title: 'Đã tải ảnh đại diện lên',
+        timer: 1400,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        position: 'center',
+      })
+    } catch (cause) {
+      setDialogError(cause instanceof Error ? cause.message : 'Không thể tải ảnh đại diện lên.')
     } finally {
       setWorking('')
     }
@@ -390,6 +438,14 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
                     return (
                       <article className="admin-theme-card" key={`${item.key}-${version.id}`}>
                         <div className={`admin-theme-preview ${item.key}`}>
+                          {version.thumbnailUrl ? (
+                            <TemplateThumbnail
+                              className="admin-theme-thumbnail"
+                              src={version.thumbnailUrl}
+                              alt={`Ảnh đại diện ${item.name}`}
+                              loading="lazy"
+                            />
+                          ) : null}
                           <div className="admin-preview-chrome">
                             <i />
                             <i />
@@ -495,6 +551,8 @@ export function AdminTemplatesApiPage({ kind }: { kind: 'invitation' | 'website'
           close={() => setSelected(null)}
           lifecycle={lifecycle}
           openStyles={(item) => setStyleTarget(item)}
+          updateThumbnail={updateThumbnail}
+          uploadThumbnail={uploadThumbnail}
         />
       ) : null}
       {styleTarget ? (
@@ -629,6 +687,8 @@ function ManageDialog({
   close,
   lifecycle,
   openStyles,
+  updateThumbnail,
+  uploadThumbnail,
 }: {
   item: AdminTemplate
   working: string
@@ -640,6 +700,8 @@ function ManageDialog({
     action: 'release' | 'deprecate',
   ) => Promise<void>
   openStyles: (item: AdminTemplate) => void
+  updateThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, thumbnailUrl: string | null) => Promise<void>
+  uploadThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, file: File) => Promise<void>
 }) {
   return (
     <Dialog
@@ -658,6 +720,8 @@ function ManageDialog({
             working={working}
             lifecycle={lifecycle}
             openStyles={openStyles}
+            updateThumbnail={updateThumbnail}
+            uploadThumbnail={uploadThumbnail}
           />
         ))}
       </div>
@@ -675,6 +739,8 @@ function VersionCard({
   working,
   lifecycle,
   openStyles,
+  updateThumbnail,
+  uploadThumbnail,
 }: {
   item: AdminTemplate
   version: AdminTemplateVersion
@@ -685,6 +751,8 @@ function VersionCard({
     action: 'release' | 'deprecate',
   ) => Promise<void>
   openStyles: (item: AdminTemplate) => void
+  updateThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, thumbnailUrl: string | null) => Promise<void>
+  uploadThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, file: File) => Promise<void>
 }) {
   const compatibility = compatibilityOf(version),
     auditEntries = version.recentAudit ?? []
@@ -726,6 +794,13 @@ function VersionCard({
           <dd>{version.configHash.slice(0, 12)}…</dd>
         </div>
       </dl>
+      <ThumbnailEditor
+        item={item}
+        version={version}
+        working={working}
+        updateThumbnail={updateThumbnail}
+        uploadThumbnail={uploadThumbnail}
+      />
       <details>
         <summary>Xem config</summary>
         <pre>{JSON.stringify(version.config, null, 2)}</pre>
@@ -782,5 +857,104 @@ function VersionCard({
         )}
       </footer>
     </article>
+  )
+}
+
+function ThumbnailEditor({
+  item,
+  version,
+  working,
+  updateThumbnail,
+  uploadThumbnail,
+}: {
+  item: AdminTemplate
+  version: AdminTemplateVersion
+  working: string
+  updateThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, thumbnailUrl: string | null) => Promise<void>
+  uploadThumbnail: (item: AdminTemplate, version: AdminTemplateVersion, file: File) => Promise<void>
+}) {
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState('')
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const busy = working === `thumbnail:${version.id}`
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [file])
+  const save = () => { if (file) void uploadThumbnail(item, version, file) }
+  const selectFile = (selected: File | undefined) => {
+    setFileError('')
+    if (!selected) return
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(selected.type)) {
+      setFile(null)
+      setFileError('Chỉ hỗ trợ JPG, PNG hoặc WebP.')
+      return
+    }
+    if (selected.size > 10 * 1024 * 1024) {
+      setFile(null)
+      setFileError('Ảnh không được vượt quá 10 MB.')
+      return
+    }
+    setFile(selected)
+  }
+  return (
+    <section className="admin-template-thumbnail-editor" aria-labelledby={`thumbnail-${version.id}`}>
+      <div className="admin-template-thumbnail-heading">
+        <div>
+          <strong id={`thumbnail-${version.id}`}>Ảnh đại diện template</strong>
+          <span>Nhập URL ảnh đã upload lên kho lưu trữ.</span>
+        </div>
+        {version.thumbnailUrl ? (
+          <img src={version.thumbnailUrl} alt={`Ảnh đại diện ${item.name}`} />
+        ) : null}
+      </div>
+      <label className="admin-template-thumbnail-upload">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(event) => selectFile(event.target.files?.[0])}
+          aria-label="Chọn ảnh đại diện template"
+          disabled={Boolean(working)}
+        />
+        {previewUrl || version.thumbnailUrl ? (
+          <img src={previewUrl ?? version.thumbnailUrl ?? undefined} alt={`Ảnh đại diện ${item.name}`} />
+        ) : (
+          <span className="admin-template-thumbnail-upload-icon"><ImageSquare size={25} /></span>
+        )}
+        <span className="admin-template-thumbnail-upload-copy">
+          <strong>{file ? file.name : version.thumbnailUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}</strong>
+          <small>JPG, PNG hoặc WebP · tối đa 10 MB</small>
+        </span>
+      </label>
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={(event) => selectFile(event.target.files?.[0])}
+        aria-label="URL ảnh đại diện template"
+        disabled={Boolean(working)}
+      />
+      {file ? <small>{file.name}</small> : null}
+      {fileError ? <span className="admin-template-dialog-error" role="alert">{fileError}</span> : null}
+      <div className="admin-template-thumbnail-actions">
+        <button className="button button-primary" type="button" onClick={save} disabled={!file || busy}>
+          {busy ? 'Đang lưu…' : 'Lưu ảnh'}
+        </button>
+        {version.thumbnailUrl ? (
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={Boolean(working)}
+            onClick={() => void updateThumbnail(item, version, null)}
+          >
+            Xóa ảnh, dùng mặc định
+          </button>
+        ) : null}
+      </div>
+    </section>
   )
 }

@@ -18,6 +18,12 @@ export interface GuestView {
   createdAt: Date
   updatedAt: Date
 }
+export interface GuestPickerView {
+  id: string
+  name: string
+  categoryName: string | null
+  familySide: GuestFamilySide | null
+}
 export interface GuestCategoryView {
   id: string
   weddingId: string
@@ -115,6 +121,11 @@ export interface GuestRepository {
       cursor?: string | undefined
     },
   ): Promise<{ items: GuestView[]; nextCursor: string | null } | null>
+  listPicker?(
+    userId: string,
+    weddingId: string,
+    query?: string,
+  ): Promise<GuestPickerView[] | null>
   findOwned(userId: string, weddingId: string, guestId: string): Promise<GuestView | null>
   createOwned(userId: string, weddingId: string, data: CreateGuestData): Promise<GuestView | null>
   updateOwned(

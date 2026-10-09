@@ -64,6 +64,7 @@ export type TemplateFieldConfig = {
 export type TemplateVersion = {
   id: string
   version: string
+  thumbnailUrl?: string | null
   configHash: string
   templateConfigVersion: number
   contentSchemaVersion: number
@@ -152,6 +153,8 @@ export type MediaAsset = {
 export type PublishedWeddingSnapshot = {
   id: string
   weddingId: string
+  weddingName?: string
+  ownerAvatarUrl?: string | null
   surface: WeddingSurface
   slug: string
   version: number
@@ -257,6 +260,19 @@ export type Guest = {
   tags: string[]
   createdAt: string
   updatedAt: string
+}
+
+export type PublishedRecapSnapshot = {
+  slug: string
+  payload: Record<string, unknown>
+  weddingName?: string
+  ownerAvatarUrl?: string | null
+}
+export type GuestPickerItem = {
+  id: string
+  name: string
+  categoryName: string | null
+  familySide: 'BRIDE' | 'GROOM' | null
 }
 
 export type GuestCategory = {
@@ -652,7 +668,7 @@ export const weddingApi = {
       { method: 'POST', body: JSON.stringify({ surface: 'RECAP', ...input }) },
     ),
   publicRecap: (slug: string) =>
-    request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(
+    request<{ snapshot: PublishedRecapSnapshot }>(
       `/public/recaps/${encodeURIComponent(slug)}`,
     ),
   publicInvitation: (weddingSlug: string) =>
@@ -747,6 +763,11 @@ export const guestApi = {
       `/weddings/${weddingId}/guests?${query}`,
     )
   },
+  picker: (weddingId: string, query?: string, signal?: AbortSignal) =>
+    request<{ items: GuestPickerItem[] }>(
+      `/weddings/${weddingId}/guests/picker${query ? `?q=${encodeURIComponent(query)}` : ''}`,
+      signal ? { signal } : undefined,
+    ),
   create: (weddingId: string, input: GuestInput) =>
     request<{ guest: Guest }>(`/weddings/${weddingId}/guests`, {
       method: 'POST',

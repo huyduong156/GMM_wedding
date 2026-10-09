@@ -28,6 +28,10 @@ export class GuestService {
   ) {
     return this.require(await this.repository.listOwned(actor.userId, weddingId, filter))
   }
+  async picker(actor: AuthenticatedUserActor, weddingId: string, query?: string) {
+    if (!this.repository.listPicker) return []
+    return this.require(await this.repository.listPicker(actor.userId, weddingId, query))
+  }
   async get(actor: AuthenticatedUserActor, weddingId: string, guestId: string) {
     return this.requireGuest(await this.repository.findOwned(actor.userId, weddingId, guestId))
   }

@@ -66,5 +66,14 @@ export const templateThumbnailSchema = z.object({
     .nullable(),
 })
 
+export const templateThumbnailUploadIntentSchema = z.object({
+  mimeType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  sizeBytes: z.number().int().positive().max(10 * 1024 * 1024),
+})
+
+export const templateThumbnailCompleteSchema = z.object({
+  storageKey: z.string().trim().min(1).max(512),
+})
+
 export type TemplateReleaseBundle = z.infer<typeof templateReleaseBundleSchema>
 export type AdminTemplateListQuery = z.infer<typeof adminTemplateListQuerySchema>

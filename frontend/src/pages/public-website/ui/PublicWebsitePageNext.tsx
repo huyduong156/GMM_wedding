@@ -20,7 +20,7 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
     () =>
       snapshot
         ? publicSurfaceMetadata(
-            snapshot.payload,
+            { ...snapshot.payload, weddingName: snapshot.weddingName, ownerAvatarUrl: snapshot.ownerAvatarUrl },
             'website',
             `/${encodeURIComponent(weddingSlug)}/website`,
           )

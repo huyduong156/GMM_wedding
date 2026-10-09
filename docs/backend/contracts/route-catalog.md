@@ -118,7 +118,7 @@ Core slice và security boundary được thiết kế tại [authentication imp
 
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
-| GET | `/templates` | Session | Implemented | Danh sách template/version khả dụng |
+| GET | `/templates` | Public | Implemented | Danh sách template/version khả dụng đã phát hành |
 | GET | `/templates/{templateKey}/versions/{version}` | Session | Implemented | Metadata/config của revision hiện tại trong một UI major |
 | GET | `/admin/templates` | Platform admin | Implemented | Danh sách template/version, `pendingReviewCount`, usage theo selection, compatibility và tối đa 10 audit event/version |
 | POST | `/admin/templates/sync` | Platform admin + CSRF | Implemented | Đồng bộ gói phát hành template; tạo version chờ duyệt, idempotent theo hash |

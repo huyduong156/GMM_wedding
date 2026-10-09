@@ -1115,7 +1115,10 @@ export class PrismaWeddingRepository implements WeddingRepository {
     const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
     const live = await this.prisma.publishedWeddingSnapshot.findFirst({
       where: { weddingId, surface: data.surface, unpublishedAt: null },
-      include: { templateVersion: { include: { template: true } } },
+      include: {
+        templateVersion: { include: { template: true } },
+        wedding: { include: { createdBy: { select: { avatarUrl: true } } } },
+      },
       orderBy: { version: 'desc' },
     })
     if (live?.payloadHash === payloadHash) return this.snapshotView(live)
@@ -1150,13 +1153,19 @@ export class PrismaWeddingRepository implements WeddingRepository {
             contentSchemaVersion: templateVersion.contentSchemaVersion,
             rendererApiVersion: templateVersion.rendererApiVersion,
           },
-          include: { templateVersion: { include: { template: true } } },
+          include: {
+            templateVersion: { include: { template: true } },
+            wedding: { include: { createdBy: { select: { avatarUrl: true } } } },
+          },
         })
         return created
       })
       return this.snapshotView(
         snapshot as Prisma.PublishedWeddingSnapshotGetPayload<{
-          include: { templateVersion: { include: { template: true } } }
+          include: {
+            templateVersion: { include: { template: true } }
+            wedding: { include: { createdBy: { select: { avatarUrl: true } } } }
+          }
         }>,
       )
     } catch (error) {
@@ -1206,19 +1215,27 @@ export class PrismaWeddingRepository implements WeddingRepository {
         unpublishedAt: null,
         wedding: { slug, visibility: 'PUBLIC', deletedAt: null },
       },
-      include: { templateVersion: { include: { template: true } } },
+      include: {
+        templateVersion: { include: { template: true } },
+        wedding: { include: { createdBy: { select: { avatarUrl: true } } } },
+      },
       orderBy: { version: 'desc' },
     })
     return row ? this.snapshotView(row) : null
   }
   private snapshotView(
     row: Prisma.PublishedWeddingSnapshotGetPayload<{
-      include: { templateVersion: { include: { template: true } } }
+      include: {
+        templateVersion: { include: { template: true } }
+        wedding: { include: { createdBy: { select: { avatarUrl: true } } } }
+      }
     }>,
   ): PublishedSnapshotView {
     return {
       id: row.id,
       weddingId: row.weddingId,
+      weddingName: row.wedding?.name ?? '',
+      ownerAvatarUrl: row.wedding?.createdBy?.avatarUrl ?? null,
       surface: row.surface,
       slug: row.slug,
       version: row.version,
