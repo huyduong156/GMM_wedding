@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import {
   ArrowRight,
   CalendarCheck,
@@ -13,9 +13,11 @@ import {
   QrCode,
   Sparkle,
   LockKey,
+  List,
   Palette,
   ShareNetwork,
   UserCircleCheck,
+  X,
 } from '@phosphor-icons/react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { marketingRoutes, publicTemplateRoutes, studioRoutes } from '../../../shared/config/routes'
@@ -44,6 +46,10 @@ const journey = [
 
 export function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isHeaderPinned, setIsHeaderPinned] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const headerTopRef = useRef(0)
 
   function scrollToOverview(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault()
@@ -58,6 +64,44 @@ export function HomePage() {
     const timer = window.setTimeout(() => setIsLoading(false), 1150)
     return () => window.clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isMobileMenuOpen])
+
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header) return
+    if (!headerTopRef.current) headerTopRef.current = header.offsetTop
+    let frame = 0
+
+    const updateHeaderState = () => {
+      frame = 0
+      setIsHeaderPinned(window.innerWidth <= 900 && window.scrollY >= headerTopRef.current)
+    }
+    const scheduleUpdate = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(updateHeaderState)
+    }
+    const refreshHeaderTop = () => {
+      if (!isHeaderPinned) headerTopRef.current = header.offsetTop
+      scheduleUpdate()
+    }
+
+    refreshHeaderTop()
+    window.addEventListener('scroll', scheduleUpdate, { passive: true })
+    window.addEventListener('resize', refreshHeaderTop)
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate)
+      window.removeEventListener('resize', refreshHeaderTop)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [isHeaderPinned])
 
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>('[data-home-reveal]')
@@ -134,7 +178,7 @@ export function HomePage() {
       </div>
       <HomeAmbient />
 
-      <header className="home-header">
+      <header ref={headerRef} className={`home-header${isHeaderPinned ? ' is-pinned' : ''}`}>
         <nav className="home-nav" aria-label="Điều hướng chính">
           <AppLink
             to={marketingRoutes.home}
@@ -149,6 +193,17 @@ export function HomePage() {
             <AppLink to={marketingRoutes.howItWorks}>Cách hoạt động</AppLink>
             <AppLink to={marketingRoutes.faq}>Hỏi đáp</AppLink>
           </div>
+          <button
+            className="home-mobile-menu-toggle"
+            type="button"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="home-mobile-menu"
+            aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+          >
+            {isMobileMenuOpen ? <X size={22} weight="bold" /> : <List size={22} weight="bold" />}
+            <span>Menu</span>
+          </button>
           <div className="home-nav-actions">
             <AppLink to={marketingRoutes.login} className="home-text-link">
               Đăng nhập
@@ -158,6 +213,18 @@ export function HomePage() {
             </AppLink>
           </div>
         </nav>
+        {isMobileMenuOpen ? (
+          <div className="home-mobile-menu" id="home-mobile-menu">
+            <nav aria-label="Điều hướng mobile">
+              <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)}>Tính năng</a>
+              <AppLink to={marketingRoutes.invitationTemplates} onClick={() => setIsMobileMenuOpen(false)}>Giao diện mẫu</AppLink>
+              <AppLink to={marketingRoutes.howItWorks} onClick={() => setIsMobileMenuOpen(false)}>Cách hoạt động</AppLink>
+              <AppLink to={marketingRoutes.faq} onClick={() => setIsMobileMenuOpen(false)}>Hỏi đáp</AppLink>
+              <AppLink to={marketingRoutes.login} className="home-mobile-menu-login" onClick={() => setIsMobileMenuOpen(false)}>Đăng nhập</AppLink>
+              <AppLink to={studioRoutes.inviteThemes} className="home-button" onClick={() => setIsMobileMenuOpen(false)}>Tạo thiệp <ArrowRight /></AppLink>
+            </nav>
+          </div>
+        ) : null}
       </header>
 
       <main id="main-content">
