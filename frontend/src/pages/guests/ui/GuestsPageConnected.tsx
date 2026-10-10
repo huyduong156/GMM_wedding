@@ -91,10 +91,35 @@ const catName = (categories: GuestCategory[], id: string | null) => {
   const category = categories.find((item) => item.id === id)
   return category ? categoryPath(categories, category) : 'Chưa phân loại'
 }
-const familySideName = (side: Guest['familySide']) =>
-  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chung'
 const normalizeGuestFamilySide = (value: string): Guest['familySide'] =>
   value === 'GROOM' || value === 'BRIDE' ? value : null
+const GUEST_PAGE_SIZE = 20
+type GuestFamilyBlockKey = 'GROOM' | 'BRIDE' | 'COMMON'
+type GuestFamilyBlockState = {
+  key: GuestFamilyBlockKey
+  label: string
+  items: Guest[]
+  total: number
+  nextCursor: string | null
+  cursors: Array<string | null>
+  page: number
+  loading: boolean
+}
+const guestFamilyBlockDefinitions: Array<Pick<GuestFamilyBlockState, 'key' | 'label'>> = [
+  { key: 'GROOM', label: 'Nhà trai' },
+  { key: 'BRIDE', label: 'Nhà gái' },
+  { key: 'COMMON', label: 'Chung' },
+]
+const emptyGuestFamilyBlocks = (): GuestFamilyBlockState[] =>
+  guestFamilyBlockDefinitions.map((block) => ({
+    ...block,
+    items: [],
+    total: 0,
+    nextCursor: null,
+    cursors: [null],
+    page: 1,
+    loading: false,
+  }))
 
 function GuestShareDialog({
   weddingId,
@@ -474,12 +499,12 @@ function GuestsPageConnectedContent({
   activeWedding: Wedding | null
   canEdit: boolean
 }) {
-  const [guests, setGuests] = useState<Guest[]>([])
+  const [guestBlocks, setGuestBlocks] = useState<GuestFamilyBlockState[]>(emptyGuestFamilyBlocks)
   const [sharingGuest, setSharingGuest] = useState<Guest | null>(null)
   const [categories, setCategories] = useState<GuestCategory[]>([])
   const [query, setQuery] = useState('')
   const [categoryId, setCategoryId] = useState('')
-  const [familySide, setFamilySide] = useState<'' | 'BRIDE' | 'GROOM'>('')
+  const [familySide, setFamilySide] = useState<'' | 'BRIDE' | 'GROOM' | 'COMMON'>('')
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -491,21 +516,48 @@ function GuestsPageConnectedContent({
   const [bulkCategoryAction, setBulkCategoryAction] = useState('')
   const [bulkFamilySideAction, setBulkFamilySideAction] = useState('')
   const weddingId = activeWedding?.id
+  const guests = useMemo(() => guestBlocks.flatMap((block) => block.items), [guestBlocks])
+  const guestTotal = useMemo(
+    () => guestBlocks.reduce((sum, block) => sum + block.total, 0),
+    [guestBlocks],
+  )
   const load = useCallback(async () => {
     if (!weddingId) return
     setLoading(true)
     setError('')
     try {
-      const [guestResult, categoryResult] = await Promise.all([
-        guestApi.list(weddingId, {
-          q: query.trim() || undefined,
-          categoryId: categoryId || undefined,
-          familySide: familySide || undefined,
-          limit: 50,
-        }),
+      const blocksToLoad = familySide
+        ? guestFamilyBlockDefinitions.filter((block) => block.key === familySide)
+        : guestFamilyBlockDefinitions
+      const [guestResults, categoryResult] = await Promise.all([
+        Promise.all(
+          blocksToLoad.map((block) =>
+            guestApi.list(weddingId, {
+              q: query.trim() || undefined,
+              categoryId: categoryId || undefined,
+              familySide: block.key,
+              limit: GUEST_PAGE_SIZE,
+            }),
+          ),
+        ),
         guestCategoryApi.list(weddingId),
       ])
-      setGuests(guestResult.items)
+      setGuestBlocks((blocks) =>
+        blocks.map((block) => {
+          const resultIndex = blocksToLoad.findIndex((item) => item.key === block.key)
+          if (resultIndex < 0) return { ...block, items: [], total: 0, nextCursor: null, cursors: [null], page: 1, loading: false }
+          const result = guestResults[resultIndex]
+          return {
+            ...block,
+            items: result.items,
+            total: result.total,
+            nextCursor: result.nextCursor,
+            cursors: [null],
+            page: 1,
+            loading: false,
+          }
+        }),
+      )
       setCategories(categoryResult.items)
       setSelected([])
     } catch (cause) {
@@ -521,6 +573,64 @@ function GuestsPageConnectedContent({
     () => guests.reduce((sum, guest) => sum + guest.maxPartySize, 0),
     [guests],
   )
+  const updateLoadedGuests = (update: (guest: Guest) => Guest) =>
+    setGuestBlocks((blocks) =>
+      blocks.map((block) => ({ ...block, items: block.items.map(update) })),
+    )
+  const removeLoadedGuests = (ids: string[]) =>
+    setGuestBlocks((blocks) =>
+      blocks.map((block) => ({
+        ...block,
+        items: block.items.filter((guest) => !ids.includes(guest.id)),
+        total: Math.max(0, block.total - block.items.filter((guest) => ids.includes(guest.id)).length),
+      })),
+    )
+  const loadGuestBlockPage = async (key: GuestFamilyBlockKey, page: number, cursor: string | null) => {
+    if (!weddingId) return
+    setGuestBlocks((blocks) =>
+      blocks.map((block) => (block.key === key ? { ...block, loading: true } : block)),
+    )
+    try {
+      const result = await guestApi.list(weddingId, {
+        q: query.trim() || undefined,
+        categoryId: categoryId || undefined,
+        familySide: key,
+        limit: GUEST_PAGE_SIZE,
+        cursor: cursor || undefined,
+      })
+      setGuestBlocks((blocks) =>
+        blocks.map((block) =>
+          block.key === key
+            ? { ...block, items: result.items, total: result.total, nextCursor: result.nextCursor, page, loading: false }
+            : block,
+        ),
+      )
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể tải danh sách khách mời.')
+      setGuestBlocks((blocks) =>
+        blocks.map((block) => (block.key === key ? { ...block, loading: false } : block)),
+      )
+    }
+  }
+  const changeGuestBlockPage = (block: GuestFamilyBlockState, direction: 'next' | 'previous') => {
+    if (block.loading) return
+    if (direction === 'next' && block.nextCursor) {
+      void loadGuestBlockPage(block.key, block.page + 1, block.nextCursor)
+      setGuestBlocks((blocks) =>
+        blocks.map((item) =>
+          item.key === block.key ? { ...item, cursors: [...item.cursors, block.nextCursor] } : item,
+        ),
+      )
+    }
+    if (direction === 'previous' && block.page > 1) {
+      void loadGuestBlockPage(block.key, block.page - 1, block.cursors[block.page - 2] ?? null)
+      setGuestBlocks((blocks) =>
+        blocks.map((item) =>
+          item.key === block.key ? { ...item, cursors: item.cursors.slice(0, -1) } : item,
+        ),
+      )
+    }
+  }
   const openShare = (guest: Guest) => setSharingGuest(guest)
   const openCreate = () => {
     if (!canEdit) return
@@ -572,11 +682,11 @@ function GuestsPageConnectedContent({
     }
     try {
       if (editing) {
-        const result = await guestApi.update(activeWedding.id, editing.id, input)
-        setGuests((items) => items.map((item) => (item.id === editing.id ? result.guest : item)))
+        await guestApi.update(activeWedding.id, editing.id, input)
+        await load()
       } else {
-        const result = await guestApi.create(activeWedding.id, input)
-        setGuests((items) => [result.guest, ...items])
+        await guestApi.create(activeWedding.id, input)
+        await load()
       }
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
       const keepCreateDialogOpen = !editing
@@ -607,7 +717,7 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.removeMany(activeWedding.id, selected)
-      setGuests((items) => items.filter((item) => !selected.includes(item.id)))
+      removeLoadedGuests(selected)
       setSelected([])
       await notifications.fire({
         icon: 'success',
@@ -632,10 +742,8 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.assignCategory(activeWedding.id, selected, value || null)
-      setGuests((items) =>
-        items.map((item) =>
-          selected.includes(item.id) ? { ...item, categoryId: value || null } : item,
-        ),
+      updateLoadedGuests((item) =>
+        selected.includes(item.id) ? { ...item, categoryId: value || null } : item,
       )
       setSelected([])
       setFeedback('Đã cập nhật danh mục.')
@@ -664,11 +772,8 @@ function GuestsPageConnectedContent({
         selected,
         value === REMOVE_FAMILY_SIDE ? null : (value as 'BRIDE' | 'GROOM'),
       )
-      .then(() => {
-        const familySide = value === REMOVE_FAMILY_SIDE ? null : (value as 'BRIDE' | 'GROOM')
-        setGuests((items) =>
-          items.map((item) => (selected.includes(item.id) ? { ...item, familySide } : item)),
-        )
+      .then(async () => {
+        await load()
         setSelected([])
         setFeedback('Đã cập nhật phía gia đình.')
         return notifications.success('Đã cập nhật phía gia đình')
@@ -697,13 +802,8 @@ function GuestsPageConnectedContent({
       close={close}
     />
   ) : null
-  const guestFamilyBlocks = [
-    { key: 'GROOM' as const, label: 'Nhà trai' },
-    { key: 'BRIDE' as const, label: 'Nhà gái' },
-    { key: null, label: 'Chung' },
-  ]
-  const renderGuestBlock = (block: (typeof guestFamilyBlocks)[number]) => {
-    const blockGuests = guests.filter((guest) => (guest.familySide ?? null) === block.key)
+  const renderGuestBlock = (block: GuestFamilyBlockState) => {
+    const blockGuests = block.items
     return (
       <section
         className="guest-family-block"
@@ -713,7 +813,7 @@ function GuestsPageConnectedContent({
         <header className="guest-family-block-header">
           <div>
             <h2 id={`guest-family-${block.key ?? 'common'}`}>{block.label}</h2>
-            <span>{blockGuests.length} khách mời</span>
+            <span>{block.total} khách mời</span>
           </div>
           <span>
             {blockGuests.reduce((sum, guest) => sum + guest.maxPartySize, 0)} người dự kiến
@@ -722,6 +822,7 @@ function GuestsPageConnectedContent({
         {blockGuests.length ? (
           <>
             <div className="guest-table-wrap">
+              <div className="guest-table-scroll">
               <table className={`guest-table ${canEdit ? '' : 'is-read-only'}`}>
                 <caption className="sr-only">Danh sách khách mời {block.label}</caption>
                 <thead>
@@ -730,7 +831,6 @@ function GuestsPageConnectedContent({
                     <th>Khách mời</th>
                     <th>Tên hiển thị</th>
                     <th>Danh mục</th>
-                    <th>Phía gia đình</th>
                     <th>Số người</th>
                     {canEdit ? <th /> : null}
                   </tr>
@@ -780,7 +880,6 @@ function GuestsPageConnectedContent({
                           {catName(categories, guest.categoryId)}
                         </span>
                       </td>
-                      <td>{familySideName(guest.familySide)}</td>
                       <td>{guest.maxPartySize}</td>
                       {canEdit ? (
                         <td>
@@ -798,6 +897,7 @@ function GuestsPageConnectedContent({
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
             <div className="guest-mobile-list">
               {blockGuests.map((guest) => (
@@ -836,7 +936,6 @@ function GuestsPageConnectedContent({
                           </button>
                         </div>
                         <small>{catName(categories, guest.categoryId)}</small>
-                        <small>{familySideName(guest.familySide)}</small>
                       </div>
                     </div>
                     {canEdit ? (
@@ -858,6 +957,27 @@ function GuestsPageConnectedContent({
                   </div>
                 </article>
               ))}
+            </div>
+            <div className="guest-block-pagination">
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={block.loading || block.page === 1}
+                onClick={() => changeGuestBlockPage(block, 'previous')}
+              >
+                Trước
+              </button>
+              <span>
+                Trang {block.page} · {block.total} khách
+              </span>
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={block.loading || !block.nextCursor}
+                onClick={() => changeGuestBlockPage(block, 'next')}
+              >
+                Sau
+              </button>
             </div>
           </>
         ) : (
@@ -904,7 +1024,7 @@ function GuestsPageConnectedContent({
           <span>
             <Users size={17} /> Tổng khách mời
           </span>
-          <strong>{guests.length}</strong>
+          <strong>{guestTotal}</strong>
           <small>{query || categoryId ? 'Theo bộ lọc hiện tại' : 'Tổng danh sách'}</small>
         </div>
         <div>
@@ -933,9 +1053,10 @@ function GuestsPageConnectedContent({
               placeholder="Tìm theo tên khách…"
             />
           </label>
-          <label className="guest-group-filter">
+          <label className="guest-group-filter guest-category-filter">
             <span>Danh mục</span>
             <NativeSelectField
+              contentClassName="guest-category-filter-content"
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
             >
@@ -956,6 +1077,7 @@ function GuestsPageConnectedContent({
               <option value="">Tất cả</option>
               <option value="BRIDE">Nhà gái</option>
               <option value="GROOM">Nhà trai</option>
+              <option value="COMMON">Chung</option>
             </NativeSelectField>
           </label>
         </div>
@@ -1033,10 +1155,13 @@ function GuestsPageConnectedContent({
           </div>
         ) : (
           <>
-            <div className="guest-family-blocks">{guestFamilyBlocks.map(renderGuestBlock)}</div>
+            <div className="guest-family-blocks">
+              {guestBlocks.map(renderGuestBlock)}
+            </div>
             <footer className="guest-pagination">
               <span>
-                Đang hiển thị <strong>{guests.length}</strong> khách
+                Đang hiển thị <strong>{guests.length}</strong> khách trên trang hiện tại · tổng{' '}
+                <strong>{guestTotal}</strong>
               </span>
             </footer>
           </>

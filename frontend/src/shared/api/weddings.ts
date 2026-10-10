@@ -752,7 +752,7 @@ export const guestApi = {
     params: {
       q?: string
       categoryId?: string
-      familySide?: 'BRIDE' | 'GROOM'
+      familySide?: 'BRIDE' | 'GROOM' | 'COMMON'
       limit?: number
       cursor?: string
     } = {},
@@ -763,7 +763,7 @@ export const guestApi = {
     if (params.familySide) query.set('familySide', params.familySide)
     query.set('limit', String(params.limit ?? 100))
     if (params.cursor) query.set('cursor', params.cursor)
-    return request<{ items: Guest[]; nextCursor: string | null }>(
+    return request<{ items: Guest[]; nextCursor: string | null; total: number }>(
       `/weddings/${weddingId}/guests?${query}`,
     )
   },
