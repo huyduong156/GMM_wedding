@@ -577,6 +577,7 @@ model GuestCategory {
   weddingId String          @db.Uuid
   parentId  String?         @db.Uuid
   name      String          @db.VarChar(120)
+  familySide GuestFamilySide?
   depth     Int
   sortOrder Int             @default(0)
   createdAt DateTime        @default(now()) @db.Timestamptz(3)

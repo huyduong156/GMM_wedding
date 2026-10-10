@@ -22,17 +22,19 @@ export async function GET(request: NextRequest, context: Context) {
   try {
     const { actor } = await requireAuthenticatedUser(request)
     const parsed = guestQuerySchema.parse(Object.fromEntries(request.nextUrl.searchParams))
+    const result = await getGuestService().list(actor, await id(context), {
+      query: parsed.q,
+      categoryId: parsed.categoryId,
+      groupId: parsed.groupId,
+      familySide: parsed.familySide,
+      limit: parsed.limit,
+      cursor: parsed.cursor,
+    })
     return withApiHeaders(
-      jsonResponse(
-        await getGuestService().list(actor, await id(context), {
-          query: parsed.q,
-          categoryId: parsed.categoryId,
-          groupId: parsed.groupId,
-          familySide: parsed.familySide,
-          limit: parsed.limit,
-          cursor: parsed.cursor,
-        }),
-      ),
+      jsonResponse({
+        ...result,
+        items: result.items.map((guest) => ({ ...guest, familySide: guest.familySide ?? null })),
+      }),
       requestId,
     )
   } catch (error) {

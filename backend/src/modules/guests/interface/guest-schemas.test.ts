@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   bulkAssignCategorySchema,
   bulkAssignFamilySideSchema,
+  categorySchema,
   createGuestSchema,
   guestQuerySchema,
 } from './guest-schemas'
@@ -40,6 +41,10 @@ describe('guest API schemas', () => {
         familySide: null,
       }).familySide,
     ).toBeNull()
+  })
+  it('accepts family side values and clearing for categories', () => {
+    expect(categorySchema.parse({ name: 'Họ nội', familySide: 'GROOM' }).familySide).toBe('GROOM')
+    expect(categorySchema.parse({ name: 'Bạn bè', familySide: null }).familySide).toBeNull()
   })
   it('supports assigning and clearing a category for a bounded unique guest set', () => {
     expect(

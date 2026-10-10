@@ -74,12 +74,27 @@ const categoryPath = (categories: GuestCategory[], category: GuestCategory) => {
   }
   return names.join(' / ')
 }
+const categoryFamilySideName = (side: GuestCategory['familySide']) =>
+  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chung'
+const categoryFamilySide = (categories: GuestCategory[], category: GuestCategory) => {
+  let current = category
+  while (current.parentId) {
+    const parent = categories.find((item) => item.id === current.parentId)
+    if (!parent) break
+    current = parent
+  }
+  return current.familySide
+}
+const categoryOptionLabel = (categories: GuestCategory[], category: GuestCategory) =>
+  `${categoryFamilySideName(categoryFamilySide(categories, category))} · ${categoryPath(categories, category)}`
 const catName = (categories: GuestCategory[], id: string | null) => {
   const category = categories.find((item) => item.id === id)
   return category ? categoryPath(categories, category) : 'Chưa phân loại'
 }
 const familySideName = (side: Guest['familySide']) =>
-  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chưa xác định'
+  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chung'
+const normalizeGuestFamilySide = (value: string): Guest['familySide'] =>
+  value === 'GROOM' || value === 'BRIDE' ? value : null
 
 function GuestShareDialog({
   weddingId,
@@ -250,7 +265,7 @@ function GuestAssignmentFields({
           <option value="">Chưa phân loại</option>
           {categories.map((item) => (
             <option key={item.id} value={item.id}>
-              {categoryPath(categories, item)}
+              {categoryOptionLabel(categories, item)}
             </option>
           ))}
         </NativeSelectField>
@@ -260,16 +275,34 @@ function GuestAssignmentFields({
         <legend>Phía gia đình</legend>
         <div className="guest-family-side-options" role="radiogroup" aria-label="Phía gia đình">
           <label>
-            <input type="radio" name="guest-family-side" value="GROOM" checked={form.familySide === 'GROOM'} onChange={(event) => change('familySide', event.target.value)} />
+            <input
+              type="radio"
+              name="guest-family-side"
+              value="GROOM"
+              checked={form.familySide === 'GROOM'}
+              onChange={(event) => change('familySide', event.target.value)}
+            />
             <span>Nhà trai</span>
           </label>
           <label>
-            <input type="radio" name="guest-family-side" value="BRIDE" checked={form.familySide === 'BRIDE'} onChange={(event) => change('familySide', event.target.value)} />
+            <input
+              type="radio"
+              name="guest-family-side"
+              value="BRIDE"
+              checked={form.familySide === 'BRIDE'}
+              onChange={(event) => change('familySide', event.target.value)}
+            />
             <span>Nhà gái</span>
           </label>
           <label>
-            <input type="radio" name="guest-family-side" value="" checked={form.familySide === ''} onChange={() => change('familySide', '')} />
-            <span>Chưa xác định</span>
+            <input
+              type="radio"
+              name="guest-family-side"
+              value=""
+              checked={form.familySide === ''}
+              onChange={() => change('familySide', '')}
+            />
+            <span>Chung</span>
           </label>
         </div>
       </fieldset>
@@ -488,7 +521,6 @@ function GuestsPageConnectedContent({
     () => guests.reduce((sum, guest) => sum + guest.maxPartySize, 0),
     [guests],
   )
-  const allSelected = guests.length > 0 && guests.every((guest) => selected.includes(guest.id))
   const openShare = (guest: Guest) => setSharingGuest(guest)
   const openCreate = () => {
     if (!canEdit) return
@@ -526,6 +558,7 @@ function GuestsPageConnectedContent({
     if (!canEdit || !activeWedding || !form.name.trim()) return
     setBusy(true)
     setFeedback('')
+    const selectedFamilySide = normalizeGuestFamilySide(form.familySide)
     const input = {
       name: form.name.trim(),
       displayName: form.displayName.trim() || null,
@@ -535,7 +568,7 @@ function GuestsPageConnectedContent({
       note: form.note || null,
       maxPartySize: Math.max(1, Math.min(50, Number(form.maxPartySize) || 1)),
       categoryId: form.categoryId || null,
-      familySide: form.familySide || null,
+      familySide: selectedFamilySide,
     }
     try {
       if (editing) {
@@ -548,7 +581,7 @@ function GuestsPageConnectedContent({
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
       const keepCreateDialogOpen = !editing
       if (keepCreateDialogOpen) {
-        setForm({ ...blank, categoryId: form.categoryId, familySide: form.familySide })
+        setForm({ ...blank, categoryId: form.categoryId, familySide: selectedFamilySide || '' })
         setFeedback('')
       } else {
         close()
@@ -664,6 +697,175 @@ function GuestsPageConnectedContent({
       close={close}
     />
   ) : null
+  const guestFamilyBlocks = [
+    { key: 'GROOM' as const, label: 'Nhà trai' },
+    { key: 'BRIDE' as const, label: 'Nhà gái' },
+    { key: null, label: 'Chung' },
+  ]
+  const renderGuestBlock = (block: (typeof guestFamilyBlocks)[number]) => {
+    const blockGuests = guests.filter((guest) => (guest.familySide ?? null) === block.key)
+    return (
+      <section
+        className="guest-family-block"
+        key={block.label}
+        aria-labelledby={`guest-family-${block.key ?? 'common'}`}
+      >
+        <header className="guest-family-block-header">
+          <div>
+            <h2 id={`guest-family-${block.key ?? 'common'}`}>{block.label}</h2>
+            <span>{blockGuests.length} khách mời</span>
+          </div>
+          <span>
+            {blockGuests.reduce((sum, guest) => sum + guest.maxPartySize, 0)} người dự kiến
+          </span>
+        </header>
+        {blockGuests.length ? (
+          <>
+            <div className="guest-table-wrap">
+              <table className={`guest-table ${canEdit ? '' : 'is-read-only'}`}>
+                <caption className="sr-only">Danh sách khách mời {block.label}</caption>
+                <thead>
+                  <tr>
+                    {canEdit ? <th /> : null}
+                    <th>Khách mời</th>
+                    <th>Tên hiển thị</th>
+                    <th>Danh mục</th>
+                    <th>Phía gia đình</th>
+                    <th>Số người</th>
+                    {canEdit ? <th /> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {blockGuests.map((guest) => (
+                    <tr key={guest.id} className={selected.includes(guest.id) ? 'is-selected' : ''}>
+                      {canEdit ? (
+                        <td>
+                          <input
+                            className="guest-checkbox"
+                            type="checkbox"
+                            checked={selected.includes(guest.id)}
+                            onChange={() => toggle(guest.id)}
+                            aria-label={`Chọn ${guestName(guest)}`}
+                          />
+                        </td>
+                      ) : null}
+                      <td>
+                        <div className="guest-identity">
+                          <span>{initials(guestName(guest))}</span>
+                          <div>
+                            <div className="guest-name-row">
+                              {canEdit ? (
+                                <button type="button" onClick={() => openEdit(guest)}>
+                                  {guestName(guest)}
+                                </button>
+                              ) : (
+                                <strong>{guestName(guest)}</strong>
+                              )}
+                              <button
+                                type="button"
+                                className="guest-share-button"
+                                onClick={() => openShare(guest)}
+                              >
+                                <span>Gửi thiệp</span>
+                                <PaperPlaneTilt size={14} weight="fill" aria-hidden="true" />
+                              </button>
+                            </div>
+                            <small>{guest.phone || guest.email || 'Chưa có liên hệ'}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{guest.displayName || '—'}</td>
+                      <td>
+                        <span className="guest-group-tag">
+                          {catName(categories, guest.categoryId)}
+                        </span>
+                      </td>
+                      <td>{familySideName(guest.familySide)}</td>
+                      <td>{guest.maxPartySize}</td>
+                      {canEdit ? (
+                        <td>
+                          <button
+                            className="row-menu"
+                            type="button"
+                            onClick={() => openEdit(guest)}
+                            aria-label={`Sửa ${guestName(guest)}`}
+                          >
+                            <DotsThree size={20} weight="bold" />
+                          </button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="guest-mobile-list">
+              {blockGuests.map((guest) => (
+                <article
+                  className={selected.includes(guest.id) ? 'guest-card is-selected' : 'guest-card'}
+                  key={guest.id}
+                >
+                  <div className={`guest-card-top ${canEdit ? '' : 'is-read-only'}`}>
+                    {canEdit ? (
+                      <input
+                        className="guest-checkbox"
+                        type="checkbox"
+                        checked={selected.includes(guest.id)}
+                        onChange={() => toggle(guest.id)}
+                        aria-label={`Chọn ${guestName(guest)}`}
+                      />
+                    ) : null}
+                    <div className="guest-identity">
+                      <span>{initials(guestName(guest))}</span>
+                      <div>
+                        <div className="guest-name-row">
+                          {canEdit ? (
+                            <button type="button" onClick={() => openEdit(guest)}>
+                              {guestName(guest)}
+                            </button>
+                          ) : (
+                            <strong>{guestName(guest)}</strong>
+                          )}
+                          <button
+                            type="button"
+                            className="guest-share-button"
+                            onClick={() => openShare(guest)}
+                          >
+                            <span>Gửi thiệp</span>
+                            <PaperPlaneTilt size={14} weight="fill" aria-hidden="true" />
+                          </button>
+                        </div>
+                        <small>{catName(categories, guest.categoryId)}</small>
+                        <small>{familySideName(guest.familySide)}</small>
+                      </div>
+                    </div>
+                    {canEdit ? (
+                      <button
+                        className="row-menu"
+                        type="button"
+                        onClick={() => openEdit(guest)}
+                        aria-label={`Sửa ${guestName(guest)}`}
+                      >
+                        <DotsThree size={20} weight="bold" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="guest-card-meta">
+                    <span>{guest.maxPartySize} người</span>
+                    <span>Tên trên thiệp: {guest.displayName || '—'}</span>
+                    <span>{guest.phone || guest.email || 'Chưa có liên hệ'}</span>
+                    <span>{date(guest.updatedAt)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="guest-family-empty">Chưa có khách mời.</p>
+        )}
+      </section>
+    )
+  }
   return (
     <section className="guests-page">
       <header className="guests-heading" data-guide="guest-heading">
@@ -740,7 +942,7 @@ function GuestsPageConnectedContent({
               <option value="">Tất cả danh mục</option>
               {categories.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {categoryPath(categories, item)}
+                  {categoryOptionLabel(categories, item)}
                 </option>
               ))}
             </NativeSelectField>
@@ -831,156 +1033,7 @@ function GuestsPageConnectedContent({
           </div>
         ) : (
           <>
-            <div className="guest-table-wrap">
-              <table className={`guest-table ${canEdit ? '' : 'is-read-only'}`}>
-                <caption className="sr-only">Danh sách khách mời</caption>
-                <thead>
-                  <tr>
-                    {canEdit ? (
-                      <th>
-                        <input
-                          className="guest-checkbox"
-                          type="checkbox"
-                          checked={allSelected}
-                          onChange={() =>
-                            setSelected(allSelected ? [] : guests.map((guest) => guest.id))
-                          }
-                          aria-label="Chọn tất cả"
-                        />
-                      </th>
-                    ) : null}
-                    <th>Khách mời</th>
-                    <th>Tên hiển thị</th>
-                    <th>Danh mục</th>
-                    <th>Phía gia đình</th>
-                    <th>Số người</th>
-                    {canEdit ? <th /> : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {guests.map((guest) => (
-                    <tr key={guest.id} className={selected.includes(guest.id) ? 'is-selected' : ''}>
-                      {canEdit ? (
-                        <td>
-                          <input
-                            className="guest-checkbox"
-                            type="checkbox"
-                            checked={selected.includes(guest.id)}
-                            onChange={() => toggle(guest.id)}
-                            aria-label={`Chọn ${guestName(guest)}`}
-                          />
-                        </td>
-                      ) : null}
-                      <td>
-                        <div className="guest-identity">
-                          <span>{initials(guestName(guest))}</span>
-                          <div>
-                            <div className="guest-name-row">
-                              {canEdit ? (
-                                <button type="button" onClick={() => openEdit(guest)}>
-                                  {guestName(guest)}
-                                </button>
-                              ) : (
-                                <strong>{guestName(guest)}</strong>
-                              )}
-                              <button
-                                type="button"
-                                className="guest-share-button"
-                                onClick={() => openShare(guest)}
-                              >
-                                <span>Gửi thiệp</span>
-                                <PaperPlaneTilt size={14} weight="fill" aria-hidden="true" />
-                              </button>
-                            </div>
-                            <small>{guest.phone || guest.email || 'Chưa có liên hệ'}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{guest.displayName || '—'}</td>
-                      <td>
-                        <span className="guest-group-tag">
-                          {catName(categories, guest.categoryId)}
-                        </span>
-                      </td>
-                      <td>{familySideName(guest.familySide)}</td>
-                      <td>{guest.maxPartySize}</td>
-                      {canEdit ? (
-                        <td>
-                          <button
-                            className="row-menu"
-                            type="button"
-                            onClick={() => openEdit(guest)}
-                            aria-label={`Sửa ${guestName(guest)}`}
-                          >
-                            <DotsThree size={20} weight="bold" />
-                          </button>
-                        </td>
-                      ) : null}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="guest-mobile-list">
-              {guests.map((guest) => (
-                <article
-                  className={selected.includes(guest.id) ? 'guest-card is-selected' : 'guest-card'}
-                  key={guest.id}
-                >
-                  <div className={`guest-card-top ${canEdit ? '' : 'is-read-only'}`}>
-                    {canEdit ? (
-                      <input
-                        className="guest-checkbox"
-                        type="checkbox"
-                        checked={selected.includes(guest.id)}
-                        onChange={() => toggle(guest.id)}
-                        aria-label={`Chọn ${guestName(guest)}`}
-                      />
-                    ) : null}
-                    <div className="guest-identity">
-                      <span>{initials(guestName(guest))}</span>
-                      <div>
-                        <div className="guest-name-row">
-                          {canEdit ? (
-                            <button type="button" onClick={() => openEdit(guest)}>
-                              {guestName(guest)}
-                            </button>
-                          ) : (
-                            <strong>{guestName(guest)}</strong>
-                          )}
-                          <button
-                            type="button"
-                            className="guest-share-button"
-                            onClick={() => openShare(guest)}
-                          >
-                            <span>Gửi thiệp</span>
-                            <PaperPlaneTilt size={14} weight="fill" aria-hidden="true" />
-                          </button>
-                        </div>
-                        <small>{catName(categories, guest.categoryId)}</small>
-                        <small>{familySideName(guest.familySide)}</small>
-                      </div>
-                    </div>
-                    {canEdit ? (
-                      <button
-                        className="row-menu"
-                        type="button"
-                        onClick={() => openEdit(guest)}
-                        aria-label={`Sửa ${guestName(guest)}`}
-                      >
-                        <DotsThree size={20} weight="bold" />
-                      </button>
-                    ) : null}
-                  </div>
-                  <div className="guest-card-meta">
-                    <span>{guest.maxPartySize} người</span>
-                    <span>Tên trên thiệp: {guest.displayName || '—'}</span>
-                    <span>{guest.phone || guest.email || 'Chưa có liên hệ'}</span>
-                    <span>{date(guest.updatedAt)}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <div className="guest-family-blocks">{guestFamilyBlocks.map(renderGuestBlock)}</div>
             <footer className="guest-pagination">
               <span>
                 Đang hiển thị <strong>{guests.length}</strong> khách

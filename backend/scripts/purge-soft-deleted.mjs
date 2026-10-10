@@ -1,9 +1,12 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const RETENTION_DAYS = 14
 const BATCH_SIZE = 500
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+})
 
 async function purgeBatch(model, cutoff) {
   const where = { deletedAt: { lte: cutoff } }

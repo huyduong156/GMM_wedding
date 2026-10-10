@@ -29,6 +29,7 @@ export interface GuestCategoryView {
   weddingId: string
   parentId: string | null
   name: string
+  familySide: GuestFamilySide | null
   depth: number
   sortOrder: number
   createdAt: Date
@@ -67,11 +68,13 @@ export type UpdateGuestData = Optional<CreateGuestData>
 export interface CreateCategoryData {
   name: string
   parentId?: string | null | undefined
+  familySide?: GuestFamilySide | null | undefined
   sortOrder: number
 }
 export interface UpdateCategoryData {
   name?: string | undefined
   parentId?: string | null | undefined
+  familySide?: GuestFamilySide | null | undefined
   sortOrder?: number | undefined
 }
 export interface CreateGroupData {
@@ -121,11 +124,7 @@ export interface GuestRepository {
       cursor?: string | undefined
     },
   ): Promise<{ items: GuestView[]; nextCursor: string | null } | null>
-  listPicker?(
-    userId: string,
-    weddingId: string,
-    query?: string,
-  ): Promise<GuestPickerView[] | null>
+  listPicker?(userId: string, weddingId: string, query?: string): Promise<GuestPickerView[] | null>
   findOwned(userId: string, weddingId: string, guestId: string): Promise<GuestView | null>
   createOwned(userId: string, weddingId: string, data: CreateGuestData): Promise<GuestView | null>
   updateOwned(
