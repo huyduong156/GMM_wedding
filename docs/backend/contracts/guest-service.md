@@ -41,7 +41,7 @@ Không có owner CRUD hoặc token lifecycle cho `Invitation`. Guest link cá nh
 
 ## Guest fields
 
-Guest gồm `id`, `weddingId`, `slug`, `name` bắt buộc và `displayName` tùy chọn (nullable), cùng phone/email, note, table name, `maxPartySize`, tags, category, group và `familySide`. `familySide` nhận `BRIDE` (nhà gái), `GROOM` (nhà trai) hoặc `null` (chưa xác định); đây là thuộc tính độc lập với category. `slug` được sinh server-side từ `name` sau khi normalize (lowercase, bỏ dấu và ký tự đặc biệt), ổn định sau khi tạo và unique theo `(weddingId, slug)`; nếu trùng, hệ thống thêm hậu tố số `-1`, `-2`, ... . `maxPartySize` nằm trong khoảng 1–50. Query list hỗ trợ `q`, `categoryId`, `groupId`, `familySide`, `limit` tối đa 100 và opaque cursor.
+Guest gồm `id`, `weddingId`, `slug`, `name` bắt buộc và `displayName` tùy chọn (nullable), cùng phone/email, note, table name, `maxPartySize`, tags, category, group và `familySide`. `familySide` nhận `BRIDE` (nhà gái), `GROOM` (nhà trai) hoặc `null` (chưa xác định); đây là thuộc tính độc lập với category. `GuestCategory` cũng có `familySide` nullable để nhóm danh mục theo Nhà trai, Nhà gái hoặc Chung trong owner UI; thay đổi phía của category không tự động ghi đè `Guest.familySide`. `slug` được sinh server-side từ `name` sau khi normalize (lowercase, bỏ dấu và ký tự đặc biệt), ổn định sau khi tạo và unique theo `(weddingId, slug)`; nếu trùng, hệ thống thêm hậu tố số `-1`, `-2`, ... . `maxPartySize` nằm trong khoảng 1–50. Query list hỗ trợ `q`, `categoryId`, `groupId`, `familySide`, `limit` tối đa 100 và opaque cursor.
 
 ## Public guest link
 

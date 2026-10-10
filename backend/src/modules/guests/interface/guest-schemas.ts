@@ -40,6 +40,7 @@ export const categorySchema = z
   .object({
     name: z.string().trim().min(1).max(120),
     parentId: z.union([uuid, z.null()]).optional(),
+    familySide: familySide.nullable().optional(),
     sortOrder: z.number().int().min(0).default(0),
   })
   .strip()
@@ -47,6 +48,7 @@ export const updateCategorySchema = z
   .object({
     name: z.string().trim().min(1).max(120).optional(),
     parentId: z.union([uuid, z.null()]).optional(),
+    familySide: familySide.nullable().optional(),
     sortOrder: z.number().int().min(0).optional(),
   })
   .strip()

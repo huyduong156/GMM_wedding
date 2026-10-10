@@ -280,6 +280,7 @@ export type GuestCategory = {
   weddingId: string
   parentId: string | null
   name: string
+  familySide: 'BRIDE' | 'GROOM' | null
   depth: 1 | 2 | 3
   sortOrder: number
   guestCount?: number
@@ -301,7 +302,12 @@ export type GuestInput = {
   tags?: string[]
 }
 
-export type GuestCategoryInput = { name: string; parentId?: string | null; sortOrder?: number }
+export type GuestCategoryInput = {
+  name: string
+  parentId?: string | null
+  familySide?: 'BRIDE' | 'GROOM' | null
+  sortOrder?: number
+}
 
 export type Dashboard = {
   wedding: Wedding
@@ -668,9 +674,7 @@ export const weddingApi = {
       { method: 'POST', body: JSON.stringify({ surface: 'RECAP', ...input }) },
     ),
   publicRecap: (slug: string) =>
-    request<{ snapshot: PublishedRecapSnapshot }>(
-      `/public/recaps/${encodeURIComponent(slug)}`,
-    ),
+    request<{ snapshot: PublishedRecapSnapshot }>(`/public/recaps/${encodeURIComponent(slug)}`),
   publicInvitation: (weddingSlug: string) =>
     request<{ snapshot: PublishedWeddingSnapshot }>(
       `/public/invitations/${encodeURIComponent(weddingSlug)}`,

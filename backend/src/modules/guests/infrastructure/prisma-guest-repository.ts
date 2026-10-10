@@ -37,6 +37,7 @@ const categorySelect = {
   weddingId: true,
   parentId: true,
   name: true,
+  familySide: true,
 
   depth: true,
   sortOrder: true,
@@ -411,6 +412,7 @@ export class PrismaGuestRepository implements GuestRepository {
       data: {
         weddingId,
         name: data.name,
+        ...(data.familySide !== undefined ? { familySide: data.familySide } : {}),
         depth,
         sortOrder: data.sortOrder,
         ...(data.parentId !== undefined ? { parentId: data.parentId } : {}),
@@ -472,6 +474,7 @@ export class PrismaGuestRepository implements GuestRepository {
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}),
         ...(data.parentId !== undefined ? { parentId: data.parentId } : {}),
+        ...(data.familySide !== undefined ? { familySide: data.familySide } : {}),
         ...(data.sortOrder !== undefined ? { sortOrder: data.sortOrder } : {}),
         depth,
       },

@@ -45,7 +45,7 @@ User --< WeddingMember >-- Wedding --< WeddingEvent
 - Unique `(weddingId, userId)` cho member.
 - `Guest.slug` được sinh server-side từ `name` sau khi normalize, unique theo `(weddingId, slug)` và ổn định; nếu trùng thì thêm hậu tố `-1`, `-2`, ...
 - Index guest theo `(weddingId, groupId)`; RSVP theo `(weddingId, attendance, submittedAt)`; wish theo moderation status.
-- `GuestCategory` self-reference qua `parentId`, thuộc đúng một wedding và có `depth` từ 1 đến 3. Parent phải cùng wedding, depth của child bằng parent + 1; không cho tạo chu kỳ hoặc cấp 4. Guest có thể gắn một category chính trong MVP.
+- `GuestCategory` self-reference qua `parentId`, thuộc đúng một wedding và có `depth` từ 1 đến 3. Category có `familySide` nullable (`BRIDE`, `GROOM` hoặc `null` cho Chung). Parent phải cùng wedding, depth của child bằng parent + 1; không cho tạo chu kỳ hoặc cấp 4. Guest có thể gắn một category chính trong MVP; đổi phía category không tự động đổi `Guest.familySide`.
 - Unique `(weddingId, version)` cho published snapshot.
 - Slug 3-64 ký tự, lowercase chữ/số/gạch nối, chặn reserved words.
 - `partySize >= 0` và không vượt `maxPartySize` trừ owner override.
