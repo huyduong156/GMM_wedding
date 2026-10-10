@@ -32,6 +32,7 @@ export interface GuestCategoryView {
   familySide: GuestFamilySide | null
   depth: number
   sortOrder: number
+  guestCount?: number
   createdAt: Date
   updatedAt: Date
 }
@@ -120,10 +121,11 @@ export interface GuestRepository {
       categoryId?: string | null | undefined
       groupId?: string | null | undefined
       familySide?: GuestFamilySide | null | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },
-  ): Promise<{ items: GuestView[]; nextCursor: string | null } | null>
+  ): Promise<{ items: GuestView[]; nextCursor: string | null; total: number } | null>
   listPicker?(userId: string, weddingId: string, query?: string): Promise<GuestPickerView[] | null>
   findOwned(userId: string, weddingId: string, guestId: string): Promise<GuestView | null>
   createOwned(userId: string, weddingId: string, data: CreateGuestData): Promise<GuestView | null>

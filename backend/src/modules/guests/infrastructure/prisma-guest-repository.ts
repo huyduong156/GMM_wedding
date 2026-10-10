@@ -186,38 +186,69 @@ export class PrismaGuestRepository implements GuestRepository {
       categoryId?: string | undefined
       groupId?: string | undefined
       familySide?: 'BRIDE' | 'GROOM' | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },
   ) {
     if (!(await this.canRead(userId, weddingId))) return null
     const cursor = decode(filter.cursor)
-    const rows = await this.prisma.guest.findMany({
-      where: {
-        weddingId,
-        deletedAt: null,
-        ...(filter.categoryId ? { categoryId: filter.categoryId } : {}),
-        ...(filter.groupId ? { groupId: filter.groupId } : {}),
-        ...(filter.familySide ? { familySide: filter.familySide } : {}),
-        ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
-        ...(cursor
-          ? {
-              OR: [
-                { createdAt: { lt: cursor.createdAt } },
-                { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-              ],
-            }
+    let categoryIds: string[] | undefined
+    if (filter.categoryId) {
+      const categories = await this.prisma.guestCategory.findMany({
+        where: { weddingId, deletedAt: null },
+        select: { id: true, parentId: true },
+      })
+      const childrenByParent = new Map<string, string[]>()
+      for (const category of categories) {
+        if (!category.parentId) continue
+        const children = childrenByParent.get(category.parentId) ?? []
+        children.push(category.id)
+        childrenByParent.set(category.parentId, children)
+      }
+      categoryIds = [filter.categoryId]
+      for (let index = 0; index < categoryIds.length; index += 1) {
+        const children = childrenByParent.get(categoryIds[index]!) ?? []
+        categoryIds.push(...children)
+      }
+    }
+    const where: Prisma.GuestWhereInput = {
+      weddingId,
+      deletedAt: null,
+      ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
+      ...(filter.groupId ? { groupId: filter.groupId } : {}),
+      ...(filter.familySideNull
+        ? { familySide: null }
+        : filter.familySide
+          ? { familySide: filter.familySide }
           : {}),
-      },
-      select: guestSelect,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: filter.limit + 1,
-    })
+      ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
+    }
+    const [rows, total] = await Promise.all([
+      this.prisma.guest.findMany({
+        where: {
+          ...where,
+          ...(cursor
+            ? {
+                OR: [
+                  { createdAt: { lt: cursor.createdAt } },
+                  { createdAt: cursor.createdAt, id: { lt: cursor.id } },
+                ],
+              }
+            : {}),
+        },
+        select: guestSelect,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: filter.limit + 1,
+      }),
+      this.prisma.guest.count({ where }),
+    ])
     const hasNextPage = rows.length > filter.limit
     const items = rows.slice(0, filter.limit)
     return {
       items,
       nextCursor: hasNextPage && items.length ? encode(items[items.length - 1]!) : null,
+      total,
     }
   }
   async listPicker(userId: string, weddingId: string, query?: string) {
@@ -380,11 +411,37 @@ export class PrismaGuestRepository implements GuestRepository {
         }
       })
     }
-    return this.prisma.guestCategory.findMany({
+    const categories = await this.prisma.guestCategory.findMany({
       where: { weddingId, deletedAt: null },
       select: categorySelect,
       orderBy: [{ depth: 'asc' }, { sortOrder: 'asc' }, { name: 'asc' }],
     })
+    const directCounts = await this.prisma.guest.groupBy({
+      by: ['categoryId'],
+      where: { weddingId, deletedAt: null, categoryId: { not: null } },
+      _count: { _all: true },
+    })
+    const counts = new Map(
+      directCounts.map((row) => [row.categoryId!, row._count._all]),
+    )
+    const childrenByParent = new Map<string, string[]>()
+    for (const category of categories) {
+      if (!category.parentId) continue
+      const children = childrenByParent.get(category.parentId) ?? []
+      children.push(category.id)
+      childrenByParent.set(category.parentId, children)
+    }
+    for (const category of [...categories].sort((a, b) => b.depth - a.depth)) {
+      const descendantCount = (childrenByParent.get(category.id) ?? []).reduce(
+        (sum, childId) => sum + (counts.get(childId) ?? 0),
+        0,
+      )
+      counts.set(category.id, (counts.get(category.id) ?? 0) + descendantCount)
+    }
+    return categories.map((category) => ({
+      ...category,
+      guestCount: counts.get(category.id) ?? 0,
+    }))
   }
   async createCategory(userId: string, weddingId: string, data: CreateCategoryData) {
     if (!(await this.owns(userId, weddingId))) return null
