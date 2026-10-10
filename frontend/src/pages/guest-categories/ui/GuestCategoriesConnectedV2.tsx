@@ -57,6 +57,7 @@ function GuestCategoriesContent({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [familySide, setFamilySide] = useState<'' | 'BRIDE' | 'GROOM'>('')
 
   const weddingId = activeWedding?.id
   const load = useCallback(async () => {
@@ -79,6 +80,15 @@ function GuestCategoriesContent({
 
   const roots = useMemo(() => items.filter((item) => item.parentId === null), [items])
   const childrenOf = (id: string) => items.filter((item) => item.parentId === id)
+  const categoryFamilySide = (item: GuestCategory) => {
+    let current = item
+    while (current.parentId) {
+      const parentCategory = items.find((candidate) => candidate.id === current.parentId)
+      if (!parentCategory) break
+      current = parentCategory
+    }
+    return current.familySide ?? null
+  }
   const categoryPath = (item: GuestCategory) => {
     const names = [item.name]
     let parentId = item.parentId
@@ -91,18 +101,23 @@ function GuestCategoriesContent({
     return names.join(' / ')
   }
   const totalGuestCount = useMemo(
-    () => items.filter((item) => !items.some((child) => child.parentId === item.id)).reduce((sum, item) => sum + (item.guestCount ?? 0), 0),
+    () =>
+      items
+        .filter((item) => !items.some((child) => child.parentId === item.id))
+        .reduce((sum, item) => sum + (item.guestCount ?? 0), 0),
     [items],
   )
   const closeDialog = () => {
     setParent(undefined)
     setName('')
+    setFamilySide('')
     setError('')
   }
-  const openCreate = (value: GuestCategory | null) => {
+  const openCreate = (value: GuestCategory | null, side: '' | 'BRIDE' | 'GROOM' = '') => {
     if (!canEdit) return
     setParent(value)
     setName('')
+    setFamilySide(side || (value ? categoryFamilySide(value) : '') || '')
     setError('')
   }
   const create = async () => {
@@ -116,6 +131,7 @@ function GuestCategoriesContent({
       await guestCategoryApi.create(activeWedding.id, {
         name: name.trim(),
         ...(parent ? { parentId: parent.id } : {}),
+        familySide: familySide || null,
       })
       closeDialog()
       await load()
@@ -175,19 +191,21 @@ function GuestCategoriesContent({
           >
             {nested.length ? isOpen ? <CaretDown size={15} /> : <CaretRight size={15} /> : <span />}
           </button>
-          {canEdit ? <input
-            className="guest-checkbox"
-            type="checkbox"
-            checked={selected.includes(item.id)}
-            onChange={() =>
-              setSelected((current) =>
-                current.includes(item.id)
-                  ? current.filter((id) => id !== item.id)
-                  : [...current, item.id],
-              )
-            }
-            aria-label={`Chọn ${item.name}`}
-          /> : null}
+          {canEdit ? (
+            <input
+              className="guest-checkbox"
+              type="checkbox"
+              checked={selected.includes(item.id)}
+              onChange={() =>
+                setSelected((current) =>
+                  current.includes(item.id)
+                    ? current.filter((id) => id !== item.id)
+                    : [...current, item.id],
+                )
+              }
+              aria-label={`Chọn ${item.name}`}
+            />
+          ) : null}
           <span className="category-folder">
             <FolderSimple size={18} weight={isOpen ? 'fill' : 'regular'} />
           </span>
@@ -219,9 +237,6 @@ function GuestCategoriesContent({
           <h1 id="categories-heading">Danh mục khách mời</h1>
           <p>Tổ chức khách theo cây danh mục tối đa 3 cấp để lọc thuận tiện hơn.</p>
         </div>
-        {canEdit ? <button className="button button-primary" type="button" onClick={() => openCreate(null)}>
-          <Plus size={17} /> Thêm danh mục
-        </button> : null}
       </header>
       <div className="category-summary">
         <div>
@@ -272,7 +287,51 @@ function GuestCategoriesContent({
             </button>
           </div>
         ) : (
-          <ul className="category-tree category-card-tree">{roots.map(render)}</ul>
+          <div className="category-family-blocks">
+            {(
+              [
+                ['GROOM', 'Nhà trai'],
+                ['BRIDE', 'Nhà gái'],
+                ['', 'Chung'],
+              ] as const
+            ).map(([side, label]) => {
+              const blockRoots = roots.filter((item) => (item.familySide ?? '') === side)
+              return (
+                <section
+                  className="category-family-block"
+                  key={label}
+                  aria-labelledby={`category-family-${side || 'common'}`}
+                >
+                  <header className="category-family-block-header">
+                    <div>
+                      <h3 id={`category-family-${side || 'common'}`}>{label}</h3>
+                      <span>{blockRoots.length} danh mục gốc</span>
+                    </div>
+                    <div className="category-family-block-actions">
+                      <span className="category-family-block-count">
+                        {blockRoots.reduce((count, root) => count + (root.guestCount ?? 0), 0)}{' '}
+                        khách
+                      </span>
+                      {canEdit ? (
+                        <button
+                          className="button button-secondary category-family-add"
+                          type="button"
+                          onClick={() => openCreate(null, side)}
+                        >
+                          <Plus size={14} /> Thêm danh mục
+                        </button>
+                      ) : null}
+                    </div>
+                  </header>
+                  {blockRoots.length ? (
+                    <ul className="category-tree category-card-tree">{blockRoots.map(render)}</ul>
+                  ) : (
+                    <p className="category-family-empty">Chưa có danh mục.</p>
+                  )}
+                </section>
+              )
+            })}
+          </div>
         )}
       </div>
       {parent !== undefined && (
@@ -312,6 +371,10 @@ function GuestCategoriesContent({
               }}
               placeholder="Ví dụ: Họ nội, Bạn đại học"
             />
+            <p className="field-helper">
+              Danh mục này sẽ thuộc block{' '}
+              {familySide === 'GROOM' ? 'Nhà trai' : familySide === 'BRIDE' ? 'Nhà gái' : 'Chung'}.
+            </p>
             {error && <p className="field-error">{error}</p>}
             <footer>
               <button className="button button-secondary" type="button" onClick={closeDialog}>

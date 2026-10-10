@@ -87,7 +87,7 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Trong UI hiện tại, nút `Nhập danh sách` chỉ hiển thị thông báo chưa khả dụng bằng hệ thống notification chung; chưa mở wizard hay gọi API import.
 - Các field nhập tự do thường có dữ liệu thay đổi theo từng lần nhập (tên khách, tên hiển thị trên thiệp, tên danh mục, tên công việc và tên khách trong modal sổ tiền mừng) dùng `autoComplete="off"`; placeholder hướng dẫn vẫn được giữ nguyên.
 - Mobile dùng prioritized columns/card rows, không co bảng desktop đến mức không đọc được.
-- `Danh mục khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây tối đa 3 cấp. Mỗi row hiển thị tên, cấp, tổng khách và thao tác thêm cấp con; cấp 3 hiển thị rõ là cấp cuối.
+- `Danh mục khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây tối đa 3 cấp. UI chia cây thành ba block `Nhà trai`, `Nhà gái` và `Chung`; mỗi block có thao tác thêm danh mục, còn danh mục con kế thừa phía của block/parent và không chỉnh phía trực tiếp trên row; cấp 3 hiển thị rõ là cấp cuối.
 
 Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/guests` đã có prototype responsive theo `design-system/pages/admin-guests.md`. Search deferred theo tên, lọc xác nhận tham dự/nhóm, selection và bulk action chạy phía client; desktop dùng semantic table compact với sticky header và mặc định 50 dòng/trang, dưới 768px chuyển sang card. Import wizard, detail side sheet, saved views và kết nối API/pagination thật chưa nằm trong prototype này.
 

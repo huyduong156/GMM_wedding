@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client'
+import pg from 'pg'
 
 if (!process.env.DATABASE_URL) {
   console.error('[startup] DATABASE_URL is required before starting the web server')
   process.exit(1)
 }
 
-const prisma = new PrismaClient({ datasourceUrl: process.env.DATABASE_URL })
+const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
 const timeoutMs = Number(process.env.STARTUP_DATABASE_TIMEOUT_MS ?? 10_000)
 let timeoutHandle
 const timeout = new Promise((_, reject) => {
@@ -16,7 +16,10 @@ const timeout = new Promise((_, reject) => {
 })
 
 try {
-  await Promise.race([prisma.$queryRaw`SELECT 1`, timeout])
+  await Promise.race([
+    client.connect().then(() => client.query('SELECT 1')),
+    timeout,
+  ])
   console.log('[startup] database preflight passed; starting web server')
 } catch (error) {
   const message = error instanceof Error ? error.message : 'unknown database preflight error'
@@ -24,7 +27,7 @@ try {
   process.exitCode = 1
 } finally {
   clearTimeout(timeoutHandle)
-  await prisma.$disconnect().catch(() => undefined)
+  await client.end().catch(() => undefined)
 }
 
 if (process.exitCode === 1) {
