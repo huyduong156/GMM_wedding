@@ -120,7 +120,8 @@ export interface GuestRepository {
       query?: string | undefined
       categoryId?: string | null | undefined
       groupId?: string | null | undefined
-      familySide?: GuestFamilySide | 'COMMON' | null | undefined
+      familySide?: GuestFamilySide | null | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },

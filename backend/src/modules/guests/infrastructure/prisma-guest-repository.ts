@@ -185,7 +185,8 @@ export class PrismaGuestRepository implements GuestRepository {
       query?: string | undefined
       categoryId?: string | undefined
       groupId?: string | undefined
-      familySide?: 'BRIDE' | 'GROOM' | 'COMMON' | undefined
+      familySide?: 'BRIDE' | 'GROOM' | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },
@@ -216,9 +217,11 @@ export class PrismaGuestRepository implements GuestRepository {
       deletedAt: null,
       ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
       ...(filter.groupId ? { groupId: filter.groupId } : {}),
-      ...(filter.familySide
-        ? { familySide: filter.familySide === 'COMMON' ? null : filter.familySide }
-        : {}),
+      ...(filter.familySideNull
+        ? { familySide: null }
+        : filter.familySide
+          ? { familySide: filter.familySide }
+          : {}),
       ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
     }
     const [rows, total] = await Promise.all([

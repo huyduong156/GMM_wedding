@@ -27,6 +27,7 @@ export async function GET(request: NextRequest, context: Context) {
       categoryId: parsed.categoryId,
       groupId: parsed.groupId,
       familySide: parsed.familySide,
+          familySideNull: parsed.familySideNull,
       limit: parsed.limit,
       cursor: parsed.cursor,
     })

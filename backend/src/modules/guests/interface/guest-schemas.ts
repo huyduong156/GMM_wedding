@@ -14,7 +14,11 @@ export const guestQuerySchema = z.object({
   q: z.string().trim().max(160).optional(),
   categoryId: uuid.optional(),
   groupId: uuid.optional(),
-  familySide: z.enum(['BRIDE', 'GROOM', 'COMMON']).optional(),
+  familySide: familySide.optional(),
+  familySideNull: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   cursor: z.string().max(512).optional(),
 })

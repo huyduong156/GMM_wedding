@@ -535,7 +535,8 @@ function GuestsPageConnectedContent({
             guestApi.list(weddingId, {
               q: query.trim() || undefined,
               categoryId: categoryId || undefined,
-              familySide: block.key,
+              familySide: block.key === 'COMMON' ? undefined : block.key,
+              familySideNull: block.key === 'COMMON',
               limit: GUEST_PAGE_SIZE,
             }),
           ),
@@ -594,7 +595,8 @@ function GuestsPageConnectedContent({
       const result = await guestApi.list(weddingId, {
         q: query.trim() || undefined,
         categoryId: categoryId || undefined,
-        familySide: key,
+        familySide: key === 'COMMON' ? undefined : key,
+        familySideNull: key === 'COMMON',
         limit: GUEST_PAGE_SIZE,
         cursor: cursor || undefined,
       })

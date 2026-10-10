@@ -21,7 +21,8 @@ export class GuestService {
       query?: string | undefined
       categoryId?: string | undefined
       groupId?: string | undefined
-      familySide?: 'BRIDE' | 'GROOM' | 'COMMON' | undefined
+      familySide?: 'BRIDE' | 'GROOM' | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },
