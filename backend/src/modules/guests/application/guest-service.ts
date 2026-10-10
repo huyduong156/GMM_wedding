@@ -22,6 +22,7 @@ export class GuestService {
       categoryId?: string | undefined
       groupId?: string | undefined
       familySide?: 'BRIDE' | 'GROOM' | undefined
+      familySideNull?: boolean | undefined
       limit: number
       cursor?: string | undefined
     },

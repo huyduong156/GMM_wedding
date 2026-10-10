@@ -14,6 +14,7 @@ type NativeSelectFieldProps = {
   disabled?: boolean
   required?: boolean
   className?: string
+  contentClassName?: string
   'aria-label'?: string
 }
 
@@ -27,6 +28,7 @@ export function NativeSelectField({
   disabled,
   required,
   className = '',
+  contentClassName = '',
   'aria-label': ariaLabel,
 }: NativeSelectFieldProps) {
   const options = Children.toArray(children).flatMap((child) => {
@@ -72,7 +74,7 @@ export function NativeSelectField({
         </SelectPrimitive.Trigger>
         <SelectPrimitive.Portal>
           <SelectPrimitive.Content
-            className="select-field-content"
+            className={`select-field-content ${contentClassName}`}
             position="popper"
             sideOffset={6}
           >

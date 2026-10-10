@@ -2823,6 +2823,18 @@ kbd {
   font-size: 11px;
   font-weight: 600;
 }
+.guest-category-filter {
+  flex: 0 0 360px;
+}
+.guest-category-filter-content {
+  min-width: min(520px, calc(100vw - 32px));
+}
+.guest-category-filter-content .select-field-item {
+  white-space: normal;
+  line-height: 1.35;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
 .guest-filter-row {
   display: flex;
   gap: 5px;
@@ -2917,6 +2929,10 @@ kbd {
   width: 100%;
   overflow-x: auto;
 }
+.guest-table-scroll {
+  max-height: 560px;
+  overflow: auto;
+}
 .guest-table {
   width: 100%;
   min-width: 800px;
@@ -2992,6 +3008,21 @@ kbd {
 .guest-table tbody tr:hover,
 .guest-table tbody tr.is-selected {
   background: #fffaf3;
+}
+.guest-block-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 10px;
+}
+.guest-block-pagination .button {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 10px;
 }
 .guest-checkbox {
   width: 16px;
@@ -5623,6 +5654,9 @@ kbd {
   .guest-group-filter select {
     min-width: 0;
     max-width: 100%;
+  }
+  .guest-category-filter-content {
+    min-width: min(420px, calc(100vw - 24px));
   }
   .guest-export {
     width: 44px;
