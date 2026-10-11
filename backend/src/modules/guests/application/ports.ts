@@ -125,7 +125,13 @@ export interface GuestRepository {
       limit: number
       cursor?: string | undefined
     },
-  ): Promise<{ items: GuestView[]; nextCursor: string | null; total: number } | null>
+  ): Promise<{
+    items: GuestView[]
+    nextCursor: string | null
+    total: number
+    totalPartySize: number
+    categorizedTotal: number
+  } | null>
   listPicker?(userId: string, weddingId: string, query?: string): Promise<GuestPickerView[] | null>
   findOwned(userId: string, weddingId: string, guestId: string): Promise<GuestView | null>
   createOwned(userId: string, weddingId: string, data: CreateGuestData): Promise<GuestView | null>
