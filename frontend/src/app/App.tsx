@@ -52,6 +52,7 @@ import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVo
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
+import { DeepOceanPreviewPage } from '../pages/public-website/ui/DeepOceanPreviewPage'
 import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
 import { PublicRecapPage } from '../pages/public-recap/ui/PublicRecapPage'
 import { PublicInvitationPage } from '../pages/public-invitation/ui/PublicInvitationPage'
@@ -169,6 +170,7 @@ function AppContent() {
     return <EnchantedForestPreviewPage />
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview)
     return <CherryBlossomGardenPreviewPage />
+  if (pathname === publicTemplateRoutes.deepOceanPreview) return <DeepOceanPreviewPage />
   if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview)
     return <RedSpiderLilyRecapPreviewPage />
   const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
