@@ -23,7 +23,13 @@ const guest = {
 function repository(overrides: Partial<GuestRepository> = {}): GuestRepository {
   return {
     resolvePublicGuestLink: vi.fn().mockResolvedValue(null),
-    listOwned: vi.fn().mockResolvedValue({ items: [guest], nextCursor: null }),
+    listOwned: vi.fn().mockResolvedValue({
+      items: [guest],
+      nextCursor: null,
+      total: 1,
+      totalPartySize: 1,
+      categorizedTotal: 0,
+    }),
     findOwned: vi.fn().mockResolvedValue(guest),
     createOwned: vi.fn().mockResolvedValue(guest),
     updateOwned: vi.fn().mockResolvedValue(guest),
@@ -53,6 +59,9 @@ describe('GuestService', () => {
     await expect(service.list(actor, 'wedding-1', { limit: 50 })).resolves.toEqual({
       items: [guest],
       nextCursor: null,
+      total: 1,
+      totalPartySize: 1,
+      categorizedTotal: 0,
     })
     await expect(
       service.create(actor, 'wedding-1', { name: 'Nguyễn An', maxPartySize: 1, tags: [] }),

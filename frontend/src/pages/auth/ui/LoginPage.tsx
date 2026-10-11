@@ -7,15 +7,8 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { AuthApiError, authApi } from '../../../shared/api/auth'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { notifications } from '../../../shared/ui/notifications/notifications'
-
-const workspaceAccessReturnKey = 'gmm-workspace-access-return'
+import { consumeAuthReturnPath } from '../../../shared/lib/navigation/auth-return-path'
 const googleLoginEnabled = import.meta.env.VITE_GOOGLE_LOGIN_ENABLED === 'true'
-
-function consumeWorkspaceAccessReturn() {
-  const destination = sessionStorage.getItem(workspaceAccessReturnKey)
-  sessionStorage.removeItem(workspaceAccessReturnKey)
-  return destination?.startsWith('/workspace-access/') ? destination : studioRoutes.home
-}
 
 function loginError(error: unknown) {
   if (!(error instanceof AuthApiError)) return 'Không thể đăng nhập lúc này. Vui lòng thử lại.'
@@ -34,22 +27,29 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    let active = true
     const params = new URLSearchParams(window.location.search)
-    if (params.get('oauthError')) {
-      setError('Không thể đăng nhập bằng Google. Vui lòng thử lại.')
-      return
-    }
-    if (params.get('oauth') !== 'success') return
-    setSubmitting(true)
+    setSubmitting(params.get('oauth') === 'success')
     void checkUserSession().then((authenticated) => {
-      if (authenticated) navigate(consumeWorkspaceAccessReturn(), true)
-      else setError('Không thể hoàn tất đăng nhập bằng Google. Vui lòng thử lại.')
+      if (!active) return
+      if (authenticated) {
+        navigate(consumeAuthReturnPath(studioRoutes.home), true)
+        return
+      }
+      if (params.get('oauthError')) setError('Không thể đăng nhập bằng Google. Vui lòng thử lại.')
+      else if (params.get('oauth') === 'success')
+        setError('Không thể hoàn tất đăng nhập bằng Google. Vui lòng thử lại.')
+      setCheckingSession(false)
       setSubmitting(false)
     })
+    return () => {
+      active = false
+    }
   }, [checkUserSession, navigate])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -58,7 +58,7 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password)
-      navigate(consumeWorkspaceAccessReturn(), true)
+      navigate(consumeAuthReturnPath(studioRoutes.home), true)
     } catch (reason) {
       setError(loginError(reason))
     } finally {
@@ -108,7 +108,7 @@ export function LoginPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
-            disabled={submitting}
+            disabled={submitting || checkingSession}
           />
           <div className="login-password-row">
             <label htmlFor="login-password">Mật khẩu</label>
@@ -125,7 +125,7 @@ export function LoginPage() {
               onChange={(event) => setPassword(event.target.value)}
               required
               minLength={12}
-              disabled={submitting}
+              disabled={submitting || checkingSession}
             />
             <button
               type="button"
@@ -143,7 +143,7 @@ export function LoginPage() {
           <button
             className="button button-primary login-submit"
             type="submit"
-            disabled={submitting}
+            disabled={submitting || checkingSession}
           >
             {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}{' '}
             {!submitting ? <ArrowRight size={17} /> : null}
@@ -153,7 +153,7 @@ export function LoginPage() {
             className="button button-secondary login-google-submit"
             type="button"
             onClick={startGoogleLogin}
-            disabled={submitting}
+            disabled={submitting || checkingSession}
           >
             <strong aria-hidden="true">G</strong> Tiếp tục với Google
           </button>

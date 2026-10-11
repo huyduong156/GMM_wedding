@@ -9,11 +9,13 @@ describe('VanHyInvitation', () => {
     expect(screen.getByRole('button', { name: 'Mở thiệp Hỷ sự' })).toBeInTheDocument()
     expect(container.querySelector('[data-editor-section="opening"]')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Mở thiệp Hỷ sự' }))
+    expect(container.querySelector('.hh-opening-curtain-emblem')).not.toBeInTheDocument()
     await waitFor(() => expect(container.querySelector('[data-editor-section="opening"]')).not.toBeInTheDocument(), { timeout: 1800 })
     const renderedKeys = Array.from(container.querySelectorAll<HTMLElement>('[data-editor-section]')).map((node) => node.dataset.editorSection)
     expect(renderedKeys).toEqual(vanHyTemplateConfig.sections.slice(1).map((section) => section.sectionKey))
     expect(screen.getByRole('heading', { name: 'Trân trọng báo tin vui' })).toBeInTheDocument()
     expect(screen.getByText('Trung tâm Tiệc cưới Vạn Hỷ')).toBeInTheDocument()
+    expect(container.querySelectorAll('.hh-gallery-carousel figure')).toHaveLength(6)
   })
 
   it('supports optional section toggles without changing the content contract', () => {

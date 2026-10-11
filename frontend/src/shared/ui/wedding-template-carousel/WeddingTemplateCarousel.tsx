@@ -30,7 +30,7 @@ function apiSlides(items: WeddingTemplate[]) {
     name: item.name,
     style: item.description ?? 'Thiệp online',
     image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? null,
-    position: 'center',
+    position: 'top center',
     href: previewPaths[item.key] ?? publicTemplateRoutes.modernLuxePreview,
   }))
 }

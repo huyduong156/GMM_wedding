@@ -428,13 +428,6 @@ export function VanHyInvitation({
       {curtainsActive && (
         <div className="hh-opening-curtains is-active" aria-hidden="true">
           <div className="hh-opening-curtain hh-opening-curtain--left">
-            <img
-              className="hh-opening-curtain-emblem"
-              src="/assets/images/templates/van-hy/decor/vh-double-happiness-v4.png"
-              width={1254}
-              height={1279}
-              alt=""
-            />
           </div>
           <div className="hh-opening-curtain hh-opening-curtain--right" />
           <span className="hh-opening-curtain-line" />
@@ -706,6 +699,10 @@ export function VanHyInvitation({
                     </div>
                   ))}
                 </div>
+                <p className="hh-venue-greeting" data-motion-variant="fade-up">
+                  Rất mong được gặp lại{' '}
+                  <span className="hh-guest-name">{connectedGuestName || 'Quý khách'}</span> tại
+                </p>
                 <div className="hh-detail-card" data-motion-variant="zoom-in">
                   <strong>{data?.venueName ?? 'Trung tâm Tiệc cưới Vạn Hỷ'}</strong>
                   <span>{data?.venueAddress ?? '28 Lý Thường Kiệt, Hoàn Kiếm, Hà Nội'}</span>
@@ -815,6 +812,11 @@ export function VanHyInvitation({
                 <p data-motion-variant="fade-up">
                   Vui lòng phản hồi trước {data?.rsvpDeadline ?? '10 · 10 · 2026'}.
                 </p>
+                {hasGuestName && (
+                  <p className="hh-guest-context hh-guest-prompt" data-motion-variant="fade-up">
+                    <span className="hh-guest-name">{connectedGuestName}</span> sẽ
+                  </p>
+                )}
                 <div className="hh-actions">
                   <button
                     type="button"
@@ -826,7 +828,7 @@ export function VanHyInvitation({
                     }}
                     disabled={rsvpLocked || interactions?.rsvp.submitting}
                   >
-                    Mình sẽ tham dự
+                    Tham dự
                   </button>
                   <button
                     type="button"
@@ -838,7 +840,7 @@ export function VanHyInvitation({
                     }}
                     disabled={rsvpLocked || interactions?.rsvp.submitting}
                   >
-                    Mình chưa thể đến
+                    Không thể tham dự
                   </button>
                 </div>
                 <div
@@ -847,21 +849,19 @@ export function VanHyInvitation({
                 >
                   {!hasGuestName ? (
                     <label className="hh-guest-field">
-                      <span>Tên khách mời</span>
                       <input
                         value={rsvpName}
                         onChange={(event) => {
                           setRsvpName(event.target.value)
                           setRsvpError('')
                         }}
-                        placeholder="Ví dụ: Thanh An"
+                        placeholder="Tôi tên là ..."
+                        aria-label="Tên khách mời"
                         autoComplete="name"
                         disabled={rsvpLocked || interactions?.rsvp.submitting}
                       />
                     </label>
-                  ) : (
-                    <p className="hh-guest-context">Xác nhận cho {connectedGuestName}</p>
-                  )}
+                  ) : null}
                   <button
                     type="button"
                     className="hh-text-button"
@@ -905,6 +905,11 @@ export function VanHyInvitation({
                     'Mỗi lời chúc của bạn là một niềm vui trong ngày hỷ sự.',
                   )}
                 </p>
+                {hasGuestName && (
+                  <p className="hh-guest-context hh-guest-prompt" data-motion-variant="fade-up">
+                    <span className="hh-guest-name">{connectedGuestName}</span> chúc
+                  </p>
+                )}
                 <textarea
                   data-motion-variant="fade-up"
                   value={wish}
@@ -922,21 +927,18 @@ export function VanHyInvitation({
                 >
                   {!hasGuestName && (
                     <label className="hh-guest-field">
-                      <span>Tên khách mời</span>
                       <input
                         value={wishName}
                         onChange={(event) => {
                           setWishName(event.target.value)
                           setWishError('')
                         }}
-                        placeholder="Tên của bạn"
+                        placeholder="Tôi tên là ..."
+                        aria-label="Tên khách mời"
                         autoComplete="name"
                         disabled={wishLocked || interactions?.wishes.submitting}
                       />
                     </label>
-                  )}
-                  {hasGuestName && (
-                    <p className="hh-guest-context">Lời chúc từ {connectedGuestName}</p>
                   )}
                   <button
                     type="button"

@@ -1,18 +1,29 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowRight, Fingerprint, LockKey, ShieldCheck } from '@phosphor-icons/react'
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { adminRoutes } from '../../../shared/config/routes'
 import { useAuth } from '../../../features/auth/model/auth-context'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
 import { AuthApiError } from '../../../shared/api/auth'
+import { consumeAuthReturnPath } from '../../../shared/lib/navigation/auth-return-path'
 
 export function AdminLoginPage() {
-  const { loginAdmin } = useAuth()
+  const { loginAdmin, checkAdminSession } = useAuth()
   const { navigate } = useNavigation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    void checkAdminSession().then((authenticated) => {
+      if (active && authenticated) navigate(consumeAuthReturnPath(adminRoutes.home), true)
+    })
+    return () => {
+      active = false
+    }
+  }, [checkAdminSession, navigate])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -20,7 +31,7 @@ export function AdminLoginPage() {
     setSubmitting(true)
     try {
       await loginAdmin(email, password)
-      navigate(adminRoutes.home, true)
+      navigate(consumeAuthReturnPath(adminRoutes.home), true)
     } catch (reason) {
       if (reason instanceof AuthApiError && reason.code === 'ADMIN_ACCESS_REQUIRED')
         setError('Tài khoản này không có quyền truy cập khu vực quản trị.')
