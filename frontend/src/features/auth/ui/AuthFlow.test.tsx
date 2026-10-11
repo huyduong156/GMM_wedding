@@ -49,16 +49,18 @@ describe('frontend authentication', () => {
     fireEvent.change(screen.getByLabelText('Mật khẩu'), {
       target: { value: 'Correct-Horse-Battery-42' },
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }))
+    const loginButton = screen.getByRole('button', { name: 'Đăng nhập' })
+    await waitFor(() => expect(loginButton).not.toBeDisabled())
+    fireEvent.click(loginButton)
     await waitFor(() => expect(window.location.pathname).toBe('/studio'))
   })
 
   it('redirects an already signed-in owner away from the login page', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
-      String(input).endsWith('/me')
-        ? new Response(JSON.stringify({ user }), { status: 200 })
-        : new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 }),
-    )
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (String(input).endsWith('/me')) return new Response(JSON.stringify({ user }), { status: 200 })
+      if (String(input).endsWith('/weddings')) return new Response(JSON.stringify({ items: [] }), { status: 200 })
+      return new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+    })
     renderApp('/login')
     await waitFor(() => expect(window.location.pathname).toBe('/studio'))
   })
