@@ -95,11 +95,27 @@ const normalizeGuestFamilySide = (value: string): Guest['familySide'] =>
   value === 'GROOM' || value === 'BRIDE' ? value : null
 const GUEST_PAGE_SIZE = 20
 type GuestFamilyBlockKey = 'GROOM' | 'BRIDE' | 'COMMON'
+const guestListSummary = (result: {
+  items: Guest[]
+  total: number
+  totalPartySize?: number
+  categorizedTotal?: number
+}) => ({
+  total: Number.isFinite(result.total) ? result.total : result.items.length,
+  totalPartySize: Number.isFinite(result.totalPartySize)
+    ? result.totalPartySize!
+    : result.items.reduce((sum, guest) => sum + (Number.isFinite(guest.maxPartySize) ? guest.maxPartySize : 0), 0),
+  categorizedTotal: Number.isFinite(result.categorizedTotal)
+    ? result.categorizedTotal!
+    : result.items.filter((guest) => Boolean(guest.categoryId)).length,
+})
 type GuestFamilyBlockState = {
   key: GuestFamilyBlockKey
   label: string
   items: Guest[]
   total: number
+  totalPartySize: number
+  categorizedTotal: number
   nextCursor: string | null
   cursors: Array<string | null>
   page: number
@@ -115,6 +131,8 @@ const emptyGuestFamilyBlocks = (): GuestFamilyBlockState[] =>
     ...block,
     items: [],
     total: 0,
+    totalPartySize: 0,
+    categorizedTotal: 0,
     nextCursor: null,
     cursors: [null],
     page: 1,
@@ -503,8 +521,9 @@ function GuestsPageConnectedContent({
   const [sharingGuest, setSharingGuest] = useState<Guest | null>(null)
   const [categories, setCategories] = useState<GuestCategory[]>([])
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [queryPending, setQueryPending] = useState(false)
   const [categoryId, setCategoryId] = useState('')
-  const [familySide, setFamilySide] = useState<'' | 'BRIDE' | 'GROOM' | 'COMMON'>('')
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -526,14 +545,12 @@ function GuestsPageConnectedContent({
     setLoading(true)
     setError('')
     try {
-      const blocksToLoad = familySide
-        ? guestFamilyBlockDefinitions.filter((block) => block.key === familySide)
-        : guestFamilyBlockDefinitions
+      const blocksToLoad = guestFamilyBlockDefinitions
       const [guestResults, categoryResult] = await Promise.all([
         Promise.all(
           blocksToLoad.map((block) =>
             guestApi.list(weddingId, {
-              q: query.trim() || undefined,
+              q: debouncedQuery.trim() || undefined,
               categoryId: categoryId || undefined,
               familySide: block.key === 'COMMON' ? undefined : block.key,
               familySideNull: block.key === 'COMMON',
@@ -546,12 +563,13 @@ function GuestsPageConnectedContent({
       setGuestBlocks((blocks) =>
         blocks.map((block) => {
           const resultIndex = blocksToLoad.findIndex((item) => item.key === block.key)
-          if (resultIndex < 0) return { ...block, items: [], total: 0, nextCursor: null, cursors: [null], page: 1, loading: false }
+            if (resultIndex < 0) return { ...block, items: [], total: 0, totalPartySize: 0, categorizedTotal: 0, nextCursor: null, cursors: [null], page: 1, loading: false }
           const result = guestResults[resultIndex]
+          const summary = guestListSummary(result)
           return {
             ...block,
             items: result.items,
-            total: result.total,
+            ...summary,
             nextCursor: result.nextCursor,
             cursors: [null],
             page: 1,
@@ -566,26 +584,30 @@ function GuestsPageConnectedContent({
     } finally {
       setLoading(false)
     }
-  }, [categoryId, familySide, query, weddingId])
+  }, [categoryId, debouncedQuery, weddingId])
+  useEffect(() => {
+    if (query === debouncedQuery) {
+      setQueryPending(false)
+      return
+    }
+    setQueryPending(true)
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(query)
+      setQueryPending(false)
+    }, 1100)
+    return () => window.clearTimeout(timer)
+  }, [debouncedQuery, query])
   useEffect(() => {
     void load()
   }, [load])
   const totalParty = useMemo(
-    () => guests.reduce((sum, guest) => sum + guest.maxPartySize, 0),
-    [guests],
+    () => guestBlocks.reduce((sum, block) => sum + block.totalPartySize, 0),
+    [guestBlocks],
   )
-  const updateLoadedGuests = (update: (guest: Guest) => Guest) =>
-    setGuestBlocks((blocks) =>
-      blocks.map((block) => ({ ...block, items: block.items.map(update) })),
-    )
-  const removeLoadedGuests = (ids: string[]) =>
-    setGuestBlocks((blocks) =>
-      blocks.map((block) => ({
-        ...block,
-        items: block.items.filter((guest) => !ids.includes(guest.id)),
-        total: Math.max(0, block.total - block.items.filter((guest) => ids.includes(guest.id)).length),
-      })),
-    )
+  const categorizedTotal = useMemo(
+    () => guestBlocks.reduce((sum, block) => sum + block.categorizedTotal, 0),
+    [guestBlocks],
+  )
   const loadGuestBlockPage = async (key: GuestFamilyBlockKey, page: number, cursor: string | null) => {
     if (!weddingId) return
     setGuestBlocks((blocks) =>
@@ -593,7 +615,7 @@ function GuestsPageConnectedContent({
     )
     try {
       const result = await guestApi.list(weddingId, {
-        q: query.trim() || undefined,
+        q: debouncedQuery.trim() || undefined,
         categoryId: categoryId || undefined,
         familySide: key === 'COMMON' ? undefined : key,
         familySideNull: key === 'COMMON',
@@ -603,7 +625,14 @@ function GuestsPageConnectedContent({
       setGuestBlocks((blocks) =>
         blocks.map((block) =>
           block.key === key
-            ? { ...block, items: result.items, total: result.total, nextCursor: result.nextCursor, page, loading: false }
+            ? {
+                ...block,
+                items: result.items,
+                ...guestListSummary(result),
+                nextCursor: result.nextCursor,
+                page,
+                loading: false,
+              }
             : block,
         ),
       )
@@ -719,7 +748,7 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.removeMany(activeWedding.id, selected)
-      removeLoadedGuests(selected)
+      await load()
       setSelected([])
       await notifications.fire({
         icon: 'success',
@@ -744,9 +773,7 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.assignCategory(activeWedding.id, selected, value || null)
-      updateLoadedGuests((item) =>
-        selected.includes(item.id) ? { ...item, categoryId: value || null } : item,
-      )
+      await load()
       setSelected([])
       setFeedback('Đã cập nhật danh mục.')
       await notifications.success('Đã cập nhật danh mục')
@@ -1040,13 +1067,13 @@ function GuestsPageConnectedContent({
           <span>
             <Archive size={17} /> Có danh mục
           </span>
-          <strong>{guests.filter((guest) => guest.categoryId).length}</strong>
+          <strong>{categorizedTotal}</strong>
           <small>Đã được phân loại</small>
         </div>
       </div>
       <div className="guest-directory panel" data-guide="guest-directory">
         <div className="guest-toolbar">
-          <label className="guest-search">
+          <label className="guest-search" aria-busy={queryPending || loading}>
             <MagnifyingGlass size={17} aria-hidden="true" />
             <span className="sr-only">Tìm khách mời</span>
             <input
@@ -1054,6 +1081,9 @@ function GuestsPageConnectedContent({
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Tìm theo tên khách…"
             />
+            {queryPending || loading ? (
+              <CircleNotch className="guest-search-spinner" size={16} aria-hidden="true" />
+            ) : null}
           </label>
           <label className="guest-group-filter guest-category-filter">
             <span>Danh mục</span>
@@ -1068,18 +1098,6 @@ function GuestsPageConnectedContent({
                   {categoryOptionLabel(categories, item)}
                 </option>
               ))}
-            </NativeSelectField>
-          </label>
-          <label className="guest-group-filter">
-            <span>Phía gia đình</span>
-            <NativeSelectField
-              value={familySide}
-              onChange={(event) => setFamilySide(event.target.value as typeof familySide)}
-            >
-              <option value="">Tất cả</option>
-              <option value="BRIDE">Nhà gái</option>
-              <option value="GROOM">Nhà trai</option>
-              <option value="COMMON">Chung</option>
             </NativeSelectField>
           </label>
         </div>

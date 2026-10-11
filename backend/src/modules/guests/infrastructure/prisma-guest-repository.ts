@@ -224,7 +224,7 @@ export class PrismaGuestRepository implements GuestRepository {
           : {}),
       ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
     }
-    const [rows, total] = await Promise.all([
+    const [rows, total, aggregate, categorizedTotal] = await Promise.all([
       this.prisma.guest.findMany({
         where: {
           ...where,
@@ -242,6 +242,16 @@ export class PrismaGuestRepository implements GuestRepository {
         take: filter.limit + 1,
       }),
       this.prisma.guest.count({ where }),
+      this.prisma.guest.aggregate({
+        where,
+        _sum: { maxPartySize: true },
+      }),
+      this.prisma.guest.count({
+        where: {
+          ...where,
+          categoryId: { not: null },
+        },
+      }),
     ])
     const hasNextPage = rows.length > filter.limit
     const items = rows.slice(0, filter.limit)
@@ -249,6 +259,8 @@ export class PrismaGuestRepository implements GuestRepository {
       items,
       nextCursor: hasNextPage && items.length ? encode(items[items.length - 1]!) : null,
       total,
+      totalPartySize: aggregate._sum.maxPartySize ?? 0,
+      categorizedTotal,
     }
   }
   async listPicker(userId: string, weddingId: string, query?: string) {

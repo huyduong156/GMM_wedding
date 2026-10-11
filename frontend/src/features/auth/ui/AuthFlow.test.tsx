@@ -35,11 +35,15 @@ describe('frontend authentication', () => {
   })
 
   it('submits owner credentials and enters studio', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
-      String(input).endsWith('/auth/csrf')
-        ? new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
-        : new Response(JSON.stringify({ user }), { status: 200 }),
-    )
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (String(input).endsWith('/auth/csrf'))
+        return new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 })
+      if (String(input).endsWith('/me'))
+        return new Response(JSON.stringify({ error: { code: 'AUTHENTICATION_REQUIRED' } }), {
+          status: 401,
+        })
+      return new Response(JSON.stringify({ user }), { status: 200 })
+    })
     renderApp('/login')
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
     fireEvent.change(screen.getByLabelText('Mật khẩu'), {
@@ -47,6 +51,37 @@ describe('frontend authentication', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }))
     await waitFor(() => expect(window.location.pathname).toBe('/studio'))
+  })
+
+  it('redirects an already signed-in owner away from the login page', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/me')
+        ? new Response(JSON.stringify({ user }), { status: 200 })
+        : new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 }),
+    )
+    renderApp('/login')
+    await waitFor(() => expect(window.location.pathname).toBe('/studio'))
+  })
+
+  it('redirects an already signed-in admin away from the admin login page', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      String(input).endsWith('/admin/me')
+        ? new Response(
+            JSON.stringify({
+              user: { ...user, roles: ['ADMIN'] },
+              actor: {
+                kind: 'platformAdmin',
+                userId: user.id,
+                sessionId: 'session-1',
+                assurance: 'base',
+              },
+            }),
+            { status: 200 },
+          )
+        : new Response(JSON.stringify({ csrfToken: 'test-csrf-token' }), { status: 200 }),
+    )
+    renderApp('/gmm_admin/login')
+    await waitFor(() => expect(window.location.pathname).toBe('/gmm_admin'))
   })
 
   it('registers an owner and shows the generic verification notice', async () => {

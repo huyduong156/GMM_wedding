@@ -719,6 +719,13 @@
   margin: 10px auto 0;
 }
 
+.hh-venue-greeting {
+  margin: 0;
+  color: rgb(247 232 213 / 0.78);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .hh-detail-card a {
   display: inline-grid;
   min-height: 44px;
@@ -2409,6 +2416,13 @@ body:has(.hh-opening) {
 .hh-guest-context {
   font-size: 12px !important;
   color: var(--hh-gold) !important;
+}
+.hh-guest-name {
+  display: inline-block;
+  padding: 0 5px;
+  font-size: 180%;
+  font-weight: 400;
+  font-family: 'Cormorant Garamond GMM';
 }
 .hh-interaction-error {
   color: #ffc0b5 !important;

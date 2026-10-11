@@ -2797,6 +2797,11 @@ kbd {
 .guest-search input::placeholder {
   color: var(--fg-muted);
 }
+.guest-search-spinner {
+  flex: 0 0 auto;
+  color: var(--brand);
+  animation: guest-dialog-loading-spin 850ms linear infinite;
+}
 .guest-group-filter {
   height: 40px;
   display: flex;

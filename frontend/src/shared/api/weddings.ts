@@ -765,7 +765,13 @@ export const guestApi = {
     if (params.familySideNull) query.set('familySideNull', 'true')
     query.set('limit', String(params.limit ?? 100))
     if (params.cursor) query.set('cursor', params.cursor)
-    return request<{ items: Guest[]; nextCursor: string | null; total: number }>(
+    return request<{
+      items: Guest[]
+      nextCursor: string | null
+      total: number
+      totalPartySize: number
+      categorizedTotal: number
+    }>(
       `/weddings/${weddingId}/guests?${query}`,
     )
   },

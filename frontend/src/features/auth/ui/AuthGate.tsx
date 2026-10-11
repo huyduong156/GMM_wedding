@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import { adminRoutes, marketingRoutes } from '../../../shared/config/routes'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
+import { rememberAuthReturnPath } from '../../../shared/lib/navigation/auth-return-path'
 import { useOptionalAuth } from '../model/auth-context'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 
@@ -22,7 +23,10 @@ export function AuthGate({
     const check = surface === 'admin' ? checkAdminSession : checkUserSession
     void check().then((allowed) => {
       if (!active) return
-      if (!allowed) navigate(surface === 'admin' ? adminRoutes.login : marketingRoutes.login, true)
+      if (!allowed) {
+        rememberAuthReturnPath()
+        navigate(surface === 'admin' ? adminRoutes.login : marketingRoutes.login, true)
+      }
       else setChecking(false)
     })
     return () => {
