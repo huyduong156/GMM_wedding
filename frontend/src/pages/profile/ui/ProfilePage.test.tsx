@@ -42,6 +42,8 @@ describe('ProfilePage', () => {
   it('loads current user data and submits a profile update', async () => {
     const { updateProfile } = renderPage()
     expect(screen.getByDisplayValue('owner@example.test')).toBeInTheDocument()
+    expect(screen.queryByLabelText('URL ảnh đại diện')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Chọn ảnh đại diện' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Tên hiển thị'), { target: { value: 'Mai Anh' } })
     fireEvent.change(screen.getByLabelText('Số điện thoại'), {
       target: { value: '+84 912 345 678' },

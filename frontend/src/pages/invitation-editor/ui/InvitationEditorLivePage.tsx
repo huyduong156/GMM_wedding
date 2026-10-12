@@ -14,11 +14,13 @@ import {
   DeviceMobile,
   Eye,
   FloppyDisk,
+  ImageSquare,
   RocketLaunch,
   ShareNetwork,
   X,
 } from '@phosphor-icons/react'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
+import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { WeddingApiError, weddingApi } from '../../../shared/api/weddings'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { SharePublicationModal } from '../../../shared/ui/SharePublicationModal'
@@ -69,6 +71,7 @@ const initialData: ModernLuxeData = {
 
 export function InvitationEditorLivePage() {
   const { navigate } = useNavigation()
+  const auth = useOptionalAuth()
   const workspace = useOptionalWeddingWorkspace()
   const workspaceWedding = workspace?.activeWedding ?? null
   const activeWeddingId = workspaceWedding?.id ?? null
@@ -152,6 +155,7 @@ export function InvitationEditorLivePage() {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
   const [surfacePublished, setSurfacePublished] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [avatarPromptOpen, setAvatarPromptOpen] = useState(false)
   const baselineRef = useRef('')
   const allowNavigationRef = useRef(false)
   const activeWedding = workspaceWedding
@@ -209,6 +213,12 @@ export function InvitationEditorLivePage() {
       const loaded = (await weddingApi.content(activeWeddingId, 'ONLINE_INVITATION')).content
       if (!loaded.templateVersion) {
         setTemplateMissing(true)
+        setTemplateVersionId(null)
+        setTemplateKey(null)
+        setContentRevision(null)
+        setDirty(false)
+        setPendingNavigation(null)
+        baselineRef.current = ''
         setLoading(false)
         return
       }
@@ -536,6 +546,7 @@ export function InvitationEditorLivePage() {
       setSurfacePublished(true)
       setSaveMessage('Thiệp đã được xuất bản thành công.')
       await notifications.success('Đã công khai thiệp')
+      if (!auth?.user?.avatarUrl) setAvatarPromptOpen(true)
       await workspace?.refresh()
     } catch (cause) {
       setApiError(friendlyEditorError(cause, 'Không thể xuất bản thiệp. Vui lòng thử lại.'))
@@ -564,8 +575,13 @@ export function InvitationEditorLivePage() {
     }
   }
   const hasUnsavedChanges = useCallback(
-    () => dirty && editorSignature(data, palette, order, enabled) !== baselineRef.current,
-    [data, dirty, enabled, order, palette],
+    () =>
+      !loading &&
+      !templateMissing &&
+      Boolean(templateVersionId) &&
+      dirty &&
+      editorSignature(data, palette, order, enabled) !== baselineRef.current,
+    [data, dirty, enabled, loading, order, palette, templateMissing, templateVersionId],
   )
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -1106,6 +1122,48 @@ export function InvitationEditorLivePage() {
                 onClick={() => void publish()}
               >
                 {publishing ? 'Đang công khai…' : 'Công khai thiệp'}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+      {avatarPromptOpen ? (
+        <div
+          className="editor-publish-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAvatarPromptOpen(false)
+          }}
+        >
+          <section
+            className="editor-publish-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="avatar-prompt-title"
+          >
+            <ImageSquare size={28} />
+            <h2 id="avatar-prompt-title">Thêm ảnh đại diện để chia sẻ thiệp đẹp hơn</h2>
+            <p>
+              Bạn chưa cài ảnh đại diện. Khi gửi đường dẫn thiệp qua Facebook, Zalo hoặc nền tảng
+              khác, ảnh đại diện sẽ được dùng làm ảnh xem trước của liên kết.
+            </p>
+            <footer>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => setAvatarPromptOpen(false)}
+              >
+                Để sau
+              </button>
+              <button
+                className="button button-primary"
+                type="button"
+                onClick={() => {
+                  setAvatarPromptOpen(false)
+                  navigate(studioRoutes.profile)
+                }}
+              >
+                Cài ảnh đại diện
               </button>
             </footer>
           </section>

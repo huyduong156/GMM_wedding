@@ -220,6 +220,9 @@ function TemplateAudioField({
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const playRequestRef = useRef(0)
+  const autoplayPath = path.replace(/(?:^|\.)[^.]+$/, (segment) =>
+    segment.startsWith('.') ? `${segment}backgroundMusicAutoplay` : 'backgroundMusicAutoplay',
+  )
   useEffect(() => {
     const audio = audioRef.current
     let active = true
@@ -241,6 +244,18 @@ function TemplateAudioField({
       audio?.pause()
     }
   }, [])
+  useEffect(() => {
+    const firstTrack = tracks[0]
+    if (!firstTrack?.playbackUrl || value) return
+
+    update(path, firstTrack.playbackUrl)
+    if (nameKey) update(nameKey, firstTrack.displayName)
+
+    // A brand-new invitation should make the selected track discoverable in
+    // the saved preview. Preserve an explicit user choice when a track was
+    // already selected.
+    update(autoplayPath, true)
+  }, [autoplayPath, nameKey, path, tracks, update, value])
   const currentName = nameKey ? String(getPath(data, nameKey) ?? '') : ''
   const togglePreview = async (track: MusicTrack) => {
     if (!track.playbackUrl || !audioRef.current) return

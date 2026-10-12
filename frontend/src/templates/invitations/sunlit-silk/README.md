@@ -1,4 +1,4 @@
-# Nắng Trên Lụa — Authoring log
+# Sunlit Silk — Authoring log
 
 Technical key: `sunlit-silk`  
 Product type: `ONLINE_INVITATION`
@@ -19,7 +19,7 @@ Product type: `ONLINE_INVITATION`
 
 Preview URL: `/templates/invitations/sunlit-silk/preview`
 
-Phase 0 only locks the spatial foundation for a warm beige invitation called **Nắng Trên Lụa**. The quiet material direction is sunlit raw silk and linen, with antique-brass ink rather than the common beige/terracotta treatment. The diagonal translucent band is a temporary CSS spatial marker for the future ribbon signature; it is not final artwork or opening choreography.
+Phase 0 only locks the spatial foundation for a warm beige invitation called **Sunlit Silk**. The quiet material direction is sunlit raw silk and linen, with antique-brass ink rather than the common beige/terracotta treatment. The diagonal translucent band is a temporary CSS spatial marker for the future ribbon signature; it is not final artwork or opening choreography.
 
 The shell intentionally contains no invitation business section, API integration, content fixture, `template-config.ts`, user media, final artwork or Phase 1 content decisions.
 
@@ -51,7 +51,7 @@ Phase 1 must begin by rereading the shared theme-authoring and online-invitation
 
 ### Product meaning
 
-`Nắng Trên Lụa` là một `ONLINE_INVITATION` mobile-first dành cho khách mời Việt Nam. Trải nghiệm phải giống nhận một tấm thiệp bọc lụa thật: khách tháo đai lụa, đọc lời báo hỷ trang trọng, nhận ra ngay hai gia đình và cặp đôi, rồi nhanh chóng biết ngày giờ, nghi lễ, tiệc, địa điểm và cách phản hồi.
+`Sunlit Silk` là một `ONLINE_INVITATION` mobile-first dành cho khách mời Việt Nam. Trải nghiệm phải giống nhận một tấm thiệp bọc lụa thật: khách tháo đai lụa, đọc lời báo hỷ trang trọng, nhận ra ngay hai gia đình và cặp đôi, rồi nhanh chóng biết ngày giờ, nghi lễ, tiệc, địa điểm và cách phản hồi.
 
 Đây không phải Wedding Website kể chuyện dài theo nhiều chapter và không phải Wedding Recap nhìn lại sự kiện đã diễn ra. Mọi bố cục, chuyển động và CTA đều phục vụ hành vi nhận lời mời, đọc thông tin và phản hồi.
 
@@ -151,7 +151,7 @@ Các section này mặc định tắt nhưng template vẫn phải triển khai 
 
 | Section key | Status | Content anchor | Content keys và dữ liệu mặc định tiếng Việt | Editor control | Empty/fallback | CTA/action | Toggle, reorder, repeatable, layout |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `opening` | Core required | Nghi thức mở thiệp | `opening.eyebrow`: `Trân trọng gửi lời mời`; `opening.title`: `Nắng Trên Lụa`; `opening.message`: `Chạm để mở tấm thiệp của Minh An và Thu Hà`; dùng tên/ngày từ couple/event summary | Chỉ message owner-specific nếu contract hiện hành cho phép; không expose chữ nút, chốt, ribbon hoặc motion | Luôn tồn tại; thiếu message dùng tên cặp đôi và ngày; reduced motion mở tức thời | Nút hệ thống `Mở thiệp`, keyboard Enter/Space | Fixed first; không toggle/reorder/repeat; một layout đai lụa |
+| `opening` | Core required | Nghi thức mở thiệp | `opening.eyebrow`: `Trân trọng gửi lời mời`; `opening.title`: `Sunlit Silk`; `opening.message`: `Chạm để mở tấm thiệp của Minh An và Thu Hà`; dùng tên/ngày từ couple/event summary | Chỉ message owner-specific nếu contract hiện hành cho phép; không expose chữ nút, chốt, ribbon hoặc motion | Luôn tồn tại; thiếu message dùng tên cặp đôi và ngày; reduced motion mở tức thời | Nút hệ thống `Mở thiệp`, keyboard Enter/Space | Fixed first; không toggle/reorder/repeat; một layout đai lụa |
 | `cover` | Core required | Banner, couple identity và ngày cưới | `couple.brideName`: `Thu Hà`; `couple.groomName`: `Minh An`; `cover.eyebrow`: `Lễ Thành Hôn`; `cover.phraseFrom`: `Hai người, một lời hẹn`; `cover.phraseTo`: `Mình thương, mình ở lại`; `event.weddingDate`: `2027-01-16` | Tên, eyebrow, hai dòng chữ chuyển động và ngày; media để Phase 2 quyết định | Không có ảnh vẫn giữ typography, ribbon và ngày; tên/ngày không được rỗng khi publish | Không có CTA chính | Fixed sau opening; không toggle/repeat; layout typography trên giấy/lụa. Fulfill catalog `Banner` + `Cô dâu và chú rể`; vai vế đầy đủ tiếp tục ở `families` |
 | `invitation` | Core required | Lời báo hỷ và kính mời đúng người nhận | `invitation.title`: `Trân trọng kính mời`; `invitation.message`: `{guestName} đến chung vui trong ngày thành hôn của chúng mình.`; `invitation.note`: `Sự hiện diện của quý khách là niềm vinh hạnh cho hai gia đình.` | Title, message, note; `{guestName}` là runtime token, không phải fixture PII | Thiếu `guestName` dùng `quý khách`; thiếu note thì bỏ note, không bỏ lời mời | Không CTA | Fixed trước families; không toggle/repeat; một layout giấy ép chìm |
 | `families` | Core required | Hai bên gia đình, couple identity đầy đủ và vai vế | `families.bride.label`: `Nhà gái`; cha: title `Ông`, name `Nguyễn Văn Hải`; mẹ: title `Bà`, name `Trần Thu Lan`; personRole `Trưởng nữ`, personName `Thu Hà`; address `Quận 3, TP. Hồ Chí Minh`. Nhà trai tương ứng: `Ông` `Lê Minh Quang`, `Bà` `Phạm Ngọc Mai`, `Trưởng nam` `Minh An`, `Thành phố Thủ Đức, TP. Hồ Chí Minh`; `families.invitationLine`: `Hai gia đình chúng tôi trân trọng báo hỷ.` | Field riêng cho label, từng danh xưng, từng họ tên, vai vế, tên cô dâu/chú rể, địa chỉ và lời báo hỷ | Tên cha mẹ không được suy luận bằng parse chuỗi; field chưa có dùng fallback trung tính, không render dấu câu trống | Không CTA | Không toggle; có thể reorder có giới hạn trong vùng core theo catalog; hai family group không repeat tự do; mobile xếp dọc; tên người lớn hơn danh xưng/địa chỉ |
@@ -248,7 +248,7 @@ Phase 1 hoàn tất ở mức artifact. Phase 2 chỉ được bắt đầu sau 
 
 ### Scope và nguyên tắc ownership
 
-Media do owner cung cấp chỉ truyền tải **nội dung về cặp đôi, hoạt động, album và QR mừng cưới**. Chúng không chịu trách nhiệm tạo ra nhận diện `Nắng Trên Lụa`. Nhận diện phải tồn tại khi mọi ảnh user bị thay hoặc bỏ trống thông qua palette, typography, composition, ribbon, đường may, giấy/linen, bóng nắng và dấu ép chìm renderer-owned.
+Media do owner cung cấp chỉ truyền tải **nội dung về cặp đôi, hoạt động, album và QR mừng cưới**. Chúng không chịu trách nhiệm tạo ra nhận diện `Sunlit Silk`. Nhận diện phải tồn tại khi mọi ảnh user bị thay hoặc bỏ trống thông qua palette, typography, composition, ribbon, đường may, giấy/linen, bóng nắng và dấu ép chìm renderer-owned.
 
 Phase này chỉ mô tả contract. Chưa có file artwork, asset manifest, prompt, preview sheet, media fixture, schema TypeScript hoặc `template-config.ts` nào được tạo.
 
@@ -374,7 +374,7 @@ Các test dưới đây là acceptance bắt buộc ở Phase 3–5; Phase 2 ch�
 
 | Test set | Replacement | Expected result |
 | --- | --- | --- |
-| Neutral studio | Thay cover/gallery/activity bằng ảnh studio nền trắng/xám, trang phục hiện đại | Vẫn nhận ra `Nắng Trên Lụa` qua ribbon, linen, palette đồng cũ, typography và stage; không giống catalog ảnh cưới trung tính |
+| Neutral studio | Thay cover/gallery/activity bằng ảnh studio nền trắng/xám, trang phục hiện đại | Vẫn nhận ra `Sunlit Silk` qua ribbon, linen, palette đồng cũ, typography và stage; không giống catalog ảnh cưới trung tính |
 | Alternate art direction | Ảnh cưới áo dài đỏ hoặc lễ truyền thống nhiều màu | Ảnh được matte/frame kiểm soát; theme không chuyển thành đỏ-truyền-thống và không đổi palette theo ảnh |
 | Bright beach | Ảnh ngoài trời high-key/cát biển | Text vẫn tách khỏi ảnh; không mất viền/matte vào nền sáng |
 | Dark ballroom | Ảnh low-key/ánh đèn tối | Không cần tăng overlay che mặt; frame giữ separation và body text vẫn trên paper |
