@@ -12,6 +12,15 @@
   RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
   RewriteRule ^(?:public/)?recaps/([^/]+)/?$ /share-meta.php?surface=recap&slug=$1 [L,QSA]
 
+  # Static routes use the shared route metadata map. They do not need a
+  # publication API request, but crawlers still need server-rendered tags.
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
+  RewriteRule ^$ /share-meta.php?surface=route [L,QSA]
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Zalo|TelegramBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest) [NC]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(workspace-access/[^/]+|studio(?:/.*)?|gmm_admin(?:/.*)?|templates(?:/.*)?|how-it-works|faq|login|register|verify-email|forgot-password|reset-password)/?$ /share-meta.php?surface=route [L,QSA]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

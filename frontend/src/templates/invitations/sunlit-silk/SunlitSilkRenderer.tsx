@@ -559,7 +559,7 @@ export function SunlitSilkRenderer({
   return (
     <main
       className={`ss-page is-opened is-ready ${pageHidden ? 'is-page-hidden' : ''}`}
-      aria-label="Bản xem trước thiệp cưới Nắng Trên Lụa"
+      aria-label="Bản xem trước thiệp cưới Sunlit Silk"
     >
       <div
         className="ss-stage"
