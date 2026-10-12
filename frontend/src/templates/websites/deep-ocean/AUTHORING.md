@@ -208,6 +208,18 @@ Before artwork integration, verify all of the following:
 - [x] Media-independence verification cases are defined before final artwork integration.
 - [x] No generated artwork, stock download or unverified external asset was added in Phase 2.
 
+## Phase 2.5 - decor asset pre-production
+
+Status: in review; generated asset set is complete and is not integrated into the main renderer until visual approval.
+
+Artifacts:
+
+- [Asset manifest](./ASSET_MANIFEST.md)
+- [Prompt/provenance record](./PHASE-2.5-PROMPTS.md)
+- [Preview sheet and approval checklist](./ASSET_PREVIEW_SHEET.md)
+
+The candidate set now contains eight renderer-owned roles: a richer shell-pearl identity motif, sea-glass corner ornament, stationery/shell/coral props, one small ripple detail, two individual water bubbles, one soap bubble and one pale coral-red starfish. The previous full caustic veil, sprite sheet, large divider/ripple and artificial-looking bow/spark candidates were rejected in favor of smaller natural cutouts. The current artifacts are the v2 manifest, prompt record and preview sheet.
+
 ## Content and editor contract
 
 The canonical section keys are:

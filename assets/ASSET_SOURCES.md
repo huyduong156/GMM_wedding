@@ -120,3 +120,9 @@
 - Source: Generated for GMM Wedding with OpenAI image generation on 2026-07-30.
 - Usage: Low-contrast floating decoration in the reusable wedding ambient layer.
 - Treatment: Generated on a solid chroma background, converted to transparent PNG, and rendered as non-interactive decorative content.
+## Deep Ocean website template
+
+- `frontend/src/templates/websites/deep-ocean/artwork/do-*.png`: renderer-owned Deep Ocean decorative artwork generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-10-12.
+- Prompt record: `frontend/src/templates/websites/deep-ocean/PHASE-2.5-PROMPTS-V2.md`.
+- Usage: shell-pearl motif, sea-glass corner ornament, stationery/shell/coral props, one small water-ripple detail, individual water bubbles, one soap bubble and a pale coral-red starfish. These assets are not couple, gallery, story, people, venue or film content media. The earlier full caustic veil, sprite sheet, simple pearl-thread, large divider/ripple, bow and spark candidates were removed after review.
+- Treatment: locally bundled PNG RGBA assets with transparent backgrounds, no people, readable text, logo, watermark or PII. Visual approval is tracked in `frontend/src/templates/websites/deep-ocean/ASSET_PREVIEW_SHEET.md`; do not integrate rejected assets.

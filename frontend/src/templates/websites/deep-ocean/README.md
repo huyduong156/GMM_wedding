@@ -1,5 +1,11 @@
 # Deep Ocean
 
+Phase 2.5 artwork artifacts:
+
+- [Asset manifest v2](./ASSET_MANIFEST_V2.md)
+- [Prompt record v2](./PHASE-2.5-PROMPTS-V2.md)
+- [Preview sheet v2](./ASSET_PREVIEW_SHEET_V2.md)
+
 Deep Ocean is a light, gentle wedding website inspired by sunlit water, pearls and starfish. It is a `WEDDING_WEBSITE` template, not an invitation opening flow and not a recap page.
 
 ## Preview
