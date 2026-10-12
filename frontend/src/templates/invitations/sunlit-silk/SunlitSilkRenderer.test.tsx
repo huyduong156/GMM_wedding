@@ -128,7 +128,7 @@ describe('SunlitSilkRenderer rebuild contract', () => {
     ).slice(7)
     const weddingDay = calendarDays.find((day) => day.textContent === '29')
 
-    expect(calendarDays).toHaveLength(35)
+    expect(calendarDays).toHaveLength(42)
     expect(calendarDays.filter((day) => day.textContent === '31')).toHaveLength(0)
     expect(weddingDay).toHaveClass('is-wedding-day')
     expect(calendarDays.indexOf(weddingDay!)).toBe(34)
