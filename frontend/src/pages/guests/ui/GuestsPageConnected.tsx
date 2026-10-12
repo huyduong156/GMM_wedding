@@ -399,7 +399,11 @@ function GuestDialog({
         aria-modal="true"
         aria-labelledby="guest-dialog-title"
         onKeyDown={(event) => {
-          if (event.key !== 'Enter' || event.isComposing || !(event.target instanceof HTMLInputElement)) {
+          if (
+            event.key !== 'Enter' ||
+            event.nativeEvent.isComposing ||
+            !(event.target instanceof HTMLInputElement)
+          ) {
             return
           }
 
