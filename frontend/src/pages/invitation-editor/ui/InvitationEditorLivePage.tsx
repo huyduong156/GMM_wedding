@@ -1533,6 +1533,7 @@ function SchemaFields({
       update={update}
       errors={errors}
       mediaEnabled={useMediaManager}
+      autoSelectFirstAudio={useMediaManager}
       openMediaManager={(target) => openMediaManager({ kind: 'field', ...target })}
       layout={definition.editorLayout}
     />
