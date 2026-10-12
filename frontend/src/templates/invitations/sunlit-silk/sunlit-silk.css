@@ -448,20 +448,6 @@ body.ss-opening-lock {
   user-select: none;
 }
 
-.ss-atmosphere-petals {
-  position: fixed;
-  top: 28%;
-  left: calc(50% + 100px);
-  z-index: 0;
-  width: 310px;
-  opacity: 0.11;
-  animation: ss-petal-drift 18s ease-in-out infinite alternate;
-}
-
-.ss-page.is-page-hidden .ss-atmosphere-petals {
-  animation-play-state: paused;
-}
-
 /* Legacy opening rules retained below for reference only. The active opening system is defined above. */
 /* Legacy cover rules retained as historical reference; active cover rules start at Cover v2 below.
 .ss-page .ss-section--cover {
@@ -1510,9 +1496,26 @@ body.ss-opening-lock {
 }
 
 .ss-section--families {
+  position: relative;
   padding: 100px 22px 50px;
+  isolation: isolate;
   background: var(--ss-paper);
   text-align: center;
+}
+
+.ss-page .ss-section--families::before {
+  position: absolute;
+  bottom: -10%;
+  left: 50%;
+  z-index: -1;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(115 64 12 / 32%) 0%, rgb(63 33 0 / 9%) 38%, rgb(205 184 157 / 0.035) 58%, #00000000 76%);
+  content: '';
+  filter: blur(14px);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .ss-section--families .ss-section-heading h2 {
@@ -1554,7 +1557,7 @@ body.ss-opening-lock {
   inset: -4px;
   z-index: 0;
   content: '';
-  opacity: 0.1;
+  opacity: 0.2;
   pointer-events: none;
   filter: saturate(0.7) sepia(0.12);
   mix-blend-mode: multiply;
@@ -1580,7 +1583,9 @@ body.ss-opening-lock {
   background-position: right top;
   background-repeat: no-repeat;
   background-size: 82% auto;
-  transform: scaleX(-1) rotate(6deg);
+  transform: scaleX(1) rotate(326deg);
+  top: 15%;
+  right: -15%;
 }
 
 .ss-family-card:first-child {
@@ -1641,43 +1646,43 @@ body.ss-opening-lock {
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   isolation: isolate;
-  border: 1px solid rgb(205 180 133 / 0.78);
-  border-radius: 50%;
-  background: linear-gradient(145deg, #847562 0%, var(--ss-olive) 58%, #5d5548 100%);
-  color: var(--ss-paper);
-  font-family: var(--font-wedding-display);
-  font-size: 1.7rem;
+  border: 1px solid rgb(155 119 72 / 0.6);
+  border-radius: 50% 50% 48% 48%;
+  background: linear-gradient(145deg, rgb(255 252 245 / 0.98), rgb(232 218 194 / 0.94));
+  color: var(--ss-brass);
+  font-family: var(--ss-font-script);
+  font-size: 1.48rem;
   line-height: 1;
-  text-shadow: 0 1px 1px rgb(54 45 37 / 0.28);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.72);
   transform: translate(-50%, -50%);
   box-shadow:
-    0 12px 22px rgb(88 75 63 / 0.2),
-    inset 0 1px 0 rgb(255 249 237 / 0.32);
+    0 12px 24px rgb(88 75 63 / 0.13),
+    0 0 0 5px rgb(248 243 233 / 0.82),
+    inset 0 1px 0 rgb(255 255 255 / 0.82);
 }
 
 .ss-family-knot::before {
   position: absolute;
-  inset: 5px;
-  z-index: 0;
-  border: 1px solid rgb(244 234 213 / 0.34);
+  inset: 7px;
+  z-index: -1;
+  border: 1px solid rgb(155 119 72 / 0.34);
   border-radius: 50%;
   content: '';
 }
 
 .ss-family-knot::after {
   position: absolute;
-  top: 9px;
-  right: 11px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgb(255 249 237 / 0.62);
-  box-shadow: 0 0 8px rgb(255 249 237 / 0.4);
+  top: 50%;
+  left: -17px;
+  width: 86px;
+  height: 1px;
+  z-index: -2;
+  background: linear-gradient(90deg, transparent, rgb(155 119 72 / 0.34) 18%, rgb(155 119 72 / 0.34) 82%, transparent);
   content: '';
-  opacity: 0.8;
+  transform: translateY(-50%);
 }
 
 .ss-family-note {
@@ -1828,7 +1833,7 @@ body.ss-opening-lock {
 
 .ss-date-ledger {
   display: grid;
-  overflow: hidden;
+  overflow: visible;
   padding: 100px 24px 76px;
   background: #756860;
   color: #f3efe5;
@@ -1879,20 +1884,23 @@ body.ss-opening-lock {
 
 .ss-event-carousel {
   position: relative;
-  height: 184px;
+  height: 280px;
   margin-top: 40px;
-  perspective: 1100px;
+  overflow: visible;
+  perspective: 1200px;
   transform-style: preserve-3d;
 }
 
 .ss-event-carousel article {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
   display: grid;
   align-content: center;
   justify-items: center;
   gap: 9px;
-  width: min(72%, 250px);
+  width: min(80%, 280px);
+  height: 177px;
   margin-inline: auto;
   padding: 22px 18px;
   border: 1px solid var(--ss-line);
@@ -1903,34 +1911,41 @@ body.ss-opening-lock {
   background-position: center;
   background-size: cover;
   box-shadow: 0 20px 34px rgb(80 63 50 / 0.2);
+  filter: saturate(0.72) brightness(0.82);
+  transform-origin: center;
+  will-change: transform, opacity, filter;
   text-align: center;
   transition:
-    opacity 420ms ease,
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 720ms ease,
+    transform 920ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 720ms ease;
 }
 
 .ss-event-carousel article.is-active {
   z-index: 3;
   opacity: 1;
-  transform: translate3d(0, 0, 48px) rotateY(0) rotateZ(0) scale(1.02);
+  filter: none;
+  box-shadow: 0 28px 50px rgb(80 63 50 / 0.3);
+  transform: translate3d(-50%, -50%, 100px) rotateY(0) rotateZ(0) scale(1.05);
 }
 
 .ss-event-carousel article.is-previous {
   z-index: 1;
-  opacity: 0.42;
-  transform: translate3d(-48%, 3px, -76px) rotateY(28deg) rotateZ(-3deg) scale(0.8);
+  opacity: 0.48;
+  transform: translate3d(calc(-50% - 124px), -50%, -96px) rotateY(28deg) rotateZ(-3deg) scale(0.78);
 }
 
 .ss-event-carousel article.is-next {
   z-index: 2;
-  opacity: 0.56;
-  transform: translate3d(48%, 3px, -76px) rotateY(-28deg) rotateZ(3deg) scale(0.84);
+  opacity: 0.48;
+  transform: translate3d(calc(-50% + 124px), -50%, -96px) rotateY(-28deg) rotateZ(3deg) scale(0.78);
 }
 
 .ss-event-carousel article.is-hidden {
   opacity: 0;
+  filter: saturate(0.5) brightness(0.7);
   pointer-events: none;
-  transform: translate3d(0, 0, -180px) scale(0.7);
+  transform: translate3d(-50%, -50%, -280px) scale(0.58);
 }
 
 .ss-event-carousel article > span {
@@ -1960,7 +1975,6 @@ body.ss-opening-lock {
 
 .ss-event-carousel button {
   position: absolute;
-  top: 50%;
   z-index: 5;
   display: grid;
   place-items: center;
@@ -1971,15 +1985,19 @@ body.ss-opening-lock {
   background: var(--ss-paper);
   color: var(--ss-ink);
   cursor: pointer;
-  transform: translateY(-50%);
+  transition: transform 180ms ease, background-color 180ms ease;
 }
 
 .ss-event-carousel button.is-prev {
-  left: 0;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
 }
 
 .ss-event-carousel button.is-next {
-  right: 0;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
 }
 
 .ss-event-carousel button:focus-visible {
@@ -1989,11 +2007,20 @@ body.ss-opening-lock {
 
 @media (hover: hover) and (pointer: fine) {
   .ss-event-carousel button:hover:not(:disabled) {
+    background: var(--ss-paper);
     transform: translateY(-50%) scale(1.08);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ss-event-carousel article {
+    transition: none;
+  }
+
+  .ss-event-carousel button {
+    transition: none;
+  }
+
   .ss-event-carousel button:hover:not(:disabled) {
     transform: translateY(-50%);
   }
@@ -2210,6 +2237,7 @@ body.ss-opening-lock {
   background: rgb(195 163 110 / 0.18);
   color: var(--ss-ink);
   font-weight: 700;
+  animation: ss-wedding-day-glow 2.8s ease-in-out infinite;
 }
 
 .ss-month-grid .is-wedding-day::after {
@@ -2218,6 +2246,31 @@ body.ss-opening-lock {
   inset: 3px;
   border: 1px solid rgb(154 128 88 / 0.42);
   border-radius: 50%;
+  animation: ss-wedding-day-ring 2.8s ease-out infinite;
+  transform-origin: center;
+}
+
+@keyframes ss-wedding-day-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(195 163 110 / 0.04);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgb(195 163 110 / 0.12), 0 0 18px rgb(195 163 110 / 0.24);
+  }
+}
+
+@keyframes ss-wedding-day-ring {
+  0% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
 }
 
 .ss-timeline-section {
@@ -2255,12 +2308,13 @@ body.ss-opening-lock {
 }
 
 .ss-timeline-floral {
-  right: -30%;
-  top: -4%;
+  right: -20%;
+  bottom: 5%;
   width: 58%;
   opacity: 0.18;
   filter: saturate(0.6) sepia(0.16);
   mix-blend-mode: multiply;
+  transform: rotate(337deg);
 }
 
 .ss-timeline {
@@ -2338,16 +2392,15 @@ body.ss-opening-lock {
 
 .ss-timeline article > div::after {
   position: absolute;
-  top: -18px;
-  right: -20px;
-  width: 108px;
-  height: 92px;
-  background: url('/assets/images/templates/sunlit-silk/artwork/ss-linen-ribbon-tail-v2-optimized.png')
-    center / contain no-repeat;
+  top: -25px;
+  right: -35px;
+  width: 130px;
+  height: 100px;
+  background: url(/assets/images/templates/sunlit-silk/artwork/ss-linen-ribbon-tail-v2-optimized.png) center / contain no-repeat;
   content: '';
   opacity: 0.24;
   pointer-events: none;
-  transform: rotate(12deg);
+  transform: rotate(25deg);
 }
 
 .ss-timeline h3 {
@@ -2380,7 +2433,20 @@ body.ss-opening-lock {
   bottom: -6%;
   width: 105%;
   opacity: 0.56;
-  transform: rotate(-8deg);
+  transform-origin: center;
+  will-change: transform;
+  animation: ss-venue-envelope-float 7.5s ease-in-out infinite;
+}
+
+@keyframes ss-venue-envelope-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-8deg);
+  }
+
+  50% {
+    transform: translate3d(-6px, -13px, 0) rotate(-6deg);
+  }
 }
 
 .ss-venue-ticket {
@@ -2388,9 +2454,10 @@ body.ss-opening-lock {
   z-index: 2;
   width: 88%;
   padding: 42px 32px 38px;
-  border: 1px solid var(--ss-line);
+  border: 1px solid rgb(125 100 84 / 8%);
   background: rgb(248 245 237 / 0.9);
-  box-shadow: 0 24px 60px rgb(105 83 65 / 0.12);
+  box-shadow: rgb(243 233 195 / 56%) 6px 2px 16px 0px, rgb(255 255 255 / 88%) -6px -2px 16px 0px;
+  border-radius: 10px;
 }
 
 .ss-venue-pin {
@@ -2924,7 +2991,7 @@ body.ss-opening-lock {
   margin: 0 auto;
   color: #fffaf0;
   font-family: var(--ss-font-script);
-  font-size: clamp(3.7rem, 16vw, 5.2rem);
+  font-size: clamp(2.7rem, 11vw, 3.6rem);
   letter-spacing: -0.015em;
   line-height: 1.08;
   text-shadow: 0 2px 18px rgb(35 27 23 / 0.5);
@@ -2935,7 +3002,7 @@ body.ss-opening-lock {
   z-index: 2;
   max-width: 30ch;
   margin: 26px auto 0;
-  color: #fff5e5;
+  color: #fff5e5 !important;
   text-shadow: 0 1px 12px rgb(35 27 23 / 0.6);
 }
 
@@ -2976,10 +3043,6 @@ body.ss-opening-lock {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ss-atmosphere-petals {
-    animation: none;
-  }
-
   .ss-sunlit-dust__particle {
     animation: none;
     opacity: 0.18;
@@ -2995,8 +3058,20 @@ body.ss-opening-lock {
     animation: none;
   }
 
+  .ss-venue-envelope {
+    animation: none;
+    transform: rotate(-8deg);
+  }
+
   .ss-gallery-main button:hover:not(:disabled) {
     transform: translateY(-50%);
   }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-month-grid .is-wedding-day,
+  .ss-month-grid .is-wedding-day::after {
+    animation: none;
+  }
 }

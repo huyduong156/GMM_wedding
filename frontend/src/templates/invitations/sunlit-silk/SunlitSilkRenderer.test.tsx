@@ -58,6 +58,7 @@ describe('SunlitSilkRenderer rebuild contract', () => {
 
   it('keeps decorative artwork hidden from assistive technology', () => {
     const { container } = render(<SunlitSilkRenderer editorMode />)
+    expect(container.querySelector('.ss-atmosphere-petals')).not.toBeInTheDocument()
     expect(
       Array.from(container.querySelectorAll('.ss-decor')).every(
         (image) => image.getAttribute('aria-hidden') === 'true',
@@ -118,6 +119,22 @@ describe('SunlitSilkRenderer rebuild contract', () => {
     expect(day).toHaveAttribute('data-ripple-text', '16')
   })
 
+  it('positions the wedding day from the configured month and year', () => {
+    const { container } = render(
+      <SunlitSilkRenderer editorMode data={{ event: { weddingDate: '29.11.2026' } }} />,
+    )
+    const calendarDays = Array.from(
+      container.querySelectorAll('.ss-month-grid > span'),
+    ).slice(7)
+    const weddingDay = calendarDays.find((day) => day.textContent === '29')
+
+    expect(calendarDays).toHaveLength(42)
+    expect(calendarDays.filter((day) => day.textContent === '31')).toHaveLength(0)
+    expect(weddingDay).toHaveClass('is-wedding-day')
+    expect(calendarDays.indexOf(weddingDay!)).toBe(34)
+    expect(calendarDays.indexOf(weddingDay!) % 7).toBe(6)
+  })
+
   it('keeps family side labels fixed instead of exposing structural inputs', () => {
     const { container } = render(
       <SunlitSilkRenderer
@@ -135,6 +152,17 @@ describe('SunlitSilkRenderer rebuild contract', () => {
     )
 
     expect(labels).toEqual(['Nhà gái', 'Nhà trai'])
+  })
+
+  it('reuses last-name initials for the footer monogram', () => {
+    const { container } = render(
+      <SunlitSilkRenderer
+        editorMode
+        data={{ couple: { brideName: 'Nguyễn Minh Anh', groomName: 'Trần Quốc Huy' } }}
+      />,
+    )
+
+    expect(container.querySelector('.ss-footer-monogram')).toHaveTextContent('A • H')
   })
 
   it('uses uploaded activity images and hides the event section when all activities are removed', () => {
@@ -155,9 +183,17 @@ describe('SunlitSilkRenderer rebuild contract', () => {
     )
     const card = container.querySelector('.ss-event-carousel article')
     expect(card).toHaveStyle({ '--ss-event-card-image': 'url("/uploads/photo-book.jpg")' })
-
     rerender(<SunlitSilkRenderer editorMode data={{ eventDetails: { items: [] } }} />)
     expect(container.querySelector('[data-editor-section="eventDetails"]')).not.toBeInTheDocument()
+  })
+
+  it('keeps the event carousel 3D deck populated with adjacent cards', () => {
+    const { container } = render(<SunlitSilkRenderer editorMode />)
+
+    expect(container.querySelectorAll('.ss-event-carousel article')).toHaveLength(3)
+    expect(container.querySelector('.ss-event-carousel article.is-active')).toBeInTheDocument()
+    expect(container.querySelector('.ss-event-carousel article.is-previous')).toBeInTheDocument()
+    expect(container.querySelector('.ss-event-carousel article.is-next')).toBeInTheDocument()
   })
 
   it('hides the timeline section when no complete timeline item remains', () => {
