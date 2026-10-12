@@ -21,6 +21,7 @@ export type TemplateSchemaFieldsProps = {
   errors?: Record<string, string>
   emptyState?: ReactNode
   layout?: string
+  autoSelectFirstAudio?: boolean
 }
 
 const getPath = (data: Record<string, unknown>, path: string) =>
@@ -44,6 +45,7 @@ export function TemplateSchemaFields({
   errors = {},
   emptyState,
   layout,
+  autoSelectFirstAudio = false,
 }: TemplateSchemaFieldsProps) {
   const entries = Object.entries(fields)
   if (!entries.length)
@@ -67,6 +69,7 @@ export function TemplateSchemaFields({
           openMediaManager={openMediaManager}
           mediaEnabled={mediaEnabled}
           errors={errors}
+          autoSelectFirstAudio={autoSelectFirstAudio}
         />
       ))}
     </div>
@@ -81,6 +84,7 @@ function TemplateField({
   openMediaManager,
   mediaEnabled,
   errors,
+  autoSelectFirstAudio,
 }: {
   fieldKey: string
   field: TemplateFieldConfig
@@ -89,6 +93,7 @@ function TemplateField({
   openMediaManager?: TemplateMediaPicker
   mediaEnabled: boolean
   errors: Record<string, string>
+  autoSelectFirstAudio: boolean
 }) {
   const path = field.contentKey ?? fieldKey
   const value = getPath(data, path)
@@ -116,6 +121,7 @@ function TemplateField({
         update={update}
         path={path}
         data={data}
+        autoSelectFirstAudio={autoSelectFirstAudio}
       />
     )
   if (field.type === 'image' || field.type === 'images')
@@ -206,6 +212,7 @@ function TemplateAudioField({
   update,
   path,
   data,
+  autoSelectFirstAudio,
 }: {
   label: string
   value: string
@@ -213,6 +220,7 @@ function TemplateAudioField({
   update: (path: string, value: unknown) => void
   path: string
   data: Record<string, unknown>
+  autoSelectFirstAudio: boolean
 }) {
   const [tracks, setTracks] = useState<MusicTrack[]>([])
   const [loading, setLoading] = useState(true)
@@ -220,6 +228,9 @@ function TemplateAudioField({
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const playRequestRef = useRef(0)
+  const autoplayPath = path.replace(/(?:^|\.)[^.]+$/, (segment) =>
+    segment.startsWith('.') ? `${segment}backgroundMusicAutoplay` : 'backgroundMusicAutoplay',
+  )
   useEffect(() => {
     const audio = audioRef.current
     let active = true
@@ -241,6 +252,18 @@ function TemplateAudioField({
       audio?.pause()
     }
   }, [])
+  useEffect(() => {
+    const firstTrack = tracks[0]
+    if (!autoSelectFirstAudio || !firstTrack?.playbackUrl || value) return
+
+    update(path, firstTrack.playbackUrl)
+    if (nameKey) update(nameKey, firstTrack.displayName)
+
+    // A brand-new invitation should make the selected track discoverable in
+    // the saved preview. Preserve an explicit user choice when a track was
+    // already selected.
+    update(autoplayPath, true)
+  }, [autoSelectFirstAudio, autoplayPath, nameKey, path, tracks, update, value])
   const currentName = nameKey ? String(getPath(data, nameKey) ?? '') : ''
   const togglePreview = async (track: MusicTrack) => {
     if (!track.playbackUrl || !audioRef.current) return

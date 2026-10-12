@@ -93,19 +93,26 @@ export function ProfilePage() {
           </header>
           <div className="profile-identity-content">
             <div className="profile-avatar-wrap">
-              {avatarUrl ? (
-                <img className="profile-avatar" src={avatarUrl} alt="Ảnh đại diện" />
-              ) : (
-                <span className="profile-avatar profile-avatar-fallback">{avatarInitials}</span>
-              )}
-              <span className="profile-avatar-note">Ảnh đại diện</span>
               <button
-                className="profile-avatar-select"
+                className="profile-avatar-card"
                 type="button"
                 onClick={() => setMediaManagerOpen(true)}
                 disabled={!weddingWorkspace?.activeWedding}
+                aria-label={avatarUrl ? 'Thay đổi ảnh đại diện' : 'Chọn ảnh đại diện'}
               >
-                Chọn từ kho ảnh
+                {avatarUrl ? (
+                  <img className="profile-avatar" src={avatarUrl} alt="Ảnh đại diện" />
+                ) : (
+                  <span className="profile-avatar profile-avatar-fallback">{avatarInitials}</span>
+                )}
+                <span className="profile-avatar-card-copy">
+                  <strong>{avatarUrl ? 'Thay đổi ảnh đại diện' : 'Chọn ảnh đại diện'}</strong>
+                  <small>
+                    {weddingWorkspace?.activeWedding
+                      ? 'Chọn từ kho ảnh của wedding'
+                      : 'Chọn một wedding để quản lý ảnh'}
+                  </small>
+                </span>
               </button>
             </div>
             <div className="profile-fields">
@@ -148,16 +155,6 @@ export function ProfilePage() {
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 placeholder="+84 912 345 678"
-              />
-            </label>
-            <label className="profile-field-wide">
-              URL ảnh đại diện
-              <input
-                type="url"
-                maxLength={2048}
-                value={avatarUrl}
-                onChange={(event) => setAvatarUrl(event.target.value)}
-                placeholder="https://..."
               />
             </label>
           </div>

@@ -134,10 +134,129 @@ function replace_canonical(string $html, string $url): string
     return str_replace('</head>', '    ' . $tag . "\n  </head>", $html);
 }
 
+function static_metadata(string $path): array
+{
+    $titles = [
+        '/' => 'Ourday | Không gian cưới của riêng bạn',
+        '/templates/invitations' => 'Mẫu thiệp cưới online | Ourday',
+        '/templates/websites' => 'Mẫu website cưới | Ourday',
+        '/templates/recaps' => 'Mẫu Wedding Recap | Ourday',
+        '/templates/invitations/modern-luxe/preview' => 'Élan d’Amour – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/verdant-promise/preview' => 'Verdant Promise – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/chibi-daydream/preview' => 'Chibi Daydream – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/peony-veranda/preview' => 'Peony Veranda – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/rose-garden/preview' => 'Rose Garden – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/astral-vow/preview' => 'Astral Vow – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/van-hy/preview' => 'Vạn Hỷ – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/aurelia-court/preview' => 'Aurelia Court – Mẫu thiệp cưới | Ourday',
+        '/templates/invitations/sunlit-silk/preview' => 'Sunlit Silk – Mẫu thiệp cưới | Ourday',
+        '/templates/websites/editorial-vows/preview' => 'Editorial Vows – Mẫu website cưới | Ourday',
+        '/templates/websites/green-hydrangea/preview' => 'Green Hydrangea – Mẫu website cưới | Ourday',
+        '/templates/websites/enchanted-forest/preview' => 'Enchanted Forest – Mẫu website cưới | Ourday',
+        '/templates/websites/cherry-blossom-garden/preview' => 'Cherry Blossom Garden – Mẫu website cưới | Ourday',
+        '/templates/recaps/red-spider-lily/preview' => 'Red Spider Lily – Mẫu Wedding Recap | Ourday',
+        '/how-it-works' => 'Ourday hoạt động như thế nào?',
+        '/faq' => 'Câu hỏi thường gặp | Ourday',
+        '/login' => 'Đăng nhập | Ourday',
+        '/register' => 'Tạo tài khoản | Ourday',
+        '/verify-email' => 'Xác minh email | Ourday',
+        '/forgot-password' => 'Quên mật khẩu | Ourday',
+        '/reset-password' => 'Đặt lại mật khẩu | Ourday',
+        '/studio' => 'Tổng quan Wedding | Ourday',
+        '/studio/invites/themes' => 'Kho mẫu thiệp cưới | Ourday',
+        '/studio/invites' => 'Thiệp cưới của bạn | Ourday',
+        '/studio/site/themes' => 'Kho mẫu website cưới | Ourday',
+        '/studio/site/edit' => 'Chỉnh sửa website cưới | Ourday',
+        '/studio/site' => 'Chỉnh sửa website cưới | Ourday',
+        '/studio/guests' => 'Danh sách khách mời | Ourday',
+        '/studio/guests/categories' => 'Nhóm khách mời | Ourday',
+        '/studio/rsvps' => 'Xác nhận tham dự | Ourday',
+        '/studio/wishes' => 'Lời chúc | Ourday',
+        '/studio/todos' => 'Công việc chuẩn bị | Ourday',
+        '/studio/gift-ledger' => 'Sổ tiền mừng | Ourday',
+        '/studio/recap' => 'Wedding Recap | Ourday',
+        '/studio/recap/themes' => 'Kho mẫu Wedding Recap | Ourday',
+        '/studio/analytics' => 'Thống kê | Ourday',
+        '/studio/members' => 'Thành viên Wedding | Ourday',
+        '/studio/events' => 'Sự kiện cưới | Ourday',
+        '/studio/settings' => 'Cài đặt Wedding | Ourday',
+        '/studio/profile' => 'Hồ sơ cá nhân | Ourday',
+        '/studio/media' => 'Kho ảnh cưới | Ourday',
+        '/gmm_admin' => 'Tổng quan quản trị | Ourday',
+        '/gmm_admin/login' => 'Đăng nhập quản trị | Ourday',
+        '/gmm_admin/users' => 'Quản lý người dùng | Ourday',
+        '/gmm_admin/subscriptions' => 'Quản lý gói dịch vụ | Ourday',
+        '/gmm_admin/library/invites' => 'Quản lý mẫu thiệp | Ourday',
+        '/gmm_admin/library/websites' => 'Quản lý mẫu website | Ourday',
+        '/gmm_admin/library/recaps' => 'Quản lý mẫu recap | Ourday',
+        '/gmm_admin/styles' => 'Quản lý phong cách | Ourday',
+        '/gmm_admin/moderation' => 'Kiểm duyệt nội dung | Ourday',
+        '/gmm_admin/operations' => 'Vận hành nền tảng | Ourday',
+        '/gmm_admin/music' => 'Quản lý nhạc cưới | Ourday',
+    ];
+
+    $isWorkspaceAccess = strpos($path, '/workspace-access/') === 0;
+    $isStudio = $path === '/studio' || strpos($path, '/studio/') === 0;
+    $isAdmin = $path === '/gmm_admin' || strpos($path, '/gmm_admin/') === 0;
+    $isPrivate = $isWorkspaceAccess || $isStudio || $isAdmin;
+    $title = $isWorkspaceAccess
+        ? 'Lời mời tham gia Wedding | Ourday'
+        : ($titles[$path] ?? 'Ourday | Không gian cưới của riêng bạn');
+    $description = $isAdmin
+        ? 'Không gian quản trị nền tảng Ourday.'
+        : ($isStudio
+            ? 'Không gian quản lý và chuẩn bị ngày cưới trên Ourday.'
+            : ($isWorkspaceAccess
+                ? 'Bạn nhận được một lời mời cộng tác trong không gian Wedding trên Ourday.'
+                : 'Tạo thiệp cưới, website cưới và lưu giữ những khoảnh khắc đáng nhớ cùng Ourday.'));
+
+    return [
+        'title' => $title,
+        'description' => $description,
+        'robots' => $isPrivate ? 'noindex,nofollow' : 'index,follow',
+    ];
+}
+
 $surface = isset($_GET['surface']) && is_string($_GET['surface']) ? $_GET['surface'] : '';
 $slug = isset($_GET['slug']) && is_string($_GET['slug']) ? $_GET['slug'] : '';
 $allowedSurfaces = ['invitation', 'website', 'recap'];
 $indexFile = __DIR__ . '/index.html';
+
+if ($surface === 'route') {
+    $html = @file_get_contents($indexFile);
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $path = is_string($path) && $path !== '' ? rtrim($path, '/') ?: '/' : '/';
+    $metadata = static_metadata($path);
+    $title = $metadata['title'];
+    $description = $metadata['description'];
+    $socialUrl = SITE_ORIGIN . $path;
+
+    if (!is_string($html)) {
+        http_response_code(500);
+        exit;
+    }
+
+    $html = (string) preg_replace('~<title>.*?</title>~is', '<title>' . html_value($title) . '</title>', $html, 1);
+    $html = replace_meta($html, 'name', 'description', $description);
+    $html = replace_meta($html, 'name', 'robots', $metadata['robots']);
+    $html = replace_meta($html, 'property', 'og:type', 'website');
+    $html = replace_meta($html, 'property', 'og:site_name', 'Ourday');
+    $html = replace_meta($html, 'property', 'og:title', $title);
+    $html = replace_meta($html, 'property', 'og:description', $description);
+    $html = replace_meta($html, 'property', 'og:image', FALLBACK_IMAGE);
+    $html = replace_meta($html, 'property', 'og:url', $socialUrl);
+    $html = replace_meta($html, 'name', 'twitter:card', 'summary_large_image');
+    $html = replace_meta($html, 'name', 'twitter:title', $title);
+    $html = replace_meta($html, 'name', 'twitter:description', $description);
+    $html = replace_meta($html, 'name', 'twitter:image', FALLBACK_IMAGE);
+    $html = replace_canonical($html, $socialUrl);
+
+    header('Content-Type: text/html; charset=UTF-8');
+    header('Cache-Control: public, max-age=300');
+    header('Vary: User-Agent');
+    echo $html;
+    exit;
+}
 
 if (!in_array($surface, $allowedSurfaces, true) || preg_match('/^[a-z0-9-]+$/', $slug) !== 1) {
     http_response_code(404);
@@ -161,6 +280,7 @@ $snapshot = is_array($response) && isset($response['snapshot']) && is_array($res
     : [];
 $payload = isset($snapshot['payload']) && is_array($snapshot['payload']) ? $snapshot['payload'] : [];
 $content = isset($payload['content']) && is_array($payload['content']) ? $payload['content'] : $payload;
+$ownerAvatar = first_string($snapshot, [['ownerAvatarUrl']]);
 
 $bride = first_string($content, [
     ['brideName'],
@@ -186,16 +306,16 @@ $defaultDescription = $couple === ''
             ? 'Cùng khám phá câu chuyện và những thông tin về ngày cưới của ' . $couple . '.'
             : 'Trân trọng mời bạn đến chung vui trong ngày cưới của ' . $couple . '.'));
 $description = first_string($payload, [['ogDescription']]) ?? $defaultDescription;
-$image = absolute_media_url(first_string($payload, [['ogImageUrl']]) ?? first_media($content, [
-    ['ogImageUrl'],
-    ['heroMedia'],
-    ['openingMediaFront'],
-    ['coverBackgroundMedia'],
-    ['hero', 'image'],
-    ['hero', 'media'],
-    ['cover', 'heroMedia'],
-    ['cover', 'image'],
-]));
+$image = absolute_media_url($ownerAvatar ?? first_string($payload, [['ogImageUrl']]) ?? first_media($content, [
+        ['ogImageUrl'],
+        ['heroMedia'],
+        ['openingMediaFront'],
+        ['coverBackgroundMedia'],
+        ['hero', 'image'],
+        ['hero', 'media'],
+        ['cover', 'heroMedia'],
+        ['cover', 'image'],
+    ]));
 
 $canonicalPath = $surface === 'invitation'
     ? '/' . rawurlencode($slug) . '/invitation'
