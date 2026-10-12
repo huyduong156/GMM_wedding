@@ -398,6 +398,15 @@ function GuestDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-dialog-title"
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' || event.isComposing || !(event.target instanceof HTMLInputElement)) {
+            return
+          }
+
+          event.preventDefault()
+          setNameTouched(true)
+          if (form.name.trim() && form.name.trim().length <= 160) save()
+        }}
       >
         <header>
           <div>
@@ -443,14 +452,6 @@ function GuestDialog({
             <input value={form.phone} onChange={(event) => change('phone', event.target.value)} />
           </label>
           <label>
-            Email
-            <input
-              type="email"
-              value={form.email}
-              onChange={(event) => change('email', event.target.value)}
-            />
-          </label>
-          <label>
             Số người tối đa
             <input
               type="number"
@@ -458,13 +459,6 @@ function GuestDialog({
               max="50"
               value={form.maxPartySize}
               onChange={(event) => change('maxPartySize', event.target.value)}
-            />
-          </label>
-          <label>
-            Bàn / khu vực
-            <input
-              value={form.tableName}
-              onChange={(event) => change('tableName', event.target.value)}
             />
           </label>
         </div>
@@ -662,6 +656,47 @@ function GuestsPageConnectedContent({
       )
     }
   }
+  const refreshGuestPages = async () => {
+    if (!weddingId) return
+    const currentBlocks = guestBlocks
+    setGuestBlocks((blocks) =>
+      blocks.map((block) => ({ ...block, loading: true })),
+    )
+    try {
+      const results = await Promise.all(
+        currentBlocks.map((block) =>
+          guestApi.list(weddingId, {
+            q: debouncedQuery.trim() || undefined,
+            categoryId: categoryId || undefined,
+            familySide: block.key === 'COMMON' ? undefined : block.key,
+            familySideNull: block.key === 'COMMON',
+            limit: GUEST_PAGE_SIZE,
+            cursor: block.cursors[block.page - 1] || undefined,
+          }),
+        ),
+      )
+      setGuestBlocks((blocks) =>
+        blocks.map((block, index) => {
+          const result = results[index]
+          const currentBlock = currentBlocks[index]
+          return {
+            ...block,
+            items: result.items,
+            ...guestListSummary(result),
+            nextCursor: result.nextCursor,
+            cursors: currentBlock.cursors,
+            page: currentBlock.page,
+            loading: false,
+          }
+        }),
+      )
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'KhÃ´ng thá»ƒ táº£i láº¡i danh sÃ¡ch khÃ¡ch má»i.')
+      setGuestBlocks((blocks) =>
+        blocks.map((block) => ({ ...block, loading: false })),
+      )
+    }
+  }
   const openShare = (guest: Guest) => setSharingGuest(guest)
   const openCreate = () => {
     if (!canEdit) return
@@ -714,10 +749,10 @@ function GuestsPageConnectedContent({
     try {
       if (editing) {
         await guestApi.update(activeWedding.id, editing.id, input)
-        await load()
+        await refreshGuestPages()
       } else {
         await guestApi.create(activeWedding.id, input)
-        await load()
+        await refreshGuestPages()
       }
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
       const keepCreateDialogOpen = !editing
@@ -748,7 +783,7 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.removeMany(activeWedding.id, selected)
-      await load()
+      await refreshGuestPages()
       setSelected([])
       await notifications.fire({
         icon: 'success',
@@ -773,7 +808,7 @@ function GuestsPageConnectedContent({
     setBusy(true)
     try {
       await guestApi.assignCategory(activeWedding.id, selected, value || null)
-      await load()
+      await refreshGuestPages()
       setSelected([])
       setFeedback('Đã cập nhật danh mục.')
       await notifications.success('Đã cập nhật danh mục')
@@ -802,7 +837,7 @@ function GuestsPageConnectedContent({
         value === REMOVE_FAMILY_SIDE ? null : (value as 'BRIDE' | 'GROOM'),
       )
       .then(async () => {
-        await load()
+        await refreshGuestPages()
         setSelected([])
         setFeedback('Đã cập nhật phía gia đình.')
         return notifications.success('Đã cập nhật phía gia đình')
