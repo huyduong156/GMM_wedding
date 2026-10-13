@@ -1,4 +1,5 @@
 import { prisma } from '@/platform/database/prisma'
+import { getAuthRateLimiter } from '@/modules/identity/composition'
 import {
   apiError,
   completeHttpRequest,
@@ -13,12 +14,18 @@ export async function GET(request: Request) {
 
   try {
     await prisma.$queryRaw`SELECT 1`
+    const authRateLimiter = getAuthRateLimiter()
+    await authRateLimiter.healthCheck?.()
+    const checks = {
+      database: 'up',
+      ...(authRateLimiter.healthCheck ? { redis: 'up' } : {}),
+    }
 
     const response = jsonResponse(
       {
         status: 'ready',
         service: 'gmm-wedding-backend',
-        checks: { database: 'up' },
+        checks,
         requestId,
       },
       {
