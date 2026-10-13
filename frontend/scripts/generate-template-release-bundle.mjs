@@ -52,7 +52,9 @@ const mappedArrayNames = (value) =>
   )
 
 function declaredArray(source, name) {
-  const declaration = new RegExp(`(?:const|let|var)\\s+${name}\\s*=\\s*`).exec(source)
+  const declaration = new RegExp(
+    `(?:const|let|var)\\s+${name}\\s*(?:\\:\\s*[^=]+)?=\\s*`,
+  ).exec(source)
   return declaration ? matchingArray(source, declaration.index + declaration[0].length) : null
 }
 
