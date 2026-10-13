@@ -1,5 +1,7 @@
 # ourday - Persistent Project Context
 
+- Deep Ocean wedding website underwent a full UI rebuild in October 2026: `DeepOceanExperience.tsx` now renders a continuous powder-blue underwater editorial with distinct layouts for every chapter, a selectable gallery, and `OceanPearlScene.tsx` as a bounded 3D hero element with reduced-motion/WebGL fallback. `DeepOceanWebsite.tsx` is the stable export. The former scattered decor/bubble layout was retired. Browser screenshot review remains open before release approval.
+
 - CSS reveal migration complete: `frontend/src/shared/styles/reveal-animations.css` đã được xóa vì không còn consumer. Thông tin legacy compatibility bên dưới là lịch sử; không khôi phục `.reveal`/`.reveal--*`. Entrance dùng `motion/react` và target tường minh.
 
 - Invitation viewport rule: new invitation templates use a mobile-first content canvas capped at `480px`; they remain fluid below that width, prevent horizontal overflow, and center the capped surface on larger screens. This rule does not apply to admin/studio or wedding website layouts.

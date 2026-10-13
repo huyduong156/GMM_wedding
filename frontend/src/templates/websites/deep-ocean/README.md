@@ -5,8 +5,11 @@ Phase 2.5 artwork artifacts:
 - [Asset manifest v2](./ASSET_MANIFEST_V2.md)
 - [Prompt record v2](./PHASE-2.5-PROMPTS-V2.md)
 - [Preview sheet v2](./ASSET_PREVIEW_SHEET_V2.md)
+- [Phase 3 section architecture](./PHASE-3-SECTION-ARCHITECTURE.md)
+- [Phase 4 motion techniques](./PHASE-4-MOTION-TECHNIQUES.md)
+- [Phase 5 release review](./PHASE-5-RELEASE-REVIEW.md)
 
-Deep Ocean is a light, gentle wedding website inspired by sunlit water, pearls and starfish. It is a `WEDDING_WEBSITE` template, not an invitation opening flow and not a recap page.
+Deep Ocean is a wedding website built as one continuous powder-blue underwater editorial. The October 2026 UI rebuild replaced the previous stacked-section composition with a split photographic opening, a real-time pearl sculpture, distinct chapter layouts and a selectable gallery. It remains a `WEDDING_WEBSITE` template.
 
 ## Preview
 
@@ -20,8 +23,8 @@ Deep Ocean is a light, gentle wedding website inspired by sunlit water, pearls a
 | Product type | `WEDDING_WEBSITE` |
 | Display name | `Deep Ocean Wedding` |
 | Primary palette | Light ocean blue, pearl white, soft sand and sea-glass green |
-| Visual language | Sunlit water, translucent layers, pearls and quiet coastal details |
-| Motion | Subtle reveal and gentle ambient depth; native scrolling remains intact |
+| Visual language | Submerged editorial, sculptural pearl, arched image planes and sea-current lines |
+| Motion | Section reveals and a slowly turning 3D pearl; native scrolling remains intact |
 
 ## Product decisions
 
@@ -39,11 +42,13 @@ The `DeepOceanWebsite` renderer reads `enabled` and `order` from `deepOceanSecti
 
 ## Files
 
-- `DeepOceanWebsite.tsx` - direct-load renderer and shared music integration.
+- `DeepOceanWebsite.tsx` - stable renderer export.
+- `DeepOceanExperience.tsx` - rebuilt responsive chapter compositions and shared music integration.
+- `OceanPearlScene.tsx` - bounded WebGL pearl scene with still-frame and CSS fallbacks.
 - `content.ts` - isolated data and section types.
 - `fixture.ts` - fictional preview data and default section order.
 - `template-config.ts` - catalog/editor metadata and music fields.
-- `deep-ocean.css` - namespaced visual system.
+- `deep-ocean.css` - rebuilt mobile-first visual system on one shared canvas.
 - `README.md` - product and implementation contract.
 - `AUTHORING.md` - phase checklist and authoring guardrails.
 

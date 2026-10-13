@@ -210,15 +210,35 @@ Before artwork integration, verify all of the following:
 
 ## Phase 2.5 - decor asset pre-production
 
-Status: in review; generated asset set is complete and is not integrated into the main renderer until visual approval.
+Status: approved; generated asset set is complete and is ready for renderer integration.
 
 Artifacts:
 
-- [Asset manifest](./ASSET_MANIFEST.md)
-- [Prompt/provenance record](./PHASE-2.5-PROMPTS.md)
-- [Preview sheet and approval checklist](./ASSET_PREVIEW_SHEET.md)
+- [Asset manifest v2](./ASSET_MANIFEST_V2.md)
+- [Prompt/provenance record v2](./PHASE-2.5-PROMPTS-V2.md)
+- [Preview sheet and approval checklist v2](./ASSET_PREVIEW_SHEET_V2.md)
 
 The candidate set now contains eight renderer-owned roles: a richer shell-pearl identity motif, sea-glass corner ornament, stationery/shell/coral props, one small ripple detail, two individual water bubbles, one soap bubble and one pale coral-red starfish. The previous full caustic veil, sprite sheet, large divider/ripple and artificial-looking bow/spark candidates were rejected in favor of smaller natural cutouts. The current artifacts are the v2 manifest, prompt record and preview sheet.
+
+## Phase 3 - section architecture and visual composition
+
+Status: complete for the section skeleton, composition map, transition map and responsive fallbacks.
+
+The renderer keeps twelve Deep Ocean section keys mapped one-to-one with the editor markers. Required sections remain stable, optional sections are removed from the DOM when disabled, and navigation derives its anchors from the enabled section set. Each chapter uses a distinct reading mode: horizon, split portrait, timeline, utility card, contact sheet, memory diptych, portrait credits, poster feature, quote wall, letter panel and farewell.
+
+The full composition and acceptance artifact is [Phase 3 section architecture](./PHASE-3-SECTION-ARCHITECTURE.md). Phase 4 owns motion choreography; Phase 5 owns artwork placement, atmosphere, visual review and release validation.
+
+## Phase 4 - advanced visual experience, interaction and motion
+
+Status: complete for the tide reveal system, desktop-only hero depth, repeated-item stagger and reduced-motion/mobile fallbacks.
+
+Deep Ocean uses one motion language across the page: restrained tide reveals and a shallow hero parallax on desktop fine-pointer devices. It keeps one continuous pearl canvas across all sections; section rhythm comes from spacing, seams, image planes and typography rather than independent background color bands. The technique map and acceptance checklist are documented in [Phase 4 motion techniques](./PHASE-4-MOTION-TECHNIQUES.md).
+
+## Phase 5 - asset integration, atmosphere, review and release
+
+Status: code-complete; browser screenshot review remains the final release gate.
+
+Approved renderer-owned artwork is integrated as bounded, low-opacity decor in the hero, story, timeline, wedding-day, memories, capsule and footer chapters. A five-bubble hero atmosphere pauses outside the viewport and while the tab is hidden, with a static reduced-motion fallback. The page keeps one continuous pearl canvas and remains mobile-first. See [Phase 5 release review](./PHASE-5-RELEASE-REVIEW.md) for the decor map and release checklist.
 
 ## Content and editor contract
 
