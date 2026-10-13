@@ -50,6 +50,7 @@ const previewPaths: Record<string, string> = {
   'rose-garden': publicTemplateRoutes.roseGardenPreview,
   'van-hy': publicTemplateRoutes.vanHyPreview,
   'aurelia-court': publicTemplateRoutes.aureliaCourtPreview,
+  'sunlit-silk': publicTemplateRoutes.sunlitSilkPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
@@ -57,6 +58,7 @@ const localMeta: Record<string, { style: string; palette: string }> = {
   'chibi-daydream': { style: 'Lãng mạn', palette: 'Coral & powder blue' },
   'peony-veranda': { style: 'Botanical editorial', palette: 'Peony & veranda ivory' },
   'astral-vow': { style: 'Celestial editorial', palette: 'Midnight nebula & gold' },
+  'sunlit-silk': { style: 'Quiet editorial', palette: 'Raw linen & antique brass' },
 }
 const localNames: Record<string, string> = {
   'modern-luxe': 'Élan d’Amour',
@@ -64,7 +66,9 @@ const localNames: Record<string, string> = {
   'chibi-daydream': 'Mây Hồng Có Đôi',
   'peony-veranda': 'Peony Veranda',
   'astral-vow': 'Astral Vow',
+  'sunlit-silk': 'Sunlit Silk',
 }
+const displayNames: Record<string, string> = { 'sunlit-silk': 'Sunlit Silk' }
 
 function toTheme(template: WeddingTemplate): Theme | null {
   const version = template.versions.find((item) => !item.deprecatedAt) ?? template.versions[0]
@@ -78,7 +82,7 @@ function toTheme(template: WeddingTemplate): Theme | null {
     key: template.key,
     versionId: version.id,
     version: version.version,
-    name: template.name,
+    name: displayNames[template.key] ?? template.name,
     description: template.description ?? `Template ${template.name} phiên bản ${version.version}.`,
     style:
       template.styles?.[0]?.name ??

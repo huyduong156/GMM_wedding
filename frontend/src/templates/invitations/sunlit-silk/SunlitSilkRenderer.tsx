@@ -103,7 +103,6 @@ const lastNameInitial = (value?: string | null) => {
   const words = value?.trim().split(/\s+/).filter(Boolean) ?? []
   return words.at(-1)?.slice(0, 1).toUpperCase() || '•'
 }
-const firstNameInitial = (value?: string | null) => value?.trim().slice(0, 1).toUpperCase() || '•'
 
 function mergeContent(data?: SunlitSilkData): SunlitSilkData {
   const couple = { ...sunlitSilkFixture.couple, ...data?.couple }
@@ -186,6 +185,23 @@ function getWeddingDateParts(value = '') {
     weekday: vietnameseWeekdays[date.getDay()] ?? '—',
     lunar,
   }
+}
+
+function getCalendarDays(value = ''): Array<number | null> {
+  const match = value.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/)
+  if (!match) return []
+
+  const monthIndex = Number(match[2]) - 1
+  const year = Number(match[3])
+  const firstDay = new Date(year, monthIndex, 1)
+  const mondayStartOffset = (firstDay.getDay() + 6) % 7
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate()
+  const cellCount = Math.ceil((mondayStartOffset + daysInMonth) / 7) * 7
+
+  return Array.from({ length: cellCount }, (_, index) => {
+    const day = index - mondayStartOffset + 1
+    return day >= 1 && day <= daysInMonth ? day : null
+  })
 }
 
 function DecorImage({
@@ -386,6 +402,9 @@ export function SunlitSilkRenderer({
   const [editorOpeningVisible, setEditorOpeningVisible] = useState(editorMode)
   const [pageHidden, setPageHidden] = useState(false)
   const [eventIndex, setEventIndex] = useState(0)
+  const [eventCarouselHovering, setEventCarouselHovering] = useState(false)
+  const [eventCarouselPressed, setEventCarouselPressed] = useState(false)
+  const [eventCarouselFocused, setEventCarouselFocused] = useState(false)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [attendance, setAttendance] = useState<'ATTENDING' | 'DECLINED' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
@@ -475,7 +494,19 @@ export function SunlitSilkRenderer({
     (item) => item.time?.trim() && item.title?.trim(),
   )
   if (!timelineItems.length) active.delete('timeline')
-  const calendarDays = Array.from({ length: 35 }, (_, index) => (index < 4 ? null : index - 3))
+  const calendarDays = getCalendarDays(content.event?.weddingDate)
+  const eventCarouselPaused =
+    eventCarouselHovering || eventCarouselPressed || eventCarouselFocused
+
+  useEffect(() => {
+    if (eventItems.length <= 1 || eventCarouselPaused || reduceMotion) return
+
+    const interval = window.setInterval(() => {
+      setEventIndex((current) => (current + 1) % eventItems.length)
+    }, 5_000)
+
+    return () => window.clearInterval(interval)
+  }, [eventCarouselPaused, eventItems.length, reduceMotion])
 
   const submitRsvp = async (event: FormEvent) => {
     event.preventDefault()
@@ -528,7 +559,7 @@ export function SunlitSilkRenderer({
   return (
     <main
       className={`ss-page is-opened is-ready ${pageHidden ? 'is-page-hidden' : ''}`}
-      aria-label="Bản xem trước thiệp cưới Nắng Trên Lụa"
+      aria-label="Bản xem trước thiệp cưới Sunlit Silk"
     >
       <div
         className="ss-stage"
@@ -537,13 +568,6 @@ export function SunlitSilkRenderer({
         data-editor-section="opening"
       >
         <SunlitDust />
-        <DecorImage
-          src={artwork.petals}
-          className="ss-atmosphere-petals"
-          width={1280}
-          height={547}
-          eager
-        />
         {!openingComplete || (editorMode && editorOpeningVisible) ? (
           <div
             className={`ss-opening-v4-gate ${openingCelebration ? 'is-celebrating' : ''} ${opened ? 'is-opening' : ''}`}
@@ -796,7 +820,23 @@ export function SunlitSilkRenderer({
                 {content.eventDetails?.title}
               </SectionHeading>
               {eventItems.length ? (
-                 <motion.div className="ss-event-carousel" aria-live="polite" {...elementReveal(Boolean(reduceMotion), 0.14)}>
+                 <motion.div
+                  className="ss-event-carousel"
+                  aria-live="polite"
+                  onMouseEnter={() => setEventCarouselHovering(true)}
+                  onMouseLeave={() => setEventCarouselHovering(false)}
+                  onFocus={() => setEventCarouselFocused(true)}
+                  onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) {
+                      setEventCarouselFocused(false)
+                    }
+                  }}
+                  onPointerDown={() => setEventCarouselPressed(true)}
+                  onPointerUp={() => setEventCarouselPressed(false)}
+                  onPointerCancel={() => setEventCarouselPressed(false)}
+                  onPointerLeave={() => setEventCarouselPressed(false)}
+                  {...elementReveal(Boolean(reduceMotion), 0.14)}
+                >
                   {eventItems.map((item, index) => {
                     const previous = (eventIndex - 1 + eventItems.length) % eventItems.length
                     const next = (eventIndex + 1) % eventItems.length
@@ -809,10 +849,9 @@ export function SunlitSilkRenderer({
                             ? 'is-next'
                             : 'is-hidden'
                     return (
-                       <motion.article
+                       <article
                         className={position}
                         key={`${item.title}-${index}`}
-                        {...elementReveal(Boolean(reduceMotion), 0.18 + index * 0.08)}
                         style={
                           {
                             '--ss-event-card-image': `url("${mediaSource(item.image) || eventCardArtwork[index % eventCardArtwork.length]}")`,
@@ -821,7 +860,7 @@ export function SunlitSilkRenderer({
                       >
                         <span>{String(index + 1).padStart(2, '0')}</span>
                         <strong>{item.title}</strong>
-                       </motion.article>
+                       </article>
                     )
                   })}
                   {eventItems.length > 1 ? (
@@ -1207,7 +1246,7 @@ export function SunlitSilkRenderer({
               className="ss-footer-monogram"
               aria-hidden="true"
             >
-              {firstNameInitial(content.couple?.brideName)} • {firstNameInitial(content.couple?.groomName)}
+              {lastNameInitial(content.couple?.brideName)} • {lastNameInitial(content.couple?.groomName)}
             </span>
             <motion.h2 id="ss-footer-title" {...elementReveal(Boolean(reduceMotion), 0.08)}>
               {content.footer?.title}

@@ -363,7 +363,7 @@ describe('Owner Workspace', () => {
     expect(document.querySelectorAll('[data-editor-section]')).toHaveLength(12)
   })
 
-  it('renders the Nắng Trên Lụa Phase 0 preview shell', () => {
+  it('renders the Sunlit Silk preview shell', () => {
     window.history.replaceState(null, '', '/templates/invitations/sunlit-silk/preview')
     render(
       <NavigationProvider>
@@ -371,9 +371,9 @@ describe('Owner Workspace', () => {
       </NavigationProvider>,
     )
     expect(
-      screen.getByRole('main', { name: 'Bản xem trước thiệp cưới Nắng Trên Lụa' }),
+      screen.getByRole('main', { name: 'Bản xem trước thiệp cưới Sunlit Silk' }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Nắng Trên Lụa' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Sunlit Silk' })).toBeInTheDocument()
     expect(document.querySelector('[data-template-shell="sunlit-silk"]')).toBeInTheDocument()
   })
 

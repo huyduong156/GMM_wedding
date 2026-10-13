@@ -244,7 +244,7 @@ const sections: SunlitSectionConfig[] = [
 export const sunlitSilkTemplateConfig = {
   templateKey: 'sunlit-silk',
   displayName: 'Sunlit Silk',
-  templateVersion: '0.3.0',
+  templateVersion: '0.3.1',
   templateConfigVersion: '1.0',
   contentSchemaVersion: '1.0',
   rendererApiVersion: '1.0',

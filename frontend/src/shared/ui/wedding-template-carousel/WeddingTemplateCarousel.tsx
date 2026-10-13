@@ -23,11 +23,13 @@ const previewPaths: Record<string, string> = {
   'rose-garden': publicTemplateRoutes.roseGardenPreview,
   'van-hy': publicTemplateRoutes.vanHyPreview,
   'aurelia-court': publicTemplateRoutes.aureliaCourtPreview,
+  'sunlit-silk': publicTemplateRoutes.sunlitSilkPreview,
 }
+const displayNames: Record<string, string> = { 'sunlit-silk': 'Sunlit Silk' }
 
 function apiSlides(items: WeddingTemplate[]) {
   return items.slice(0, 6).map((item) => ({
-    name: item.name,
+    name: displayNames[item.key] ?? item.name,
     style: item.description ?? 'Thiệp online',
     image: item.versions.find((version) => !version.deprecatedAt)?.thumbnailUrl ?? null,
     position: 'top center',

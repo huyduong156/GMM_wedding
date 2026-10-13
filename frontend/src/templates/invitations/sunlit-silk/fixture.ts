@@ -48,7 +48,7 @@ export const sunlitSilkFixture: SunlitSilkData = {
     mapUrl: 'https://maps.google.com',
   },
   opening: {
-    title: 'Nắng Trên Lụa',
+    title: 'Sunlit Silk',
     message: 'Thân Mời Quý Khách',
   },
   cover: {
