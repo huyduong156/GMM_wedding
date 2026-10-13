@@ -38,6 +38,7 @@ export interface RateLimiter {
     allowed: boolean
     retryAfter: number
   }>
+  healthCheck?(): Promise<void>
 }
 
 export interface IdentityEmailSender {

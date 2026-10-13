@@ -10,23 +10,31 @@ import {
 import { TokenProtector } from '@/platform/auth/token-protector'
 import { getServerEnv } from '@/platform/config/env'
 import { prisma } from '@/platform/database/prisma'
+import type { RateLimiter } from './application/ports'
 
 let authService: AuthService | undefined
+let rateLimiter: RateLimiter | undefined
 
-export function getAuthService(): AuthService {
-  if (authService) return authService
+export function getAuthRateLimiter(): RateLimiter {
+  if (rateLimiter) return rateLimiter
   const env = getServerEnv()
-  const limiter =
+  rateLimiter =
     env.AUTH_RATE_LIMIT_DRIVER === 'redis'
       ? new RedisRateLimiter(env.REDIS_URL as string)
       : env.AUTH_RATE_LIMIT_DRIVER === 'disabled'
         ? new DisabledRateLimiter()
         : new MemoryRateLimiter()
+  return rateLimiter
+}
+
+export function getAuthService(): AuthService {
+  if (authService) return authService
+  const env = getServerEnv()
 
   authService = new AuthService(
     new PrismaIdentityRepository(prisma),
     new ArgonPasswordHasher(),
-    limiter,
+    getAuthRateLimiter(),
     new SmtpVerificationEmailSender(
       env.SMTP_HOST,
       env.SMTP_PORT,

@@ -125,3 +125,47 @@ describe('AuthService duplicate registration', () => {
     )
   })
 })
+
+describe('AuthService login dependencies', () => {
+  it('maps rate limiter failures to a retryable service-unavailable error', async () => {
+    const activeUser: IdentityUser = {
+      ...pendingUser,
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+    }
+    const repository = {
+      findUserByEmail: vi.fn().mockResolvedValue(activeUser),
+      createSession: vi.fn(),
+    }
+    const passwordHasher = {
+      verify: vi.fn().mockResolvedValue(true),
+      needsRehash: vi.fn().mockReturnValue(false),
+    }
+    const rateLimiter = {
+      consume: vi.fn().mockRejectedValue(new Error('Redis socket closed')),
+    }
+    const service = new AuthService(
+      repository as unknown as IdentityRepository,
+      passwordHasher as unknown as PasswordHasher,
+      rateLimiter as unknown as RateLimiter,
+      {} as IdentityEmailSender,
+      {} as TokenProtector,
+      'rate-limit-secret',
+    )
+
+    await expect(
+      service.login(
+        { email: activeUser.email, password: 'correct-password' },
+        { ip: '127.0.0.1' },
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: 'SERVICE_UNAVAILABLE',
+        status: 503,
+        retryAfter: 5,
+      }),
+    )
+    expect(repository.findUserByEmail).not.toHaveBeenCalled()
+    expect(repository.createSession).not.toHaveBeenCalled()
+  })
+})

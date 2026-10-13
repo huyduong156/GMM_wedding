@@ -146,11 +146,22 @@ export class AuthService {
   }
 
   private async limit(scope: string, value: string, max: number, windowSeconds: number) {
-    const result = await this.rateLimiter.consume(
-      rateLimitKey(this.rateLimitSecret, scope, value || 'unknown'),
-      max,
-      windowSeconds,
-    )
+    let result
+    try {
+      result = await this.rateLimiter.consume(
+        rateLimitKey(this.rateLimitSecret, scope, value || 'unknown'),
+        max,
+        windowSeconds,
+      )
+    } catch (error) {
+      log('error', 'Authentication rate limiter unavailable', { scope, error })
+      throw new AuthError(
+        'SERVICE_UNAVAILABLE',
+        503,
+        'Authentication service is temporarily unavailable',
+        5,
+      )
+    }
     if (!result.allowed) {
       throw new AuthError('RATE_LIMITED', 429, 'Too many requests', result.retryAfter)
     }

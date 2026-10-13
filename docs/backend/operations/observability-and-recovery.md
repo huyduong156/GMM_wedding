@@ -29,7 +29,7 @@ Trace request -> use case -> database/provider -> outbox/job bằng propagated c
 ## Health endpoints
 
 - **Liveness:** process/event loop còn sống; không phụ thuộc provider ngoài.
-- **Readiness:** config hợp lệ và dependency bắt buộc như database sẵn sàng trong timeout ngắn.
+- **Readiness:** config hợp lệ và dependency bắt buộc như database và Redis rate limiter sẵn sàng trong timeout ngắn. Production auth fail-closed khi Redis không sẵn sàng; login/register trả `503 SERVICE_UNAVAILABLE` thay vì `500` generic.
 - Không expose secret, version dependency chi tiết hoặc stack trace.
 
 ## SLI/SLO workflow
