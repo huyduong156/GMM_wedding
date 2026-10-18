@@ -91,7 +91,7 @@ export function ChibiDaydreamInvitation({
     },
   ])
   const mainRef = useRef<HTMLElement>(null)
-  const weddingCountdown = useWeddingCountdown('2026-12-20T09:00:00+07:00')
+
 
   const openInvitation = () => {
     if (opening) return
@@ -307,29 +307,7 @@ export function ChibiDaydreamInvitation({
             <img src={asset('chibi_love-calendar_v2.png')} alt="" />
             <span>Save the date</span>
             <h2 id="cd-calendar-title">Hẹn nhau vào một ngày thật xinh</h2>
-            <div
-              className="cd-calendar-countdown"
-              role="timer"
-              aria-live="off"
-              aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
-            >
-              <div>
-                <strong>{weddingCountdown.days}</strong>
-                <small>Ngày</small>
-              </div>
-              <div>
-                <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
-                <small>Giờ</small>
-              </div>
-              <div>
-                <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
-                <small>Phút</small>
-              </div>
-              <div>
-                <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
-                <small>Giây</small>
-              </div>
-            </div>
+            <ChibiCountdown date={data?.weddingDate ?? ''} />
             <a
               href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Khanh%20An%20va%20Duc%20Minh"
               target="_blank"
@@ -571,6 +549,35 @@ export function ChibiDaydreamInvitation({
           <img src={asset('chibi_wedding-cake_v2.png')} alt="" />
         </div>
       </main>
+    </div>
+  )
+}
+
+function ChibiCountdown({ date }: { date: string }) {
+  const weddingCountdown = useWeddingCountdown(date || '2026-12-20T09:00:00+07:00')
+  return (
+    <div
+      className="cd-calendar-countdown"
+      role="timer"
+      aria-live="off"
+      aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
+    >
+      <div>
+        <strong>{weddingCountdown.days}</strong>
+        <small>Ngày</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
+        <small>Giờ</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
+        <small>Phút</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
+        <small>Giây</small>
+      </div>
     </div>
   )
 }

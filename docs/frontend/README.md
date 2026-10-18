@@ -24,6 +24,7 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
 - [Nền live template editor dùng chung](./live-template-editor.md)
 - [Nhạc nền cưới: admin catalog, owner editor và guest playback](./wedding-background-music.md)
+- Countdown trên trang preview template không có ngày cưới từ dữ liệu dùng mốc demo hiện tại + 69 ngày; nếu preview có ngày cưới thì vẫn dùng ngày đó.
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
 - [Common Theme Authoring Contract và quality gate cho mọi theme](./theme-authoring/README.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)
@@ -39,6 +40,8 @@ Design system implementation vẫn dùng [`design-system/MASTER.md`](../../desig
 Wedding Recap có contract riêng về semantic content, layout options, optional sections và media replacement tại [Wedding Recap docs](./wedding-recaps/README.md). Layout/art direction tiếp tục tái sử dụng nguyên tắc authoring của invitation và wedding website; code template recap hiện hành chỉ giữ `red-spider-lily` làm baseline theo contract mới.
 
 ## Boundary
+
+- Countdown trong public template phải giữ state/timer ở component đồng hồ riêng (tối đa section countdown nhỏ), không đặt hook cập nhật mỗi giây trong renderer gốc. Tick không được render lại page, calendar, gallery hoặc form bên cạnh. Regression guard: `frontend/src/templates/countdown-render-boundary.test.ts`.
 
 - Ghi ở đây: component contract, layout, state hiển thị, client navigation, accessibility UI, responsive và performance trình duyệt.
 - Không định nghĩa lại DTO/API hoặc persistence schema.

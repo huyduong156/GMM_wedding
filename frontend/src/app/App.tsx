@@ -53,6 +53,7 @@ import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydra
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
 import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
+import { PreviewCountdownProvider } from '../shared/lib/date/useWeddingCountdown'
 import { PublicRecapPage } from '../pages/public-recap/ui/PublicRecapPage'
 import { PublicInvitationPage } from '../pages/public-invitation/ui/PublicInvitationPage'
 import { PublicWebsitePageNext as PublicWebsitePage } from '../pages/public-website/ui/PublicWebsitePageNext'
@@ -154,21 +155,32 @@ function AppContent() {
   const workspaceAccessMatch = pathname.match(/^\/workspace-access\/([^/]+)\/?$/)
   if (workspaceAccessMatch)
     return <WorkspaceAccessPage token={decodeURIComponent(workspaceAccessMatch[1])} />
-  if (pathname === publicTemplateRoutes.modernLuxePreview) return <ModernLuxePreviewPage />
-  if (pathname === publicTemplateRoutes.verdantPromisePreview) return <VerdantPromisePreviewPage />
-  if (pathname === publicTemplateRoutes.chibiDaydreamPreview) return <ChibiDaydreamPreviewPage />
-  if (pathname === publicTemplateRoutes.peonyVerandaPreview) return <PeonyVerandaPreviewPage />
-  if (pathname === publicTemplateRoutes.roseGardenPreview) return <RoseGardenPreviewPage />
-  if (pathname === publicTemplateRoutes.astralVowPreview) return <AstralVowPreviewPage />
-  if (pathname === publicTemplateRoutes.vanHyPreview) return <VanHyPreviewPage />
-  if (pathname === publicTemplateRoutes.aureliaCourtPreview) return <AureliaCourtPreviewPage />
-  if (pathname === publicTemplateRoutes.sunlitSilkPreview) return <SunlitSilkPreviewPage />
-  if (pathname === publicTemplateRoutes.editorialVowsPreview) return <EditorialVowsPreviewPage />
-  if (pathname === publicTemplateRoutes.greenHydrangeaPreview) return <GreenHydrangeaPreviewPage />
+  if (pathname === publicTemplateRoutes.modernLuxePreview)
+    return <AppTemplatePreview pathname={pathname}><ModernLuxePreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.verdantPromisePreview)
+    return <AppTemplatePreview pathname={pathname}><VerdantPromisePreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.chibiDaydreamPreview)
+    return <AppTemplatePreview pathname={pathname}><ChibiDaydreamPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.peonyVerandaPreview)
+    return <AppTemplatePreview pathname={pathname}><PeonyVerandaPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.roseGardenPreview)
+    return <AppTemplatePreview pathname={pathname}><RoseGardenPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.astralVowPreview)
+    return <AppTemplatePreview pathname={pathname}><AstralVowPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.vanHyPreview)
+    return <AppTemplatePreview pathname={pathname}><VanHyPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.aureliaCourtPreview)
+    return <AppTemplatePreview pathname={pathname}><AureliaCourtPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.sunlitSilkPreview)
+    return <AppTemplatePreview pathname={pathname}><SunlitSilkPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.editorialVowsPreview)
+    return <AppTemplatePreview pathname={pathname}><EditorialVowsPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.greenHydrangeaPreview)
+    return <AppTemplatePreview pathname={pathname}><GreenHydrangeaPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.enchantedForestPreview)
-    return <EnchantedForestPreviewPage />
+    return <AppTemplatePreview pathname={pathname}><EnchantedForestPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview)
-    return <CherryBlossomGardenPreviewPage />
+    return <AppTemplatePreview pathname={pathname}><CherryBlossomGardenPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview)
     return <RedSpiderLilyRecapPreviewPage />
   const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
@@ -231,6 +243,49 @@ function AppContent() {
   }
 
   return <StatusPage kind="not-found" />
+}
+
+const previewStorageKeyByRoute: Record<string, string> = {
+  [publicTemplateRoutes.modernLuxePreview]: 'gmm-invitation-preview:modern-luxe',
+  [publicTemplateRoutes.verdantPromisePreview]: 'gmm-invitation-preview:verdant-promise',
+  [publicTemplateRoutes.chibiDaydreamPreview]: 'gmm-invitation-preview:chibi-daydream',
+  [publicTemplateRoutes.peonyVerandaPreview]: 'gmm-invitation-preview:peony-veranda',
+  [publicTemplateRoutes.roseGardenPreview]: 'gmm-invitation-preview:rose-garden',
+  [publicTemplateRoutes.vanHyPreview]: 'gmm-invitation-preview:van-hy',
+  [publicTemplateRoutes.editorialVowsPreview]: 'gmm-website-preview:editorial-vows',
+  [publicTemplateRoutes.greenHydrangeaPreview]: 'gmm-website-preview:green-hydrangea',
+  [publicTemplateRoutes.enchantedForestPreview]: 'gmm-website-preview:enchanted-forest',
+  [publicTemplateRoutes.cherryBlossomGardenPreview]: 'gmm-website-preview:cherry-blossom-garden',
+}
+
+function isDemoTemplatePreview(pathname: string) {
+  if (new URLSearchParams(window.location.search).get('editor') === '1') return false
+  if (new URLSearchParams(window.location.search).has('weddingId')) return false
+  const storageKey = previewStorageKeyByRoute[pathname]
+  if (!storageKey) return true
+  try {
+    const previewState = JSON.parse(sessionStorage.getItem(storageKey) ?? 'null') as
+      | { data?: unknown }
+      | null
+    if (!previewState?.data || typeof previewState.data !== 'object') return true
+    const data = previewState.data as {
+      weddingDate?: unknown
+      event?: { weddingDate?: unknown }
+      hero?: { date?: unknown }
+    }
+    const weddingDate = data.weddingDate ?? data.event?.weddingDate ?? data.hero?.date
+    return typeof weddingDate !== 'string' || !weddingDate.trim()
+  } catch {
+    return true
+  }
+}
+
+function AppTemplatePreview({ pathname, children }: { pathname: string; children: ReactNode }) {
+  return (
+    <PreviewCountdownProvider enabled={isDemoTemplatePreview(pathname)}>
+      {children}
+    </PreviewCountdownProvider>
+  )
 }
 
 export function App() {

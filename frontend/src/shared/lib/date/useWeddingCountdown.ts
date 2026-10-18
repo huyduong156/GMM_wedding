@@ -1,4 +1,24 @@
-import { useEffect, useState } from 'react'
+import { createContext, createElement, type ReactNode, useContext, useEffect, useState } from 'react'
+
+const PREVIEW_COUNTDOWN_DAYS = 69
+const PreviewCountdownTargetContext = createContext<number | null>(null)
+
+export function PreviewCountdownProvider({
+  enabled,
+  children,
+}: {
+  enabled: boolean
+  children: ReactNode
+}) {
+  const [target] = useState(() => {
+    const previewDate = new Date()
+    previewDate.setDate(previewDate.getDate() + PREVIEW_COUNTDOWN_DAYS)
+    previewDate.setHours(23, 59, 59, 999)
+    return previewDate.getTime()
+  })
+
+  return createElement(PreviewCountdownTargetContext.Provider, { value: enabled ? target : null }, children)
+}
 
 export type WeddingCountdown = {
   days: number
@@ -8,8 +28,7 @@ export type WeddingCountdown = {
   complete: boolean
 }
 
-const calculateCountdown = (targetDate: string): WeddingCountdown => {
-  const targetTime = new Date(targetDate).getTime()
+const calculateCountdown = (targetTime: number): WeddingCountdown => {
   const remaining = Number.isFinite(targetTime) ? Math.max(0, targetTime - Date.now()) : 0
   const totalSeconds = Math.floor(remaining / 1000)
 
@@ -22,17 +41,47 @@ const calculateCountdown = (targetDate: string): WeddingCountdown => {
   }
 }
 
+function parseCountdownTarget(targetDate: string) {
+  const nativeTimestamp = new Date(targetDate).getTime()
+  if (Number.isFinite(nativeTimestamp)) return nativeTimestamp
+
+  const match = targetDate.match(/(\d{1,2})\D+(\d{1,2})\D+(\d{4})/)
+  if (!match) return Number.NaN
+  const target = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1])).getTime()
+  return Number.isFinite(target) ? target : Number.NaN
+}
+
 export const formatCountdownUnit = (value: number) => String(value).padStart(2, '0')
 
-export function useWeddingCountdown(targetDate: string) {
-  const [countdown, setCountdown] = useState(() => calculateCountdown(targetDate))
+export function useWeddingCountdown(targetDate: string, refreshIntervalMs = 1000) {
+  const previewTarget = useContext(PreviewCountdownTargetContext)
+  const parsedTarget = parseCountdownTarget(targetDate)
+  const effectiveTarget = previewTarget ?? parsedTarget
+  const [countdown, setCountdown] = useState(() => calculateCountdown(effectiveTarget))
 
   useEffect(() => {
-    const updateCountdown = () => setCountdown(calculateCountdown(targetDate))
-    updateCountdown()
-    const timer = window.setInterval(updateCountdown, 1000)
+    const updateCountdown = () => {
+      const next = calculateCountdown(effectiveTarget)
+      setCountdown((previous) =>
+        previous.days === next.days &&
+        previous.hours === next.hours &&
+        previous.minutes === next.minutes &&
+        previous.seconds === next.seconds &&
+        previous.complete === next.complete
+          ? previous
+          : next,
+      )
+      return next
+    }
+    if (updateCountdown().complete) return
+    const timer = window.setInterval(
+      () => {
+        if (updateCountdown().complete) window.clearInterval(timer)
+      },
+      Math.max(1000, refreshIntervalMs),
+    )
     return () => window.clearInterval(timer)
-  }, [targetDate])
+  }, [effectiveTarget, refreshIntervalMs])
 
   return countdown
 }

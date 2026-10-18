@@ -300,19 +300,19 @@ function GuestAssignmentFields({
       <label
         className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}
       >
-        <span>Danh mục {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
+        <span>Nhóm khách {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
         <NativeSelectField
           value={form.categoryId}
           onChange={(event) => change('categoryId', event.target.value)}
         >
-          <option value="">Chưa phân loại</option>
+          <option value="">Chưa xếp nhóm</option>
           {categories.map((item) => (
             <option key={item.id} value={item.id}>
               {categoryOptionLabel(categories, item)}
             </option>
           ))}
         </NativeSelectField>
-        {form.categoryId ? <small>Danh mục này sẽ được giữ lại sau khi thêm khách.</small> : null}
+        {form.categoryId ? <small>Nhóm này sẽ được giữ lại sau khi thêm khách.</small> : null}
       </label>
       <fieldset className="guest-family-side-field">
         <legend>Phía gia đình</legend>
@@ -814,10 +814,10 @@ function GuestsPageConnectedContent({
       await guestApi.assignCategory(activeWedding.id, selected, value || null)
       await refreshGuestPages()
       setSelected([])
-      setFeedback('Đã cập nhật danh mục.')
-      await notifications.success('Đã cập nhật danh mục')
+      setFeedback('Đã cập nhật nhóm khách.')
+      await notifications.success('Đã cập nhật nhóm khách')
     } catch (cause) {
-      setFeedback(cause instanceof Error ? cause.message : 'Không thể cập nhật danh mục.')
+      setFeedback(cause instanceof Error ? cause.message : 'Không thể cập nhật nhóm khách.')
     } finally {
       setBusy(false)
     }
@@ -883,9 +883,6 @@ function GuestsPageConnectedContent({
             <h2 id={`guest-family-${block.key ?? 'common'}`}>{block.label}</h2>
             <span>{block.total} khách mời</span>
           </div>
-          <span>
-            {blockGuests.reduce((sum, guest) => sum + guest.maxPartySize, 0)} người dự kiến
-          </span>
         </header>
         {blockGuests.length ? (
           <>
@@ -898,7 +895,7 @@ function GuestsPageConnectedContent({
                     {canEdit ? <th /> : null}
                     <th>Khách mời</th>
                     <th>Tên hiển thị</th>
-                    <th>Danh mục</th>
+                    <th>Nhóm khách</th>
                     <th>Số người</th>
                     {canEdit ? <th /> : null}
                   </tr>
@@ -1104,7 +1101,7 @@ function GuestsPageConnectedContent({
         </div>
         <div>
           <span>
-            <Archive size={17} /> Có danh mục
+            <Archive size={17} /> Đã xếp nhóm
           </span>
           <strong>{categorizedTotal}</strong>
           <small>Đã được phân loại</small>
@@ -1125,13 +1122,13 @@ function GuestsPageConnectedContent({
             ) : null}
           </label>
           <label className="guest-group-filter guest-category-filter">
-            <span>Danh mục</span>
+            <span>Nhóm khách</span>
             <NativeSelectField
               contentClassName="guest-category-filter-content"
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
             >
-              <option value="">Tất cả danh mục</option>
+              <option value="">Tất cả nhóm khách</option>
               {categories.map((item) => (
                 <option key={item.id} value={item.id}>
                   {categoryOptionLabel(categories, item)}
@@ -1145,14 +1142,14 @@ function GuestsPageConnectedContent({
             <strong>{selected.length} khách đã chọn</strong>
             <div>
               <label className="bulk-category-select">
-                Gán danh mục{' '}
+                Gán nhóm khách{' '}
                 <NativeSelectField
                   value={bulkCategoryAction}
                   disabled={busy}
                   onChange={(event) => handleBulkCategoryChange(event.target.value)}
                 >
                   <option value="">Chọn…</option>
-                  <option value={REMOVE_CATEGORY}>Gỡ danh mục</option>
+                  <option value={REMOVE_CATEGORY}>Gỡ nhóm</option>
                   {categories.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name}

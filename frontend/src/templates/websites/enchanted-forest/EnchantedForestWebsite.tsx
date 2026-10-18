@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import {
   ArrowLeft,
@@ -18,6 +18,7 @@ import type {
 } from './content'
 import { enchantedForestFixture, enchantedForestSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './enchanted-forest.css'
 type Props = { data?: EnchantedForestData; sectionConfig?: EnchantedForestSectionConfig }
 const root = '/assets/images/templates/enchanted-forest'
@@ -68,15 +69,7 @@ export function EnchantedForestWebsite({
     { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] }),
     treeY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 75]),
     mistY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 35])
-  const eventDate = useMemo(() => new Date('2027-11-06T16:00:00+07:00'), []),
-    [remaining, setRemaining] = useState(() => Math.max(0, eventDate.getTime() - Date.now()))
-  useEffect(() => {
-    const timer = window.setInterval(
-      () => setRemaining(Math.max(0, eventDate.getTime() - Date.now())),
-      1000,
-    )
-    return () => window.clearInterval(timer)
-  }, [eventDate])
+
   useEffect(() => {
     if (reduced || !playing || data.gallery.length < 2) return
     const timer = window.setInterval(
@@ -87,13 +80,7 @@ export function EnchantedForestWebsite({
   }, [data.gallery.length, playing, reduced])
   const moveSlide = (step: number) =>
     setSlide((value) => (value + step + data.gallery.length) % data.gallery.length)
-  const time = [
-      Math.floor(remaining / 86400000),
-      Math.floor(remaining / 3600000) % 24,
-      Math.floor(remaining / 60000) % 60,
-      Math.floor(remaining / 1000) % 60,
-    ],
-    units = ['ngày', 'giờ', 'phút', 'giây']
+
   const sections: Partial<Record<EnchantedForestSectionKey, React.ReactNode>> = {
     hero: (
       <section ref={heroRef} id="top" className="ef-hero" data-editor-section="hero">
@@ -249,20 +236,7 @@ export function EnchantedForestWebsite({
       </section>
     ),
     countdown: (
-      <section className="ef-countdown" data-editor-section="countdown">
-        <img src={`${root}/vine-wreath.png`} alt="" />
-        <Reveal>
-          <span>Until the forest gathers us</span>
-          <div>
-            {time.map((value, index) => (
-              <p key={units[index]}>
-                <strong>{String(value).padStart(2, '0')}</strong>
-                <small>{units[index]}</small>
-              </p>
-            ))}
-          </div>
-        </Reveal>
-      </section>
+      <ForestCountdown date={data?.hero.date} />
     ),
     venues: (
       <section className="ef-section ef-venue" data-editor-section="venues">
@@ -480,5 +454,32 @@ export function EnchantedForestWebsite({
           <div key={key}>{sections[key]}</div>
         ))}
     </main>
+  )
+}
+
+function ForestCountdown({ date }: { date?: string }) {
+  const countdown = useWeddingCountdown(date || '2027-11-06T16:00:00+07:00')
+  const time = [
+      countdown.days,
+      countdown.hours,
+      countdown.minutes,
+      countdown.seconds,
+    ],
+    units = ['ngày', 'giờ', 'phút', 'giây']
+  return (
+    <section className="ef-countdown" data-editor-section="countdown">
+      <img src={`${root}/vine-wreath.png`} alt="" />
+      <Reveal>
+        <span>Until the forest gathers us</span>
+        <div>
+          {time.map((value, index) => (
+            <p key={units[index]}>
+              <strong>{String(value).padStart(2, '0')}</strong>
+              <small>{units[index]}</small>
+            </p>
+          ))}
+        </div>
+      </Reveal>
+    </section>
   )
 }

@@ -26,10 +26,15 @@ Tài liệu này mô tả ba bề mặt frontend dùng chung catalog nhạc nề
 - Renderer chỉ tạo audio control khi snapshot có track hợp lệ và section nhạc đang bật.
 - Browser có thể chặn autoplay có âm thanh. `autoplayRequested` chỉ là yêu cầu thử phát sau tương tác mở thiệp; luôn có nút phát/tạm dừng với accessible name và không hiển thị lỗi kỹ thuật cho khách.
 - Audio lặp lại khi phát, preload tối đa metadata trước tương tác và không chặn first render/LCP. Tắt nhạc không làm mất vị trí đọc thiệp.
+- `MusicPlayer` dùng chung tạm dừng ngay khi `visibilitychange` báo hidden hoặc `pagehide` (chuyển tab, khóa màn hình/đưa browser xuống nền khi trình duyệt phát sự kiện). Khi visible/`pageshow`, chỉ thử tiếp tục nếu trước đó đang phát và khách chưa tự tắt; autoplay bị chặn giữ nút phát thủ công.
+- Mỗi phiên component/track giới hạn 10 phút phát cộng dồn; thời gian pause/buffering không tính. Hết giới hạn phải bấm phát để bắt đầu ngân sách mới. Ref lưu thời gian và mốc `performance.now()`, chỉ một timeout cho phần còn lại; không interval, không state theo giây, không render lại template. Đổi track reset ngân sách; unmount dừng audio và dọn listener/timeout.
 - Tôn trọng data-saver/network error: trang vẫn dùng được hoàn toàn khi audio không tải. `prefers-reduced-motion` không tự tắt âm thanh, nhưng renderer không được tự suy luận consent từ setting này.
 - Public payload chỉ chứa DTO phát tối thiểu (`trackId`, `displayName`, `durationSeconds`, playback URL/asset reference đã được backend cho phép và credit nếu bắt buộc), không chứa storage key nội bộ hay metadata quyền riêng tư.
 
 ## State và accessibility checklist
+
+- Owner nghe thử trong `TemplateAudioField` chỉ có một audio active. Nút Dừng có hiệu lực ngay khi yêu cầu phát bắt đầu, kể cả lúc promise `play()` đang chờ; sự kiện media đồng bộ state tại component này. Mỗi attempt sở hữu audio/listener riêng; đổi bài, dừng, lỗi, hidden/pagehide và unmount phải pause, tháo listener và giải phóng src. Promise/event cũ không được đổi UI của bài mới. Nhãn động nằm trong span có key theo trạng thái để chịu được công cụ ngoài bọc text node. Không dùng interval/timeupdate hoặc cập nhật parent khi nghe thử.
+- Heading của thư viện owner có cột trạng thái nghe thử tùy điều kiện: tên track đang preview hiển thị một dòng ellipsis và có nút Dừng dùng cùng `stopPreview`; khi không có track preview thì cột này không render.
 
 - Loading, empty catalog, no-results, upload/processing, error/retry, permission denied và retired-reference đều có copy riêng.
 - Chỉ một track preview phát tại một thời điểm; đổi track dừng preview cũ.

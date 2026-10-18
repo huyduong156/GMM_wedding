@@ -80,13 +80,13 @@ describe('Feature search', () => {
   it('normalizes Vietnamese and ranks labels ahead of synonyms', () => {
     expect(normalizeFeatureQuery('  ĐÁM   CƯỚI ')).toBe('dam cuoi')
     const items = [
-      { label: 'Danh mục khách mời', to: studioRoutes.guestCategories },
+      { label: 'Nhóm khách mời', to: studioRoutes.guestCategories },
       { label: 'Khách mời', to: studioRoutes.guests },
       { label: 'Todolist', to: studioRoutes.todos },
     ]
     expect(searchFeatures(items, 'kha').map((item) => item.label)).toEqual([
       'Khách mời',
-      'Danh mục khách mời',
+      'Nhóm khách mời',
     ])
     expect(searchFeatures(items, 'NHÓM KHÁCH')).toEqual([items[0]])
     expect(searchFeatures(items, 'cong viec')).toEqual([items[2]])
@@ -101,7 +101,7 @@ describe('Feature search', () => {
     fireEvent.change(input, { target: { value: 'kha' } })
     expect(screen.getAllByRole('option')).toHaveLength(2)
     fireEvent.keyDown(input, { key: 'ArrowDown' })
-    expect(screen.getByRole('option', { name: /Danh mục khách mời/ })).toHaveAttribute(
+    expect(screen.getByRole('option', { name: /Nhóm khách mời/ })).toHaveAttribute(
       'aria-selected',
       'true',
     )
