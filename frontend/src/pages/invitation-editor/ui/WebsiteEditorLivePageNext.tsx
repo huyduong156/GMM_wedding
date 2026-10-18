@@ -109,6 +109,24 @@ const setPath = (data: Data, path: string, value: unknown) => {
   cursor[parts.at(-1)!] = value
   return next
 }
+const getPath = (data: Data, path: string): unknown =>
+  path.split('.').reduce<unknown>(
+    (current, part) =>
+      current && typeof current === 'object'
+        ? (current as Record<string, unknown>)[part]
+        : undefined,
+    data,
+  )
+const mediaIdsAtValue = (value: unknown): string[] => {
+  const values = Array.isArray(value) ? value : value ? [value] : []
+  return values
+    .map((item) =>
+      item && typeof item === 'object' && typeof (item as Record<string, unknown>).mediaAssetId === 'string'
+        ? String((item as Record<string, unknown>).mediaAssetId)
+        : '',
+    )
+    .filter(Boolean)
+}
 const defaults = (items: Section[], previous?: { order: string[]; enabled: string[] }) => {
   const keys = items.map((x) => x.sectionKey)
   const old = previous?.order.filter((x) => keys.includes(x)) ?? []
@@ -729,7 +747,7 @@ export function WebsiteEditorLivePageNext() {
           selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'}
           open={mediaOpen}
           assets={media.assets}
-          selectedIds={new Set()}
+          selectedIds={mediaTarget ? mediaIdsAtValue(getPath(data, mediaTarget.path)) : []}
           loading={media.loading}
           uploading={media.uploading}
           error={media.error}

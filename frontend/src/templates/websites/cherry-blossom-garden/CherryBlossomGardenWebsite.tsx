@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { ArrowDown, ArrowRight, Check, MapPin, PaperPlaneTilt } from '@phosphor-icons/react'
 import type { CherryBlossomData, CherrySectionConfig, CherrySectionKey } from './content'
 import { cherryBlossomFixture, cherryBlossomSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { PetalFieldSafe as PetalField } from './PetalFieldSafe'
 import './cherry-blossom-garden.css'
 type Props = { data?: CherryBlossomData; sectionConfig?: CherrySectionConfig }
@@ -40,9 +41,11 @@ function Heading({ kicker, children }: { kicker: string; children: React.ReactNo
   )
 }
 export function CherryBlossomGardenWebsite({
-  data = cherryBlossomFixture,
+  data: inputData = cherryBlossomFixture,
   sectionConfig = cherryBlossomSections,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),
@@ -51,19 +54,8 @@ export function CherryBlossomGardenWebsite({
     { scrollYProgress } = useScroll({ target: hero, offset: ['start start', 'end start'] }),
     bgY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 95]),
     nearY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 180])
-  const date = useMemo(() => new Date('2027-03-20T16:30:00+07:00'), []),
-    [left, setLeft] = useState(() => Math.max(0, date.getTime() - Date.now()))
-  useEffect(() => {
-    const id = setInterval(() => setLeft(Math.max(0, date.getTime() - Date.now())), 1000)
-    return () => clearInterval(id)
-  }, [date])
-  const values = [
-      Math.floor(left / 864e5),
-      Math.floor(left / 36e5) % 24,
-      Math.floor(left / 6e4) % 60,
-      Math.floor(left / 1e3) % 60,
-    ],
-    units = ['ngày', 'giờ', 'phút', 'giây']
+
+
   const sections: Partial<Record<CherrySectionKey, React.ReactNode>> = {
     hero: (
       <section ref={hero} id="top" className="cb-hero" data-editor-section="hero">
@@ -193,17 +185,7 @@ export function CherryBlossomGardenWebsite({
       </section>
     ),
     countdown: (
-      <section className="cb-countdown" data-editor-section="countdown">
-        <span>Counting petals, counting moments</span>
-        <div>
-          {values.map((v, i) => (
-            <p key={units[i]}>
-              <strong>{String(v).padStart(2, '0')}</strong>
-              <small>{units[i]}</small>
-            </p>
-          ))}
-        </div>
-      </section>
+      <CherryCountdown date={data?.hero.date} />
     ),
     venues: (
       <section className="cb-venue" data-editor-section="venues">
@@ -379,5 +361,29 @@ export function CherryBlossomGardenWebsite({
           <div key={k}>{sections[k]}</div>
         ))}
     </main>
+  )
+}
+
+function CherryCountdown({ date }: { date?: string }) {
+  const countdown = useWeddingCountdown(date || '2027-03-20T16:30:00+07:00')
+  const values = [
+      countdown.days,
+      countdown.hours,
+      countdown.minutes,
+      countdown.seconds,
+    ],
+    units = ['ngày', 'giờ', 'phút', 'giây']
+  return (
+    <section className="cb-countdown" data-editor-section="countdown">
+      <span>Counting petals, counting moments</span>
+      <div>
+        {values.map((v, i) => (
+          <p key={units[i]}>
+            <strong>{String(v).padStart(2, '0')}</strong>
+            <small>{units[i]}</small>
+          </p>
+        ))}
+      </div>
+    </section>
   )
 }

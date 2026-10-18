@@ -39,6 +39,7 @@ Section key trong template config, card accordion và `data-editor-section` ph�
 - Ảnh demo dùng data URL trong bộ nhớ trình duyệt. Khi nối API, upload media trước rồi thay data URL bằng asset reference trả về từ server.
 - Nhạc nền demo cũng chỉ dùng data URL cục bộ; giới hạn dung lượng trước khi đọc file. Renderer hỗ trợ cấu hình tự động phát nhưng phải xử lý trường hợp browser từ chối autoplay có âm thanh và luôn cung cấp nút phát/tạm dừng có accessible name. Khi nối API, lưu asset reference thay vì chuỗi data URL trong content.
 - Trạng thái chưa lưu phải hiển thị rõ; không bật nút lưu khi persistence chưa được nối.
+- Nhãn động của nút lưu dùng element riêng với key theo trạng thái để phục hồi đúng sau khi công cụ ngoài (ví dụ dịch trang) bọc/thay text node; không ghép text động trực tiếp cùng icon trong button. Test lưu phải kiểm tra cả nhãn và disabled sau thành công, lỗi API, lưu trước preview/publish và lưu khi rời editor.
 - Mobile hiển thị accordion form toàn màn hình; preview là cửa sổ nổi nhỏ có thể mở rộng. Khi vào editor trên mobile, hiển thị lời khuyên dùng máy tính nhưng phải cho phép đóng và tiếp tục chỉnh sửa.
 - Trên viewport editor mobile, preview luôn dùng cấu hình mobile `550 × 950`; không hiển thị lựa chọn desktop để tránh renderer và khung nổi lệch mục tiêu thiết kế mobile-first.
 
@@ -51,6 +52,7 @@ Recap editor đọc section config theo các quy ước sau:
 - Với section lặp, có thể khai báo trực tiếp \`repeatable\`, \`minItems\`, \`maxItems\`, \`itemMediaField\`, \`galleryField\`, \`maxMediaPerItem\`; editor dùng các metadata này để tạo card và mở media manager.
 - Field ảnh dùng \`type: "image"\` hoặc \`"images"\`; \`mediaRole\` hoặc \`sections[].mediaRoles\` xác định role gửi tới media manager.
 - Boolean, select, URL, text và date/time được render từ type/label/options/maxLength/required; editor không cần thêm nhánh theo template key.
+- Quick edit trên header nhận diện field ngày cưới để mở date picker; date picker đọc được các giá trị cũ như `DD · MM · YYYY`, `DD.MM.YYYY` và `DD/MM/YYYY`. Khi chọn ngày mới, editor lưu theo format renderer template đang dùng (`DD.MM.YYYY` cho Sunlit Silk, `DD · MM · YYYY` cho các template còn lại).
 - Preview route vẫn phải được renderer registry của ứng dụng đăng ký; đây là wiring của renderer, không phải logic form editor.
 
 ## Hướng mở rộng

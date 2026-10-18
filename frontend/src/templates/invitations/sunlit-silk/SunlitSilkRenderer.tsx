@@ -21,6 +21,7 @@ import {
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { MusicPlayer } from '../../../shared/ui/music-player'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { sunlitSilkFixture, sunlitSilkSectionConfig } from './fixture'
 import type {
   SunlitSilkData,
@@ -143,16 +144,6 @@ function getTargetTime(dateValue = '', timeValue = '') {
     Number(hours),
     Number(minutes),
   ).getTime()
-}
-
-function getCountdown(target: number | null) {
-  const remaining = target ? Math.max(0, target - Date.now()) : 0
-  return [
-    Math.floor(remaining / 86_400_000),
-    Math.floor(remaining / 3_600_000) % 24,
-    Math.floor(remaining / 60_000) % 60,
-    Math.floor(remaining / 1_000) % 60,
-  ]
 }
 
 const vietnameseWeekdays = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
@@ -338,34 +329,14 @@ function FamilyCard({
 
 function CountdownGrid({ target }: { target: number | null }) {
   const reduceMotion = useReducedMotion()
-  const [countdown, setCountdown] = useState(() => getCountdown(target))
-
-  useEffect(() => {
-    let interval: number | undefined
-
-    const stop = () => {
-      if (interval !== undefined) window.clearInterval(interval)
-      interval = undefined
-    }
-    const sync = () => {
-      setCountdown(getCountdown(target))
-      stop()
-      if (!document.hidden) {
-        interval = window.setInterval(() => setCountdown(getCountdown(target)), 1_000)
-      }
-    }
-
-    sync()
-    document.addEventListener('visibilitychange', sync)
-    return () => {
-      stop()
-      document.removeEventListener('visibilitychange', sync)
-    }
-  }, [target])
+  const countdown = useWeddingCountdown(
+    Number.isFinite(target) ? new Date(target!).toISOString() : '',
+  )
+  const values = [countdown.days, countdown.hours, countdown.minutes, countdown.seconds]
 
   return (
     <motion.div className="ss-countdown-grid" aria-live="off" {...elementReveal(Boolean(reduceMotion), 0.1)}>
-      {countdown.map((value, index) => (
+      {values.map((value, index) => (
         <div
           className={`ss-countdown-unit ${index === 0 ? 'is-primary' : ''}`}
           key={['Ngày', 'Giờ', 'Phút', 'Giây'][index]}
@@ -391,7 +362,11 @@ export function SunlitSilkRenderer({
   guestName?: string | null
   interactions?: PublicInteractions
 }) {
-  const content = useMemo(() => mergeContent(data), [data])
+  const mergedContent = useMemo(() => mergeContent(data), [data])
+  const previewWeddingDate = usePreviewWeddingDate(mergedContent.event?.weddingDate ?? '')
+  const content = useMemo(() => previewWeddingDate
+    ? { ...mergedContent, event: { ...mergedContent.event, weddingDate: previewWeddingDate } }
+    : mergedContent, [mergedContent, previewWeddingDate])
   const reduceMotion = useReducedMotion()
   const coverPhraseFrom = content.cover?.phraseFrom?.trim() || 'Hai người, một lời hẹn'
   const coverPhraseTo = content.cover?.phraseTo?.trim() || 'Mình thương, mình ở lại'

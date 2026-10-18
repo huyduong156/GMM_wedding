@@ -87,7 +87,7 @@ Hai lớp dùng chung design system nhưng menu/quyền tách biệt. Không hi�
 - Trong UI hiện tại, nút `Nhập danh sách` chỉ hiển thị thông báo chưa khả dụng bằng hệ thống notification chung; chưa mở wizard hay gọi API import.
 - Các field nhập tự do thường có dữ liệu thay đổi theo từng lần nhập (tên khách, tên hiển thị trên thiệp, tên danh mục, tên công việc và tên khách trong modal sổ tiền mừng) dùng `autoComplete="off"`; placeholder hướng dẫn vẫn được giữ nguyên.
 - Mobile dùng prioritized columns/card rows, không co bảng desktop đến mức không đọc được.
-- `Danh mục khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây tối đa 3 cấp. UI chia cây thành ba block `Nhà trai`, `Nhà gái` và `Chung`; mỗi block có thao tác thêm danh mục, còn danh mục con kế thừa phía của block/parent và không chỉnh phía trực tiếp trên row; cấp 3 hiển thị rõ là cấp cuối.
+- `Nhóm khách mời` là child-nav của `Khách mời`, có route riêng và dùng cây danh mục tối đa 3 cấp. UI chia cây thành ba block `Nhà trai`, `Nhà gái` và `Chung`; mỗi block có thao tác thêm nhóm, còn nhóm con kế thừa phía của block/parent và không chỉnh phía trực tiếp trên row; cấp 3 hiển thị rõ là cấp cuối. Tổng khách trên trang này lấy cùng tổng khách toàn danh sách từ API như trang `Khách mời`, không cộng số khách đã gán nhóm. Header mỗi block chỉ hiện số khách trong nhóm; không hiện party-size cộng từ trang dữ liệu đang tải.
 
 Trạng thái triển khai frontend (2026-07): route `/app/weddings/:weddingId/guests` đã có prototype responsive theo `design-system/pages/admin-guests.md`. Search deferred theo tên, lọc xác nhận tham dự/nhóm, selection và bulk action chạy phía client; desktop dùng semantic table compact với sticky header và mặc định 50 dòng/trang, dưới 768px chuyển sang card. Import wizard, detail side sheet, saved views và kết nối API/pagination thật chưa nằm trong prototype này.
 
@@ -184,6 +184,8 @@ Template thiệp code đầu tiên có key kỹ thuật `modern-luxe`, tên hi�
 Owner URL không chứa wedding ID vì wedding hiện hành được chọn trong workspace switcher và lưu trong session/context. API vẫn phải nhận/authorize wedding ID rõ ràng; URL cũ `/app/weddings/:weddingId/*` được frontend chuyển hướng tương thích sang `/studio/*` trong giai đoạn chuyển đổi.
 
 ## 7. Interaction standards
+
+- Studio response budget: route entrance is at most 160ms with no delay; never apply stagger/entrance through broad descendant selectors under `.main-content`. Modal/popover feedback belongs to its own component. The shell's wedding-day indicator owns its timer in a small child (minute refresh), never in `AppShell`. Navigation callbacks keep stable identity so route changes do not retrigger session checks through callback churn.
 
 - Chỉ một primary CTA/screen. Destructive action tách khỏi normal action.
 - Validate form on blur; lỗi gần field, error summary/focus first invalid khi có nhiều lỗi.

@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useAnimate, useReducedMotion } from 'motion/react'
 import { aureliaCourtArtwork, aureliaCourtFixture, aureliaCourtSectionConfig } from './fixture'
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { formatCountdownUnit, usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import '../../../shared/styles/template-motion.css'
@@ -16,7 +16,11 @@ const AURELIA_MOTION = { duration: 1.71, stagger: 0.06, listStagger: 0.5, ease: 
 const replaceGuest = (value: string, guestName = 'quý khách') => value.replaceAll('{guestName}', guestName)
 const AureliaEditorModeContext = createContext(false)
 
-export function AureliaCourtRenderer({ data = aureliaCourtFixture, sectionConfig = aureliaCourtSectionConfig, editorMode = false, interactions }: Props) {
+export function AureliaCourtRenderer({ data: inputData = aureliaCourtFixture, sectionConfig = aureliaCourtSectionConfig, editorMode = false, interactions }: Props) {
+  const previewWeddingDate = usePreviewWeddingDate(inputData.event.weddingDate)
+  const data = useMemo(() => previewWeddingDate
+    ? { ...inputData, event: { ...inputData.event, weddingDate: previewWeddingDate } }
+    : inputData, [inputData, previewWeddingDate])
   const [opened, setOpened] = useState(false)
   const stageRef = useRef<HTMLDivElement>(null)
   const [openingComplete, setOpeningComplete] = useState(false)

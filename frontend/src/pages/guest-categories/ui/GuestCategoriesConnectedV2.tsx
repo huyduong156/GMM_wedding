@@ -10,7 +10,12 @@ import {
   UsersThree,
   X,
 } from '@phosphor-icons/react'
-import { guestCategoryApi, type GuestCategory, type Wedding } from '../../../shared/api/weddings'
+import {
+  guestApi,
+  guestCategoryApi,
+  type GuestCategory,
+  type Wedding,
+} from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { GuestCategoriesPage } from './GuestCategoriesPage'
 
@@ -50,6 +55,7 @@ function GuestCategoriesContent({
   canEdit: boolean
 }) {
   const [items, setItems] = useState<GuestCategory[]>([])
+  const [totalGuestCount, setTotalGuestCount] = useState(0)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [parent, setParent] = useState<GuestCategory | null | undefined>(undefined)
   const [name, setName] = useState('')
@@ -65,11 +71,15 @@ function GuestCategoriesContent({
     setLoading(true)
     setError('')
     try {
-      const result = await guestCategoryApi.list(weddingId)
+      const [result, guestResult] = await Promise.all([
+        guestCategoryApi.list(weddingId),
+        guestApi.list(weddingId, { limit: 1 }),
+      ])
       setItems(result.items)
+      setTotalGuestCount(guestResult.total)
       setExpanded(new Set(result.items.filter((item) => item.depth < 3).map((item) => item.id)))
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể tải danh mục.')
+      setError(cause instanceof Error ? cause.message : 'Không thể tải nhóm khách.')
     } finally {
       setLoading(false)
     }
@@ -100,13 +110,6 @@ function GuestCategoriesContent({
     }
     return names.join(' / ')
   }
-  const totalGuestCount = useMemo(
-    () =>
-      items
-        .filter((item) => !items.some((child) => child.parentId === item.id))
-        .reduce((sum, item) => sum + (item.guestCount ?? 0), 0),
-    [items],
-  )
   const closeDialog = () => {
     setParent(undefined)
     setName('')
@@ -123,7 +126,7 @@ function GuestCategoriesContent({
   const create = async () => {
     if (!canEdit || !activeWedding || !name.trim()) return
     if ((parent?.depth ?? 0) >= 3) {
-      setError('Danh mục chỉ được tối đa 3 cấp.')
+      setError('Nhóm khách chỉ được tối đa 3 cấp.')
       return
     }
     setBusy(true)
@@ -135,9 +138,9 @@ function GuestCategoriesContent({
       })
       closeDialog()
       await load()
-      await alertSuccess('Danh mục đã được thêm vào cây.')
+      await alertSuccess('Nhóm khách đã được thêm vào cây.')
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể tạo danh mục.')
+      setError(cause instanceof Error ? cause.message : 'Không thể tạo nhóm khách.')
     } finally {
       setBusy(false)
     }
@@ -146,10 +149,10 @@ function GuestCategoriesContent({
     if (!canEdit || !activeWedding || !selected.length) return
     const result = await notifications.fire({
       icon: 'warning',
-      title: 'Xóa danh mục?',
-      text: `${selected.length} danh mục sẽ được xóa. Danh mục con sẽ trở thành danh mục gốc.`,
+      title: 'Xóa nhóm khách?',
+      text: `${selected.length} nhóm khách sẽ được xóa. Nhóm con sẽ trở thành nhóm gốc.`,
       showCancelButton: true,
-      confirmButtonText: 'Xóa danh mục',
+      confirmButtonText: 'Xóa nhóm khách',
       cancelButtonText: 'Hủy',
       confirmButtonColor: '#a43d34',
     })
@@ -159,9 +162,9 @@ function GuestCategoriesContent({
       await guestCategoryApi.removeMany(activeWedding.id, selected)
       setSelected([])
       await load()
-      await alertSuccess('Danh mục đã được xóa.')
+      await alertSuccess('Nhóm khách đã được xóa.')
     } catch (cause) {
-      await alertError(cause instanceof Error ? cause.message : 'Không thể xóa danh mục.')
+      await alertError(cause instanceof Error ? cause.message : 'Không thể xóa nhóm khách.')
     } finally {
       setBusy(false)
     }
@@ -232,17 +235,17 @@ function GuestCategoriesContent({
       <header className="categories-heading">
         <div>
           <p className="breadcrumb">
-            Đám cưới <span>/</span> Khách mời <span>/</span> Danh mục
+            Đám cưới <span>/</span> Khách mời <span>/</span> Nhóm khách
           </p>
-          <h1 id="categories-heading">Danh mục khách mời</h1>
-          <p>Tổ chức khách theo cây danh mục tối đa 3 cấp để lọc thuận tiện hơn.</p>
+          <h1 id="categories-heading">Nhóm khách mời</h1>
+          <p>Sắp xếp khách theo cây nhóm tối đa 3 cấp để lọc thuận tiện hơn.</p>
         </div>
       </header>
       <div className="category-summary">
         <div>
           <TreeStructure size={19} />
           <span>
-            <strong>{items.length}</strong> danh mục
+            <strong>{items.length}</strong> nhóm khách
           </span>
         </div>
         <div>
@@ -253,14 +256,14 @@ function GuestCategoriesContent({
         </div>
         <p>
           <strong>3 cấp tối đa</strong>
-          <span>Danh mục con được giữ lại khi xóa danh mục cha.</span>
+          <span>Nhóm con được giữ lại khi xóa nhóm cha.</span>
         </p>
       </div>
       <div className="panel category-tree-panel">
         <header>
           <div>
-            <h2>Cây danh mục</h2>
-            <p>Chọn danh mục để xóa hàng loạt.</p>
+            <h2>Cây nhóm khách</h2>
+            <p>Chọn nhóm khách để xóa hàng loạt.</p>
           </div>
           {canEdit && selected.length ? (
             <button
@@ -273,12 +276,12 @@ function GuestCategoriesContent({
             </button>
           ) : (
             <span>
-              <UsersThree size={14} /> {roots.length} danh mục gốc
+              <UsersThree size={14} /> {roots.length} nhóm gốc
             </span>
           )}
         </header>
         {loading ? (
-          <div className="guest-empty">Đang tải danh mục…</div>
+          <div className="guest-empty">Đang tải nhóm khách…</div>
         ) : error ? (
           <div className="guest-empty">
             <p>{error}</p>
@@ -305,7 +308,7 @@ function GuestCategoriesContent({
                   <header className="category-family-block-header">
                     <div>
                       <h3 id={`category-family-${side || 'common'}`}>{label}</h3>
-                      <span>{blockRoots.length} danh mục gốc</span>
+                      <span>{blockRoots.length} nhóm gốc</span>
                     </div>
                     <div className="category-family-block-actions">
                       <span className="category-family-block-count">
@@ -318,7 +321,7 @@ function GuestCategoriesContent({
                           type="button"
                           onClick={() => openCreate(null, side)}
                         >
-                          <Plus size={14} /> Thêm danh mục
+                          <Plus size={14} /> Thêm nhóm khách
                         </button>
                       ) : null}
                     </div>
@@ -326,7 +329,7 @@ function GuestCategoriesContent({
                   {blockRoots.length ? (
                     <ul className="category-tree category-card-tree">{blockRoots.map(render)}</ul>
                   ) : (
-                    <p className="category-family-empty">Chưa có danh mục.</p>
+                    <p className="category-family-empty">Chưa có nhóm khách.</p>
                   )}
                 </section>
               )
@@ -345,18 +348,18 @@ function GuestCategoriesContent({
           <section className="category-dialog modal-saving-dialog" role="dialog" aria-modal="true">
             <header>
               <div>
-                <h2>{parent ? 'Thêm danh mục con' : 'Thêm danh mục gốc'}</h2>
+                <h2>{parent ? 'Thêm nhóm con' : 'Thêm nhóm gốc'}</h2>
                 <p>
                   {parent
                     ? `Nằm trong “${parent.name}” · Cấp ${parent.depth + 1}`
-                    : 'Danh mục cấp 1'}
+                    : 'Nhóm cấp 1'}
                 </p>
               </div>
               <button type="button" onClick={closeDialog} aria-label="Đóng">
                 <X size={18} />
               </button>
             </header>
-            <label htmlFor="category-name">Tên danh mục</label>
+            <label htmlFor="category-name">Tên nhóm khách</label>
             <input
               id="category-name"
               autoFocus
@@ -372,7 +375,7 @@ function GuestCategoriesContent({
               placeholder="Ví dụ: Họ nội, Bạn đại học"
             />
             <p className="field-helper">
-              Danh mục này sẽ thuộc block{' '}
+              Nhóm này sẽ thuộc phía gia đình{' '}
               {familySide === 'GROOM' ? 'Nhà trai' : familySide === 'BRIDE' ? 'Nhà gái' : 'Chung'}.
             </p>
             {error && <p className="field-error">{error}</p>}
@@ -386,7 +389,7 @@ function GuestCategoriesContent({
                 disabled={busy || !name.trim()}
                 onClick={() => void create()}
               >
-                Tạo danh mục
+                Tạo nhóm khách
               </button>
             </footer>
             {busy ? <ModalSavingStatus /> : null}

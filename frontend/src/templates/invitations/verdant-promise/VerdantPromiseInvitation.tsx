@@ -23,6 +23,7 @@ import {
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import {
   formatCountdownUnit,
+  usePreviewWeddingDate,
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
 import type { ModernLuxeData, ModernLuxeSectionConfig } from '../modern-luxe/ModernLuxeInvitation'
@@ -171,7 +172,8 @@ export function VerdantPromiseInvitation({
 }) {
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
-  const weddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const baseWeddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const weddingDate = usePreviewWeddingDate(baseWeddingDate) ?? baseWeddingDate
   const nameInitial = (value: string) =>
     value.trim().split(/\s+/).filter(Boolean).at(-1)?.[0]?.toUpperCase() ?? ''
   const brideInitial = nameInitial(brideName)
@@ -239,7 +241,7 @@ export function VerdantPromiseInvitation({
   const openingTimerRef = useRef<number | undefined>(undefined)
   const focusFrameRef = useRef<number | undefined>(undefined)
   const reduceMotion = useReducedMotion()
-  const weddingCountdown = useWeddingCountdown('2026-10-18T10:30:00+07:00')
+
   const { scrollY } = useScroll()
   const heroImageY = useTransform(scrollY, [0, 720], ['0%', '18%'])
   const heroContentY = useTransform(scrollY, [0, 720], ['0%', '34%'])
@@ -601,29 +603,7 @@ export function VerdantPromiseInvitation({
             >
               <div className="vp-countdown-orbit" aria-hidden="true" />
               <span>Chỉ còn</span>
-              <div
-                className="vp-countdown-units"
-                role="timer"
-                aria-live="off"
-                aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
-              >
-                <div>
-                  <strong>{weddingCountdown.days}</strong>
-                  <small>Ngày</small>
-                </div>
-                <div>
-                  <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
-                  <small>Giờ</small>
-                </div>
-                <div>
-                  <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
-                  <small>Phút</small>
-                </div>
-                <div>
-                  <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
-                  <small>Giây</small>
-                </div>
-              </div>
+              <VerdantCountdown date={weddingDate} />
               <p>để cùng gặp nhau trong khu vườn ngập nắng</p>
             </SectionReveal>
 
@@ -997,5 +977,34 @@ export function VerdantPromiseInvitation({
         ) : null}
       </div>
     </MotionConfig>
+  )
+}
+
+function VerdantCountdown({ date }: { date: string }) {
+  const weddingCountdown = useWeddingCountdown(date || '2026-10-18T10:30:00+07:00')
+  return (
+    <div
+      className="vp-countdown-units"
+      role="timer"
+      aria-live="off"
+      aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
+    >
+      <div>
+        <strong>{weddingCountdown.days}</strong>
+        <small>Ngày</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
+        <small>Giờ</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
+        <small>Phút</small>
+      </div>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
+        <small>Giây</small>
+      </div>
+    </div>
   )
 }

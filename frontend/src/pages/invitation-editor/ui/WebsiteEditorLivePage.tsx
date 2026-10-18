@@ -95,6 +95,24 @@ const setPath = (data: WebsiteData, path: string, value: unknown) => {
   cursor[parts.at(-1)!] = value
   return next
 }
+const getPath = (data: WebsiteData, path: string): unknown =>
+  path.split('.').reduce<unknown>(
+    (current, part) =>
+      current && typeof current === 'object'
+        ? (current as Record<string, unknown>)[part]
+        : undefined,
+    data,
+  )
+const mediaIdsAtValue = (value: unknown): string[] => {
+  const values = Array.isArray(value) ? value : value ? [value] : []
+  return values
+    .map((item) =>
+      item && typeof item === 'object' && typeof (item as Record<string, unknown>).mediaAssetId === 'string'
+        ? String((item as Record<string, unknown>).mediaAssetId)
+        : '',
+    )
+    .filter(Boolean)
+}
 const mergeData = (base: WebsiteData, stored: WebsiteData): WebsiteData => {
   const next = clone(base)
   for (const [key, value] of Object.entries(stored ?? {}))
@@ -541,7 +559,7 @@ export function WebsiteEditorLivePage() {
           selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'}
           open={mediaManagerOpen}
           assets={mediaAssets}
-          selectedIds={new Set()}
+          selectedIds={mediaTarget ? mediaIdsAtValue(getPath(data, mediaTarget.path)) : []}
           loading={mediaLoading}
           uploading={mediaUploading}
           error={mediaError}

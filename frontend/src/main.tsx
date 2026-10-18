@@ -17,3 +17,13 @@ const app = (
 ReactDOM.createRoot(document.getElementById('root')!).render(
   import.meta.env.DEV ? <React.StrictMode>{app}</React.StrictMode> : app,
 )
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .catch((error: unknown) => {
+        console.error('Ourday service worker registration failed:', error)
+      })
+  })
+}

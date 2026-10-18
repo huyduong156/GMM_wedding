@@ -14,6 +14,7 @@ import {
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
 import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
@@ -77,14 +78,6 @@ type ResolvedData = {
   footerMedia: RoseGardenMedia | null
 }
 
-type CountdownClock = {
-  days: number
-  hours: number
-  minutes: number
-  seconds: number
-  complete: boolean
-}
-
 const artworkRoot = '/assets/images/templates/rose-garden/artwork-drafts'
 const rendererDecor = {
   openingClosed: `${artworkRoot}/rg-opening-closed-card.png`,
@@ -123,14 +116,6 @@ const fixedSectionKeys = new Set<RoseGardenSectionKey>([
 ])
 const openingExitFallbackMs =1200
 
-const emptyCountdownClock: CountdownClock = {
-  days: 0,
-  hours: 0,
-  minutes: 0,
-  seconds: 0,
-  complete: false,
-}
-
 function parseWeddingTimestamp(dateValue: string, timeValue: string): number {
   const normalizedDate = dateValue.trim()
   const isoMatch = normalizedDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
@@ -155,18 +140,6 @@ function parseWeddingTimestamp(dateValue: string, timeValue: string): number {
   ) return Number.NaN
 
   return target.getTime()
-}
-
-function getCountdownClock(target: number, now = Date.now()): CountdownClock {
-  if (!Number.isFinite(target)) return emptyCountdownClock
-  const remaining = Math.max(0, target - now)
-  return {
-    days: Math.floor(remaining / 86_400_000),
-    hours: Math.floor((remaining % 86_400_000) / 3_600_000),
-    minutes: Math.floor((remaining % 3_600_000) / 60_000),
-    seconds: Math.floor((remaining % 60_000) / 1_000),
-    complete: remaining === 0,
-  }
 }
 
 function mediaSource(value: string | RoseGardenMedia | null | undefined): string {
@@ -389,7 +362,11 @@ export function RoseGardenRenderer({
   guestName?: string | null
   interactions?: PublicInteractions
 }) {
-  const content = resolveData(data)
+  const baseContent = resolveData(data)
+  const previewWeddingDate = usePreviewWeddingDate(baseContent.event.weddingDate)
+  const content = previewWeddingDate
+    ? { ...baseContent, event: { ...baseContent.event, weddingDate: previewWeddingDate } }
+    : baseContent
   const openingTimerRef = useRef<number | null>(null)
   const [motionScope, animate] = useAnimate()
   const reducedMotion = useReducedMotion()
@@ -409,7 +386,7 @@ export function RoseGardenRenderer({
     () => parseWeddingTimestamp(content.event.weddingDate, content.event.time),
     [content.event.time, content.event.weddingDate],
   )
-  const [countdownClock, setCountdownClock] = useState<CountdownClock>(() => getCountdownClock(weddingTimestamp))
+
   const connectedGuestName = interactions?.guestName?.trim() || guestName?.trim() || ''
   const interactionWishItems = interactions?.wishes.items
   const hasGuestName = Boolean(connectedGuestName)
@@ -642,22 +619,6 @@ export function RoseGardenRenderer({
   )
   const isWishMarquee = wishes.length > 5
 
-  useEffect(() => {
-    const updateCountdown = () => setCountdownClock(getCountdownClock(weddingTimestamp))
-    updateCountdown()
-    if (!Number.isFinite(weddingTimestamp) || weddingTimestamp <= Date.now()) return
-
-    const timer = window.setInterval(updateCountdown, 1000)
-    const handleVisibility = () => {
-      if (!document.hidden) updateCountdown()
-    }
-    document.addEventListener('visibilitychange', handleVisibility)
-    return () => {
-      window.clearInterval(timer)
-      document.removeEventListener('visibilitychange', handleVisibility)
-    }
-  }, [weddingTimestamp])
-
   const renderSection = (key: RoseGardenSectionKey) => {
     const sectionIndex = sectionOrder(key)
     switch (key) {
@@ -768,31 +729,7 @@ export function RoseGardenRenderer({
         )
       case 'countdown':
         return content.countdown.enabled && Number.isFinite(weddingTimestamp) ? (
-          <SectionFrame key={key} sectionKey={key} order={sectionIndex} className="rg-countdown">
-            <Artwork src={rendererDecor.sprig} alt="" className="rg-countdown-sprig rg-countdown-sprig-left rg-motion-static" />
-            <Artwork src={rendererDecor.sprig} alt="" className="rg-countdown-sprig rg-countdown-sprig-right rg-motion-static" />
-            <div className="rg-countdown-heading">
-              <SectionEyebrow>Đếm ngược ngày vui</SectionEyebrow>
-              <div className="rg-countdown-rule"><span /><Heart weight="fill" /><span /></div>
-              <h2>{countdownClock.complete ? 'Ngày vui đã đến' : 'Hẹn gặp nhau sau'}</h2>
-            </div>
-            <div className="rg-countdown-plaque" role="timer" aria-live="off" aria-label="Đếm ngược đến ngày cưới">
-              <div className="rg-countdown-units">
-                {([
-                  ['days', countdownClock.days, 'Ngày'],
-                  ['hours', countdownClock.hours, 'Giờ'],
-                  ['minutes', countdownClock.minutes, 'Phút'],
-                  ['seconds', countdownClock.seconds, 'Giây'],
-                ] as const).map(([unit, value, label]) => (
-                  <div className="rg-countdown-unit rg-motion-static" data-countdown-unit={unit} key={unit}>
-                    <strong>{String(value).padStart(2, '0')}</strong>
-                    <span>{label}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="rg-countdown-date"><span>{countdownClock.complete ? 'Trân trọng chào đón' : 'Ngày chúng mình chung đôi'}</span><strong>{content.event.weddingDate}</strong></div>
-            </div>
-          </SectionFrame>
+          <RoseCountdown key={key} sectionKey={key} weddingTimestamp={weddingTimestamp} content={content} sectionIndex={sectionIndex} />
         ) : null
       case 'timeline':
         return content.timeline.items.length ? (
@@ -966,5 +903,77 @@ export function RoseGardenRenderer({
         {sectionKeys.filter((key) => key !== 'opening' && order.includes(key)).map(renderSection)}
       </main>
     </div>
+  )
+}
+
+function RoseCountdown({
+  weddingTimestamp,
+  content,
+  sectionIndex,
+  sectionKey,
+}: {
+  weddingTimestamp: number
+  content: ResolvedData
+  sectionIndex: number
+  sectionKey: RoseGardenSectionKey
+}) {
+  const countdownClock = useWeddingCountdown(
+    Number.isFinite(weddingTimestamp) ? new Date(weddingTimestamp).toISOString() : '',
+  )
+
+  return (
+    <SectionFrame sectionKey={sectionKey} order={sectionIndex} className="rg-countdown">
+      <Artwork
+        src={rendererDecor.sprig}
+        alt=""
+        className="rg-countdown-sprig rg-countdown-sprig-left rg-motion-static"
+      />
+      <Artwork
+        src={rendererDecor.sprig}
+        alt=""
+        className="rg-countdown-sprig rg-countdown-sprig-right rg-motion-static"
+      />
+      <div className="rg-countdown-heading">
+        <SectionEyebrow>Đếm ngược ngày vui</SectionEyebrow>
+        <div className="rg-countdown-rule">
+          <span />
+          <Heart weight="fill" />
+          <span />
+        </div>
+        <h2>{countdownClock.complete ? 'Ngày vui đã đến' : 'Hẹn gặp nhau sau'}</h2>
+      </div>
+      <div
+        className="rg-countdown-plaque"
+        role="timer"
+        aria-live="off"
+        aria-label="Đếm ngược đến ngày cưới"
+      >
+        <div className="rg-countdown-units">
+          {(
+            [
+              ['days', countdownClock.days, 'Ngày'],
+              ['hours', countdownClock.hours, 'Giờ'],
+              ['minutes', countdownClock.minutes, 'Phút'],
+              ['seconds', countdownClock.seconds, 'Giây'],
+            ] as const
+          ).map(([unit, value, label]) => (
+            <div
+              className="rg-countdown-unit rg-motion-static"
+              data-countdown-unit={unit}
+              key={unit}
+            >
+              <strong>{String(value).padStart(2, '0')}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rg-countdown-date">
+          <span>
+            {countdownClock.complete ? 'Trân trọng chào đón' : 'Ngày chúng mình chung đôi'}
+          </span>
+          <strong>{content.event.weddingDate}</strong>
+        </div>
+      </div>
+    </SectionFrame>
   )
 }

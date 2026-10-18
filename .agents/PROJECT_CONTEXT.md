@@ -39,6 +39,7 @@
 ## Layout và kiến trúc
 
 - `frontend/`: React + Vite + TypeScript.
+- Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor, manifest và worker được Nginx revalidate sau deploy.
 - `backend/`: Next.js + TypeScript API.
 - `docs/`: source of truth; `assets/`: tài nguyên rõ nguồn/bản quyền.
 - Modular monolith, hai app deploy độc lập; PostgreSQL + Prisma đề xuất.

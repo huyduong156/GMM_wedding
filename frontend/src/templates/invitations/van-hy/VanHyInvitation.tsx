@@ -12,6 +12,7 @@ import { motion, useAnimate, useInView, useReducedMotion } from 'motion/react'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 import './van-hy.css'
 
@@ -213,20 +214,16 @@ function parseDate(value: string) {
 }
 
 function useCountdown(date: string) {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-  const remaining = Math.max(0, parseDate(date) - now)
+  const target = parseDate(date)
+  const countdown = useWeddingCountdown(Number.isFinite(target) ? new Date(target).toISOString() : '')
   return useMemo(
     () => [
-      Math.floor(remaining / 86400000),
-      Math.floor(remaining / 3600000) % 24,
-      Math.floor(remaining / 60000) % 60,
-      Math.floor(remaining / 1000) % 60,
+      countdown.days,
+      countdown.hours,
+      countdown.minutes,
+      countdown.seconds,
     ],
-    [remaining],
+    [countdown.days, countdown.hours, countdown.minutes, countdown.seconds],
   )
 }
 
@@ -243,6 +240,8 @@ export function VanHyInvitation({
   interactions?: PublicInteractions
   editorMode?: boolean
 }) {
+  const baseWeddingDate = data?.weddingDate ?? '18 · 10 · 2026'
+  const weddingDate = usePreviewWeddingDate(baseWeddingDate) ?? baseWeddingDate
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
   const [curtainsActive, setCurtainsActive] = useState(false)
@@ -258,15 +257,6 @@ export function VanHyInvitation({
   const [wishSent, setWishSent] = useState(false)
   const [pageVisible, setPageVisible] = useState(true)
   const contentRef = useRef<HTMLDivElement>(null)
-  const countdown = useCountdown(data?.weddingDate ?? '18 · 10 · 2026')
-  const previousCountdown = useRef<number[] | null>(null)
-  const changedCountdown = countdown.map(
-    (value, index) =>
-      previousCountdown.current !== null && previousCountdown.current[index] !== value,
-  )
-  useEffect(() => {
-    previousCountdown.current = countdown
-  }, [countdown])
   const timeline = data?.timelineItems ?? [
     {
       time: '17:00',
@@ -589,7 +579,7 @@ export function VanHyInvitation({
                   </span>
                 </h2>
                 <div className="hh-date-lockup" data-motion-variant="fade-up">
-                  <strong>{data?.weddingDate ?? '18 · 10 · 2026'}</strong>
+                  <strong>{weddingDate}</strong>
                   <span>Trân trọng kính mời bạn đến chung vui</span>
                 </div>
                 <span className="hh-section-mark">囍</span>
@@ -686,19 +676,7 @@ export function VanHyInvitation({
                 <h2 data-motion-variant="fade-up">
                   {data?.countdownTitle ?? 'Hẹn gặp nhau trong ngày hỷ'}
                 </h2>
-                <div className="hh-countdown-grid">
-                  {countdown.map((value, index) => (
-                    <div key={index} data-motion-variant="fade-up">
-                      <strong
-                        key={`${index}-${value}`}
-                        className={`hh-countdown-value${changedCountdown[index] ? ' is-changing' : ''}`}
-                      >
-                        {String(value).padStart(2, '0')}
-                      </strong>
-                      <span>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</span>
-                    </div>
-                  ))}
-                </div>
+                <VanHyCountdown date={weddingDate} />
                 <p className="hh-venue-greeting" data-motion-variant="fade-up">
                   Rất mong được gặp lại{' '}
                   <span className="hh-guest-name">{connectedGuestName || 'Quý khách'}</span> tại
@@ -1112,5 +1090,33 @@ export function VanHyInvitation({
         </VanHyMotionActiveContext.Provider>
       </main>
     </>
+  )
+}
+
+function VanHyCountdown({ date }: { date: string }) {
+  const countdown = useCountdown(date)
+  const previousCountdown = useRef<number[] | null>(null)
+  const changedCountdown = countdown.map(
+    (value, index) =>
+      previousCountdown.current !== null && previousCountdown.current[index] !== value,
+  )
+  useEffect(() => {
+    previousCountdown.current = countdown
+  }, [countdown])
+
+  return (
+    <div className="hh-countdown-grid">
+      {countdown.map((value, index) => (
+        <div key={index} data-motion-variant="fade-up">
+          <strong
+            key={`${index}-${value}`}
+            className={`hh-countdown-value${changedCountdown[index] ? ' is-changing' : ''}`}
+          >
+            {String(value).padStart(2, '0')}
+          </strong>
+          <span>{['Ngày', 'Giờ', 'Phút', 'Giây'][index]}</span>
+        </div>
+      ))}
+    </div>
   )
 }

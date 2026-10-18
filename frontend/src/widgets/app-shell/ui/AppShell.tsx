@@ -37,6 +37,31 @@ import { notifications } from '../../../shared/ui/notifications/notifications'
 import { GuideHelpButton } from '../../../features/user-guide/ui/GuideHelpButton'
 import { ProductGuide } from '../../../features/user-guide/ui/ProductGuide'
 
+function WeddingCountdownStatus({ date, compact = false }: { date?: string; compact?: boolean }) {
+  const countdown = useWeddingCountdown(date ?? '', 60_000)
+  const label = !date
+    ? 'Vui lòng nhập ngày cưới của bạn'
+    : countdown.complete
+      ? 'Ngày cưới đã diễn ra'
+      : `Còn ${countdown.days} ngày đến lễ cưới`
+  if (compact) return (
+    <div
+      className={`mobile-wedding-countdown ${date ? '' : 'is-empty'}`}
+      role="status"
+      aria-label={label}
+    >
+      <CalendarCheck size={16} aria-hidden="true" />
+      <span>{!date ? 'Nhập ngày cưới' : countdown.complete ? 'Đã diễn ra' : `${countdown.days} ngày`}</span>
+    </div>
+  )
+  return (
+    <small className={date ? '' : 'is-empty'}>
+      <CalendarCheck size={12} aria-hidden="true" />
+      {label}
+    </small>
+  )
+}
+
 type NavItem = {
   label: string
   icon: typeof House
@@ -68,7 +93,7 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
       { to: studioRoutes.guests, label: 'Khách mời', icon: UserList },
       {
         to: studioRoutes.guestCategories,
-        label: 'Danh mục khách mời',
+        label: 'Nhóm khách mời',
         icon: FolderSimple,
         child: true,
       },
@@ -145,12 +170,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         weddingDate: currentWedding.primaryDate ?? undefined,
       }
     : fallbackWedding
-  const weddingCountdown = useWeddingCountdown(activeWedding.weddingDate ?? '')
-  const weddingCountdownLabel = !activeWedding.weddingDate
-    ? 'Vui lòng nhập ngày cưới của bạn'
-    : weddingCountdown.complete
-      ? 'Ngày cưới đã diễn ra'
-      : `Còn ${weddingCountdown.days} ngày đến lễ cưới`
 
   useEffect(() => {
     const wedding = weddingWorkspace?.activeWedding
@@ -343,20 +362,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {!isMobileLayout ? (
             <FeatureSearch features={searchFeatures} className="topbar-search" />
           ) : null}
-          <div
-            className={`mobile-wedding-countdown ${activeWedding.weddingDate ? '' : 'is-empty'}`}
-            role="status"
-            aria-label={weddingCountdownLabel}
-          >
-            <CalendarCheck size={16} aria-hidden="true" />
-            <span>
-              {activeWedding.weddingDate && !weddingCountdown.complete
-                ? `${weddingCountdown.days} ngày`
-                : activeWedding.weddingDate
-                  ? 'Đã diễn ra'
-                  : 'Nhập ngày cưới'}
-            </span>
-          </div>
+          <WeddingCountdownStatus date={activeWedding.weddingDate} compact />
           <div className="topbar-actions">
             <button
               className="icon-button notification-button"
@@ -385,10 +391,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
               <span className="account-copy">
                 <strong>{auth?.user?.displayName ?? 'Tài khoản'}</strong>
-                <small className={activeWedding.weddingDate ? '' : 'is-empty'}>
-                  <CalendarCheck size={12} aria-hidden="true" />
-                  {weddingCountdownLabel}
-                </small>
+                <WeddingCountdownStatus date={activeWedding.weddingDate} />
               </span>
               <CaretRight size={14} aria-hidden="true" />
             </button>

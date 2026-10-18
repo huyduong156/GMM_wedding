@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'motion/react'
 import {
   ArrowDown,
@@ -21,6 +21,7 @@ import type {
 } from './content'
 import { editorialVowsFixture, editorialVowsSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './editorial-vows.css'
 
 type Props = {
@@ -75,31 +76,20 @@ function SectionTitle({
 }
 
 export function EditorialVowsWebsite({
-  data = editorialVowsFixture,
+  data: inputData = editorialVowsFixture,
   sectionConfig = editorialVowsSections,
   editorMode = false,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion()
   const [navOpen, setNavOpen] = useState(false),
     [playing, setPlaying] = useState(false),
     [sent, setSent] = useState(false)
-  const eventDate = useMemo(() => new Date('2026-12-20T18:00:00+07:00'), [])
-  const [remaining, setRemaining] = useState(() => Math.max(0, eventDate.getTime() - Date.now()))
-  useEffect(() => {
-    const timer = window.setInterval(
-      () => setRemaining(Math.max(0, eventDate.getTime() - Date.now())),
-      1000,
-    )
-    return () => window.clearInterval(timer)
-  }, [eventDate])
-  const time = {
-    days: Math.floor(remaining / 86400000),
-    hours: Math.floor(remaining / 3600000) % 24,
-    minutes: Math.floor(remaining / 60000) % 60,
-    seconds: Math.floor(remaining / 1000) % 60,
-  }
+
+
 
   const labels: Partial<Record<EditorialVowsSectionKey, string>> = {
     couple: 'Chúng mình',
@@ -242,25 +232,7 @@ export function EditorialVowsWebsite({
       </section>
     ),
     countdown: (
-      <section className="ev-countdown" data-editor-section="countdown">
-        <Reveal>
-          <span className="ev-countdown-label">Cùng đếm những nhịp chờ</span>
-          <div>
-            {Object.entries(time).map(([key, value]) => (
-              <p key={key}>
-                <strong>{String(value).padStart(2, '0')}</strong>
-                <span>
-                  {
-                    { days: 'ngày', hours: 'giờ', minutes: 'phút', seconds: 'giây' }[
-                      key as keyof typeof time
-                    ]
-                  }
-                </span>
-              </p>
-            ))}
-          </div>
-        </Reveal>
-      </section>
+      <EditorialCountdown date={data?.hero.date} />
     ),
     venues: (
       <section className="ev-section ev-venues" data-editor-section="venues">
@@ -559,5 +531,36 @@ export function EditorialVowsWebsite({
         <MusicNote />
       </button>
     </main>
+  )
+}
+
+function EditorialCountdown({ date }: { date?: string }) {
+  const countdown = useWeddingCountdown(date || '2026-12-20T18:00:00+07:00')
+  const time = {
+    days: countdown.days,
+    hours: countdown.hours,
+    minutes: countdown.minutes,
+    seconds: countdown.seconds,
+  }
+  return (
+    <section className="ev-countdown" data-editor-section="countdown">
+      <Reveal>
+        <span className="ev-countdown-label">Cùng đếm những nhịp chờ</span>
+        <div>
+          {Object.entries(time).map(([key, value]) => (
+            <p key={key}>
+              <strong>{String(value).padStart(2, '0')}</strong>
+              <span>
+                {
+                  { days: 'ngày', hours: 'giờ', minutes: 'phút', seconds: 'giây' }[
+                    key as keyof typeof time
+                  ]
+                }
+              </span>
+            </p>
+          ))}
+        </div>
+      </Reveal>
+    </section>
   )
 }
