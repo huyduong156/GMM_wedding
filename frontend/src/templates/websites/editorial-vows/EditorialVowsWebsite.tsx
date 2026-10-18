@@ -21,7 +21,7 @@ import type {
 } from './content'
 import { editorialVowsFixture, editorialVowsSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './editorial-vows.css'
 
 type Props = {
@@ -76,10 +76,12 @@ function SectionTitle({
 }
 
 export function EditorialVowsWebsite({
-  data = editorialVowsFixture,
+  data: inputData = editorialVowsFixture,
   sectionConfig = editorialVowsSections,
   editorMode = false,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion()

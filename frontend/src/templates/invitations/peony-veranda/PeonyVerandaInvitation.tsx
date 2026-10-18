@@ -12,7 +12,7 @@ import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 
 const asset = (name: string) => `/assets/images/templates/peony-veranda/${name}`
@@ -153,7 +153,10 @@ export function PeonyVerandaInvitation({
 
   const brideName = data?.brideName ?? 'Mai'
   const groomName = data?.groomName ?? 'Đức'
-  const weddingDate = data?.weddingDate ?? '20 · 12 · 2026'
+  const baseWeddingDate = data?.weddingDate ?? '20 · 12 · 2026'
+  const previewWeddingDate = usePreviewWeddingDate(baseWeddingDate)
+  const weddingDate = previewWeddingDate ?? baseWeddingDate
+  const ceremonyDate = previewWeddingDate ?? data?.ceremonyDate ?? weddingDate
   const dateMatch =
     weddingDate.match(/(\d{1,2})\s*[·/-]\s*(\d{1,2})\s*[·/-]\s*(\d{4})/) ??
     weddingDate.match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
@@ -697,7 +700,7 @@ export function PeonyVerandaInvitation({
             <div className="pv-detail">
               <div className="pv-detail-copy">
                 <strong>
-                  {data?.ceremonyVenue ?? ceremonyVenue} · {data?.ceremonyDate ?? weddingDate} ·{' '}
+                  {data?.ceremonyVenue ?? ceremonyVenue} · {ceremonyDate} ·{' '}
                   {data?.ceremonyTime ?? '18:30'}
                 </strong>
                 <span>{data?.ceremonyAddress ?? ceremonyAddress}</span>

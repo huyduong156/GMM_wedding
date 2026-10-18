@@ -12,7 +12,7 @@ import { motion, useAnimate, useInView, useReducedMotion } from 'motion/react'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 import './van-hy.css'
 
@@ -240,6 +240,8 @@ export function VanHyInvitation({
   interactions?: PublicInteractions
   editorMode?: boolean
 }) {
+  const baseWeddingDate = data?.weddingDate ?? '18 · 10 · 2026'
+  const weddingDate = usePreviewWeddingDate(baseWeddingDate) ?? baseWeddingDate
   const [opened, setOpened] = useState(false)
   const [opening, setOpening] = useState(false)
   const [curtainsActive, setCurtainsActive] = useState(false)
@@ -577,7 +579,7 @@ export function VanHyInvitation({
                   </span>
                 </h2>
                 <div className="hh-date-lockup" data-motion-variant="fade-up">
-                  <strong>{data?.weddingDate ?? '18 · 10 · 2026'}</strong>
+                  <strong>{weddingDate}</strong>
                   <span>Trân trọng kính mời bạn đến chung vui</span>
                 </div>
                 <span className="hh-section-mark">囍</span>
@@ -674,7 +676,7 @@ export function VanHyInvitation({
                 <h2 data-motion-variant="fade-up">
                   {data?.countdownTitle ?? 'Hẹn gặp nhau trong ngày hỷ'}
                 </h2>
-                <VanHyCountdown date={data?.weddingDate ?? '18 · 10 · 2026'} />
+                <VanHyCountdown date={weddingDate} />
                 <p className="hh-venue-greeting" data-motion-variant="fade-up">
                   Rất mong được gặp lại{' '}
                   <span className="hh-guest-name">{connectedGuestName || 'Quý khách'}</span> tại

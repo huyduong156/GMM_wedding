@@ -3,6 +3,18 @@ import { createContext, createElement, type ReactNode, useContext, useEffect, us
 const PREVIEW_COUNTDOWN_DAYS = 69
 const PreviewCountdownTargetContext = createContext<number | null>(null)
 
+function formatDateLike(date: Date, referenceDate: string) {
+  const referenceMatch = referenceDate.match(/^(\s*)(\d{1,4})(\D+)(\d{1,2})(\D+)(\d{1,4})/)
+  const separator = referenceMatch?.[3] ?? ' · '
+  const yearFirst = Boolean(referenceMatch && referenceMatch[2].length === 4)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear())
+
+  if (yearFirst) return `${year}${separator}${month}${separator}${day}`
+  return `${day}${separator}${month}${separator}${year}`
+}
+
 export function PreviewCountdownProvider({
   enabled,
   children,
@@ -84,4 +96,10 @@ export function useWeddingCountdown(targetDate: string, refreshIntervalMs = 1000
   }, [effectiveTarget, refreshIntervalMs])
 
   return countdown
+}
+
+export function usePreviewWeddingDate(referenceDate: string) {
+  const previewTarget = useContext(PreviewCountdownTargetContext)
+  if (previewTarget === null) return null
+  return formatDateLike(new Date(previewTarget), referenceDate)
 }

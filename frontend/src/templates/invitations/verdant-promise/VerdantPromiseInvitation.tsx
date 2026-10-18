@@ -23,6 +23,7 @@ import {
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import {
   formatCountdownUnit,
+  usePreviewWeddingDate,
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
 import type { ModernLuxeData, ModernLuxeSectionConfig } from '../modern-luxe/ModernLuxeInvitation'
@@ -171,7 +172,8 @@ export function VerdantPromiseInvitation({
 }) {
   const brideName = data?.brideName || 'An Nhiên'
   const groomName = data?.groomName || 'Minh Khang'
-  const weddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const baseWeddingDate = data?.weddingDate || '18 · 10 · 2026'
+  const weddingDate = usePreviewWeddingDate(baseWeddingDate) ?? baseWeddingDate
   const nameInitial = (value: string) =>
     value.trim().split(/\s+/).filter(Boolean).at(-1)?.[0]?.toUpperCase() ?? ''
   const brideInitial = nameInitial(brideName)
@@ -601,7 +603,7 @@ export function VerdantPromiseInvitation({
             >
               <div className="vp-countdown-orbit" aria-hidden="true" />
               <span>Chỉ còn</span>
-              <VerdantCountdown date={data?.weddingDate ?? ''} />
+              <VerdantCountdown date={weddingDate} />
               <p>để cùng gặp nhau trong khu vườn ngập nắng</p>
             </SectionReveal>
 

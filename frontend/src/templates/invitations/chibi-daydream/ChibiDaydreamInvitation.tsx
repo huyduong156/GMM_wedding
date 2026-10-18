@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react'
 import {
   formatCountdownUnit,
+  usePreviewWeddingDate,
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
 import './chibi-daydream.css'
@@ -71,6 +72,7 @@ export function ChibiDaydreamInvitation({
     ],
     ...data,
   }
+  content.weddingDate = usePreviewWeddingDate(content.weddingDate) ?? content.weddingDate
   const visible = (key: string) => !sectionConfig || sectionConfig.enabled.includes(key)
   const sectionStyle = (key: string) =>
     sectionConfig ? { order: sectionConfig.order.indexOf(key) } : undefined
@@ -307,7 +309,7 @@ export function ChibiDaydreamInvitation({
             <img src={asset('chibi_love-calendar_v2.png')} alt="" />
             <span>Save the date</span>
             <h2 id="cd-calendar-title">Hẹn nhau vào một ngày thật xinh</h2>
-            <ChibiCountdown date={data?.weddingDate ?? ''} />
+            <ChibiCountdown date={content.weddingDate} />
             <a
               href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Le%20thanh%20hon%20Khanh%20An%20va%20Duc%20Minh"
               target="_blank"
