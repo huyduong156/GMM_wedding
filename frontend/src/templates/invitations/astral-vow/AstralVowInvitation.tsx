@@ -3,7 +3,7 @@ import { useAnimate, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, CaretLeft, CaretRight, HandTap, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { FallingStars } from '../../../shared/ui/falling-stars/FallingStars'
 import { MusicPlayer, type MusicPlayerHandle } from '../../../shared/ui/music-player'
 import { AstralOpeningCard } from './AstralOpeningCard'
@@ -39,6 +39,8 @@ function getClockTarget(date: string, time: string) {
 
 export function AstralVowInvitation({ data, sectionConfig, editorMode = false, guestName, interactions }: { data?: AstralVowData; sectionConfig?: AstralVowSectionConfig; editorMode?: boolean; guestName?: string | null; interactions?: PublicInteractions }) {
   const content = { ...astralVowFixture, ...data, couple: { ...astralVowFixture.couple, ...data?.couple }, event: { ...astralVowFixture.event, ...data?.event }, opening: { ...astralVowFixture.opening, ...data?.opening }, cover: { ...astralVowFixture.cover, ...data?.cover }, invitation: { ...astralVowFixture.invitation, ...data?.invitation }, families: { ...astralVowFixture.families, ...data?.families }, timeline: { ...astralVowFixture.timeline, ...data?.timeline }, venue: { ...astralVowFixture.venue, ...data?.venue }, gallery: { ...astralVowFixture.gallery, ...data?.gallery }, rsvp: { ...astralVowFixture.rsvp, ...data?.rsvp }, guestbook: { ...astralVowFixture.guestbook, ...data?.guestbook }, gift: { ...astralVowFixture.gift, ...data?.gift }, music: { ...astralVowFixture.music, ...data?.music }, footer: { ...astralVowFixture.footer, ...data?.footer } }
+  const previewWeddingDate = usePreviewWeddingDate(content.event?.weddingDate ?? '')
+  if (previewWeddingDate && content.event) content.event.weddingDate = previewWeddingDate
   const [motionScope, animate] = useAnimate()
   const reducedMotion = useReducedMotion()
   const musicPlayerRef = useRef<MusicPlayerHandle>(null)

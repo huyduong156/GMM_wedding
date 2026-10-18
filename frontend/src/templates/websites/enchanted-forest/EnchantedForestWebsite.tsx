@@ -18,7 +18,7 @@ import type {
 } from './content'
 import { enchantedForestFixture, enchantedForestSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './enchanted-forest.css'
 type Props = { data?: EnchantedForestData; sectionConfig?: EnchantedForestSectionConfig }
 const root = '/assets/images/templates/enchanted-forest'
@@ -56,9 +56,11 @@ function Title({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 export function EnchantedForestWebsite({
-  data = enchantedForestFixture,
+  data: inputData = enchantedForestFixture,
   sectionConfig = enchantedForestSections,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),

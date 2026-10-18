@@ -19,12 +19,13 @@ Tài liệu trong folder này thuộc ứng dụng React + Vite tại `frontend/
 - Hồ sơ tài khoản owner tại `/studio/profile` dùng `GET/PATCH /api/me`, cho phép cập nhật tên hiển thị, số điện thoại, ảnh đại diện, ngôn ngữ và múi giờ; email chỉ đọc. Ảnh đại diện được chọn từ kho ảnh của wedding đang active qua media manager.
 - Kho ảnh wedding tại `/studio/media` dùng các media endpoint hiện có để liệt kê, upload và xóa ảnh; khi đổi wedding, danh sách kho ảnh và phạm vi thao tác đổi theo wedding mới.
 - Metadata trang được quản lý tập trung trong `src/shared/lib/page-metadata.ts`: route marketing/studio/admin có title và robots riêng; invitation, website và recap public tự sinh title, description, canonical URL và ảnh Open Graph/Twitter từ publication payload, có fallback logo. Khi deploy cPanel, `public/.htaccess` chuyển request của social crawler qua `public/share-meta.php` để bot không cần chạy JavaScript vẫn nhận đúng metadata.
+- Frontend hỗ trợ cài đặt dạng PWA qua `public/manifest.webmanifest`, icon app và service worker tại scope `/`. Service worker chỉ nhận lifecycle để hỗ trợ standalone install, không cache request/API, nội dung thiệp, editor hay asset; HTTPS là điều kiện khi chạy production. Nginx luôn revalidate manifest/service worker để nhận release mới.
 - Ngày hiển thị trong Wedding workspace dùng formatter chung `DD/MM/YYYY`; ngày-giờ dùng `DD/MM/YYYY · HH:mm`. Form tạo event bỏ các field optional để trống khỏi payload; chỉ gửi `null` khi update nhằm xóa giá trị đã tồn tại.
 
 - [Admin và editor UI/UX](./admin-editor-ui-ux.md)
 - [Nền live template editor dùng chung](./live-template-editor.md)
 - [Nhạc nền cưới: admin catalog, owner editor và guest playback](./wedding-background-music.md)
-- Countdown trên trang preview template không có ngày cưới từ dữ liệu dùng mốc demo hiện tại + 69 ngày; nếu preview có ngày cưới thì vẫn dùng ngày đó.
+- Trang preview template không có ngày cưới từ dữ liệu dùng mốc demo hiện tại + 69 ngày. Mọi phần ngày cưới hiển thị từ cùng trường dữ liệu (bao gồm lịch, thứ/ngày/tháng/năm và ngày âm được tính từ ngày dương) phải theo cùng mốc; preview có ngày cưới thật thì giữ nguyên ngày đó.
 - [Thư viện hiệu ứng trải nghiệm cưới](./experience-effects-reference.md)
 - [Common Theme Authoring Contract và quality gate cho mọi theme](./theme-authoring/README.md)
 - [Catalog section và layout thiệp online](./online-invitations/section-layout-catalog.md)

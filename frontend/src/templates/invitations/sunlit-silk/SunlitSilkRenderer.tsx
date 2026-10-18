@@ -21,7 +21,7 @@ import {
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 import { MusicPlayer } from '../../../shared/ui/music-player'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { sunlitSilkFixture, sunlitSilkSectionConfig } from './fixture'
 import type {
   SunlitSilkData,
@@ -362,7 +362,11 @@ export function SunlitSilkRenderer({
   guestName?: string | null
   interactions?: PublicInteractions
 }) {
-  const content = useMemo(() => mergeContent(data), [data])
+  const mergedContent = useMemo(() => mergeContent(data), [data])
+  const previewWeddingDate = usePreviewWeddingDate(mergedContent.event?.weddingDate ?? '')
+  const content = useMemo(() => previewWeddingDate
+    ? { ...mergedContent, event: { ...mergedContent.event, weddingDate: previewWeddingDate } }
+    : mergedContent, [mergedContent, previewWeddingDate])
   const reduceMotion = useReducedMotion()
   const coverPhraseFrom = content.cover?.phraseFrom?.trim() || 'Hai người, một lời hẹn'
   const coverPhraseTo = content.cover?.phraseTo?.trim() || 'Mình thương, mình ở lại'

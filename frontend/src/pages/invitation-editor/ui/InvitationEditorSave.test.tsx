@@ -94,6 +94,31 @@ async function editor() {
 }
 
 describe('invitation save lifecycle', () => {
+  it('lets the user pick the header wedding date and stores the template date format', async () => {
+    vi.mocked(weddingApi.content).mockResolvedValueOnce({
+      content: {
+        ...content,
+        templateVersion: { ...content.templateVersion!, key: 'van-hy' },
+      },
+    })
+    await editor()
+    const weddingDate = screen
+      .getAllByLabelText('Ngày cưới')
+      .find((element) => element.closest('[data-guide="editor-quick-edit"]'))
+
+    expect(weddingDate).toHaveClass('date-picker-trigger')
+    fireEvent.click(weddingDate!)
+    const calendar = document.querySelector('.date-picker-popover')!
+    fireEvent.click(calendar.querySelector('button[aria-label*="next month" i]')!)
+    fireEvent.click(calendar.querySelector('button[aria-label*="November 11" i]')!)
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu thiệp' }))
+
+    await waitFor(() => expect(weddingApi.saveContent).toHaveBeenCalled())
+    expect(vi.mocked(weddingApi.saveContent).mock.calls[0][1].content).toMatchObject({
+      weddingDate: '11 · 11 · 2026',
+    })
+  })
+
   it('restores the button after each successful save and uses the new revision', async () => {
     await editor()
     for (let index = 0; index < 2; index++) {

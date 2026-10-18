@@ -69,6 +69,15 @@ const initialData: ModernLuxeData = {
   ...(initialTemplate.config.defaultData as Partial<ModernLuxeData> | undefined),
 }
 
+function fromDateInputValue(value: string, templateKey: string | null) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!match) return value
+  const [, year, month, day] = match
+  return templateKey === 'sunlit-silk'
+    ? `${day}.${month}.${year}`
+    : `${day} · ${month} · ${year}`
+}
+
 export function InvitationEditorLivePage() {
   const { navigate } = useNavigation()
   const auth = useOptionalAuth()
@@ -664,20 +673,25 @@ export function InvitationEditorLivePage() {
           </div>
         </div>
         <div className="editor-couple-quick-edit" data-guide="editor-quick-edit">
-          {quickEditFields.map((field) => (
-            <Input
-              key={field.contentKey}
-              fieldKey={field.contentKey}
-              label={field.label}
-              value={
-                typeof getNestedValue(data, field.contentKey) === 'string'
-                  ? (getNestedValue(data, field.contentKey) as string)
-                  : ''
-              }
-              error={fieldErrors[field.contentKey]}
-              onChange={(value) => updatePath(field.contentKey, value)}
-            />
-          ))}
+          {quickEditFields.map((field) => {
+            const isDate = /date/i.test(field.contentKey) || /ngày/i.test(field.label)
+            const storedValue = getNestedValue(data, field.contentKey)
+            const value = typeof storedValue === 'string' ? storedValue : ''
+            return (
+              <Input
+                key={field.contentKey}
+                fieldKey={field.contentKey}
+                label={field.label}
+                type={isDate ? 'date' : 'text'}
+                value={value}
+                error={fieldErrors[field.contentKey]}
+                onChange={(nextValue) => updatePath(
+                  field.contentKey,
+                  isDate ? fromDateInputValue(nextValue, templateKey) : nextValue,
+                )}
+              />
+            )
+          })}
         </div>
         <div className="editor-toolbar-actions">
           <div className="editor-toolbar-main-actions">

@@ -14,7 +14,7 @@ import {
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
 import { GiftEnvelopeBox } from '../../shared/component/opening/GiftEnvelopeBox'
@@ -362,7 +362,11 @@ export function RoseGardenRenderer({
   guestName?: string | null
   interactions?: PublicInteractions
 }) {
-  const content = resolveData(data)
+  const baseContent = resolveData(data)
+  const previewWeddingDate = usePreviewWeddingDate(baseContent.event.weddingDate)
+  const content = previewWeddingDate
+    ? { ...baseContent, event: { ...baseContent.event, weddingDate: previewWeddingDate } }
+    : baseContent
   const openingTimerRef = useRef<number | null>(null)
   const [motionScope, animate] = useAnimate()
   const reducedMotion = useReducedMotion()

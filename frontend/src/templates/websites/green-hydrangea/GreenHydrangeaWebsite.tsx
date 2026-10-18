@@ -15,7 +15,7 @@ import type {
 } from './content'
 import { greenHydrangeaFixture, greenHydrangeaSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './green-hydrangea.css'
 
 type Props = {
@@ -59,9 +59,11 @@ function Title({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export function GreenHydrangeaWebsite({
-  data = greenHydrangeaFixture,
+  data: inputData = greenHydrangeaFixture,
   sectionConfig = greenHydrangeaSections,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),

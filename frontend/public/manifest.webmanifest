@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Ourday — Thiệp cưới & ngày trọng đại",
+  "short_name": "Ourday",
+  "description": "Tạo thiệp cưới, website cưới và lưu giữ những khoảnh khắc đáng nhớ cùng Ourday.",
+  "lang": "vi-VN",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5ebdd",
+  "theme_color": "#f5ebdd",
+  "icons": [
+    {
+      "src": "/assets/ourday-pwa-icon-v2.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

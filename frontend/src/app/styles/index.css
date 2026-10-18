@@ -11157,11 +11157,53 @@ kbd {
 .editor-couple-quick-edit .editor-field > span {
   font-size: 7px;
 }
-.editor-couple-quick-edit input {
+.editor-couple-quick-edit input,
+.editor-couple-quick-edit .date-picker-trigger {
   box-sizing: border-box;
   min-width: 0;
   padding: 5px 6px;
   font-size: 10px;
+  line-height: normal;
+}
+.editor-couple-quick-edit .date-picker-field {
+  min-width: 0;
+  gap: 0;
+}
+.editor-couple-quick-edit .date-picker-trigger {
+  min-height: 0;
+  height: 24px;
+  gap: 4px;
+  overflow: hidden;
+  border-color: #dcd6d0;
+  border-radius: 8px;
+  color: #383330;
+  background: #fff;
+  text-align: left;
+}
+.editor-couple-quick-edit .date-picker-trigger:hover {
+  border-color: #b9aaa0;
+}
+.editor-couple-quick-edit .date-picker-trigger:focus-visible {
+  outline: 0;
+  border-color: #a95618;
+  box-shadow: 0 0 0 3px rgb(169 86 24 / 0.1);
+}
+.editor-couple-quick-edit .date-picker-trigger > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.editor-couple-quick-edit .date-picker-trigger > svg:first-child {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  color: #8b7568;
+}
+.editor-couple-quick-edit .date-picker-trigger .date-picker-caret {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
 }
 .editor-timeline-fields {
   display: grid;
@@ -17142,7 +17184,8 @@ input[type='file'] {
   min-width: 0;
 }
 
-.invitation-editor .editor-couple-quick-edit input {
+.invitation-editor .editor-couple-quick-edit input,
+.invitation-editor .editor-couple-quick-edit .date-picker-trigger {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

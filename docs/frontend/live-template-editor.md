@@ -52,6 +52,7 @@ Recap editor đọc section config theo các quy ước sau:
 - Với section lặp, có thể khai báo trực tiếp \`repeatable\`, \`minItems\`, \`maxItems\`, \`itemMediaField\`, \`galleryField\`, \`maxMediaPerItem\`; editor dùng các metadata này để tạo card và mở media manager.
 - Field ảnh dùng \`type: "image"\` hoặc \`"images"\`; \`mediaRole\` hoặc \`sections[].mediaRoles\` xác định role gửi tới media manager.
 - Boolean, select, URL, text và date/time được render từ type/label/options/maxLength/required; editor không cần thêm nhánh theo template key.
+- Quick edit trên header nhận diện field ngày cưới để mở date picker; date picker đọc được các giá trị cũ như `DD · MM · YYYY`, `DD.MM.YYYY` và `DD/MM/YYYY`. Khi chọn ngày mới, editor lưu theo format renderer template đang dùng (`DD.MM.YYYY` cho Sunlit Silk, `DD · MM · YYYY` cho các template còn lại).
 - Preview route vẫn phải được renderer registry của ứng dụng đăng ký; đây là wiring của renderer, không phải logic form editor.
 
 ## Hướng mở rộng

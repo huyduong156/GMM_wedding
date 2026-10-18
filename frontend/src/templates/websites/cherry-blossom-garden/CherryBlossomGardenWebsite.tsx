@@ -4,7 +4,7 @@ import { ArrowDown, ArrowRight, Check, MapPin, PaperPlaneTilt } from '@phosphor-
 import type { CherryBlossomData, CherrySectionConfig, CherrySectionKey } from './content'
 import { cherryBlossomFixture, cherryBlossomSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
-import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
+import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { PetalFieldSafe as PetalField } from './PetalFieldSafe'
 import './cherry-blossom-garden.css'
 type Props = { data?: CherryBlossomData; sectionConfig?: CherrySectionConfig }
@@ -41,9 +41,11 @@ function Heading({ kicker, children }: { kicker: string; children: React.ReactNo
   )
 }
 export function CherryBlossomGardenWebsite({
-  data = cherryBlossomFixture,
+  data: inputData = cherryBlossomFixture,
   sectionConfig = cherryBlossomSections,
 }: Props) {
+  const previewDate = usePreviewWeddingDate(inputData.hero.date)
+  const data = previewDate ? { ...inputData, hero: { ...inputData.hero, date: previewDate } } : inputData
   useSmoothTemplateScroll(true)
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),

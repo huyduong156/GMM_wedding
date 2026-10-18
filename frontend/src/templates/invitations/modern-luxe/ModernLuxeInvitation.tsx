@@ -21,6 +21,7 @@ import {
 } from 'motion/react'
 import {
   formatCountdownUnit,
+  usePreviewWeddingDate,
   useWeddingCountdown,
 } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
@@ -212,7 +213,6 @@ const defaults: Required<ModernLuxeData> = {
   footerMedia: null,
 }
 
-const decemberDays = Array.from({ length: 31 }, (_, index) => index + 1)
 const weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
 const splitLegacyHonorific = (fullName: string) => {
@@ -295,7 +295,15 @@ export function ModernLuxeInvitation({
   sectionConfig?: ModernLuxeSectionConfig
   interactions?: PublicInteractions
 }) {
-  const content = { ...defaults, ...data }
+  const baseContent = { ...defaults, ...data }
+  const content = { ...baseContent, weddingDate: usePreviewWeddingDate(baseContent.weddingDate) ?? baseContent.weddingDate }
+  const weddingDateMatch = content.weddingDate.match(/(\d{1,2})\D+(\d{1,2})\D+(\d{4})|(\d{4})-(\d{1,2})-(\d{1,2})/)
+  const weddingDay = Number(weddingDateMatch?.[1] ?? weddingDateMatch?.[6] ?? 1)
+  const weddingMonth = Number(weddingDateMatch?.[2] ?? weddingDateMatch?.[5] ?? 1)
+  const weddingYear = Number(weddingDateMatch?.[3] ?? weddingDateMatch?.[4] ?? new Date().getFullYear())
+  const monthStart = (new Date(weddingYear, weddingMonth - 1, 1).getDay() + 6) % 7
+  const monthDays = new Date(weddingYear, weddingMonth, 0).getDate()
+  const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(weddingYear, weddingMonth - 1, 1))
   const brideFather = resolveFamilyPerson(
     defaults.brideFatherTitle,
     defaults.brideFather,
@@ -866,9 +874,9 @@ export function ModernLuxeInvitation({
               <div className="ml-date-plane">
                 <span className="ml-eyebrow">Hôn lễ &amp; tiệc cưới</span>
                 <div className="ml-date-lockup">
-                  <small>Tháng 12</small>
-                  <strong>12</strong>
-                  <time>2026</time>
+                  <small>Tháng {weddingMonth}</small>
+                  <strong>{weddingDay}</strong>
+                  <time>{weddingYear}</time>
                 </div>
                 <a href={content.calendarUrl} target="_blank" rel="noreferrer">
                   <CalendarBlank /> Thêm vào lịch
@@ -881,10 +889,10 @@ export function ModernLuxeInvitation({
               sectionKey="countdown"
               sectionConfig={sectionConfig}
             >
-              <div className="ml-month-card" aria-label="Lịch tháng 12 năm 2026">
+              <div className="ml-month-card" aria-label={`Calendar ${monthLabel} ${weddingYear}`}>
                 <header>
-                  <span>December</span>
-                  <strong>2026</strong>
+                  <span>{monthLabel}</span>
+                  <strong>{weddingYear}</strong>
                 </header>
                 <div className="ml-month-week">
                   {weekdays.map((day) => (
@@ -892,23 +900,23 @@ export function ModernLuxeInvitation({
                   ))}
                 </div>
                 <div className="ml-month-days">
-                  <i />
-                  {decemberDays.map((day) => (
+                  {Array.from({ length: monthStart }, (_, index) => <i key={`blank-${index}`} />)}
+                  {Array.from({ length: monthDays }, (_, index) => index + 1).map((day) => (
                     <span
                       key={day}
-                      className={day === 12 ? 'is-wedding' : ''}
-                      aria-current={day === 12 ? 'date' : undefined}
-                      aria-label={day === 12 ? 'Ngày 12, ngày cưới' : undefined}
+                      className={day === weddingDay ? 'is-wedding' : ''}
+                      aria-current={day === weddingDay ? 'date' : undefined}
+                      aria-label={day === weddingDay ? `Wedding day, ${day} ${monthLabel} ${weddingYear}` : undefined}
                     >
                       {day}
-                      {day === 12 ? <Heart weight="fill" /> : null}
+                      {day === weddingDay ? <Heart weight="fill" /> : null}
                     </span>
                   ))}
                 </div>
               </div>
               <div className="ml-countdown-live">
                 <span>Đếm ngược đến ngày chung đôi</span>
-                <ModernLuxeCountdown date={data?.weddingDate ?? ''} />
+                <ModernLuxeCountdown date={content.weddingDate} />
                 <p>để cùng gặp nhau trong một ngày tháng mười hai thật đẹp</p>
               </div>
             </SectionReveal>
