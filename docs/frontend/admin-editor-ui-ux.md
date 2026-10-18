@@ -185,6 +185,8 @@ Owner URL không chứa wedding ID vì wedding hiện hành được chọn tron
 
 ## 7. Interaction standards
 
+- Studio response budget: route entrance is at most 160ms with no delay; never apply stagger/entrance through broad descendant selectors under `.main-content`. Modal/popover feedback belongs to its own component. The shell's wedding-day indicator owns its timer in a small child (minute refresh), never in `AppShell`. Navigation callbacks keep stable identity so route changes do not retrigger session checks through callback churn.
+
 - Chỉ một primary CTA/screen. Destructive action tách khỏi normal action.
 - Validate form on blur; lỗi gần field, error summary/focus first invalid khi có nhiều lỗi.
 - Button async disabled + progress; thao tác thành công có feedback 3-5 giây, toast dùng `aria-live="polite"`.

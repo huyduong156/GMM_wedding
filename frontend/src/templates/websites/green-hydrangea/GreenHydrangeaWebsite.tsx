@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
@@ -15,6 +15,7 @@ import type {
 } from './content'
 import { greenHydrangeaFixture, greenHydrangeaSections } from './fixture'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import './green-hydrangea.css'
 
 type Props = {
@@ -65,22 +66,8 @@ export function GreenHydrangeaWebsite({
   const enabled = new Set(sectionConfig.enabled),
     reduced = useReducedMotion(),
     [sent, setSent] = useState(false)
-  const eventDate = useMemo(() => new Date('2027-04-18T16:30:00+07:00'), []),
-    [remaining, setRemaining] = useState(() => Math.max(0, eventDate.getTime() - Date.now()))
-  useEffect(() => {
-    const timer = window.setInterval(
-      () => setRemaining(Math.max(0, eventDate.getTime() - Date.now())),
-      1000,
-    )
-    return () => window.clearInterval(timer)
-  }, [eventDate])
-  const time = [
-    Math.floor(remaining / 86400000),
-    Math.floor(remaining / 3600000) % 24,
-    Math.floor(remaining / 60000) % 60,
-    Math.floor(remaining / 1000) % 60,
-  ]
-  const labels = ['ngày', 'giờ', 'phút', 'giây']
+
+
   const venue = data.venues ?? {
     title: data.events[0]?.venue ?? '',
     address: data.events[0]?.address ?? '',
@@ -230,19 +217,7 @@ export function GreenHydrangeaWebsite({
       </section>
     ),
     countdown: (
-      <section className="gh-countdown" data-editor-section="countdown">
-        <Reveal>
-          <span>Cùng đếm đến ngày hoa nở</span>
-          <div>
-            {time.map((value, index) => (
-              <p key={labels[index]}>
-                <strong>{String(value).padStart(2, '0')}</strong>
-                <small>{labels[index]}</small>
-              </p>
-            ))}
-          </div>
-        </Reveal>
-      </section>
+      <HydrangeaCountdown date={data?.hero.date} />
     ),
     venues: (
       <section className="gh-section gh-venue" data-editor-section="venues">
@@ -428,5 +403,31 @@ export function GreenHydrangeaWebsite({
           <div key={key}>{sections[key]}</div>
         ))}
     </main>
+  )
+}
+
+function HydrangeaCountdown({ date }: { date?: string }) {
+  const countdown = useWeddingCountdown(date || '2027-04-18T16:30:00+07:00')
+  const time = [
+    countdown.days,
+    countdown.hours,
+    countdown.minutes,
+    countdown.seconds,
+  ]
+  const labels = ['ngày', 'giờ', 'phút', 'giây']
+  return (
+    <section className="gh-countdown" data-editor-section="countdown">
+      <Reveal>
+        <span>Cùng đếm đến ngày hoa nở</span>
+        <div>
+          {time.map((value, index) => (
+            <p key={labels[index]}>
+              <strong>{String(value).padStart(2, '0')}</strong>
+              <small>{labels[index]}</small>
+            </p>
+          ))}
+        </div>
+      </Reveal>
+    </section>
   )
 }

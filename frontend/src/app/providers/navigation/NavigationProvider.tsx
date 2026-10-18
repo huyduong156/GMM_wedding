@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   NavigationContext,
   type NavigationContextValue,
@@ -13,17 +13,15 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  const navigate = useCallback<NavigationContextValue['navigate']>((to, replace = false) => {
+    if (replace) window.history.replaceState(null, '', to)
+    else window.history.pushState(null, '', to)
+    setPathname(to)
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [])
   const value = useMemo<NavigationContextValue>(
-    () => ({
-      pathname,
-      navigate(to, replace = false) {
-        if (replace) window.history.replaceState(null, '', to)
-        else window.history.pushState(null, '', to)
-        setPathname(to)
-        window.scrollTo({ top: 0, behavior: 'auto' })
-      },
-    }),
-    [pathname],
+    () => ({ pathname, navigate }),
+    [pathname, navigate],
   )
 
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>

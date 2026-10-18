@@ -210,7 +210,7 @@ export function ProfilePage() {
       <MediaManagerModal
         open={mediaManagerOpen}
         assets={media.assets}
-        selectedIds={new Set(media.assets.filter((asset) => asset.publicUrl === avatarUrl).map((asset) => asset.id))}
+        selectedIds={media.assets.filter((asset) => asset.publicUrl === avatarUrl).map((asset) => asset.id)}
         loading={media.loading}
         uploading={media.uploading}
         error={media.error}

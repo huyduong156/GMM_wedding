@@ -364,7 +364,7 @@ export function ModernLuxeInvitation({
     mediaSource(content.invitationMemoryImage3 || legacyMemoryImages[2] || gallery[2]),
   ]
   const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(content.venueAddress)}&output=embed`
-  const weddingCountdown = useWeddingCountdown('2026-12-12T09:00:00+07:00')
+
   const { scrollY } = useScroll()
   const heroPhotoY = useTransform(scrollY, [0, 760], ['0%', '13%'])
   const heroTypeY = useTransform(scrollY, [0, 700], ['0%', '25%'])
@@ -908,32 +908,7 @@ export function ModernLuxeInvitation({
               </div>
               <div className="ml-countdown-live">
                 <span>Đếm ngược đến ngày chung đôi</span>
-                <div
-                  className="ml-countdown-units"
-                  role="timer"
-                  aria-live="off"
-                  aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
-                >
-                  <div>
-                    <strong>{weddingCountdown.days}</strong>
-                    <small>Ngày</small>
-                  </div>
-                  <i>:</i>
-                  <div>
-                    <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
-                    <small>Giờ</small>
-                  </div>
-                  <i>:</i>
-                  <div>
-                    <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
-                    <small>Phút</small>
-                  </div>
-                  <i>:</i>
-                  <div>
-                    <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
-                    <small>Giây</small>
-                  </div>
-                </div>
+                <ModernLuxeCountdown date={data?.weddingDate ?? ''} />
                 <p>để cùng gặp nhau trong một ngày tháng mười hai thật đẹp</p>
               </div>
             </SectionReveal>
@@ -1340,5 +1315,37 @@ export function ModernLuxeInvitation({
         ) : null}
       </div>
     </MotionConfig>
+  )
+}
+
+function ModernLuxeCountdown({ date }: { date: string }) {
+  const weddingCountdown = useWeddingCountdown(date || '2026-12-12T09:00:00+07:00')
+  return (
+    <div
+      className="ml-countdown-units"
+      role="timer"
+      aria-live="off"
+      aria-label={`${weddingCountdown.days} ngày ${weddingCountdown.hours} giờ ${weddingCountdown.minutes} phút ${weddingCountdown.seconds} giây`}
+    >
+      <div>
+        <strong>{weddingCountdown.days}</strong>
+        <small>Ngày</small>
+      </div>
+      <i>:</i>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.hours)}</strong>
+        <small>Giờ</small>
+      </div>
+      <i>:</i>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.minutes)}</strong>
+        <small>Phút</small>
+      </div>
+      <i>:</i>
+      <div>
+        <strong>{formatCountdownUnit(weddingCountdown.seconds)}</strong>
+        <small>Giây</small>
+      </div>
+    </div>
   )
 }

@@ -8,7 +8,7 @@ const MEDIA_PAGE_SIZE = 40
 type MediaManagerModalProps = {
   open: boolean
   assets: MediaAsset[]
-  selectedIds: Set<string>
+  selectedIds: readonly string[]
   selectionMode?: 'single' | 'multiple'
   loading: boolean
   uploading: boolean
@@ -60,16 +60,17 @@ export function MediaManagerModal({
   onUpload,
   onConfirm,
 }: MediaManagerModalProps) {
-  const [draftIds, setDraftIds] = useState<Set<string>>(new Set(selectedIds))
+  const [draftIds, setDraftIds] = useState<string[]>([...selectedIds])
   const [visibleCount, setVisibleCount] = useState(MEDIA_PAGE_SIZE)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const selectedIdsKey = selectedIds.join('\u0000')
   useEffect(() => {
     if (open) {
-      setDraftIds(new Set(selectedIds))
+      setDraftIds(selectedIdsKey ? selectedIdsKey.split('\u0000') : [])
       setVisibleCount(MEDIA_PAGE_SIZE)
       closeRef.current?.focus()
     }
-  }, [open, selectedIds])
+  }, [open, selectedIdsKey])
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {
@@ -82,11 +83,9 @@ export function MediaManagerModal({
   const toggle = useCallback(
     (asset: MediaAsset) => {
       setDraftIds((current) => {
-        if (selectionMode === 'single') return new Set([asset.id])
-        const next = new Set(current)
-        if (next.has(asset.id)) next.delete(asset.id)
-        else next.add(asset.id)
-        return next
+        if (selectionMode === 'single') return [asset.id]
+        if (current.includes(asset.id)) return current.filter((id) => id !== asset.id)
+        return [...current, asset.id]
       })
     },
     [selectionMode],
@@ -94,12 +93,16 @@ export function MediaManagerModal({
 
   if (!open) return null
 
-  const confirm = () => onConfirm(assets.filter((asset) => draftIds.has(asset.id)))
-  const selectedAssets = assets.filter((asset) => draftIds.has(asset.id))
+  const assetsById = new Map(assets.map((asset) => [asset.id, asset]))
+  const selectedAssets = draftIds.flatMap((id) => {
+    const asset = assetsById.get(id)
+    return asset ? [asset] : []
+  })
+  const confirm = () => onConfirm(selectedAssets)
   const visibleAssets = assets.slice(0, visibleCount)
   const assetsToRender = [
     ...selectedAssets,
-    ...visibleAssets.filter((asset) => !draftIds.has(asset.id)),
+    ...visibleAssets.filter((asset) => !draftIds.includes(asset.id)),
   ]
 
   return (
@@ -146,8 +149,10 @@ export function MediaManagerModal({
               const uploaded = await onUpload(event.target.files)
               if (uploaded.length)
                 setDraftIds((current) => {
-                  const next = new Set(selectionMode === 'single' ? [] : current)
-                  uploaded.forEach((asset) => next.add(asset.id))
+                  const next = selectionMode === 'single' ? [] : [...current]
+                  uploaded.forEach((asset) => {
+                    if (!next.includes(asset.id)) next.push(asset.id)
+                  })
                   return next
                 })
               event.target.value = ''
@@ -171,7 +176,7 @@ export function MediaManagerModal({
                 <MediaAssetCard
                   key={asset.id}
                   asset={asset}
-                  selected={draftIds.has(asset.id)}
+                  selected={draftIds.includes(asset.id)}
                   onToggle={toggle}
                 />
               ))}
@@ -199,7 +204,7 @@ export function MediaManagerModal({
             disabled={loading || uploading}
             onClick={confirm}
           >
-            {draftIds.size
+            {draftIds.length
               ? selectionMode === 'multiple'
                 ? 'Chọn ảnh'
                 : 'Dùng ảnh này'

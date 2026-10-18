@@ -1785,24 +1785,22 @@ export function RecapEditorPage() {
   }
 
   const managerSelectedIds = mediaTarget
-    ? new Set(
-        mediaAssets
-          .filter((asset) => {
-            const value = getPath(content as unknown as Record<string, unknown>, mediaTarget.path)
-            const values = Array.isArray(value) ? value : [value]
-            return values.some(
-              (item) =>
-                item &&
-                typeof item === 'object' &&
-                ((item as Record<string, unknown>).mediaAssetId === asset.id ||
-                  (item as Record<string, unknown>).src === asset.publicUrl),
-            )
-          })
-          .map((asset) => asset.id),
-      )
+    ? (() => {
+        const value = getPath(content as unknown as Record<string, unknown>, mediaTarget.path)
+        const values = Array.isArray(value) ? value : [value]
+        return values.flatMap((item) => {
+          if (!item || typeof item !== 'object') return []
+          const record = item as Record<string, unknown>
+          const asset = mediaAssets.find(
+            (candidate) =>
+              record.mediaAssetId === candidate.id || record.src === candidate.publicUrl,
+          )
+          return asset ? [asset.id] : []
+        })
+      })()
     : mediaSelectionMode === 'multiple'
-      ? new Set(mediaAssets.map((asset) => asset.id))
-      : selectedMediaIds
+      ? mediaAssets.map((asset) => asset.id)
+      : [...selectedMediaIds]
   const openDraftPreview = async () => {
     const slug =
       recap?.slug ??

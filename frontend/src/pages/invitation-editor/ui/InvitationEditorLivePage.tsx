@@ -775,8 +775,12 @@ export function InvitationEditorLivePage() {
               type="button"
               disabled={!activeWedding || !templateVersionId || loading || saving}
               onClick={() => void save()}
+              aria-busy={saving}
             >
-              <FloppyDisk /> {saving ? 'Đang lưu' : 'Lưu thiệp'}
+              <FloppyDisk />
+              <span key={saving ? 'saving' : 'idle'} data-save-label>
+                {saving ? 'Đang lưu' : 'Lưu thiệp'}
+              </span>
             </button>
           </div>
         </div>
@@ -957,8 +961,11 @@ export function InvitationEditorLivePage() {
                 type="button"
                 disabled={saving}
                 onClick={() => void saveAndContinueEditorAction()}
+                aria-busy={saving}
               >
-                {saving ? 'Đang lưu…' : 'Lưu và tiếp tục'}
+                <span key={saving ? 'saving' : 'idle'}>
+                  {saving ? 'Đang lưu…' : 'Lưu và tiếp tục'}
+                </span>
               </button>
             </footer>
           </section>
@@ -1053,7 +1060,9 @@ export function InvitationEditorLivePage() {
                   })()
                 }
               >
-                {saving ? 'Đang lưu…' : 'Lưu và rời đi'}
+                <span key={saving ? 'saving' : 'idle'}>
+                  {saving ? 'Đang lưu…' : 'Lưu và rời đi'}
+                </span>
               </button>
             </footer>
           </section>
@@ -1065,11 +1074,9 @@ export function InvitationEditorLivePage() {
           open={mediaManagerOpen}
           assets={mediaAssets}
           selectedIds={
-            new Set(
-              mediaTarget?.kind === 'field'
-                ? mediaIdsAtValue(getNestedValue(data, mediaTarget.path))
-                : [],
-            )
+            mediaTarget?.kind === 'field'
+              ? mediaIdsAtValue(getNestedValue(data, mediaTarget.path))
+              : []
           }
           loading={mediaLoading}
           uploading={mediaUploading}

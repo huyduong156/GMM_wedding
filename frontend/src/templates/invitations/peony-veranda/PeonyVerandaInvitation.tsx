@@ -12,6 +12,7 @@ import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 
 const asset = (name: string) => `/assets/images/templates/peony-veranda/${name}`
@@ -109,15 +110,6 @@ export type PeonyVerandaData = {
 
 export type PeonyVerandaSectionConfig = { enabled: string[]; order: string[] }
 
-function getCountdown(target: number) {
-  const total = Math.max(0, target - Date.now())
-  const days = Math.floor(total / 86400000)
-  const hours = Math.floor((total % 86400000) / 3600000)
-  const minutes = Math.floor((total % 3600000) / 60000)
-  const seconds = Math.floor((total % 60000) / 1000)
-  return { days, hours, minutes, seconds }
-}
-
 function familyValue(
   data: PeonyVerandaData | undefined,
   side: 'bride' | 'groom',
@@ -155,7 +147,7 @@ export function PeonyVerandaInvitation({
   const [pendingAttendance, setPendingAttendance] = useState<string | null>(null)
   const [pendingWish, setPendingWish] = useState(false)
   const [calendarSaved, setCalendarSaved] = useState(false)
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+
   const [motionScope, animate] = useAnimate()
   const reducedMotion = useReducedMotion()
 
@@ -249,11 +241,6 @@ export function PeonyVerandaInvitation({
   useEffect(() => {
     if (opened) window.setTimeout(() => motionScope.current?.focus({ preventScroll: true }), 0)
   }, [motionScope, opened])
-  useEffect(() => {
-    setCountdown(getCountdown(weddingTimestamp))
-    const timer = window.setInterval(() => setCountdown(getCountdown(weddingTimestamp)), 1000)
-    return () => window.clearInterval(timer)
-  }, [weddingTimestamp])
   useLayoutEffect(() => {
     const page = document.querySelector<HTMLElement>('.pv-page')
     let frame = 0
@@ -685,21 +672,7 @@ export function PeonyVerandaInvitation({
             <div className="pv-countdown pv-countdown-new">
               <span>Đếm ngược ngày vui</span>
               <h2>{data?.countdownTitle ?? 'Hẹn gặp nhau sau'}</h2>
-              <div className="pv-countdown-grid" aria-live="off">
-                {[
-                  [countdown.days, 'Ngày'],
-                  [countdown.hours, 'Giờ'],
-                  [countdown.minutes, 'Phút'],
-                  [countdown.seconds, 'Giây'],
-                ].map(([value, label]) => (
-                  <div key={label}>
-                    <strong aria-label={String(value) + ' ' + String(label).toLowerCase()}>
-                      {String(value).padStart(2, '0')}
-                    </strong>
-                    <small>{label}</small>
-                  </div>
-                ))}
-              </div>
+              <PeonyCountdown target={weddingTimestamp} />
             </div>
           </section>
         )}
@@ -1109,6 +1082,30 @@ export function PeonyVerandaInvitation({
         onClose={() => setGuestIdentityModal(false)}
         onConfirm={() => void confirmGuestIdentity()}
       />
+    </div>
+  )
+}
+
+function PeonyCountdown({ target }: { target: number }) {
+  const countdown = useWeddingCountdown(
+    Number.isFinite(target) ? new Date(target).toISOString() : '',
+  )
+
+  return (
+    <div className="pv-countdown-grid" aria-live="off">
+      {[
+        [countdown.days, 'Ngày'],
+        [countdown.hours, 'Giờ'],
+        [countdown.minutes, 'Phút'],
+        [countdown.seconds, 'Giây'],
+      ].map(([value, label]) => (
+        <div key={label}>
+          <strong aria-label={String(value) + ' ' + String(label).toLowerCase()}>
+            {String(value).padStart(2, '0')}
+          </strong>
+          <small>{label}</small>
+        </div>
+      ))}
     </div>
   )
 }
