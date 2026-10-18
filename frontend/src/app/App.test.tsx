@@ -134,8 +134,8 @@ describe('Owner Workspace', () => {
         <App />
       </NavigationProvider>,
     )
-    expect(screen.getByRole('heading', { name: 'Danh mục khách mời' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Danh mục khách mời' })).toHaveAttribute(
+    expect(screen.getByRole('heading', { name: 'Nhóm khách mời' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Nhóm khách mời' })).toHaveAttribute(
       'aria-current',
       'page',
     )

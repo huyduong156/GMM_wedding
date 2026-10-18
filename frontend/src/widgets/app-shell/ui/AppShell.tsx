@@ -93,7 +93,7 @@ const navGroups: Array<{ label: string; items: NavItem[] }> = [
       { to: studioRoutes.guests, label: 'Khách mời', icon: UserList },
       {
         to: studioRoutes.guestCategories,
-        label: 'Danh mục khách mời',
+        label: 'Nhóm khách mời',
         icon: FolderSimple,
         child: true,
       },

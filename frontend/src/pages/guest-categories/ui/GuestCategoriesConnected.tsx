@@ -38,7 +38,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
       setItems(result.items)
       setExpanded(new Set(result.items.filter((item) => item.depth < 3).map((item) => item.id)))
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể tải danh mục.')
+      setError(cause instanceof Error ? cause.message : 'Không thể tải nhóm khách.')
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
   const create = async () => {
     if (!activeWedding || !name.trim()) return
     if ((parent?.depth ?? 0) >= 3) {
-      setError('Danh mục chỉ được tối đa 3 cấp.')
+      setError('Nhóm khách chỉ được tối đa 3 cấp.')
       return
     }
     setBusy(true)
@@ -68,7 +68,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
       setItems((current) => [...current, result.category])
       setParent(undefined)
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể tạo danh mục.')
+      setError(cause instanceof Error ? cause.message : 'Không thể tạo nhóm khách.')
     } finally {
       setBusy(false)
     }
@@ -77,7 +77,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
     if (
       !activeWedding ||
       !selected.length ||
-      !window.confirm(`Xóa ${selected.length} danh mục đã chọn?`)
+      !window.confirm(`Xóa ${selected.length} nhóm khách đã chọn?`)
     )
       return
     setBusy(true)
@@ -86,7 +86,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
       setItems((current) => current.filter((item) => !selected.includes(item.id)))
       setSelected([])
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Không thể xóa danh mục.')
+      setError(cause instanceof Error ? cause.message : 'Không thể xóa nhóm khách.')
     } finally {
       setBusy(false)
     }
@@ -109,7 +109,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
                 return next
               })
             }
-            aria-label="Mở rộng danh mục"
+            aria-label="Mở rộng nhóm khách"
           >
             {nested.length ? isOpen ? <CaretDown size={15} /> : <CaretRight size={15} /> : <span />}
           </button>
@@ -157,32 +157,32 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
       <header className="categories-heading">
         <div>
           <p className="breadcrumb">
-            Đám cưới <span>/</span> Khách mời <span>/</span> Danh mục
+            Đám cưới <span>/</span> Khách mời <span>/</span> Nhóm khách
           </p>
-          <h1 id="categories-heading">Danh mục khách mời</h1>
-          <p>Tổ chức khách theo cây danh mục tối đa 3 cấp để lọc thuận tiện hơn.</p>
+          <h1 id="categories-heading">Nhóm khách mời</h1>
+          <p>Sắp xếp khách theo cây nhóm tối đa 3 cấp để lọc thuận tiện hơn.</p>
         </div>
         <button className="button button-primary" type="button" onClick={() => open(null)}>
-          <Plus size={17} /> Thêm danh mục
+          <Plus size={17} /> Thêm nhóm khách
         </button>
       </header>
       <div className="category-summary">
         <div>
           <TreeStructure size={19} />
           <span>
-            <strong>{items.length}</strong> danh mục
+            <strong>{items.length}</strong> nhóm khách
           </span>
         </div>
         <p>
           <strong>3 cấp tối đa</strong>
-          <span>Danh mục được đồng bộ trực tiếp với danh sách khách mời.</span>
+          <span>Nhóm khách được đồng bộ trực tiếp với danh sách khách mời.</span>
         </p>
       </div>
       <div className="panel category-tree-panel">
         <header>
           <div>
-            <h2>Cây danh mục</h2>
-            <p>Chọn nhiều danh mục để xóa khi nhập sai.</p>
+            <h2>Cây nhóm khách</h2>
+            <p>Chọn nhiều nhóm khách để xóa khi nhập sai.</p>
           </div>
           {selected.length ? (
             <button
@@ -194,11 +194,11 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
               Xóa {selected.length} mục
             </button>
           ) : (
-            <span>{roots.length} danh mục gốc</span>
+            <span>{roots.length} nhóm gốc</span>
           )}
         </header>
         {loading ? (
-          <div className="guest-empty">Đang tải danh mục…</div>
+          <div className="guest-empty">Đang tải nhóm khách…</div>
         ) : error ? (
           <div className="guest-empty">
             <p>{error}</p>
@@ -221,18 +221,18 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
           <section className="category-dialog" role="dialog" aria-modal="true">
             <header>
               <div>
-                <h2>{parent ? 'Thêm danh mục con' : 'Thêm danh mục gốc'}</h2>
+                <h2>{parent ? 'Thêm nhóm con' : 'Thêm nhóm gốc'}</h2>
                 <p>
                   {parent
                     ? `Nằm trong “${parent.name}” · Cấp ${parent.depth + 1}`
-                    : 'Danh mục cấp 1'}
+                    : 'Nhóm cấp 1'}
                 </p>
               </div>
               <button type="button" onClick={() => setParent(undefined)} aria-label="Đóng">
                 <X size={18} />
               </button>
             </header>
-            <label htmlFor="category-name">Tên danh mục</label>
+            <label htmlFor="category-name">Tên nhóm khách</label>
             <input
               id="category-name"
               autoFocus
@@ -262,7 +262,7 @@ function GuestCategoriesConnectedContent({ activeWedding }: { activeWedding: Wed
                 disabled={busy || !name.trim()}
                 onClick={() => void create()}
               >
-                Tạo danh mục
+                Tạo nhóm khách
               </button>
             </footer>
           </section>

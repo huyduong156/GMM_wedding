@@ -63,12 +63,12 @@ export function GuestCategoriesPage() {
   const createCategory = () => {
     const trimmedName = name.trim()
     if (!trimmedName) {
-      setError('Nhập tên danh mục để tiếp tục.')
+      setError('Nhập tên nhóm khách để tiếp tục.')
       return
     }
     const depth = parentForNew ? parentForNew.depth + 1 : 1
     if (depth > 3) {
-      setError('Danh mục chỉ được tối đa 3 cấp.')
+      setError('Nhóm khách chỉ được tối đa 3 cấp.')
       return
     }
     const id = Math.max(...categories.map((category) => category.id)) + 1
@@ -137,7 +137,7 @@ export function GuestCategoriesPage() {
           <button
             className="row-menu"
             type="button"
-            aria-label={`Tùy chọn danh mục ${category.name}`}
+            aria-label={`Tùy chọn nhóm khách ${category.name}`}
           >
             <DotsThree size={18} weight="bold" />
           </button>
@@ -152,21 +152,21 @@ export function GuestCategoriesPage() {
       <header className="categories-heading">
         <div>
           <p className="breadcrumb">
-            Mai & Đức <span>/</span> Khách mời <span>/</span> Danh mục
+            Mai & Đức <span>/</span> Khách mời <span>/</span> Nhóm khách
           </p>
-          <h1 id="categories-heading">Danh mục khách mời</h1>
-          <p>Tổ chức khách theo cây danh mục tối đa 3 cấp để lọc và gửi thiệp thuận tiện hơn.</p>
+          <h1 id="categories-heading">Nhóm khách mời</h1>
+          <p>Sắp xếp khách theo cây nhóm tối đa 3 cấp để lọc và gửi thiệp thuận tiện hơn.</p>
         </div>
         <button className="button button-primary" type="button" onClick={() => openCreate(null)}>
-          <Plus size={17} /> Thêm danh mục
+          <Plus size={17} /> Thêm nhóm khách
         </button>
       </header>
 
-      <div className="category-summary" aria-label="Tổng quan danh mục">
+      <div className="category-summary" aria-label="Tổng quan nhóm khách">
         <div>
           <TreeStructure size={19} />
           <span>
-            <strong>{categories.length}</strong> danh mục
+            <strong>{categories.length}</strong> nhóm khách
           </span>
         </div>
         <p>
@@ -178,10 +178,10 @@ export function GuestCategoriesPage() {
       <div className="panel category-tree-panel">
         <header>
           <div>
-            <h2>Cây danh mục</h2>
-            <p>Số khách ở danh mục cha bao gồm khách thuộc các danh mục con.</p>
+            <h2>Cây nhóm khách</h2>
+            <p>Số khách ở nhóm cha bao gồm khách thuộc các nhóm con.</p>
           </div>
-          <span>{roots.length} danh mục gốc</span>
+          <span>{roots.length} nhóm gốc</span>
         </header>
         <ul className="category-tree">{roots.map(renderCategory)}</ul>
       </div>
@@ -203,19 +203,19 @@ export function GuestCategoriesPage() {
             <header>
               <div>
                 <h2 id="new-category-title">
-                  {parentForNew ? 'Thêm danh mục con' : 'Thêm danh mục gốc'}
+                  {parentForNew ? 'Thêm nhóm con' : 'Thêm nhóm gốc'}
                 </h2>
                 <p>
                   {parentForNew
                     ? `Nằm trong “${parentForNew.name}” · Cấp ${parentForNew.depth + 1}`
-                    : 'Danh mục cấp 1'}
+                    : 'Nhóm cấp 1'}
                 </p>
               </div>
               <button type="button" onClick={() => setParentForNew(undefined)} aria-label="Đóng">
                 <X size={18} />
               </button>
             </header>
-            <label htmlFor="category-name">Tên danh mục</label>
+            <label htmlFor="category-name">Tên nhóm khách</label>
             <input
               id="category-name"
               autoFocus
@@ -239,7 +239,7 @@ export function GuestCategoriesPage() {
               </p>
             ) : (
               <p className="field-helper" id="category-helper">
-                Bạn có thể đổi tên hoặc di chuyển danh mục sau.
+              Bạn có thể đổi tên hoặc di chuyển nhóm sau.
               </p>
             )}
             <footer>
@@ -251,7 +251,7 @@ export function GuestCategoriesPage() {
                 Hủy
               </button>
               <button className="button button-primary" type="button" onClick={createCategory}>
-                Tạo danh mục
+                Tạo nhóm khách
               </button>
             </footer>
           </section>
