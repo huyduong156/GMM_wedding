@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest'
 import { publicSurfaceMetadata } from './page-metadata'
 
 describe('publicSurfaceMetadata', () => {
+  it('uses couple names, the owner avatar, and the online invitation label', () => {
+    expect(
+      publicSurfaceMetadata(
+        {
+          ownerAvatarUrl: 'https://cdn.example.com/avatar.jpg',
+          content: { brideName: 'Minh', groomName: 'An' },
+        },
+        'invitation',
+        '/minh-an/invitation',
+      ),
+    ).toMatchObject({
+      title: 'Minh & An | Thiệp cưới online',
+      image: '/api/public/invitations/minh-an/og-image',
+    })
+  })
+
   it('uses couple names and the first suitable uploaded image', () => {
     expect(
       publicSurfaceMetadata(

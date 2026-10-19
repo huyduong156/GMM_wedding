@@ -10,6 +10,11 @@ export interface ConvertedImage {
   height: number
 }
 
+export type ImageConversionOptions = {
+  maxDimension?: number | null
+  quality?: number
+}
+
 export class ImageConversionError extends Error {
   constructor(message = 'Image could not be converted to WebP') {
     super(message)
@@ -18,7 +23,11 @@ export class ImageConversionError extends Error {
 }
 
 export class ImageConversionService {
-  async convert(body: Uint8Array, mimeType: string): Promise<ConvertedImage> {
+  async convert(
+    body: Uint8Array,
+    mimeType: string,
+    options: ImageConversionOptions = {},
+  ): Promise<ConvertedImage> {
     if (!SUPPORTED_INPUT_FORMATS.has(mimeType.replace('image/', ''))) {
       throw new ImageConversionError('Only JPEG, PNG and WebP images are supported')
     }
@@ -30,10 +39,17 @@ export class ImageConversionService {
         throw new ImageConversionError('Uploaded content is not a supported image')
       }
 
-      const converted = await image
-        .rotate()
-        .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 82 })
+      let pipeline = image.rotate()
+      const maxDimension = options.maxDimension === undefined ? 2400 : options.maxDimension
+      if (maxDimension !== null)
+        pipeline = pipeline.resize({
+          width: maxDimension,
+          height: maxDimension,
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+      const converted = await pipeline
+        .webp({ quality: options.quality ?? 82 })
         .toBuffer({ resolveWithObject: true })
 
       return {

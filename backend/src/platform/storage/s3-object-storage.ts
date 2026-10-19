@@ -1,6 +1,7 @@
 import {
   CreateBucketCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -115,6 +116,18 @@ export class S3ObjectStorage implements ObjectStorage {
     }
   }
 
+  async get(key: string): Promise<Uint8Array | null> {
+    try {
+      await this.ensureBucket()
+      const result = await this.client.send(
+        new GetObjectCommand({ Bucket: this.config.bucket, Key: key }),
+      )
+      return result.Body ? new Uint8Array(await result.Body.transformToByteArray()) : null
+    } catch {
+      return null
+    }
+  }
+
   async delete(key: string) {
     await this.ensureBucket()
     await this.client.send(new DeleteObjectCommand({ Bucket: this.config.bucket, Key: key }))
@@ -127,6 +140,28 @@ export class S3ObjectStorage implements ObjectStorage {
     return this.config.publicBaseUrl
       ? `${endpoint}/${key}`
       : `${endpoint}/${this.config.bucket}/${key}`
+  }
+
+  keyFromPublicUrl(value: string) {
+    const baseUrl = this.config.publicBaseUrl
+      ? this.config.publicBaseUrl.replace(/\/+$/, '')
+      : `${(this.config.publicEndpoint ?? this.config.endpoint).replace(/\/+$/, '')}/${this.config.bucket}`
+    try {
+      const base = new URL(baseUrl)
+      const target = new URL(value)
+      const prefix = `${base.pathname.replace(/\/+$/, '')}/`
+      if (
+        target.origin !== base.origin ||
+        target.search ||
+        target.hash ||
+        !target.pathname.startsWith(prefix)
+      )
+        return null
+      const key = decodeURIComponent(target.pathname.slice(prefix.length))
+      return key && !key.includes('..') && !key.includes('\\') ? key : null
+    } catch {
+      return null
+    }
   }
 
   private ensureBucket() {

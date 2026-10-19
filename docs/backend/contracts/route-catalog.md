@@ -189,6 +189,7 @@ Không có route Invitation. Link cá nhân sử dụng `Guest.slug`; guest slug
 | Method | Path | Auth | Trạng thái | Mục đích |
 |---|---|---|---|---|
 | GET | `/public/invitations/{weddingSlug}` | Public | Implemented | Snapshot thiệp online theo Wedding slug |
+| GET | `/public/invitations/{weddingSlug}/og-image` | Public | Implemented | Ảnh JPEG chia sẻ được tạo từ avatar owner trong snapshot thiệp đã publish; URL nguồn phải thuộc object storage đã cấu hình |
 | GET | `/public/invitations/{weddingSlug}/{guestSlug}` | Public | Implemented | Resolve trực tiếp Guest theo Wedding + guest slug |
 | POST | `/public/weddings/{slug}/rsvps` | Public + origin guard | Implemented | RSVP URL chung, guestId null |
 | POST | `/public/weddings/{slug}/wishes` | Public + origin guard | Implemented | Wish URL chung, guestId null |

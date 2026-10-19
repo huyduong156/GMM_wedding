@@ -50,7 +50,7 @@ describe('WorkspaceAccessService', () => {
           role: 'EDITOR',
           status: 'PENDING',
           createdAt: new Date('2026-09-16T00:00:00.000Z'),
-          expiresAt: new Date('2026-10-16T00:00:00.000Z'),
+          expiresAt: new Date(Date.now() + 60_000),
         }),
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },
