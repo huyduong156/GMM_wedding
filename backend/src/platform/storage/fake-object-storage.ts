@@ -62,6 +62,18 @@ export class FakeObjectStorage implements ObjectStorage {
     const base = getServerEnv().MEDIA_PUBLIC_BASE_URL ?? '/api/media/fake-assets'
     return `${base.replace(/\/$/, '')}/${key}`
   }
+  keyFromPublicUrl(value: string) {
+    const base = (getServerEnv().MEDIA_PUBLIC_BASE_URL ?? '/api/media/fake-assets').replace(/\/+$/, '')
+    try {
+      const target = new URL(value, 'http://localhost')
+      const prefix = `${new URL(base, 'http://localhost').pathname.replace(/\/+$/, '')}/`
+      if (target.search || target.hash || !target.pathname.startsWith(prefix)) return null
+      const key = decodeURIComponent(target.pathname.slice(prefix.length))
+      return key && !key.includes('..') && !key.includes('\\') ? key : null
+    } catch {
+      return null
+    }
+  }
   async read(key: string) {
     return readFile(safePath(this.root(), key))
   }

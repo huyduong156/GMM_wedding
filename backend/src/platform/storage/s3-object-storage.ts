@@ -142,6 +142,28 @@ export class S3ObjectStorage implements ObjectStorage {
       : `${endpoint}/${this.config.bucket}/${key}`
   }
 
+  keyFromPublicUrl(value: string) {
+    const baseUrl = this.config.publicBaseUrl
+      ? this.config.publicBaseUrl.replace(/\/+$/, '')
+      : `${(this.config.publicEndpoint ?? this.config.endpoint).replace(/\/+$/, '')}/${this.config.bucket}`
+    try {
+      const base = new URL(baseUrl)
+      const target = new URL(value)
+      const prefix = `${base.pathname.replace(/\/+$/, '')}/`
+      if (
+        target.origin !== base.origin ||
+        target.search ||
+        target.hash ||
+        !target.pathname.startsWith(prefix)
+      )
+        return null
+      const key = decodeURIComponent(target.pathname.slice(prefix.length))
+      return key && !key.includes('..') && !key.includes('\\') ? key : null
+    } catch {
+      return null
+    }
+  }
+
   private ensureBucket() {
     if (!this.config.createBucket) return Promise.resolve()
     this.bucketReady ??= this.client

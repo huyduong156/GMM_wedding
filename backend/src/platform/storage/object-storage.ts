@@ -15,4 +15,5 @@ export interface ObjectStorage {
   get(key: string): Promise<Uint8Array | null>
   delete(key: string): Promise<void>
   publicUrl(key: string): string
+  keyFromPublicUrl(url: string): string | null
 }
