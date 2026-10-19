@@ -1,10 +1,98 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Check, ImageSquare, Trash } from '@phosphor-icons/react'
+import { memo, useCallback, useEffect, useState } from 'react'
+import { ArrowsOut, Check, ImageSquare, Trash } from '@phosphor-icons/react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
+import type { MediaAsset } from '../../../shared/api/weddings'
+import { MediaViewerDialog } from '../../../features/media/ui/MediaViewerDialog'
 import { weddingApi } from '../../../shared/api/weddings'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog/ConfirmDialog'
+
+const MediaLibraryUploadControl = memo(function MediaLibraryUploadControl({
+  uploading,
+  onUpload,
+}: {
+  uploading: boolean
+  onUpload: (files: FileList | readonly File[] | null, onProgress?: (completed: number, total: number) => void) => Promise<MediaAsset[]>
+}) {
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
+
+  return (
+    <div className="media-library-upload-control">
+      <label className="button button-primary media-library-upload">
+        <ImageSquare size={17} /> {uploading ? 'Đang tải ảnh…' : 'Tải ảnh lên'}
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          disabled={uploading}
+          onChange={async (event) => {
+            const input = event.currentTarget
+            const files = input.files
+            if (!files?.length) return
+            setProgress({ completed: 0, total: files.length })
+            try {
+              await onUpload(files, (completed, total) => setProgress({ completed, total }))
+            } finally {
+              setProgress(null)
+              input.value = ''
+            }
+          }}
+        />
+      </label>
+      {uploading ? (
+        <span className="media-library-upload-status" role="status" aria-live="polite">
+          <span className="media-library-upload-spinner" aria-hidden="true" />
+          {progress ? `Đang tải ảnh ${progress.completed}/${progress.total}…` : 'Đang tải ảnh lên…'}
+        </span>
+      ) : null}
+    </div>
+  )
+})
+
+const MediaLibraryCard = memo(function MediaLibraryCard({
+  asset,
+  selected,
+  canManage,
+  onToggle,
+  onView,
+  onDelete,
+}: {
+  asset: MediaAsset
+  selected: boolean
+  canManage: boolean
+  onToggle: (mediaId: string) => void
+  onView: (mediaId: string) => void
+  onDelete: (mediaIds: string[]) => void
+}) {
+  return (
+    <article className={`media-library-card${selected ? ' is-selected' : ''}`}>
+      <img src={asset.publicUrl} alt={asset.originalName ?? 'Ảnh trong kho'} loading="lazy" />
+      <button type="button" className="media-library-view" onClick={() => onView(asset.id)} aria-label={`Xem lớn ${asset.originalName ?? 'ảnh'}`} title="Xem ảnh lớn">
+        <ArrowsOut size={14} />
+      </button>
+      <div className="media-library-card-footer">
+        {canManage ? (
+          <label className="media-library-select">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() => onToggle(asset.id)}
+              aria-label={`Chọn ${asset.originalName ?? 'ảnh'}`}
+            />
+            <span>{selected ? <Check size={13} /> : null}</span>
+          </label>
+        ) : null}
+        <span title={asset.originalName ?? undefined}>{asset.originalName ?? 'Ảnh không tên'}</span>
+        {canManage ? (
+          <button type="button" className="media-library-delete" onClick={() => onDelete([asset.id])} aria-label={`Xóa ${asset.originalName ?? 'ảnh'}`}>
+            <Trash size={16} />
+          </button>
+        ) : null}
+      </div>
+    </article>
+  )
+})
 
 export function MediaLibraryPage() {
   const workspace = useOptionalWeddingWorkspace()
@@ -16,10 +104,12 @@ export function MediaLibraryPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [viewerAssetId, setViewerAssetId] = useState<string | null>(null)
 
   useEffect(() => {
     setSelectedIds(new Set())
     setPendingDeleteIds(new Set())
+    setViewerAssetId(null)
     setMediaError('')
   }, [setMediaError, weddingId])
 
@@ -30,7 +120,7 @@ export function MediaLibraryPage() {
       return
     }
     setPendingDeleteIds(new Set(ids))
-  }, [auth?.user?.avatarUrl, media])
+  }, [auth?.user?.avatarUrl, media.assets, media.setError])
 
   const confirmDelete = useCallback(async () => {
     if (!weddingId || !pendingDeleteIds.size) return
@@ -47,14 +137,15 @@ export function MediaLibraryPage() {
     }
   }, [media, pendingDeleteIds, weddingId])
 
-  const toggleSelected = (mediaId: string) => {
+  const toggleSelected = useCallback((mediaId: string) => {
     setSelectedIds((current) => {
       const next = new Set(current)
       if (next.has(mediaId)) next.delete(mediaId)
       else next.add(mediaId)
       return next
     })
-  }
+  }, [])
+  const viewAsset = useCallback((mediaId: string) => setViewerAssetId(mediaId), [])
 
   return (
     <div className="wedding-page media-library-page">
@@ -71,50 +162,25 @@ export function MediaLibraryPage() {
                 <Trash size={16} /> Xóa {selectedIds.size} ảnh
               </button>
             ) : null}
-            <label className="button button-primary media-library-upload">
-              <ImageSquare size={17} /> Tải ảnh lên
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                disabled={media.uploading}
-                onChange={async (event) => {
-                  await media.upload(event.target.files)
-                  event.target.value = ''
-                }}
-              />
-            </label>
+            <MediaLibraryUploadControl uploading={media.uploading} onUpload={media.upload} />
           </div>
         ) : null}
       </header>
       {media.error ? <p className="media-library-error" role="alert">{media.error}</p> : null}
-      {media.loading || media.uploading ? (
-        <p className="media-library-state">{media.uploading ? 'Đang tải ảnh lên…' : 'Đang tải kho ảnh…'}</p>
+      {media.loading ? (
+        <p className="media-library-state">Đang tải kho ảnh…</p>
       ) : media.assets.length ? (
         <div className="media-library-grid">
           {media.assets.map((asset) => (
-            <article className={`media-library-card${selectedIds.has(asset.id) ? ' is-selected' : ''}`} key={asset.id}>
-              <img src={asset.publicUrl} alt={asset.originalName ?? 'Ảnh trong kho'} loading="lazy" />
-              <div className="media-library-card-footer">
-                {canManage ? (
-                  <label className="media-library-select">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(asset.id)}
-                      onChange={() => toggleSelected(asset.id)}
-                      aria-label={`Chọn ${asset.originalName ?? 'ảnh'}`}
-                    />
-                    <span>{selectedIds.has(asset.id) ? <Check size={13} /> : null}</span>
-                  </label>
-                ) : null}
-                <span title={asset.originalName ?? undefined}>{asset.originalName ?? 'Ảnh không tên'}</span>
-                {canManage ? (
-                  <button type="button" className="media-library-delete" onClick={() => requestDelete([asset.id])} aria-label={`Xóa ${asset.originalName ?? 'ảnh'}`}>
-                    <Trash size={16} />
-                  </button>
-                ) : null}
-              </div>
-            </article>
+            <MediaLibraryCard
+              key={asset.id}
+              asset={asset}
+              selected={selectedIds.has(asset.id)}
+              canManage={canManage}
+              onToggle={toggleSelected}
+              onView={viewAsset}
+              onDelete={requestDelete}
+            />
           ))}
         </div>
       ) : (
@@ -135,6 +201,14 @@ export function MediaLibraryPage() {
         }}
         onConfirm={confirmDelete}
       />
+      {viewerAssetId ? (
+        <MediaViewerDialog
+          assets={media.assets}
+          initialAssetId={viewerAssetId}
+          onClose={() => setViewerAssetId(null)}
+          onEdit={canManage ? async (file) => (await media.upload([file]))[0] ?? null : undefined}
+        />
+      ) : null}
     </div>
   )
 }

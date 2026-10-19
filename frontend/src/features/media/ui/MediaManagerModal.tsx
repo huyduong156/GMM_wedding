@@ -1,9 +1,12 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { Check, ImageSquare, X } from '@phosphor-icons/react'
+import { ArrowsOut, Check, ImageSquare, X } from '@phosphor-icons/react'
 import type { MediaAsset } from '../../../shared/api/weddings'
+import { MediaViewerDialog } from './MediaViewerDialog'
 import './media-manager.css'
 
 const MEDIA_PAGE_SIZE = 40
+
+type UploadProgressCallback = (completed: number, total: number) => void
 
 type MediaManagerModalProps = {
   open: boolean
@@ -14,7 +17,7 @@ type MediaManagerModalProps = {
   uploading: boolean
   error: string
   onClose: () => void
-  onUpload: (files: FileList | null) => Promise<MediaAsset[]>
+  onUpload: (files: FileList | readonly File[] | null, onProgress?: (completed: number, total: number) => void) => Promise<MediaAsset[]>
   onConfirm: (assets: MediaAsset[]) => void
 }
 
@@ -22,29 +25,72 @@ const MediaAssetCard = memo(function MediaAssetCard({
   asset,
   selected,
   onToggle,
+  onView,
 }: {
   asset: MediaAsset
   selected: boolean
   onToggle: (asset: MediaAsset) => void
+  onView: (asset: MediaAsset) => void
 }) {
   return (
-    <button
-      type="button"
-      className={'media-manager-asset' + (selected ? ' is-selected' : '')}
-      onClick={() => onToggle(asset)}
-      aria-pressed={selected}
-    >
-      <img
-        loading="lazy"
-        decoding="async"
-        src={asset.publicUrl}
-        alt={asset.originalName ?? 'Image'}
-      />
-      <span className="media-manager-check">
-        {selected ? <Check size={15} weight="bold" /> : null}
-      </span>
-      <small>{asset.originalName ?? 'Image'}</small>
-    </button>
+    <div className={'media-manager-asset' + (selected ? ' is-selected' : '')}>
+      <button type="button" className="media-manager-select-asset" onClick={() => onToggle(asset)} aria-pressed={selected}>
+        <img loading="lazy" decoding="async" src={asset.publicUrl} alt={asset.originalName ?? 'Ảnh'} />
+        <span className="media-manager-check">{selected ? <Check size={15} weight="bold" /> : null}</span>
+        <small>{asset.originalName ?? 'Ảnh'}</small>
+      </button>
+      <button type="button" className="media-manager-view-asset" onClick={() => onView(asset)} aria-label={`Xem lớn ${asset.originalName ?? 'ảnh'}`} title="Xem ảnh lớn">
+        <ArrowsOut size={14} />
+      </button>
+    </div>
+  )
+})
+
+const MediaUploadControl = memo(function MediaUploadControl({
+  uploading,
+  selectionMode,
+  onUpload,
+  onUploaded,
+}: {
+  uploading: boolean
+  selectionMode: 'single' | 'multiple'
+  onUpload: MediaManagerModalProps['onUpload']
+  onUploaded: (assets: MediaAsset[]) => void
+}) {
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
+
+  return (
+    <>
+      <label className="media-manager-upload">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple={selectionMode === 'multiple'}
+          disabled={uploading}
+          onChange={async (event) => {
+            const input = event.currentTarget
+            const files = input.files
+            if (!files?.length) return
+            setProgress({ completed: 0, total: files.length })
+            try {
+              onUploaded(await onUpload(files, (completed, total) => setProgress({ completed, total })))
+            } finally {
+              setProgress(null)
+              input.value = ''
+            }
+          }}
+        />
+        <ImageSquare size={22} />
+        <strong>{uploading ? `Đang tải ảnh ${progress ? `${progress.completed}/${progress.total}` : 'lên…'}` : 'Tải ảnh mới lên'}</strong>
+        <span>JPG, PNG hoặc WebP · tối đa 10MB mỗi ảnh</span>
+      </label>
+      {uploading ? (
+        <p className="media-manager-upload-status" role="status" aria-live="polite">
+          <span className="media-manager-upload-spinner" aria-hidden="true" />
+          {progress ? `Đang tải ảnh ${progress.completed}/${progress.total}…` : 'Đang tải ảnh lên…'}
+        </p>
+      ) : null}
+    </>
   )
 })
 
@@ -62,23 +108,25 @@ export function MediaManagerModal({
 }: MediaManagerModalProps) {
   const [draftIds, setDraftIds] = useState<string[]>([...selectedIds])
   const [visibleCount, setVisibleCount] = useState(MEDIA_PAGE_SIZE)
+  const [viewerAssetId, setViewerAssetId] = useState<string | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const selectedIdsKey = selectedIds.join('\u0000')
   useEffect(() => {
     if (open) {
       setDraftIds(selectedIdsKey ? selectedIdsKey.split('\u0000') : [])
       setVisibleCount(MEDIA_PAGE_SIZE)
+      setViewerAssetId(null)
       closeRef.current?.focus()
     }
   }, [open, selectedIdsKey])
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape' && !viewerAssetId) onClose()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
+  }, [open, onClose, viewerAssetId])
 
   const toggle = useCallback(
     (asset: MediaAsset) => {
@@ -90,6 +138,17 @@ export function MediaManagerModal({
     },
     [selectionMode],
   )
+  const handleViewAsset = useCallback((asset: MediaAsset) => setViewerAssetId(asset.id), [])
+  const handleUploaded = useCallback((uploaded: MediaAsset[]) => {
+    if (!uploaded.length) return
+    setDraftIds((current) => {
+      const next = selectionMode === 'single' ? [] : [...current]
+      uploaded.forEach((asset) => {
+        if (!next.includes(asset.id)) next.push(asset.id)
+      })
+      return next
+    })
+  }, [selectionMode])
 
   if (!open) return null
 
@@ -117,6 +176,7 @@ export function MediaManagerModal({
         className="media-manager-modal"
         role="dialog"
         aria-modal="true"
+        aria-hidden={Boolean(viewerAssetId)}
         aria-labelledby="media-manager-title"
       >
         <header className="media-manager-header">
@@ -139,29 +199,12 @@ export function MediaManagerModal({
             <X size={18} />
           </button>
         </header>
-        <label className="media-manager-upload">
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple={selectionMode === 'multiple'}
-            disabled={uploading}
-            onChange={async (event) => {
-              const uploaded = await onUpload(event.target.files)
-              if (uploaded.length)
-                setDraftIds((current) => {
-                  const next = selectionMode === 'single' ? [] : [...current]
-                  uploaded.forEach((asset) => {
-                    if (!next.includes(asset.id)) next.push(asset.id)
-                  })
-                  return next
-                })
-              event.target.value = ''
-            }}
-          />
-          <ImageSquare size={22} />
-          <strong>{uploading ? 'Đang tải ảnh lên…' : 'Tải ảnh mới lên'}</strong>
-          <span>JPG, PNG hoặc WebP · tối đa 10MB mỗi ảnh</span>
-        </label>
+        <MediaUploadControl
+          uploading={uploading}
+          selectionMode={selectionMode}
+          onUpload={onUpload}
+          onUploaded={handleUploaded}
+        />
         {error ? (
           <p className="media-manager-error" role="alert">
             {error}
@@ -178,6 +221,7 @@ export function MediaManagerModal({
                   asset={asset}
                   selected={draftIds.includes(asset.id)}
                   onToggle={toggle}
+                  onView={handleViewAsset}
                 />
               ))}
             </div>
@@ -212,6 +256,19 @@ export function MediaManagerModal({
           </button>
         </footer>
       </section>
+      {viewerAssetId ? (
+        <MediaViewerDialog
+          assets={assetsToRender}
+          initialAssetId={viewerAssetId}
+          onClose={() => setViewerAssetId(null)}
+          onEdit={async (file) => {
+            const uploaded = await onUpload([file])
+            const created = uploaded[0] ?? null
+            if (created) setDraftIds((current) => selectionMode === 'single' ? [created.id] : [...current, created.id])
+            return created
+          }}
+        />
+      ) : null}
     </div>
   )
 }
