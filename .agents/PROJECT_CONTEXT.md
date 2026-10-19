@@ -1,5 +1,7 @@
 # ourday - Persistent Project Context
 
+- Owner media library and shared editor media picker support per-image upload progress (`x/y`) without rerendering the image grid on each progress update, a full-image viewer with previous/next navigation, and an extensible `react-filerobot-image-editor` integration (v4.9.1, Adjust tab with Crop open by default). Editing uploads a new MediaAsset instead of replacing the original; the editor selects the new asset. VIEWER role can view but cannot edit. Export is bounded to 1400px per side; remote public media must allow CORS for browser canvas export.
+
 - CSS reveal migration complete: `frontend/src/shared/styles/reveal-animations.css` đã được xóa vì không còn consumer. Thông tin legacy compatibility bên dưới là lịch sử; không khôi phục `.reveal`/`.reveal--*`. Entrance dùng `motion/react` và target tường minh.
 
 - Invitation viewport rule: new invitation templates use a mobile-first content canvas capped at `480px`; they remain fluid below that width, prevent horizontal overflow, and center the capped surface on larger screens. This rule does not apply to admin/studio or wedding website layouts.
