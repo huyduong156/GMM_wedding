@@ -3,12 +3,10 @@ import FilerobotImageEditor, { TABS, TOOLS } from 'react-filerobot-image-editor'
 import type { MediaAsset } from '../../../shared/api/weddings'
 import { mediaEditorTranslations } from './media-editor-translations'
 
-const MAX_OUTPUT_SIDE = 1400
-
 function canvasToBlob(canvas: HTMLCanvasElement, mimeType: string): Promise<Blob> {
   return new Promise((resolve, reject) => {
     try {
-      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Không thể xuất ảnh đã chỉnh.')), mimeType, 0.9)
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Không thể xuất ảnh đã chỉnh.')), mimeType, 0.95)
     } catch {
       reject(new Error('Nguồn ảnh không cho phép chỉnh trên trình duyệt này.'))
     }
@@ -17,17 +15,12 @@ function canvasToBlob(canvas: HTMLCanvasElement, mimeType: string): Promise<Blob
 
 async function editedImageFile(source: HTMLCanvasElement | undefined, asset: MediaAsset): Promise<File> {
   if (!source) throw new Error('Công cụ chỉnh ảnh không trả về ảnh đã xử lý.')
-  const scale = Math.min(1, MAX_OUTPUT_SIDE / Math.max(source.width, source.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.max(1, Math.round(source.width * scale))
-  canvas.height = Math.max(1, Math.round(source.height * scale))
-  const context = canvas.getContext('2d')
-  if (!context) throw new Error('Trình duyệt không hỗ trợ xuất ảnh này.')
-  context.drawImage(source, 0, 0, canvas.width, canvas.height)
-  const mimeType = asset.mimeType === 'image/png' ? 'image/png' : 'image/jpeg'
-  const blob = await canvasToBlob(canvas, mimeType)
+  // JPEG has no alpha channel; preserve transparency from PNG and WebP sources by exporting PNG.
+  const mimeType = asset.mimeType === 'image/jpeg' ? 'image/jpeg' : 'image/png'
+  const blob = await canvasToBlob(source, mimeType)
   const baseName = (asset.originalName ?? 'anh').replace(/\.[^.]+$/, '')
-  return new File([blob], `${baseName}-chinh-sua.${mimeType === 'image/png' ? 'png' : 'jpg'}`, { type: mimeType })
+  const extension = mimeType === 'image/jpeg' ? 'jpg' : 'png'
+  return new File([blob], `${baseName}-chinh-sua.${extension}`, { type: mimeType })
 }
 
 export function MediaEditPanel({
@@ -51,10 +44,10 @@ export function MediaEditPanel({
         defaultToolId={TOOLS.CROP}
         Crop={{ ratio: 'custom' }}
         defaultSavedImageName={(asset.originalName ?? 'anh').replace(/\.[^.]+$/, '') + '-chinh-sua'}
-        defaultSavedImageType={asset.mimeType === 'image/png' ? 'png' : 'jpeg'}
+        defaultSavedImageType={asset.mimeType === 'image/jpeg' ? 'jpeg' : 'png'}
         translations={mediaEditorTranslations}
         previewPixelRatio={1}
-        savingPixelRatio={0.5}
+        savingPixelRatio={1}
         onBeforeSave={() => false}
         onSave={async (imageData) => {
           setError('')
