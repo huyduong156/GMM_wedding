@@ -6,8 +6,6 @@ import './media-manager.css'
 
 const MEDIA_PAGE_SIZE = 40
 
-type UploadProgressCallback = (completed: number, total: number) => void
-
 type MediaManagerModalProps = {
   open: boolean
   assets: MediaAsset[]

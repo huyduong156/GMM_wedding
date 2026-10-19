@@ -101,6 +101,7 @@ export function MediaLibraryPage() {
   const canManage = workspace?.activeRole !== 'VIEWER'
   const media = useMediaLibrary({ weddingId })
   const setMediaError = media.setError
+  const mediaAssets = media.assets
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
@@ -114,13 +115,13 @@ export function MediaLibraryPage() {
   }, [setMediaError, weddingId])
 
   const requestDelete = useCallback((ids: string[]) => {
-    const assets = media.assets.filter((asset) => ids.includes(asset.id))
+    const assets = mediaAssets.filter((asset) => ids.includes(asset.id))
     if (assets.some((asset) => asset.publicUrl === auth?.user?.avatarUrl)) {
-      media.setError('Không thể xóa ảnh đang được dùng làm ảnh đại diện.')
+      setMediaError('Không thể xóa ảnh đang được dùng làm ảnh đại diện.')
       return
     }
     setPendingDeleteIds(new Set(ids))
-  }, [auth?.user?.avatarUrl, media.assets, media.setError])
+  }, [auth?.user?.avatarUrl, mediaAssets, setMediaError])
 
   const confirmDelete = useCallback(async () => {
     if (!weddingId || !pendingDeleteIds.size) return
