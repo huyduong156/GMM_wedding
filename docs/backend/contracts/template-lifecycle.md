@@ -36,6 +36,10 @@ Release bundle của mỗi template phải có `sourceStatus` là `REVIEW`, `REA
 - `REVIEW` chỉ để xem/feedback và không được release.
 - Source `DEPRECATED` không được release lại.
 
+## Admin template thumbnails
+
+Admin thumbnail uploads accept JPEG, PNG and WebP. The backend stores the final thumbnail as WebP without resizing its uploaded pixel dimensions (EXIF orientation is applied). S3-compatible uploads convert during completion and local fake-storage uploads convert through the backend upload route.
+
 ## Public preview
 
 Preview draft/review/ready trước release không phải public surface; public renderer chỉ được mở khi version đã `RELEASED`. Admin preview phải yêu cầu platform-admin session/token và chạy sandbox. Việc mở preview URL không thay thế authorization ở backend.

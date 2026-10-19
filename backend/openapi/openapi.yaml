@@ -2091,6 +2091,19 @@ paths:
         '200': { description: Published snapshot }
         '304': { description: Snapshot has not changed }
         '404': { $ref: '#/components/responses/NotFound' }
+  /public/invitations/{weddingSlug}/og-image:
+    get:
+      operationId: getPublicInvitationShareImage
+      summary: Get the owner avatar as a crawler-compatible JPEG share image
+      parameters:
+        - { name: weddingSlug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: JPEG share image derived from the published owner's avatar
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+        '404': { $ref: '#/components/responses/NotFound' }
   /public/invitations/{invitationToken}:
     get:
       operationId: getInvitationByToken

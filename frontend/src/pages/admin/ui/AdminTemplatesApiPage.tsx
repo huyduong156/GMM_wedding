@@ -923,7 +923,7 @@ function ThumbnailEditor({
         )}
         <span className="admin-template-thumbnail-upload-copy">
           <strong>{file ? file.name : version.thumbnailUrl ? 'Đổi ảnh đại diện' : 'Chọn ảnh đại diện'}</strong>
-          <small>JPG, PNG hoặc WebP · không giới hạn kích thước</small>
+          <small>JPG, PNG hoặc WebP · giữ nguyên độ phân giải · tự động chuyển sang WebP</small>
         </span>
       </label>
       <input

@@ -12,6 +12,8 @@ export interface ObjectStorage {
   createUploadIntent(key: string, mimeType: string, sizeBytes: number): Promise<UploadIntent>
   put(key: string, body: Uint8Array, mimeType: string): Promise<StoredObject>
   head(key: string): Promise<StoredObject | null>
+  get(key: string): Promise<Uint8Array | null>
   delete(key: string): Promise<void>
   publicUrl(key: string): string
+  keyFromPublicUrl(url: string): string | null
 }

@@ -296,7 +296,7 @@ $couple = implode(' & ', array_values(array_filter([$bride, $groom])));
 if ($couple === '') {
     $couple = first_string($content, [['hero', 'couple'], ['couple']]) ?? '';
 }
-$label = $surface === 'invitation' ? 'Thiệp cưới' : ($surface === 'website' ? 'Website cưới' : 'Wedding Recap');
+$label = $surface === 'invitation' ? 'Thiệp cưới online' : ($surface === 'website' ? 'Website cưới' : 'Wedding Recap');
 $title = first_string($payload, [['ogTitle']]) ?? ($couple !== '' ? $couple . ' | ' . $label : $label . ' | Ourday');
 $defaultDescription = $couple === ''
     ? 'Một không gian cưới được tạo bằng Ourday.'
@@ -306,7 +306,9 @@ $defaultDescription = $couple === ''
             ? 'Cùng khám phá câu chuyện và những thông tin về ngày cưới của ' . $couple . '.'
             : 'Trân trọng mời bạn đến chung vui trong ngày cưới của ' . $couple . '.'));
 $description = first_string($payload, [['ogDescription']]) ?? $defaultDescription;
-$image = absolute_media_url($ownerAvatar ?? first_string($payload, [['ogImageUrl']]) ?? first_media($content, [
+$image = $surface === 'invitation' && $ownerAvatar !== null
+    ? API_ORIGIN . '/api/public/invitations/' . rawurlencode($slug) . '/og-image'
+    : absolute_media_url($ownerAvatar ?? first_string($payload, [['ogImageUrl']]) ?? first_media($content, [
         ['ogImageUrl'],
         ['heroMedia'],
         ['openingMediaFront'],

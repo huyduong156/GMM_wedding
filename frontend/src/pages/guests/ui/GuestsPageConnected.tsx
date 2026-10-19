@@ -93,6 +93,7 @@ const catName = (categories: GuestCategory[], id: string | null) => {
 }
 const normalizeGuestFamilySide = (value: string): Guest['familySide'] =>
   value === 'GROOM' || value === 'BRIDE' ? value : null
+const guestFamilyBlockKey = (familySide: Guest['familySide']): GuestFamilyBlockKey => familySide ?? 'COMMON'
 const GUEST_PAGE_SIZE = 20
 type GuestFamilyBlockKey = 'GROOM' | 'BRIDE' | 'COMMON'
 const guestListSummary = (result: {
@@ -701,6 +702,13 @@ function GuestsPageConnectedContent({
       )
     }
   }
+  const refreshGuestBlocks = async (keys: GuestFamilyBlockKey[]) => {
+    const uniqueKeys = new Set(keys)
+    const blocksToRefresh = guestBlocks.filter((block) => uniqueKeys.has(block.key))
+    await Promise.all(blocksToRefresh.map((block) =>
+      loadGuestBlockPage(block.key, block.page, block.cursors[block.page - 1] ?? null),
+    ))
+  }
   const openShare = (guest: Guest) => setSharingGuest(guest)
   const openCreate = () => {
     if (!canEdit) return
@@ -753,10 +761,12 @@ function GuestsPageConnectedContent({
     try {
       if (editing) {
         await guestApi.update(activeWedding.id, editing.id, input)
-        await refreshGuestPages()
+        const previousSide = guestFamilyBlockKey(editing.familySide)
+        const nextSide = guestFamilyBlockKey(selectedFamilySide)
+        await refreshGuestBlocks(previousSide === nextSide ? [nextSide] : [previousSide, nextSide])
       } else {
         await guestApi.create(activeWedding.id, input)
-        await refreshGuestPages()
+        await refreshGuestBlocks([guestFamilyBlockKey(selectedFamilySide)])
       }
       await notifications.success(editing ? 'Đã cập nhật khách mời' : 'Đã thêm khách mời')
       const keepCreateDialogOpen = !editing
