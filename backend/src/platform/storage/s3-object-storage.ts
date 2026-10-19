@@ -1,6 +1,7 @@
 import {
   CreateBucketCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -110,6 +111,18 @@ export class S3ObjectStorage implements ObjectStorage {
             sizeBytes: result.ContentLength,
             mimeType: result.ContentType ?? 'application/octet-stream',
           }
+    } catch {
+      return null
+    }
+  }
+
+  async get(key: string): Promise<Uint8Array | null> {
+    try {
+      await this.ensureBucket()
+      const result = await this.client.send(
+        new GetObjectCommand({ Bucket: this.config.bucket, Key: key }),
+      )
+      return result.Body ? new Uint8Array(await result.Body.transformToByteArray()) : null
     } catch {
       return null
     }

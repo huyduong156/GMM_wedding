@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import sharp from 'sharp'
 import {
   TemplateAdminService,
   templateCompatibility,
@@ -79,6 +80,47 @@ describe('templateConfigHash', () => {
     expect(
       templateContentChanged(existingConfig, templateConfigHash(existingConfig), incomingConfig),
     ).toBe(true)
+  })
+})
+
+describe('template thumbnail upload', () => {
+  it('converts direct JPEG/PNG storage uploads to full-resolution WebP on completion', async () => {
+    const source = await sharp({
+      create: { width: 3000, height: 2000, channels: 4, background: { r: 220, g: 120, b: 80, alpha: 0.5 } },
+    }).png().toBuffer()
+    const put = vi.fn(async (_key: string, body: Uint8Array, mimeType: string) => ({ sizeBytes: body.length, mimeType }))
+    const storage = {
+      createUploadIntent: vi.fn(),
+      put,
+      head: vi.fn(async () => ({ sizeBytes: source.length, mimeType: 'image/png' })),
+      get: vi.fn(async () => new Uint8Array(source)),
+      delete: vi.fn(),
+      publicUrl: (key: string) => `https://media.example/${key}`,
+    }
+    const db = {
+      template: { findUnique: vi.fn(async () => ({ versions: [{ id: 'version-id', thumbnailStorageKey: null }] })) },
+      templateVersion: { update: vi.fn(async () => ({ releasedAt: null, deprecatedAt: null })) },
+      auditLog: { create: vi.fn() },
+    }
+    const service = new TemplateAdminService(db as never, {}, storage as never)
+
+    await service.completeThumbnailUpload(
+      { userId: 'admin-id' } as never,
+      'editorial-vows',
+      '1.0.0',
+      'templates/thumbnails/editorial-vows/1.0.0/thumb.webp',
+      'request-id',
+    )
+
+    expect(put).toHaveBeenCalledWith(
+      'templates/thumbnails/editorial-vows/1.0.0/thumb.webp',
+      expect.any(Uint8Array),
+      'image/webp',
+    )
+    const uploadedBody = put.mock.calls[0]?.[1]
+    expect(uploadedBody).toBeInstanceOf(Uint8Array)
+    const converted = await sharp(uploadedBody!).metadata()
+    expect(converted).toMatchObject({ format: 'webp', width: 3000, height: 2000, hasAlpha: true })
   })
 })
 

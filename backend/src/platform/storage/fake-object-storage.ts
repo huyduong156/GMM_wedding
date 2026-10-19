@@ -44,6 +44,13 @@ export class FakeObjectStorage implements ObjectStorage {
       return null
     }
   }
+  async get(key: string) {
+    try {
+      return await readFile(safePath(this.root(), key))
+    } catch {
+      return null
+    }
+  }
   async delete(key: string) {
     try {
       await unlink(safePath(this.root(), key))

@@ -3,6 +3,7 @@ import { Prisma, type PrismaClient } from '@prisma/client'
 
 import type { PlatformAdminActor } from '@/platform/auth/actor-context'
 import type { ObjectStorage } from '@/platform/storage/object-storage'
+import { ImageConversionError, ImageConversionService } from '@/modules/media/application/image-conversion-service'
 import { TemplateAdminError } from '../domain/template-admin-error'
 import type {
   AdminTemplateListQuery,
@@ -135,6 +136,7 @@ const SUPPORTED_CONTRACT = {
   contentSchemaVersion: 1,
   rendererApiVersion: 1,
 } as const
+const SUPPORTED_THUMBNAIL_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 export function templateCompatibility(version: {
   templateConfigVersion: number
@@ -160,6 +162,8 @@ export function templateCompatibility(version: {
 }
 
 export class TemplateAdminService {
+  private readonly imageConverter = new ImageConversionService()
+
   constructor(
     private readonly db: PrismaClient,
     private readonly options: { allowSameVersionMutation?: boolean } = {},
@@ -325,8 +329,9 @@ export class TemplateAdminService {
     if (!this.storage)
       throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
     await this.findVersion(templateKey, version)
-    const extension = input.mimeType.split('/')[1] === 'jpeg' ? 'jpg' : input.mimeType.split('/')[1]
-    const storageKey = `templates/thumbnails/${templateKey}/${version}/${randomUUID()}.${extension}`
+    if (!SUPPORTED_THUMBNAIL_MIME_TYPES.includes(input.mimeType) || input.sizeBytes < 1)
+      throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
+    const storageKey = `templates/thumbnails/${templateKey}/${version}/${randomUUID()}.webp`
     const upload = await this.storage.createUploadIntent(storageKey, input.mimeType, input.sizeBytes)
     return { storageKey, upload }
   }
@@ -343,9 +348,17 @@ export class TemplateAdminService {
       throw new TemplateAdminError('TEMPLATE_STORAGE_UNAVAILABLE', 503, 'Template storage is unavailable')
     await this.findVersion(templateKey, version)
     this.assertThumbnailStorageKey(templateKey, version, storageKey)
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType))
+    if (!SUPPORTED_THUMBNAIL_MIME_TYPES.includes(mimeType) || body.byteLength < 1)
       throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
-    await this.storage.put(storageKey, body, mimeType)
+    let converted
+    try {
+      converted = await this.imageConverter.convert(body, mimeType, { maxDimension: null, quality: 90 })
+    } catch (error) {
+      if (error instanceof ImageConversionError)
+        throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, error.message)
+      throw error
+    }
+    await this.storage.put(storageKey, converted.body, converted.mimeType)
     return { accepted: true, storageKey }
   }
 
@@ -362,11 +375,24 @@ export class TemplateAdminService {
     this.assertThumbnailStorageKey(templateKey, version, storageKey)
     const stored = await this.storage.head(storageKey)
     if (!stored) throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INCOMPLETE', 409, 'Thumbnail upload has not completed')
-    if (
-      stored.mimeType !== 'application/octet-stream' &&
-      !['image/jpeg', 'image/png', 'image/webp'].includes(stored.mimeType)
-    )
+    if (stored.mimeType === 'image/jpeg' || stored.mimeType === 'image/png') {
+      const original = await this.storage.get(storageKey)
+      if (!original) throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INCOMPLETE', 409, 'Thumbnail upload is not readable')
+      try {
+        const converted = await this.imageConverter.convert(original, stored.mimeType, {
+          maxDimension: null,
+          quality: 90,
+        })
+        await this.storage.put(storageKey, converted.body, converted.mimeType)
+      } catch (error) {
+        await this.storage.delete(storageKey)
+        if (error instanceof ImageConversionError)
+          throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, error.message)
+        throw error
+      }
+    } else if (stored.mimeType !== 'application/octet-stream' && stored.mimeType !== 'image/webp') {
       throw new TemplateAdminError('TEMPLATE_THUMBNAIL_INVALID', 400, 'Invalid template thumbnail')
+    }
     const updated = await this.db.templateVersion.update({
       where: { id: selected.id },
       data: { thumbnailUrl: this.storage.publicUrl(storageKey), thumbnailStorageKey: storageKey },
@@ -398,7 +424,7 @@ export class TemplateAdminService {
 
   private assertThumbnailStorageKey(templateKey: string, version: string, storageKey: string) {
     const prefix = `templates/thumbnails/${templateKey}/${version}/`
-    if (!storageKey.startsWith(prefix) || storageKey.includes('..'))
+    if (!storageKey.startsWith(prefix) || storageKey.includes('..') || !storageKey.endsWith('.webp'))
       throw new TemplateAdminError('TEMPLATE_THUMBNAIL_KEY_INVALID', 400, 'Invalid thumbnail storage key')
   }
 

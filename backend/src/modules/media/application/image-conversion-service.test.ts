@@ -22,6 +22,17 @@ describe('ImageConversionService', () => {
     expect(metadata.format).toBe('webp')
   })
 
+  it('can convert to WebP without resizing and preserve transparency', async () => {
+    const source = await sharp({
+      create: { width: 3000, height: 2000, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 0 } },
+    }).png().toBuffer()
+
+    const result = await service.convert(source, 'image/png', { maxDimension: null, quality: 90 })
+    const metadata = await sharp(result.body).metadata()
+
+    expect(metadata).toMatchObject({ format: 'webp', width: 3000, height: 2000, hasAlpha: true })
+  })
+
   it('rejects unsupported input MIME types before storing anything', async () => {
     await expect(service.convert(new Uint8Array([1, 2, 3]), 'image/gif')).rejects.toBeInstanceOf(
       ImageConversionError,
