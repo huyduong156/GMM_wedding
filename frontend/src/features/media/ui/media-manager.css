@@ -75,6 +75,26 @@
   font-size: 12px;
   color: #987e75;
 }
+.media-manager-upload-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -10px 0 14px;
+  color: #713b31;
+  font-size: 12px;
+}
+.media-manager-upload-spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border: 2px solid #d9b5a9;
+  border-top-color: #713b31;
+  border-radius: 50%;
+  animation: media-manager-upload-spin 700ms linear infinite;
+}
+@keyframes media-manager-upload-spin {
+  to { transform: rotate(360deg); }
+}
 .media-manager-grid-scroll {
   min-height: 180px;
   overflow: auto;
@@ -107,11 +127,38 @@
   overflow: hidden;
   border: 1px solid transparent;
   border-radius: 14px;
-  padding: 0;
   background: #f2e8df;
   color: #4d3028;
   text-align: left;
+}
+.media-manager-select-asset {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
+}
+.media-manager-view-asset {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #c99383;
+  border-radius: 8px;
+  background: #fbf6ef;
+  color: #713b31;
+  cursor: pointer;
+}
+.media-manager-view-asset:focus-visible,
+.media-manager-select-asset:focus-visible {
+  outline: 2px solid #713b31;
+  outline-offset: -2px;
 }
 .media-manager-asset.is-selected {
   border-color: #a14939;

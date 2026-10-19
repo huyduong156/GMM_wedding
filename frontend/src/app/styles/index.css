@@ -7718,8 +7718,8 @@ kbd {
   color: inherit;
 }
 .admin-login-brand img {
-  width: 44px;
-  height: 44px;
+  width: 35px;
+  height: 35px;
   border-radius: 11px;
   object-fit: cover;
 }
@@ -9655,6 +9655,31 @@ kbd {
   position: relative;
   overflow: hidden;
 }
+.media-library-upload-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.media-library-upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.media-library-upload-spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: media-library-upload-spin 700ms linear infinite;
+}
+@keyframes media-library-upload-spin {
+  to { transform: rotate(360deg); }
+}
 .media-library-upload input {
   position: absolute;
   inset: 0;
@@ -9668,11 +9693,27 @@ kbd {
   max-width: 1100px;
 }
 .media-library-card {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--surface);
 }
+.media-library-view {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--fg-primary);
+  background: var(--surface);
+  cursor: pointer;
+}
+.media-library-view:hover { background: var(--raised); }
 .media-library-card.is-selected {
   border-color: var(--brand);
   box-shadow: 0 0 0 2px rgb(183 96 22 / 0.16);
@@ -16043,13 +16084,6 @@ summary {
     pointer;
 }
 
-/* Button hover lift */
-@media (hover: hover) and (pointer: fine) {
-  button:hover:not(:disabled) {
-    transform: scale(1.1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   button:hover:not(:disabled) {
     transform: none;
@@ -16214,13 +16248,6 @@ summary {
 .wedding-cursor::before {
   top: 5px;
   left: 7px;
-}
-
-/* Keep hover scale on cursor only */
-@media (hover: hover) and (pointer: fine) {
-  button:hover:not(:disabled) {
-    transform: none;
-  }
 }
 
 /* Template hover: scale cursor only */

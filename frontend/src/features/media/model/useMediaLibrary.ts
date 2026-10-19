@@ -10,6 +10,8 @@ type UseMediaLibraryOptions = {
   acceptedMimeTypes?: string[]
 }
 
+type UploadProgressCallback = (completed: number, total: number) => void
+
 export function useMediaLibrary({
   weddingId,
   maxBytes = DEFAULT_MAX_BYTES,
@@ -39,7 +41,7 @@ export function useMediaLibrary({
   }, [refresh])
 
   const upload = useCallback(
-    async (files: FileList | null) => {
+    async (files: FileList | readonly File[] | null, onProgress?: UploadProgressCallback) => {
       if (!weddingId || !files?.length) return [] as MediaAsset[]
       const accepted = [...files].filter(
         (file) => acceptedMimeTypes.includes(file.type) && file.size <= maxBytes,
@@ -50,14 +52,24 @@ export function useMediaLibrary({
       if (!accepted.length) return [] as MediaAsset[]
       setUploading(true)
       try {
-        const uploaded = await Promise.all(
-          accepted.map((file) => weddingApi.uploadMedia(weddingId, file)),
-        )
+        let completed = 0
+        const results = await Promise.allSettled(accepted.map(async (file) => {
+          try {
+            return await weddingApi.uploadMedia(weddingId, file)
+          } finally {
+            completed += 1
+            onProgress?.(completed, accepted.length)
+          }
+        }))
+        const uploaded = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : [])
+        const failedCount = results.length - uploaded.length
         setAssets((current) => [
           ...uploaded,
           ...current.filter((asset) => !uploaded.some((next) => next.id === asset.id)),
         ])
-        setError('')
+        setError(failedCount
+          ? `Không thể tải lên ${failedCount} ảnh. ${uploaded.length ? `${uploaded.length} ảnh đã tải thành công.` : ''}`.trim()
+          : '')
         return uploaded
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : 'Không thể tải ảnh lên kho media.')
