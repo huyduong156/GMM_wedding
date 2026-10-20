@@ -60,6 +60,7 @@ const exactTitles: Record<string, string> = {
   [publicTemplateRoutes.enchantedForestPreview]: 'Enchanted Forest – Mẫu website cưới | Ourday',
   [publicTemplateRoutes.cherryBlossomGardenPreview]:
     'Cherry Blossom Garden – Mẫu website cưới | Ourday',
+  [publicTemplateRoutes.aBeautifulDayPreview]: 'A Beautiful Day | Wedding website preview | Ourday',
   [publicTemplateRoutes.redSpiderLilyRecapPreview]:
     'Red Spider Lily – Mẫu Wedding Recap | Ourday',
 }

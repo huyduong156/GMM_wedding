@@ -28,7 +28,9 @@ Website cưới tái sử dụng template versioning, live-editor bridge và pub
 
 Website cưới không bắt buộc opening phong bì và không chứa PII khách trong snapshot. Section key, content key và `data-editor-section` phải ánh xạ `1:1`; canonical content tách khỏi `themeConfig`/`sectionConfig`; event/media dùng reference được authorize; publish pin chính xác `templateVersionId` vào snapshot bất biến.
 
-## Template hiện có
+## Template hiện có và đang phát triển
+
+`A Beautiful Day` has completed Phase 1 and Phase 2 after its Phase 0 preview shell. The [Phase 1 Theme Brief](./a-beautiful-day/phase-1-theme-brief.md) records product meaning, art direction, and section/content/editor decisions; the [Phase 2 Media Contract](./a-beautiful-day/phase-2-media-contract.md) defines user-media roles, editor mapping, crops, fallbacks, and media-independence checks. Phase 2.5 has a generated candidate set awaiting visual approval and optimization ([artwork brief](../../../frontend/src/templates/websites/a-beautiful-day/ARTWORK_BRIEF.md)). The three MinIO screenshots remain temporary analysis references, not production assets.
 
 `Editorial Vows` v1.0.0 là mẫu đầu tiên tại `/templates/websites/editorial-vows/preview`. Art direction dùng porcelain/cobalt lạnh, hero split editorial, sticky-like story chapters, gallery contact sheet và motion phân bố xuyên trang. Reveal dùng vùng kích hoạt trễ gần giữa viewport để khách kịp nhìn chuyển động; mobile giảm cỡ chữ/section spacing, giữ mật độ thông tin vừa phải và chuyển mọi layout về native vertical scroll. Bộ decor nguyên bản gồm anthurium porcelain, ribbon cobalt, chrome bead, photo rail và geometric orbit; ambient animation chạy độc lập với reveal nhưng bị giảm/tắt theo mobile và `prefers-reduced-motion`.
 

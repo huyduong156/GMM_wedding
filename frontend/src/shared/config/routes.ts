@@ -72,6 +72,7 @@ export const publicTemplateRoutes = {
   greenHydrangeaPreview: '/templates/websites/green-hydrangea/preview',
   enchantedForestPreview: '/templates/websites/enchanted-forest/preview',
   cherryBlossomGardenPreview: '/templates/websites/cherry-blossom-garden/preview',
+  aBeautifulDayPreview: '/templates/websites/a-beautiful-day/preview',
   redSpiderLilyRecapPreview: '/templates/recaps/red-spider-lily/preview',
 } as const
 
