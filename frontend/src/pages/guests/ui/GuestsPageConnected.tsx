@@ -75,19 +75,6 @@ const categoryPath = (categories: GuestCategory[], category: GuestCategory) => {
   }
   return names.join(' / ')
 }
-const categoryFamilySideName = (side: GuestCategory['familySide']) =>
-  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chung'
-const categoryFamilySide = (categories: GuestCategory[], category: GuestCategory) => {
-  let current = category
-  while (current.parentId) {
-    const parent = categories.find((item) => item.id === current.parentId)
-    if (!parent) break
-    current = parent
-  }
-  return current.familySide
-}
-const categoryOptionLabel = (categories: GuestCategory[], category: GuestCategory) =>
-  `${categoryFamilySideName(categoryFamilySide(categories, category))} · ${categoryPath(categories, category)}`
 const catName = (categories: GuestCategory[], id: string | null) => {
   const category = categories.find((item) => item.id === id)
   return category ? categoryPath(categories, category) : 'Chưa phân loại'
