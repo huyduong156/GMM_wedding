@@ -87,16 +87,12 @@ type GuestFamilyBlockKey = 'GROOM' | 'BRIDE' | 'COMMON'
 const guestListSummary = (result: {
   items: Guest[]
   total: number
-  totalPartySize?: number
-  categorizedTotal?: number
+  totalPartySize: number
+  categorizedTotal: number
 }) => ({
-  total: Number.isFinite(result.total) ? result.total : result.items.length,
-  totalPartySize: Number.isFinite(result.totalPartySize)
-    ? result.totalPartySize!
-    : result.items.reduce((sum, guest) => sum + (Number.isFinite(guest.maxPartySize) ? guest.maxPartySize : 0), 0),
-  categorizedTotal: Number.isFinite(result.categorizedTotal)
-    ? result.categorizedTotal!
-    : result.items.filter((guest) => Boolean(guest.categoryId)).length,
+  total: Number.isFinite(result.total) ? result.total : 0,
+  totalPartySize: Number.isFinite(result.totalPartySize) ? result.totalPartySize : 0,
+  categorizedTotal: Number.isFinite(result.categorizedTotal) ? result.categorizedTotal : 0,
 })
 type GuestFamilyBlockState = {
   key: GuestFamilyBlockKey
@@ -877,7 +873,7 @@ function GuestsPageConnectedContent({
         <header className="guest-family-block-header">
           <div>
             <h2 id={`guest-family-${block.key ?? 'common'}`}>{block.label}</h2>
-            <span>{block.total} khách mời</span>
+            <span>{block.total} thiệp | {block.totalPartySize} người đi</span>
           </div>
         </header>
         {blockGuests.length ? (
@@ -1029,7 +1025,9 @@ function GuestsPageConnectedContent({
                 Trước
               </button>
               <span>
-                Trang {block.page} · {block.total} khách
+                Trang {block.page} / {Math.max(1, Math.ceil(block.total / GUEST_PAGE_SIZE))}
+                {' · '}
+                {block.items.length} / {block.total} thiệp
               </span>
               <button
                 className="button button-secondary"
@@ -1083,7 +1081,7 @@ function GuestsPageConnectedContent({
       <div className="guest-summary">
         <div>
           <span>
-            <Users size={17} /> Tổng khách mời
+            <Users size={17} /> Tổng khách mời (thiệp)
           </span>
           <strong>{guestTotal}</strong>
           <small>{query || categoryId ? 'Theo bộ lọc hiện tại' : 'Tổng danh sách'}</small>
