@@ -174,7 +174,6 @@ export function GuestCategoryPicker({
               <MagnifyingGlass size={17} aria-hidden="true" />
               <span className="sr-only">Tìm nhóm khách</span>
               <input
-                autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo tên nhóm…"

@@ -46,6 +46,9 @@ Wedding Recap có contract riêng về semantic content, layout options, optiona
 
 ## Boundary
 
+- Phân trang danh sách khách hiển thị số trang hiện tại/tổng số trang và số thiệp trên trang/tổng thiệp; nút trang trước/sau bị vô hiệu hóa ở biên tương ứng.
+- Tiêu đề mỗi card phía khách mời hiển thị số thiệp (bản ghi) và tổng số người đi (`totalPartySize` từ API, áp dụng cho toàn bộ kết quả theo bộ lọc, không chỉ trang hiện tại).
+
 - Modal chọn nhóm khách được render qua portal tới `document.body` để backdrop `position: fixed` bám theo viewport, không bị giới hạn bởi card danh sách có scroll hoặc hiệu ứng của tổ tiên.
 
 - Modal chỉnh ảnh của kho media dùng bộ dịch tiếng Việt cho toàn bộ nhãn, tooltip và hộp xác nhận của `react-filerobot-image-editor`; khi bật thêm công cụ của package, tiếp tục giữ bộ dịch này đầy đủ.
