@@ -46,6 +46,8 @@ Wedding Recap có contract riêng về semantic content, layout options, optiona
 
 ## Boundary
 
+- Modal chọn nhóm khách được render qua portal tới `document.body` để backdrop `position: fixed` bám theo viewport, không bị giới hạn bởi card danh sách có scroll hoặc hiệu ứng của tổ tiên.
+
 - Modal chỉnh ảnh của kho media dùng bộ dịch tiếng Việt cho toàn bộ nhãn, tooltip và hộp xác nhận của `react-filerobot-image-editor`; khi bật thêm công cụ của package, tiếp tục giữ bộ dịch này đầy đủ.
 
 - Countdown trong public template phải giữ state/timer ở component đồng hồ riêng (tối đa section countdown nhỏ), không đặt hook cập nhật mỗi giây trong renderer gốc. Tick không được render lại page, calendar, gallery hoặc form bên cạnh. Regression guard: `frontend/src/templates/countdown-render-boundary.test.ts`.
