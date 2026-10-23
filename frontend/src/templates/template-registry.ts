@@ -24,6 +24,8 @@ import { enchantedForestFixture } from './websites/enchanted-forest/fixture'
 import { enchantedForestTemplateConfig } from './websites/enchanted-forest/template-config'
 import { cherryBlossomFixture } from './websites/cherry-blossom-garden/fixture'
 import { cherryBlossomGardenTemplateConfig } from './websites/cherry-blossom-garden/template-config'
+import { aBeautifulDayFixture } from './websites/a-beautiful-day/fixture'
+import { aBeautifulDayTemplateConfig } from './websites/a-beautiful-day/template-config'
 
 export const modernLuxeEditorFixture: ModernLuxeData = {
   brideName: 'Mai',
@@ -126,6 +128,11 @@ export const websiteTemplateRegistry: Record<
   string,
   { config: TemplateConfig; fixture: Record<string, unknown>; previewPath: string }
 > = {
+  'a-beautiful-day': {
+    config: aBeautifulDayTemplateConfig,
+    fixture: aBeautifulDayFixture.content as unknown as Record<string, unknown>,
+    previewPath: publicTemplateRoutes.aBeautifulDayPreview,
+  },
   'editorial-vows': {
     config: editorialVowsTemplateConfig,
     fixture: editorialVowsFixture as Record<string, unknown>,

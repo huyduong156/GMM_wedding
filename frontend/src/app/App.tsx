@@ -52,7 +52,7 @@ import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVo
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
-import { ABeautifulDayWebsite } from '../templates/websites/a-beautiful-day/ABeautifulDayWebsite'
+import { ABeautifulDayPreviewPage } from '../pages/public-website/ui/ABeautifulDayPreviewPage'
 import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
 import { PreviewCountdownProvider } from '../shared/lib/date/useWeddingCountdown'
 import { PublicRecapPage } from '../pages/public-recap/ui/PublicRecapPage'
@@ -183,7 +183,7 @@ function AppContent() {
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview)
     return <AppTemplatePreview pathname={pathname}><CherryBlossomGardenPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.aBeautifulDayPreview)
-    return <AppTemplatePreview pathname={pathname}><ABeautifulDayWebsite /></AppTemplatePreview>
+    return <AppTemplatePreview pathname={pathname}><ABeautifulDayPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview)
     return <RedSpiderLilyRecapPreviewPage />
   const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
@@ -196,9 +196,9 @@ function AppContent() {
         }
       />
     )
-  const publicWebsiteMatch = pathname.match(/^\/([^/]+)\/website\/?$/)
+  const publicWebsiteMatch = pathname.match(/^\/([^/]+)\/website(?:\/([^/]+))?\/?$/)
   if (publicWebsiteMatch)
-    return <PublicWebsitePage weddingSlug={decodeURIComponent(publicWebsiteMatch[1])} />
+    return <PublicWebsitePage weddingSlug={decodeURIComponent(publicWebsiteMatch[1])} guestSlug={publicWebsiteMatch[2] ? decodeURIComponent(publicWebsiteMatch[2]) : undefined} />
   const publicWeddingRecapMatch = pathname.match(/^\/([^/]+)\/recaps\/?$/)
   if (publicWeddingRecapMatch)
     return <PublicRecapPage slug={decodeURIComponent(publicWeddingRecapMatch[1])} />
@@ -259,6 +259,7 @@ const previewStorageKeyByRoute: Record<string, string> = {
   [publicTemplateRoutes.greenHydrangeaPreview]: 'gmm-website-preview:green-hydrangea',
   [publicTemplateRoutes.enchantedForestPreview]: 'gmm-website-preview:enchanted-forest',
   [publicTemplateRoutes.cherryBlossomGardenPreview]: 'gmm-website-preview:cherry-blossom-garden',
+  [publicTemplateRoutes.aBeautifulDayPreview]: 'gmm-website-preview:a-beautiful-day',
 }
 
 function isDemoTemplatePreview(pathname: string) {

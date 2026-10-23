@@ -16,3 +16,4 @@ Before any Google/web search or external source lookup, use `.agents/skills/web-
 - Update the relevant document and, for long-lived context, `.agents/PROJECT_CONTEXT.md` in the same change.
 - Record significant architecture decisions in `docs/shared/architecture/adr/`.
 - Never commit secrets, real guest PII, database dumps, or unlicensed assets.
+- For new or reorganized templates, keep runtime code, tests and a README in the template source folder. Put authoring documents in `docs/frontend/`, production images in `frontend/public/assets/`, and unused design drafts in `assets/`; update the README and cross-links when moving files.

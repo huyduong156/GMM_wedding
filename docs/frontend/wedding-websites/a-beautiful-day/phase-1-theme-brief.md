@@ -1,8 +1,10 @@
 # A Beautiful Day — Phase 1 Theme Brief
 
-Status: Phase 0 shell is implemented. Phase 1 and Phase 2 contracts are complete. Phase 2.5 has generated renderer-owned artwork candidates; review and optimization remain open. See [Phase 2.5 Artwork Brief](../../../../frontend/src/templates/websites/a-beautiful-day/ARTWORK_BRIEF.md).
+Status: Phase 0 shell and Phase 1/2 contracts are complete. The full current Phase 2.5 artwork set was visually approved by the user on 2026-10-22 and moved to `frontend/public/assets/images/templates/a-beautiful-day/decor/`; alpha-edge QA and optimization passed; Phase 5 release evidence is recorded in the release review. Phase 3 architecture, template config, content fixture and static renderer are implemented; the responsive/empty/reordered/broken-media browser review passed on 2026-10-23. Phase 4 motion, accessible gallery interaction and isolated live countdown are implemented and validated; see [Phase 4 Motion Experience](./phase-4-motion-experience.md). Phase 5 implementation is complete; the template remains draft because the public snapshot/editor media contract does not yet expose a READY media projection with alt text and the saved-editor/publication smoke path needs a released template version. See [Phase 5 Release Review](./phase-5-release-review.md), [Phase 2.5 Artwork Brief](../../../../docs/frontend/wedding-websites/a-beautiful-day/artwork-brief.md) and [Phase 3 Section Architecture](./phase-3-section-architecture.md).
 
 ## Phase 0 preview and spatial contract
+
+Phase 4 continuation: [Motion Experience](./phase-4-motion-experience.md) records the material stage, viewport choreography, desktop story depth, accessible album interaction and reactive reduced-motion/native-scroll fallbacks. Code, automated checks and the seventeen-scenario browser review are complete; evidence is tracked there. The draft status and outstanding public integration/release gates remain unchanged.
 
 - Preview: [`/templates/websites/a-beautiful-day/preview`](http://localhost:5173/templates/websites/a-beautiful-day/preview)
 - Renderer shell: `frontend/src/templates/websites/a-beautiful-day/ABeautifulDayWebsite.tsx`
@@ -20,7 +22,7 @@ Status: Phase 0 shell is implemented. Phase 1 and Phase 2 contracts are complete
 
 ## Reference set
 
-Temporary analysis-only copies are stored in [`frontend/src/templates/websites/a-beautiful-day/reference/`](../../../../frontend/src/templates/websites/a-beautiful-day/reference/). They are not production artwork or default template content. Remove them after design analysis is complete and before release.
+The three temporary MinIO analysis screenshots were removed on 2026-10-23 after their design-reference role was complete. The table below records their original roles; they are not production artwork or default template content.
 
 | File | What the photograph shows | Useful reference |
 |---|---|---|

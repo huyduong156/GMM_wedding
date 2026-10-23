@@ -137,4 +137,4 @@ Equivalent item-level definitions are required for `story.milestones[].mediaId`,
 
 ## Phase 2.5 handoff
 
-The media boundary has been handed to Phase 2.5. Candidate brief, prompt set, preview, and manifest are in `frontend/src/templates/websites/a-beautiful-day/ARTWORK_BRIEF.md`, `ARTWORK_PREVIEW.md`, and `ASSET_MANIFEST.md`. Keep generated decoration separate from user photographs; do not create, edit, or ship the temporary MinIO screenshots as artwork.
+The media boundary has been handed to Phase 2.5. The [artwork brief and prompts](./artwork-brief.md), [approved preview](./artwork-preview.md), and [asset manifest](./asset-manifest.md) live beside these phase documents. Approved renderer artwork is served from the public decor folder; two unused generated drafts are retained under `assets/templates/a-beautiful-day/archive/`. Temporary MinIO analysis screenshots were removed after design analysis.

@@ -7,9 +7,17 @@ import { EditorialVowsWebsite } from '../../../templates/websites/editorial-vows
 import { GreenHydrangeaWebsite } from '../../../templates/websites/green-hydrangea/GreenHydrangeaWebsite'
 import { EnchantedForestWebsite } from '../../../templates/websites/enchanted-forest/EnchantedForestWebsite'
 import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-blossom-garden/CherryBlossomGardenWebsite'
+import { ABeautifulDayWebsite } from '../../../templates/websites/a-beautiful-day/ABeautifulDayWebsite'
+import type { ABeautifulDaySectionConfig } from '../../../templates/websites/a-beautiful-day/content'
+import { aBeautifulDayRenderData } from './a-beautiful-day-render-data'
+import { usePublicGuest } from '../../../shared/lib/navigation/usePublicGuest'
+import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
+import { usePublicWishes } from '../../../shared/lib/navigation/usePublicWishes'
+import { musicApi } from '../../../shared/api/music'
+import type { MusicTrack } from '../../../shared/api/admin-music'
 import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
 
-export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) {
+export function PublicWebsitePageNext({ weddingSlug, guestSlug }: { weddingSlug: string; guestSlug?: string }) {
   const auth = useOptionalAuth()
   const checkUserSession = auth?.checkUserSession
   const [snapshot, setSnapshot] = useState<PublishedWeddingSnapshot>()
@@ -107,7 +115,51 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
       return <EnchantedForestWebsite data={content as never} sectionConfig={config as never} />
     case 'cherry-blossom-garden':
       return <CherryBlossomGardenWebsite data={content as never} sectionConfig={config as never} />
+    case 'a-beautiful-day':
+      return <ABeautifulDayPublicRenderer
+        weddingSlug={weddingSlug}
+        guestSlug={guestSlug}
+        payload={payload as Record<string, unknown>}
+        sectionConfig={config as ABeautifulDaySectionConfig | undefined}
+        themeConfig={(payload as { theme?: { themeConfig?: Record<string, unknown> } }).theme?.themeConfig}
+        enabled={!snapshot.id.startsWith('draft-')}
+      />
     default:
       return <StatusPage kind="not-found" />
   }
+}
+
+function ABeautifulDayPublicRenderer({ weddingSlug, guestSlug, payload, sectionConfig, themeConfig, enabled }: {
+  weddingSlug: string
+  guestSlug?: string
+  payload: Record<string, unknown>
+  sectionConfig?: ABeautifulDaySectionConfig
+  themeConfig?: Record<string, unknown>
+  enabled: boolean
+}) {
+  const guest = usePublicGuest({ weddingSlug, guestSlug })
+  const rsvp = usePublicRsvp({ weddingSlug, guestSlug })
+  const wishes = usePublicWishes({ weddingSlug, guestSlug, enabled })
+  const interactions = { isPersonalized: Boolean(guestSlug), guestName: guest.guestName, rsvp, wishes }
+  const content = (payload.content ?? {}) as { music?: { musicTrackId?: unknown } }
+  const selected = typeof content.music?.musicTrackId === 'string' ? content.music.musicTrackId : ''
+  const [track, setTrack] = useState<MusicTrack>()
+  useEffect(() => {
+    if (!enabled || !selected) { setTrack(undefined); return }
+    let active = true
+    void musicApi.list().then(({ items }) => {
+      if (!active) return
+      setTrack(items.find((item) => item.status === 'READY' && item.playbackUrl && (item.id === selected || item.playbackUrl === selected)))
+    }).catch(() => { if (active) setTrack(undefined) })
+    return () => { active = false }
+  }, [enabled, selected])
+  const data = aBeautifulDayRenderData({ ...payload, guestName: guest.guestName })
+  return <ABeautifulDayWebsite
+    data={data}
+    sectionConfig={sectionConfig}
+    themeConfig={themeConfig}
+    interactions={interactions}
+    music={track?.playbackUrl ? { trackId: selected, url: track.playbackUrl } : undefined}
+    editorMode={!enabled}
+  />
 }

@@ -27,9 +27,10 @@ function nonEmptyString(value: unknown): string | undefined {
 
 function mediaSource(value: unknown): string | undefined {
   const direct = nonEmptyString(value)
-  if (direct) return direct
+  if (direct) return /^(https?:\/\/|\/(?!\/))/.test(direct) ? direct : undefined
   if (!isRecord(value)) return undefined
-  return nonEmptyString(value.src) ?? nonEmptyString(value.url) ?? nonEmptyString(value.publicUrl)
+  const source = nonEmptyString(value.src) ?? nonEmptyString(value.url) ?? nonEmptyString(value.publicUrl)
+  return source && /^(https?:\/\/|\/(?!\/))/.test(source) ? source : undefined
 }
 
 function firstNestedString(source: unknown, paths: readonly (readonly string[])[]) {
@@ -64,8 +65,8 @@ export function publicSurfaceMetadata(
     ['couple', 'groomName'],
     ['hero', 'groomName'],
   ])
-  const explicitTitle = firstNestedString(payload, [['ogTitle']])
-  const explicitDescription = firstNestedString(payload, [['ogDescription']])
+  const explicitTitle = firstNestedString(payload, [['ogTitle']]) ?? firstNestedString(content, [['seo', 'title']])
+  const explicitDescription = firstNestedString(payload, [['ogDescription']]) ?? firstNestedString(content, [['seo', 'description']])
   const coupleName =
     [brideName, groomName].filter(Boolean).join(' & ') ||
     firstNestedString(content, [['hero', 'couple'], ['couple']])
@@ -78,6 +79,8 @@ export function publicSurfaceMetadata(
     firstNestedMedia(payload, [['ogImageUrl']]) ??
     firstNestedMedia(content, [
       ['ogImageUrl'],
+      ['seo', 'ogImageUrl'],
+      ['seo', 'ogImageId'],
       ['heroMedia'],
       ['openingMediaFront'],
       ['coverBackgroundMedia'],

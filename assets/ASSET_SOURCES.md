@@ -1,5 +1,12 @@
 # Asset sources
 
+## A Beautiful Day website template
+
+- Fourteen approved renderer-owned lossless WebPs are in `frontend/public/assets/images/templates/a-beautiful-day/decor/`. Their PNG originals are retained in `assets/templates/a-beautiful-day/originals/`. They were generated with the built-in OpenAI image generation tool on 2026-10-20 and 2026-10-22; visual approval of the current set was recorded on 2026-10-22.
+- `assets/templates/a-beautiful-day/archive/abd-blossom-divider-v01.png` and `abd-floral-bamboo-cluster-v01.png` are unused generated drafts from 2026-10-20, archived outside the frontend on 2026-10-23. The renderer does not use them.
+- Prompts, dimensions, generation IDs and review/optimization gates are preserved in the [artwork brief](../docs/frontend/wedding-websites/a-beautiful-day/artwork-brief.md) and [asset manifest](../docs/frontend/wedding-websites/a-beautiful-day/asset-manifest.md).
+- Three user-provided MinIO screenshots informed design analysis only and were removed after analysis. They are not production assets.
+
 ## Red Spider Lily Recap template
 
 - `frontend/public/assets/images/templates/red-spider-lily/red-spider-lily-botanical-cluster.png`, `red-spider-lily-vow-prop.png`, `red-spider-lily-petal-sprite.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-26. The petal sprite is source/provenance material only; the renderer must not place or spin the full sheet as a floating decorative object.

@@ -1,4 +1,5 @@
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
+import { GuestCategoryPicker } from '../../../shared/ui/GuestCategoryPicker'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -298,23 +299,21 @@ function GuestAssignmentFields({
 }) {
   return (
     <>
-      <label
+      <div
         className={form.categoryId ? 'guest-category-field is-selected' : 'guest-category-field'}
       >
         <span>Nhóm khách {form.categoryId ? <em>Đang giữ cho khách tiếp theo</em> : null}</span>
-        <NativeSelectField
+        <GuestCategoryPicker
+          categories={categories}
           value={form.categoryId}
-          onChange={(event) => change('categoryId', event.target.value)}
-        >
-          <option value="">Chưa xếp nhóm</option>
-          {categories.map((item) => (
-            <option key={item.id} value={item.id}>
-              {categoryOptionLabel(categories, item)}
-            </option>
-          ))}
-        </NativeSelectField>
+          onChange={(value) => change('categoryId', value)}
+          emptyValueLabel="Chưa xếp nhóm"
+          title="Chọn nhóm khách"
+          description="Chọn nhóm phù hợp trong cây danh mục của bạn."
+          ariaLabel="Chọn nhóm khách mời"
+        />
         {form.categoryId ? <small>Nhóm này sẽ được giữ lại sau khi thêm khách.</small> : null}
-      </label>
+      </div>
       <fieldset className="guest-family-side-field">
         <legend>Phía gia đình</legend>
         <div className="guest-family-side-options" role="radiogroup" aria-label="Phía gia đình">
@@ -1131,21 +1130,18 @@ function GuestsPageConnectedContent({
               <CircleNotch className="guest-search-spinner" size={16} aria-hidden="true" />
             ) : null}
           </label>
-          <label className="guest-group-filter guest-category-filter">
+          <div className="guest-group-filter guest-category-filter">
             <span>Nhóm khách</span>
-            <NativeSelectField
-              contentClassName="guest-category-filter-content"
+            <GuestCategoryPicker
+              categories={categories}
               value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-            >
-              <option value="">Tất cả nhóm khách</option>
-              {categories.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {categoryOptionLabel(categories, item)}
-                </option>
-              ))}
-            </NativeSelectField>
-          </label>
+              onChange={setCategoryId}
+              emptyValueLabel="Tất cả nhóm khách"
+              title="Lọc theo nhóm khách"
+              description="Chọn một nhóm để lọc danh sách khách mời."
+              ariaLabel="Lọc theo nhóm khách"
+            />
+          </div>
         </div>
         {canEdit && selected.length > 0 && (
           <div className="guest-bulk-bar">

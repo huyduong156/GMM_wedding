@@ -55,6 +55,10 @@ Desktop.ini
 # Temporary files
 tmp/
 temp/
+# Local browser QA profiles and A Beautiful Day preview captures
+/.edge-mobile-profile*/
+/abd-dom-preview.html
+/abd-preview-*.png
 *.tmp
 *.bak
 *.orig
