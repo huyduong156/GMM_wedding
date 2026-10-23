@@ -3074,6 +3074,18 @@ kbd {
   padding: 4px 10px;
   font-size: 10px;
 }
+.guest-block-pagination .button:disabled,
+.guest-block-pagination .button:disabled:hover,
+.guest-block-pagination .button:disabled:active {
+  border-color: var(--border);
+  background: var(--raised);
+  color: var(--fg-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  transition: none;
+}
 .guest-checkbox {
   width: 16px;
   height: 16px;

@@ -34,6 +34,7 @@ export async function GET(request: NextRequest, context: Context) {
     return withApiHeaders(
       jsonResponse({
         ...result,
+        totalPartySize: result.totalPartySize,
         items: result.items.map((guest) => ({ ...guest, familySide: guest.familySide ?? null })),
       }),
       requestId,
