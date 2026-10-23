@@ -1,5 +1,6 @@
 import { Check, FolderSimple, MagnifyingGlass, X } from '@phosphor-icons/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { GuestCategory } from '../api/weddings'
 
 type GuestCategoryPickerProps = {
@@ -44,6 +45,18 @@ export function GuestCategoryPicker({
 }: GuestCategoryPickerProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    if (!open) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [open])
+
   const selected = categories.find((category) => category.id === value)
   const selectedPath = useMemo(() => {
     if (!selected) return emptyValueLabel
@@ -130,7 +143,7 @@ export function GuestCategoryPicker({
         <span>{selectedPath}</span>
         <span className="guest-category-picker-trigger-action">Chọn nhóm</span>
       </button>
-      {open ? (
+      {open ? createPortal((
         <div
           className="category-dialog-backdrop guest-category-picker-backdrop"
           role="presentation"
@@ -237,7 +250,7 @@ export function GuestCategoryPicker({
             </div>
           </section>
         </div>
-      ) : null}
+      ), document.body) : null}
     </>
   )
 }
