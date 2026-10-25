@@ -15,6 +15,7 @@ Node 20 đã hết vòng đời ngày 2026-03-24 và không còn nhận security
 
 - Nâng backend/Docker baseline lên Node 24 LTS trước khi merge password authentication. Node 20 không phải production fallback; nếu cần bridge ngắn hạn chỉ dùng trong development có expiry rõ ràng.
 - Owner và platform admin dùng opaque server-managed session. Browser chỉ giữ raw token trong host-only cookie; PostgreSQL chỉ lưu SHA-256 hash. Session không chứa wedding role hoặc permission snapshot.
+- Session idle TTL là 48 giờ, tính từ `lastSeenAt`; absolute TTL là 30 ngày từ lúc đăng nhập. Request hợp lệ gia hạn mốc idle theo nhịp giới hạn, còn cả hai mốc đều chấm dứt phiên khi hết hạn.
 - Password dùng `argon2` hiện hành với biến thể Argon2id. Profile bắt đầu để benchmark là `m=64 MiB`, `t=3`, `p=4`, salt 128-bit và output 256-bit. Parameters cuối phải pass latency/memory test trong đúng Node Alpine runner image; mỗi replica giới hạn hash concurrency.
 - Application lưu nguyên PHC string và rehash sau login khi policy mới mạnh hơn. Password hasher là platform port; identity application không import package crypto cụ thể.
 - Unsafe browser request dùng nhiều lớp: exact `Origin` allowlist, reject `Sec-Fetch-Site: cross-site`, JSON-only, custom `X-CSRF-Protection: 1` header và explicit credentialed CORS cho đúng frontend origin. `SameSite=Lax` chỉ là defense-in-depth.

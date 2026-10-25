@@ -12,6 +12,7 @@ import {
   MagnifyingGlass,
   PaperPlaneTilt,
   Plus,
+  ShareNetwork,
   UploadSimple,
   UserPlus,
   Users,
@@ -179,6 +180,21 @@ function GuestShareDialog({
     window.setTimeout(() => setCopied(false), 1600)
   }
 
+  const share = async () => {
+    if (!url) return
+    if (typeof navigator.share !== 'function') {
+      await copy()
+      await notifications.success('Đã sao chép link thiệp để chia sẻ')
+      return
+    }
+    try {
+      await navigator.share({ title: 'Thiệp cưới', url })
+    } catch (cause) {
+      if (cause instanceof Error && cause.name === 'AbortError') return
+      await notifications.error('Không thể chia sẻ thiệp', 'Bạn có thể sao chép link để gửi thủ công.')
+    }
+  }
+
   return (
     <div
       className="category-dialog-backdrop"
@@ -233,6 +249,13 @@ function GuestShareDialog({
               <a className="button button-primary" href={url} target="_blank" rel="noreferrer">
                 <ArrowSquareOut size={17} /> Mở thiệp
               </a>
+              <button
+                className="button button-secondary guest-share-action-button"
+                type="button"
+                onClick={() => void share()}
+              >
+                <ShareNetwork size={17} /> Chia sẻ
+              </button>
             </footer>
           </div>
         ) : state === 'not-public' ? (
@@ -504,7 +527,9 @@ function GuestsPageConnectedContent({
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [queryPending, setQueryPending] = useState(false)
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState(
+    () => new URLSearchParams(window.location.search).get('categoryId') ?? '',
+  )
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -581,6 +606,12 @@ function GuestsPageConnectedContent({
   useEffect(() => {
     void load()
   }, [load])
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (categoryId) url.searchParams.set('categoryId', categoryId)
+    else url.searchParams.delete('categoryId')
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+  }, [categoryId])
   const totalParty = useMemo(
     () => guestBlocks.reduce((sum, block) => sum + block.totalPartySize, 0),
     [guestBlocks],
@@ -1109,7 +1140,7 @@ function GuestsPageConnectedContent({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Tìm theo tên khách…"
+              placeholder="Tìm tên khách hoặc tên trên thiệp…"
             />
             {queryPending || loading ? (
               <CircleNotch className="guest-search-spinner" size={16} aria-hidden="true" />

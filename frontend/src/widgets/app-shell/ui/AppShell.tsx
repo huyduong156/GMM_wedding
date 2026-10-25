@@ -71,6 +71,40 @@ type NavItem = {
   heading?: boolean
 }
 
+const collaboratorNoticeMobileStorageKey = 'gmm-collaborator-wedding-notice-mobile-acknowledged-at'
+const collaboratorNoticeCooldownMs = 2 * 24 * 60 * 60 * 1000
+
+function isMobileWorkspaceLayout() {
+  return (
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(max-width: 1023px)').matches
+  )
+}
+
+function isCollaboratorNoticeAcknowledged(weddingId: string) {
+  if (!isMobileWorkspaceLayout()) {
+    return Boolean(sessionStorage.getItem(`gmm-collaborator-wedding-notice:${weddingId}`))
+  }
+
+  const acknowledgedAt = Number(localStorage.getItem(collaboratorNoticeMobileStorageKey))
+  const elapsed = Date.now() - acknowledgedAt
+  return (
+    Number.isFinite(acknowledgedAt) &&
+    acknowledgedAt > 0 &&
+    elapsed >= 0 &&
+    elapsed < collaboratorNoticeCooldownMs
+  )
+}
+
+function rememberCollaboratorNoticeAcknowledgement(weddingId: string) {
+  if (isMobileWorkspaceLayout()) {
+    localStorage.setItem(collaboratorNoticeMobileStorageKey, String(Date.now()))
+    return
+  }
+
+  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${weddingId}`, '1')
+}
+
 const navGroups: Array<{ label: string; items: NavItem[] }> = [
   { label: '', items: [{ to: studioRoutes.home, label: 'Tổng quan', icon: House }] },
   {
@@ -179,8 +213,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       return
     }
 
-    const acknowledged = sessionStorage.getItem(`gmm-collaborator-wedding-notice:${wedding.id}`)
-    setCollaboratorNoticeOpen(!acknowledged)
+    setCollaboratorNoticeOpen(!isCollaboratorNoticeAcknowledged(wedding.id))
   }, [weddingWorkspace?.activeRole, weddingWorkspace?.activeWedding, weddingWorkspace?.weddings.length])
 
   useEffect(() => setSidebarOpen(false), [pathname])
@@ -530,7 +563,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => {
-                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  rememberCollaboratorNoticeAcknowledgement(currentWedding.id)
                   setCollaboratorNoticeOpen(false)
                 }}
                 aria-label="Đóng thông báo"
@@ -548,7 +581,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 type="button"
                 className="button button-secondary"
                 onClick={() => {
-                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  rememberCollaboratorNoticeAcknowledgement(currentWedding.id)
                   setCollaboratorNoticeOpen(false)
                 }}
               >
@@ -558,7 +591,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 type="button"
                 className="button button-primary"
                 onClick={() => {
-                  sessionStorage.setItem(`gmm-collaborator-wedding-notice:${currentWedding.id}`, '1')
+                  rememberCollaboratorNoticeAcknowledgement(currentWedding.id)
                   setCollaboratorNoticeOpen(false)
                   setSwitcherOpen(true)
                 }}

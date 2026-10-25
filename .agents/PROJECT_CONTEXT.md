@@ -44,8 +44,14 @@
 ## Layout và kiến trúc
 
 - `frontend/`: React + Vite + TypeScript.
+- Link thiệp riêng trong modal gửi khách: Đóng/Mở thiệp cùng một hàng, Chia sẻ ở hàng dưới; Web Share API mở bảng chia sẻ hệ thống nếu trình duyệt hỗ trợ, nếu không sẽ sao chép link.
+- Tìm khách mời qua `q` so khớp không phân biệt hoa/thường với cả `Guest.name` và `Guest.displayName`, đồng thời giữ logic cursor pagination.
+- Trong cây nhóm khách, chỉ tên nhóm điều hướng tới danh sách khách được lọc bằng `categoryId` trong query string; điều hướng nội bộ giữ pathname riêng với query để route dispatch hoạt động.
+- Modal nhắc cộng tác viên đang làm việc trong Wedding khác: desktop ghi nhớ theo phiên và Wedding; mobile ghi mốc xác nhận trong `localStorage` để ẩn modal 48 giờ trên các Wedding.
+- PWA đã cài mở mặc định `/studio/guests?source=pwa`; nếu phiên owner hết hạn, auth return path quay lại đúng trang khách sau đăng nhập.
 - Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor, manifest và worker được Nginx revalidate sau deploy.
 - `backend/`: Next.js + TypeScript API.
+- Owner/admin session expires after 48 hours idle and has a 30-day absolute TTL; valid requests refresh `lastSeenAt` no more frequently than every five minutes.
 - `docs/`: source of truth; `assets/`: tài nguyên rõ nguồn/bản quyền.
 - Modular monolith, hai app deploy độc lập; PostgreSQL + Prisma đề xuất.
 - Hai app bắt buộc có Docker image độc lập và portable; root Compose dùng cho local/integration.
