@@ -5954,8 +5954,15 @@ kbd {
   .guests-heading {
     align-items: center;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 10px;
+  }
+  .guests-heading .workspace-readonly-note {
+    flex: 0 0 100%;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
   }
   .guests-heading > div:first-child {
     flex: 1;

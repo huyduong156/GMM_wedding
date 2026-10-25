@@ -125,6 +125,17 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 function AppContent() {
   const { pathname, navigate } = useNavigation()
   const auth = useOptionalAuth()
+  const isStandaloneApp =
+    (typeof window.matchMedia === 'function' &&
+      window.matchMedia('(display-mode: standalone)').matches) ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
+  const shouldOpenStudioFromHome =
+    pathname === '/' &&
+    (new URLSearchParams(window.location.search).get('source') === 'pwa' || isStandaloneApp)
+
+  useEffect(() => {
+    if (shouldOpenStudioFromHome) navigate(studioRoutes.guests, true)
+  }, [navigate, shouldOpenStudioFromHome])
 
   useEffect(() => {
     applyPageMetadata(routeMetadata(pathname))
@@ -138,6 +149,7 @@ function AppContent() {
     }
   }, [navigate, pathname])
 
+  if (shouldOpenStudioFromHome) return null
   if (pathname === '/') return <HomePage />
   if (pathname === marketingRoutes.invitationTemplates)
     return <PublicTemplateLibraryPage productType="ONLINE_INVITATION" />
