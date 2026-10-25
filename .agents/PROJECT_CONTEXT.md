@@ -49,7 +49,7 @@
 - Trong cây nhóm khách, chỉ tên nhóm điều hướng tới danh sách khách được lọc bằng `categoryId` trong query string; điều hướng nội bộ giữ pathname riêng với query để route dispatch hoạt động.
 - Modal nhắc cộng tác viên đang làm việc trong Wedding khác: desktop ghi nhớ theo phiên và Wedding; mobile ghi mốc xác nhận trong `localStorage` để ẩn modal 48 giờ trên các Wedding.
 - PWA đã cài mở mặc định `/studio/guests?source=pwa`; nếu phiên owner hết hạn, auth return path quay lại đúng trang khách sau đăng nhập.
-- Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor, manifest và worker được Nginx revalidate sau deploy.
+- Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor. PWA dùng ID `/studio/guests`, mở `/studio/guests?source=pwa`; Nginx và cPanel (`frontend/public/.htaccess`) cần phục vụ manifest bằng MIME JSON và revalidate sau deploy. App mở từ `/` sẽ tự chuyển tới trang khách.
 - `backend/`: Next.js + TypeScript API.
 - Owner/admin session expires after 48 hours idle and has a 30-day absolute TTL; valid requests refresh `lastSeenAt` no more frequently than every five minutes.
 - `docs/`: source of truth; `assets/`: tài nguyên rõ nguồn/bản quyền.
