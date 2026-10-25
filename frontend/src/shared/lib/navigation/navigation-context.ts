@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 export type NavigationContextValue = {
+  /** Current route pathname without its query string. */
   pathname: string
   navigate: (to: string, replace?: boolean) => void
 }
