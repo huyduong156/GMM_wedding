@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { WeddingContext, type WeddingContextValue } from '../../../entities/wedding/model/wedding-context'
 import { guestApi, guestCategoryApi, type Wedding } from '../../../shared/api/weddings'
+import { NavigationContext } from '../../../shared/lib/navigation/navigation-context'
 import { GuestCategoriesConnectedV2 } from './GuestCategoriesConnectedV2'
 
 vi.mock('../../../shared/api/weddings', () => ({
@@ -52,13 +53,19 @@ describe('GuestCategoriesConnectedV2', () => {
 
   it('uses the guest directory total instead of summing categorized guests', async () => {
     render(
-      <WeddingContext.Provider value={workspace}>
-        <GuestCategoriesConnectedV2 />
-      </WeddingContext.Provider>,
+      <NavigationContext.Provider value={{ pathname: '/studio/guests/categories', navigate: vi.fn() }}>
+        <WeddingContext.Provider value={workspace}>
+          <GuestCategoriesConnectedV2 />
+        </WeddingContext.Provider>
+      </NavigationContext.Provider>,
     )
 
     await waitFor(() => expect(screen.getByText('11')).toBeInTheDocument())
     expect(guestApi.list).toHaveBeenCalledWith('wedding-1', { limit: 1 })
-    expect(screen.getByText('7 khách')).toBeInTheDocument()
+    expect(screen.getByText('Cấp 1 · 7 khách')).toBeInTheDocument()
+    expect(screen.getByRole('link')).toHaveAttribute(
+      'href',
+      '/studio/guests?categoryId=category-1',
+    )
   })
 })

@@ -16,7 +16,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const navigate = useCallback<NavigationContextValue['navigate']>((to, replace = false) => {
     if (replace) window.history.replaceState(null, '', to)
     else window.history.pushState(null, '', to)
-    setPathname(to)
+    setPathname(window.location.pathname)
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [])
   const value = useMemo<NavigationContextValue>(

@@ -1,5 +1,7 @@
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { ModalSavingStatus } from '../../../shared/ui/ModalSavingStatus'
+import { AppLink } from '../../../shared/lib/navigation/AppLink'
+import { studioRoutes } from '../../../shared/config/routes'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   CaretDown,
@@ -213,7 +215,12 @@ function GuestCategoriesContent({
             <FolderSimple size={18} weight={isOpen ? 'fill' : 'regular'} />
           </span>
           <div className="category-card-copy">
-            <strong>{item.name}</strong>
+            <AppLink
+              className="category-name-link"
+              to={`${studioRoutes.guests}?categoryId=${encodeURIComponent(item.id)}`}
+            >
+              <strong>{item.name}</strong>
+            </AppLink>
             <span>
               Cấp {item.depth} · {item.guestCount ?? 0} khách
             </span>

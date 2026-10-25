@@ -1,5 +1,5 @@
 export const SESSION_TOKEN_BYTES = 32
-export const SESSION_IDLE_TTL_SECONDS = 24 * 60 * 60
+export const SESSION_IDLE_TTL_SECONDS = 48 * 60 * 60
 export const SESSION_ABSOLUTE_TTL_SECONDS = 30 * 24 * 60 * 60
 
 export const LOCAL_SESSION_COOKIE_NAME = 'gmm_session'
