@@ -1,5 +1,19 @@
 # Asset sources
 
+## AI wedding couple demo photo set
+
+- `frontend/public/assets/images/ai-wedding-couples/couple-001/`: 14 fictional wedding photographs generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-10-26. The set has full-body front and profile portraits of the bride and groom, plus ten ordinary wedding-album couple poses.
+- Identity direction: one fictional adult Vietnamese couple reused across every image. The bride wears an ivory off-shoulder satin gown and veil; the groom wears a black tuxedo. The same reference image guided each pose to keep faces, hair and outfits consistent. No real person was used as a reference.
+- Scene direction: garden wedding venue, formal full-body portrait, walking together, standing and looking at one another, seated on a bench, bride turning back, bouquet portrait, veil moment, forehead touch and floral arch. Natural available light, documentary photographer framing, real skin texture and mild film grain; avoid glossy campaign styling and airbrushed skin.
+- Treatment: generated at full resolution and converted from PNG to WebP at quality 95 with Sharp, preserving pixel dimensions. These files are demo couple media, not renderer-owned decor; locally hosted and replaceable by wedding-owner media.
+
+## AI wedding couple demo photo set 2
+
+- `frontend/public/assets/images/ai-wedding-couples/couple-002/`: 14 fictional wedding photographs generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-10-26; poses 03 and 05 were regenerated on 2026-10-27, and poses 01, 03 and 05 were regenerated again on 2026-10-29. The set has four full-body solo portraits (bride/groom front and profile poses) and ten couple poses.
+- Identity direction: a new fictional adult Vietnamese couple, distinct from `couple-001`; the same reference photo guided each image. The bride wears an ivory minimalist crepe-satin gown with veil; the groom wears a midnight-navy tuxedo. No real person was used as a reference.
+- Art direction: contemporary studio wedding album on warm taupe, gray and softly backlit seamless backgrounds. The ten couple poses deliberately vary direction and framing: tender standing embrace, back-to-back, affectionate forehead kiss while walking, seated couple sharing a candid moment, seated back-to-back on cubes, groom seated with bride standing, overhead floor pose, backlit profile, kneeling hand pose and full back view walking away. Couple images use the separate bride/groom solo photos as identity references to keep the same pair across poses.
+- Treatment: generated at full resolution and converted from PNG to WebP at quality 95 with Sharp, preserving pixel dimensions. These are locally hosted demo couple media, not renderer-owned decor, and can be replaced by wedding-owner media.
+
 ## Red Spider Lily Recap template
 
 - `frontend/public/assets/images/templates/red-spider-lily/red-spider-lily-botanical-cluster.png`, `red-spider-lily-vow-prop.png`, `red-spider-lily-petal-sprite.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-26. The petal sprite is source/provenance material only; the renderer must not place or spin the full sheet as a floating decorative object.

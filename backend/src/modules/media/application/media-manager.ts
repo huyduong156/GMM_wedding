@@ -54,7 +54,11 @@ export class MediaManager {
   ) {
     if (!(await this.owner(userId, weddingId)))
       throw new MediaError('WEDDING_NOT_FOUND', 404, 'Wedding not found')
-    if (!MIME_EXT[input.mimeType] || input.sizeBytes < 1 || input.sizeBytes > MAX_IMAGE_BYTES)
+    if (
+      !MIME_EXT[input.mimeType] ||
+      input.sizeBytes < 1 ||
+      input.sizeBytes > MAX_IMAGE_BYTES
+    )
       throw new MediaError(
         'MEDIA_INVALID',
         400,
@@ -117,7 +121,11 @@ export class MediaManager {
       )
     let converted
     try {
-      converted = await this.imageConverter.convert(body, mimeType)
+      converted = await this.imageConverter.convert(body, mimeType, {
+        maxDimension: 2400,
+        quality: 90,
+        preserveWebpInput: true,
+      })
       await this.storage.put(asset.storageKey, converted.body, converted.mimeType)
     } catch (error) {
       await this.prisma.mediaAsset.update({
