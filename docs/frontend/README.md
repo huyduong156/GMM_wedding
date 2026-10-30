@@ -68,3 +68,7 @@ Wedding Recap có contract riêng về semantic content, layout options, optiona
 - Tài liệu implementation frontend chỉ cập nhật trong `docs/frontend/` và `design-system/` khi phù hợp.
 - Chỉ sửa `docs/shared/` khi frontend thực sự thay đổi contract FE–BE, end-to-end flow hoặc quyết định kiến trúc dài hạn; diff phải nhỏ và rõ phạm vi.
 - Nếu frontend cần API/contract mới, ghi yêu cầu trong frontend issue/spec hoặc shared contract tối thiểu và để nhánh backend triển khai phần server riêng.
+
+The media editor adds a dedicated `_editor=1` query key to the public image URL, so a stale browser cache entry from the regular `<img>` viewer is not reused when opening the editor. On cPanel, revalidate `index.html` and give only fingerprinted JS/CSS bundles long-lived immutable caching, matching `frontend/nginx.conf`.
+
+The Filerobot crop export uses `savingPixelRatio={4}` so Konva caches the source image sharply before scaling it to source dimensions; the resulting canvas is downsampled with high-quality smoothing to the crop's native pixel dimensions and exported as WebP at 95%. The backend stores valid in-limit WebP bytes directly, avoiding a second lossy encode.

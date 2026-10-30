@@ -13,6 +13,7 @@ export interface ConvertedImage {
 export type ImageConversionOptions = {
   maxDimension?: number | null
   quality?: number
+  preserveWebpInput?: boolean
 }
 
 export class ImageConversionError extends Error {
@@ -39,8 +40,35 @@ export class ImageConversionService {
         throw new ImageConversionError('Uploaded content is not a supported image')
       }
 
-      let pipeline = image.rotate()
       const maxDimension = options.maxDimension === undefined ? 2400 : options.maxDimension
+      const width = metadata.width
+      const height = metadata.height
+      const needsOrientation = metadata.orientation !== undefined && metadata.orientation !== 1
+      const withinMaxDimension =
+        maxDimension === null ||
+        (width !== undefined &&
+          height !== undefined &&
+          width <= maxDimension &&
+          height <= maxDimension)
+      if (
+        options.preserveWebpInput &&
+        mimeType === 'image/webp' &&
+        metadata.format === 'webp' &&
+        width !== undefined &&
+        height !== undefined &&
+        withinMaxDimension &&
+        !needsOrientation
+      ) {
+        return {
+          body,
+          mimeType: 'image/webp',
+          sizeBytes: body.byteLength,
+          width,
+          height,
+        }
+      }
+
+      let pipeline = image.rotate()
       if (maxDimension !== null)
         pipeline = pipeline.resize({
           width: maxDimension,
