@@ -1,9 +1,13 @@
 # ourday - Persistent Project Context
 
-- Admin template thumbnails are converted server-side to WebP without resizing their uploaded images; wedding media keeps its existing 2400px conversion limit.
+- Admin template thumbnails are converted server-side to WebP without resizing their uploaded images. Wedding media uses lossy WebP at quality 90 with a 2400px maximum dimension to balance visual clarity and R2 storage; input and stored files are limited to 10 MB.
 - Invitation social previews use the wedding owner's profile avatar; crawler metadata references a backend-generated JPEG derivative because wedding media is stored as WebP.
 
-- Owner media library and shared editor media picker support per-image upload progress (`x/y`) without rerendering the image grid on each progress update, a full-image viewer with previous/next navigation, and an extensible `react-filerobot-image-editor` integration (v4.9.1, Adjust tab with Crop open by default). Editing uploads a new MediaAsset instead of replacing the original; the editor selects the new asset. VIEWER role can view but cannot edit. Edited images export at the crop canvas's native resolution; JPEG uses 95% quality, while PNG and WebP sources export as PNG to preserve transparency. Remote public media must allow CORS for browser canvas export.
+- Owner media library and shared editor media picker support per-image upload progress (`x/y`) without rerendering the image grid on each progress update, a full-image viewer with previous/next navigation, and an extensible `react-filerobot-image-editor` integration (v4.9.1, Adjust tab with Crop open by default). Editing uploads a new MediaAsset instead of replacing the original; the editor selects the new asset. VIEWER role can view but cannot edit. Crop export uses saving pixel ratio 4 to keep Konva's cached image sharp, then downsamples to the crop's native pixel dimensions and exports WebP at 95%; the backend preserves valid in-limit WebP bytes instead of re-encoding. Remote public media must allow CORS for browser canvas export.
+
+- The media editor passes its own Vietnamese translations and must set `useBackendTranslations={false}` to avoid the package's remote translation API request.
+
+- cPanel must revalidate the SPA `index.html` shell and cache fingerprinted JS/CSS bundles as immutable assets; the media editor uses a separate query cache key to avoid stale image responses.
 
 - CSS reveal migration complete: `frontend/src/shared/styles/reveal-animations.css` đã được xóa vì không còn consumer. Thông tin legacy compatibility bên dưới là lịch sử; không khôi phục `.reveal`/`.reveal--*`. Entrance dùng `motion/react` và target tường minh.
 
@@ -45,8 +49,14 @@
 ## Layout và kiến trúc
 
 - `frontend/`: React + Vite + TypeScript.
-- Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor, manifest và worker được Nginx revalidate sau deploy.
+- Link thiệp riêng trong modal gửi khách: Đóng/Mở thiệp cùng một hàng, Chia sẻ ở hàng dưới; Web Share API mở bảng chia sẻ hệ thống nếu trình duyệt hỗ trợ, nếu không sẽ sao chép link.
+- Tìm khách mời qua `q` so khớp không phân biệt hoa/thường với cả `Guest.name` và `Guest.displayName`, đồng thời giữ logic cursor pagination.
+- Trong cây nhóm khách, chỉ tên nhóm điều hướng tới danh sách khách được lọc bằng `categoryId` trong query string; điều hướng nội bộ giữ pathname riêng với query để route dispatch hoạt động.
+- Modal nhắc cộng tác viên đang làm việc trong Wedding khác: desktop ghi nhớ theo phiên và Wedding; mobile ghi mốc xác nhận trong `localStorage` để ẩn modal 48 giờ trên các Wedding.
+- PWA đã cài mở mặc định `/studio/guests?source=pwa`; nếu phiên owner hết hạn, auth return path quay lại đúng trang khách sau đăng nhập.
+- Ourday frontend có installable PWA manifest và root-scope service worker (`frontend/public/manifest.webmanifest`, `frontend/public/sw.js`); worker không cache API hoặc nội dung user/editor. PWA dùng ID `/studio/guests`, mở `/studio/guests?source=pwa`; Nginx và cPanel (`frontend/public/.htaccess`) cần phục vụ manifest bằng MIME JSON và revalidate sau deploy. App mở từ `/` sẽ tự chuyển tới trang khách.
 - `backend/`: Next.js + TypeScript API.
+- Owner/admin session expires after 48 hours idle and has a 30-day absolute TTL; valid requests refresh `lastSeenAt` no more frequently than every five minutes.
 - `docs/`: source of truth; `assets/`: tài nguyên rõ nguồn/bản quyền.
 - Modular monolith, hai app deploy độc lập; PostgreSQL + Prisma đề xuất.
 - Hai app bắt buộc có Docker image độc lập và portable; root Compose dùng cho local/integration.

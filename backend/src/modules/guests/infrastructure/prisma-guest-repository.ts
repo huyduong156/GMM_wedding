@@ -222,21 +222,30 @@ export class PrismaGuestRepository implements GuestRepository {
         : filter.familySide
           ? { familySide: filter.familySide }
           : {}),
-      ...(filter.query ? { name: { contains: filter.query, mode: 'insensitive' } } : {}),
+      ...(filter.query
+        ? {
+            OR: [
+              { name: { contains: filter.query, mode: 'insensitive' } },
+              { displayName: { contains: filter.query, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     }
     const [rows, total, aggregate, categorizedTotal] = await Promise.all([
       this.prisma.guest.findMany({
-        where: {
-          ...where,
-          ...(cursor
-            ? {
-                OR: [
-                  { createdAt: { lt: cursor.createdAt } },
-                  { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-                ],
-              }
-            : {}),
-        },
+        where: cursor
+          ? {
+              AND: [
+                where,
+                {
+                  OR: [
+                    { createdAt: { lt: cursor.createdAt } },
+                    { createdAt: cursor.createdAt, id: { lt: cursor.id } },
+                  ],
+                },
+              ],
+            }
+          : where,
         select: guestSelect,
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: filter.limit + 1,

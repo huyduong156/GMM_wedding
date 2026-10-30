@@ -125,7 +125,7 @@ export function GuestsPage() {
       <div className="guest-summary" aria-label="Tổng quan khách mời">
         <div>
           <span>
-            <Users size={17} /> Tổng khách mời
+            <Users size={17} /> Tổng khách mời (thiệp)
           </span>
           <strong>128</strong>
           <small>186 người dự kiến</small>

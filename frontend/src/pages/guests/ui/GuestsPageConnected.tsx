@@ -12,6 +12,7 @@ import {
   MagnifyingGlass,
   PaperPlaneTilt,
   Plus,
+  ShareNetwork,
   UploadSimple,
   UserPlus,
   Users,
@@ -75,19 +76,6 @@ const categoryPath = (categories: GuestCategory[], category: GuestCategory) => {
   }
   return names.join(' / ')
 }
-const categoryFamilySideName = (side: GuestCategory['familySide']) =>
-  side === 'BRIDE' ? 'Nhà gái' : side === 'GROOM' ? 'Nhà trai' : 'Chung'
-const categoryFamilySide = (categories: GuestCategory[], category: GuestCategory) => {
-  let current = category
-  while (current.parentId) {
-    const parent = categories.find((item) => item.id === current.parentId)
-    if (!parent) break
-    current = parent
-  }
-  return current.familySide
-}
-const categoryOptionLabel = (categories: GuestCategory[], category: GuestCategory) =>
-  `${categoryFamilySideName(categoryFamilySide(categories, category))} · ${categoryPath(categories, category)}`
 const catName = (categories: GuestCategory[], id: string | null) => {
   const category = categories.find((item) => item.id === id)
   return category ? categoryPath(categories, category) : 'Chưa phân loại'
@@ -100,16 +88,12 @@ type GuestFamilyBlockKey = 'GROOM' | 'BRIDE' | 'COMMON'
 const guestListSummary = (result: {
   items: Guest[]
   total: number
-  totalPartySize?: number
-  categorizedTotal?: number
+  totalPartySize: number
+  categorizedTotal: number
 }) => ({
-  total: Number.isFinite(result.total) ? result.total : result.items.length,
-  totalPartySize: Number.isFinite(result.totalPartySize)
-    ? result.totalPartySize!
-    : result.items.reduce((sum, guest) => sum + (Number.isFinite(guest.maxPartySize) ? guest.maxPartySize : 0), 0),
-  categorizedTotal: Number.isFinite(result.categorizedTotal)
-    ? result.categorizedTotal!
-    : result.items.filter((guest) => Boolean(guest.categoryId)).length,
+  total: Number.isFinite(result.total) ? result.total : 0,
+  totalPartySize: Number.isFinite(result.totalPartySize) ? result.totalPartySize : 0,
+  categorizedTotal: Number.isFinite(result.categorizedTotal) ? result.categorizedTotal : 0,
 })
 type GuestFamilyBlockState = {
   key: GuestFamilyBlockKey
@@ -196,6 +180,21 @@ function GuestShareDialog({
     window.setTimeout(() => setCopied(false), 1600)
   }
 
+  const share = async () => {
+    if (!url) return
+    if (typeof navigator.share !== 'function') {
+      await copy()
+      await notifications.success('Đã sao chép link thiệp để chia sẻ')
+      return
+    }
+    try {
+      await navigator.share({ title: 'Thiệp cưới', url })
+    } catch (cause) {
+      if (cause instanceof Error && cause.name === 'AbortError') return
+      await notifications.error('Không thể chia sẻ thiệp', 'Bạn có thể sao chép link để gửi thủ công.')
+    }
+  }
+
   return (
     <div
       className="category-dialog-backdrop"
@@ -250,6 +249,13 @@ function GuestShareDialog({
               <a className="button button-primary" href={url} target="_blank" rel="noreferrer">
                 <ArrowSquareOut size={17} /> Mở thiệp
               </a>
+              <button
+                className="button button-secondary guest-share-action-button"
+                type="button"
+                onClick={() => void share()}
+              >
+                <ShareNetwork size={17} /> Chia sẻ
+              </button>
             </footer>
           </div>
         ) : state === 'not-public' ? (
@@ -521,7 +527,9 @@ function GuestsPageConnectedContent({
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [queryPending, setQueryPending] = useState(false)
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState(
+    () => new URLSearchParams(window.location.search).get('categoryId') ?? '',
+  )
   const [selected, setSelected] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -598,6 +606,12 @@ function GuestsPageConnectedContent({
   useEffect(() => {
     void load()
   }, [load])
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    if (categoryId) url.searchParams.set('categoryId', categoryId)
+    else url.searchParams.delete('categoryId')
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+  }, [categoryId])
   const totalParty = useMemo(
     () => guestBlocks.reduce((sum, block) => sum + block.totalPartySize, 0),
     [guestBlocks],
@@ -890,7 +904,7 @@ function GuestsPageConnectedContent({
         <header className="guest-family-block-header">
           <div>
             <h2 id={`guest-family-${block.key ?? 'common'}`}>{block.label}</h2>
-            <span>{block.total} khách mời</span>
+            <span>{block.total} thiệp | {block.totalPartySize} người đi</span>
           </div>
         </header>
         {blockGuests.length ? (
@@ -1042,7 +1056,9 @@ function GuestsPageConnectedContent({
                 Trước
               </button>
               <span>
-                Trang {block.page} · {block.total} khách
+                Trang {block.page} / {Math.max(1, Math.ceil(block.total / GUEST_PAGE_SIZE))}
+                {' · '}
+                {block.items.length} / {block.total} thiệp
               </span>
               <button
                 className="button button-secondary"
@@ -1096,7 +1112,7 @@ function GuestsPageConnectedContent({
       <div className="guest-summary">
         <div>
           <span>
-            <Users size={17} /> Tổng khách mời
+            <Users size={17} /> Tổng khách mời (thiệp)
           </span>
           <strong>{guestTotal}</strong>
           <small>{query || categoryId ? 'Theo bộ lọc hiện tại' : 'Tổng danh sách'}</small>
@@ -1124,7 +1140,7 @@ function GuestsPageConnectedContent({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Tìm theo tên khách…"
+              placeholder="Tìm tên khách hoặc tên trên thiệp…"
             />
             {queryPending || loading ? (
               <CircleNotch className="guest-search-spinner" size={16} aria-hidden="true" />
@@ -1147,22 +1163,21 @@ function GuestsPageConnectedContent({
           <div className="guest-bulk-bar">
             <strong>{selected.length} khách đã chọn</strong>
             <div>
-              <label className="bulk-category-select">
-                Gán nhóm khách{' '}
-                <NativeSelectField
+              <div className="bulk-category-select">
+                <span>Gán nhóm khách</span>
+                <GuestCategoryPicker
+                  categories={categories}
                   value={bulkCategoryAction}
+                  onChange={handleBulkCategoryChange}
+                  emptyValueLabel="Chọn…"
+                  emptyValueSelectable={false}
+                  actionOptions={[{ value: REMOVE_CATEGORY, label: 'Gỡ nhóm' }]}
                   disabled={busy}
-                  onChange={(event) => handleBulkCategoryChange(event.target.value)}
-                >
-                  <option value="">Chọn…</option>
-                  <option value={REMOVE_CATEGORY}>Gỡ nhóm</option>
-                  {categories.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </NativeSelectField>
-              </label>
+                  title="Gán nhóm khách"
+                  description="Chọn nhóm để gán cho các khách đã chọn."
+                  ariaLabel="Chọn nhóm để gán cho khách"
+                />
+              </div>
               <label className="bulk-category-select">
                 Gán phía gia đình{' '}
                 <NativeSelectField

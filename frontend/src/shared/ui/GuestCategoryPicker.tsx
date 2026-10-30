@@ -1,5 +1,6 @@
 import { Check, FolderSimple, MagnifyingGlass, X } from '@phosphor-icons/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { GuestCategory } from '../api/weddings'
 
 type GuestCategoryPickerProps = {
@@ -11,6 +12,9 @@ type GuestCategoryPickerProps = {
   description: string
   ariaLabel: string
   className?: string
+  disabled?: boolean
+  emptyValueSelectable?: boolean
+  actionOptions?: Array<{ value: string; label: string }>
 }
 
 const sides = [
@@ -35,9 +39,24 @@ export function GuestCategoryPicker({
   description,
   ariaLabel,
   className = '',
+  disabled = false,
+  emptyValueSelectable = true,
+  actionOptions = [],
 }: GuestCategoryPickerProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    if (!open) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [open])
+
   const selected = categories.find((category) => category.id === value)
   const selectedPath = useMemo(() => {
     if (!selected) return emptyValueLabel
@@ -118,12 +137,13 @@ export function GuestCategoryPicker({
         aria-label={ariaLabel}
         aria-haspopup="dialog"
         aria-expanded={open}
+        disabled={disabled}
         onClick={() => setOpen(true)}
       >
         <span>{selectedPath}</span>
         <span className="guest-category-picker-trigger-action">Chọn nhóm</span>
       </button>
-      {open ? (
+      {open ? createPortal((
         <div
           className="category-dialog-backdrop guest-category-picker-backdrop"
           role="presentation"
@@ -154,7 +174,6 @@ export function GuestCategoryPicker({
               <MagnifyingGlass size={17} aria-hidden="true" />
               <span className="sr-only">Tìm nhóm khách</span>
               <input
-                autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo tên nhóm…"
@@ -170,14 +189,31 @@ export function GuestCategoryPicker({
               ) : null}
             </label>
             <div className="guest-category-picker-options">
-              <button
-                type="button"
-                className={`guest-category-picker-empty${value ? '' : ' is-selected'}`}
-                onClick={() => select('')}
-              >
-                <span>{emptyValueLabel}</span>
-                {!value ? <Check size={17} /> : null}
-              </button>
+              {emptyValueSelectable ? (
+                <button
+                  type="button"
+                  className={`guest-category-picker-empty${value ? '' : ' is-selected'}`}
+                  onClick={() => select('')}
+                >
+                  <span>{emptyValueLabel}</span>
+                  {!value ? <Check size={17} /> : null}
+                </button>
+              ) : (
+                <div className="guest-category-picker-empty is-placeholder" aria-disabled="true">
+                  <span>{emptyValueLabel}</span>
+                </div>
+              )}
+              {actionOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className="guest-category-picker-empty guest-category-picker-action"
+                  disabled={disabled}
+                  onClick={() => select(option.value)}
+                >
+                  <span>{option.label}</span>
+                </button>
+              ))}
               {sides.map(({ key, label }) => {
                 const roots = childrenOf(null).filter(
                   (category) => (category.familySide ?? '') === key && matchesTree(category),
@@ -213,7 +249,7 @@ export function GuestCategoryPicker({
             </div>
           </section>
         </div>
-      ) : null}
+      ), document.body) : null}
     </>
   )
 }

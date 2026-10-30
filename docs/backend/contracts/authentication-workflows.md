@@ -26,7 +26,7 @@ Base branch không tạo endpoint auth giả. Route catalog giữ `Planned` cho 
 - Token có 256-bit entropy; verification/reset/invitation token tối thiểu 128-bit và cũng chỉ lưu hash.
 - Cookie production tên `__Host-gmm_session`, `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`, không có `Domain`.
 - Local HTTP dùng `gmm_session` vì cookie prefix `__Host-` bắt buộc HTTPS.
-- Session có idle TTL 24 giờ và absolute TTL 30 ngày. Mỗi request hợp lệ kiểm tra cả hai; cập nhật `lastSeenAt` theo nhịp giới hạn, không write mọi request.
+- Session có idle TTL 48 giờ và absolute TTL 30 ngày. Mỗi request hợp lệ kiểm tra cả hai; cập nhật `lastSeenAt` theo nhịp giới hạn, không write mọi request.
 - Rotate session sau login, đổi password, nâng quyền hoặc security event. Logout/revoke đặt `revokedAt`, không hard-delete ngay vì cần audit.
 - Password không bao giờ tự hash bằng SHA/bcrypt handwritten. Adapter phải dùng thư viện uy tín với Argon2id hoặc policy tương đương đã benchmark.
 - Authentication xác định actor; authorization vẫn load membership/resource ở mỗi use case. Không đưa wedding role vào session như nguồn quyền lâu hạn.

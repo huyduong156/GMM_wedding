@@ -152,7 +152,7 @@ Verification link mở frontend route chuyên dụng với `Referrer-Policy: no-
 4. Sinh opaque session token 256-bit. Transaction tạo `Session` với hash, absolute expiry, metadata đã giới hạn; cập nhật `lastLoginAt` và audit.
 5. Route set cookie sau commit, không đưa raw token vào JSON/log.
 
-`Session.expiresAt` là absolute expiry. Idle expiry được tính bằng `lastSeenAt + 24h`; `lastSeenAt` chỉ update khi lần refresh trước cách hiện tại tối thiểu 5 phút bằng conditional update.
+`Session.expiresAt` là absolute expiry. Idle expiry được tính bằng `lastSeenAt + 48h`; `lastSeenAt` chỉ update khi lần refresh trước cách hiện tại tối thiểu 5 phút bằng conditional update.
 
 ### Authenticate request và `/me`
 
