@@ -1,14 +1,16 @@
 # A Beautiful Day — Phase 3 Section Architecture
 
-Status: Phase 3 composition and static renderer implemented from the Phase 1/2 contracts. The user approved the complete current artwork set. The 14 active approved PNGs are served from `frontend/public/assets/images/templates/a-beautiful-day/decor/`; alpha-edge inspection and optimization remain technical quality gates. The former Phase 0 preview route is unchanged.
+> **Visual revision 2026-10-30:** the section/content architecture and data contract remain. The latest hero contains only the couple's names and portrait; five fixed placements of approved Phase 2.5 lanterns hang above it in distinct depth layers. One shared ivory/honey canvas runs behind transparent chapters. Static compositions below are historical where they describe stage curtains, separate color bands, unused navigation or outdated hero copy.
+
+Status: Phase 3 composition and renderer implemented from the Phase 1/2 contracts. Approved floral variants and three approved lantern artworks are selectively active in the public bundle; unused curtain options remain archived under `assets/templates/a-beautiful-day/archive/retired-webp/`. The former Phase 0 preview route is unchanged.
 
 ## 1. Composition thesis
 
-Treat the site as one continuous, warm ivory reception space with editorial chapters. Keep the guest's practical route visible from the outset: couple/date/venue in the hero, persistent access to navigation and RSVP, and direct event/venue information before long-form story or gallery content. Let a loose botanical line and restrained paper/lantern details link chapters; do not recreate the reference venue as a single baked scene.
+Treat the site as one continuous warm-ivory wedding journal with an editorial garden character. This is a content-only publication surface: begin directly with the hero and do not render website chrome such as a header, navigation bar, or top menu. Keep the guest's practical route visible through the hero's event facts and CTA, followed by direct event/venue information before long-form story or gallery content.
 
 - **Canvas:** full-width website canvas; centered content boundary up to 80rem and Phase 0 gutters. A paper-ivory base remains continuous; use subtle shifts in paper tone, light, and texture instead of hard full-width color bands.
 - **Hierarchy:** Lora display headings; Be Vietnam Pro for Vietnamese body, labels, controls, and metadata. One `h1` in hero; section headings are semantic anchors.
-- **Signature composition:** stage-like hero framed by ivory drapery, followed by an editorial sequence that alternates open text, portraits, program/timeline, and photo-led layouts. The curtain is a frame around live HTML content, never a replacement for it.
+- **Signature composition:** a sunlit botanical journal led by couple photography, clear event facts, editorial typography, and a small code-native botanical mark. Avoid literal venue/stage scenery and keep practical information free of decorative props.
 - **Density:** mobile-first scanability. Use asymmetry and generous whitespace on wide screens, then collapse to native vertical flow without hiding content.
 - **Decor ownership:** renderer owns the canvas, paper treatment, typography, rules, and all artwork placement. Uploaded wedding images remain content and cannot be required for theme recognition.
 
@@ -23,10 +25,10 @@ The architecture covers every website-contract section. Required sections are fi
 | Section | Required / default | Composition and content anchor | Content-density and empty behavior |
 |---|---|---|---|
 | `navigation` | Required / on | Compact sticky editorial index; monogram at left, active section links, RSVP action at right. | Links only to currently enabled and non-empty anchors. Compact menu on mobile; no separate content fields. |
-| `hero` | Required / on | Full-bleed editorial stage frame. Couple names and date sit in the clear center; primary venue and “Xem thông tin ngày cưới” are directly scannable. RSVP shortcut only if enabled. | Keep names/date/actions as HTML. Missing/broken hero photo leaves a complete type-led hero and curtain composition. Long names wrap without colliding with frame or controls. |
+| `hero` | Required / on | Centered couple portrait with both names together as an overlapping editorial caption beneath it. | Only names and the photo appear as hero content. Missing/broken hero photo leaves a warm paper portrait fallback. Long names wrap without colliding. |
 | `announcement` | Required / on | Framed welcome note, narrower text measure and centered editorial heading; visually distinct from the hero by removing photo dominance. | Required message; missing message is a publish validation error, not an empty decorative panel. |
 | `couple` | Required / on | Balanced dual portraits with separate biographies; portraits are equal but not forced into duplicate card chrome. | Each missing portrait becomes a named typographic profile. Preserve each biography and name independently. |
-| `story` | Optional / on | Alternating milestone timeline with date and text on one side, optional image on the other; a thin bamboo-inspired rule links milestones. | Empty list omits section and navigation entry. A milestone without media keeps its text and timeline marker. |
+| `story` | Optional / on | Alternating milestone timeline with date and text on one side, optional image on the other; a quiet editorial rule links milestones. | Empty list omits section and navigation entry. A milestone without media keeps its text and timeline marker. |
 | `events` | Required / on | Editorial program: date/time is the strongest scan target, followed by event title, address summary, and add-to-calendar action. Multiple events use a ruled list, not repeated generic cards. | Requires at least one valid public event. Past events remain readable with clear status. |
 | `countdown` | Optional / on | Narrow inline countdown interlude tied to the primary event; visually subordinate to event details. | Invalid/missing date has a quiet date-led fallback; completed event shows a completed state without negative values. |
 | `venues` | Required / on | Map split: map/location visual on one side, address, directions, and travel note on the other. Multiple venues become individually titled location blocks. | Address and map link remain useful without an embedded map. Invalid or unavailable map falls back to address and plain directions. |
@@ -39,12 +41,12 @@ The architecture covers every website-contract section. Required sections are fi
 | `rsvp` | Optional / on | Single focused form composition with short invitation copy, clear deadline/status and touch-sized controls. | Disabled section removes all RSVP shortcuts. Preserve pending, success, closed, validation, rate-limit, and retry states from the common flow. Respect runtime `guestName`; request a name only if absent. |
 | `guestbook` | Optional / on | Stacked note composition: approved wishes are readable notes above/beside a distinct message form. | Empty approved-wish list does not remove the form. Hidden section removes the navigation entry. Respect runtime `guestName`; request a name only if absent. |
 | `gift` | Optional / off | Opt-in QR/account group, with account details as selectable text and QR fully contained. | Disabled or unpopulated section produces no DOM/CTA. No seeded account details; text can remain when a valid QR is absent. |
-| `footer` | Required / on | Closing letter with short thank-you, couple signature, date, and a quiet final bamboo/flower punctuation. | Always present and last. Required message missing is a publish error. |
+| `footer` | Required / on | Closing letter with short thank-you, couple signature, date, and one small botanical SVG mark. | Always present and last. Required message missing is a publish error. |
 | `music` | Global / off | Small persistent playback control owned by the global shell, outside visual section order. | No track means no control. Playback starts only after explicit user action; no autoplay dependency. |
 
 ## 3. Layout diversity and repeatable content
 
-No single layout family should dominate more than three sections. This map deliberately gives section groups different silhouettes: stage, note, profiles, timeline, program, map, gallery, accordion, form, and closing letter.
+No single layout family should dominate more than three sections. This map deliberately gives section groups different silhouettes: photo-led hero, note, profiles, timeline, program, map, gallery, accordion, form, and closing letter.
 
 - Repeatable story milestones, events, schedule items, party groups/members, travel items, FAQs, gallery images, and gift accounts use layout patterns that preserve their item hierarchy and authored order where the contract requires it.
 - Events and venues should not collapse into identical cards: events prioritize time and action; venues prioritize address and route.
@@ -52,55 +54,27 @@ No single layout family should dominate more than three sections. This map delib
 - RSVP and guestbook remain separate destinations: RSVP is a response transaction; guestbook is a public message flow.
 - Do not use horizontal-only storytelling, pinned content, or slideshow as the sole access path for any required information.
 
-## 4. Approved artwork ownership and placement
+## 4. Archived artwork provenance
 
-The public asset URL base is `/assets/images/templates/a-beautiful-day/decor/`. Each visual is renderer-owned decoration with empty alt text and no editor media field. The user has approved the complete current set; approval does not waive technical QA. Use artwork at intrinsic proportions, with `contain`-style placement and no stretching. Never place decor over names, venue/time, faces, form fields, captions, or focus targets.
+The first renderer used the raster artwork listed below. After the 2026-10-30 composition review, all fourteen WebP files were removed from public renderer use and moved to `assets/templates/a-beautiful-day/archive/retired-webp/`; they are preserved for provenance only. These are not public URLs, approved active artwork, selectable `heroStyle` values, or valid decoration placement instructions. Do not restore references to them in the renderer.
 
-| Approved artwork | Owning section / layer | Placement rule and fallback |
-|---|---|---|
-| `/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v01.webp` | Hero, renderer-owned background frame | `heroStyle: curtain-classic`. Select as one complete frame; never stack curtain variants. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v02.webp` | Hero, renderer-owned background frame | Default `heroStyle: curtain-gathered`. Center live HTML names/date/actions in the open field. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v03.webp` | Hero, renderer-owned background frame | `heroStyle: curtain-pleated`. Use as a discrete selectable frame, never stacked. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v04.webp` | Hero, renderer-owned background frame | `heroStyle: curtain-asymmetric`. Preserve its asymmetry; do not mirror to balance it. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v02.webp` | Story/events transition, foreground lower edge | Low horizontal spray; avoid placing beneath body copy. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v03.webp` | Couple/story transition, outer corner | Diagonal cascade; never cross faces or timeline labels. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v04.webp` | Venues/gallery transition, outer edge | Crescent open center may frame a chapter edge; leave controls unobstructed. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v05.webp` | Gallery, low foreground edge | Modern low spray as a single counterweight, not a repeating divider. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v06.webp` | Hero, foreground corner | Modern diagonal cascade; flowers sit at the edge and text remains in the clear field. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v07.webp` | Closing/footer, optional chapter edge | Airy crescent for the closing composition. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-single-blossom-v02.webp` | Announcement, small renderer-owned accent | One bloom at low visual weight; omit if it reduces the text measure. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-lantern-round-v02.webp` | Events, renderer-owned prop | Small light marker, separate from floral assets and event copy. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-lantern-oval-v02.webp` | Venues, renderer-owned prop | Distinct elongated prop near the location composition. |
-| `/assets/images/templates/a-beautiful-day/decor/abd-lantern-column-v02.webp` | Gift/footer, renderer-owned prop | Use only where vertical space permits; hide before compressing text on mobile. |
-
-### Explicitly excluded from the approved placement map
-
-- `artwork/candidates/abd-floral-cluster-v02.png` and `artwork/candidates/abd-lantern-pair-v01.png` were rejected and removed; do not restore or reference them.
-- `assets/templates/a-beautiful-day/archive/abd-blossom-divider-v01.png` is an archived multi-flower draft, not the requested single-bloom direction.
-- `assets/templates/a-beautiful-day/archive/abd-floral-bamboo-cluster-v01.png` is a visual style reference only and remains outside the active public decor folder.
-- The temporary MinIO reference photographs were analysis-only and were removed on 2026-10-23 after design analysis; they are not fixture content, renderer artwork, or release media.
-
-### Artwork technical gates before production use
-
-- Inspect transparent edges/halos on both the ivory canvas and dark user-photo surfaces at intended display sizes.
-- Optimize approved outputs against the artwork brief budgets and record optimized dimensions/bytes in the manifest; preserve source candidates until outputs pass review.
-- If an edge or glow does not composite cleanly, suppress that placement and keep the same section composition using CSS lines/color, not a broken image.
+The archived set contains four curtain frames, seven floral/bamboo/blossom assets, and three lanterns. The active visual signature is a small inline SVG botanical mark in `ABeautifulDayBotanical.tsx`; it is intentionally still and limited to the hero/footer. User photographs are content media, never renderer-owned decoration.
 
 ## 5. Chapter transitions and seams
 
-The base canvas and subtle paper texture continue through all sections. Transitions use spacing, a shared thin botanical rule, low contrast light gradients, or a single approved foreground cluster; avoid alternating full-bleed backgrounds that make hard horizontal cuts. Cluster assets are not repeated mechanically at every section boundary.
+The warm paper canvas continues through most sections. Transitions use spacing, thin rules and a few intentional color fields; the berry announcement and garden panels are reserved chapter moments. Do not add floating props or repeat ornamental artwork at section boundaries.
 
 | Adjacent chapters in default order | Seam composition |
 |---|---|
 | Navigation → Hero | Navigation rests above the hero on the same canvas; transparent overlay only while contrast remains reliable. On scroll, compact sticky state uses a solid translucent paper surface. |
-| Hero → Announcement | Curtain falls taper into the shared ivory field; the framed note begins after a soft paper/light bridge. Keep flowers out of the headline measure. |
+| Hero → Announcement | Hero resolves into the shared ivory field; the berry announcement begins as a clear chapter. Keep the headline free of decoration. |
 | Announcement → Couple | A thin botanical rule creates a quiet pause; the note's narrow measure opens into two balanced profile columns. |
-| Couple → Story | A bamboo-inspired timeline line may continue into the first milestone; portraits resolve before the first optional image. |
-| Story → Events | Narrative rule changes into clear time markers; use low horizontal cluster v02 or modern v05 only if the copy leaves a safe lower edge. |
+| Couple → Story | Portraits resolve before the first optional story image; a simple rule introduces the timeline. |
+| Story → Events | Narrative rule changes into clear time markers; keep event details on a quiet background. |
 | Events → Countdown | Program list closes with spacing; countdown appears as a small typographic interlude, not another card stack. |
-| Countdown → Venues | Date/count digits resolve into a location heading and map/address split; a lantern may appear near the location visual, not behind text. |
+| Countdown → Venues | Date/count digits resolve into a location heading and map/address split; keep address and directions visually primary. |
 | Venues → Gallery | Map panel fades back into the same paper canvas; gallery starts with a caption/heading and first image frame, with no seam overlay on images. |
-| Gallery → Schedule | Gallery lightbox/grid ends before a clear chronological rule starts; do not let a cluster obscure either captions or times. |
+| Gallery → Schedule | Gallery lightbox/grid ends before a clear chronological rule starts; preserve caption and time legibility. |
 | Schedule → WeddingParty | Timeline marker resolves into a role-group separator; if party is off, no reserved gap or decorative stub remains. |
 | WeddingParty → DressCode | Role groups close with whitespace; optional swatches enter as labeled color samples on the same background. |
 | DressCode → Travel | Swatch rail settles into the directory's text-first layout; optional section removal closes the seam naturally. |
@@ -108,15 +82,15 @@ The base canvas and subtle paper texture continue through all sections. Transiti
 | FAQ → RSVP | Accordion list closes into a focused form area; clear change in hierarchy and whitespace, not a hard color block. |
 | RSVP → Guestbook | Form completion/CTA remains distinct; guestbook notes enter as a calm continuation, without celebratory auto-motion on form submission. |
 | Guestbook → Gift | Message list resolves before the opt-in gift details; if gift is disabled/empty, it is removed with no gap. |
-| Gift → Footer | Gift panel ends with generous space; footer closing letter and one restrained approved flower/bamboo accent make the terminal chapter. |
+| Gift → Footer | Gift panel ends with generous space; footer closing letter and its small SVG signature close the page. |
 
-Because middle sections can reorder, the implementation must also support neutral adjacency seams: same continuous base canvas, section-local top/bottom spacing, and optional low-weight rule that can be omitted. A section-specific cluster/lantern is never assumed to be adjacent to one particular section. When a reorder produces an awkward artwork pairing, suppress the decorative art rather than changing canonical section order.
+Because middle sections can reorder, the implementation must also support neutral adjacency seams: continuous paper canvas, section-local spacing, and optional low-weight rules. Chapter backgrounds must not depend on a particular neighboring section.
 
 ## 6. Responsive and content fallbacks
 
 - **Wide desktop:** use broad negative space, asymmetric image/text proportions, and the full-size hero frame. Cap content to the Phase 0 boundary; decor may extend within the viewport but cannot introduce horizontal overflow.
 - **Tablet:** reduce decorative scale and overlap before tightening the text measure or cropping a user photo. Convert split layouts to narrower side-by-side only while both columns remain readable.
-- **Mobile (including 320–390px):** native vertical order; compact navigation menu; stack couple profiles, event/venue details, and all forms. Hide optional lanterns and clusters first. Hero may omit a user photo and decorative frame when needed; names, date, venue, and CTA remain.
+- **Mobile (including 320–390px):** native vertical order; compact navigation menu; stack couple profiles, event/venue details, and all forms. Keep the hero portrait bounded and its text readable; names, date, venue, and CTA remain when media is missing.
 - **Long content:** allow natural section height. Never clip names, biography, event address, FAQ answer, guestbook text, or form status to preserve a visual frame.
 - **Missing/broken media:** follow Phase 2 role fallback (typographic hero, named profiles, text-only milestones, omitted invalid gallery items, monogram party members, text-first gift). No unrelated stock image is substituted.
 - **Empty optional section:** omit the section, anchor, navigation link, and seam spacing; do not render empty cards or placeholder artwork.
@@ -169,4 +143,25 @@ Validation on 2026-10-23: all twelve scoped tests pass, along with frontend type
 
 Final config audit after browser review: `draft` status, `0.1.0` version, WEDDING_WEBSITE product type, preview route, nineteen section keys, seven required sections, fixed opening/footer anchors, global music placement, field/content paths, item limits, media ownership and implemented hero/story/gallery style values match the renderer/fixture. No publication-ready registry state was added.
 
-The template remains `draft` at `0.1.0`. At the P3 handoff, countdown and gallery were static and RSVP/guestbook/music were preview scaffolds. [Phase 4](./phase-4-motion-experience.md) added isolated live countdown, accessible gallery interaction, stage depth and section motion. [Phase 5](./phase-5-release-review.md) then connected the established public RSVP/guestbook hooks, catalog music playback, SEO metadata, ICS event actions, editor preview bridge and optimized approved artwork. Capabilities in config describe the supported surface; they do not promote this draft. The remaining release gate is a public READY media projection with alt text plus a saved-editor/publication smoke test after the template version is released.
+## 11. Visual composition revision — 2026-10-30
+
+The section keys, content anchors, editor controls, required/optional rules, API behavior and empty states are retained. Composition is updated to remove the stage metaphor and give photography, story and practical wedding information a consistent hierarchy.
+
+| Section | Active composition | Color/art rule |
+| --- | --- | --- |
+| Navigation | No visual header or navigation bar is rendered; the config key remains for schema compatibility | Page starts directly with content |
+| Hero | Portrait in a clean double-line paper frame; names overlay the lower image on a dark fade. One approved crescent and one cascading flower cluster frame opposite corners. | Shared ivory canvas, warm serif names, slim warm-gold frame and peach/cream floristry |
+| Announcement | Centered short message in a light-beige inset | Dark warm text; no full-bleed color panel |
+| Couple | Paired portrait mats with staggered offset on desktop; compact two-column cards on mobile | White and pale-beige surfaces, consistent portrait treatment |
+| Story | Alternating photo/text chapter with quiet timeline rule | Shared canvas; no chapter wash or artwork at seams |
+| Events/countdown | Scan-first event rows and compact countdown panel | Taupe metadata and a pale-beige countdown surface |
+| Venues/travel/FAQ | Practical address directory and native disclosures; no fake map illustration | Warm white surfaces; addresses and links stay visually primary |
+| Gallery | User photos form the visual chapter; geometric editorial grid and accessible lightbox | White canvas; no generated flowers around gallery edges |
+| Party/dress | Clear repeatable people/color list layouts | Shared canvas with neutral image mats |
+| RSVP/guestbook | Focused readable forms and approved wishes | Light-beige form surface with one taupe action |
+| Gift | Opt-in account detail; QR fully visible | Neutral surface; no decoration over account data |
+| Footer | Closing letter with one approved Phase 2.5 floristry asset at low visual weight | Pale beige surface and warm dark text |
+
+All sections retain a common warm-white canvas with small inset-beige panels for meaningful chapter changes. Section reorder operations do not depend on decorative adjacency.
+
+The template remains `draft` at `0.1.0`. At the P3 handoff, countdown and gallery were static and RSVP/guestbook/music were preview scaffolds. [Phase 4](./phase-4-motion-experience.md) added isolated live countdown, accessible gallery interaction, hero-photo depth and section motion. [Phase 5](./phase-5-release-review.md) then connected the established public RSVP/guestbook hooks, catalog music playback, SEO metadata, ICS event actions, editor preview bridge and optimized raster artwork (now archived after the visual revision). Capabilities in config describe the supported surface; they do not promote this draft. The remaining release gate is a public READY media projection with alt text plus a saved-editor/publication smoke test after the template version is released.

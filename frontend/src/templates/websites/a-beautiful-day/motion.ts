@@ -67,19 +67,16 @@ export function useABDMotion(ref: RefObject<HTMLElement>, enabled: boolean, revi
       entries.forEach(({ target, isIntersecting }) => {
         const chapter = target as HTMLElement
         chapter.classList.toggle('is-in-view', isIntersecting)
-        if (isIntersecting) visible.add(chapter)
+        if (isIntersecting) {
+          chapter.classList.add('has-been-seen')
+          visible.add(chapter)
+        }
         else visible.delete(chapter)
-      })
-      const active = [...visible].sort((a, b) => Math.abs(a.getBoundingClientRect().top - 140) - Math.abs(b.getBoundingClientRect().top - 140))[0]
-      site.querySelectorAll<HTMLAnchorElement>('.abd-nav__links a').forEach((link) => {
-        if (active && link.hash === `#${active.id}`) link.setAttribute('aria-current', 'location')
-        else link.removeAttribute('aria-current')
       })
     }, { threshold: [0, 0.15, 0.45] })
     chapters.forEach((chapter) => presence.observe(chapter))
     const depthMedia = window.matchMedia('(min-width: 900px) and (pointer: fine)')
     const hero = site.querySelector<HTMLElement>('.abd-hero')
-    const frame = site.querySelector<HTMLElement>('.abd-hero__stage')
     const photo = site.querySelector<HTMLElement>('.abd-hero__photo-depth')
     const story = site.querySelector<HTMLElement>('.abd-story')
     const rail = site.querySelector<HTMLElement>('.abd-story__progress-fill')
@@ -89,8 +86,7 @@ export function useABDMotion(ref: RefObject<HTMLElement>, enabled: boolean, revi
       if (document.hidden || !depthMedia.matches) return
       if (hero && visible.has(hero)) {
         const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / hero.offsetHeight))
-        if (frame) frame.style.transform = `translateY(${progress * -14}px)`
-        if (photo) photo.style.transform = `translateY(${progress * 24}px) scale(1.04)`
+        if (photo) photo.style.transform = `translateY(${progress * 18}px) rotate(1.5deg) scale(1.04)`
       }
       if (story && rail && visible.has(story)) {
         const bounds = story.getBoundingClientRect()
@@ -106,7 +102,7 @@ export function useABDMotion(ref: RefObject<HTMLElement>, enabled: boolean, revi
       else request()
     }
     const resize = () => {
-      if (!depthMedia.matches) { frame?.style.removeProperty('transform'); photo?.style.removeProperty('transform'); rail?.style.removeProperty('transform') }
+      if (!depthMedia.matches) { photo?.style.removeProperty('transform'); rail?.style.removeProperty('transform') }
       request()
     }
     visibility()
@@ -118,8 +114,8 @@ export function useABDMotion(ref: RefObject<HTMLElement>, enabled: boolean, revi
       window.removeEventListener('scroll', request); window.removeEventListener('resize', resize)
       document.removeEventListener('visibilitychange', visibility)
       delete site.dataset.motionRunning
-      chapters.forEach((chapter) => chapter.classList.remove('is-in-view'))
-      frame?.style.removeProperty('transform'); photo?.style.removeProperty('transform'); rail?.style.removeProperty('transform')
+      chapters.forEach((chapter) => chapter.classList.remove('is-in-view', 'has-been-seen'))
+      photo?.style.removeProperty('transform'); rail?.style.removeProperty('transform')
       site.querySelectorAll('[aria-current]').forEach((link) => link.removeAttribute('aria-current'))
     }
   }, [ref, enabled, revision])

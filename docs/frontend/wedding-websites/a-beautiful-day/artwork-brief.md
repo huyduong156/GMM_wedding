@@ -1,6 +1,8 @@
-# A Beautiful Day — Phase 2.5 Artwork Pre-production
+﻿# A Beautiful Day — Phase 2.5 Artwork Pre-production
 
-Status: The user approved the full current artwork set. Four curtain options, one single blossom, three separate lantern shapes, and six floral/bamboo clusters are served as lossless WebP in `frontend/public/assets/images/templates/a-beautiful-day/decor/`; PNG sources are retained in `assets/templates/a-beautiful-day/originals/`. Visible RGB and alpha match the resized source exactly, transparent edges were inspected over ivory and dark backgrounds, and all outputs meet their budgets. Historical MinIO reference screenshots were removed after design analysis and are documented in `phase-1-theme-brief.md`.
+> **Latest visual reset 2026-10-30:** `abd-floral-bamboo-cluster-v05.webp`, approved in Phase 2.5, is active again as one low-weight footer accent. No new artwork was generated. Curtain and lantern assets remain archived; this brief retains their original prompts and approval provenance.
+
+Status: The original raster artwork set was approved on 2026-10-22. The latest white/beige reset restores approved asset v05 to one footer placement; curtain and lantern variants remain archived. Four curtain options, one single blossom, three separate lantern shapes, and six floral/bamboo clusters are served as lossless WebP in `assets/templates/a-beautiful-day/archive/retired-webp/`; PNG sources are retained in `assets/templates/a-beautiful-day/originals/`. Visible RGB and alpha match the resized source exactly, transparent edges were inspected over ivory and dark backgrounds, and all outputs meet their budgets. Historical MinIO reference screenshots were removed after design analysis and are documented in `phase-1-theme-brief.md`.
 
 ## Art direction locked for this batch
 
@@ -8,26 +10,47 @@ Warm reception atmosphere with contemporary East Asian material cues: ivory gath
 
 No people, faces, names, dates, Chinese characters, text, venue furniture, social UI, logos, watermarks, or screenshots. Do not copy the specific arrangement, camera view, or identifiable details from the reference photos. User wedding photographs remain separate content media.
 
+## Previous artwork direction — superseded on 2026-10-30
+
+This iteration used a small inline SVG botanical drawing. It is preserved in source but no longer rendered; the SVG's stronger color language was dropped in favor of the existing approved Phase 2.5 artwork and a quiet white/beige palette.
+
+Asset matrix:
+
+| Artwork | Role | Placement | Fallback |
+| --- | --- | --- | --- |
+| Inline SVG `sprig` | Previous renderer-owned identity | Former hero and footer accents | Preserved but not rendered |
+| CSS ring and color field | Previous spatial framing | Former hero only | Removed from active composition |
+| Photo mat | User-media frame, not artwork | Hero/couple/story photos | Initials or paper field; never an unrelated stock image |
+
+## Current approved artwork placement — 2026-10-30
+
+| Artwork | Role | Placement | Fallback |
+| --- | --- | --- | --- |
+| `abd-floral-bamboo-cluster-v05.webp` | Approved Phase 2.5 floristry | One small, low-opacity footer accent; no text/photo overlay | Hide if it competes with the closing copy |
+| User couple photography | Content media | Hero, couple, story, gallery according to media contract | Paper/initials fallback; never add an unapproved generated image |
+
+This is the Phase 2.5 preview-ready set; no bitmap batch or external asset is required. The historic raster previews below remain provenance records, not active candidates.
+
 ## Asset matrix
 
-Generated assets remain separate from renderer imports until used by a section. User-approved production artwork lives in `frontend/public/assets/images/templates/a-beautiful-day/decor/`; two unused generated drafts are retained under `assets/templates/a-beautiful-day/archive/`. The template source folder contains runtime code, tests and its README only.
+Generated assets remain separate from renderer imports until used by a section. User-approved production artwork lives in `assets/templates/a-beautiful-day/archive/retired-webp/`; two unused generated drafts are retained under `assets/templates/a-beautiful-day/archive/`. The template source folder contains runtime code, tests and its README only.
 
 | Candidate filename | Role / target | Composition and responsive use | Budget / approval test |
 |---|---|---|---|
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v01.webp` | Hero frame/key artwork, mood reference | Transparent open drapery frame with a generous clear center. Use as visual baseline while comparing more photoreal variants. | Optimized lossless WebP 1536 × 1024, 684 KB; approved and alpha-edge reviewed. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v02.webp` | Hero frame variation A | More natural gathered ivory organza with an asymmetric soft canopy and separate side falls; full silhouette, center clear. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v03.webp` | Hero frame variation B | A distinct draping pattern with a higher, lighter canopy and relaxed side tiebacks; maintain wide text-safe center. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v04.webp` | Hero frame variation C | A distinct, layered curtain arrangement with a shallow curved opening and longer loose folds; no copied reference layout. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-single-blossom-v02.webp` | Single floral ornament | One isolated peach/blush/cream bloom with a few leaves; freely positionable, not a garland or divider. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. One flower reads clearly at small scale. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-lantern-round-v02.webp` | Round lantern prop | One realistic spherical ivory paper lantern, softly ribbed, subtle warm inner light. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-lantern-oval-v02.webp` | Oval lantern prop | One realistic oval/teardrop ivory paper lantern, distinct from the round sample. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-lantern-column-v02.webp` | Tall lantern prop | One realistic elongated cylindrical ivory paper lantern with a different profile and restrained glow. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v02.webp` | Low horizontal floral/bamboo spray | Broad low arrangement for a section edge or horizontal transition. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v03.webp` | Diagonal floral/bamboo cascade | Compact diagonal silhouette for corner placement. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v04.webp` | Crescent floral/bamboo arrangement | Airy crescent with open center for framing a chapter edge. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v05.webp` | Modern horizontal floristry revision | Calla lilies, orchids and pale apricot roses with only a few slim bamboo canes. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v06.webp` | Modern diagonal cascade revision | Sculptural anthuriums, ranunculus and orchids; sparse bamboo behind the flowers. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
-| `frontend/public/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v07.webp` | Modern crescent revision | Calla lilies and orchids with an open center and restrained bamboo accents. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-curtain-frame-v01.webp` | Hero frame/key artwork, mood reference | Transparent open drapery frame with a generous clear center. Use as visual baseline while comparing more photoreal variants. | Optimized lossless WebP 1536 × 1024, 684 KB; approved and alpha-edge reviewed. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-curtain-frame-v02.webp` | Hero frame variation A | More natural gathered ivory organza with an asymmetric soft canopy and separate side falls; full silhouette, center clear. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-curtain-frame-v03.webp` | Hero frame variation B | A distinct draping pattern with a higher, lighter canopy and relaxed side tiebacks; maintain wide text-safe center. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-curtain-frame-v04.webp` | Hero frame variation C | A distinct, layered curtain arrangement with a shallow curved opening and longer loose folds; no copied reference layout. | Optimized lossless WebP; measured lossless WebP under the 1.5 MB budget; see the asset manifest. Photographic fabric weave/folds, natural gravity, no CGI sheen. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-single-blossom-v02.webp` | Single floral ornament | One isolated peach/blush/cream bloom with a few leaves; freely positionable, not a garland or divider. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. One flower reads clearly at small scale. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-lantern-round-v02.webp` | Round lantern prop | One realistic spherical ivory paper lantern, softly ribbed, subtle warm inner light. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-lantern-oval-v02.webp` | Oval lantern prop | One realistic oval/teardrop ivory paper lantern, distinct from the round sample. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-lantern-column-v02.webp` | Tall lantern prop | One realistic elongated cylindrical ivory paper lantern with a different profile and restrained glow. | Optimized lossless WebP; measured lossless WebP under the 500 KB budget; see the asset manifest. Full object and hanger visible. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v02.webp` | Low horizontal floral/bamboo spray | Broad low arrangement for a section edge or horizontal transition. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v03.webp` | Diagonal floral/bamboo cascade | Compact diagonal silhouette for corner placement. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v04.webp` | Crescent floral/bamboo arrangement | Airy crescent with open center for framing a chapter edge. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v05.webp` | Modern horizontal floristry revision | Calla lilies, orchids and pale apricot roses with only a few slim bamboo canes. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v06.webp` | Modern diagonal cascade revision | Sculptural anthuriums, ranunculus and orchids; sparse bamboo behind the flowers. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
+| `assets/templates/a-beautiful-day/archive/retired-webp/abd-floral-bamboo-cluster-v07.webp` | Modern crescent revision | Calla lilies and orchids with an open center and restrained bamboo accents. | Optimized lossless WebP; lossless alpha verified and reviewed on ivory/dark backgrounds. Target ≤1.5 MB optimized. |
 
 `abd-floral-cluster-v02.png` and `abd-lantern-pair-v01.png` are rejected and were removed. `abd-blossom-divider-v01.png` remains an archived draft only. `abd-floral-bamboo-cluster-v01.png` is an archived style reference; approved cluster variants v02–v07 are renderer assets in the optimized public bundle.
 
@@ -88,7 +111,7 @@ No continuous animation is baked into these images. The P1 hero curtain-scroll s
 
 | Preview | Filename | Review status |
 |---|---|---|
-| [Hero curtain frame](../../../../frontend/public/assets/images/templates/a-beautiful-day/decor/abd-curtain-frame-v01.webp) | `abd-curtain-frame-v01.webp` | User-approved; optimized and alpha-edge reviewed |
+| [Hero curtain frame](../../../../assets/templates/a-beautiful-day/archive/retired-webp/abd-curtain-frame-v01.webp) | `abd-curtain-frame-v01.webp` | User-approved; optimized and alpha-edge reviewed |
 | Single blossom | `abd-single-blossom-v02.webp` | User-approved; optimized and alpha-edge reviewed |
 | Lantern round | `abd-lantern-round-v02.webp` | User-approved; lossless WebP optimized and alpha-edge reviewed |
 | Lantern oval | `abd-lantern-oval-v02.webp` | User-approved; lossless WebP optimized and alpha-edge reviewed |
@@ -97,7 +120,7 @@ No continuous animation is baked into these images. The P1 hero curtain-scroll s
 | Floral/bamboo clusters | `abd-floral-bamboo-cluster-v02.webp` / `v03.webp` / `v04.webp` | User-approved; lossless WebP optimized and alpha-edge reviewed |
 | Modern floristry revisions | `abd-floral-bamboo-cluster-v05.webp` / `v06.webp` / `v07.webp` | User-approved; lossless WebP optimized and alpha-edge reviewed |
 
-Inline contact sheet: [Approved artwork preview](./artwork-preview.md). All active artwork is approved, optimized, and edge-reviewed on ivory and dark backgrounds.
+Historical raster contact sheet: [Artwork preview archive](./artwork-preview.md). The current footer uses the approved v05 raster WebP at low visual weight; no replacement art was generated.
 
 ## Approval checklist
 

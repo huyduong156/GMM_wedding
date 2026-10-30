@@ -1,6 +1,8 @@
 # A Beautiful Day — Phase 1 Theme Brief
 
-Status: Phase 0 shell and Phase 1/2 contracts are complete. The full current Phase 2.5 artwork set was visually approved by the user on 2026-10-22 and moved to `frontend/public/assets/images/templates/a-beautiful-day/decor/`; alpha-edge QA and optimization passed; Phase 5 release evidence is recorded in the release review. Phase 3 architecture, template config, content fixture and static renderer are implemented; the responsive/empty/reordered/broken-media browser review passed on 2026-10-23. Phase 4 motion, accessible gallery interaction and isolated live countdown are implemented and validated; see [Phase 4 Motion Experience](./phase-4-motion-experience.md). Phase 5 implementation is complete; the template remains draft because the public snapshot/editor media contract does not yet expose a READY media projection with alt text and the saved-editor/publication smoke path needs a released template version. See [Phase 5 Release Review](./phase-5-release-review.md), [Phase 2.5 Artwork Brief](../../../../docs/frontend/wedding-websites/a-beautiful-day/artwork-brief.md) and [Phase 3 Section Architecture](./phase-3-section-architecture.md).
+> **Visual revision 2026-10-30:** the “reception stage” direction below is historical and is superseded by the [sunlit botanical editorial revision](./phase-1-theme-brief.md#visual-revision-2026-10-30). Keep the product meaning, audience, content contract, and viewer job; retire curtain, bamboo-screen and lantern identity.
+
+Status: Phase 0 shell and Phase 1/2 contracts are complete. The former Phase 2.5 raster artwork set was approved by the user on 2026-10-22, later retired from renderer use and moved to `assets/templates/a-beautiful-day/archive/retired-webp/`; its alpha-edge QA and optimization are provenance only; Phase 5 release evidence is recorded in the release review. Phase 3 architecture, template config, content fixture and static renderer are implemented; the responsive/empty/reordered/broken-media browser review passed on 2026-10-23. Phase 4 motion, accessible gallery interaction and isolated live countdown are implemented and validated; see [Phase 4 Motion Experience](./phase-4-motion-experience.md). Phase 5 implementation is complete; the template remains draft because the public snapshot/editor media contract does not yet expose a READY media projection with alt text and the saved-editor/publication smoke path needs a released template version. See [Phase 5 Release Review](./phase-5-release-review.md), [Phase 2.5 Artwork Brief](../../../../docs/frontend/wedding-websites/a-beautiful-day/artwork-brief.md) and [Phase 3 Section Architecture](./phase-3-section-architecture.md).
 
 ## Phase 0 preview and spatial contract
 
@@ -19,6 +21,17 @@ Phase 4 continuation: [Motion Experience](./phase-4-motion-experience.md) record
 ## Concept summary
 
 `A Beautiful Day` is a shared wedding website that helps guests feel the warmth of the celebration and quickly find its story, schedule, venues, gallery, and RSVP. It presents the wedding as an intimate, carefully composed reception with a contemporary East Asian influence.
+
+### Visual revision — sunlit botanical editorial
+
+- **Design read:** public wedding publication for mobile-first guests; warm garden-journal editorial with bright, confident accents and calm information hierarchy.
+- **Meaning:** a sunlit wedding journal that moves from the couple’s portrait to their story, practical plans, shared photographs and a closing note.
+- **Palette:** warm ivory `#FCF8F0`, pale garden `#E7EADB`, deep berry `#773448`, apricot `#E56D4F`, botanical green `#4D6043`, ink `#2D2927`. Berry is reserved for strong actions and chapter emphasis; apricot marks small interaction and timeline details.
+- **Visual language:** editorial photography in simple arch/rectangular mats, fine botanical line art in SVG, paper-like surfaces and crisp dividers. User photographs provide the photographic richness.
+- **Anti-patterns retired:** full-stage curtain photo, photographic lantern props, repeated floral cutouts, bamboo-screen framing, low-contrast beige-on-beige sections, and decorative props beside RSVP/event details.
+- **Signature moment:** a balanced two-column hero with the couple’s names and event facts on one side and one clear portrait on the other; mobile stacks copy before portrait.
+- **Density:** airy but not empty. Practical details use compact rows/cards; visual emphasis belongs to couple portraits, timeline and gallery.
+- **Section art rule:** renderer-owned botanical line art appears only at the hero and closing footer. Keep all practical chapters free of floating artwork.
 
 ## Reference set
 
@@ -214,3 +227,12 @@ These are acceptance targets for later phases, not claims that implementation ha
 ## Phase 2.5 handoff
 
 Phase 2 media boundaries are documented in [Phase 2 Media Contract](./phase-2-media-contract.md). Phase 2.5 candidate prompts and review files are in the template bundle. The temporary MinIO screenshots are reference-only and must not enter fixtures or the release bundle.
+
+
+### Phase 0 spatial re-audit — 2026-10-30
+
+The preview shell remains full-viewport and centered, with a maximum content boundary of `88rem` (1408px), fluid outer gutters and no fixed-width children. The hero now uses a desktop two-column balance and natural mobile stacking; the photo mat reserves a 4:5 ratio and becomes 4:4.3 on narrow screens. The palette/artwork revision does not create a new overflow boundary. Acceptance still includes direct preview route, 320–1440px viewport checks and no horizontal overflow.
+
+### Latest visual direction — 2026-10-30
+
+The active visual brief is now calm and content-led: warm white and pale beige surfaces, dark warm-brown text, local Lora/Be Vietnam Pro fonts, open spacing and no website header. Avoid berry/coral/green color blocks, decorative fake map imagery and repeated props. Use the approved Phase 2.5 modern-floristry artwork v05 once at the footer; do not generate replacement artwork without approval. The source reference photos are no longer in the repository, so treat their written composition notes as provenance only and do not recreate identifying venue details.

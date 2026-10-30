@@ -103,11 +103,10 @@ export const aBeautifulDayFixture: ABeautifulDayPreviewData = {
     },
     dressCode: {
       title: 'Một chút sắc màu cho ngày vui',
-      message: 'Tông màu kem, hồng phấn hoặc xanh lá dịu sẽ hòa cùng không khí buổi tiệc.',
+      message: 'Tông trắng ngà hoặc be nhẹ sẽ hòa cùng không khí buổi tiệc.',
       colors: [
-        { id: 'dress-ivory', label: 'Kem', hex: '#E9DDCC' },
-        { id: 'dress-blush', label: 'Hồng phấn', hex: '#D7AAA1' },
-        { id: 'dress-sage', label: 'Xanh sage', hex: '#89907A' },
+        { id: 'dress-ivory', label: 'Trắng ngà', hex: '#F4EEE5' },
+        { id: 'dress-beige', label: 'Be nhạt', hex: '#D9CBBB' },
       ],
     },
     travel: {

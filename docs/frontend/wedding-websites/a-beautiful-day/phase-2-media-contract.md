@@ -1,6 +1,8 @@
 # A Beautiful Day — Phase 2 Media Contract
 
-Status: Phase 2 media roles, ownership, crop rules, editor mapping, fallback behavior, and media-independence checks are specified. Phase 2.5 artwork candidates have been generated and await visual approval/optimization. No renderer or media-field implementation is claimed by this artifact.
+> **Visual revision 2026-10-30:** media roles, user ownership, alt text, crop/fallback and public projection requirements remain unchanged. The new art direction removes curtain/frame image assumptions; user photographs are now the hero’s dominant visual and the botanical SVG is renderer-owned code, not editable media.
+
+Status: Phase 2 media roles, ownership, crop rules, editor mapping, fallback behavior, and media-independence checks are specified. The original raster candidates were approved and optimized in 2026; they were retired after the 2026-10-30 visual audit. The active decor is code-native SVG. The user-media field/projection contract remains subject to the existing READY+alt-text release gate.
 
 Related brief: [Phase 1 Theme Brief](./phase-1-theme-brief.md).
 
@@ -19,7 +21,7 @@ All user media is optional: minimum 0. Required sections remain complete without
 
 | Canonical path / role | Owner; quantity | Preferred ratios and crop | Placement, loading, and fallback |
 |---|---|---|---|
-| `hero.heroMediaId` / `hero` | Couple upload; 0–1 | 16:9 preferred; 4:5 accepted. `cover`, default focal `50% 40%`; keep faces away from the text-safe center. | Wide editorial frame on desktop. On mobile use a portrait crop only if faces remain clear; otherwise remove the image layer. Eager load, async decode, high fetch priority. Missing, broken, or too-small media resolves to the complete typography-led hero and renderer-owned curtain frame. |
+| `hero.heroMediaId` / `hero` | Couple upload; 0–1 | 4:5 preferred; 3:2 accepted when the selected crop keeps faces clear. `cover`, default focal `50% 40%`; keep the subject inside the right-side photo mat. | Portrait arch mat on desktop and mobile; at narrow widths keep the subject centered and omit the image layer if the crop is unsafe. Eager load, async decode, high fetch priority. Missing, broken, or too-small media resolves to the complete typographic garden-field hero and renderer-owned color treatment. |
 | `couple.bride.portraitMediaId`, `couple.groom.portraitMediaId` / `couple-portrait` | Couple upload; 0–1 each | 4:5 preferred; 3:4 or 1:1 accepted. `cover`, default `50% 35%`; subject centered with headroom. | Equal portrait frames, stacked on mobile. Load when near viewport. Each missing/broken image becomes a named typographic profile; do not collapse the profile or show a broken-image icon. |
 | `story.milestones[].mediaId` / `story-moment` | Couple upload; 0–1 per milestone, at most 12 total | 4:5 or 3:2. `cover`, default center. | Frame follows the milestone text and keeps date/title/body in normal flow. Lazy load. Missing/broken media removes only its frame; milestone content and timeline remain. |
 | `gallery.mediaIds[]` / `gallery` | Couple upload; 0–40 (canonical maximum) | Mixed 1:1, 4:5, and 3:2 sources. Fixed editorial frames use `cover`, center focal; full lightbox uses `contain` and the source ratio. | Reserve frame dimensions before load; lazy-load grid items and load/decode the selected lightbox image on demand. Reorder in editor; preserve authored order. No valid selected images means omit the optional section and nav link. Failed items are omitted without leaving holes. |
@@ -134,6 +136,15 @@ Equivalent item-level definitions are required for `story.milestones[].mediaId`,
 | Album scope | Internal gallery is defined; external album is explicitly unsupported. |
 | Independence | Empty, neutral, mixed-ratio, bright/dark, and low-resolution media checks are listed without relying on MinIO references. |
 | Phase boundary | No media config, renderer, generated artwork, or Phase 2.5 asset has been implemented by this document. |
+
+### Visual revision media audit
+
+- Hero: optional READY portrait/photo with Vietnamese alt text; use a 4:5 arch mat and natural `cover` crop; when absent, show a quiet botanical color field and couple initials.
+- Couple: portrait cards use the same warm paper mat, no overlaid generated props.
+- Story/gallery: keep user photos as content and preserve authored media order; no theme decoration is baked into or placed over photos.
+- QR: continue using `contain` and recipient copy; no change to account contract.
+- Decorative identity: inline SVG only, empty alt, no media picker field or public projection dependency.
+- All backgrounds, photo frames and color fields must remain recognizable with every content image removed or replaced by unrelated neutral wedding photos.
 
 ## Phase 2.5 handoff
 

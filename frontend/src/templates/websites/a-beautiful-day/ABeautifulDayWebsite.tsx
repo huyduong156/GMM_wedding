@@ -28,34 +28,6 @@ type Props = {
   music?: { trackId: string; url: string }
 }
 
-const root = '/assets/images/templates/a-beautiful-day/decor'
-const curtainFrames = {
-  'curtain-gathered': `${root}/abd-curtain-frame-v02.webp`,
-  'curtain-pleated': `${root}/abd-curtain-frame-v03.webp`,
-  'curtain-asymmetric': `${root}/abd-curtain-frame-v04.webp`,
-  'curtain-classic': `${root}/abd-curtain-frame-v01.webp`,
-} as const
-
-const labels: Partial<Record<ABeautifulDaySectionKey, string>> = {
-  hero: 'Trang đầu',
-  announcement: 'Lời báo tin',
-  couple: 'Chúng mình',
-  story: 'Câu chuyện',
-  events: 'Sự kiện',
-  countdown: 'Đếm ngược',
-  venues: 'Địa điểm',
-  gallery: 'Album',
-  schedule: 'Lịch trình',
-  weddingParty: 'Người đồng hành',
-  dressCode: 'Trang phục',
-  travel: 'Di chuyển',
-  faq: 'Hỏi đáp',
-  rsvp: 'Xác nhận tham dự',
-  guestbook: 'Lời chúc',
-  gift: 'Mừng cưới',
-  footer: 'Lời cảm ơn',
-}
-
 const requiredSections = new Set<ABeautifulDaySectionKey>([
   'navigation', 'hero', 'announcement', 'couple', 'events', 'venues', 'footer',
 ])
@@ -102,21 +74,6 @@ function SectionHeading({
       {intro ? <p className="abd-heading__intro" data-motion-variant="copy" data-motion-step="2">{intro}</p> : null}
     </header>
   )
-}
-
-function Artwork({
-  file,
-  className,
-  alt = '',
-  loading = 'lazy',
-}: {
-  file: string
-  className: string
-  alt?: string
-  loading?: 'eager' | 'lazy'
-}) {
-  const [failedFile, setFailedFile] = useState<string>()
-  return failedFile === file ? null : <img className={`abd-artwork ${className}`} src={`${root}/${file}`} alt={alt} aria-hidden={alt ? undefined : true} loading={loading} decoding="async" onError={() => setFailedFile(file)} />
 }
 
 function byId<T extends { id: string }>(items: T[], id: string | null | undefined) {
@@ -175,10 +132,6 @@ function sectionHasContent(key: ABeautifulDaySectionKey, data: ABeautifulDayPrev
   }
 }
 
-function anchorId(key: ABeautifulDaySectionKey) {
-  return key === 'weddingParty' ? 'wedding-party' : key
-}
-
 function resolveMediaReference(data: ABeautifulDayPreviewData, reference: ABeautifulDayMediaReference, failedUrls: Set<string>) {
   const candidate = byId(data.media, mediaReferenceId(reference))
   return mediaIsUsable(candidate) && !failedUrls.has(candidate.publicUrl) ? candidate : undefined
@@ -195,8 +148,7 @@ export function ABeautifulDayWebsite({
   const siteRef = useRef<HTMLElement>(null)
   const preferences = useABDMotionPreferences()
   const [galleryOpen, setGalleryOpen] = useState(false)
-  const [motionPaused, setMotionPaused] = useState(false)
-  const motionEnabled = !motionPaused && !editorMode && !preferences.reduced && preferences.supported && themeConfig.motionLevel !== 'NONE'
+  const motionEnabled = !editorMode && !preferences.reduced && preferences.supported && themeConfig.motionLevel !== 'NONE'
   useSmoothTemplateScroll(motionEnabled && preferences.desktop && !galleryOpen)
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set())
   const imageFailed = (url: string) => setFailedUrls((previous) => new Set(previous).add(url))
@@ -207,7 +159,6 @@ export function ABeautifulDayWebsite({
     .filter((key) => !['navigation', 'hero', 'announcement', 'footer', 'music'].includes(key))
     .filter((key) => enabled.has(key) && (requiredSections.has(key) || sectionHasContent(key, data, failedUrls)))
   const visibleKeys: ABeautifulDaySectionKey[] = [
-    ...(enabled.has('navigation') ? ['navigation' as const] : []),
     ...(enabled.has('hero') ? ['hero' as const] : []),
     ...(enabled.has('announcement') ? ['announcement' as const] : []),
     ...ordered,
@@ -225,37 +176,28 @@ export function ABeautifulDayWebsite({
     .filter(eventIsUsable)
   const getMedia = (reference: ABeautifulDayMediaReference) => resolveMediaReference(data, reference, failedUrls)
   const heroPhoto = getMedia(content.hero.heroMediaId)
-  const frameStyle = String(themeConfig.heroStyle ?? 'curtain-gathered') as keyof typeof curtainFrames
-  const curtain = curtainFrames[frameStyle] ?? curtainFrames['curtain-gathered']
   const galleryImages = content.gallery.mediaIds.map(getMedia).filter((image): image is ABeautifulDayMediaProjection => Boolean(image?.altText?.trim()))
   useABDMotion(siteRef, motionEnabled, `${visibleKeys.join(',')}:${data.media.map((image) => image.id).join(',')}:${[...failedUrls].join(',')}`)
 
   const sections: Record<Exclude<ABeautifulDaySectionKey, 'navigation' | 'music'>, ReactNode> = {
     hero: (
       <section className="abd-hero abd-chapter" id="hero" data-editor-section="hero" aria-labelledby="abd-hero-title">
-        <div className="abd-hero__stage" aria-hidden="true"><img className="abd-hero__curtain" src={curtain} alt="" decoding="async" onError={(event) => { event.currentTarget.style.visibility = 'hidden' }} /></div>
-        {heroPhoto?.altText?.trim() ? (
-          <div className="abd-hero__photo-depth"><img className="abd-hero__photo" src={heroPhoto.publicUrl} alt={heroPhoto.altText} decoding="async" loading="eager" onError={() => imageFailed(heroPhoto.publicUrl)} /></div>
-        ) : null}
-        <div className="abd-hero__veil" aria-hidden="true" />
-        <span className="abd-hero__light" aria-hidden="true" />
-        <div className="abd-hero__copy">
-          <p className="abd-eyebrow" data-motion-variant="copy">{content.hero.eyebrow ?? 'MỘT NGÀY MÌNH CHỜ ĐỢI'}</p>
-          <h1 id="abd-hero-title"><span data-motion-variant="title" data-motion-step="1">{content.hero.brideName}</span><i aria-hidden="true" data-motion-variant="copy" data-motion-step="2">&</i><span data-motion-variant="title" data-motion-step="3">{content.hero.groomName}</span></h1>
-          <p className="abd-hero__headline" data-motion-variant="copy" data-motion-step="4">{content.hero.headline ?? 'Ngày vui của chúng mình'}</p>
-          <div className="abd-hero__meta" data-motion-variant="copy" data-motion-step="4">
-            <strong>{primaryEvent ? formatDate(primaryEvent.startsAt, primaryEvent.timezone) : 'Ngày cưới'}</strong>
-            {primaryEvent?.venueName ? <span>{primaryEvent.venueName}</span> : null}
-          </div>
-          <a data-motion-variant="copy" data-motion-step="5" className="abd-link-arrow" href="#events">Xem thông tin ngày cưới <span aria-hidden="true">↘</span></a>
-        </div>
-        <Artwork file="abd-floral-bamboo-cluster-v06.webp" className="abd-hero__floral" loading="eager" />
-        <p className="abd-hero__index" aria-hidden="true">01 <span /> NGÀY VUI</p>
+        <figure className="abd-hero__photo-depth">
+          {heroPhoto?.altText?.trim() ? <img className="abd-hero__photo" src={heroPhoto.publicUrl} alt={heroPhoto.altText} decoding="async" loading="eager" onError={() => imageFailed(heroPhoto.publicUrl)} /> : <div className="abd-hero__photo-fallback" aria-hidden="true"><span>{content.hero.brideName.slice(0, 1)}<i>&</i>{content.hero.groomName.slice(0, 1)}</span></div>}
+          <figcaption className="abd-hero__copy">
+            <h1 id="abd-hero-title">
+              <span className="abd-hero__name" data-motion-variant="title" data-motion-step="1">{content.hero.brideName}</span>
+              <i aria-hidden="true" data-motion-variant="copy" data-motion-step="2">&</i>
+              <span className="abd-hero__name" data-motion-variant="title" data-motion-step="3">{content.hero.groomName}</span>
+            </h1>
+          </figcaption>
+        </figure>
+        <img className="abd-hero__floristry abd-hero__floristry--crescent" src="/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v04.webp" alt="" aria-hidden="true" decoding="async" />
+        <img className="abd-hero__floristry abd-hero__floristry--cascade" src="/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v06.webp" alt="" aria-hidden="true" decoding="async" />
       </section>
     ),
     announcement: (
       <section className="abd-announcement abd-chapter" id="announcement" data-editor-section="announcement" aria-labelledby="abd-announcement-title">
-        <Artwork file="abd-single-blossom-v02.webp" className="abd-announcement__blossom" />
         <p className="abd-eyebrow" data-motion-variant="copy">{content.announcement.title ?? 'GỬI NHỮNG NGƯỜI THƯƠNG'}</p>
         <h2 data-motion-variant="title" data-motion-step="1" id="abd-announcement-title">{content.announcement.message}</h2>
         <span data-motion-variant="copy" data-motion-step="2" className="abd-ornament-rule" aria-hidden="true" />
@@ -282,7 +224,6 @@ export function ABeautifulDayWebsite({
             )
           })}
         </div>
-        <Artwork file="abd-floral-bamboo-cluster-v03.webp" className="abd-couple__floral" />
       </section>
     ),
     story: (
@@ -299,7 +240,6 @@ export function ABeautifulDayWebsite({
             </li>
           })}
         </ol>
-        <Artwork file="abd-floral-bamboo-cluster-v02.webp" className="abd-story__floral" />
       </section>
     ),
     events: (
@@ -313,7 +253,6 @@ export function ABeautifulDayWebsite({
           </article>)}
           {selectedEvents.length === 0 ? <p className="abd-empty">Thông tin sự kiện đang được cập nhật.</p> : null}
         </div>
-        <Artwork file="abd-lantern-round-v02.webp" className="abd-events__lantern" />
       </section>
     ),
     countdown: (
@@ -328,7 +267,6 @@ export function ABeautifulDayWebsite({
       <section className="abd-venues abd-chapter" id="venues" data-editor-section="venues" aria-labelledby="abd-venues-title">
         <SectionHeading id="abd-venues-title" eyebrow="HẸN GẶP BẠN TẠI ĐÂY" title={content.venues.title ?? 'Địa điểm'} />
         <div className="abd-venues__grid">
-          <div data-motion-variant="image" className="abd-map-art" aria-label="Sơ đồ minh họa, không phải bản đồ tương tác"><span className="abd-map-art__grid" /><span className="abd-map-art__pin">●</span><small>ĐỊA ĐIỂM</small></div>
           <div className="abd-venues__list">
             {venueEvents.map((event) => <article className="abd-venue" key={event.id}>
               <p className="abd-eyebrow" data-motion-variant="copy">{event.name}</p><h3 data-motion-variant="title" data-motion-step="1">{event.venueName ?? 'Địa điểm cưới'}</h3>
@@ -339,15 +277,12 @@ export function ABeautifulDayWebsite({
             {content.venues.travelNote ? <p data-motion-variant="copy" data-motion-step="3" className="abd-venues__note">{content.venues.travelNote}</p> : null}
           </div>
         </div>
-        <Artwork file="abd-lantern-oval-v02.webp" className="abd-venues__lantern" />
-        <Artwork file="abd-floral-bamboo-cluster-v04.webp" className="abd-venues__floral" />
       </section>
     ),
     gallery: (
       <section className="abd-gallery abd-chapter" id="gallery" data-editor-section="gallery" aria-labelledby="abd-gallery-title">
         <SectionHeading id="abd-gallery-title" eyebrow="ALBUM KỶ NIỆM" title={content.gallery.title ?? 'Những khoảnh khắc thân quen'} intro={content.gallery.introduction} align="center" />
         <ABeautifulDayGallery images={galleryImages} onError={imageFailed} editorMode={editorMode} onOpenChange={setGalleryOpen} />
-        <Artwork file="abd-floral-bamboo-cluster-v05.webp" className="abd-gallery__floral" />
       </section>
     ),
     schedule: (
@@ -409,7 +344,6 @@ export function ABeautifulDayWebsite({
     ),
     gift: (
       <section className="abd-gift abd-chapter" id="gift" data-editor-section="gift" aria-labelledby="abd-gift-title">
-        <Artwork file="abd-lantern-column-v02.webp" className="abd-gift__lantern" />
         <p className="abd-eyebrow" data-motion-variant="copy">MỪNG VUI NGÀY CƯỚI</p><h2 data-motion-variant="title" data-motion-step="1" id="abd-gift-title">{content.gift.title ?? 'Một lời chúc là đủ đầy'}</h2>{content.gift.message ? <p data-motion-variant="copy" data-motion-step="2">{content.gift.message}</p> : null}
         <div className="abd-gift__accounts">{content.gift.accounts.filter((account) => account.ownerLabel.trim() && (account.accountNumber?.trim() || getMedia(account.qrMediaId))).map((account) => {
           const qr = getMedia(account.qrMediaId)
@@ -419,7 +353,7 @@ export function ABeautifulDayWebsite({
     ),
     footer: (
       <footer className="abd-footer abd-chapter" id="footer" data-editor-section="footer" aria-labelledby="abd-footer-title">
-        <Artwork file="abd-floral-bamboo-cluster-v07.webp" className="abd-footer__floral" />
+        <img className="abd-footer__approved-floristry" src="/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v05.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <p className="abd-eyebrow" data-motion-variant="copy">MỘT KHỞI ĐẦU THẬT ĐẸP</p><h2 data-motion-variant="title" data-motion-step="1" id="abd-footer-title">{content.footer.message}</h2>{content.footer.signature ? <p data-motion-variant="copy" data-motion-step="2" className="abd-footer__signature">{content.footer.signature}</p> : null}
         {primaryEvent ? <p data-motion-variant="copy" data-motion-step="3" className="abd-footer__date">{formatDate(primaryEvent.startsAt, primaryEvent.timezone)}</p> : null}
       </footer>
@@ -427,17 +361,16 @@ export function ABeautifulDayWebsite({
   }
 
   const visibleVisualKeys = visibleKeys.filter((key) => key !== 'navigation' && key !== 'music')
-  const navKeys = visibleVisualKeys.filter((key) => labels[key])
-  const monogram = `${content.hero.brideName.trim().charAt(0)}&${content.hero.groomName.trim().charAt(0)}`
 
   return (
     <main ref={siteRef} className={`abd-site${editorMode ? ' is-editor' : ''}${galleryOpen ? ' is-gallery-open' : ''}${motionEnabled ? ' has-motion' : ''}`}>
-      <nav className="abd-nav" data-editor-section="navigation" aria-label="Điều hướng website cưới">
-        <a className="abd-nav__monogram" href="#hero" aria-label="Về đầu trang">{monogram}</a>
-        <div className="abd-nav__links">{navKeys.map((key) => <a href={`#${anchorId(key)}`} key={key}>{labels[key]}</a>)}</div>
-        {enabled.has('rsvp') && sectionHasContent('rsvp', data, failedUrls) ? <a className="abd-nav__rsvp" href="#rsvp">Xác nhận tham dự</a> : null}
-      </nav>
-      {!editorMode && preferences.supported && !preferences.reduced && themeConfig.motionLevel !== 'NONE' ? <button className="abd-motion-toggle" type="button" aria-pressed={motionPaused} onClick={() => setMotionPaused((paused) => !paused)}>{motionPaused ? 'Bật chuyển động' : 'Tạm dừng chuyển động'}</button> : null}
+      <div className="abd-lantern-canopy" aria-hidden="true">
+        <div className="abd-lantern-unit abd-lantern-unit--round"><img className="abd-lantern" src="/assets/images/templates/a-beautiful-day/decor/abd-lantern-round-v02.webp" alt="" decoding="async" /></div>
+        <div className="abd-lantern-unit abd-lantern-unit--round-rear"><img className="abd-lantern" src="/assets/images/templates/a-beautiful-day/decor/abd-lantern-round-v02.webp" alt="" decoding="async" /></div>
+        <div className="abd-lantern-unit abd-lantern-unit--column"><img className="abd-lantern" src="/assets/images/templates/a-beautiful-day/decor/abd-lantern-column-v02.webp" alt="" decoding="async" /></div>
+        <div className="abd-lantern-unit abd-lantern-unit--oval-rear"><img className="abd-lantern" src="/assets/images/templates/a-beautiful-day/decor/abd-lantern-oval-v02.webp" alt="" decoding="async" /></div>
+        <div className="abd-lantern-unit abd-lantern-unit--oval"><img className="abd-lantern" src="/assets/images/templates/a-beautiful-day/decor/abd-lantern-oval-v02.webp" alt="" decoding="async" /></div>
+      </div>
       <div className="abd-site__content">
         {visibleVisualKeys.map((key) => <div className={`abd-section-wrap abd-section-wrap--${key}`} key={key}>{sections[key as Exclude<ABeautifulDaySectionKey, 'navigation' | 'music'>]}</div>)}
       </div>
