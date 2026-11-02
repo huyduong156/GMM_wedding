@@ -1,6 +1,6 @@
 # A Beautiful Day — Phase 3 Section Architecture
 
-> **Visual revision 2026-10-30:** the section/content architecture and data contract remain. The latest hero contains only the couple's names and portrait; five fixed placements of approved Phase 2.5 lanterns hang above it in distinct depth layers. One shared ivory/honey canvas runs behind transparent chapters. Static compositions below are historical where they describe stage curtains, separate color bands, unused navigation or outdated hero copy.
+> **Visual revision 2026-11-02 (desktop composition):** the section/content architecture and data contract remain. The hero uses a broad landscape photo card with an offset warm-paper backplate, squared editorial edges, and names centered in the upper image area. The fixed lantern canopy remains above it. Floral cluster images do not render inside the hero.
 
 Status: Phase 3 composition and renderer implemented from the Phase 1/2 contracts. Approved floral variants and three approved lantern artworks are selectively active in the public bundle; unused curtain options remain archived under `assets/templates/a-beautiful-day/archive/retired-webp/`. The former Phase 0 preview route is unchanged.
 
@@ -25,7 +25,7 @@ The architecture covers every website-contract section. Required sections are fi
 | Section | Required / default | Composition and content anchor | Content-density and empty behavior |
 |---|---|---|---|
 | `navigation` | Required / on | Compact sticky editorial index; monogram at left, active section links, RSVP action at right. | Links only to currently enabled and non-empty anchors. Compact menu on mobile; no separate content fields. |
-| `hero` | Required / on | Centered couple portrait with both names together as an overlapping editorial caption beneath it. | Only names and the photo appear as hero content. Missing/broken hero photo leaves a warm paper portrait fallback. Long names wrap without colliding. |
+| `hero` | Required / on | Broad horizontal editorial photo card with an offset paper backplate and both names overlaid at its upper edge. | Only names and the photo appear in the card. Missing/broken hero photo leaves a warm paper fallback. Long names wrap without colliding. |
 | `announcement` | Required / on | Framed welcome note, narrower text measure and centered editorial heading; visually distinct from the hero by removing photo dominance. | Required message; missing message is a publish validation error, not an empty decorative panel. |
 | `couple` | Required / on | Balanced dual portraits with separate biographies; portraits are equal but not forced into duplicate card chrome. | Each missing portrait becomes a named typographic profile. Preserve each biography and name independently. |
 | `story` | Optional / on | Alternating milestone timeline with date and text on one side, optional image on the other; a quiet editorial rule links milestones. | Empty list omits section and navigation entry. A milestone without media keeps its text and timeline marker. |
@@ -88,9 +88,9 @@ Because middle sections can reorder, the implementation must also support neutra
 
 ## 6. Responsive and content fallbacks
 
-- **Wide desktop:** use broad negative space, asymmetric image/text proportions, and the full-size hero frame. Cap content to the Phase 0 boundary; decor may extend within the viewport but cannot introduce horizontal overflow.
+- **Wide desktop:** use the full-width landscape hero card as the primary focal point, with a warm offset paper layer and names at the upper edge. Cap the card to 88rem; decor may extend within the viewport but cannot introduce horizontal overflow.
 - **Tablet:** reduce decorative scale and overlap before tightening the text measure or cropping a user photo. Convert split layouts to narrower side-by-side only while both columns remain readable.
-- **Mobile (including 320–390px):** native vertical order; compact navigation menu; stack couple profiles, event/venue details, and all forms. Keep the hero portrait bounded and its text readable; names, date, venue, and CTA remain when media is missing.
+- **Mobile (including 320–390px):** native vertical order; compact navigation menu; stack couple profiles, event/venue details, and all forms. The hero's horizontal card scales to the viewport and keeps its names readable over the upper contrast veil; names, date, venue, and CTA remain when media is missing.
 - **Long content:** allow natural section height. Never clip names, biography, event address, FAQ answer, guestbook text, or form status to preserve a visual frame.
 - **Missing/broken media:** follow Phase 2 role fallback (typographic hero, named profiles, text-only milestones, omitted invalid gallery items, monogram party members, text-first gift). No unrelated stock image is substituted.
 - **Empty optional section:** omit the section, anchor, navigation link, and seam spacing; do not render empty cards or placeholder artwork.
@@ -150,7 +150,7 @@ The section keys, content anchors, editor controls, required/optional rules, API
 | Section | Active composition | Color/art rule |
 | --- | --- | --- |
 | Navigation | No visual header or navigation bar is rendered; the config key remains for schema compatibility | Page starts directly with content |
-| Hero | Portrait in a clean double-line paper frame; names overlay the lower image on a dark fade. One approved crescent and one cascading flower cluster frame opposite corners. | Shared ivory canvas, warm serif names, slim warm-gold frame and peach/cream floristry |
+| Hero | Centered landscape photo card; names overlay the upper image area. The lantern canopy remains above the card; no floral cluster images render inside the section. | Shared ivory canvas, restrained contrast veil, warm serif names and a simple rectangular mat |
 | Announcement | Centered short message in a light-beige inset | Dark warm text; no full-bleed color panel |
 | Couple | Paired portrait mats with staggered offset on desktop; compact two-column cards on mobile | White and pale-beige surfaces, consistent portrait treatment |
 | Story | Alternating photo/text chapter with quiet timeline rule | Shared canvas; no chapter wash or artwork at seams |

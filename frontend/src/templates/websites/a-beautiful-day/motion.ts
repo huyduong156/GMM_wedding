@@ -86,7 +86,7 @@ export function useABDMotion(ref: RefObject<HTMLElement>, enabled: boolean, revi
       if (document.hidden || !depthMedia.matches) return
       if (hero && visible.has(hero)) {
         const progress = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / hero.offsetHeight))
-        if (photo) photo.style.transform = `translateY(${progress * 18}px) rotate(1.5deg) scale(1.04)`
+        if (photo) photo.style.transform = `translateY(${progress * 10}px)`
       }
       if (story && rail && visible.has(story)) {
         const bounds = story.getBoundingClientRect()

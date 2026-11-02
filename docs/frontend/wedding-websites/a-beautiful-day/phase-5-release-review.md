@@ -67,6 +67,12 @@ The follow-up browser review rendered all 16 sections at 1440px and 390px. Both 
 
 ## Visual refinement follow-up — 2026-10-30
 
+### Hero rebuild — 2026-11-02
+
+The hero uses a broad landscape photo card with an offset warm-paper backplate, squared editorial edges, and the couple names centered at its upper image edge above a contrast veil. Floral cluster images were removed from the hero; the fixed lantern canopy remains above it. The existing public media fallback, accessible alt text, editor anchor and motion targets remain; photo depth uses a small vertical drift.
+
+The section retains the same `hero` content/config contract and remains draft. No public API, editor fields or release gates changed.
+
 The next review request identified missing floral detail, heavy heading typography, hard-edged form controls, weak contrast in some surfaces, and an unbalanced album grid. The renderer now uses approved Phase 2.5 floral variants from the preserved archive: story cascade, gallery spray, crescent chapter accents and a single blossom shared across quieter chapters; the approved v05 footer arrangement remains. Curtains remain out of the composition. No new artwork was generated.
 
 Display text uses the local Cormorant Garamond face at regular weight and body/control text uses local Nunito Sans. Section flowers get one short reveal as each chapter first enters view, with a static reduced-motion/editor fallback. Album images use a dense editorial grid with aligned outer edges, responsive tablet/mobile variants, retained captions and existing lightbox behavior. Forms use rounded warm-paper fields, legible placeholders and a strong focus ring. Dark lightbox controls retain light foreground text while the rest of the chapters use dark text on pale surfaces.

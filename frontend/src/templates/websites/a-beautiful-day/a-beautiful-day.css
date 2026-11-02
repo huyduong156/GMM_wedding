@@ -1,4 +1,4 @@
-﻿.abd-site {
+.abd-site {
   --abd-canvas: #f7f4ee;
   --abd-paper: #eee8de;
   --abd-ink: #292725;
@@ -409,6 +409,7 @@
 .abd-site .abd-hero__photo { object-position: center 38%; opacity: 1; }
 .abd-site .abd-hero__copy {
   position: relative;
+  z-index: 1;
   z-index: 2;
   width: min(88vw, 42rem);
   max-width: min(90vw, 58rem);
@@ -487,6 +488,8 @@
   text-align: center;
 }
 .abd-site .abd-hero__photo-depth {
+  position: relative;
+  z-index: 1;
   position: relative;
   isolation: isolate;
   z-index: 1;
@@ -1634,130 +1637,55 @@
   .abd-lantern-unit { animation: none; }
 }
 
-/* Hero composition v2: the couple's names and portrait are the only hero content. */
+/* Editorial landscape hero: full photo card, warm paper frame and names within the image. */
 .abd-site .abd-hero {
-  min-height: min(60rem, 96svh);
-  min-height: min(60rem, 96dvh);
-  grid-template-columns: minmax(0, 1.05fr) minmax(20rem, .95fr);
-  align-items: center;
-  justify-items: stretch;
-  gap: clamp(2rem, 5vw, 6rem);
-  padding: clamp(19rem, 22vw, 23rem) clamp(1.25rem, 5vw, 5rem) clamp(5rem, 8vw, 7rem);
-  background: transparent;
-  text-align: left;
-}
-.abd-site .abd-hero::after { display: none; }
-.abd-site .abd-hero__copy { width: 100%; max-width: 58rem; justify-self: start; }
-.abd-site .abd-hero h1 {
+  position: relative;
   display: grid;
-  justify-items: start;
-  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  width: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
   margin: 0;
-  color: var(--abd-ink);
-  font-size: clamp(4.5rem, 8.2vw, 8.2rem);
-  letter-spacing: -.045em;
-  line-height: .78;
-  text-wrap: initial;
-}
-.abd-site .abd-hero__name { display: block; max-width: 100%; }
-.abd-site .abd-hero h1 i {
-  display: block;
-  margin: .16em 0 .18em .18em;
-  color: #aa884e;
-  font-size: .42em;
-  font-style: italic;
-  line-height: 1;
-}
-.abd-site .abd-hero__photo-depth {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 36rem);
-  height: auto;
-  aspect-ratio: 4 / 5.2;
-  justify-self: end;
-  overflow: hidden;
-  margin: 0;
-  border: .55rem solid rgb(255 253 245 / 94%);
-  border-radius: 49% 49% .35rem .35rem;
-  background: #f0e3c4;
-  box-shadow: 0 1.8rem 4rem rgb(87 65 31 / 14%);
-  transform: none;
-}
-.abd-site .abd-hero__photo { object-position: center 38%; opacity: 1; }
-.abd-site .abd-hero__photo-fallback {
-  background:
-    radial-gradient(ellipse at 50% 38%, rgb(221 188 116 / 25%), transparent 45%),
-    linear-gradient(155deg, #f5ecd6, #e7d8b4 58%, #f7efd9);
-}
-.abd-site .abd-hero__photo-fallback span {
-  color: #80683e;
-  font-family: var(--font-wedding-display);
-  font-size: clamp(4rem, 8vw, 7rem);
-  text-shadow: none;
-}
-.abd-site .abd-hero__photo-fallback i { color: #b69a5e; }
-@media (max-width: 40rem) {
-  .abd-site .abd-hero {
-    min-height: 0;
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    gap: 2rem;
-    padding: 15rem 1rem 4rem;
-    text-align: center;
-  }
-  .abd-site .abd-hero__copy { width: 100%; justify-self: center; }
-  .abd-site .abd-hero h1 {
-    justify-items: center;
-    font-size: clamp(4rem, 15.5vw, 6rem);
-    line-height: .8;
-  }
-  .abd-site .abd-hero__photo-depth {
-    width: min(78%, 25rem);
-    justify-self: center;
-    border-width: .4rem;
-  }
-}
-/* Final hero overrides follow legacy template rules so the active photo composition wins. */
-.abd-site .abd-hero {
-  position: relative;
-  display: flex;
-  min-height: min(58rem, 96dvh);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  overflow: clip;
-  padding: clamp(14rem, 18vw, 17rem) 1.25rem clamp(5rem, 9vh, 8rem);
+  padding: clamp(13rem, 18vh, 16rem) clamp(1.25rem, 5vw, 5rem) clamp(3rem, 6vh, 5rem);
+  overflow: visible;
+  background: transparent;
   text-align: center;
 }
 .abd-site .abd-hero__photo-depth {
   position: relative;
-  isolation: isolate;
   z-index: 1;
-  width: min(46vw, 38rem);
-  aspect-ratio: 4 / 4.7;
+  isolation: isolate;
+  grid-area: auto;
+  width: min(100%, 88rem);
+  max-width: none;
+  aspect-ratio: 1.9 / 1;
+  display: block;
   overflow: visible;
-  margin: 0;
-  border: .65rem solid #fffdf7;
-  border-radius: 1.1rem;
-  background: #e7d8b4;
-  box-shadow: 0 1.8rem 4.5rem rgb(75 55 30 / 21%), 0 0 0 1px rgb(150 116 62 / 32%);
-  transform: none;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .abd-site .abd-hero__photo-depth::before {
+  position: absolute;
   z-index: -1;
-  inset: .75rem -.9rem -1rem .85rem;
-  border: 1px solid rgb(166 133 78 / 62%);
-  border-radius: 1.4rem;
-  background: #dfc995;
-  transform: rotate(1.2deg);
+  inset: .7rem -.7rem -.7rem .7rem;
+  display: block;
+  border: 1px solid rgb(151 119 72 / 42%);
+  background: rgb(248 243 231 / 58%);
+  content: '';
+  pointer-events: none;
 }
 .abd-site .abd-hero__photo-depth::after {
   position: absolute;
-  z-index: 2;
-  inset: .55rem;
-  border: 1px solid rgb(255 251 239 / 68%);
-  border-radius: .55rem;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  border: 1px solid rgb(255 250 239 / 88%);
+  border-radius: 1px;
+  background: linear-gradient(180deg, rgb(31 29 23 / 54%) 0%, rgb(37 32 24 / 29%) 25%, rgb(37 32 24 / 7%) 56%, transparent 76%);
   content: '';
   pointer-events: none;
 }
@@ -1767,104 +1695,93 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: .4rem;
+  border-radius: 0;
   object-fit: cover;
-  object-position: center 36%;
-  opacity: 1;
+  object-position: center 42%;
+  box-shadow: 0 1.8rem 4rem rgb(66 50 31 / 18%);
 }
-.abd-site .abd-hero__photo-fallback { position: absolute; z-index: 0; inset: 0; }
+.abd-site .abd-hero__photo-fallback {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 38%, rgb(233 219 190 / 58%), transparent 52%), linear-gradient(135deg, #887960, #51483c);
+}
+.abd-site .abd-hero__photo-fallback span {
+  color: #fff9ed;
+  font-family: var(--font-wedding-display, Georgia, serif);
+  font-size: clamp(7rem, 18vw, 16rem);
+  text-shadow: 0 3px 28px rgb(31 24 17 / 28%);
+}
+.abd-site .abd-hero__photo-fallback i { color: #f2ddae; }
 .abd-site .abd-hero__copy {
   position: absolute;
   z-index: 3;
-  inset: auto 0 0;
+  grid-area: auto;
+  inset: clamp(2.3rem, 6vw, 5.2rem) 1.5rem auto;
   width: auto;
   max-width: none;
   margin: 0;
-  padding: clamp(4.5rem, 13vw, 8.5rem) 1.25rem 1.8rem;
-  border: 0;
-  background: linear-gradient(180deg, transparent, rgb(43 34 23 / 54%) 50%, rgb(38 31 23 / 76%));
+  padding: 0;
+  background: none;
   color: #fffaf0;
+  text-align: center;
+}
+.abd-site .abd-hero__copy::before {
+  display: block;
+  margin-bottom: .85rem;
+  color: #f2dfb6;
+  content: 'A BEAUTIFUL DAY';
+  font-family: var(--font-wedding-body, sans-serif);
+  font-size: clamp(.56rem, .8vw, .72rem);
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-shadow: 0 1px 10px rgb(29 23 17 / 50%);
 }
 .abd-site .abd-hero h1 {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  margin: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: .04em .2em;
+  max-width: 72rem;
+  margin: 0 auto;
   color: #fffaf0;
   font-family: var(--font-wedding-display, Georgia, serif);
-  font-size: clamp(2.6rem, 5.2vw, 5.2rem);
+  font-size: clamp(3.2rem, 6.6vw, 6.5rem);
   font-weight: 400;
   letter-spacing: -.045em;
-  line-height: .91;
-  text-shadow: 0 2px 18px rgb(30 23 15 / 48%);
+  line-height: .98;
+  text-shadow: 0 2px 20px rgb(29 23 17 / 62%);
+  text-wrap: balance;
 }
-.abd-site .abd-hero__name { display: block; max-width: 100%; text-wrap: balance; }
+.abd-site .abd-hero__name { max-width: 100%; text-wrap: balance; }
 .abd-site .abd-hero h1 i {
-  display: block;
-  margin: .05em 0;
-  color: #f1d89e;
-  font-size: .46em;
+  color: #f1d99f;
+  font-size: .48em;
   font-style: italic;
-  line-height: 1;
+  font-weight: 400;
 }
-.abd-site .abd-hero__floristry {
-  position: absolute;
-  z-index: 2;
-  display: block;
-  height: auto;
-  max-width: none;
-  pointer-events: none;
-  user-select: none;
-  filter: drop-shadow(0 .5rem .8rem rgb(88 60 34 / 14%));
-}
-.abd-site .abd-hero__floristry--crescent {
-  top: 35%;
-  left: calc(50% - 30rem);
-  width: clamp(17rem, 29vw, 27rem);
-  transform: rotate(-9deg);
-}
-.abd-site .abd-hero__floristry--cascade {
-  top: 52%;
-  left: calc(50% + 12.5rem);
-  width: clamp(12rem, 19vw, 18rem);
-  transform: rotate(5deg);
-}
-@media (max-width: 40rem) {
-  .abd-site .abd-hero { min-height: 0; padding: 12.5rem .5rem 4.5rem; }
+@media (max-width: 48rem) {
+  .abd-site .abd-hero {
+    min-height: 0;
+    padding: 12rem 1rem 3rem;
+  }
   .abd-site .abd-hero__photo-depth {
-    width: min(79vw, 25rem);
-    border-width: .45rem;
-    border-radius: .85rem;
+    width: 100%;
+    aspect-ratio: 4 / 3;
   }
-  .abd-site .abd-hero__photo-depth::before { inset: .5rem -.45rem -.65rem .45rem; }
-  .abd-site .abd-hero__photo-depth::after { inset: .38rem; }
-  .abd-site .abd-hero__copy { padding: 4rem .5rem 1.05rem; }
-  .abd-site .abd-hero h1 { font-size: clamp(2.25rem, 9.6vw, 3.6rem); }
-  .abd-site .abd-hero__floristry--crescent {
-    top: 35%;
-    left: calc(50% - 12.3rem);
-    width: clamp(11.5rem, 47vw, 17rem);
-    transform: rotate(-10deg);
+  .abd-site .abd-hero__photo-depth::before { inset: .45rem -.45rem -.45rem .45rem; }
+  .abd-site .abd-hero__copy { inset: 1.45rem .55rem auto; }
+  .abd-site .abd-hero__copy::before { margin-bottom: .55rem; font-size: .52rem; letter-spacing: .24em; }
+  .abd-site .abd-hero h1 {
+    gap: .02em .15em;
+    font-size: clamp(1.8rem, 7vw, 3.2rem);
+    line-height: 1.02;
   }
-  .abd-site .abd-hero__floristry--cascade {
-    top: 59%;
-    left: calc(50% + 3.8rem);
-    width: clamp(8rem, 31vw, 11rem);
-    transform: rotate(4deg);
-  }
+  .abd-site .abd-hero__photo { object-position: center 38%; }
 }
-
-/* Keep the paired floristry clear of faces at narrow widths. */
-@media (max-width: 40rem) {
-  .abd-site .abd-hero__floristry--crescent {
-    top: 38%;
-    left: calc(50% - 15rem);
-    width: clamp(9rem, 34vw, 12rem);
-  }
-  .abd-site .abd-hero__floristry--cascade {
-    top: 59%;
-    left: calc(50% + 7rem);
-    width: clamp(7.5rem, 28vw, 9rem);
-  }
+@media (prefers-reduced-motion: reduce) {
+  .abd-site .abd-hero__photo-depth { transform: none !important; }
 }

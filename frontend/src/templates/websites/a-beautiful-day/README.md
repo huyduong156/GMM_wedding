@@ -24,6 +24,8 @@ Website cưới nhẹ nhàng với nền trắng ngà và be, chữ nâu ấm, �
 
 Renderer nhận `data`, `sectionConfig`, `themeConfig` và `editorMode`. Có 19 section keys, gồm 18 section trực quan và nhạc nền toàn trang. Editor, reduced motion và trình duyệt thiếu IntersectionObserver giữ nội dung tĩnh; mobile dùng cuộn tự nhiên.
 
+Preview fixture lấy toàn bộ 16 ảnh nội dung từ bộ `wedding-couples-examples/couple-001`, gồm ảnh ngang mới cho hero và gallery. Floral, lantern và các artwork riêng của A Beautiful Day vẫn là decor của template.
+
 ## Ảnh và tài liệu
 
 - Renderer dùng floral artwork v02, v03, v04, v05, v06, single blossom và ba lồng đèn đã duyệt ở Phase 2.5. Lồng đèn được ghim cố định trên mép đầu trang, opacity/blur phân lớp; rèm vẫn không dùng theo art direction hiện tại.
@@ -55,6 +57,10 @@ Kết quả Phase 4 ngày 23/10/2026: 19 template/lifecycle tests, 20 countdown 
 ## Phần còn lại trước phát hành
 
 Phase 5 đã nối RSVP/lời chúc qua public interaction hooks, music catalog playback sau thao tác người dùng, metadata SEO từ snapshot, lịch ICS và editor preview bridge. Artwork lossless WebP giảm 74.4%; alpha được đối chiếu chính xác và contact sheet đã rà trên nền sáng/tối. Release review còn ghi rõ các blocker media projection bên dưới.
+
+## Visual revision — 2026-11-02
+
+The desktop hero uses a broad landscape photo card with an offset warm-paper backplate and squared editorial edges. The couple's names sit inside the image at its upper edge over a contrast veil. The fixed lantern canopy remains above the card; no floral cluster images render inside the hero. On mobile, the image card shifts to a taller crop. The source image remains replaceable by the couple's selected media. The rest of the template, content contract and section order are unchanged.
 
 ## Visual revision — 2026-10-30
 

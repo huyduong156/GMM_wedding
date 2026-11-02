@@ -1,18 +1,28 @@
 # Asset sources
 
-## AI wedding couple demo photo set
+## AI wedding couple demo photo set 001
 
-- `frontend/public/assets/images/ai-wedding-couples/couple-001/`: 14 fictional wedding photographs generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-10-26. The set has full-body front and profile portraits of the bride and groom, plus ten ordinary wedding-album couple poses.
+- `frontend/public/assets/images/wedding-couples-examples/couple-001/`: 16 fictional wedding photographs generated specifically for GMM Wedding. The set has full-body front and profile portraits of the bride and groom, ten original wedding-album couple poses, and two new landscape images generated on 2026-11-02.
 - Identity direction: one fictional adult Vietnamese couple reused across every image. The bride wears an ivory off-shoulder satin gown and veil; the groom wears a black tuxedo. The same reference image guided each pose to keep faces, hair and outfits consistent. No real person was used as a reference.
 - Scene direction: garden wedding venue, formal full-body portrait, walking together, standing and looking at one another, seated on a bench, bride turning back, bouquet portrait, veil moment, forehead touch and floral arch. Natural available light, documentary photographer framing, real skin texture and mild film grain; avoid glossy campaign styling and airbrushed skin.
 - Treatment: generated at full resolution and converted from PNG to WebP at quality 95 with Sharp, preserving pixel dimensions. These files are demo couple media, not renderer-owned decor; locally hosted and replaceable by wedding-owner media.
+- A Beautiful Day's preview fixture uses this set for every content-photo role (hero, portraits, story and gallery); its floral and lantern artwork remains template-owned decor.
+- New landscape poses: `couple-pose-11-garden-arch.webp` (`exec-1441bd20-87fd-4547-a10d-8f203def6f59.png`) and `couple-pose-12-garden-embrace.webp` (`exec-89ecae1c-f5b3-42d3-8d03-eb7c4c5594c3.png`). Each is 1536 × 1024, generated with this set's bride, groom and existing couple-pose references.
 
 ## AI wedding couple demo photo set 2
 
-- `frontend/public/assets/images/ai-wedding-couples/couple-002/`: 14 fictional wedding photographs generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-10-26; poses 03 and 05 were regenerated on 2026-10-27, and poses 01, 03 and 05 were regenerated again on 2026-10-29. The set has four full-body solo portraits (bride/groom front and profile poses) and ten couple poses.
+- `frontend/public/assets/images/wedding-couples-examples/couple-002/`: 16 fictional wedding photographs generated specifically for GMM Wedding with the built-in OpenAI image generation tool. The set has four full-body solo portraits, ten original couple poses, and two new landscape images generated on 2026-11-02. Poses 03 and 05 were regenerated on 2026-10-27, and poses 01, 03 and 05 were regenerated again on 2026-10-29.
 - Identity direction: a new fictional adult Vietnamese couple, distinct from `couple-001`; the same reference photo guided each image. The bride wears an ivory minimalist crepe-satin gown with veil; the groom wears a midnight-navy tuxedo. No real person was used as a reference.
 - Art direction: contemporary studio wedding album on warm taupe, gray and softly backlit seamless backgrounds. The ten couple poses deliberately vary direction and framing: tender standing embrace, back-to-back, affectionate forehead kiss while walking, seated couple sharing a candid moment, seated back-to-back on cubes, groom seated with bride standing, overhead floor pose, backlit profile, kneeling hand pose and full back view walking away. Couple images use the separate bride/groom solo photos as identity references to keep the same pair across poses.
 - Treatment: generated at full resolution and converted from PNG to WebP at quality 95 with Sharp, preserving pixel dimensions. These are locally hosted demo couple media, not renderer-owned decor, and can be replaced by wedding-owner media.
+- New landscape poses: `couple-pose-11-seated-studio.webp` (`exec-854b9ebb-3486-4989-a14e-8c35f316caa5.png`) and `couple-pose-12-studio-profile.webp` (`exec-7217dc81-c3c5-4f45-978b-53b2402cfa1d.png`). Each is 1536 × 1024 and uses the set's bride, groom and matching couple-pose references.
+
+## AI wedding couple demo photo set 3
+
+- `frontend/public/assets/images/wedding-couples-examples/couple-003/`: 16 fictional wedding photographs. The set has four solo portraits, ten original couple poses, and two new landscape images generated on 2026-11-02.
+- The couple is fictional and distinct from sets 001 and 002. The bride wears an ivory lace gown and veil; the groom wears a deep forest-green formal suit. The set's bride, groom and couple-pose images guided both new generations.
+- New landscape poses: `couple-pose-11-stone-arch.webp` (`exec-4ba5fa0f-91f6-4ab4-abb6-d9f56389f89a.png`) and `couple-pose-12-garden-veil.webp` (`exec-30c9ba55-7ad5-497a-86bf-16bd481f57c6.png`). Each is 1536 × 1024. Generated PNGs were converted to WebP at quality 95 with Sharp.
+- These locally hosted examples are demo couple media, not renderer-owned decor, and can be replaced by wedding-owner media.
 
 ## Red Spider Lily Recap template
 

@@ -187,13 +187,11 @@ export function ABeautifulDayWebsite({
           <figcaption className="abd-hero__copy">
             <h1 id="abd-hero-title">
               <span className="abd-hero__name" data-motion-variant="title" data-motion-step="1">{content.hero.brideName}</span>
-              <i aria-hidden="true" data-motion-variant="copy" data-motion-step="2">&</i>
+              <i aria-hidden="true" data-motion-variant="copy" data-motion-step="2">&amp;</i>
               <span className="abd-hero__name" data-motion-variant="title" data-motion-step="3">{content.hero.groomName}</span>
             </h1>
           </figcaption>
         </figure>
-        <img className="abd-hero__floristry abd-hero__floristry--crescent" src="/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v04.webp" alt="" aria-hidden="true" decoding="async" />
-        <img className="abd-hero__floristry abd-hero__floristry--cascade" src="/assets/images/templates/a-beautiful-day/decor/abd-floral-bamboo-cluster-v06.webp" alt="" aria-hidden="true" decoding="async" />
       </section>
     ),
     announcement: (

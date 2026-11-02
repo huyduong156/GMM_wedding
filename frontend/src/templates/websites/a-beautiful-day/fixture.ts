@@ -1,7 +1,6 @@
 import type { ABeautifulDayPreviewData, ABeautifulDaySectionConfig } from './content'
 
-const neutralPhoto = '/assets/images/templates/modern-luxe/couple-portrait.jpg'
-const detailPhoto = '/assets/images/templates/modern-luxe/wedding-detail.jpg'
+const couple001 = '/assets/images/wedding-couples-examples/couple-001'
 
 export const aBeautifulDayFixture: ABeautifulDayPreviewData = {
   content: {
@@ -78,7 +77,12 @@ export const aBeautifulDayFixture: ABeautifulDayPreviewData = {
     gallery: {
       title: 'Những khoảnh khắc thân quen',
       introduction: 'Một vài khung hình trong hành trình của chúng mình.',
-      mediaIds: ['media-hero', 'media-bride', 'media-story-one', 'media-groom'],
+      mediaIds: [
+        'media-couple-01', 'media-story-one', 'media-couple-03', 'media-couple-04',
+        'media-couple-05', 'media-couple-06', 'media-couple-07', 'media-story-two',
+        'media-couple-09', 'media-couple-10', 'media-hero', 'media-couple-12',
+        'media-bride', 'media-bride-profile', 'media-groom', 'media-groom-profile',
+      ],
     },
     schedule: {
       title: 'Từng khoảnh khắc trong ngày',
@@ -163,11 +167,22 @@ export const aBeautifulDayFixture: ABeautifulDayPreviewData = {
     },
   ],
   media: [
-    { id: 'media-hero', publicUrl: neutralPhoto, status: 'READY', altText: 'Ảnh cưới của Mai Anh và Quang An' },
-    { id: 'media-bride', publicUrl: detailPhoto, status: 'READY', altText: 'Chân dung cô dâu Mai Anh' },
-    { id: 'media-groom', publicUrl: neutralPhoto, status: 'READY', altText: 'Chân dung chú rể Quang An' },
-    { id: 'media-story-one', publicUrl: detailPhoto, status: 'READY', altText: 'Một khoảnh khắc trong hành trình của đôi bạn' },
-    { id: 'media-story-two', publicUrl: neutralPhoto, status: 'READY', altText: 'Cặp đôi trong buổi chụp ảnh cưới' },
+    { id: 'media-hero', publicUrl: `${couple001}/couple-pose-11-garden-arch.webp`, status: 'READY', altText: 'Mai Anh và Quang An trong vòm hoa giữa khu vườn' },
+    { id: 'media-bride', publicUrl: `${couple001}/bride-front.webp`, status: 'READY', altText: 'Chân dung cô dâu Mai Anh trong váy cưới satin' },
+    { id: 'media-groom', publicUrl: `${couple001}/groom-front.webp`, status: 'READY', altText: 'Chân dung chú rể Quang An trong bộ tuxedo đen' },
+    { id: 'media-story-one', publicUrl: `${couple001}/couple-pose-02-garden-walk.webp`, status: 'READY', altText: 'Mai Anh và Quang An cùng đi dạo trong khu vườn' },
+    { id: 'media-story-two', publicUrl: `${couple001}/couple-pose-08-veil.webp`, status: 'READY', altText: 'Mai Anh và Quang An trong khoảnh khắc bên tấm voan cưới' },
+    { id: 'media-bride-profile', publicUrl: `${couple001}/bride-profile-left.webp`, status: 'READY', altText: 'Cô dâu Mai Anh trong góc nhìn nghiêng' },
+    { id: 'media-groom-profile', publicUrl: `${couple001}/groom-profile-right.webp`, status: 'READY', altText: 'Chú rể Quang An trong góc nhìn nghiêng' },
+    { id: 'media-couple-01', publicUrl: `${couple001}/couple-pose-01-standing-portrait.webp`, status: 'READY', altText: 'Mai Anh và Quang An chụp ảnh cưới cùng nhau' },
+    { id: 'media-couple-03', publicUrl: `${couple001}/couple-pose-03-standing-together.webp`, status: 'READY', altText: 'Mai Anh và Quang An đứng cạnh nhau giữa khu vườn' },
+    { id: 'media-couple-04', publicUrl: `${couple001}/couple-pose-04-looking-at-each-other.webp`, status: 'READY', altText: 'Mai Anh và Quang An nhìn nhau trong ngày cưới' },
+    { id: 'media-couple-05', publicUrl: `${couple001}/couple-pose-05-seated-bench.webp`, status: 'READY', altText: 'Mai Anh và Quang An ngồi bên nhau trên ghế dài' },
+    { id: 'media-couple-06', publicUrl: `${couple001}/couple-pose-06-bride-turns.webp`, status: 'READY', altText: 'Cô dâu Mai Anh ngoảnh lại nhìn chú rể' },
+    { id: 'media-couple-07', publicUrl: `${couple001}/couple-pose-07-bouquet.webp`, status: 'READY', altText: 'Mai Anh và Quang An bên bó hoa cưới' },
+    { id: 'media-couple-09', publicUrl: `${couple001}/couple-pose-09-forehead-touch.webp`, status: 'READY', altText: 'Mai Anh và Quang An khẽ chạm trán nhau' },
+    { id: 'media-couple-10', publicUrl: `${couple001}/couple-pose-10-floral-arch.webp`, status: 'READY', altText: 'Mai Anh và Quang An bên cổng hoa cưới' },
+    { id: 'media-couple-12', publicUrl: `${couple001}/couple-pose-12-garden-embrace.webp`, status: 'READY', altText: 'Mai Anh và Quang An trong khoảnh khắc ôm nhau' },
   ],
   approvedWishes: [],
   guestName: null,
