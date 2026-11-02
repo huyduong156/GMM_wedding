@@ -81,6 +81,6 @@ The reference uses sample couple data/photos and fixed copy/dates. Phase 3 now m
 ## Phase 4 — Motion
 
 - The hero photo makes a one-time, 1.4-second scale settle; hero copy enters in a short stagger.
-- Visible page sections reveal once with opacity and an 18px rise. Story, event, gallery, schedule, FAQ, and wedding-party items stagger by 75ms.
+- Sections and each meaningful content element within them reveal once with opacity and a restrained upward rise: headings, copy blocks, image frames, links/actions, event/date details, and repeatable cards/rows each have their own observed target. Sibling elements enter in order at 180ms intervals with a 1.05-second transition so each step is easy to follow.
 - Gallery images use a small hover scale only on hover-capable pointers. FAQ disclosure and music controls use short state transitions.
-- Mobile reduces the reveal offset to 12px. `prefers-reduced-motion` keeps all content visible and disables the entrance, stagger, hover, and state transitions. No looped ambient animation or scroll-linked motion is used.
+- Mobile reduces the reveal offset to 10px. `prefers-reduced-motion` keeps all content visible and disables the entrance, stagger, hover, and state transitions. No looped ambient animation or scroll-linked motion is used.

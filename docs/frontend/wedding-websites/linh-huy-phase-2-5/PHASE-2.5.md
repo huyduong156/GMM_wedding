@@ -2,7 +2,7 @@
 
 **Purpose:** original renderer-owned line artwork for review, matched to the Phase 1–2 modern minimal editorial brief. User-uploaded wedding photographs remain the page’s content and focal point. The artwork adds a small amount of ink-like movement to otherwise open surfaces.
 
-**Status:** user approved the current artwork candidate set. Assets are not yet integrated into the landing page or template renderer; the existing design is now rendered by the Forever template preview. Final placement, responsive sizing, and contrast remain Phase 3/5 review items. PNG masters and this review sheet live under `docs/frontend/wedding-websites/linh-huy-phase-2-5/`; the public asset bundle contains only WebP and SVG runtime candidates.
+**Status:** user approved the current artwork candidate set. The approved runtime WebP/SVG assets are now mapped to Forever sections and integrated in the renderer. Responsive and reduced-motion CSS fallbacks are implemented; final browser screenshot review at 375/390/768/1280px and visual contrast review remain open. PNG masters and this review sheet live under `docs/frontend/wedding-websites/linh-huy-phase-2-5/`; the public asset bundle contains only WebP and SVG runtime candidates.
 
 **Approval record:** User approved the two black curved background lines, joined-path accent, open-corner photo frame, vows booklet, brushed-silver bands, and black silk ribbon/pen cutouts on 2026-11-02.
 
@@ -57,7 +57,7 @@ The responsive SVG curves, joined-path accent, and open-corner frame were author
 - [ ] Confirm linework never reduces text contrast or crosses a face, map/address, or RSVP control.
 - [ ] Confirm whether the corner frame should be used only on selected gallery imagery or removed for a cleaner page.
 - [ ] Review the three cutouts on the warm paper preview; check edge halos and silhouette clarity at rendered size.
-- [ ] After approval, use WebP candidates for the generated raster assets and add only selected assets to the renderer bundle/manifest.
+- [x] After approval, use WebP candidates for the generated raster assets and add selected assets to the renderer bundle/manifest.
 
 ## Preview
 

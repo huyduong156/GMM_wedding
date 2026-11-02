@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { animate } from 'motion/react'
 import type { ForeverData, ForeverSectionConfig, ForeverSectionKey } from './content'
 import { foreverFixture, foreverSections } from './fixture'
 import '../../../pages/public-website/ui/forever.css'
@@ -10,26 +11,72 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const [musicPlaying, setMusicPlaying] = useState(false)
   const visible = new Set(sectionConfig.enabled)
   const musicEnabled = visible.has('music')
-  const section = (key: ForeverSectionKey, content: React.ReactNode) => visible.has(key) ? <div key={key} data-editor-section={key} data-motion="section" style={{ order: sectionConfig.order.indexOf(key) }}>{content}</div> : null
+  const decorBySection: Partial<Record<ForeverSectionKey, React.ReactNode>> = {
+    announcement: <img className="ff-decor ff-decor--ribbon" src="/assets/images/templates/forever/decor/detail-black-silk-ribbon-pen.webp" alt="" aria-hidden="true" />,
+    couple: <img className="ff-decor ff-decor--rings" src="/assets/images/templates/forever/decor/detail-brushed-silver-bands.webp" alt="" aria-hidden="true" />,
+    story: <img className="ff-decor ff-decor--booklet" src="/assets/images/templates/forever/decor/detail-vows-booklet.webp" alt="" aria-hidden="true" />,
+    events: <img className="ff-decor ff-decor--joined" src="/assets/images/templates/forever/decor/joined-path-accent.svg" alt="" aria-hidden="true" />,
+    countdown: <img className="ff-decor ff-decor--plate" src="/assets/images/templates/forever/decor/background-two-curved-black-lines-v1.webp" alt="" aria-hidden="true" />,
+    rsvp: <picture className="ff-decor ff-decor--curves"><source media="(max-width: 760px)" srcSet="/assets/images/templates/forever/decor/background-two-black-curves-mobile.svg" /><img src="/assets/images/templates/forever/decor/background-two-black-curves.svg" alt="" aria-hidden="true" /></picture>,
+  }
+  const section = (key: ForeverSectionKey, content: React.ReactNode) => visible.has(key) ? <div key={key} data-editor-section={key} data-motion="section" style={{ order: sectionConfig.order.indexOf(key) }}>{content}{decorBySection[key]}</div> : null
   useLayoutEffect(() => {
     const page = pageRef.current
     if (!page || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     page.classList.add('ff-motion-ready')
-    const targets = Array.from(page.querySelectorAll<HTMLElement>('[data-motion="section"]'))
+    const itemSelectors = [
+      '.ff-hero-top, .ff-hero-title, .ff-hero-bottom',
+      '.ff-announcement > *', '.ff-intro-photo, .ff-intro-copy > *',
+      '.ff-story > .ff-section-heading > *, .ff-story-item',
+      '.ff-date-band > *, .ff-events .ff-section-heading > *, .ff-event-grid article',
+      '.ff-countdown > *', '.ff-venue > img, .ff-venue > div > *',
+      '.ff-gallery-heading > *, .ff-gallery-heading > div > *, .ff-photo-grid figure',
+      '.ff-schedule > *, .ff-schedule-list > *',
+      '.ff-details-note > *, .ff-details-note > * > *',
+      '.ff-wedding-party .ff-section-heading > *, .ff-party-group, .ff-party-group article',
+      '.ff-faq > div > *, .ff-faq-list details', '.ff-rsvp > *', '.ff-gift > *',
+      '.ff-guestbook > div > *, .ff-guestbook > a', '.ff-footer > *, .ff-footer > div > *',
+      '.ff-decor',
+    ]
+    itemSelectors.forEach((selector) => page.querySelectorAll<HTMLElement>(selector).forEach((item) => {
+      item.setAttribute('data-motion-item', '')
+      const siblings = Array.from(item.parentElement?.querySelectorAll<HTMLElement>(':scope > [data-motion-item]') ?? [])
+      item.style.setProperty('--ff-item-delay', `${siblings.indexOf(item) * 180}ms`)
+    }))
+    const targets = Array.from(page.querySelectorAll<HTMLElement>('[data-motion="section"], [data-motion-item]'))
+    const sections = Array.from(page.querySelectorAll<HTMLElement>('[data-motion="section"]'))
+    const effectsObserver = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.target.setAttribute('data-effects-active', String(entry.isIntersecting)))
+    }, { threshold: 0 }) : null
+    sections.forEach((section) => effectsObserver ? effectsObserver.observe(section) : section.setAttribute('data-effects-active', 'true'))
+    const syncDocumentVisibility = () => page.classList.toggle('ff-document-hidden', document.hidden)
+    document.addEventListener('visibilitychange', syncDocumentVisibility)
+    syncDocumentVisibility()
     if (!('IntersectionObserver' in window)) {
-      targets.forEach((target) => target.setAttribute('data-motion-visible', 'true'))
-      return () => page.classList.remove('ff-motion-ready')
+      targets.forEach((target) => {
+        target.setAttribute('data-motion-visible', 'true')
+        void animate(target, { opacity: 1, y: 0 }, { duration: 1.05, ease: [0.22, 1, 0.36, 1] })
+      })
+      return () => {
+        effectsObserver?.disconnect()
+        document.removeEventListener('visibilitychange', syncDocumentVisibility)
+        page.classList.remove('ff-motion-ready')
+      }
     }
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return
         entry.target.setAttribute('data-motion-visible', 'true')
+        const delay = Number.parseFloat((entry.target as HTMLElement).style.getPropertyValue('--ff-item-delay')) || 0
+        void animate(entry.target, { opacity: 1, y: 0 }, { duration: 1.05, delay: delay / 1000, ease: [0.22, 1, 0.36, 1] })
         observer.unobserve(entry.target)
       })
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
     targets.forEach((target) => observer.observe(target))
     return () => {
       observer.disconnect()
+      effectsObserver?.disconnect()
+      document.removeEventListener('visibilitychange', syncDocumentVisibility)
       page.classList.remove('ff-motion-ready')
     }
   }, [])

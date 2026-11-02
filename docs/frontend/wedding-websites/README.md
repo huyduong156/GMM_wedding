@@ -42,5 +42,5 @@ Ba preview website hiện dùng cùng section metadata contract; countdown của
 
 ## Current authoring brief
 
-- [Linh & Huy Phase 1–2 brief](./linh-huy-phase-1-2.md) — product meaning, section/editor matrix, fixture and acceptance plan, plus media roles, ownership, and fallback behavior. Forever is at `/templates/websites/forever/preview`; Phase 3 section rendering and Phase 4 motion are implemented over the approved composition.
+- [Linh & Huy Phase 1–2 brief](./linh-huy-phase-1-2.md) — product meaning, section/editor matrix, fixture and acceptance plan, plus media roles, ownership, and fallback behavior. Forever is at `/templates/websites/forever/preview`; Phases 3–4 are implemented. [Phase 5 integration review](./linh-huy-phase-5-review.md) records the decor/atmosphere implementation and remaining browser/release gates.
 - [Linh & Huy Phase 2.5 decor review](./linh-huy-phase-2-5/PHASE-2.5.md) — artwork matrix, provenance, preview sheet, responsive SVG line motifs, and review checklist. Assets are not integrated until approved.
