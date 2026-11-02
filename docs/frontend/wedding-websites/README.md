@@ -39,3 +39,8 @@ Với mọi website template có chủ đề cụ thể, media do user upload ch
 `Enchanted Forest Wedding` v1.0.0 tại `/templates/websites/enchanted-forest/preview` dùng forest/moss/olive/wood/ivory và hero diorama 2.5D. Nhận diện độc lập với media user gồm scene rừng, cổ thụ tiền cảnh, canopy garland, vine wreath, fern sprites, sương, tia nắng và hạt bụi; champagne/vows props tạo nhịp section. Hero dùng memory portal dạng vòm với các lớp ảnh ở nhiều trục Z; album dùng carousel 3D có điều khiển trước/sau và pause, tự chuyển mỗi 5 giây. Parallax chỉ tập trung ở hero, các motion hỗ trợ dùng transform/opacity và chuyển thành bố cục tĩnh theo reduced motion.
 
 Ba preview website hiện dùng cùng section metadata contract; countdown của từng theme cập nhật theo thời gian thực và mọi artwork được kiểm tra tồn tại trong asset bundle trước khi phát hành.
+
+## Current authoring brief
+
+- [Linh & Huy Phase 1–2 brief](./linh-huy-phase-1-2.md) — product meaning, section/editor matrix, fixture and acceptance plan, plus media roles, ownership, and fallback behavior. Forever is at `/templates/websites/forever/preview`; Phase 3 section rendering and Phase 4 motion are implemented over the approved composition.
+- [Linh & Huy Phase 2.5 decor review](./linh-huy-phase-2-5/PHASE-2.5.md) — artwork matrix, provenance, preview sheet, responsive SVG line motifs, and review checklist. Assets are not integrated until approved.

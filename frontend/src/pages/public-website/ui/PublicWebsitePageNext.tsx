@@ -7,6 +7,7 @@ import { EditorialVowsWebsite } from '../../../templates/websites/editorial-vows
 import { GreenHydrangeaWebsite } from '../../../templates/websites/green-hydrangea/GreenHydrangeaWebsite'
 import { EnchantedForestWebsite } from '../../../templates/websites/enchanted-forest/EnchantedForestWebsite'
 import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-blossom-garden/CherryBlossomGardenWebsite'
+import { ForeverWebsite } from '../../../templates/websites/forever/ForeverWebsite'
 import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
 
 export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) {
@@ -107,6 +108,8 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
       return <EnchantedForestWebsite data={content as never} sectionConfig={config as never} />
     case 'cherry-blossom-garden':
       return <CherryBlossomGardenWebsite data={content as never} sectionConfig={config as never} />
+    case 'forever':
+      return <ForeverWebsite data={content as never} sectionConfig={config as never} />
     default:
       return <StatusPage kind="not-found" />
   }

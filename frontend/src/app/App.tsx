@@ -52,6 +52,7 @@ import { EditorialVowsPreviewPage } from '../pages/public-website/ui/EditorialVo
 import { GreenHydrangeaPreviewPage } from '../pages/public-website/ui/GreenHydrangeaPreviewPage'
 import { EnchantedForestPreviewPage } from '../pages/public-website/ui/EnchantedForestPreviewPage'
 import { CherryBlossomGardenPreviewPage } from '../pages/public-website/ui/CherryBlossomGardenPreviewPage'
+import { ForeverPreviewPage } from '../pages/public-website/ui/ForeverPreviewPage'
 import { RedSpiderLilyRecapPreviewPage } from '../pages/public-recap/ui/RedSpiderLilyRecapPreviewPage'
 import { PreviewCountdownProvider } from '../shared/lib/date/useWeddingCountdown'
 import { PublicRecapPage } from '../pages/public-recap/ui/PublicRecapPage'
@@ -193,6 +194,8 @@ function AppContent() {
     return <AppTemplatePreview pathname={pathname}><EnchantedForestPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.cherryBlossomGardenPreview)
     return <AppTemplatePreview pathname={pathname}><CherryBlossomGardenPreviewPage /></AppTemplatePreview>
+  if (pathname === publicTemplateRoutes.foreverPreview)
+    return <AppTemplatePreview pathname={pathname}><ForeverPreviewPage /></AppTemplatePreview>
   if (pathname === publicTemplateRoutes.redSpiderLilyRecapPreview)
     return <RedSpiderLilyRecapPreviewPage />
   const publicInvitationMatch = pathname.match(/^\/([^/]+)\/invitation(?:\/([^/]+))?\/?$/)
@@ -268,6 +271,7 @@ const previewStorageKeyByRoute: Record<string, string> = {
   [publicTemplateRoutes.greenHydrangeaPreview]: 'gmm-website-preview:green-hydrangea',
   [publicTemplateRoutes.enchantedForestPreview]: 'gmm-website-preview:enchanted-forest',
   [publicTemplateRoutes.cherryBlossomGardenPreview]: 'gmm-website-preview:cherry-blossom-garden',
+  [publicTemplateRoutes.foreverPreview]: 'gmm-website-preview:forever',
 }
 
 function isDemoTemplatePreview(pathname: string) {
