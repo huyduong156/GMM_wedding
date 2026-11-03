@@ -158,6 +158,8 @@ sections: [{
 Đây là quality gate trước khi release: mọi content editable phải có field metadata; nếu không, editor chỉ hiển thị section cố định và template không đạt contract.
 ## 6. Fixture và release
 
+Với field ảnh đơn không khai báo `required: true`, editor cho phép xóa ảnh để renderer dùng fallback của template. Ảnh demo trong fixture chỉ dùng cho preview; khi người dùng xóa và lưu field ảnh rỗng, renderer không được tự seed lại ảnh demo.
+
 Mỗi template có `fixture.ts` gồm content v1, event/media projection, theme và section config. Dùng dữ liệu hư cấu, asset có nguồn/license và biến thể thiếu ảnh/tên dài/nhiều event/section tắt; không dùng fixture làm wedding thật.
 
 Release bundle dùng `productType: 'WEDDING_WEBSITE'` và integer contract versions. Config JSON chứa `previewPath`, sections, theme options, capabilities. Cùng key/version nhưng đổi config phải thất bại; breaking change tăng version và có migration.

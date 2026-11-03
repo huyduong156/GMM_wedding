@@ -97,6 +97,10 @@ export function DatePickerField({
     }
   }, [open])
   const selected = parseDate(value)
+  const currentYear = new Date().getFullYear()
+  const selectedYear = selected?.getFullYear() ?? currentYear
+  const startMonth = new Date(Math.min(currentYear - 100, selectedYear), 0, 1)
+  const endMonth = new Date(Math.max(currentYear + 30, selectedYear), 11, 31)
   const popover = open ? (
     <div
       ref={popoverRef}
@@ -115,13 +119,18 @@ export function DatePickerField({
         mode="single"
         selected={selected}
         defaultMonth={selected}
+        startMonth={startMonth}
+        endMonth={endMonth}
         onSelect={(next) => {
           if (next) {
             onChange(formatDate(next))
             setOpen(false)
           }
         }}
-        captionLayout="label"
+        captionLayout="dropdown-years"
+        navLayout="after"
+        reverseYears
+        labels={{ labelYearDropdown: () => 'Chọn năm' }}
       />
     </div>
   ) : null

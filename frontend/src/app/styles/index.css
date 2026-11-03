@@ -10322,6 +10322,37 @@ kbd {
   border-color: #a95618;
   box-shadow: 0 0 0 3px rgb(169 86 24 / 0.1);
 }
+.editor-color-list {
+  display: grid;
+  gap: 7px;
+}
+.editor-color-item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 8px;
+}
+.editor-color-item input[type='color'] {
+  width: 42px;
+  height: 34px;
+  padding: 3px;
+  cursor: pointer;
+}
+.editor-color-item code {
+  color: #625a54;
+  font-size: 11px;
+}
+.editor-color-item button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: #a34c43;
+  background: #faefed;
+  cursor: pointer;
+}
 .editor-field-placeholder {
   padding: 28px 16px;
   border: 1px dashed #d9d1ca;
@@ -11220,6 +11251,26 @@ kbd {
 .editor-media-field {
   display: grid;
   gap: 7px;
+}
+.editor-image-single-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.editor-image-clear {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #e6d8cf;
+  border-radius: 8px;
+  color: #67564c;
+  background: #fffaf6;
+  cursor: pointer;
+  font-size: 12px;
+}
+.editor-image-clear:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 .editor-fixed-section {
   padding: 14px;
@@ -15051,6 +15102,19 @@ kbd {
   --rdp-day_button-width: 36px;
   margin: 0;
   font-size: 0.82rem;
+}
+.date-picker-popover .rdp-dropdown_root {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--fg);
+  background: var(--surface);
+  font-size: 0.8rem;
+}
+.date-picker-popover .rdp-dropdowns {
+  gap: 6px;
+}
+.date-picker-popover .rdp-dropdown_root .rdp-caption_label {
+  padding: 3px 5px 3px 7px;
 }
 .date-picker-popover .rdp-day_button {
   border-radius: 8px;

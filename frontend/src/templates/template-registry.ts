@@ -24,6 +24,8 @@ import { enchantedForestFixture } from './websites/enchanted-forest/fixture'
 import { enchantedForestTemplateConfig } from './websites/enchanted-forest/template-config'
 import { cherryBlossomFixture } from './websites/cherry-blossom-garden/fixture'
 import { cherryBlossomGardenTemplateConfig } from './websites/cherry-blossom-garden/template-config'
+import { foreverFixture } from './websites/forever/fixture'
+import { foreverTemplateConfig } from './websites/forever/template-config'
 
 export const modernLuxeEditorFixture: ModernLuxeData = {
   brideName: 'Mai',
@@ -145,6 +147,11 @@ export const websiteTemplateRegistry: Record<
     config: cherryBlossomGardenTemplateConfig,
     fixture: cherryBlossomFixture as Record<string, unknown>,
     previewPath: publicTemplateRoutes.cherryBlossomGardenPreview,
+  },
+  forever: {
+    config: foreverTemplateConfig,
+    fixture: foreverFixture as unknown as Record<string, unknown>,
+    previewPath: publicTemplateRoutes.foreverPreview,
   },
 }
 

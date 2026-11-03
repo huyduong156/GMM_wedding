@@ -14,6 +14,8 @@ Parent và iframe phải kiểm tra `event.origin`, `event.source`, `type` và `
 
 ## Phần dùng chung
 
+The shared date picker keeps month arrows and exposes a visible year dropdown, covering 100 years in the past through 30 years in the future (and retaining any selected year outside that range).
+
 `frontend/src/shared/lib/live-template-editor.ts` cung cấp:
 
 - Protocol event và type generic cho update/scroll.

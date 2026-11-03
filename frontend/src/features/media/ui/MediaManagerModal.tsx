@@ -11,6 +11,8 @@ type MediaManagerModalProps = {
   assets: MediaAsset[]
   selectedIds: readonly string[]
   selectionMode?: 'single' | 'multiple'
+  minSelection?: number
+  maxSelection?: number
   loading: boolean
   uploading: boolean
   error: string
@@ -22,17 +24,19 @@ type MediaManagerModalProps = {
 const MediaAssetCard = memo(function MediaAssetCard({
   asset,
   selected,
+  disabled,
   onToggle,
   onView,
 }: {
   asset: MediaAsset
   selected: boolean
+  disabled?: boolean
   onToggle: (asset: MediaAsset) => void
   onView: (asset: MediaAsset) => void
 }) {
   return (
     <div className={'media-manager-asset' + (selected ? ' is-selected' : '')}>
-      <button type="button" className="media-manager-select-asset" onClick={() => onToggle(asset)} aria-pressed={selected}>
+      <button type="button" className="media-manager-select-asset" onClick={() => onToggle(asset)} aria-pressed={selected} disabled={disabled}>
         <img loading="lazy" decoding="async" src={asset.publicUrl} alt={asset.originalName ?? 'Ảnh'} />
         <span className="media-manager-check">{selected ? <Check size={15} weight="bold" /> : null}</span>
         <small>{asset.originalName ?? 'Ảnh'}</small>
@@ -97,6 +101,8 @@ export function MediaManagerModal({
   assets,
   selectedIds,
   selectionMode = 'single',
+  minSelection,
+  maxSelection,
   loading,
   uploading,
   error,
@@ -131,10 +137,11 @@ export function MediaManagerModal({
       setDraftIds((current) => {
         if (selectionMode === 'single') return [asset.id]
         if (current.includes(asset.id)) return current.filter((id) => id !== asset.id)
+        if (maxSelection !== undefined && current.length >= maxSelection) return current
         return [...current, asset.id]
       })
     },
-    [selectionMode],
+    [maxSelection, selectionMode],
   )
   const handleViewAsset = useCallback((asset: MediaAsset) => setViewerAssetId(asset.id), [])
   const handleUploaded = useCallback((uploaded: MediaAsset[]) => {
@@ -142,11 +149,11 @@ export function MediaManagerModal({
     setDraftIds((current) => {
       const next = selectionMode === 'single' ? [] : [...current]
       uploaded.forEach((asset) => {
-        if (!next.includes(asset.id)) next.push(asset.id)
+        if (!next.includes(asset.id) && (maxSelection === undefined || next.length < maxSelection)) next.push(asset.id)
       })
       return next
     })
-  }, [selectionMode])
+  }, [maxSelection, selectionMode])
 
   if (!open) return null
 
@@ -218,6 +225,7 @@ export function MediaManagerModal({
                   key={asset.id}
                   asset={asset}
                   selected={draftIds.includes(asset.id)}
+                  disabled={!draftIds.includes(asset.id) && maxSelection !== undefined && draftIds.length >= maxSelection}
                   onToggle={toggle}
                   onView={handleViewAsset}
                 />
@@ -243,7 +251,7 @@ export function MediaManagerModal({
           <button
             type="button"
             className="button button-primary"
-            disabled={loading || uploading}
+            disabled={loading || uploading || (selectionMode === 'multiple' && draftIds.length < (minSelection ?? 0))}
             onClick={confirm}
           >
             {draftIds.length
