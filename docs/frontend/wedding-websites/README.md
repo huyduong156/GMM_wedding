@@ -40,7 +40,8 @@ Với mọi website template có chủ đề cụ thể, media do user upload ch
 
 Ba preview website hiện dùng cùng section metadata contract; countdown của từng theme cập nhật theo thời gian thực và mọi artwork được kiểm tra tồn tại trong asset bundle trước khi phát hành.
 
-## Current authoring brief
+## Forever
 
-- [Linh & Huy Phase 1–2 brief](./linh-huy-phase-1-2.md) — product meaning, section/editor matrix, fixture and acceptance plan, plus media roles, ownership, and fallback behavior. Forever is at `/templates/websites/forever/preview`; Phases 3–4 are implemented. [Phase 5 integration review](./linh-huy-phase-5-review.md) records the decor/atmosphere implementation and remaining browser/release gates.
-- [Linh & Huy Phase 2.5 decor review](./linh-huy-phase-2-5/PHASE-2.5.md) — artwork matrix, provenance, preview sheet, responsive SVG line motifs, and review checklist. Assets are not integrated until approved.
+`Forever` is available at `/templates/websites/forever/preview`. It is a Vietnamese-first editorial wedding website with editable event copy, couple details, gallery, RSVP, guestbook, and renderer-owned decor. Its runtime assets and effects are listed in the [asset manifest](../../../frontend/src/templates/websites/forever/ASSET_MANIFEST.md), with provenance in the [asset source record](../../../frontend/src/templates/websites/forever/ASSET_SOURCES.md).
+
+The shared public RSVP and guestbook endpoints support both website and invitation publications. Before release, review screenshots and contrast at 375, 390, 768, and 1280px, including reduced motion.

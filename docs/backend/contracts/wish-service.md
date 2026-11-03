@@ -8,9 +8,9 @@ public snapshot hoặc recap.
 
 ## Public flow
 
-- `POST /public/weddings/{slug}/wishes`: URL chung, bắt buộc `guestName` và `content`.
+- `POST /public/weddings/{slug}/wishes`: URL chung, bắt buộc `guestName` và `content`; hoạt động khi wedding có publication đang hiệu lực cho thiệp online hoặc website cưới.
 - `POST /public/invitations/{weddingSlug}/{guestSlug}/wishes`: URL cá nhân, resolve Guest trực tiếp và không yêu cầu nhập tên.
-- `GET /public/weddings/{slug}/wishes`: chỉ trả wish đã `APPROVED`, không trả contact hoặc guest metadata.
+- `GET /public/weddings/{slug}/wishes`: chỉ trả wish đã `APPROVED`, không trả contact hoặc guest metadata; publication thiệp online hoặc website cưới đều hỗ trợ.
 
 URL cá nhân gắn `Wish.guestId` trực tiếp. `authorName` là `Guest.displayName ?? Guest.name`. URL chung
 lưu `guestId = null` và lấy tên từ request; không tạo bản ghi trung gian.

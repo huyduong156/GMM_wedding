@@ -1,6 +1,6 @@
 # Forever asset and effects manifest
 
-All generated decor listed here is renderer owned, not user editable media. The source and approval record lives in [`PHASE-2.5.md`](../../../../../docs/frontend/wedding-websites/linh-huy-phase-2-5/PHASE-2.5.md); files are original assets approved on 2026-11-02. The runtime folder is `frontend/public/assets/images/templates/forever/decor/`.
+All decor listed here is renderer owned, not user editable media. Asset provenance is recorded in [`ASSET_SOURCES.md`](./ASSET_SOURCES.md). The runtime folder is `frontend/public/assets/images/templates/forever/decor/`.
 
 | Section key | Asset / effect | Purpose and placement | Responsive and motion behavior |
 |---|---|---|---|

@@ -3,7 +3,7 @@ import { animate } from 'motion/react'
 import type { ForeverData, ForeverSectionConfig, ForeverSectionKey } from './content'
 import { foreverFixture, foreverSections } from './fixture'
 import { formatCountdownUnit, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
-import { formatForeverDate } from './date-format'
+import { formatForeverDate, toForeverDateInputValue } from './date-format'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import type { RsvpAttendance } from '../../../shared/api/weddings'
 import { MusicPlayer } from '../../../shared/ui/music-player'
@@ -25,6 +25,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const [wishFormError, setWishFormError] = useState('')
   const galleryImages = data.gallery.images.slice(0, 10)
   const displayDate = formatForeverDate(data.hero.date)
+  const weddingDateParts = toForeverDateInputValue(data.hero.date).match(/^(\d{4})-(\d{2})-(\d{2})$/)
   const storyHeading = typeof data.storyHeading === 'string' ? data.storyHeading : foreverFixture.storyHeading
   const storyItems = Array.isArray(data.story) ? data.story : foreverFixture.story
   const venueHeading = data.venues.heading.split(/\||\r?\n/)
@@ -71,7 +72,29 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const storedEvents = (data as unknown as { events: unknown }).events
   const eventData = Array.isArray(storedEvents)
     ? { ...foreverFixture.events, items: storedEvents as ForeverData['events']['items'] }
-    : data.events
+    : {
+        ...foreverFixture.events,
+        ...(storedEvents && typeof storedEvents === 'object' ? storedEvents : {}),
+        summary: {
+          ...foreverFixture.events.summary,
+          ...(storedEvents && typeof storedEvents === 'object' && (storedEvents as ForeverData['events']).summary
+            ? (storedEvents as ForeverData['events']).summary
+            : {}),
+        },
+        items: storedEvents && typeof storedEvents === 'object' && Array.isArray((storedEvents as ForeverData['events']).items)
+          ? (storedEvents as ForeverData['events']).items
+          : foreverFixture.events.items,
+      }
+  const eventDateParts = eventData.summary.date.split('.')
+  const eventStampDay = weddingDateParts?.[3] ?? eventDateParts[0] ?? ''
+  const eventStampMonthYear = weddingDateParts
+    ? `${weddingDateParts[2]} / ${weddingDateParts[1].slice(-2)}`
+    : `${eventDateParts[1] ?? ''} / ${eventDateParts[2] ?? ''}`
+  const eventStampWeekday = weddingDateParts
+    ? new Intl.DateTimeFormat('vi-VN', { weekday: 'long' })
+        .format(new Date(Number(weddingDateParts[1]), Number(weddingDateParts[2]) - 1, Number(weddingDateParts[3])))
+        .toLocaleUpperCase('vi-VN')
+    : eventData.summary.weekday
   const marqueeImages = galleryImages.length
     ? Array.from({ length: Math.max(4, galleryImages.length) }, (_, index) => galleryImages[index % galleryImages.length])
     : []
@@ -348,32 +371,32 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
       {storyPreviewImage ? <figure className="ff-lightbox-photo"><img src={storyPreviewImage.src} alt={storyPreviewImage.alt} /><figcaption>{storyPreviewImage.alt}</figcaption></figure> : null}
     </div>
   </dialog>
-  const hero = section('hero', <section className="ff-hero" id="top" data-motion-hero><img className="ff-hero-image" src={data.hero.image} alt={data.hero.imageAlt} /><div className="ff-hero-shade" /><div className="ff-hero-top" data-motion-part="top">{data.hero.eyebrow ? <span>{data.hero.eyebrow}</span> : null}<span>EST. 2026 · VIETNAM</span></div><div className="ff-hero-title" data-motion-part="title"><p>{data.hero.headline}</p><h1>{data.hero.brideName} <i>&</i> {data.hero.groomName}</h1></div><div className="ff-hero-bottom" data-motion-part="bottom"><span>{displayDate}<br />{data.hero.time}</span><span className="ff-scroll-cue">SCROLL TO EXPLORE <span className="ff-scroll-cue-icon" aria-hidden="true">↓</span></span><span>{data.hero.location}</span></div></section>)
+  const hero = section('hero', <section className="ff-hero" id="top" data-motion-hero><img className="ff-hero-image" src={data.hero.image} alt={data.hero.imageAlt} /><div className="ff-hero-shade" /><div className="ff-hero-top">{data.hero.eyebrow ? <span>{data.hero.eyebrow}</span> : null}<span>EST. 2026 · VIETNAM</span></div><div className="ff-hero-title"><p>{data.hero.headline}</p><h1>{data.hero.brideName} <i>&</i> {data.hero.groomName}</h1></div><div className="ff-hero-bottom"><span>{displayDate}<br />{data.hero.time}</span><span className="ff-scroll-cue">SCROLL TO EXPLORE <span className="ff-scroll-cue-icon" aria-hidden="true">↓</span></span><span>{data.hero.location}</span></div></section>)
   const events = eventData.items.length ? section('events', (
     <section className="ff-event-chapter" id="details">
       <div className="ff-event-overview">
         <div className="ff-date-stamp">
-          <span className="ff-kicker">SAVE THE DATE</span>
+          <span className="ff-kicker">{eventData.dateEyebrow}</span>
           <div className="ff-date-main">
-            <strong>{eventData.summary.date.slice(0, 2)}</strong>
+            <strong>{eventStampDay}</strong>
             <div>
-              <span className="ff-date-weekday">{eventData.summary.weekday}</span>
-              <span className="ff-date-month">{eventData.summary.date.slice(3, 5)} / {eventData.summary.date.slice(6)}</span>
+              <span className="ff-date-weekday">{eventStampWeekday}</span>
+              <span className="ff-date-month">{eventStampMonthYear}</span>
             </div>
           </div>
         </div>
         <div className="ff-event-intro">
-          <span className="ff-kicker">COME AS YOU ARE</span>
-          <h2>Hẹn gặp bạn<br /><em>ở {data.hero.location}.</em></h2>
-          <p>Một ngày nhỏ, dành cho những người tụi mình thương.</p>
+          <span className="ff-kicker">{eventData.introEyebrow}</span>
+          <h2>{eventData.introHeading.split('|')[0]}{eventData.introHeading.includes('|') ? <><br /><em>{eventData.introHeading.split('|').slice(1).join('|').replaceAll('{location}', data.hero.location)}</em></> : null}</h2>
+          <p>{eventData.introMessage}</p>
           <div className="ff-event-meta">
-            <div><span>GIỜ ĐÓN KHÁCH</span><p>{eventData.summary.hours}</p></div>
-            <div><span>ĐỊA ĐIỂM</span><p>{eventData.summary.venue}</p></div>
+            <div><span>{eventData.summary.arrivalLabel}</span><p>{eventData.summary.hours}</p></div>
+            <div><span>{eventData.summary.venueLabel}</span><p>{eventData.summary.venue}</p></div>
           </div>
         </div>
       </div>
       <div className="ff-event-agenda">
-        <div className="ff-event-agenda-heading"><span>LỊCH TRÌNH NGÀY CƯỚI</span><span>THE CELEBRATION</span></div>
+        <div className="ff-event-agenda-heading"><span>{eventData.agendaHeading}</span><span>{eventData.agendaSubheading}</span></div>
         <div className={`ff-event-grid${eventData.items.length > 1 ? ' ff-event-grid--marquee' : ''}`} style={{ '--ff-event-marquee-duration': `${Math.max(eventData.items.length * 10, 24)}s` } as React.CSSProperties}>
           <div className="ff-event-track">
             {[...eventData.items, ...(eventData.items.length > 1 ? eventData.items : [])].map((event, index) => {
@@ -383,7 +406,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
                 <h3>{event.title}</h3>
                 <p className="ff-event-time">{event.time} · {event.date}</p>
                 <p>{event.venue}<br />{event.address}</p>
-                {event.mapUrl ? <a href={event.mapUrl} tabIndex={duplicate ? -1 : undefined} target="_blank" rel="noreferrer">Mở bản đồ ↗</a> : null}
+                {event.mapUrl ? <a href={event.mapUrl} tabIndex={duplicate ? -1 : undefined} target="_blank" rel="noreferrer">{eventData.mapLinkLabel}</a> : null}
               </article>
             })}
           </div>
@@ -396,11 +419,11 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
     <div className="ff-activities-grid">{data.activities.items.map((activity, index) => <article className="ff-activity-card" key={`${activity.title}-${index}`}><img src={activity.image} alt="" loading="lazy" /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{activity.title}</h3></div></article>)}</div>
   </section> : null
   const details = visible.has('dressCode') ? <section className="ff-details-note" data-motion="section">
-    {visible.has('dressCode') ? <div className="ff-dress-code"><div><span className="ff-kicker">WHAT TO WEAR</span><h2>{data.dressCode.heading.split('|')[0]}<br /><em>{data.dressCode.heading.split('|')[1]}</em></h2><p>{data.dressCode.message}</p></div><div className="ff-swatches" aria-label="Gợi ý màu trang phục">{dressCodeColors.map((color, index) => <i key={index} style={{ background: color }} />)}</div></div> : null}
+    {visible.has('dressCode') ? <div className="ff-dress-code"><div><span className="ff-kicker">WHAT TO WEAR</span><h2>{data.dressCode.heading.split('|')[0]}<br /><em>{data.dressCode.heading.split('|')[1]}</em></h2><p>{data.dressCode.message}</p></div><div className="ff-dress-code-palette"><span className="ff-kicker">Dresscode</span><div className="ff-swatches" aria-label="Gợi ý màu trang phục">{dressCodeColors.map((color, index) => <i key={index} style={{ background: color }} />)}</div></div></div> : null}
   </section> : null
   const mapped: Partial<Record<ForeverSectionKey, React.ReactNode>> = {
     hero,
-    announcement: <section className="ff-announcement" id="announcement"><span className="ff-kicker" data-kicker-typewriter>A NOTE TO OUR FAVORITE PEOPLE</span><p>{data.announcement.message}</p><span className="ff-signature">{data.announcement.signature}</span></section>,
+    announcement: <section className="ff-announcement" id="announcement"><span className="ff-kicker" data-kicker-typewriter>A NOTE TO OUR FAVORITE PEOPLE</span><p>{data.announcement.message}</p><span className="ff-signature">Thân mời, {data.hero.brideName} &amp; {data.hero.groomName}</span></section>,
     couple: <section className="ff-intro" id="couple"><div className="ff-intro-photo"><img src={data.couple.image} alt={`Ảnh cưới của ${data.hero.brideName} và ${data.hero.groomName}`} /></div><div className="ff-intro-copy"><span className="ff-kicker">TWO PEOPLE, ONE HOME</span><h2>Chúng mình là<br /><em>{data.hero.brideName} & {data.hero.groomName}.</em></h2><p>{data.couple.bio}</p><button className="ff-text-link ff-open-album" type="button" onClick={() => { setGalleryIndex(0); setGalleryOpen(true) }}>Xem câu chuyện của chúng mình <span>↗</span></button></div></section>,
     story: storyItems.length ? <section className="ff-story" id="story"><div className="ff-section-heading"><span className="ff-kicker">NHỮNG MỐC ĐÁNG NHỚ</span><h2>{storyHeading.split('\n')[0]}<br /><em>{storyHeading.split('\n')[1] ?? ''}</em></h2></div><div className="ff-story-list">{storyItems.map((item, index) => <article className="ff-story-item" key={item.date || item.year || index}><span>{formatForeverDate(item.date || item.year || '').replaceAll(' — ', '.')}</span><div><h3>{item.title}</h3><p>{item.body}</p>{item.image ? <button className="ff-text-link ff-story-photo-link" type="button" onClick={() => setStoryPreviewImage({ src: item.image!, alt: item.title })}>Xem ảnh <span aria-hidden="true">↗</span></button> : null}</div><span className="ff-story-mark" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></article>)}</div></section> : null,
     events,

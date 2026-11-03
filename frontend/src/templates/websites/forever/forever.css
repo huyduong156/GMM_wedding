@@ -1,11 +1,10 @@
 .ff-page {
     --ink: #242522;
-    --muted: #74746e;
     --paper: #f5f4ef;
     --line: #d8d7d0;
     background: var(--paper);
     color: var(--ink);
-    font-family: 'Nunito Sans GMM', Arial, sans-serif;
+    font-family: 'Old Standard TT', Georgia, serif;
     font-size: 14px;
     line-height: 1.65;
     overflow-x: clip;
@@ -54,57 +53,6 @@
     color: #88877f
 }
 
-.ff-nav {
-    height: 76px;
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    align-items: center;
-    padding: 0 5.5%;
-    background: var(--paper)
-}
-
-.ff-wordmark {
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: -.08em
-}
-
-.ff-wordmark span {
-    padding: 0 3px;
-    color: #9a8877
-}
-
-.ff-nav nav {
-    display: flex;
-    justify-content: center;
-    gap: 38px
-}
-
-.ff-nav nav a,
-.ff-nav-rsvp {
-    font-size: 11px;
-    letter-spacing: .04em
-}
-
-.ff-nav nav a {
-    color: #77776f
-}
-
-.ff-nav nav a:hover,
-.ff-nav-rsvp:hover {
-    color: #9a7664
-}
-
-.ff-nav-rsvp {
-    justify-self: end;
-    border-bottom: 1px solid var(--ink);
-    padding: 7px 0
-}
-
-.ff-nav-rsvp span {
-    padding-left: 12px
-}
-
 .ff-hero {
     height: min(790px, 100svh);
     min-height: 580px;
@@ -116,7 +64,8 @@
 .ff-hero-image {
     position: absolute;
     inset: 0;
-    object-position: center 41%
+    object-position: center 41%;
+    transform: scale(1)
 }
 
 .ff-hero-shade {
@@ -770,6 +719,13 @@
     gap: 12px
 }
 
+.ff-dress-code-palette {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    align-content: center
+}
+
 .ff-swatches i {
     width: 52px;
     height: 52px;
@@ -945,7 +901,7 @@
 
 .ff-footer--image {
     background-image: linear-gradient(rgb(40 41 37 / 68%), rgb(40 41 37 / 68%)), var(--ff-footer-image);
-    background-position: center;
+    background-position: center, center 15%;
     background-size: cover;
     background-repeat: no-repeat;
 }
@@ -986,24 +942,6 @@
 }
 
 @media(max-width:760px) {
-    .ff-nav {
-        height: 62px;
-        grid-template-columns: 1fr auto 1fr;
-        padding: 0 6%
-    }
-
-    .ff-nav nav {
-        gap: 14px
-    }
-
-    .ff-nav nav a {
-        font-size: 9px
-    }
-
-    .ff-nav-rsvp {
-        font-size: 9px
-    }
-
     .ff-hero {
         height: 82svh;
         min-height: 500px
@@ -1100,11 +1038,6 @@
         flex-basis: 180px
     }
 
-    .ff-photo-sequence figure:nth-child(4n + 1) { margin-top: 0 }
-    .ff-photo-sequence figure:nth-child(4n + 2) { margin-top: 92px }
-    .ff-photo-sequence figure:nth-child(4n + 3) { margin-top: 23px }
-    .ff-photo-sequence figure:nth-child(4n) { margin-top: 56px }
-
     .ff-photo-sequence img {
         height: 76.56vw;
         max-height: 475.2px
@@ -1168,14 +1101,6 @@
 }
 
 @media(max-width:420px) {
-    .ff-nav nav {
-        gap: 10px
-    }
-
-    .ff-nav nav a {
-        font-size: 8px
-    }
-
     .ff-hero-bottom a {
         max-width: 115px;
         text-align: center;
@@ -1208,11 +1133,6 @@
         will-change: auto
     }
 
-    .ff-page * {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important
-    }
 }
 
 /* Event cards stay side by side on desktop and become a one-card mobile marquee. */
@@ -1495,10 +1415,6 @@
     }
 }
 
-.ff-motion-ready [data-editor-section="hero"][data-motion-visible="true"] [data-motion-part] {
-    animation: none !important
-}
-
 .ff-page>[data-editor-section] {
     position: relative;
     isolation: isolate;
@@ -1567,7 +1483,8 @@
     opacity: .18;
     background-image: radial-gradient(circle at 12% 22%, #8c8980 0 1px, transparent 1.5px), radial-gradient(circle at 71% 64%, #8c8980 0 1px, transparent 1.5px), radial-gradient(circle at 42% 83%, #8c8980 0 1px, transparent 1.5px);
     background-size: 190px 220px, 260px 280px, 330px 300px;
-    animation: ff-ambient-drift 46s linear infinite
+    animation: ff-ambient-drift 46s linear infinite;
+    animation-play-state: paused
 }
 
 .ff-page>[data-editor-section][data-motion-visible="true"]>.ff-decor {
@@ -1669,11 +1586,13 @@
 .ff-faq-list summary:after {
     content: '+';
     float: right;
-    color: #85857d
+    color: #85857d;
+    transition: transform 180ms ease-out
 }
 
 .ff-faq-list details[open] summary:after {
-    content: '−'
+    content: '−';
+    transform: rotate(45deg)
 }
 
 .ff-faq-list details p {
@@ -1729,25 +1648,15 @@
     }
 }
 
-.ff-page {
-    font-family: 'Old Standard TT', Georgia, serif
-}
-
 .ff-page h1,
 .ff-page h2,
 .ff-page h3 {
     font-family: 'Playfair Display GMM', Georgia, serif
 }
 
-.ff-page h2 em,
-.ff-page .ff-hero-title i {
-    font-family: inherit
-}
-
 .ff-announcement p,
 .ff-signature,
-.ff-rsvp>p,
-.ff-gift p {
+.ff-rsvp>p {
     font-family: 'Old Standard TT', Georgia, serif
 }
 
@@ -1840,19 +1749,13 @@
 .ff-motion-ready [data-motion="section"] {
     opacity: 0;
     visibility: hidden;
-    transform: translate3d(0, 18px, 0);
-    transition: opacity 780ms cubic-bezier(.22, 1, .36, 1), transform 780ms cubic-bezier(.22, 1, .36, 1), visibility 0s linear 780ms
+    transform: translate3d(0, 18px, 0)
 }
 
 .ff-motion-ready [data-motion="section"][data-motion-visible="true"] {
     opacity: 1;
     visibility: visible;
-    transform: translate3d(0, 0, 0);
-    transition-delay: 0ms
-}
-
-.ff-hero-image {
-    transform: scale(1)
+    transform: translate3d(0, 0, 0)
 }
 
 .ff-hero-title,
@@ -1866,18 +1769,6 @@
     animation: ff-hero-image-in 1400ms cubic-bezier(.22, 1, .36, 1) both
 }
 
-.ff-motion-ready [data-editor-section="hero"][data-motion-visible="true"] [data-motion-part] {
-    animation: ff-hero-copy-in 650ms cubic-bezier(.22, 1, .36, 1) both
-}
-
-.ff-motion-ready [data-editor-section="hero"][data-motion-visible="true"] [data-motion-part="title"] {
-    animation-delay: 120ms
-}
-
-.ff-motion-ready [data-editor-section="hero"][data-motion-visible="true"] [data-motion-part="bottom"] {
-    animation-delay: 220ms
-}
-
 @keyframes ff-hero-image-in {
     from {
         transform: scale(1.045)
@@ -1888,40 +1779,10 @@
     }
 }
 
-@keyframes ff-hero-copy-in {
-    from {
-        opacity: 0;
-        transform: translate3d(0, 12px, 0)
-    }
-
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0)
-    }
-}
-
-.ff-faq-list summary:after {
-    transition: transform 180ms ease-out
-}
-
-.ff-faq-list details[open] summary:after {
-    transform: rotate(45deg)
-}
-
 @media(max-width:760px) {
     .ff-motion-ready [data-motion="section"] {
         transform: translate3d(0, 12px, 0)
     }
-
-    .ff-wedding-party {
-        padding: 90px 8%
-    }
-
-    .ff-party-groups {
-        gap: 36px;
-        margin-top: 36px
-    }
-
 }
 
 @media(prefers-reduced-motion:reduce) {
@@ -1955,10 +1816,6 @@
 }
 
 .ff-page>[data-editor-section]:not([data-effects-active="true"])>.ff-decor {
-    animation-play-state: paused
-}
-
-.ff-page>[data-editor-section]>section:before {
     animation-play-state: paused
 }
 

@@ -10,14 +10,37 @@ function prismaMock(maxPartySize:number, upsert=vi.fn()) {
   } as unknown as PrismaClient
 }
 describe("PublicInteractionService",()=>{
-  it("stores the anonymous RSVP name submitted from the common invitation URL",async()=>{
+  it("accepts RSVP submissions for a common website publication",async()=>{
     const create=vi.fn().mockResolvedValue({id:"rsvp-1",guestId:null,attendance:"ATTENDING",partySize:1,updatedAt:new Date()})
+    const findSnapshot=vi.fn().mockResolvedValue({ wedding: { id: "wedding-1" } })
     const prisma={
-      publishedWeddingSnapshot: { findFirst: vi.fn().mockResolvedValue({ wedding: { id: "wedding-1" } }) },
+      publishedWeddingSnapshot: { findFirst: findSnapshot },
       rsvpResponse: { create },
     } as unknown as PrismaClient
     await new PublicInteractionService(prisma).submitRsvp("mai-duc",{guestName:"Nguyễn An",attendance:"ATTENDING",partySize:1})
     expect(create).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({anonymousGuestName:"Nguyễn An"})}))
+    expect(findSnapshot).toHaveBeenCalledWith(expect.objectContaining({where:expect.objectContaining({surface:{in:["ONLINE_INVITATION","WEDDING_WEBSITE"]}})}))
+  })
+  it("lists approved wishes for a website-only publication",async()=>{
+    const findSnapshot=vi.fn().mockResolvedValue({ wedding: { id: "wedding-1" } })
+    const findWishes=vi.fn().mockResolvedValue([])
+    const prisma={
+      publishedWeddingSnapshot: { findFirst: findSnapshot },
+      wish: { findMany: findWishes },
+    } as unknown as PrismaClient
+    await new PublicInteractionService(prisma).approvedWishes("mai-duc")
+    expect(findSnapshot).toHaveBeenCalledWith(expect.objectContaining({where:expect.objectContaining({surface:{in:["ONLINE_INVITATION","WEDDING_WEBSITE"]}})}))
+  })
+  it("accepts wishes for a website-only publication",async()=>{
+    const findSnapshot=vi.fn().mockResolvedValue({ wedding: { id: "wedding-1" } })
+    const createWish=vi.fn().mockResolvedValue({ id: "wish-1", authorName: "An", content: "Chúc mừng", status: "PENDING", submittedAt: new Date() })
+    const prisma={
+      publishedWeddingSnapshot: { findFirst: findSnapshot },
+      wish: { create: createWish },
+    } as unknown as PrismaClient
+    await new PublicInteractionService(prisma).submitWish("mai-duc",{guestName:"An",content:"Chúc mừng"})
+    expect(findSnapshot).toHaveBeenCalledWith(expect.objectContaining({where:expect.objectContaining({surface:{in:["ONLINE_INVITATION","WEDDING_WEBSITE"]}})}))
+    expect(createWish).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({weddingId:"wedding-1",authorName:"An",content:"Chúc mừng"})}))
   })
   it("rejects an RSVP above the guest party-size limit",async()=>{
     const prisma=prismaMock(2)

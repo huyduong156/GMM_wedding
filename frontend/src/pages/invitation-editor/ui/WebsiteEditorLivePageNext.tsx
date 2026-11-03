@@ -735,7 +735,7 @@ export function WebsiteEditorLivePageNext() {
             ) : null}
           </header>
           <ol>
-            {order.map((key) => {
+            {order.map((key, index) => {
               const definition = definitions.find((item) => item.sectionKey === key)
               return (
                 <WebsiteSectionCard
