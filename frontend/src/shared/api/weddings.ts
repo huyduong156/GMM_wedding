@@ -28,6 +28,7 @@ export type TemplateSectionConfig =
       maxMediaPerItem?: number
       interaction?: string
       editorLayout?: string
+      editorHidden?: boolean
       mediaRoles?: string[]
       itemFields?: Record<string, TemplateFieldConfig>
     }
@@ -44,11 +45,13 @@ export type TemplateFieldConfig = {
     | 'items'
     | 'image'
     | 'images'
+    | 'colors'
     | 'audio'
   label?: string
   required?: boolean
   maxLength?: number
   maxItems?: number
+  minItems?: number
   emptyMessage?: string
   recommendedMinItems?: number
   default?: unknown

@@ -90,12 +90,23 @@ export function useEditorSections<S extends string>(
   const [selected, setSelected] = useState(initial[0])
   const [order, setOrder] = useState(initial)
   const [enabled, setEnabled] = useState(initial)
+  const canMoveInOrder = (current: S[], key: S, step: -1 | 1) => {
+    const from = current.indexOf(key)
+    const to = from + step
+    return (
+      from >= 0 &&
+      to >= 0 &&
+      to < current.length &&
+      canReorder(key) &&
+      canReorder(current[to])
+    )
+  }
+  const canMove = (key: S, step: -1 | 1) => canMoveInOrder(order, key, step)
   const move = (key: S, step: -1 | 1) =>
     setOrder((current) => {
       const from = current.indexOf(key)
       const to = from + step
-      if (to < 0 || to >= current.length || !canReorder(key) || !canReorder(current[to]))
-        return current
+      if (!canMoveInOrder(current, key, step)) return current
       const next = [...current]
       ;[next[from], next[to]] = [next[to], next[from]]
       return next
@@ -111,7 +122,7 @@ export function useEditorSections<S extends string>(
     setEnabled(nextEnabled)
     setSelected(nextOrder[0] ?? initialSectionRef.current)
   }, [])
-  return { selected, setSelected, order, enabled, move, toggle, reset }
+  return { selected, setSelected, order, enabled, canMove, move, toggle, reset }
 }
 
 export async function readEditorImages(

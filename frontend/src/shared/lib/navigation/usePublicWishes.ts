@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { WeddingApiError, weddingApi } from '../../api/weddings'
 import type { PublicWish, PublicWishesController } from './public-interaction-types'
 
@@ -17,7 +17,13 @@ export function usePublicWishes({
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const submissionLocked = useRef(false)
   useEffect(() => {
+    submissionLocked.current = false
+    setItems([])
+    setSubmitting(false)
+    setSubmitted(false)
+    setError('')
     if (!enabled || !weddingSlug) return
     let active = true
     void weddingApi
@@ -32,6 +38,8 @@ export function usePublicWishes({
   }, [enabled, weddingSlug])
   const submit = useCallback(
     async (input: { guestName?: string; content: string }) => {
+      if (submissionLocked.current) return false
+      submissionLocked.current = true
       setSubmitting(true)
       setError('')
       try {
@@ -40,6 +48,7 @@ export function usePublicWishes({
         setSubmitted(true)
         return true
       } catch (cause) {
+        submissionLocked.current = false
         setError(messageFor(cause))
         return false
       } finally {

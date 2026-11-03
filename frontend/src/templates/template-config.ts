@@ -12,6 +12,7 @@ export type TemplateConfig = {
   type: 'invitation' | 'website' | 'recap' | string
   previewPath: string
   defaultData?: Record<string, unknown>
+  quickEdit?: readonly { contentKey: string; label: string }[]
   palettes?: readonly { key: string; label: string; default?: boolean }[]
   sections: readonly TemplateSectionConfig[]
   normalizeStoredSectionOrder?: (order: string[]) => string[]

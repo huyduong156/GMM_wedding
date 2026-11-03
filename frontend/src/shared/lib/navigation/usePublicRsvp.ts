@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { WeddingApiError, weddingApi } from '../../api/weddings'
 import type { PublicRsvpController, PublicRsvpInput } from './public-interaction-types'
 
@@ -12,8 +12,17 @@ export function usePublicRsvp({ weddingSlug, guestSlug }: Props): PublicRsvpCont
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const submissionLocked = useRef(false)
+  useEffect(() => {
+    submissionLocked.current = false
+    setSubmitting(false)
+    setSubmitted(false)
+    setError('')
+  }, [guestSlug, weddingSlug])
   const submit = useCallback(
     async (input: PublicRsvpInput) => {
+      if (submissionLocked.current) return false
+      submissionLocked.current = true
       setSubmitting(true)
       setError('')
       try {
@@ -22,6 +31,7 @@ export function usePublicRsvp({ weddingSlug, guestSlug }: Props): PublicRsvpCont
         setSubmitted(true)
         return true
       } catch (cause) {
+        submissionLocked.current = false
         setError(messageFor(cause))
         return false
       } finally {

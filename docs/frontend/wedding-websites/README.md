@@ -39,3 +39,9 @@ Với mọi website template có chủ đề cụ thể, media do user upload ch
 `Enchanted Forest Wedding` v1.0.0 tại `/templates/websites/enchanted-forest/preview` dùng forest/moss/olive/wood/ivory và hero diorama 2.5D. Nhận diện độc lập với media user gồm scene rừng, cổ thụ tiền cảnh, canopy garland, vine wreath, fern sprites, sương, tia nắng và hạt bụi; champagne/vows props tạo nhịp section. Hero dùng memory portal dạng vòm với các lớp ảnh ở nhiều trục Z; album dùng carousel 3D có điều khiển trước/sau và pause, tự chuyển mỗi 5 giây. Parallax chỉ tập trung ở hero, các motion hỗ trợ dùng transform/opacity và chuyển thành bố cục tĩnh theo reduced motion.
 
 Ba preview website hiện dùng cùng section metadata contract; countdown của từng theme cập nhật theo thời gian thực và mọi artwork được kiểm tra tồn tại trong asset bundle trước khi phát hành.
+
+## Forever
+
+`Forever` is available at `/templates/websites/forever/preview`. It is a Vietnamese-first editorial wedding website with editable event copy, couple details, gallery, RSVP, guestbook, and renderer-owned decor. Its runtime assets and effects are listed in the [asset manifest](../../../frontend/src/templates/websites/forever/ASSET_MANIFEST.md), with provenance in the [asset source record](../../../frontend/src/templates/websites/forever/ASSET_SOURCES.md).
+
+The shared public RSVP and guestbook endpoints support both website and invitation publications. Before release, review screenshots and contrast at 375, 390, 768, and 1280px, including reduced motion.

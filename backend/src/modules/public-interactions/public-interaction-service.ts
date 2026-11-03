@@ -1,6 +1,8 @@
 import type { PrismaClient } from '@prisma/client'
 import { GuestError } from '@/modules/guests/domain/guest-error'
 
+const commonPublicationSurfaces = ['ONLINE_INVITATION', 'WEDDING_WEBSITE'] as const
+
 export type RsvpInput = {
   guestName?: string | undefined
   attendance: 'ATTENDING' | 'DECLINED' | 'MAYBE'
@@ -14,10 +16,14 @@ export type WishInput = { guestName?: string | undefined; content: string }
 export class PublicInteractionService {
   constructor(private readonly prisma: PrismaClient) {}
 
-  private async publishedWedding(slug: string, requirePublic = true) {
+  private async publishedWedding(
+    slug: string,
+    requirePublic = true,
+    surfaces: readonly ('ONLINE_INVITATION' | 'WEDDING_WEBSITE')[] = ['ONLINE_INVITATION'],
+  ) {
     const snapshot = await this.prisma.publishedWeddingSnapshot.findFirst({
       where: {
-        surface: 'ONLINE_INVITATION',
+        surface: { in: [...surfaces] },
         unpublishedAt: null,
         wedding: {
           slug,
@@ -33,7 +39,7 @@ export class PublicInteractionService {
   }
 
   async approvedWishes(weddingSlug: string) {
-    const wedding = await this.publishedWedding(weddingSlug, false)
+    const wedding = await this.publishedWedding(weddingSlug, false, commonPublicationSurfaces)
     return {
       wishes: await this.prisma.wish.findMany({
         where: { weddingId: wedding.id, status: 'APPROVED', deletedAt: null },
@@ -57,7 +63,7 @@ export class PublicInteractionService {
   async submitRsvp(weddingSlug: string, input: RsvpInput) {
     if (!input.guestName)
       throw new GuestError('GUEST_NAME_REQUIRED', 400, 'Guest name is required for the common invitation URL')
-    const wedding = await this.publishedWedding(weddingSlug, false)
+    const wedding = await this.publishedWedding(weddingSlug, false, commonPublicationSurfaces)
     return this.saveRsvp(wedding.id, null, 50, input)
   }
 
@@ -94,7 +100,7 @@ export class PublicInteractionService {
   async submitWish(weddingSlug: string, input: WishInput) {
     if (!input.guestName)
       throw new GuestError('GUEST_NAME_REQUIRED', 400, 'Guest name is required for the common invitation URL')
-    const wedding = await this.publishedWedding(weddingSlug, false)
+    const wedding = await this.publishedWedding(weddingSlug, false, commonPublicationSurfaces)
     return {
       wish: await this.prisma.wish.create({
         data: { weddingId: wedding.id, guestId: null, authorName: input.guestName, content: input.content },
