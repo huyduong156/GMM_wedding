@@ -7,9 +7,9 @@
 ### Brief
 
 - **Product:** `WEDDING_WEBSITE`, the public shared website for one wedding.
-- **Purpose:** give guests a calm place to learn about the couple, find the date/events/venues and travel details, RSVP, and leave a wish.
+- **Purpose:** give guests a calm place to learn about the couple, find the date, events, and venues, RSVP, and leave a wish.
 - **Audience:** invited guests, primarily on mobile; family and friends also browse on desktop.
-- **Journey:** hero and welcome → couple/story → date, events, venues → gallery/schedule → dress code, travel, FAQ → RSVP, guestbook, optional gift → closing. Forever deliberately has no navigation bar.
+- **Journey:** hero and welcome → couple/story → date, events, and reception activities → venues → gallery → dress code and FAQ → RSVP, guestbook, optional gift → closing. Forever has no navigation or standalone travel section.
 - **Art direction:** modern minimal editorial, warm off-white surfaces, charcoal type, muted stone accents, generous whitespace, fine rules, and large calm photo compositions. Use Playfair Display GMM for titles and Old Standard TT for supporting text.
 - **Tone:** warm, composed, personal, and easy to scan. Vietnamese is primary. Keep English labels brief and use no more than three short English quotes/taglines.
 - **Signature interaction candidate:** accessible gallery lightbox. It supports a useful guest task while native vertical scrolling and wedding logistics remain primary. Final interaction details stay open for renderer design.
@@ -22,27 +22,26 @@ Forever omits the navigation visual section by design. Its visual order starts a
 | Section / rule | Content anchor and canonical keys | Editor, default, and empty behavior | Action |
 |---|---|---|---|
 | `hero` required, fixed first | `hero.eyebrow`, `brideName`, `groomName`, `headline`, `primaryEventId`, `heroMediaId` | Editable names, optional eyebrow/headline, public primary event, optional image; missing image uses type-led composition | Scroll to event details and optional RSVP |
-| `announcement` required, fixed second | `announcement.title`, `message` | Editable title/message; no guest-name interpolation; missing required message is a validation error | Optional details link |
-| `couple` required, reorderable | `couple.bride.{displayName,biography,portraitMediaId,socialLinks}`, same for groom | Editable profiles; optional portraits/social links; missing portraits use initials/type; absent social links disappear | Validated HTTPS social links |
-| `story` optional, reorderable | `story.title`, `introduction`, `milestones[]` | Repeatable date/title/body/image, max 12; empty list removes section and never reseeds fixture | Optional link to next chapter |
-| `events` required, reorderable | `events.title`, `eventIds[]`, `introduction` | Select same-wedding `isPublic=true` events; empty event list fails validation | Event calendar/map actions from public projection |
+| `announcement` required, fixed second | `announcement.message` | Editable message; the rendered kicker and signature are template copy, not inputs; no guest-name interpolation; missing required message is a validation error | Optional details link |
+| `couple` required, reorderable | `couple.image`, `couple.bio`; names come from the shared hero values | Editable couple photo and introduction; the album is managed in the Gallery section | Opens the shared photo album |
+| `story` optional, reorderable | Editable section heading and repeatable `date/title/body/image` milestones | Date picker for each milestone, optional photo opens from an “Xem ảnh” action, add/remove up to 12; empty list removes section and never reseeds fixture | Optional link to next chapter |
+| `events` required, reorderable | `events.summary` and repeatable `events.items[]` | Add/edit/remove up to 12 event cards under `events.items`; adding a card preserves the event summary. An empty `items[]` hides the section in the preview | Event map action appears when a map URL is provided |
+| `activities` optional, reorderable | `activities.heading`, `items[]` | Guest participation ideas as repeatable title/image cards, max 10; empty hides | Editorial photo-card grid with image alt from title |
 | `countdown` optional, reorderable | `countdown.eventId` | Select public event; no editable timer copy; hide for invalid/past event | Timestamp/timezone-based; never negative |
-| `venues` required, reorderable | `venues.title`, `eventIds[]`, `travelNote` | Select public venues/events; address remains if map URL is missing/invalid | Validated HTTPS map link when supplied |
-| `gallery` optional, reorderable | `gallery.title`, `introduction`, `mediaIds[]` | READY media picker/order, max 40; empty hides section | Keyboard/touch accessible lightbox |
-| `schedule` optional, reorderable | `schedule.title`, `items[]` | Repeatable event/time/title/detail, max 30; empty hides | Link back to event details |
-| `weddingParty` optional, reorderable | `weddingParty.title`, `groups[]` | Repeatable groups/members, max 8 × 20; optional portraits/bios; empty hides | Never use guest list as source |
-| `dressCode` optional, reorderable | `dressCode.title`, `message`, `colors[]` | Editable note and optional labeled HEX swatches; empty note/swatches hides | No required action |
-| `travel` optional, reorderable | `travel.title`, `items[]` | Repeatable hotel/transport/parking/other, max 20; optional validated HTTPS URL; empty hides | Link only when configured |
-| `faq` optional, reorderable | `faq.title`, `items[]` | Repeatable Q/A, max 20; no hardcoded prototype questions; empty hides | Keyboard accessible disclosure or visible list |
-| `rsvp` optional, reorderable; capability must work | `rsvp.title`, `message`, `deadline`, `eventIds[]` | Editable introduction/deadline/event selection; empty event list invalid; form system labels stay renderer-owned | Common RSVP adapter: idle, submitting, success, validation/server/rate-limit/offline error, closed |
-| `guestbook` optional, reorderable; capability must work | `guestbook.title`, `message` | Editable introduction; approved messages are runtime data; empty approved list still permits submission | Common guestbook adapter; never expose unapproved entries |
-| `gift` optional, reorderable, opt-in | `gift.title`, `message`, `accounts[]` | Off by default; no accounts/message means absent; no real bank details in fixture/logs | Reveal configured account/QR only after owner opt-in |
+| `venues` required, reorderable | `venues.image`, `heading`, `note`, `address`, `mapUrl` | Edit the actual venue photo, two-line heading, description, address, and optional map URL; photo alt is generated | Map link appears only when provided |
+| `gallery` optional, reorderable | `gallery.heading`, `gallery.images[]` | Multiple image picker with 4–10 photos, managed in this section; an empty array hides the section in preview | Continuous leftward marquee; keyboard/touch accessible lightbox; the couple section button opens this album |
+| `weddingParty` | — | Temporarily omitted from the Forever editor and section list until its public UI is implemented | Existing content is preserved |
+| `dressCode` optional, reorderable | `dressCode.heading`, `dressCode.message`, `dressCode.colors[]` | Editable heading and guidance; color picker supports up to 8 suggested swatches | No required action |
+| `faq` optional, reorderable | `faq.items[]` | Three fixture Q/A items appear in the editor by default; add/edit/remove up to 20 | Keyboard accessible disclosure; empty list hides the answers |
+| `rsvp` optional, reorderable; capability must work | `rsvp.heading`, `message`, `note` | Guest enters a name, selects attending/declining, and submits once per page load through the public RSVP API; labels remain fixed template copy | Common RSVP adapter: idle, submitting, success, validation/server/rate-limit/offline error, closed |
+| `guestbook` optional, reorderable; capability must work | `guestbook.heading` | Guest enters a name and message; submit once per page load through the public wishes API; render approved wishes loaded from that API | Fixed action label; never expose unapproved entries |
+| `gift` optional, reorderable, opt-in | `gift.heading`, `gift.message`, `gift.qrImage` | Editable gentle title and thank-you; optional uploaded transfer QR, hidden when empty. Suggested title: “Nếu bạn muốn gửi thêm lời chúc”; the copy makes clear attendance is already meaningful and gifts are optional | QR stays uncropped and appears only when the couple uploads one |
 | `footer` required, fixed last | `footer.message`, `signature` | Editable thank-you; signature may derive names; missing required message fails validation | Optional return-to-top |
-| `music` optional global, not reorderable | `music.musicTrackId`, `autoplay` | No track/autoplay false by default; catalog picker | Visible play/pause; user gesture if autoplay is blocked |
+| `music` optional global, fixed | `music.backgroundMusicUrl`, `backgroundMusicName`, `backgroundMusicAutoplay` | Invitation-shared catalog picker and autoplay setting; no track/autoplay false by default | Shared rotating music player; user gesture if autoplay is blocked; unavailable without a selected track |
 
 ### Fixture, editor, and acceptance
 
-- Use clearly fictional content and approved demo media. Plan two public events, one or more venues, three story beats, 4–8 mixed-ratio gallery images, schedule, FAQ, and optional travel/dress-code/wedding-party data. Include empty/off variants, long names/copy, missing and non-READY media, and a passed event. Exclude guest lists, invite tokens, real account/contact details, and real PII.
+- Use clearly fictional content and approved demo media. Plan two public events, one or more venues, a reception activity list, three story beats, 4–8 mixed-ratio gallery images, FAQ, and optional dress-code/wedding-party data. Include empty/off variants, long names/copy, missing and non-READY media, and a passed event. Exclude guest lists, invite tokens, real account/contact details, and real PII.
 - Types and paths mirror `WeddingWebsiteContentV1`. Each editable field gets a Vietnamese label, type, `contentKey`, constraints, default/options, `itemFields`, and `mediaRole` as applicable. Use shared editor schema; no template-key branches.
 - Fixed CTA/form/system copy stays in the renderer. Empty arrays stay empty; no fixture reseeding. Required content validates; optional enabled-but-empty content is normalized off or raises a clear validation error. Toggling removes both DOM and nav anchor.
 - Acceptance: recognizable layout after all photos are replaced or removed; config/section/order agreement; SEO title/description/canonical/OG, exactly one `h1`, focus/keyboard/contrast, adapter states, and responsive review at 375/390/480/768/1280px plus reduced motion.
@@ -64,7 +63,7 @@ All user media is replaceable content. Renderer-owned identity comes from type, 
 | `weddingParty.groups[].members[].mediaId` | User upload, nullable/member, contract max 160 | Portrait crop/focal; alt uses member name/role; lazy-load | Keep name/role, use initials fallback; never source from guest list |
 | `seo.ogImageId` | Optional READY user media, one | Landscape social crop with focal point | Renderer-owned title card with names/date when missing or failed |
 | `gift.accounts[].qrMediaId` | Owner-provided, opt-in, nullable/account | Preserve full QR with no crop or quality-damaging encode; alt states account owner/purpose; load only when shown | Show configured text details without QR or omit empty account; never log QR/account data |
-| Events, venues, travel | No image required | HTTPS map URLs are links, not embedded media; address text is primary | Missing/broken map leaves address visible; no map iframe in v1 |
+| Events and venues | No image required | HTTPS map URLs are links, not embedded media; address text is primary | Missing/broken map leaves address visible; no map iframe in v1 |
 | Music | No image required | Catalog track; explicit play/pause control | No track hides control; blocked autoplay falls back to visible play action |
 
 ### Media editability and independence
@@ -81,6 +80,6 @@ The reference uses sample couple data/photos and fixed copy/dates. Phase 3 now m
 ## Phase 4 — Motion
 
 - The hero photo makes a one-time, 1.4-second scale settle; hero copy enters in a short stagger.
-- Sections and each meaningful content element within them reveal once with opacity and a restrained upward rise: headings, copy blocks, image frames, links/actions, event/date details, and repeatable cards/rows each have their own observed target. Sibling elements enter in order at 180ms intervals with a 1.05-second transition so each step is easy to follow.
+- Sections and meaningful inner elements reveal once with separate targets: headings and copy rise gently, while photos settle from a slight scale. The observer begins at the line one third above the viewport bottom; transitions last 1.1 seconds and sibling delays step by 120ms, capped at 480ms for long lists.
 - Gallery images use a small hover scale only on hover-capable pointers. FAQ disclosure and music controls use short state transitions.
 - Mobile reduces the reveal offset to 10px. `prefers-reduced-motion` keeps all content visible and disables the entrance, stagger, hover, and state transitions. No looped ambient animation or scroll-linked motion is used.

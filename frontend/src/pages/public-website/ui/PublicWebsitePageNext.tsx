@@ -9,6 +9,8 @@ import { EnchantedForestWebsite } from '../../../templates/websites/enchanted-fo
 import { CherryBlossomGardenWebsite } from '../../../templates/websites/cherry-blossom-garden/CherryBlossomGardenWebsite'
 import { ForeverWebsite } from '../../../templates/websites/forever/ForeverWebsite'
 import { publicSurfaceMetadata, usePageMetadata } from '../../../shared/lib/page-metadata'
+import { usePublicRsvp } from '../../../shared/lib/navigation/usePublicRsvp'
+import { usePublicWishes } from '../../../shared/lib/navigation/usePublicWishes'
 
 export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) {
   const auth = useOptionalAuth()
@@ -17,6 +19,11 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [error, setError] = useState('')
+  const rsvp = usePublicRsvp({ weddingSlug })
+  const wishes = usePublicWishes({
+    weddingSlug,
+    enabled: snapshot?.templateVersion.key === 'forever' && !snapshot.id.startsWith('draft-'),
+  })
   const metadata = useMemo(
     () =>
       snapshot
@@ -32,6 +39,7 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
   useEffect(() => {
     let active = true
     setLoading(true)
+    setSnapshot(undefined)
     setNotFound(false)
     setError('')
     void (async () => {
@@ -109,7 +117,7 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
     case 'cherry-blossom-garden':
       return <CherryBlossomGardenWebsite data={content as never} sectionConfig={config as never} />
     case 'forever':
-      return <ForeverWebsite data={content as never} sectionConfig={config as never} />
+      return <ForeverWebsite key={weddingSlug} data={content as never} sectionConfig={config as never} interactions={snapshot.id.startsWith('draft-') ? undefined : { isPersonalized: false, guestName: null, rsvp, wishes }} />
     default:
       return <StatusPage kind="not-found" />
   }

@@ -51,6 +51,7 @@ const previewPaths: Record<string, string> = {
   'van-hy': publicTemplateRoutes.vanHyPreview,
   'aurelia-court': publicTemplateRoutes.aureliaCourtPreview,
   'sunlit-silk': publicTemplateRoutes.sunlitSilkPreview,
+  forever: publicTemplateRoutes.foreverPreview,
 }
 const localMeta: Record<string, { style: string; palette: string }> = {
   'modern-luxe': { style: 'Hiện đại', palette: 'Champagne & nâu' },
@@ -95,7 +96,10 @@ function toTheme(template: WeddingTemplate): Theme | null {
         ? version.config.palette
         : (meta?.palette ?? 'Theo cấu hình mẫu'),
     sections,
-    previewPath: previewPaths[template.key],
+    previewPath:
+      typeof version.config.previewPath === 'string' && version.config.previewPath.startsWith('/')
+        ? version.config.previewPath
+        : previewPaths[template.key],
     thumbnailUrl: version.thumbnailUrl ?? null,
   }
 }

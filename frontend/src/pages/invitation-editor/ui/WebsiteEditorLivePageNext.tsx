@@ -30,23 +30,28 @@ import { PageLoading } from '../../../shared/ui/PageLoading'
 import { SharePublicationModal } from '../../../shared/ui/SharePublicationModal'
 import { MobileEditorAdviceModal } from '../../../shared/ui/MobileEditorAdviceModal'
 import { TemplateSchemaFields } from '../../../shared/ui/template-editor/TemplateSchemaFields'
+import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
 import { useEditorPreviewScrollLock } from '../../../shared/ui/useEditorPreviewScrollLock'
 import { useDraggablePreviewPosition } from '../../../shared/ui/useDraggablePreviewPosition'
 import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
 import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 import { useEditorSections, useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import { getWebsiteTemplate } from '../../../templates/template-registry'
+import { toForeverDateInputValue } from '../../../templates/websites/forever/date-format'
+import { mergeSectionOrder } from './section-order'
 
 type Section = {
   sectionKey: string
   label?: string
   required?: boolean
   canReorder?: boolean
+  editorHidden?: boolean
   fields?: Record<string, TemplateFieldConfig>
 }
 type Data = Record<string, unknown>
 type History = { data: Data; order: string[]; enabled: string[]; theme: Data }
-type MediaTarget = { path: string; multiple: boolean; role: string; mediaValue?: 'url' | 'object' }
+type MediaTarget = { path: string; multiple: boolean; role: string; mediaValue?: 'url' | 'object'; minItems?: number; maxItems?: number }
+type QuickEditField = { contentKey: string; label: string }
 const initial = getWebsiteTemplate('editorial-vows')!
 const clone = <T,>(value: T): T => structuredClone(value)
 const keyOf = (value: unknown) =>
@@ -61,6 +66,19 @@ const sectionsOf = (key: string): Section[] =>
   ((getWebsiteTemplate(key)?.config.sections ?? []) as unknown[])
     .map((item) => (typeof item === 'string' ? { sectionKey: item } : (item as Section)))
     .filter((item) => item.sectionKey)
+const quickEditFieldsOf = (key: string): QuickEditField[] => {
+  const fields = getWebsiteTemplate(key)?.config.quickEdit
+  return Array.isArray(fields)
+    ? fields.filter((item): item is QuickEditField =>
+        Boolean(
+          item &&
+            typeof item === 'object' &&
+            typeof (item as QuickEditField).contentKey === 'string' &&
+            typeof (item as QuickEditField).label === 'string',
+        ),
+      )
+    : []
+}
 const mergeSections = (key: string, remote?: TemplateSectionConfig[]) => {
   const local = sectionsOf(key)
   const remoteKeys = new Map((remote ?? []).map((item) => [keyOf(item), item]))
@@ -78,10 +96,13 @@ const mergeSections = (key: string, remote?: TemplateSectionConfig[]) => {
     return {
       ...item,
       ...(remoteItem ?? {}),
+      fields: item.fields ?? remoteItem?.fields ?? {},
       sectionKey: keyOf(remoteItem) || keyOf(item),
       label: remoteItem?.label ?? item.label ?? keyOf(item),
+      canReorder: item.canReorder ?? remoteItem?.canReorder,
+      editorHidden: item.editorHidden ?? remoteItem?.editorHidden,
     }
-  })
+  }).filter((item) => !item.editorHidden)
 }
 const mergeData = (base: Data, stored: Data): Data => {
   const next = clone(base)
@@ -131,8 +152,10 @@ const defaults = (items: Section[], previous?: { order: string[]; enabled: strin
   const keys = items.map((x) => x.sectionKey)
   const old = previous?.order.filter((x) => keys.includes(x)) ?? []
   const added = keys.filter((x) => !old.includes(x))
+  const pinnedKeys = items.filter((x) => x.canReorder === false).map((x) => x.sectionKey)
+  const order = mergeSectionOrder(keys, [...old, ...added], pinnedKeys)
   return {
-    order: [...old, ...added],
+    order,
     enabled: [
       ...new Set([
         ...(previous?.enabled ?? []).filter((x) => keys.includes(x)),
@@ -163,6 +186,7 @@ export function WebsiteEditorLivePageNext() {
   const [data, setData] = useState<Data>(clone(initial.fixture))
   const [theme, setTheme] = useState<Data>({})
   const [definitions, setDefinitions] = useState<Section[]>(sectionsOf('editorial-vows'))
+  const [quickEditFields, setQuickEditFields] = useState<QuickEditField[]>([])
   const [selected, setSelected] = useState<string | null>('hero')
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -210,16 +234,23 @@ export function WebsiteEditorLivePageNext() {
     () => definitions.filter((x) => x.required).map((x) => x.sectionKey),
     [definitions],
   )
-  const { order, enabled, reset, move, toggle } = useEditorSections(
+  const { order, enabled, canMove, reset, move, toggle } = useEditorSections(
     definitions.map((x) => x.sectionKey),
     required,
     (key) => definitions.find((x) => x.sectionKey === key)?.canReorder !== false,
   )
+  const pendingSectionScroll = useRef<string | null>(null)
   const route = previewPath || getWebsiteTemplate(templateKey)?.previewPath || initial.previewPath
   const frame = useLiveEditorBridge<
     { data: Data; themeConfig: Data; sectionConfig: { enabled: string[]; order: string[] } },
     string
   >({ data, themeConfig: theme, sectionConfig: { enabled, order } })
+  useEffect(() => {
+    const key = pendingSectionScroll.current
+    if (!key || !frame.ready || !enabled.includes(key)) return
+    pendingSectionScroll.current = null
+    requestAnimationFrame(() => frame.scrollToSection(key))
+  }, [enabled, frame.ready, frame.scrollToSection])
   const signature = useCallback(
     (d: Data, o: string[], e: string[], t: Data) =>
       JSON.stringify({ data: d, order: o, enabled: e, theme: t }),
@@ -245,8 +276,64 @@ export function WebsiteEditorLivePageNext() {
         clone(getWebsiteTemplate(key)?.fixture ?? initial.fixture),
         result.content,
       )
+      if (key === 'forever' && Array.isArray(nextData.story)) {
+        nextData.story = nextData.story.map((value) => {
+          if (!value || typeof value !== 'object') return value
+          const milestone = value as Data
+          const legacyYear = typeof milestone.year === 'string' ? milestone.year : ''
+          return {
+            ...milestone,
+            date:
+              typeof milestone.date === 'string' && milestone.date
+                ? milestone.date
+                : /^\d{4}$/.test(legacyYear)
+                  ? `${legacyYear}-01-01`
+                  : '',
+          }
+        })
+      }
+      if (key === 'forever' && Array.isArray(nextData.events)) {
+        nextData.events = {
+          ...(getWebsiteTemplate(key)!.fixture.events as Data),
+          items: nextData.events,
+        }
+      }
+      if (key === 'forever' && Array.isArray(nextData.faq)) {
+        nextData.faq = {
+          ...(getWebsiteTemplate(key)!.fixture.faq as Data),
+          items: nextData.faq,
+        }
+      }
+      if (key === 'forever') {
+        const savedMusic = result.content.music && typeof result.content.music === 'object'
+          ? result.content.music as Data
+          : {}
+        const legacyProjection = savedMusic.projection && typeof savedMusic.projection === 'object'
+          ? savedMusic.projection as Data
+          : {}
+        const musicDefaults = getWebsiteTemplate(key)!.fixture.music as Data
+        nextData.music = {
+          backgroundMusicUrl:
+            (typeof savedMusic.backgroundMusicUrl === 'string' && savedMusic.backgroundMusicUrl) ||
+            (typeof legacyProjection.src === 'string' && legacyProjection.src) ||
+            (typeof savedMusic.musicTrackId === 'string' && savedMusic.musicTrackId) ||
+            '',
+          backgroundMusicName:
+            (typeof savedMusic.backgroundMusicName === 'string' && savedMusic.backgroundMusicName) ||
+            (typeof legacyProjection.title === 'string' && legacyProjection.title) ||
+            (typeof savedMusic.trackName === 'string' && savedMusic.trackName) ||
+            String(musicDefaults.backgroundMusicName ?? ''),
+          backgroundMusicAutoplay:
+            typeof savedMusic.backgroundMusicAutoplay === 'boolean'
+              ? savedMusic.backgroundMusicAutoplay
+              : typeof savedMusic.autoplay === 'boolean'
+                ? savedMusic.autoplay
+                : Boolean(musicDefaults.backgroundMusicAutoplay),
+        }
+      }
       setMissing(false)
       setTemplateKey(key)
+      setQuickEditFields(quickEditFieldsOf(key))
       setPreviewPath(
         typeof result.templateVersion.config.previewPath === 'string'
           ? result.templateVersion.config.previewPath
@@ -446,7 +533,7 @@ export function WebsiteEditorLivePageNext() {
       setMediaOpen(false)
       return
     }
-    const values = assets.map((asset) => ({
+    const values = assets.slice(0, mediaTarget.maxItems ?? assets.length).map((asset) => ({
       src: asset.publicUrl,
       alt: asset.originalName ?? 'Ảnh đã tải lên',
       mediaAssetId: asset.id,
@@ -499,6 +586,33 @@ export function WebsiteEditorLivePageNext() {
             <h1>Chỉnh sửa website</h1>
           </div>
         </div>
+        {quickEditFields.length ? (
+          <div className="editor-couple-quick-edit" data-guide="editor-quick-edit">
+            {quickEditFields.map((field) => {
+              const isDate = /date/i.test(field.contentKey) || /ngày/i.test(field.label)
+              const storedValue = getPath(data, field.contentKey)
+              const value = typeof storedValue === 'string' ? storedValue : ''
+              return (
+                <label className="editor-field" key={field.contentKey}>
+                  <span>{field.label}</span>
+                  {isDate ? (
+                    <NativeDateField
+                      value={toForeverDateInputValue(value)}
+                      onChange={(event) => update(field.contentKey, event.target.value)}
+                      aria-label={field.label}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(event) => update(field.contentKey, event.target.value)}
+                    />
+                  )}
+                </label>
+              )
+            })}
+          </div>
+        ) : null}
         <div className="editor-toolbar-actions">
           <div className="editor-toolbar-main-actions">
             <span className={`editor-live-status ${frame.ready ? 'is-ready' : ''}`}>
@@ -621,7 +735,7 @@ export function WebsiteEditorLivePageNext() {
             ) : null}
           </header>
           <ol>
-            {order.map((key, index) => {
+            {order.map((key) => {
               const definition = definitions.find((item) => item.sectionKey === key)
               return (
                 <WebsiteSectionCard
@@ -631,8 +745,8 @@ export function WebsiteEditorLivePageNext() {
                   required={Boolean(definition?.required)}
                   shown={enabled.includes(key)}
                   expanded={selected === key}
-                  canMoveUp={index > 0}
-                  canMoveDown={index < order.length - 1}
+                  canMoveUp={canMove(key, -1)}
+                  canMoveDown={canMove(key, 1)}
                   onSelect={() => {
                     setSelected((current) => (current === key ? null : key))
                     frame.scrollToSection(key)
@@ -642,6 +756,7 @@ export function WebsiteEditorLivePageNext() {
                     setDirty(true)
                   }}
                   onToggle={() => {
+                    if (!enabled.includes(key)) pendingSectionScroll.current = key
                     toggle(key)
                     setDirty(true)
                   }}
@@ -745,6 +860,8 @@ export function WebsiteEditorLivePageNext() {
       {weddingId ? (
         <MediaManagerModal
           selectionMode={mediaTarget?.multiple ? 'multiple' : 'single'}
+          minSelection={mediaTarget?.minItems}
+          maxSelection={mediaTarget?.maxItems}
           open={mediaOpen}
           assets={media.assets}
           selectedIds={mediaTarget ? mediaIdsAtValue(getPath(data, mediaTarget.path)) : []}

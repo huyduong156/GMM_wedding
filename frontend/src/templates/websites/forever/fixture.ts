@@ -2,34 +2,38 @@ import type { ForeverData, ForeverSectionConfig } from './content'
 
 const photos = '/assets/images/wedding-couples-examples/couple-001'
 export const foreverFixture: ForeverData = {
-  hero: { brideName: 'Linh', groomName: 'Huy', headline: 'We found our way', date: '10 — 01 — 2027', time: 'Sunday · 10:30 AM', location: 'Đà Lạt, Việt Nam', image: `${photos}/couple-pose-01-standing-portrait.webp`, imageAlt: 'Linh và Huy trong bộ ảnh cưới' },
+  hero: { brideName: 'Linh', groomName: 'Huy', eyebrow: 'THE WEDDING OF', headline: 'We found our way', date: '2027-01-10', time: 'Sunday · 10:30 AM', location: 'Đà Lạt, Việt Nam', image: `${photos}/couple-pose-01-standing-portrait.webp`, imageAlt: 'Linh và Huy trong bộ ảnh cưới' },
   announcement: { message: 'Điều đẹp nhất trong ngày này là được có bạn ở đó. Hãy cùng chúng mình bắt đầu một chương mới — thật gần gũi, thật vui, và thật nhiều kỷ niệm.', signature: 'Thương mời, Linh & Huy' },
-  couple: { image: `${photos}/couple-pose-03-standing-together.webp`, imageAlt: 'Chân dung Linh và Huy', bio: 'Thích những buổi sáng chậm, cà phê không đường và đi thật xa chỉ để tìm một quán ăn ngon. Tụi mình đã tìm thấy ở nhau một người bạn thân nhất — và muốn cùng bạn ăn mừng điều đó.' },
+  couple: { image: `${photos}/couple-pose-09-forehead-touch.webp`, imageAlt: 'Linh và Huy tựa trán vào nhau trong ngày cưới', bio: 'Tụi mình quen nhau từ những chuyện nhỏ xíu: một lần hỏi thăm, vài buổi cà phê rồi thành người đầu tiên muốn kể mọi chuyện. Giờ thì mời bạn đến ăn cưới, chứng kiến tụi mình nắm tay về chung một nhà nha.' },
+  storyHeading: 'Từ lần gặp\nđến ngày cưới.',
   story: [
-    { year: '2019', title: 'Một buổi chiều rất bình thường', body: 'Chúng mình gặp nhau qua một người bạn chung. Không có tia sét nào cả — chỉ là một cuộc trò chuyện cứ kéo dài mãi.' },
-    { year: '2021', title: 'Thành phố đầu tiên', body: 'Từ những chuyến đi ngắn cuối tuần đến cảm giác nơi nào cũng thành nhà, miễn là đi cùng nhau.' },
-    { year: '2026', title: 'Một lời hẹn dài lâu', body: 'Và rồi, giữa một ngày nắng nhẹ, chúng mình quyết định chọn nhau cho tất cả những ngày sau.' },
+    { date: '2019-06-08', title: 'Lần đầu gặp nhau', body: 'Bạn chung giới thiệu trong một buổi cà phê. Sau hôm đó, chúng mình bắt đầu nhắn tin và hẹn gặp thêm.' },
+    { date: '2020-07-18', title: 'Buổi hẹn đầu tiên', body: 'Chúng mình chọn một quán ăn gần nhà. Buổi tối trôi qua nhẹ nhàng, và là lần đầu cả hai hẹn riêng.' },
+    { date: '2026-02-14', title: 'Lời cầu hôn', body: 'Sau bữa tối tại nhà, Huy ngỏ lời. Linh đồng ý, rồi cả hai bắt đầu chọn ngày và chuẩn bị cho đám cưới.' },
   ],
   events: { summary: { weekday: 'CHỦ NHẬT', date: '10.01.27', hours: '11:00 — 15:00', venue: 'THE MIST · ĐÀ LẠT' }, items: [
     { type: '01 / CEREMONY', title: 'Lễ thành hôn', time: '10:30 sáng', date: 'Chủ Nhật, 10.01.2027', venue: 'Nhà kính The Mist', address: '12 Trần Hưng Đạo, Đà Lạt', mapUrl: 'https://maps.google.com/?q=12+Tran+Hung+Dao+Da+Lat' },
     { type: '02 / CELEBRATION', title: 'Tiệc mừng', time: '11:30 sáng · Đón khách từ 11:00', date: 'Chủ Nhật, 10.01.2027', venue: 'Nhà kính The Mist', address: '12 Trần Hưng Đạo, Đà Lạt', mapUrl: 'https://maps.google.com/?q=12+Tran+Hung+Dao+Da+Lat' },
   ] },
-  countdown: { message: 'Đếm từng ngày đến lúc gặp bạn', dateLabel: 'tháng 01, 2027', time: '10:30' },
+  activities: { heading: 'Những hoạt động|trong buổi tiệc.', items: [{ title: 'Photobooth kỷ niệm', image: `${photos}/couple-pose-10-floral-arch.webp` }, { title: 'Chụp ảnh cùng cô dâu chú rể', image: `${photos}/couple-pose-03-standing-together.webp` }, { title: 'Để lại lời chúc cho hai đứa', image: `${photos}/couple-pose-07-bouquet.webp` }] },
+  countdown: { message: 'Tụi mình đang chuẩn bị những điều cuối cùng. Hẹn gặp bạn hôm đó nhé.', dateLabel: 'tháng 01, 2027', time: '10:30' },
   venues: { image: `${photos}/couple-pose-06-bride-turns.webp`, imageAlt: 'Khoảnh khắc dịu dàng của cô dâu chú rể', heading: 'Đà Lạt,|tháng Một.', note: 'Thời tiết có thể se lạnh vào buổi sáng và tối. Tụi mình chọn một nơi trong nhà kính để mọi người thoải mái tận hưởng cả buổi lễ lẫn tiệc mừng.', address: '12 Trần Hưng Đạo, Đà Lạt', mapUrl: 'https://maps.google.com/?q=12+Tran+Hung+Dao+Da+Lat' },
-  gallery: { heading: 'Trước ngày|mình cưới.', images: ['couple-pose-03-standing-together.webp', 'couple-pose-04-looking-at-each-other.webp', 'couple-pose-02-garden-walk.webp', 'couple-pose-05-seated-bench.webp'].map((src, i) => ({ src: `${photos}/${src}`, alt: `Linh và Huy — khoảnh khắc ${i + 1}` })) },
-  schedule: { heading: 'Không cần vội.', items: [{ time: '10:30', title: 'Đón khách & chào nhau' }, { time: '11:00', title: 'Lễ thành hôn' }, { time: '11:30', title: 'Dùng tiệc, nâng ly' }, { time: '14:00', title: 'Chụp ảnh & chuyện trò' }] },
+  gallery: { heading: 'Trước ngày|mình cưới.', images: ['couple-pose-01-standing-portrait.webp', 'couple-pose-06-bride-turns.webp', 'couple-pose-09-forehead-touch.webp', 'bride-profile-left.webp', 'bride-front.webp', 'groom-front.webp', 'groom-profile-right.webp'].map((src, i) => ({ src: `${photos}/${src}`, alt: `Ảnh cưới Linh và Huy — khoảnh khắc ${i + 1}` })) },
   weddingParty: { title: 'Những người luôn ở bên chúng mình', groups: [] },
   dressCode: { heading: 'Thoải mái,|là chính bạn.', message: 'Trang phục thanh lịch với những gam màu trung tính sẽ rất hợp với không khí ngày hôm đó. Nhớ mang theo một chiếc áo khoác nhẹ nhé.', colors: ['#b6b3a7', '#d6c9b9', '#a5aaa1', '#d7d5cc', '#8b8078'] },
-  travel: { message: 'Đà Lạt tháng 1 khá đông vào cuối tuần. Nếu có thể, bạn hãy đặt chỗ ở sớm và dành thêm thời gian di chuyển đến địa điểm nhé.', linkLabel: 'Xem khu vực tổ chức', url: 'https://maps.google.com/?q=12+Tran+Hung+Dao+Da+Lat' },
   faq: { items: [{ question: 'Có chỗ đậu xe tại địa điểm không?', answer: 'Có khu vực đậu xe cạnh nhà kính. Nếu cần hỗ trợ tìm đường, cứ nhắn tụi mình nhé.' }, { question: 'Mình có thể đưa thêm người đi cùng không?', answer: 'Bạn báo giúp tụi mình số người trong phần xác nhận tham dự để sắp xếp chỗ ngồi chu đáo hơn nha.' }, { question: 'Nếu mình có chế độ ăn đặc biệt thì sao?', answer: 'Ghi chú giúp tụi mình khi xác nhận tham dự, nhà hàng sẽ chuẩn bị phù hợp.' }] },
   rsvp: { heading: 'Bạn đến nhé?', message: 'Cho tụi mình biết trước ngày 20.12 để chuẩn bị chu đáo hơn nha.', deadline: '20.12', note: 'Nếu có câu hỏi về ngày cưới, cứ nhắn tụi mình nhé.', actionLabel: 'XÁC NHẬN THAM DỰ' },
-  gift: { message: 'Sự có mặt của bạn đã là món quà quý nhất với tụi mình.' },
+  gift: {
+    heading: 'Nếu bạn muốn gửi thêm lời chúc',
+    message: 'Bạn đến chung vui đã là món quà quý giá với tụi mình. Nếu muốn gửi thêm quà mừng, bạn có thể quét mã bên dưới. Cảm ơn bạn nhiều.',
+    qrImage: '',
+  },
   guestbook: { heading: 'Một lời chúc cho ngày vui.', actionLabel: 'Gửi lời chúc' },
-  footer: { message: 'Thương mến,', signature: 'Linh & Huy' },
-  music: { musicTrackId: null, autoplay: false, projection: null },
+  footer: { message: 'Thương mến,', signature: 'Linh & Huy', backgroundImage: `${photos}/couple-pose-02-garden-walk.webp` },
+  music: { backgroundMusicUrl: '', backgroundMusicName: '', backgroundMusicAutoplay: false },
 }
 
 export const foreverSections: ForeverSectionConfig = {
-  enabled: ['hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'travel', 'faq', 'rsvp', 'gift', 'guestbook', 'footer'],
-  order: ['hero', 'announcement', 'couple', 'story', 'events', 'countdown', 'venues', 'gallery', 'schedule', 'dressCode', 'travel', 'faq', 'rsvp', 'gift', 'guestbook', 'footer'],
+  enabled: ['hero', 'announcement', 'couple', 'story', 'events', 'activities', 'countdown', 'venues', 'gallery', 'dressCode', 'faq', 'rsvp', 'gift', 'guestbook', 'footer', 'music'],
+  order: ['hero', 'announcement', 'couple', 'story', 'events', 'activities', 'countdown', 'venues', 'gallery', 'dressCode', 'faq', 'rsvp', 'gift', 'guestbook', 'footer', 'music'],
 }

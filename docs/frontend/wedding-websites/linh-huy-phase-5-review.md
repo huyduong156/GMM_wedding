@@ -24,6 +24,7 @@ Decor is selected by `sectionKey` in `ForeverWebsite.tsx`, so it follows the sec
 - Mobile lowers decor opacity and density. Gallery depth becomes a static 2D layout on touch/mobile; fine-pointer hover is optional enhancement.
 - Reduced motion keeps the approved artwork visible but disables dust, drift, float, gallery depth, hover, and reveal animation.
 - The page has no canvas or WebGL runtime; the ambient layer uses lightweight CSS gradients and bounded CSS transforms.
+- Hero copy and the lower banner details reveal immediately on page load; scroll-triggered reveal timing starts with the following sections. Story milestone photos remain optional and open in a focused lightbox only when present.
 
 ## Verification
 

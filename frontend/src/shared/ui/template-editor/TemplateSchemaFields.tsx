@@ -11,6 +11,8 @@ export type TemplateMediaPicker = (target: {
   multiple: boolean
   role: string
   mediaValue?: 'url' | 'object'
+  maxItems?: number
+  minItems?: number
 }) => void
 export type TemplateSchemaFieldsProps = {
   fields: Record<string, TemplateFieldConfig>
@@ -34,7 +36,7 @@ const getPath = (data: Record<string, unknown>, path: string) =>
     )
 const fieldValue = (field: TemplateFieldConfig) =>
   field.default ??
-  (field.type === 'items' || field.type === 'images' ? [] : field.type === 'boolean' ? false : '')
+  (field.type === 'items' || field.type === 'images' || field.type === 'colors' ? [] : field.type === 'boolean' ? false : '')
 
 export function TemplateSchemaFields({
   fields,
@@ -112,6 +114,43 @@ function TemplateField({
         mediaEnabled={mediaEnabled}
       />
     )
+  if (field.type === 'colors') {
+    const colors = Array.isArray(value) ? value.map(String) : []
+    const maxItems = field.maxItems ?? 8
+    return (
+      <div className="editor-field editor-color-field">
+        <span>{field.label ?? fieldKey}</span>
+        <div className="editor-color-list">
+          {colors.map((color, index) => (
+            <div className="editor-color-item" key={index}>
+              <input
+                type="color"
+                value={/^#[0-9a-f]{6}$/i.test(color) ? color : '#ffffff'}
+                aria-label={`${field.label ?? fieldKey} ${index + 1}`}
+                onChange={(event) => update(path, colors.map((item, itemIndex) => itemIndex === index ? event.target.value : item))}
+              />
+              <code>{color}</code>
+              <button
+                type="button"
+                aria-label={`Xóa màu ${index + 1}`}
+                onClick={() => update(path, colors.filter((_, itemIndex) => itemIndex !== index))}
+              >
+                <Trash />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          className="editor-add-item"
+          type="button"
+          disabled={colors.length >= maxItems}
+          onClick={() => update(path, [...colors, '#d6c9b9'])}
+        >
+          <Plus /> Thêm màu
+        </button>
+      </div>
+    )
+  }
   if (field.type === 'audio')
     return (
       <TemplateAudioField
@@ -133,6 +172,9 @@ function TemplateField({
         multiple={field.type === 'images'}
         role={field.mediaRole ?? fieldKey}
         mediaValue={field.mediaValue}
+        maxItems={field.maxItems}
+        minItems={field.minItems}
+        canClear={!field.required}
         openMediaManager={openMediaManager}
         enabled={mediaEnabled}
         onRemove={(index) =>
@@ -434,6 +476,9 @@ function TemplateMediaField({
   multiple,
   role,
   mediaValue,
+  maxItems,
+  minItems,
+  canClear,
   openMediaManager,
   enabled,
   onRemove,
@@ -444,6 +489,9 @@ function TemplateMediaField({
   multiple: boolean
   role: string
   mediaValue?: 'url' | 'object'
+  maxItems?: number
+  minItems?: number
+  canClear?: boolean
   openMediaManager?: TemplateMediaPicker
   enabled: boolean
   onRemove?: (index: number) => void
@@ -470,16 +518,23 @@ function TemplateMediaField({
   if (!multiple)
     return (
       <div className="editor-media-field">
-        <button
-          type="button"
-          className={'editor-image-picker ' + (urls.length ? 'has-image' : '')}
-          disabled={!enabled || !openMediaManager}
-          onClick={() => openMediaManager?.({ path, multiple: false, role, mediaValue })}
-          aria-label={(urls.length ? 'Thay ảnh: ' : 'Chọn ảnh: ') + label}
-        >
-          {urls[0] ? <img src={urls[0]} alt="" /> : <Image />}
-          <strong>{urls.length ? 'Thay ảnh' : 'Chọn ảnh'}</strong>
-        </button>
+        <div className="editor-image-single-controls">
+          <button
+            type="button"
+            className={'editor-image-picker ' + (urls.length ? 'has-image' : '')}
+            disabled={!enabled || !openMediaManager}
+            onClick={() => openMediaManager?.({ path, multiple: false, role, mediaValue })}
+            aria-label={(urls.length ? 'Thay ảnh: ' : 'Chọn ảnh: ') + label}
+          >
+            {urls[0] ? <img src={urls[0]} alt="" /> : <Image />}
+            <strong>{urls.length ? 'Thay ảnh' : 'Chọn ảnh'}</strong>
+          </button>
+          {canClear && urls.length > 0 ? (
+            <button type="button" className="editor-image-clear" disabled={!enabled} onClick={() => onRemove?.(0)}>
+              Xóa ảnh
+            </button>
+          ) : null}
+        </div>
       </div>
     )
   return (
@@ -487,13 +542,18 @@ function TemplateMediaField({
       <button
         type="button"
         className="editor-upload"
-        disabled={!enabled || !openMediaManager}
-        onClick={() => openMediaManager?.({ path, multiple: true, role, mediaValue })}
+        disabled={!enabled || !openMediaManager || (maxItems !== undefined && urls.length >= maxItems)}
+        onClick={() => openMediaManager?.({ path, multiple: true, role, mediaValue, minItems, maxItems })}
       >
         <Image />
         <strong>{urls.length ? 'Thay ảnh trong album' : 'Thêm ảnh vào album'}</strong>
         <span>Chọn nhiều ảnh từ kho media</span>
       </button>
+      {minItems !== undefined || maxItems !== undefined ? (
+        <p className="editor-items-note">
+          Album cần từ {minItems ?? 0} đến {maxItems ?? 'không giới hạn'} ảnh. Hiện có {urls.length} ảnh.
+        </p>
+      ) : null}
       {urls.length ? (
         <div className="editor-image-grid">
           {urls.map((url, index) => (
@@ -501,6 +561,7 @@ function TemplateMediaField({
               <img src={url} alt={label + ' ' + (index + 1)} />
               <button
                 type="button"
+                disabled={minItems !== undefined && urls.length <= minItems}
                 aria-label={'Xóa ảnh ' + (index + 1)}
                 onClick={() => onRemove?.(index)}
               >
@@ -631,6 +692,9 @@ function TemplateItemField({
         multiple={field.type === 'images'}
         role={field.mediaRole ?? fieldKey}
         mediaValue={field.mediaValue}
+        maxItems={field.maxItems}
+        minItems={field.minItems}
+        canClear={!field.required}
         openMediaManager={openMediaManager}
         enabled={mediaEnabled}
         onRemove={(index) =>
@@ -644,6 +708,28 @@ function TemplateItemField({
         <span>{field.label ?? fieldKey}</span>
         <textarea
           rows={3}
+          value={String(value ?? '')}
+          onChange={(event) => change(event.target.value)}
+        />
+      </label>
+    )
+  if (field.type === 'date')
+    return (
+      <label className="editor-field">
+        <span>{field.label ?? fieldKey}</span>
+        <NativeDateField
+          value={String(value ?? '')}
+          onChange={(event) => change(event.target.value)}
+          aria-label={field.label ?? fieldKey}
+        />
+      </label>
+    )
+  if (field.type === 'url')
+    return (
+      <label className="editor-field">
+        <span>{field.label ?? fieldKey}</span>
+        <input
+          type="url"
           value={String(value ?? '')}
           onChange={(event) => change(event.target.value)}
         />
