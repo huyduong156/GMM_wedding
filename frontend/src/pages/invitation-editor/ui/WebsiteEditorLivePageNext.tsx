@@ -245,12 +245,13 @@ export function WebsiteEditorLivePageNext() {
     { data: Data; themeConfig: Data; sectionConfig: { enabled: string[]; order: string[] } },
     string
   >({ data, themeConfig: theme, sectionConfig: { enabled, order } })
+  const { ready: frameReady, scrollToSection } = frame
   useEffect(() => {
     const key = pendingSectionScroll.current
-    if (!key || !frame.ready || !enabled.includes(key)) return
+    if (!key || !frameReady || !enabled.includes(key)) return
     pendingSectionScroll.current = null
-    requestAnimationFrame(() => frame.scrollToSection(key))
-  }, [enabled, frame.ready, frame.scrollToSection])
+    requestAnimationFrame(() => scrollToSection(key))
+  }, [enabled, frameReady, scrollToSection])
   const signature = useCallback(
     (d: Data, o: string[], e: string[], t: Data) =>
       JSON.stringify({ data: d, order: o, enabled: e, theme: t }),
