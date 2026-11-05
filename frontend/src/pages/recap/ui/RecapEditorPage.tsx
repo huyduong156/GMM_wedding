@@ -40,6 +40,7 @@ import { useNavigation } from '../../../shared/lib/navigation/navigation-context
 import { redSpiderLilyRecapTemplateConfig } from '../../../templates/recaps/red-spider-lily/template-config'
 import { redSpiderLilyRecapFixture } from '../../../templates/recaps/red-spider-lily/fixture'
 import type { RedSpiderLilyRecapContent } from '../../../templates/recaps/red-spider-lily/content'
+import { theWeddingRollRecapFixture } from '../../../templates/recaps/the-wedding-roll/fixture'
 import './recap.css'
 import './recap-accordion.css'
 import './recap-repeatable.css'
@@ -272,6 +273,28 @@ const mergeRecords = (
         : value
     return result
   }, clone(base))
+const mergeWeddingRollContent = (stored: Record<string, unknown>) => {
+  const merged = mergeRecords(
+    clone(theWeddingRollRecapFixture) as unknown as Record<string, unknown>,
+    stored,
+  )
+  const chapters = Array.isArray(merged.chapters) ? merged.chapters : []
+  merged.chapters = chapters.map((value) => {
+    const chapter = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+    const gallery = Array.isArray(chapter.gallery) ? chapter.gallery : []
+    const legacyCover = chapter.cover
+    return {
+      ...chapter,
+      gallery:
+        gallery.length > 0
+          ? gallery
+          : legacyCover && typeof legacyCover === 'object'
+            ? [legacyCover]
+            : [],
+    }
+  })
+  return merged as unknown as RedSpiderLilyRecapContent
+}
 const mergeContent = (stored: Record<string, unknown>): RedSpiderLilyRecapContent => {
   const merged = mergeRecords(
     clone(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>,
@@ -444,6 +467,18 @@ function validateRecapContent(content: RedSpiderLilyRecapContent) {
     )
   }
   return errors
+}
+
+function validateWeddingRollContent(content: Record<string, unknown>) {
+  const chapters = Array.isArray(content.chapters) ? content.chapters : []
+  if (!chapters.length) return ['Thêm ít nhất một mốc thời gian cho chương cưới.']
+  return chapters.flatMap((value, index) => {
+    const chapter = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+    const gallery = Array.isArray(chapter.gallery) ? chapter.gallery : []
+    if (gallery.length >= 1 && gallery.length <= 5) return []
+    const chapterTitle = typeof chapter.title === 'string' ? chapter.title : `Mốc ${index + 1}`
+    return [`${chapterTitle}: chọn từ 1 đến 5 ảnh trong album của mốc này.`]
+  })
 }
 
 type SectionFormProps = {
@@ -703,10 +738,16 @@ function RecapTextField({
 }
 
 type RecapMediaRole = string
+type MediaSelectionLimits = { minSelection?: number; maxSelection?: number }
 type RecapMediaContextValue = {
   assets: MediaAsset[]
   selectedIds: Set<string>
-  openManager: (target?: string, role?: RecapMediaRole, multiple?: boolean) => void
+  openManager: (
+    target?: string,
+    role?: RecapMediaRole,
+    multiple?: boolean,
+    limits?: MediaSelectionLimits,
+  ) => void
 }
 const RecapMediaContext = createContext<RecapMediaContextValue | null>(null)
 
@@ -956,7 +997,7 @@ function CardList({
 }
 
 function mediaRoleFor(section: EditorSection, field: TemplateFieldConfig, fallback: string) {
-  return section.mediaRoles?.[0] ?? field.mediaRole ?? fallback
+  return field.mediaRole ?? section.mediaRoles?.[0] ?? fallback
 }
 
 function mediaValueForRole(role: string) {
@@ -989,15 +1030,18 @@ function ConfigDrivenItemList({
   const items = (getPath(content, path) as Array<Record<string, unknown>> | undefined) ?? []
   const mediaField = section.itemMediaField
   const add = () => {
-    const item = Object.fromEntries(
-      Object.entries(itemFields).map(([key, field]) => {
-        if (field.type === 'image')
-          return [key, mediaValueForRole(mediaRoleFor(section, field, `${section.key}-image`))]
-        if (field.type === 'images') return [key, []]
-        if (field.type === 'boolean') return [key, Boolean(field.default)]
-        return [key, field.default ?? '']
-      }),
-    )
+    const item = {
+      id: `${section.key}-${Date.now()}-${items.length}`,
+      ...Object.fromEntries(
+        Object.entries(itemFields).map(([key, field]) => {
+          if (field.type === 'image')
+            return [key, mediaValueForRole(mediaRoleFor(section, field, `${section.key}-image`))]
+          if (field.type === 'images') return [key, []]
+          if (field.type === 'boolean') return [key, Boolean(field.default)]
+          return [key, field.default ?? '']
+        }),
+      ),
+    }
     update(path, [...items, item])
   }
   const openMedia = (
@@ -1010,6 +1054,12 @@ function ConfigDrivenItemList({
       `${path}.${index}.${field}`,
       mediaRoleFor(section, fieldConfig, section.key),
       multiple,
+      multiple
+        ? {
+            minSelection: fieldConfig.minItems,
+            maxSelection: fieldConfig.maxItems ?? section.maxMediaPerItem,
+          }
+        : undefined,
     )
   return (
     <div className="recap-card-editor">
@@ -1018,7 +1068,12 @@ function ConfigDrivenItemList({
           <strong>{section.label}</strong>
           <small>{items.length} card</small>
         </div>
-        <button type="button" className="recap-add-button" onClick={add} disabled={!isOpen}>
+        <button
+          type="button"
+          className="recap-add-button"
+          onClick={add}
+          disabled={!isOpen || (section.maxItems !== undefined && items.length >= section.maxItems)}
+        >
           <Plus size={16} /> Thêm card
         </button>
       </div>
@@ -1096,7 +1151,12 @@ function ConfigDrivenItemList({
                   openMedia(index, mediaField, mediaConfig, mediaConfig.type === 'images')
                 }
               >
-                <ImageSquare size={16} /> {item[mediaField] ? 'Thay ảnh cover' : 'Thêm ảnh cover'}
+                <ImageSquare size={16} />{' '}
+                {mediaConfig.type === 'images'
+                  ? `${Array.isArray(item[mediaField]) && (item[mediaField] as unknown[]).length ? 'Chỉnh bộ ảnh' : 'Chọn ảnh'} (${Array.isArray(item[mediaField]) ? (item[mediaField] as unknown[]).length : 0}/5)`
+                  : item[mediaField]
+                    ? 'Thay ảnh cover'
+                    : 'Thêm ảnh cover'}
               </button>
             ) : null}
             {section.galleryField && galleryConfig ? (
@@ -1174,6 +1234,23 @@ function ConfigDrivenSectionForm({
               const path = field.contentKey ?? `${section.key}.${key}`
               const value = getPath(content, path)
               if (field.type === 'items') return null
+              if (field.type === 'collection' && Array.isArray(value))
+                return (
+                  <fieldset className="recap-fieldset" key={path} disabled={!isOpen}>
+                    <legend>{field.label ?? key}</legend>
+                    {value.map((item, index) => (
+                      <RecapTextField
+                        key={`${path}.${index}`}
+                        label={`Dòng ${index + 1}`}
+                        path={`${path}.${index}`}
+                        value={typeof item === 'string' ? item : ''}
+                        update={update}
+                        maxLength={field.maxLength}
+                        disabled={!isOpen}
+                      />
+                    ))}
+                  </fieldset>
+                )
               if (field.type === 'image' || field.type === 'images')
                 return (
                   <button
@@ -1481,6 +1558,8 @@ export function RecapEditorPage() {
     path: string
     role: RecapMediaRole
     multiple: boolean
+    minSelection?: number
+    maxSelection?: number
   } | null>(null)
   const [mediaSelectionMode, setMediaSelectionMode] = useState<'single' | 'multiple'>('single')
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
@@ -1521,10 +1600,13 @@ export function RecapEditorPage() {
         setShareUrl(window.location.origin + '/' + encodeURIComponent(recapSlug) + '/recaps')
       }
       const isRedSpiderLily = result.templateVersion.key === 'red-spider-lily-recap'
+      const isTheWeddingRoll = result.templateVersion.key === 'the-wedding-roll-recap'
       setContent(
         isRedSpiderLily
           ? mergeContent(result.content)
-          : (result.content as unknown as RedSpiderLilyRecapContent),
+          : isTheWeddingRoll
+            ? mergeWeddingRollContent(result.content)
+            : (result.content as unknown as RedSpiderLilyRecapContent),
       )
       const normalized = normalizeSectionConfig(
         result.sectionConfig,
@@ -1686,7 +1768,11 @@ export function RecapEditorPage() {
   const save = async (options?: { suppressRepublishPrompt?: boolean }): Promise<boolean> => {
     if (!wedding || !recap || saving) return false
     const validationErrors =
-      recap.templateVersion.key === 'red-spider-lily-recap' ? validateRecapContent(content) : []
+      recap.templateVersion.key === 'red-spider-lily-recap'
+        ? validateRecapContent(content)
+        : recap.templateVersion.key === 'the-wedding-roll-recap'
+          ? validateWeddingRollContent(content as unknown as Record<string, unknown>)
+          : []
     if (validationErrors.length) {
       setError(validationErrors[0])
       return false
@@ -1741,7 +1827,8 @@ export function RecapEditorPage() {
               const publishedResult = await weddingApi.publishRecap(wedding.id, {
                 revision: latest.recap.revision,
               })
-              const publishedSlug = publishedResult.snapshot.slug || publicWeddingSlug || wedding.slug
+              const publishedSlug =
+                publishedResult.snapshot.slug || publicWeddingSlug || wedding.slug
               setPublished(true)
               if (publishedSlug) {
                 setPublicWeddingSlug(publishedSlug)
@@ -1952,9 +2039,9 @@ export function RecapEditorPage() {
       value={{
         assets: mediaAssets,
         selectedIds: selectedMediaIds,
-        openManager: (target, role = 'hero', multiple = false) => {
+        openManager: (target, role = 'hero', multiple = false, limits) => {
           setMediaError('')
-          setMediaTarget(target ? { path: target, role, multiple } : null)
+          setMediaTarget(target ? { path: target, role, multiple, ...limits } : null)
           setMediaSelectionMode(multiple ? 'multiple' : 'single')
           setMediaManagerOpen(true)
         },
@@ -2289,6 +2376,8 @@ export function RecapEditorPage() {
         ) : null}
         <MediaManagerModal
           selectionMode={mediaSelectionMode}
+          minSelection={mediaTarget?.minSelection}
+          maxSelection={mediaTarget?.maxSelection}
           open={mediaManagerOpen}
           assets={mediaAssets}
           selectedIds={managerSelectedIds}

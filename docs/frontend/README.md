@@ -46,7 +46,7 @@ Design system implementation vẫn dùng [`design-system/MASTER.md`](../../desig
 
 - Todo checklist gợi ý trong MVP là preset static tại rontend/src/pages/todos/checklist-presets.ts; preview chạy ở FE và apply gửi bulk root tasks qua POST /api/weddings/{weddingId}/tasks/bulk. Không có template checklist persistence/admin management ở MVP.
 
-Wedding Recap có contract riêng về semantic content, layout options, optional sections và media replacement tại [Wedding Recap docs](./wedding-recaps/README.md). Layout/art direction tiếp tục tái sử dụng nguyên tắc authoring của invitation và wedding website; code template recap hiện hành chỉ giữ `red-spider-lily` làm baseline theo contract mới.
+Wedding Recap có contract riêng về semantic content, layout options, optional sections và media replacement tại [Wedding Recap docs](./wedding-recaps/README.md). Layout/art direction tiếp tục tái sử dụng nguyên tắc authoring của invitation và wedding website. `red-spider-lily` là baseline đã hoàn thành; `the-wedding-roll` có React preview renderer khớp landing page concept, đủ 12 section. P5 đã tích hợp hai frame SVG được duyệt, decor mép trang, ambient/reveal motion và font local; HTML concept vẫn độc lập tại URL `.html`. Template vẫn ở `development` chờ media được cấp quyền/local và production recap/editor/album wiring. Xem [P5 review](./wedding-recaps/the-wedding-roll-phase-5.md).
 
 ## Boundary
 

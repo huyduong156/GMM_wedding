@@ -63,6 +63,8 @@ const exactTitles: Record<string, string> = {
   [publicTemplateRoutes.foreverPreview]: 'Forever – Wedding website preview | Ourday',
   [publicTemplateRoutes.redSpiderLilyRecapPreview]:
     'Red Spider Lily – Mẫu Wedding Recap | Ourday',
+  [publicTemplateRoutes.theWeddingRollRecapPreview]:
+    'The Wedding Roll – Mẫu Wedding Recap | Ourday',
 }
 
 export function routeMetadata(pathname: string): PageMetadata {

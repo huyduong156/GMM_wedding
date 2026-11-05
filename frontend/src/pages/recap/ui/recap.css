@@ -269,6 +269,21 @@
   font-size: 12px;
   font-weight: 600;
 }
+.recap-fieldset {
+  min-width: 0;
+  margin: 26px 0 0;
+  padding: 0;
+  border: 0;
+}
+.recap-fieldset legend {
+  margin-bottom: 8px;
+  color: #43565f;
+  font-size: 12px;
+  font-weight: 600;
+}
+.recap-fieldset .recap-field:first-of-type {
+  margin-top: 0;
+}
 .recap-field input,
 .recap-field textarea {
   width: 100%;

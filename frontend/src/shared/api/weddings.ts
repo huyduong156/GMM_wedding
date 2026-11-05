@@ -43,6 +43,7 @@ export type TemplateFieldConfig = {
     | 'boolean'
     | 'select'
     | 'items'
+    | 'collection'
     | 'image'
     | 'images'
     | 'colors'
@@ -774,9 +775,7 @@ export const guestApi = {
       total: number
       totalPartySize: number
       categorizedTotal: number
-    }>(
-      `/weddings/${weddingId}/guests?${query}`,
-    )
+    }>(`/weddings/${weddingId}/guests?${query}`)
   },
   picker: (weddingId: string, query?: string, signal?: AbortSignal) =>
     request<{ items: GuestPickerItem[] }>(

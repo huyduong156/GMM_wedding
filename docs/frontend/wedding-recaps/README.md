@@ -69,14 +69,14 @@ Section cần tạo cảm giác lắng lại như trang cuối của album. Layo
 
 Mọi recap theme phải có layout hợp lệ cho các section sau, dù mặc định có thể tắt:
 
-| Key | Nội dung chính | Ghi chú |
-|---|---|---|
-| `guestbook` | Lời chúc đã duyệt được owner chọn | Không hiển thị tự động lời chúc chưa moderation |
-| `peopleBehindTheDay` | Gia đình, bạn bè, phù dâu/phù rể hoặc nhóm người quan trọng | Tập trung vào con người |
-| `weddingFilm` | Video highlight hoặc external video link | Có poster, lazy-load và fallback tĩnh |
-| `soundtrack` | Audio nội bộ hoặc external music link | Không autoplay; có thể triển khai như capability/global player |
-| `behindTheScenes` | Chuẩn bị, setup, makeup và khoảnh khắc hậu trường | Khác `peopleBehindTheDay`: tập trung vào quá trình |
-| `memoryCapsule` | Lời nhắn cho tương lai hoặc “chapter tiếp theo” | Nên ngắn, thường đặt gần phần kết |
+| Key                  | Nội dung chính                                              | Ghi chú                                                        |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| `guestbook`          | Lời chúc đã duyệt được owner chọn                           | Không hiển thị tự động lời chúc chưa moderation                |
+| `peopleBehindTheDay` | Gia đình, bạn bè, phù dâu/phù rể hoặc nhóm người quan trọng | Tập trung vào con người                                        |
+| `weddingFilm`        | Video highlight hoặc external video link                    | Có poster, lazy-load và fallback tĩnh                          |
+| `soundtrack`         | Audio nội bộ hoặc external music link                       | Không autoplay; có thể triển khai như capability/global player |
+| `behindTheScenes`    | Chuẩn bị, setup, makeup và khoảnh khắc hậu trường           | Khác `peopleBehindTheDay`: tập trung vào quá trình             |
+| `memoryCapsule`      | Lời nhắn cho tương lai hoặc “chapter tiếp theo”             | Nên ngắn, thường đặt gần phần kết                              |
 
 Optional section phải có trạng thái bật/tắt, empty state, mobile fallback và reduced-motion fallback. Không ép owner nhập dữ liệu chỉ để template giữ bố cục.
 
@@ -156,7 +156,7 @@ Ví dụ rút gọn:
 
 ```ts
 export const recapTemplateConfig = {
-  productType: 'WEDDING_RECAP',
+  productType: "WEDDING_RECAP",
   capabilities: {
     seo: true,
     share: true,
@@ -165,30 +165,30 @@ export const recapTemplateConfig = {
   },
   sections: [
     {
-      sectionKey: 'hero',
+      sectionKey: "hero",
       required: true,
       canToggle: false,
       canReorder: false,
-      layouts: ['cinematic-cover', 'editorial-split'],
+      layouts: ["cinematic-cover", "editorial-split"],
     },
     {
-      sectionKey: 'moments',
+      sectionKey: "moments",
       required: true,
       canToggle: false,
       canReorder: true,
       repeatable: true,
-      layouts: ['editorial-grid', 'asymmetric-cards', 'horizontal-slider'],
-      itemFields: ['title', 'description', 'coverMedia', 'albumSource'],
+      layouts: ["editorial-grid", "asymmetric-cards", "horizontal-slider"],
+      itemFields: ["title", "description", "coverMedia", "albumSource"],
     },
     {
-      sectionKey: 'guestbook',
+      sectionKey: "guestbook",
       required: false,
       canToggle: true,
       canReorder: true,
-      layouts: ['quote-wall', 'polaroid-notes'],
+      layouts: ["quote-wall", "polaroid-notes"],
     },
   ],
-} as const
+} as const;
 ```
 
 Tên field/schema thực tế phải tuân theo shared `TemplateConfig` contract và content schema version của repository; ví dụ trên chỉ minh họa quan hệ giữa config, editor và renderer.
@@ -221,6 +221,12 @@ Baseline authoring artifact hiện hành:
 - [Red Spider Lily Phase 5](./red-spider-lily-phase-5.md)
 
 - [`Red Spider Lily Recap — Phase 1`](./red-spider-lily-phase-1.md): theme brief, product meaning, viewer journey, section/content matrix, fixture plan, editor field plan, acceptance checklist, non-goals và anti-pattern cho `red-spider-lily-recap`.
+- [`The Wedding Roll — Phase 1`](./the-wedding-roll-phase-1.md): product meaning, mobile-first film-journal direction, 12-section content matrix, photo-delivery priority, fixture/editor plan, acceptance checklist, non-goals và anti-pattern cho `the-wedding-roll-recap`.
+- [`The Wedding Roll — Phase 2`](./the-wedding-roll-phase-2.md): per-section media matrix, upload/editability and crop rules, album-source behavior, media-independence audit plan, and config mapping.
+- [`The Wedding Roll — Phase 2.5`](./the-wedding-roll-phase-2.5.md): two approved light SVG photo-frame alternatives with prompt/provenance preview, integrated in Phase 5.
+- [`The Wedding Roll — Phase 3`](./the-wedding-roll-phase-3.md): twelve-section composition map, mobile/desktop layout rules, renderer/fixture mapping and acceptance tests.
+- [`The Wedding Roll — Phase 4`](./the-wedding-roll-phase-4.md): concept-to-React interaction/motion parity map and the remaining Phase 4 scope.
+- [`The Wedding Roll — Phase 5`](./the-wedding-roll-phase-5.md): approved asset integration, per-content reveals, ambient-motion behavior, review matrix and validation/release status.
 
 ## 9. Authoring checklist
 

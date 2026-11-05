@@ -74,6 +74,7 @@ export const publicTemplateRoutes = {
   cherryBlossomGardenPreview: '/templates/websites/cherry-blossom-garden/preview',
   foreverPreview: '/templates/websites/forever/preview',
   redSpiderLilyRecapPreview: '/templates/recaps/red-spider-lily/preview',
+  theWeddingRollRecapPreview: '/templates/recaps/the-wedding-roll/preview',
 } as const
 
 export const marketingRoutes = {
