@@ -995,6 +995,31 @@
   font-size: 12px;
   color: #243946;
 }
+.recap-card-actions {
+  display: flex;
+  gap: 5px;
+}
+.recap-card-order {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #d5e0e2;
+  background: #fff;
+  color: #536c75;
+  cursor: pointer;
+}
+.recap-card-order:hover:not(:disabled) {
+  border-color: #8faaa5;
+  background: #eef5f3;
+  color: #245c56;
+}
+.recap-card-order:disabled,
+.recap-card-remove:disabled,
+.recap-add-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
 .recap-card-remove {
   display: grid;
   width: 30px;
@@ -1008,8 +1033,25 @@
 .recap-card-remove:hover {
   background: #f8e8e6;
 }
+.recap-card-order:focus-visible,
+.recap-card-remove:focus-visible {
+  outline: 2px solid #bd8a4d;
+  outline-offset: 2px;
+}
 .recap-card-editor-item .recap-field {
   margin-top: 4px;
+}
+.recap-config-media-field {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+}
+.recap-field-help {
+  display: block;
+  max-width: 620px;
+  color: #68777d;
+  font-size: 11px;
+  line-height: 1.55;
 }
 .recap-card-media-actions {
   display: flex;
@@ -1907,3 +1949,63 @@
   visibility: hidden;
 }
 .recap-library-art{min-height:0;aspect-ratio:1 / 1.8}
+
+.recap-approved-wishes {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 14px;
+  border: 1px solid #d9e1e3;
+  background: #fff;
+}
+.recap-approved-wishes legend {
+  padding: 0 5px;
+  color: #314c56;
+  font-size: 13px;
+  font-weight: 650;
+}
+.recap-approved-wishes > p,
+.recap-approved-wishes > small {
+  margin: 0;
+  color: #647b83;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.recap-approved-wishes-list {
+  display: grid;
+  max-height: 280px;
+  gap: 7px;
+  overflow: auto;
+}
+.recap-approved-wishes-list label {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid #e3eaeb;
+  background: #fbfcfc;
+  cursor: pointer;
+}
+.recap-approved-wishes-list label.is-selected {
+  border-color: #91a9ad;
+  background: #f0f6f5;
+}
+.recap-approved-wishes-list input {
+  margin: 2px 0 0;
+  accent-color: #496b70;
+}
+.recap-approved-wishes-list span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.recap-approved-wishes-list strong {
+  color: #304a54;
+  font-size: 11px;
+}
+.recap-approved-wishes-list span small {
+  color: #627780;
+  font-size: 11px;
+  line-height: 1.5;
+}

@@ -44,9 +44,9 @@ Layout có thể là multi-column cards, asymmetric grid, editorial feature card
 
 ### `photoDelivery` — Photo Delivery / Trả ảnh
 
-Đây là điểm khác biệt chức năng của recap: mời khách quay lại tìm và xem ảnh của họ. Section có thể hiển thị lời dẫn ngắn, CTA xem/tải ảnh, danh sách album/category và gallery nội bộ hoặc link album bên ngoài.
+Đây là điểm khác biệt chức năng của recap: mời khách quay lại tìm và xem ảnh của họ. Section có thể hiển thị lời dẫn ngắn, bộ ảnh nổi bật do owner chọn, và/hoặc link tới album đầy đủ bên ngoài. Đây là hai nguồn độc lập, có thể hiện đồng thời hai CTA tương ứng.
 
-Nguồn album cần hỗ trợ hai mode trong content contract:
+Nguồn album đầy đủ có thể là một trong hai mode trong content contract:
 
 ```text
 INTERNAL_ALBUM
@@ -72,10 +72,9 @@ Mọi recap theme phải có layout hợp lệ cho các section sau, dù mặc �
 | Key                  | Nội dung chính                                              | Ghi chú                                                        |
 | -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
 | `guestbook`          | Lời chúc đã duyệt được owner chọn                           | Không hiển thị tự động lời chúc chưa moderation                |
-| `peopleBehindTheDay` | Gia đình, bạn bè, phù dâu/phù rể hoặc nhóm người quan trọng | Tập trung vào con người                                        |
-| `weddingFilm`        | Video highlight hoặc external video link                    | Có poster, lazy-load và fallback tĩnh                          |
+| `peopleBehindTheDay` | Ảnh và lời tự bạch dành cho gia đình, hậu trường, bạn bè và ekip | Tối đa 10 nhóm; mỗi nhóm cần từ 1 đến 10 ảnh, trình bày bằng carousel |
 | `soundtrack`         | Audio nội bộ hoặc external music link                       | Không autoplay; có thể triển khai như capability/global player |
-| `behindTheScenes`    | Chuẩn bị, setup, makeup và khoảnh khắc hậu trường           | Khác `peopleBehindTheDay`: tập trung vào quá trình             |
+| `behindTheScenes`    | Nhóm ảnh hậu trường nằm trong carousel người góp sức        | Owner bật/tắt nhóm này riêng trong editor                     |
 | `memoryCapsule`      | Lời nhắn cho tương lai hoặc “chapter tiếp theo”             | Nên ngắn, thường đặt gần phần kết                              |
 
 Optional section phải có trạng thái bật/tắt, empty state, mobile fallback và reduced-motion fallback. Không ép owner nhập dữ liệu chỉ để template giữ bố cục.
@@ -224,7 +223,7 @@ Baseline authoring artifact hiện hành:
 - [`The Wedding Roll — Phase 1`](./the-wedding-roll-phase-1.md): product meaning, mobile-first film-journal direction, 12-section content matrix, photo-delivery priority, fixture/editor plan, acceptance checklist, non-goals và anti-pattern cho `the-wedding-roll-recap`.
 - [`The Wedding Roll — Phase 2`](./the-wedding-roll-phase-2.md): per-section media matrix, upload/editability and crop rules, album-source behavior, media-independence audit plan, and config mapping.
 - [`The Wedding Roll — Phase 2.5`](./the-wedding-roll-phase-2.5.md): two approved light SVG photo-frame alternatives with prompt/provenance preview, integrated in Phase 5.
-- [`The Wedding Roll — Phase 3`](./the-wedding-roll-phase-3.md): twelve-section composition map, mobile/desktop layout rules, renderer/fixture mapping and acceptance tests.
+- [`The Wedding Roll — Phase 3`](./the-wedding-roll-phase-3.md): composition map, mobile/desktop layout rules, renderer/fixture mapping and acceptance tests.
 - [`The Wedding Roll — Phase 4`](./the-wedding-roll-phase-4.md): concept-to-React interaction/motion parity map and the remaining Phase 4 scope.
 - [`The Wedding Roll — Phase 5`](./the-wedding-roll-phase-5.md): approved asset integration, per-content reveals, ambient-motion behavior, review matrix and validation/release status.
 

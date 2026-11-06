@@ -4,6 +4,7 @@ import { RedSpiderLilyRecap } from '../../../templates/recaps/red-spider-lily/Re
 import { TheWeddingRollRecap } from '../../../templates/recaps/the-wedding-roll/TheWeddingRollRecap'
 import type { TheWeddingRollRecapContent } from '../../../templates/recaps/the-wedding-roll/content'
 import { theWeddingRollRecapFixture } from '../../../templates/recaps/the-wedding-roll/fixture'
+import { normalizePeopleGroups } from '../../../templates/recaps/the-wedding-roll/people-groups'
 import type { RedSpiderLilyRecapContent } from '../../../templates/recaps/red-spider-lily/content'
 import { redSpiderLilyRecapFixture } from '../../../templates/recaps/red-spider-lily/fixture'
 import { WeddingApiError, weddingApi } from '../../../shared/api/weddings'
@@ -18,6 +19,7 @@ type DraftPayload = {
   template?: { key?: string }
   templateVersion?: { key?: string }
   mediaItems?: Array<{ publicUrl: string; altText?: string | null; caption?: string | null }>
+  wishes?: Array<{ wishId?: string; authorName: string; content: string }>
 }
 type PublicAlbumItem = { src: string; alt: string; caption?: string | null }
 
@@ -44,11 +46,57 @@ const mergeRecapContent = (stored: Record<string, unknown>): RedSpiderLilyRecapC
     cloneRecap(redSpiderLilyRecapFixture.content) as unknown as Record<string, unknown>,
     stored,
   ) as unknown as RedSpiderLilyRecapContent
-const mergeWeddingRollContent = (stored: Record<string, unknown>): TheWeddingRollRecapContent =>
-  mergeRecapRecords(
+const mergeWeddingRollContent = (stored: Record<string, unknown>): TheWeddingRollRecapContent => {
+  const merged = mergeRecapRecords(
     cloneRecap(theWeddingRollRecapFixture) as unknown as Record<string, unknown>,
     stored,
   ) as unknown as TheWeddingRollRecapContent
+  const storedOptional =
+    stored.optional && typeof stored.optional === 'object'
+      ? (stored.optional as Record<string, unknown>)
+      : {}
+  const storedPeopleBehind =
+    storedOptional.peopleBehindTheDay && typeof storedOptional.peopleBehindTheDay === 'object'
+      ? (storedOptional.peopleBehindTheDay as Record<string, unknown>)
+      : {}
+  const storedBehindTheScenes =
+    storedOptional.behindTheScenes && typeof storedOptional.behindTheScenes === 'object'
+      ? (storedOptional.behindTheScenes as Record<string, unknown>)
+      : undefined
+  const optional = merged.optional as unknown as Record<string, unknown>
+  const peopleBehind = optional.peopleBehindTheDay as Record<string, unknown>
+  peopleBehind.groups = normalizePeopleGroups(storedPeopleBehind, storedBehindTheScenes)
+  delete peopleBehind.people
+  const storedDelivery =
+    stored.photoDelivery && typeof stored.photoDelivery === 'object'
+      ? (stored.photoDelivery as Record<string, unknown>)
+      : {}
+  const legacyAlbums = Array.isArray(storedDelivery.albums) ? storedDelivery.albums : []
+  const legacyExternalAlbum = legacyAlbums.find(
+    (value) =>
+      value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'EXTERNAL_ALBUM_LINK',
+  ) as Record<string, unknown> | undefined
+  const featuredPhotos = Array.isArray(storedDelivery.featuredPhotos)
+    ? storedDelivery.featuredPhotos
+    : Array.isArray(storedDelivery.media)
+      ? storedDelivery.media
+      : []
+  const externalAlbumUrl =
+    typeof storedDelivery.externalAlbumUrl === 'string'
+      ? storedDelivery.externalAlbumUrl
+      : typeof storedDelivery.albumUrl === 'string'
+        ? storedDelivery.albumUrl
+        : typeof legacyExternalAlbum?.href === 'string'
+          ? legacyExternalAlbum.href
+          : ''
+
+  return {
+    ...merged,
+    photoDelivery: { ...merged.photoDelivery, albums: [], featuredPhotos, externalAlbumUrl },
+  }
+}
 
 export function PublicRecapPage({ slug }: { slug: string }) {
   const auth = useOptionalAuth()
@@ -57,6 +105,9 @@ export function PublicRecapPage({ slug }: { slug: string }) {
   const [weddingRollContent, setWeddingRollContent] = useState<TheWeddingRollRecapContent>()
   const [templateKey, setTemplateKey] = useState('red-spider-lily-recap')
   const [albumItems, setAlbumItems] = useState<PublicAlbumItem[]>([])
+  const [weddingRollWishes, setWeddingRollWishes] = useState<
+    Array<{ id?: string; authorName: string; content: string }> | undefined
+  >()
   const [sectionConfig, setSectionConfig] = useState<SectionConfig>()
   const [weddingName, setWeddingName] = useState<string>()
   const [ownerAvatarUrl, setOwnerAvatarUrl] = useState<string | null>()
@@ -97,6 +148,11 @@ export function PublicRecapPage({ slug }: { slug: string }) {
           altText: null,
           caption: item.caption,
         })),
+        wishes: result.wishSelections.map((wish) => ({
+          wishId: wish.wishId,
+          authorName: wish.authorName,
+          content: wish.content,
+        })),
         theme: { sectionConfig: result.sectionConfig },
       }
     }
@@ -124,6 +180,15 @@ export function PublicRecapPage({ slug }: { slug: string }) {
             alt: item.altText ?? item.caption ?? 'Ảnh trong album cưới',
             caption: item.caption,
           })),
+        )
+        setWeddingRollWishes(
+          Array.isArray(payload.wishes)
+            ? payload.wishes.map((wish) => ({
+                id: wish.wishId,
+                authorName: wish.authorName,
+                content: wish.content,
+              }))
+            : undefined,
         )
         if (!payload.content || typeof payload.content !== 'object') {
           throw new Error('Dữ liệu recap không hợp lệ.')
@@ -171,6 +236,12 @@ export function PublicRecapPage({ slug }: { slug: string }) {
       </main>
     )
   if (templateKey === 'the-wedding-roll-recap' && weddingRollContent)
-    return <TheWeddingRollRecap content={weddingRollContent} albumItems={albumItems} />
+    return (
+      <TheWeddingRollRecap
+        content={weddingRollContent}
+        albumItems={albumItems}
+        wishes={weddingRollWishes}
+      />
+    )
   return content ? <RedSpiderLilyRecap data={content} sectionConfig={sectionConfig} /> : null
 }

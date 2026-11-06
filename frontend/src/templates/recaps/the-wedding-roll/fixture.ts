@@ -38,37 +38,6 @@ const momentPhotos = [
     'Niềm vui trong tiệc cưới',
   ),
 ]
-const filmStripPhotos = [
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-01-studio-standing.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-02-back-to-back.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-03-walking.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-04-opposed-cubes.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-05-seated-groom-front.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-06-groom-seated.webp',
-    '',
-  ),
-  image(
-    '/assets/images/wedding-couples-examples/couple-002/couple-pose-08-backlit-profile.webp',
-    '',
-  ),
-]
-
 /** The original standalone concept copy and demo imagery, now mapped to recap content fields. */
 export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
   hero: {
@@ -137,39 +106,34 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
   moments: [
     {
       id: 'family',
-      title: 'Nhà mình',
-      momentLabel: 'CÙNG GIA ĐÌNH',
-      description: 'Những cái ôm chặt hơn mọi lời chúc.',
+      title: 'Cùng gia đình',
+      momentLabel: 'FAMILY TIME',
+      description: 'Một tấm ảnh đủ mặt những người thân trong ngày vui.',
       cover: momentPhotos[0],
     },
     {
       id: 'friends',
       title: 'Hội bạn thân',
-      momentLabel: 'CÙNG BẠN THÂN',
-      description: 'Người đã biết tụi mình từ trước cả khi tụi mình biết nhau.',
+      momentLabel: 'TEAM BẠN THÂN',
+      description: 'Lên hình cùng hội bạn, lưu lại nguyên team hôm đó.',
       cover: momentPhotos[1],
     },
     {
-      id: 'end-of-night',
-      title: 'Đến tận cuối đêm',
-      momentLabel: 'CUỐI BUỔI TIỆC',
-      description: 'Vẫn còn một bài nữa mà. Ở lại thêm chút nhé.',
+      id: 'wedding-party',
+      title: 'Tiệc cưới lên đèn',
+      momentLabel: "LET'S PARTY",
+      description: 'Nhạc lên là cả hội cùng nhập tiệc và vui hết mình.',
       cover: momentPhotos[2],
     },
   ],
-  filmStrip: filmStripPhotos,
   photoDelivery: {
     eyebrow: '03 — Album ảnh ngày cưới',
-    title: 'Những tấm còn lại đang chờ bạn.',
-    body: 'Tụi mình đã chọn những bức ảnh của ngày hôm ấy vào một album riêng. Nếu bạn có mặt hôm ấy, mong bạn sẽ tìm thấy mình và những người thân quen trong đó.',
-    ctaLabel: 'Mở album ảnh',
+    title: 'Xem và tải ảnh ngày cưới',
+    body: 'Chọn nút bên dưới để xem ảnh nổi bật hoặc mở album đầy đủ.',
     marker: 'ALBUM 01',
     albums: [],
-  },
-  optionalIndex: {
-    eyebrow: 'Những trang có thể thêm',
-    title: 'Những điều còn thương.',
-    body: 'Thêm vài lời nhắn, giai điệu yêu thích và những người đã làm nên ngày hôm ấy.',
+    featuredPhotos: momentPhotos,
+    externalAlbumUrl: '',
   },
   thankYou: {
     eyebrow: 'Cảm ơn · 18.10.2026',
@@ -182,16 +146,46 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
   optional: {
     peopleBehindTheDay: {
       enabled: true,
-      eyebrow: '01 / Những người thân thương',
-      title: 'People behind the day',
-      intro: 'Gia đình, bạn bè và ekip đã góp phần làm nên ngày hôm đó.',
-      people: [],
+      title: 'Ngày vui ấy trọn vẹn vì có mọi người.',
+      intro:
+        'Chúng mình đã có một ngày thật vui. Nhìn lại những tấm hình này, chúng mình nhớ đến gia đình, bạn bè và ekip — những người đã ở bên, giúp đỡ và cùng làm nên từng khoảnh khắc. Cảm ơn mọi người đã cùng chúng mình làm nên ngày hôm ấy.',
+      groups: [
+        {
+          id: 'family',
+          title: 'Gia đình',
+          caption:
+            'Từng việc nhỏ được lo chu toàn, để chúng mình chỉ cần vui hết mình trong ngày ấy.',
+          photos: [momentPhotos[0]],
+        },
+        {
+          id: 'behind-the-scenes',
+          title: 'Hậu trường',
+          caption:
+            'Có người đến từ sớm, chuẩn bị từng góc nhỏ trước khi buổi tiệc bắt đầu.',
+          photos: [momentPhotos[1]],
+        },
+        {
+          id: 'friends',
+          title: 'Bạn bè',
+          caption:
+            'Cảm ơn hội bạn đã ở bên từ những ngày đầu và mang theo thật nhiều năng lượng vui.',
+          photos: [momentPhotos[2]],
+        },
+        {
+          id: 'crew',
+          title: 'Ekip',
+          caption:
+            'Từ ánh sáng, âm thanh đến từng khung hình, mọi người đã giúp chúng mình tận hưởng trọn vẹn ngày vui.',
+          photos: [chapterPhotos[0]],
+        },
+      ],
     },
     soundtrack: {
       enabled: true,
-      eyebrow: '02 / Giai điệu',
-      title: 'Soundtrack',
-      intro: 'Ca khúc vẫn làm tụi mình nhớ ngay đến buổi tối ấy.',
+      eyebrow: 'GIAI ĐIỆU NGÀY HÔM ẤY',
+      title: 'Bài hát của ngày vui',
+      intro:
+        'Chỉ cần nghe lại giai điệu này, chúng mình như được trở về ngày vui có mọi người ở bên.',
     },
     behindTheScenes: {
       enabled: true,
@@ -200,38 +194,36 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
       intro: 'Những khoảnh khắc tự nhiên nhất lại giống tụi mình nhất.',
       items: [],
     },
-    weddingFilm: {
-      enabled: true,
-      eyebrow: '04 — Ngày ấy qua những chuyển động',
-      title: 'Những điều vẫn còn chuyển động.',
-      body: 'Tiếng nhạc, lời chúc và những cái nắm tay làm ngày hôm ấy sống động theo một cách rất riêng. Bấm play để cùng xem lại nhé.',
-      poster: image(
-        '/assets/images/wedding-couples-examples/couple-002/couple-pose-08-backlit-profile.webp',
-        'Khoảnh khắc trong lễ cưới',
-      ),
-      playLabel: 'PLAY THE MEMORY',
-      linkLabel: 'Xem video ngày cưới ↗',
-    },
     guestbook: {
       enabled: true,
       eyebrow: '05 — Lời mọi người gửi lại',
       title: 'Đọc lại mà vẫn thấy vui.',
-      intro: 'Ba lời chúc tụi mình muốn giữ lại.',
+      intro: 'Năm lời nhắn từ những người đã làm ngày vui của chúng mình thêm trọn vẹn.',
       wishes: [
         {
-          id: 'wish-one',
-          author: '— MỘT NGƯỜI BẠN THÂN',
-          message: '“Từ nay nhà mình có thêm một người về phe mình rồi.”',
+          id: 'wish-demo-thu-ha',
+          author: 'Thu Hà · Bạn cô dâu',
+          message: 'Chúc hai bạn lúc nào cũng tìm được niềm vui trong những điều nhỏ xíu mỗi ngày.',
         },
         {
-          id: 'wish-two',
-          author: '— GIA ĐÌNH',
-          message: '“Chúc hai con ngày nào cũng có lý do để cùng cười.”',
+          id: 'wish-demo-minh-khang',
+          author: 'Minh Khang · Bạn chú rể',
+          message: 'Hôm đó vui quá, về nhà mới nhận ra mình chụp gần hai trăm tấm. Chúc hai bạn cứ vui như vậy hoài nha.',
         },
         {
-          id: 'wish-three',
-          author: '— HỘI BẠN',
-          message: '“Giờ xem ảnh mới biết tối đó mình đã nhảy nhiều đến vậy.”',
+          id: 'wish-demo-co-lan',
+          author: 'Cô Lan · Mẹ cô dâu',
+          message: 'Cảm ơn hai con đã cho cả nhà một ngày thật nhiều tiếng cười. Chúc hai con luôn thương và nhường nhau.',
+        },
+        {
+          id: 'wish-demo-quoc-bao',
+          author: 'Quốc Bảo · Anh họ',
+          message: 'Chúc gia đình nhỏ của hai đứa lúc nào cũng đông vui, có chuyện gì cũng cùng nhau giải quyết.',
+        },
+        {
+          id: 'wish-demo-phuong-thao',
+          author: 'Phương Thảo · Ekip chụp ảnh',
+          message: 'Cảm ơn hai bạn đã luôn cười thật tươi trước ống kính. Chúc hành trình phía trước có thêm thật nhiều khoảnh khắc đẹp.',
         },
       ],
     },

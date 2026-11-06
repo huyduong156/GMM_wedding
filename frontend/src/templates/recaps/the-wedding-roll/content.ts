@@ -1,6 +1,7 @@
 export type TheWeddingRollMedia = {
   src: string
   alt: string
+  mediaAssetId?: string
 }
 
 export type TheWeddingRollAlbumSource =
@@ -23,6 +24,13 @@ export type TheWeddingRollMoment = {
   momentLabel: string
   description: string
   cover: TheWeddingRollMedia
+}
+
+export type TheWeddingRollPeopleGroup = {
+  id: string
+  title: string
+  caption: string
+  photos: TheWeddingRollMedia[]
 }
 
 export type TheWeddingRollRecapContent = {
@@ -53,14 +61,17 @@ export type TheWeddingRollRecapContent = {
   chapters: TheWeddingRollChapter[]
   momentsIntro: { eyebrow: string; title: string; description: string }
   moments: TheWeddingRollMoment[]
-  filmStrip: TheWeddingRollMedia[]
   photoDelivery: {
     eyebrow: string
     title: string
     body: string
-    ctaLabel: string
     marker: string
     albums: TheWeddingRollAlbumSource[]
+    featuredPhotos: TheWeddingRollMedia[]
+    externalAlbumUrl: string
+    /** Legacy draft fields retained for content migration. */
+    media?: TheWeddingRollMedia[]
+    albumUrl?: string
   }
   thankYou: {
     eyebrow: string
@@ -69,11 +80,6 @@ export type TheWeddingRollRecapContent = {
     signature: string
     date: string
     footerNote: string
-  }
-  optionalIndex: {
-    eyebrow: string
-    title: string
-    body: string
   }
   optional: {
     guestbook: {
@@ -85,21 +91,11 @@ export type TheWeddingRollRecapContent = {
     }
     peopleBehindTheDay: {
       enabled: boolean
-      eyebrow: string
       title: string
       intro: string
-      people: Array<{ id: string; name: string; role: string; portrait?: TheWeddingRollMedia }>
-    }
-    weddingFilm: {
-      enabled: boolean
-      eyebrow: string
-      title: string
-      body: string
-      poster: TheWeddingRollMedia
-      videoSrc?: string
-      duration?: string
-      playLabel: string
-      linkLabel: string
+      groups: TheWeddingRollPeopleGroup[]
+      /** Legacy entries retained for draft migration. */
+      people?: Array<{ id: string; name: string; role: string; portrait?: TheWeddingRollMedia }>
     }
     soundtrack: {
       enabled: boolean

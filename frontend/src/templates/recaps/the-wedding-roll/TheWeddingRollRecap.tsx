@@ -2,7 +2,8 @@
 import { HandTap } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import type { TheWeddingRollRecapContent } from './content'
+import { MusicPlayer } from '../../../shared/ui/music-player'
+import type { TheWeddingRollMedia, TheWeddingRollRecapContent } from './content'
 import { isSafeExternalAlbumUrl } from './album-url'
 import { theWeddingRollRecapFixture } from './fixture'
 import './the-wedding-roll.css'
@@ -51,7 +52,15 @@ function getThankYouTitleLines(title: string) {
 }
 
 type AlbumItem = { src: string; alt: string; caption?: string | null }
-type ChapterLightboxState = { chapterId: string; index: number }
+type RecapWish = { id?: string; authorName: string; content: string }
+type LightboxState = {
+  kind: 'chapter' | 'featured' | 'people'
+  chapterId?: string
+  index: number
+  title?: string
+  eyebrow?: string
+  photos?: TheWeddingRollMedia[]
+}
 
 function getChapterPhotos(chapter: TheWeddingRollRecapContent['chapters'][number]) {
   const gallery = Array.isArray(chapter.gallery) ? chapter.gallery : []
@@ -59,13 +68,20 @@ function getChapterPhotos(chapter: TheWeddingRollRecapContent['chapters'][number
   return legacyPhotos.filter((photo) => photo && typeof photo.src === 'string').slice(0, 5)
 }
 
-function getAlbumHref(content: TheWeddingRollRecapContent, albumItems: AlbumItem[]) {
-  const external = content.photoDelivery.albums.find(
-    (album) => album.type === 'EXTERNAL_ALBUM_LINK' && isSafeExternalAlbumUrl(album.href),
+function getFeaturedPhotos(content: TheWeddingRollRecapContent, albumItems: AlbumItem[]) {
+  const featured = content.photoDelivery.featuredPhotos?.length
+    ? content.photoDelivery.featuredPhotos
+    : content.photoDelivery.media ?? []
+  if (featured.length) return featured.slice(0, 50)
+  const hasLegacyInternalAlbum = content.photoDelivery.albums.some(
+    (album) => album.type === 'INTERNAL_ALBUM',
   )
-  if (external?.type === 'EXTERNAL_ALBUM_LINK') return external.href
-  const internal = content.photoDelivery.albums.some((album) => album.type === 'INTERNAL_ALBUM')
-  return internal && albumItems.length ? '#photo-gallery' : '#album'
+  return hasLegacyInternalAlbum ? albumItems.slice(0, 50) : []
+}
+
+function getExternalAlbumHref(content: TheWeddingRollRecapContent) {
+  const configuredUrl = content.photoDelivery.externalAlbumUrl?.trim() ?? ''
+  return configuredUrl && isSafeExternalAlbumUrl(configuredUrl) ? configuredUrl : undefined
 }
 
 function revealItem(reduceMotion: boolean | null, delay = 0) {
@@ -84,30 +100,67 @@ function revealItem(reduceMotion: boolean | null, delay = 0) {
 export function TheWeddingRollRecap({
   content = theWeddingRollRecapFixture,
   albumItems = [],
+  wishes,
 }: {
   content?: TheWeddingRollRecapContent
   albumItems?: AlbumItem[]
+  wishes?: RecapWish[]
 }) {
-  const albumHref = getAlbumHref(content, albumItems)
-  const isExternalAlbum = albumHref.startsWith('https:')
+  const featuredPhotos = getFeaturedPhotos(content, albumItems)
+  const externalAlbumHref = getExternalAlbumHref(content)
+  const albumHref = externalAlbumHref ?? '#album'
+  const isExternalAlbum = Boolean(externalAlbumHref)
+  const displayedWishes = wishes ?? content.optional.guestbook.wishes.map((wish) => ({
+    id: wish.id,
+    authorName: wish.author,
+    content: wish.message,
+  }))
+  const photoDeliveryBody =
+    featuredPhotos.length || externalAlbumHref
+      ? content.photoDelivery.body
+      : 'Ảnh cưới sẽ được cập nhật tại đây.'
   const reduceMotion = useReducedMotion()
   const [pageHidden, setPageHidden] = useState(false)
-  const [filmPlaying, setFilmPlaying] = useState(false)
   const [activeMomentIndex, setActiveMomentIndex] = useState(0)
   const momentSwipeStartX = useRef<number | null>(null)
-  const [chapterLightbox, setChapterLightbox] = useState<ChapterLightboxState | null>(null)
-  const chapterLightboxCloseRef = useRef<HTMLButtonElement>(null)
-  const [chapterLightboxTrigger, setChapterLightboxTrigger] = useState<HTMLButtonElement | null>(null)
-  const activeLightboxChapter = chapterLightbox
-    ? content.chapters.find((chapter) => chapter.id === chapterLightbox.chapterId)
+  const [lightbox, setLightbox] = useState<LightboxState | null>(null)
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null)
+  const [lightboxTrigger, setLightboxTrigger] = useState<HTMLButtonElement | null>(null)
+  const peopleGroups = (content.optional.peopleBehindTheDay.groups ?? [])
+    .filter((group) => group.id !== 'behind-the-scenes' || content.optional.behindTheScenes.enabled)
+    .slice(0, 10)
+    .map((group) => ({ ...group, photos: group.photos.slice(0, 10) }))
+  const peopleRailRef = useRef<HTMLDivElement>(null)
+  const [peopleRailPosition, setPeopleRailPosition] = useState({
+    index: 0,
+    canPrevious: false,
+    canNext: peopleGroups.length > 3,
+  })
+  const activeLightboxChapter = lightbox?.kind === 'chapter'
+    ? content.chapters.find((chapter) => chapter.id === lightbox.chapterId)
     : undefined
-  const activeLightboxPhotos = activeLightboxChapter
-    ? getChapterPhotos(activeLightboxChapter)
-    : []
-  const activeLightboxIndex = Math.min(chapterLightbox?.index ?? 0, activeLightboxPhotos.length - 1)
+  const activeLightboxPhotos = lightbox?.kind === 'featured'
+    ? featuredPhotos
+    : lightbox?.kind === 'people'
+      ? lightbox.photos ?? []
+    : activeLightboxChapter
+      ? getChapterPhotos(activeLightboxChapter)
+      : []
+  const activeLightboxIndex = Math.min(lightbox?.index ?? 0, activeLightboxPhotos.length - 1)
   const activeLightboxPhoto = activeLightboxPhotos[activeLightboxIndex]
-  const isChapterLightboxOpen = chapterLightbox !== null
+  const isLightboxOpen = lightbox !== null
+  const movePeopleRail = (direction: -1 | 1) => {
+    const rail = peopleRailRef.current
+    const card = rail?.firstElementChild as HTMLElement | null
+    if (!rail || !card) return
+    const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap || '0') || 0
+    rail.scrollBy({
+      left: direction * (card.getBoundingClientRect().width + gap),
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    })
+  }
   const momentCount = content.moments.length
+  const currentMomentIndex = momentCount ? activeMomentIndex % momentCount : 0
   const showPreviousMoment = () => {
     if (momentCount > 1) setActiveMomentIndex((current) => (current - 1 + momentCount) % momentCount)
   }
@@ -122,19 +175,43 @@ export function TheWeddingRollRecap({
     return () => document.removeEventListener('visibilitychange', updateVisibility)
   }, [])
   useEffect(() => {
-    if (!isChapterLightboxOpen || !activeLightboxChapter || !activeLightboxPhotos.length) {
-      chapterLightboxTrigger?.focus()
+    const rail = peopleRailRef.current
+    if (!rail) return
+    const updatePosition = () => {
+      const card = rail.firstElementChild as HTMLElement | null
+      const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap || '0') || 0
+      const step = card ? card.getBoundingClientRect().width + gap : 1
+      const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth)
+      setPeopleRailPosition({
+        index: step > 1 ? Math.round(rail.scrollLeft / step) : 0,
+        canPrevious: rail.scrollLeft > 1,
+        canNext: maxScroll - rail.scrollLeft > 1,
+      })
+    }
+    updatePosition()
+    rail.addEventListener('scroll', updatePosition, { passive: true })
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      rail.removeEventListener('scroll', updatePosition)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [peopleGroups.length])
+  useEffect(() => {
+    if (!isLightboxOpen || !activeLightboxPhotos.length) {
+      lightboxTrigger?.focus()
       return
     }
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    chapterLightboxCloseRef.current?.focus()
+    lightboxCloseRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
-        const dialog = chapterLightboxCloseRef.current?.closest('[role="dialog"]')
-        const buttons = dialog?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')
-        const first = buttons?.[0]
-        const last = buttons?.[buttons.length - 1]
+        const dialog = lightboxCloseRef.current?.closest('[role="dialog"]')
+        const focusable = dialog?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), a[href], [tabindex="0"]',
+        )
+        const first = focusable?.[0]
+        const last = focusable?.[focusable.length - 1]
         if (first && last && event.shiftKey && document.activeElement === first) {
           event.preventDefault()
           last.focus()
@@ -143,9 +220,9 @@ export function TheWeddingRollRecap({
           first?.focus()
         }
       }
-      if (event.key === 'Escape') setChapterLightbox(null)
+      if (event.key === 'Escape') setLightbox(null)
       if (event.key === 'ArrowLeft' && activeLightboxPhotos.length > 1) {
-        setChapterLightbox((current) =>
+        setLightbox((current) =>
           current
             ? {
                 ...current,
@@ -155,7 +232,7 @@ export function TheWeddingRollRecap({
         )
       }
       if (event.key === 'ArrowRight' && activeLightboxPhotos.length > 1) {
-        setChapterLightbox((current) =>
+        setLightbox((current) =>
           current ? { ...current, index: (current.index + 1) % activeLightboxPhotos.length } : current,
         )
       }
@@ -166,16 +243,10 @@ export function TheWeddingRollRecap({
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [
-    activeLightboxChapter,
     activeLightboxPhotos.length,
-    chapterLightboxTrigger,
-    isChapterLightboxOpen,
+    isLightboxOpen,
+    lightboxTrigger,
   ])
-  const optionalCards = [
-    ['peopleBehindTheDay', content.optional.peopleBehindTheDay],
-    ['soundtrack', content.optional.soundtrack],
-    ['behindTheScenes', content.optional.behindTheScenes],
-  ] as const
   const coupleNames = content.hero.couple.split(/\s*&\s*/)
 
   return (
@@ -202,6 +273,16 @@ export function TheWeddingRollRecap({
           alt=""
         />
       </div>
+
+      {content.optional.soundtrack.enabled && content.optional.soundtrack.audioSrc ? (
+        <MusicPlayer
+          src={content.optional.soundtrack.audioSrc}
+          title={content.optional.soundtrack.title}
+          autoplay={false}
+          active
+          sectionKey={null}
+        />
+      ) : null}
       <header className="wrap topbar">
         <a className="brand" href="#top">
           THE <b>WEDDING</b> ROLL
@@ -334,8 +415,8 @@ export function TheWeddingRollRecap({
                       disabled={!chapterPhotos.length}
                       aria-label={`Xem album ảnh ${chapter.title}, ${chapterPhotos.length} ảnh`}
                       onClick={(event) => {
-                        setChapterLightboxTrigger(event.currentTarget)
-                        setChapterLightbox({ chapterId: chapter.id, index: 0 })
+                        setLightboxTrigger(event.currentTarget)
+                        setLightbox({ kind: 'chapter', chapterId: chapter.id, index: 0 })
                       }}
                     >
                       <span className="chapter-gallery-trigger-content">
@@ -385,22 +466,21 @@ export function TheWeddingRollRecap({
           >
             {content.moments.map((moment, index) => (
               <motion.div
-                className="moment-card-reveal"
+                className={`moment-card-reveal${index === currentMomentIndex ? ' is-active' : ''}`}
                 key={moment.id}
                 {...revealItem(reduceMotion, index * 0.07)}
                 aria-label={`${index + 1} / ${momentCount}: ${moment.title}`}
-                aria-hidden={index !== activeMomentIndex}
+                aria-hidden={index !== currentMomentIndex}
                 style={(() => {
-                  const offset = ((index - activeMomentIndex + momentCount + momentCount / 2) % momentCount) - momentCount / 2
+                  const offset = ((index - currentMomentIndex + momentCount + momentCount / 2) % momentCount) - momentCount / 2
                   const distance = Math.abs(offset)
                   return {
                     '--moment-transform': `translateX(${offset * 76}%) translateZ(${-distance * 110}px) rotateY(${offset * -22}deg) scale(${1 - distance * 0.08})`,
                     '--moment-opacity': distance > 1 ? 0 : distance === 0 ? 1 : 0.48,
-                    '--moment-z': momentCount - distance,
                     '--moment-pointer-events': distance > 1 ? 'none' : 'auto',
                   } as CSSProperties &
                     Record<
-                      '--moment-transform' | '--moment-opacity' | '--moment-z' | '--moment-pointer-events',
+                      '--moment-transform' | '--moment-opacity' | '--moment-pointer-events',
                       string | number
                     >
                 })()}
@@ -425,22 +505,12 @@ export function TheWeddingRollRecap({
               <button type="button" aria-label="Khoảnh khắc trước" onClick={showPreviousMoment}>
                 ‹
               </button>
-              <span aria-live="polite">{activeMomentIndex + 1} / {momentCount}</span>
+              <span aria-live="polite">{currentMomentIndex + 1} / {momentCount}</span>
               <button type="button" aria-label="Khoảnh khắc tiếp theo" onClick={showNextMoment}>
                 ›
               </button>
             </div>
           )}
-          <div className="film-strip" aria-label="Dải ảnh xem trước">
-            {content.filmStrip.map((media, index) => (
-              <motion.div
-                key={`${media.src}-${index}`}
-                {...revealItem(reduceMotion, index * 0.035)}
-              >
-                <img src={media.src} alt={media.alt} loading="lazy" />
-              </motion.div>
-            ))}
-          </div>
         </RevealSection>
 
         <RevealSection id="album" className="wrap delivery" sectionKey="photoDelivery">
@@ -456,122 +526,160 @@ export function TheWeddingRollRecap({
                   {content.photoDelivery.title.replace(' đang ', '\nđang ')}
                 </TextWithBreaks>
               </h2>
-              <p>{content.photoDelivery.body}</p>
+              <p>{photoDeliveryBody}</p>
             </motion.div>
-            <motion.a
-              className="button"
-              href={albumHref}
-              target={albumHref.startsWith('https:') ? '_blank' : undefined}
-              rel={albumHref.startsWith('https:') ? 'noopener noreferrer' : undefined}
-              {...revealItem(reduceMotion, 0.16)}
-            >
-              {content.photoDelivery.ctaLabel}
-              <span>↗</span>
-            </motion.a>
+            <div className="delivery-actions">
+              {featuredPhotos.length > 0 ? (
+                <motion.button
+                  type="button"
+                  className="button button--featured"
+                  onClick={(event) => {
+                    setLightboxTrigger(event.currentTarget)
+                    setLightbox({ kind: 'featured', index: 0 })
+                  }}
+                  {...revealItem(reduceMotion, 0.12)}
+                >
+                  Xem ảnh nổi bật
+                  <span>↗</span>
+                </motion.button>
+              ) : null}
+              {externalAlbumHref ? (
+                <motion.a
+                  className="button button--all-photos"
+                  href={externalAlbumHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...revealItem(reduceMotion, featuredPhotos.length ? 0.2 : 0.12)}
+                >
+                  Xem toàn bộ ảnh ngày hôm ấy
+                  <span>↗</span>
+                </motion.a>
+              ) : null}
+            </div>
           </motion.div>
         </RevealSection>
 
-        {albumItems.length > 0 &&
-        content.photoDelivery.albums.some((album) => album.type === 'INTERNAL_ALBUM') ? (
-          <section
-            id="photo-gallery"
-            className="wrap wedding-roll-gallery"
-            aria-label="Album ảnh cưới"
-          >
-            {albumItems.map((item, index) => (
-              <a key={`${item.src}-${index}`} href={item.src} download>
-                <img src={item.src} alt={item.alt} loading="lazy" />
-                {item.caption ? <span>{item.caption}</span> : null}
-              </a>
-            ))}
-          </section>
-        ) : null}
-
-        <RevealSection className="wrap optional">
+        {content.optional.peopleBehindTheDay.enabled && peopleGroups.length > 0 ? (
+        <RevealSection
+          id="people-behind-the-day"
+          className="wrap people-behind-section"
+          sectionKey="peopleBehindTheDay"
+        >
           <div className="section-head">
             <motion.div {...revealItem(reduceMotion)}>
-              <div className="mono">{content.optionalIndex.eyebrow}</div>
-              <h2>
-                <TextWithBreaks>{content.optionalIndex.title}</TextWithBreaks>
-              </h2>
+              <div className="mono">NHỮNG NGƯỜI GÓP SỨC</div>
+              <h2>{content.optional.peopleBehindTheDay.title}</h2>
             </motion.div>
-            <p>{content.optionalIndex.body}</p>
+            <p>{content.optional.peopleBehindTheDay.intro}</p>
           </div>
-          <div className="optional-grid">
-            {optionalCards.map(
-              ([sectionKey, item], index) =>
-                item.enabled && (
+          <div className="people-carousel" aria-roledescription="carousel">
+            <div
+              ref={peopleRailRef}
+              className="people-carousel-rail"
+              role="region"
+              aria-label="Những người góp sức cho ngày cưới"
+              tabIndex={0}
+            >
+              {peopleGroups.map((group, index) => {
+                const coverPhoto = group.photos[0]
+                return (
                   <motion.article
-                    className="optional-card"
-                    data-editor-section={sectionKey}
-                    key={sectionKey}
-                    {...revealItem(reduceMotion, index * 0.07)}
+                    className="people-card"
+                    data-editor-section={group.id === 'behind-the-scenes' ? 'behindTheScenes' : undefined}
+                    key={group.id}
+                    {...revealItem(reduceMotion, index * 0.05)}
                   >
-                    <div className="mono">{item.eyebrow}</div>
-                    <h3>{item.title}</h3>
-                    <p>{item.intro}</p>
-                    {sectionKey === 'soundtrack' && content.optional.soundtrack.audioSrc ? (
-                      <audio
-                        controls
-                        preload="none"
-                        src={content.optional.soundtrack.audioSrc}
-                        aria-label={content.optional.soundtrack.title}
-                      />
-                    ) : null}
+                    <div className="people-card-photo">
+                      {coverPhoto ? (
+                        <button
+                          className="people-photo-open"
+                          type="button"
+                          aria-label={`Mở ảnh nhóm ${group.title}, ${group.photos.length} ảnh`}
+                          onClick={(event) => {
+                            setLightboxTrigger(event.currentTarget)
+                            setLightbox({
+                              kind: 'people',
+                              index: 0,
+                              title: group.title,
+                              eyebrow: 'NHỮNG NGƯỜI GÓP SỨC',
+                              photos: group.photos.slice(0, 10),
+                            })
+                          }}
+                        >
+                          <img src={coverPhoto.src} alt={coverPhoto.alt} loading="lazy" />
+                        </button>
+                      ) : (
+                        <div className="people-photo-empty">
+                          <span>{group.title}</span>
+                          <small>NGÀY HÔM ẤY</small>
+                        </div>
+                      )}
+                      {group.photos.length > 0 ? (
+                        <span className="people-photo-count">{group.photos.length} ẢNH</span>
+                      ) : null}
+                    </div>
+                    <div className="people-card-copy">
+                      <div className="mono">{String(index + 1).padStart(2, '0')} / GÓP SỨC CHO NGÀY VUI</div>
+                      <h3>{group.title}</h3>
+                      <p>{group.caption}</p>
+                      {group.photos.length > 0 ? (
+                        <button
+                          className="people-card-action"
+                          type="button"
+                          onClick={(event) => {
+                            setLightboxTrigger(event.currentTarget)
+                            setLightbox({
+                              kind: 'people',
+                              index: 0,
+                              title: group.title,
+                              eyebrow: 'NHỮNG NGƯỜI GÓP SỨC',
+                              photos: group.photos.slice(0, 10),
+                            })
+                          }}
+                        >
+                          Xem {group.photos.length > 1 ? `${group.photos.length} ảnh` : 'ảnh'} <span>↗</span>
+                        </button>
+                      ) : null}
+                    </div>
                   </motion.article>
-                ),
-            )}
+                )
+              })}
+            </div>
+            {peopleGroups.length > 1 ? (
+              <div className="people-carousel-controls" aria-label="Điều khiển nhóm ảnh">
+                <button
+                  type="button"
+                  aria-label="Nhóm trước"
+                  disabled={!peopleRailPosition.canPrevious}
+                  onClick={() => movePeopleRail(-1)}
+                >
+                  ‹
+                </button>
+                <span aria-live="polite">{peopleRailPosition.index + 1} / {peopleGroups.length}</span>
+                <button
+                  type="button"
+                  aria-label="Nhóm tiếp theo"
+                  disabled={!peopleRailPosition.canNext}
+                  onClick={() => movePeopleRail(1)}
+                >
+                  ›
+                </button>
+              </div>
+            ) : null}
           </div>
         </RevealSection>
+        ) : null}
 
-        {content.optional.weddingFilm.enabled && (
-          <RevealSection id="film" className="wrap film-feature" sectionKey="weddingFilm">
-            <motion.div className="film-poster" {...revealItem(reduceMotion)}>
-              <img
-                src={content.optional.weddingFilm.poster.src}
-                alt={content.optional.weddingFilm.poster.alt}
-                loading="lazy"
-                style={{ display: filmPlaying ? 'none' : undefined }}
-              />
-              {filmPlaying && content.optional.weddingFilm.videoSrc ? (
-                <video
-                  src={content.optional.weddingFilm.videoSrc}
-                  controls
-                  autoPlay
-                  playsInline
-                  preload="metadata"
-                />
-              ) : null}
-              {content.optional.weddingFilm.videoSrc && !filmPlaying ? (
-                <button
-                  className="play"
-                  type="button"
-                  aria-label={content.optional.weddingFilm.playLabel}
-                  onClick={() => setFilmPlaying(true)}
-                >
-                  <div>
-                    <b>▶</b>
-                    {content.optional.weddingFilm.playLabel}
-                  </div>
-                </button>
-              ) : null}
-            </motion.div>
-            <motion.div className="film-copy" {...revealItem(reduceMotion, 0.1)}>
-              <div className="mono">{content.optional.weddingFilm.eyebrow}</div>
-              <h2>
-                <TextWithBreaks>
-                  {content.optional.weddingFilm.title.replace(', ', ',\n')}
-                </TextWithBreaks>
-              </h2>
-              <p>{content.optional.weddingFilm.body}</p>
-              {content.optional.weddingFilm.videoSrc ? (
-                <button className="underlink" type="button" onClick={() => setFilmPlaying(true)}>
-                  {content.optional.weddingFilm.linkLabel}
-                </button>
-              ) : null}
-            </motion.div>
+        {content.optional.soundtrack.enabled ? (
+          <RevealSection className="wrap soundtrack-feature" sectionKey="soundtrack">
+            <div className="mono">{content.optional.soundtrack.eyebrow}</div>
+            <h2>{content.optional.soundtrack.title}</h2>
+            <p>{content.optional.soundtrack.intro}</p>
+            {content.optional.soundtrack.audioSrc ? (
+              <p className="soundtrack-player-note">Chạm nút nhạc ở góc màn hình để phát giai điệu này.</p>
+            ) : null}
           </RevealSection>
-        )}
+        ) : null}
 
         {content.optional.guestbook.enabled && (
           <RevealSection className="wrap guestbook" sectionKey="guestbook">
@@ -586,18 +694,35 @@ export function TheWeddingRollRecap({
               </motion.div>
               <p>{content.optional.guestbook.intro}</p>
             </div>
-            <div className="wish-grid">
-              {content.optional.guestbook.wishes.map((wish, index) => (
-                <motion.article
-                  className="wish"
-                  key={wish.id}
-                  {...revealItem(reduceMotion, index * 0.07)}
-                >
-                  <blockquote>{wish.message}</blockquote>
-                  <cite>{wish.author}</cite>
-                </motion.article>
-              ))}
-            </div>
+            {displayedWishes.length ? (
+              <div
+                className="wish-marquee"
+                role="region"
+                aria-label="Lời chúc đã chọn"
+                tabIndex={0}
+              >
+                <div className="wish-marquee-track">
+                  {[0, 1].map((copy) => (
+                    <div
+                      className="wish-marquee-group"
+                      key={copy}
+                      aria-hidden={copy === 1 ? 'true' : undefined}
+                    >
+                      {displayedWishes.map((wish, index) => (
+                        <motion.article
+                          className="wish"
+                          key={`${copy}-${wish.id ?? index}`}
+                          {...revealItem(reduceMotion, index * 0.04)}
+                        >
+                          <blockquote>{wish.content}</blockquote>
+                          <cite>{wish.authorName}</cite>
+                        </motion.article>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </RevealSection>
         )}
 
@@ -640,12 +765,12 @@ export function TheWeddingRollRecap({
           </div>
         </RevealSection>
       </main>
-      {activeLightboxChapter && activeLightboxPhoto ? (
+      {lightbox && activeLightboxPhoto ? (
         <div
           className="chapter-lightbox-backdrop"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setChapterLightbox(null)
+            if (event.target === event.currentTarget) setLightbox(null)
           }}
         >
           <section
@@ -656,15 +781,19 @@ export function TheWeddingRollRecap({
           >
             <header className="chapter-lightbox-header">
               <div>
-                <div className="chapter-lightbox-eyebrow">{activeLightboxChapter.dateLabel}</div>
-                <h2 id="chapter-lightbox-title">{activeLightboxChapter.title}</h2>
+                <div className="chapter-lightbox-eyebrow">
+                  {activeLightboxChapter?.dateLabel ?? lightbox.eyebrow ?? 'ẢNH NỔI BẬT'}
+                </div>
+                <h2 id="chapter-lightbox-title">
+                  {activeLightboxChapter?.title ?? lightbox.title ?? 'Ảnh nổi bật'}
+                </h2>
               </div>
               <button
-                ref={chapterLightboxCloseRef}
+                ref={lightboxCloseRef}
                 className="chapter-lightbox-close"
                 type="button"
                 aria-label="Đóng album ảnh"
-                onClick={() => setChapterLightbox(null)}
+                onClick={() => setLightbox(null)}
               >
                 ×
               </button>
@@ -676,7 +805,7 @@ export function TheWeddingRollRecap({
                 aria-label="Ảnh trước"
                 disabled={activeLightboxPhotos.length < 2}
                 onClick={() =>
-                  setChapterLightbox((current) =>
+                  setLightbox((current) =>
                     current
                       ? {
                           ...current,
@@ -701,7 +830,7 @@ export function TheWeddingRollRecap({
                 aria-label="Ảnh tiếp theo"
                 disabled={activeLightboxPhotos.length < 2}
                 onClick={() =>
-                  setChapterLightbox((current) =>
+                  setLightbox((current) =>
                     current
                       ? { ...current, index: (current.index + 1) % activeLightboxPhotos.length }
                       : current,
@@ -715,6 +844,16 @@ export function TheWeddingRollRecap({
               <span aria-live="polite">
                 {activeLightboxIndex + 1} / {activeLightboxPhotos.length}
               </span>
+              {lightbox.kind === 'featured' || lightbox.kind === 'people' ? (
+                <a
+                  className="chapter-lightbox-download"
+                  href={activeLightboxPhoto.src}
+                  download
+                  aria-label="Tải ảnh đang xem"
+                >
+                  Tải ảnh ↓
+                </a>
+              ) : null}
               <div className="chapter-lightbox-thumbnails" aria-label="Chọn ảnh trong album">
                 {activeLightboxPhotos.map((photo, index) => (
                   <button
@@ -723,7 +862,7 @@ export function TheWeddingRollRecap({
                     type="button"
                     aria-label={`Hiện ảnh ${index + 1}`}
                     aria-current={index === activeLightboxIndex ? 'true' : undefined}
-                    onClick={() => setChapterLightbox((current) => (current ? { ...current, index } : current))}
+                    onClick={() => setLightbox((current) => (current ? { ...current, index } : current))}
                   >
                     <img src={photo.src} alt="" />
                   </button>

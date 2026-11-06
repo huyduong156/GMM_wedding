@@ -6,7 +6,7 @@ import { theWeddingRollRecapFixture } from './fixture'
 import { theWeddingRollRecapTemplateConfig } from './template-config'
 
 describe('The Wedding Roll template conversion', () => {
-  it('preserves all twelve concept section anchors and their order', () => {
+  it('renders the configured concept section anchors in their configured order', () => {
     render(<TheWeddingRollRecap />)
 
     const sectionKeys = [...document.querySelectorAll('[data-editor-section]')].map((section) =>
@@ -22,31 +22,19 @@ describe('The Wedding Roll template conversion', () => {
       ...theWeddingRollRecapTemplateConfig.authoring.optionalSections,
       'thankYou',
     ])
-    expect(sectionKeys).toHaveLength(12)
+    expect(sectionKeys).toHaveLength(11)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       /Ngày mình\s*chọn nhau\s*trọn đời\./,
     )
     expect(screen.getByText('Những tấm còn lại')).toBeInTheDocument()
     expect(screen.getByText('People behind the day')).toBeInTheDocument()
-    expect(screen.queryByText('PLAY THE MEMORY')).not.toBeInTheDocument()
     expect(screen.getByText('Đọc lại mà')).toBeInTheDocument()
     expect(document.querySelector('.closing h2')).toHaveTextContent(
       'Cảm ơn vì đã cùng chúng mình tạo nên ngày hôm ấy.',
     )
   })
 
-  it('plays the wedding film only after an explicit click when a source exists', () => {
-    const content = structuredClone(theWeddingRollRecapFixture)
-    content.optional.weddingFilm.videoSrc = '/demo/wedding-film.mp4'
-    const { container } = render(<TheWeddingRollRecap content={content} />)
-
-    fireEvent.click(screen.getByRole('button', { name: 'PLAY THE MEMORY' }))
-
-    expect(container.querySelector('video')).toHaveAttribute('src', '/demo/wedding-film.mp4')
-    expect(container.querySelector('video')).toHaveAttribute('controls')
-  })
-
-  it('keeps the original cover, chapter, moment and film-strip imagery', () => {
+  it('opens featured photos in a lightbox from the photo delivery button', () => {
     render(<TheWeddingRollRecap />)
 
     expect(screen.getByAltText('Cặp đôi trong ngày cưới dưới nắng chiều')).toHaveAttribute(
@@ -55,11 +43,12 @@ describe('The Wedding Roll template conversion', () => {
     )
     expect(document.querySelectorAll('.chapter-thumb img')).toHaveLength(3)
     expect(document.querySelectorAll('.moment-card')).toHaveLength(3)
-    expect(document.querySelectorAll('.film-strip img')).toHaveLength(7)
-    expect(screen.getByRole('link', { name: /^Mở & tải album ảnh/ })).toHaveAttribute(
-      'href',
-      '#album',
-    )
+    expect(document.querySelector('.film-strip')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^Xem ảnh nổi bật/ }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ảnh nổi bật' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Tải ảnh đang xem' })).toHaveAttribute('download')
+    expect(document.querySelectorAll('#photo-gallery')).toHaveLength(0)
   })
 
   it('keeps page-edge artwork decorative and pauses its ambient motion when hidden', async () => {
@@ -81,7 +70,7 @@ describe('The Wedding Roll template conversion', () => {
     else Reflect.deleteProperty(document, 'hidden')
   })
 
-  it('removes disabled optional sections without leaving cards or section gaps', () => {
+  it('removes disabled optional sections without leaving empty section wrappers', () => {
     const content = {
       ...theWeddingRollRecapFixture,
       optional: {
@@ -92,7 +81,6 @@ describe('The Wedding Roll template conversion', () => {
         },
         soundtrack: { ...theWeddingRollRecapFixture.optional.soundtrack, enabled: false },
         behindTheScenes: { ...theWeddingRollRecapFixture.optional.behindTheScenes, enabled: false },
-        weddingFilm: { ...theWeddingRollRecapFixture.optional.weddingFilm, enabled: false },
         guestbook: { ...theWeddingRollRecapFixture.optional.guestbook, enabled: false },
         memoryCapsule: { ...theWeddingRollRecapFixture.optional.memoryCapsule, enabled: false },
       },
@@ -104,8 +92,8 @@ describe('The Wedding Roll template conversion', () => {
         section.getAttribute('data-editor-section'),
       ),
     ).toEqual(['hero', 'ourStory', 'chapters', 'moments', 'photoDelivery', 'thankYou'])
-    expect(document.querySelector('.optional')).toBeInTheDocument()
-    expect(document.querySelector('.optional-grid')?.children).toHaveLength(0)
+    expect(document.querySelector('.people-behind-section')).not.toBeInTheDocument()
+    expect(document.querySelector('.soundtrack-feature')).not.toBeInTheDocument()
   })
 
   it('validates external album links and keeps them as explicitly external actions', () => {
@@ -117,29 +105,24 @@ describe('The Wedding Roll template conversion', () => {
       ...theWeddingRollRecapFixture,
       photoDelivery: {
         ...theWeddingRollRecapFixture.photoDelivery,
-        albums: [
-          {
-            type: 'EXTERNAL_ALBUM_LINK' as const,
-            href: 'https://photos.example/albums/123',
-            label: 'Album đã chia sẻ',
-          },
-        ],
+        externalAlbumUrl: 'https://photos.example/albums/123',
       },
     }
     render(<TheWeddingRollRecap content={content} />)
 
-    expect(screen.getByRole('link', { name: /^Mở album ảnh/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Xem toàn bộ ảnh ngày hôm ấy/ })).toHaveAttribute(
       'href',
       'https://photos.example/albums/123',
     )
-    expect(screen.getByRole('link', { name: /^Mở album ảnh/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Xem toàn bộ ảnh ngày hôm ấy/ })).toHaveAttribute(
       'rel',
       'noopener noreferrer',
     )
   })
 
-  it('shows only recap-selected media for an internal album and exposes downloads', () => {
+  it('uses selected internal album media in the featured photos lightbox', () => {
     const content = structuredClone(theWeddingRollRecapFixture)
+    content.photoDelivery.featuredPhotos = []
     content.photoDelivery.albums = [
       { type: 'INTERNAL_ALBUM', albumId: 'published-album', label: 'Album' },
     ]
@@ -150,11 +133,12 @@ describe('The Wedding Roll template conversion', () => {
       />,
     )
 
-    expect(screen.getByRole('link', { name: /^Mở album ảnh/ })).toHaveAttribute(
+    fireEvent.click(screen.getByRole('button', { name: /^Xem ảnh nổi bật/ }))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Selected wedding photo' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Tải ảnh đang xem' })).toHaveAttribute(
       'href',
-      '#photo-gallery',
+      '/published/photo-1.jpg',
     )
-    expect(screen.getByRole('link', { name: 'Selected wedding photo' })).toHaveAttribute('download')
-    expect(document.querySelectorAll('#photo-gallery img')).toHaveLength(1)
   })
 })

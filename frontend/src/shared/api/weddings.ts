@@ -48,6 +48,7 @@ export type TemplateFieldConfig = {
     | 'images'
     | 'colors'
     | 'audio'
+    | 'info'
   label?: string
   required?: boolean
   maxLength?: number

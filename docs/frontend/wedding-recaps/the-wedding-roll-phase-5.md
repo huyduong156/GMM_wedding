@@ -13,11 +13,10 @@ Mobile-first editorial photo journal for wedding guests. Phase 5 preserves the a
 | Asset                         | Placement                                                                | Behavior and fallback                                                                |
 | ----------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | `film-frame.svg`              | Hero cover overlay; transparent center leaves the cover photo as content | Static, no crop-dependent marks; full frame retained at mobile widths                |
-| `camera-viewfinder-frame.svg` | Optional wedding-film poster                                             | Static alternate frame; never layered with the film frame on the same photo          |
 | `film-sprocket-mark.svg`      | Three fixed page-edge ornaments outside the reading column               | Slow float/rotation, low opacity, hidden from assistive technology and pointer input |
 | Paper-light drift             | Existing shared paper canvas                                             | Very slow translated radial light; no color-band or section-background changes       |
 
-Only two SVG files are external photo frames; the third artwork is the lightweight project-authored sprocket vector. All source/provenance and placements are recorded in `frontend/src/templates/recaps/the-wedding-roll/ASSET_MANIFEST.md` and `assets/ASSET_SOURCES.md`. The approved preview photos remain independent replaceable content.
+The film frame is the external SVG photo frame; the sprocket artwork is a lightweight project-authored vector. The viewfinder frame is not used because Wedding Roll does not currently accept wedding video. All source/provenance and placements are recorded in `frontend/src/templates/recaps/the-wedding-roll/ASSET_MANIFEST.md` and `assets/ASSET_SOURCES.md`. The approved preview photos remain independent replaceable content.
 
 ## Motion and interaction map
 
@@ -28,7 +27,8 @@ Only two SVG files are external photo frames; the third artwork is the lightweig
 | Chapter rows and moment cards                    | Enter viewport once           | Fade-rise, 620ms, 70ms sequential item delay             | No delay; all text/media remain visible                      |
 | Contact strip frames and optional teaser cards   | Enter viewport once           | Fade-rise with short stagger                             | Static layout                                                |
 | Album panel and CTA                              | Enter viewport once           | Panel, copy and CTA reveal in order                      | Native links and visible focus outline                       |
-| Film poster/copy, wishes, capsule and closing    | Enter viewport once           | Content-level fade-rise with short stagger               | Static full content                                          |
+| Wishes, capsule and closing                    | Enter viewport once           | Content-level fade-rise with short stagger               | Static full content                                          |
+| Guest wishes                                    | Continuous leftward marquee   | 42s linear loop; pauses on hover, focus or press           | Static horizontally scrollable track for reduced motion      |
 | Background and page-edge artwork                 | Continuous while page visible | 28s light drift; 13s sprocket float using transform only | Paused while tab is hidden; fully stopped for reduced motion |
 | Links and buttons                                | Keyboard focus / press        | Rust focus outline; small pressed offset                 | Native keyboard and touch activation                         |
 
@@ -58,7 +58,7 @@ The two frame overlays and three edge ornaments are non-interactive and outside 
 - [ ] Replace preview-only remote demo photos with authorized/local media before catalog release.
 - [x] Public recap renderer selects The Wedding Roll from the published snapshot and uses only snapshot-selected media for the internal album action.
 - [x] Preview renderer receives live editor updates through the existing same-origin bridge.
-- [x] Wedding film and soundtrack controls require an explicit user action and render only when a source is configured.
+- [x] Shared soundtrack player requires an explicit user action and appears only when its source is configured; wedding-video upload/playback is not part of the current template.
 - [x] Connect published recap content and explicitly selected internal album media through the production recap snapshot; validate and open external HTTPS album links safely.
 - [ ] Add template-specific authoring controls in the live recap editor so owners can edit The Wedding Roll fields and choose album/media sources without editing raw JSON.
 - [ ] Re-audit `template-config.ts` against the live editor, catalog, release bundle and admin publish/sync path before changing status from `development`.
