@@ -941,16 +941,43 @@ export function VanHyInvitation({
                     Cảm ơn bạn đã gửi lời chúc.
                   </span>
                 )}
-                {interactions?.wishes.items.length ? (
-                  <div className="hh-wish-list" aria-live="polite">
-                    {interactions.wishes.items.map((item, index) => (
-                      <MotionListItem index={index} key={item.id}>
+                {interactions?.wishes.items.length ? (() => {
+                  const wishes = interactions.wishes.items
+                  const useMarquee = wishes.length >= 5
+                  const duration = Math.max(16.8, wishes.length * 4.9)
+                  const renderWish = (item: (typeof wishes)[number], index: number, duplicate = false) =>
+                    duplicate ? (
+                      <article className="hh-wish-card" key={`${item.id}-duplicate`}>
+                        <p>{item.content}</p>
+                        <small>{item.authorName}</small>
+                      </article>
+                    ) : (
+                      <MotionListItem className="hh-wish-card" index={index} key={item.id}>
                         <p>{item.content}</p>
                         <small>{item.authorName}</small>
                       </MotionListItem>
-                    ))}
-                  </div>
-                ) : null}
+                    )
+
+                  return (
+                    <div
+                      className={`hh-wish-list${useMarquee ? ' is-marquee' : ''}`}
+                      aria-label="Lời chúc đã nhận"
+                      tabIndex={0}
+                      style={{ '--hh-wish-marquee-duration': `${duration}s` } as CSSProperties}
+                    >
+                      <div className="hh-wish-track">
+                        <div className="hh-wish-group">
+                          {wishes.map((item, index) => renderWish(item, index))}
+                        </div>
+                        {useMarquee && (
+                          <div className="hh-wish-group" aria-hidden="true">
+                            {wishes.map((item, index) => renderWish(item, index, true))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })() : null}
               </MotionSection>
             )}
             {showSection('gift', sectionConfig) && (
