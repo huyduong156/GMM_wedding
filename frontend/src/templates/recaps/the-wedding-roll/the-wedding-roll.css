@@ -1055,11 +1055,12 @@
 :where(.the-wedding-roll) .wish-marquee-track {
   display: flex;
   width: max-content;
-  animation: wish-marquee-loop 42s linear infinite;
+  animation: wish-marquee-loop var(--wish-marquee-duration, 29.4s) linear infinite;
 }
 :where(.the-wedding-roll) .wish-marquee-group {
   display: flex;
-  flex: 0 0 min(1200px, calc(100vw - 84px));
+  flex: 0 0 auto;
+  width: max-content;
   gap: 12px;
   padding-right: 12px;
 }
@@ -1073,7 +1074,7 @@
 }
 :where(.the-wedding-roll) .wish {
   display: flex;
-  flex: 0 0 calc((100% - 36px) / 4);
+  flex: 0 0 clamp(160px, 22vw, 280px);
   flex-direction: column;
   justify-content: space-between;
   padding: 15px 15px 14px;
@@ -1109,6 +1110,18 @@
   color: #665f53;
   max-width: 510px;
   margin: 15px auto 0;
+}
+:where(.the-wedding-roll) .capsule-photo {
+  width: min(100%, 320px);
+  margin: 26px auto 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .capsule-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 :where(.the-wedding-roll) .closing {
   padding: 100px 0 35px;
@@ -1395,12 +1408,11 @@
     padding: 65px 0 90px;
   }
   :where(.the-wedding-roll) .wish-marquee-group {
-    flex-basis: calc(100vw - 38px);
     gap: 10px;
     padding-right: 10px;
   }
   :where(.the-wedding-roll) .wish {
-    flex-basis: 82%;
+    flex-basis: 82vw;
     min-height: 128px;
     padding: 13px 13px 12px;
   }
@@ -1836,12 +1848,11 @@
     margin-bottom: 18px;
   }
   :where(.the-wedding-roll) .wish-marquee-group {
-    flex-basis: calc(100vw - 38px);
     gap: 9px;
     padding-right: 9px;
   }
   :where(.the-wedding-roll) .wish {
-    flex-basis: 82%;
+    flex-basis: 82vw;
     min-height: 122px;
     padding: 12px 13px;
   }

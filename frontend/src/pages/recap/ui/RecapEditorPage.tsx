@@ -35,6 +35,7 @@ import { useLiveEditorBridge } from '../../../shared/lib/live-template-editor'
 import { EditorPreviewModal } from '../../../shared/ui/EditorPreviewModal'
 import { MobileEditorAdviceModal } from '../../../shared/ui/MobileEditorAdviceModal'
 import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
+import { TemplateSchemaFields } from '../../../shared/ui/template-editor/TemplateSchemaFields'
 import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
 import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 import { notifications } from '../../../shared/ui/notifications/notifications'
@@ -43,6 +44,7 @@ import { redSpiderLilyRecapTemplateConfig } from '../../../templates/recaps/red-
 import { redSpiderLilyRecapFixture } from '../../../templates/recaps/red-spider-lily/fixture'
 import type { RedSpiderLilyRecapContent } from '../../../templates/recaps/red-spider-lily/content'
 import { theWeddingRollRecapFixture } from '../../../templates/recaps/the-wedding-roll/fixture'
+import { theWeddingRollRecapTemplateConfig } from '../../../templates/recaps/the-wedding-roll/template-config'
 import { normalizePeopleGroups } from '../../../templates/recaps/the-wedding-roll/people-groups'
 import { isSafeExternalAlbumUrl } from '../../../templates/recaps/the-wedding-roll/album-url'
 import './recap.css'
@@ -74,7 +76,7 @@ const labels: Record<string, { label: string; detail: string; title: string; bod
   hero: {
     label: 'Mở đầu',
     detail: 'Ảnh bìa, tên cặp đôi và tagline',
-    title: 'Minh & Anh',
+    title: 'Tên cặp đôi',
     body: 'Ảnh chủ đạo, tên cặp đôi và lời dẫn ngắn.',
   },
   ourStory: {
@@ -320,6 +322,14 @@ const mergeWeddingRollContent = (stored: Record<string, unknown>) => {
       : {}
   const delivery = merged.photoDelivery as Record<string, unknown>
   const legacyAlbums = Array.isArray(storedDelivery.albums) ? storedDelivery.albums : []
+  delivery.albums = legacyAlbums
+    .filter(
+      (value) =>
+        value &&
+        typeof value === 'object' &&
+        (value as Record<string, unknown>).type === 'INTERNAL_ALBUM',
+    )
+    .slice(0, 1)
   const legacyExternalAlbum = legacyAlbums.find(
     (value) =>
       value &&
@@ -339,7 +349,6 @@ const mergeWeddingRollContent = (stored: Record<string, unknown>) => {
         : typeof legacyExternalAlbum?.href === 'string'
           ? legacyExternalAlbum.href
           : ''
-  delivery.albums = []
   delete delivery.media
   delete delivery.albumUrl
   return merged as unknown as RedSpiderLilyRecapContent
@@ -369,6 +378,10 @@ const getPath = (value: Record<string, unknown>, path: string) =>
           value,
         )
     : undefined
+const splitWeddingRollCoupleNames = (value: string): [string, string] => {
+  const [brideName = '', ...groomParts] = value.split(/\s*&\s*/)
+  return [brideName, groomParts.join(' & ')]
+}
 const setPath = (
   value: RedSpiderLilyRecapContent,
   path: string,
@@ -401,6 +414,24 @@ const sectionContentFields: Record<string, { title: string; body: string }> = {
     body: 'optional.behindTheScenes.body',
   },
   memoryCapsule: { title: 'optional.memoryCapsule.title', body: 'optional.memoryCapsule.body' },
+}
+const theWeddingRollSectionContentFields: Record<string, { title: string; body: string }> = {
+  hero: { title: 'hero.couple', body: 'hero.tagline' },
+  ourStory: { title: 'ourStory.quote', body: 'ourStory.body' },
+  chapters: { title: 'chaptersIntro.title', body: 'chaptersIntro.description' },
+  moments: { title: 'momentsIntro.title', body: 'momentsIntro.description' },
+  photoDelivery: { title: 'photoDelivery.title', body: 'photoDelivery.body' },
+  thankYou: { title: 'thankYou.title', body: 'thankYou.body' },
+  guestbook: { title: 'optional.guestbook.title', body: 'optional.guestbook.intro' },
+  peopleBehindTheDay: {
+    title: 'optional.peopleBehindTheDay.title',
+    body: 'optional.peopleBehindTheDay.intro',
+  },
+  soundtrack: { title: 'optional.soundtrack.title', body: 'optional.soundtrack.intro' },
+  memoryCapsule: {
+    title: 'optional.memoryCapsule.title',
+    body: 'optional.memoryCapsule.message',
+  },
 }
 
 const recapTextRules = [
@@ -1257,6 +1288,23 @@ function ConfigDrivenItemList({
                     />
                   </label>
                 )
+              if (field.type === 'select')
+                return (
+                  <label className="recap-field" key={itemPath}>
+                    <span>{field.label ?? key}</span>
+                    <select
+                      value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
+                      disabled={!isOpen}
+                      onChange={(event) => update(itemPath, event.target.value)}
+                    >
+                      {field.options?.map((option) => (
+                        <option key={option.key} value={option.key}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )
               return (
                 <RecapTextField
                   key={itemPath}
@@ -1421,12 +1469,29 @@ function ConfigDrivenSectionForm({
           } as TemplateFieldConfig,
         ] as const)
       : undefined)
-  const fallbackFields = entries.length
+  const fallbackFields: Array<[string, TemplateFieldConfig]> = entries.length
     ? entries
     : ([
         ['title', { type: 'string', label: 'Tiêu đề' }],
         ['body', { type: 'text', label: 'Nội dung' }],
-      ] as const)
+      ] as Array<[string, TemplateFieldConfig]>)
+  const sharedFields = Object.fromEntries(
+    fallbackFields
+      .filter(([key, field]) => key !== repeatableEntry?.[0] && field.type !== 'items')
+      .map(([key, field]) => [
+        key,
+        {
+          ...field,
+          contentKey: field.contentKey ?? `${section.key}.${key}`,
+          ...(field.type === 'image' || field.type === 'images'
+            ? {
+                mediaRole: mediaRoleFor(section, field, section.key),
+                mediaValue: field.mediaValue ?? 'object',
+              }
+            : {}),
+        },
+      ]),
+  ) as Record<string, TemplateFieldConfig>
   return (
     <div className={`recap-accordion ${isOpen ? 'is-open' : ''}`} aria-hidden={!isOpen}>
       <div className="recap-accordion-content">
@@ -1434,94 +1499,20 @@ function ConfigDrivenSectionForm({
           <div className="recap-form-eyebrow">Đang chỉnh sửa</div>
           <h2>{section.title}</h2>
           <p className="recap-form-lead">{section.body}</p>
-          {fallbackFields
-            .filter(([key]) => key !== repeatableEntry?.[0])
-            .map(([key, config]) => {
-              const field = config as TemplateFieldConfig
-              const path = field.contentKey ?? `${section.key}.${key}`
-              const value = getPath(content, path)
-              if (field.type === 'info')
-                return (
-                  <p className="recap-field-help" key={path}>
-                    {field.label}
-                  </p>
-                )
-              if (field.type === 'items') return null
-              if (field.type === 'collection' && Array.isArray(value))
-                return (
-                  <fieldset className="recap-fieldset" key={path} disabled={!isOpen}>
-                    <legend>{field.label ?? key}</legend>
-                    {value.map((item, index) => (
-                      <RecapTextField
-                        key={`${path}.${index}`}
-                        label={`Dòng ${index + 1}`}
-                        path={`${path}.${index}`}
-                        value={typeof item === 'string' ? item : ''}
-                        update={update}
-                        maxLength={field.maxLength}
-                        disabled={!isOpen}
-                      />
-                    ))}
-                  </fieldset>
-                )
-              if (field.type === 'image' || field.type === 'images')
-                return (
-                  <div className="recap-config-media-field" key={path}>
-                    <button
-                      type="button"
-                      className="recap-media-control"
-                      disabled={!isOpen}
-                      onClick={() =>
-                        media?.openManager(
-                          path,
-                          mediaRoleFor(section, field, section.key),
-                          field.type === 'images',
-                          field.type === 'images'
-                            ? { minSelection: field.minItems, maxSelection: field.maxItems }
-                            : undefined,
-                        )
-                      }
-                    >
-                      <ImageSquare size={18} /> {field.label ?? key}
-                    </button>
-                    {field.type === 'images' ? (
-                      <AlbumSelectionStatus value={value} maxSelection={field.maxItems} />
-                    ) : null}
-                    {field.emptyMessage ? (
-                      <small className="recap-field-help">{field.emptyMessage}</small>
-                    ) : null}
-                  </div>
-                )
-              if (field.type === 'boolean')
-                return (
-                  <label className="recap-field" key={path}>
-                    <span>{field.label ?? key}</span>
-                    <input
-                      type="checkbox"
-                      disabled={!isOpen}
-                      checked={Boolean(value)}
-                      onChange={(event) => update(path, event.target.checked)}
-                    />
-                  </label>
-                )
-              return (
-                <div className="recap-config-media-field" key={path}>
-                  <RecapTextField
-                    label={field.label ?? key}
-                    path={path}
-                    value={typeof value === 'string' ? value : ''}
-                    update={update}
-                    multiline={field.type === 'text'}
-                    type={field.type === 'date' ? 'date' : field.type === 'url' ? 'url' : 'text'}
-                    maxLength={field.maxLength}
-                    disabled={!isOpen}
-                  />
-                  {field.emptyMessage ? (
-                    <small className="recap-field-help">{field.emptyMessage}</small>
-                  ) : null}
-                </div>
-              )
-            })}
+          <fieldset className="recap-schema-fields" disabled={!isOpen}>
+            <TemplateSchemaFields
+              fields={sharedFields}
+              data={content}
+              update={update}
+              mediaEnabled
+              openMediaManager={({ path, multiple, role, minItems, maxItems }) =>
+                media?.openManager(path, role, multiple, {
+                  minSelection: minItems,
+                  maxSelection: maxItems,
+                })
+              }
+            />
+          </fieldset>
           {repeatableEntry ? (
             <ConfigDrivenItemList
               path={
@@ -1930,12 +1921,15 @@ export function RecapEditorPage() {
   }
   const toggleSection = (section: EditorSection) => {
     if (!section.canToggle) return
+    const isEnabled = enabled.includes(section.key)
     checkpoint()
     setEnabled((items) =>
-      items.includes(section.key)
-        ? items.filter((key) => key !== section.key)
-        : [...items, section.key],
+      isEnabled ? items.filter((key) => key !== section.key) : [...items, section.key],
     )
+    if (!isEnabled) {
+      setActive(section.key)
+      scrollToSection(section.key)
+    }
     setSaved(false)
   }
   const undo = () => {
@@ -1974,6 +1968,19 @@ export function RecapEditorPage() {
   const updateContent = (path: string, value: unknown) => {
     setContent((current) => setPath(current, path, value))
     setSaved(false)
+  }
+  const isWeddingRoll = recap?.templateVersion.key === 'the-wedding-roll-recap'
+  const coupleNames = splitWeddingRollCoupleNames(
+    String(getPath(content as unknown as Record<string, unknown>, 'hero.couple') ?? ''),
+  )
+  const weddingRollQuickEditFields = Object.fromEntries(
+    theWeddingRollRecapTemplateConfig.quickEdit.map(({ contentKey, label }) => [
+      contentKey.split('.').at(-1) ?? contentKey,
+      { type: 'string' as const, label, contentKey, maxLength: 80 },
+    ]),
+  ) as Record<string, TemplateFieldConfig>
+  const weddingRollQuickEditData = {
+    hero: { brideName: coupleNames[0], groomName: coupleNames[1] },
   }
   const selectedMediaIds = new Set((recap?.mediaItems ?? []).map((item) => item.mediaAssetId))
   const attachMediaAsset = (asset: MediaAsset, target: { path: string; role: RecapMediaRole }) => {
@@ -2073,7 +2080,9 @@ export function RecapEditorPage() {
       setContent(
         result.recap.templateVersion.key === 'red-spider-lily-recap'
           ? mergeContent(result.recap.content)
-          : (result.recap.content as unknown as RedSpiderLilyRecapContent),
+          : result.recap.templateVersion.key === 'the-wedding-roll-recap'
+            ? mergeWeddingRollContent(result.recap.content)
+            : (result.recap.content as unknown as RedSpiderLilyRecapContent),
       )
       const dashboard = await weddingApi.dashboard(wedding.id)
       const nextPublished = dashboard.dashboard.publication.recap.published
@@ -2323,11 +2332,31 @@ export function RecapEditorPage() {
             </AppLink>
             <div>
               <p className="breadcrumb">
-                Wedding Recap <span>/</span> Dấu Son Bỉ Ngạn
+                Wedding Recap <span>/</span>{' '}
+                {typeof recap?.templateVersion.config.displayName === 'string'
+                  ? recap.templateVersion.config.displayName
+                  : 'Dấu Son Bỉ Ngạn'}
               </p>
-              <h1 id="recap-editor-heading">Kể lại ngày vui của bạn</h1>
+              <h1 id="recap-editor-heading">
+                {recap?.templateVersion.key === 'the-wedding-roll-recap'
+                  ? 'Kể lại ngày vui bằng những bức ảnh'
+                  : 'Kể lại ngày vui của bạn'}
+              </h1>
             </div>
           </div>
+          {isWeddingRoll ? (
+            <div className="editor-couple-quick-edit recap-couple-quick-edit" data-guide="editor-quick-edit">
+              <TemplateSchemaFields
+                fields={weddingRollQuickEditFields}
+                data={weddingRollQuickEditData}
+                update={(path, value) => {
+                  const nextNames: [string, string] = [...coupleNames]
+                  nextNames[path.endsWith('.brideName') ? 0 : 1] = String(value)
+                  updateContent('hero.couple', nextNames.filter(Boolean).join(' & '))
+                }}
+              />
+            </div>
+          ) : null}
           <div className="recap-editor-actions">
             <span className={`recap-save-state ${saved ? 'is-saved' : ''}`}>
               <Check size={14} />{' '}
@@ -2423,7 +2452,11 @@ export function RecapEditorPage() {
         <div className="recap-editor-layout">
           <aside className="recap-section-panel">
             <div className="recap-panel-intro">
-              <span>DAU SON BI NGAN</span>
+              <span>
+                {typeof recap?.templateVersion.config.displayName === 'string'
+                  ? recap.templateVersion.config.displayName
+                  : 'Wedding Recap'}
+              </span>
               <strong>
                 {visibleSections.length}/{order.length} section đang hiển thị
               </strong>
@@ -2453,7 +2486,9 @@ export function RecapEditorPage() {
                   repeatable: false,
                 }
                 const isEnabled = enabled.includes(key)
-                const fields = sectionContentFields[key] ?? {
+                const fields = (recap?.templateVersion.key === 'the-wedding-roll-recap'
+                  ? theWeddingRollSectionContentFields[key]
+                  : sectionContentFields[key]) ?? {
                   title: `${key}.title`,
                   body: `${key}.body`,
                 }

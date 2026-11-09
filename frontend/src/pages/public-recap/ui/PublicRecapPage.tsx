@@ -72,6 +72,14 @@ const mergeWeddingRollContent = (stored: Record<string, unknown>): TheWeddingRol
       ? (stored.photoDelivery as Record<string, unknown>)
       : {}
   const legacyAlbums = Array.isArray(storedDelivery.albums) ? storedDelivery.albums : []
+  const internalAlbums = legacyAlbums
+    .filter(
+      (value) =>
+        value &&
+        typeof value === 'object' &&
+        (value as Record<string, unknown>).type === 'INTERNAL_ALBUM',
+    )
+    .slice(0, 1) as TheWeddingRollRecapContent['photoDelivery']['albums']
   const legacyExternalAlbum = legacyAlbums.find(
     (value) =>
       value &&
@@ -94,7 +102,7 @@ const mergeWeddingRollContent = (stored: Record<string, unknown>): TheWeddingRol
 
   return {
     ...merged,
-    photoDelivery: { ...merged.photoDelivery, albums: [], featuredPhotos, externalAlbumUrl },
+    photoDelivery: { ...merged.photoDelivery, albums: internalAlbums, featuredPhotos, externalAlbumUrl },
   }
 }
 
@@ -241,6 +249,7 @@ export function PublicRecapPage({ slug }: { slug: string }) {
         content={weddingRollContent}
         albumItems={albumItems}
         wishes={weddingRollWishes}
+        sectionConfig={sectionConfig}
       />
     )
   return content ? <RedSpiderLilyRecap data={content} sectionConfig={sectionConfig} /> : null

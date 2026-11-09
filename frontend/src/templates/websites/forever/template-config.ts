@@ -156,7 +156,7 @@ const foreverSectionFields: Record<string, Record<string, TemplateFieldConfig>> 
 
 export const foreverTemplateConfig = {
   templateKey: 'forever', displayName: 'Forever', productType: 'WEDDING_WEBSITE',
-  templateVersion: '1.0.0', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1,
+  templateVersion: '1.0.1', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1,
   status: 'ready', type: 'website', previewPath: '/templates/websites/forever/preview',
   quickEdit: [
     { contentKey: 'hero.brideName', label: 'Tên cô dâu' },

@@ -22,6 +22,9 @@
   letter-spacing: -0.04em;
   color: #102536;
 }
+.recap-editor-toolbar #recap-editor-heading {
+  font-size: clamp(15px, 2vw, 26px);
+}
 .recap-page-heading p:not(.breadcrumb),
 .recap-editor-toolbar p:not(.breadcrumb) {
   max-width: 560px;
@@ -709,6 +712,12 @@
   color: #819197;
   cursor: pointer;
 }
+.recap-schema-fields {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
 .recap-section-tools > button:hover:not(:disabled) {
   color: #8b5e2a;
   background: #eaf1f0;
@@ -822,7 +831,7 @@
 .recap-section-panel {
   grid-column: 1;
   grid-row: 1;
-  max-height: calc(100dvh - 220px);
+  max-height: calc(100dvh - 60px);
   overflow-y: auto;
 }
 .recap-live-preview {
@@ -2008,4 +2017,145 @@
   color: #627780;
   font-size: 11px;
   line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .recap-editor-page {
+    display: flex;
+    width: auto;
+    max-width: none;
+    height: calc(100dvh - 64px);
+    min-height: 0;
+    margin: -28px;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .recap-editor-toolbar {
+    min-height: 64px;
+    margin: 0;
+    padding: 8px 14px;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
+  }
+  .recap-editor-title {
+    min-width: 0;
+    flex: 0 1 290px;
+  }
+  .recap-couple-quick-edit {
+    width: min(320px, 100%);
+    max-width: 320px;
+    margin: 0;
+    flex: 0 1 320px;
+  }
+  .recap-couple-quick-edit .editor-schema-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .recap-editor-actions {
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 6px;
+  }
+  .recap-editor-actions > .button {
+    min-height: 34px;
+    padding-inline: 9px;
+    font-size: 10px;
+  }
+  .recap-editor-layout {
+    grid-template-columns: minmax(360px, 45%) minmax(0, 55%);
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    flex: 1 1 0;
+  }
+  .recap-section-panel {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .recap-live-preview {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .recap-live-preview > .editor-iframe-canvas {
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    flex: 1 1 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .recap-editor-toolbar {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+  }
+  .recap-couple-quick-edit {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: min(420px, 100%);
+    max-width: none;
+  }
+  .recap-editor-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .recap-editor-layout {
+    grid-template-columns: minmax(300px, 45%) minmax(0, 55%);
+  }
+}
+
+@media (max-width: 767px) {
+  .recap-editor-page {
+    display: flex;
+    width: auto;
+    max-width: none;
+    height: calc(100dvh - 64px);
+    min-height: 0;
+    margin: -18px -14px -30px;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .recap-editor-toolbar {
+    display: block;
+    max-height: 42dvh;
+    margin: 0;
+    padding: 12px 14px;
+    overflow-y: auto;
+    flex: 0 0 auto;
+  }
+  .recap-couple-quick-edit {
+    display: block;
+    margin-top: 10px;
+  }
+  .recap-couple-quick-edit .editor-schema-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .recap-editor-actions {
+    justify-content: flex-start;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .recap-editor-layout {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    flex: 1 1 0;
+  }
+  .recap-section-panel {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    overflow: auto;
+    padding-top: 12px;
+    padding-bottom: 100px;
+    overscroll-behavior: contain;
+  }
 }

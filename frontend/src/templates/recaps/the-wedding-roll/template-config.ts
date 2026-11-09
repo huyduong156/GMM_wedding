@@ -50,10 +50,11 @@ const mediaRoles = {
   ourStory: ['story-photo'],
   chapters: ['chapter-gallery-photo'],
   moments: ['themed-moment-cover', 'moment-gallery-photo'],
-  photoDelivery: ['featured-photo', 'external-album-link'],
+  photoDelivery: ['featured-photo', 'internal-album', 'external-album-link'],
   thankYou: ['closing-photo'],
   guestbook: ['wish-support-photo'],
   peopleBehindTheDay: ['people-memory-photo'],
+  soundtrack: [],
   behindTheScenes: ['behind-scenes-cover', 'behind-scenes-gallery-photo'],
   memoryCapsule: ['capsule-support-photo'],
 } as const
@@ -88,9 +89,15 @@ const repeatableRules = {
 
 const sectionFields = {
   hero: {
-    couple: { type: 'string', label: 'Tên hai người', required: true, maxLength: 120 },
-    date: { type: 'date', label: 'Ngày cưới', required: true },
-    place: { type: 'string', label: 'Địa điểm', maxLength: 120 },
+    couple: {
+      type: 'string',
+      label: 'Tên cặp đôi',
+      contentKey: 'hero.couple',
+      required: true,
+      maxLength: 120,
+    },
+    date: { type: 'string', label: 'Ngày cưới', required: true, maxLength: 40 },
+    secondaryCtaLabel: { type: 'string', label: 'Nhãn liên kết phụ', maxLength: 60 },
     titleLines: {
       type: 'collection',
       label: 'Các dòng tiêu đề trang bìa',
@@ -99,10 +106,30 @@ const sectionFields = {
       minItems: 3,
       maxItems: 3,
     },
-    emphasisLine: { type: 'number', label: 'Dòng nhấn màu', min: 0, max: 2 },
+    emphasisLine: {
+      type: 'select',
+      label: 'Dòng nhấn màu',
+      options: [
+        { key: '0', label: 'Dòng 1' },
+        { key: '1', label: 'Dòng 2' },
+        { key: '2', label: 'Dòng 3' },
+      ],
+    },
     issueLabel: { type: 'string', label: 'Nhãn số phát hành', maxLength: 80 },
     tagline: { type: 'text', label: 'Lời mở đầu', maxLength: 180 },
     ctaLabel: { type: 'string', label: 'Nhãn nút mở album', required: true, maxLength: 60 },
+    frameNote: { type: 'string', label: 'Chú thích ảnh bìa', maxLength: 100 },
+    stampLabel: { type: 'string', label: 'Nhãn dấu ảnh', maxLength: 40 },
+    stampCount: { type: 'string', label: 'Số trên dấu ảnh', maxLength: 12 },
+    stampCaption: { type: 'string', label: 'Chú thích dấu ảnh', maxLength: 40 },
+    tickerItems: {
+      type: 'collection',
+      contentKey: 'tickerItems',
+      label: 'Các dòng chạy dưới trang bìa',
+      maxLength: 80,
+      minItems: 1,
+      maxItems: 20,
+    },
     cover: { type: 'image', label: 'Ảnh bìa', mediaRole: 'cover-photo' },
   },
   ourStory: {
@@ -154,15 +181,44 @@ const sectionFields = {
     },
   },
   moments: {
-    eyebrow: { type: 'string', label: 'Nhãn khoảnh khắc', maxLength: 80 },
-    heading: { type: 'string', label: 'Tiêu đề khoảnh khắc', required: true, maxLength: 120 },
-    intro: { type: 'text', label: 'Lời dẫn khoảnh khắc', maxLength: 280 },
+    eyebrow: {
+      type: 'string',
+      label: 'Nhãn khoảnh khắc',
+      maxLength: 80,
+      contentKey: 'momentsIntro.eyebrow',
+    },
+    heading: {
+      type: 'string',
+      label: 'Tiêu đề khoảnh khắc',
+      required: true,
+      maxLength: 120,
+      contentKey: 'momentsIntro.title',
+    },
+    intro: {
+      type: 'text',
+      label: 'Lời dẫn khoảnh khắc',
+      maxLength: 280,
+      contentKey: 'momentsIntro.description',
+    },
     items: {
-      type: 'collection',
+      type: 'items',
+      contentKey: 'moments',
       label: 'Nhóm khoảnh khắc',
       minItems: 1,
       maxItems: 12,
-      itemFields: ['title', 'momentLabel', 'description', 'cover'],
+      itemFields: {
+        title: { type: 'string', label: 'Tên nhóm khoảnh khắc', required: true, maxLength: 100 },
+        momentLabel: { type: 'string', label: 'Nhãn nhỏ', maxLength: 60 },
+        description: { type: 'text', label: 'Mô tả', maxLength: 280 },
+        cover: { type: 'image', label: 'Ảnh bìa', mediaRole: 'themed-moment-cover' },
+        gallery: {
+          type: 'images',
+          label: 'Ảnh trong khoảnh khắc',
+          mediaRole: 'moment-gallery-photo',
+          minItems: 0,
+          maxItems: 24,
+        },
+      },
     },
   },
   photoDelivery: {
@@ -178,11 +234,39 @@ const sectionFields = {
       emptyMessage:
         'Chọn tối đa 50 ảnh. Khi có ít nhất 1 ảnh, khách sẽ thấy nút “Xem ảnh nổi bật”; bấm nút sẽ mở lightbox để xem và tải từng ảnh.',
     },
+    albums: {
+      type: 'items',
+      label: 'Album nội bộ đã chọn',
+      contentKey: 'photoDelivery.albums',
+      maxItems: 1,
+      itemFields: {
+        type: {
+          type: 'select',
+          label: 'Nguồn album',
+          required: true,
+          default: 'INTERNAL_ALBUM',
+          options: [{ key: 'INTERNAL_ALBUM', label: 'Album nội bộ' }],
+        },
+        albumId: {
+          type: 'string',
+          label: 'Mã album',
+          required: true,
+          default: 'guest-gallery',
+          maxLength: 120,
+        },
+        label: {
+          type: 'string',
+          label: 'Nhãn album',
+          required: true,
+          default: 'Album ảnh cưới',
+          maxLength: 80,
+        },
+      },
+    },
     externalAlbumUrl: {
       type: 'url',
       label: 'URL album đầy đủ',
       maxLength: 2048,
-      protocol: 'https:',
       emptyMessage:
         'Thêm link album để hiện nút “Xem toàn bộ ảnh ngày hôm ấy”. Có thể dùng cùng lúc với ảnh nổi bật.',
     },
@@ -193,11 +277,28 @@ const sectionFields = {
     body: { type: 'text', label: 'Nội dung cảm ơn', required: true, maxLength: 500 },
     signature: { type: 'string', label: 'Tên ký', maxLength: 120 },
     date: { type: 'string', label: 'Ngày cưới hiển thị', maxLength: 40 },
+    footerNote: { type: 'string', label: 'Lời nhắn cuối trang', maxLength: 120 },
   },
   guestbook: {
-    eyebrow: { type: 'string', label: 'Nhãn lời chúc', maxLength: 60 },
-    title: { type: 'string', label: 'Tiêu đề lời chúc', required: true, maxLength: 100 },
-    intro: { type: 'text', label: 'Lời dẫn lời chúc', maxLength: 240 },
+    eyebrow: {
+      type: 'string',
+      label: 'Nhãn lời chúc',
+      contentKey: 'optional.guestbook.eyebrow',
+      maxLength: 60,
+    },
+    title: {
+      type: 'string',
+      label: 'Tiêu đề lời chúc',
+      contentKey: 'optional.guestbook.title',
+      required: true,
+      maxLength: 100,
+    },
+    intro: {
+      type: 'text',
+      label: 'Lời dẫn lời chúc',
+      contentKey: 'optional.guestbook.intro',
+      maxLength: 240,
+    },
   },
   peopleBehindTheDay: {
     title: {
@@ -233,23 +334,65 @@ const sectionFields = {
     },
   },
   soundtrack: {
-    eyebrow: { type: 'string', label: 'Nhãn giai điệu', maxLength: 60 },
-    title: { type: 'string', label: 'Tiêu đề nhạc', required: true, maxLength: 100 },
-    intro: { type: 'text', label: 'Lời dẫn giai điệu', maxLength: 240 },
-    audioSrc: { type: 'url', label: 'Đường dẫn âm thanh' },
+    eyebrow: {
+      type: 'string',
+      label: 'Nhãn giai điệu',
+      contentKey: 'optional.soundtrack.eyebrow',
+      maxLength: 60,
+    },
+    title: {
+      type: 'string',
+      label: 'Tiêu đề nhạc',
+      contentKey: 'optional.soundtrack.title',
+      required: true,
+      maxLength: 100,
+    },
+    intro: {
+      type: 'text',
+      label: 'Lời dẫn giai điệu',
+      contentKey: 'optional.soundtrack.intro',
+      maxLength: 240,
+    },
+    audioSrc: {
+      type: 'url',
+      label: 'Đường dẫn âm thanh',
+      contentKey: 'optional.soundtrack.audioSrc',
+      maxLength: 2048,
+    },
   },
   behindTheScenes: {
     groupNote: {
       type: 'info',
-      label: 'Chỉnh tiêu đề, lời nhắn và tối đa 10 ảnh của nhóm này trong mục “Những người góp sức”.',
+      label: 'Bật/tắt nhóm Hậu trường tại đây; chỉnh tiêu đề, lời nhắn và ảnh của nhóm trong mục “Những người góp sức”.',
     },
   },
   memoryCapsule: {
-    eyebrow: { type: 'string', label: 'Nhãn lá thư', maxLength: 60 },
-    title: { type: 'string', label: 'Tiêu đề lá thư', required: true, maxLength: 100 },
-    message: { type: 'text', label: 'Lời nhắn tương lai', required: true, maxLength: 600 },
-    dateLabel: { type: 'string', label: 'Mốc thời gian', maxLength: 80 },
-    media: { type: 'image', label: 'Ảnh lá thư', mediaRole: 'capsule-support-photo' },
+    eyebrow: {
+      type: 'string',
+      label: 'Nhãn lá thư',
+      contentKey: 'optional.memoryCapsule.eyebrow',
+      maxLength: 60,
+    },
+    title: {
+      type: 'string',
+      label: 'Tiêu đề lá thư',
+      contentKey: 'optional.memoryCapsule.title',
+      required: true,
+      maxLength: 100,
+    },
+    message: {
+      type: 'text',
+      label: 'Lời nhắn tương lai',
+      contentKey: 'optional.memoryCapsule.message',
+      required: true,
+      maxLength: 600,
+    },
+    media: {
+      type: 'image',
+      label: 'Ảnh lá thư',
+      contentKey: 'optional.memoryCapsule.media',
+      mediaRole: 'capsule-support-photo',
+    },
   },
 } as const
 
@@ -257,15 +400,19 @@ export const theWeddingRollRecapTemplateConfig = {
   templateKey: 'the-wedding-roll-recap',
   displayName: 'The Wedding Roll',
   productType: 'WEDDING_RECAP',
-  templateVersion: '1.2.0',
-  templateConfigVersion: 3,
-  contentSchemaVersion: 3,
+  templateVersion: '1.0.0',
+  templateConfigVersion: 1,
+  contentSchemaVersion: 1,
   rendererApiVersion: 1,
-  status: 'development',
+  status: 'ready',
   type: 'recap',
   description:
     'Album recap cưới gọn nhẹ, giúp khách mời xem lại khoảnh khắc và mở tải ảnh dễ dàng.',
   previewPath: '/templates/recaps/the-wedding-roll/preview',
+  quickEdit: [
+    { contentKey: 'hero.brideName', label: 'Tên cô dâu' },
+    { contentKey: 'hero.groomName', label: 'Tên chú rể' },
+  ],
   capabilities: {
     seo: true,
     share: true,

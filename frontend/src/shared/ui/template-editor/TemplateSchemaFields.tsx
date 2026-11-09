@@ -99,6 +99,26 @@ function TemplateField({
 }) {
   const path = field.contentKey ?? fieldKey
   const value = getPath(data, path)
+  if (field.type === 'info')
+    return <p className="editor-field-help">{field.label}</p>
+  if (field.type === 'collection') {
+    const items = Array.isArray(value) ? value.map((item) => String(item ?? '')) : []
+    return (
+      <fieldset className="editor-fieldset">
+        <legend>{field.label ?? fieldKey}</legend>
+        {items.map((item, index) => (
+          <label className="editor-field" key={`${path}.${index}`}>
+            <span>{field.label ?? fieldKey} {index + 1}</span>
+            <input
+              maxLength={field.maxLength}
+              value={item}
+              onChange={(event) => update(path, items.map((current, itemIndex) => itemIndex === index ? event.target.value : current))}
+            />
+          </label>
+        ))}
+      </fieldset>
+    )
+  }
   if (field.type === 'items')
     return (
       <TemplateItems
@@ -208,7 +228,9 @@ function TemplateField({
         <span>{field.label ?? fieldKey}</span>
         <NativeSelectField
           value={String(value ?? fieldValue(field))}
-          onChange={(event) => update(path, event.target.value)}
+          onChange={(event) =>
+            update(path, typeof value === 'number' ? Number(event.target.value) : event.target.value)
+          }
         >
           {(field.options ?? []).map((option) => (
             <option key={option.key} value={option.key}>

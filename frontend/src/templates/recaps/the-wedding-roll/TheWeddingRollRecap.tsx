@@ -12,16 +12,18 @@ type RevealProps = {
   id?: string
   className: string
   sectionKey?: string
+  sectionOrder?: number
   children: ReactNode
 }
 
-function RevealSection({ id, className, sectionKey, children }: RevealProps) {
+function RevealSection({ id, className, sectionKey, sectionOrder, children }: RevealProps) {
   const reduceMotion = useReducedMotion()
   return (
     <motion.section
       id={id}
       className={`${className} reveal`}
       data-editor-section={sectionKey}
+      style={sectionOrder === undefined ? undefined : { order: sectionOrder }}
       initial={reduceMotion ? false : { opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.12 }}
@@ -53,6 +55,7 @@ function getThankYouTitleLines(title: string) {
 
 type AlbumItem = { src: string; alt: string; caption?: string | null }
 type RecapWish = { id?: string; authorName: string; content: string }
+type RecapSectionConfig = { enabled: string[]; order: string[] }
 type LightboxState = {
   kind: 'chapter' | 'featured' | 'people'
   chapterId?: string
@@ -101,11 +104,33 @@ export function TheWeddingRollRecap({
   content = theWeddingRollRecapFixture,
   albumItems = [],
   wishes,
+  sectionConfig,
 }: {
   content?: TheWeddingRollRecapContent
   albumItems?: AlbumItem[]
   wishes?: RecapWish[]
+  sectionConfig?: RecapSectionConfig
 }) {
+  const defaultSectionOrder = [
+    'hero',
+    'ourStory',
+    'chapters',
+    'moments',
+    'photoDelivery',
+    'peopleBehindTheDay',
+    'behindTheScenes',
+    'soundtrack',
+    'guestbook',
+    'memoryCapsule',
+    'thankYou',
+  ]
+  const orderedKeys = [...(sectionConfig?.order ?? defaultSectionOrder)]
+  for (const key of defaultSectionOrder) if (!orderedKeys.includes(key)) orderedKeys.push(key)
+  const sectionPosition = (key: string) => orderedKeys.indexOf(key)
+  const sectionIsEnabled = (key: string, fallback: boolean) =>
+    sectionConfig ? sectionConfig.enabled.includes(key) : fallback
+  const optionalSectionEnabled = (key: keyof TheWeddingRollRecapContent['optional']) =>
+    sectionIsEnabled(key, content.optional[key].enabled)
   const featuredPhotos = getFeaturedPhotos(content, albumItems)
   const externalAlbumHref = getExternalAlbumHref(content)
   const albumHref = externalAlbumHref ?? '#album'
@@ -115,6 +140,7 @@ export function TheWeddingRollRecap({
     authorName: wish.author,
     content: wish.message,
   }))
+  const wishMarqueeDuration = `${Math.max(displayedWishes.length, 1) * 5.88}s`
   const photoDeliveryBody =
     featuredPhotos.length || externalAlbumHref
       ? content.photoDelivery.body
@@ -126,8 +152,9 @@ export function TheWeddingRollRecap({
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const lightboxCloseRef = useRef<HTMLButtonElement>(null)
   const [lightboxTrigger, setLightboxTrigger] = useState<HTMLButtonElement | null>(null)
+  const showBehindTheScenes = optionalSectionEnabled('behindTheScenes')
   const peopleGroups = (content.optional.peopleBehindTheDay.groups ?? [])
-    .filter((group) => group.id !== 'behind-the-scenes' || content.optional.behindTheScenes.enabled)
+    .filter((group) => group.id !== 'behind-the-scenes' || showBehindTheScenes)
     .slice(0, 10)
     .map((group) => ({ ...group, photos: group.photos.slice(0, 10) }))
   const peopleRailRef = useRef<HTMLDivElement>(null)
@@ -274,7 +301,7 @@ export function TheWeddingRollRecap({
         />
       </div>
 
-      {content.optional.soundtrack.enabled && content.optional.soundtrack.audioSrc ? (
+      {optionalSectionEnabled('soundtrack') && content.optional.soundtrack.audioSrc ? (
         <MusicPlayer
           src={content.optional.soundtrack.audioSrc}
           title={content.optional.soundtrack.title}
@@ -296,8 +323,8 @@ export function TheWeddingRollRecap({
           {content.hero.ctaLabel} ↗
         </a>
       </header>
-      <main>
-        <section className="wrap hero" data-editor-section="hero">
+      <main style={{ display: 'flex', flexDirection: 'column' }}>
+        {sectionIsEnabled('hero', true) ? <section className="wrap hero" data-editor-section="hero" style={{ order: sectionPosition('hero') }}>
           <div className="hero-copy">
             <motion.div className="issue mono" {...revealItem(reduceMotion)}>
               {content.hero.issueLabel}
@@ -306,7 +333,7 @@ export function TheWeddingRollRecap({
               {content.hero.titleLines.map((line, index) => (
                 <span key={`${line}-${index}`}>
                   {index > 0 && <br />}
-                  {index === content.hero.emphasisLine ? <em>{line}</em> : line}
+                  {index === Number(content.hero.emphasisLine) ? <em>{line}</em> : line}
                 </span>
               ))}
             </motion.h1>
@@ -348,9 +375,9 @@ export function TheWeddingRollRecap({
               <span className="stamp-label">{content.hero.stampCaption}</span>
             </div>
           </motion.div>
-        </section>
+        </section> : null}
 
-        <div className="ticker">
+        <div className="ticker" style={{ order: sectionPosition('hero') + 0.5 }}>
           <div className="ticker-track" aria-hidden="true">
             {[0, 1].map((copy) => (
               <div className="ticker-group" key={copy}>
@@ -366,7 +393,7 @@ export function TheWeddingRollRecap({
           <span className="sr-only">{content.tickerItems.join(' · ')}</span>
         </div>
 
-        <RevealSection id="story" className="wrap story" sectionKey="ourStory">
+        {sectionIsEnabled('ourStory', true) ? <RevealSection id="story" className="wrap story" sectionKey="ourStory" sectionOrder={sectionPosition('ourStory')}>
           <div className="story-grid">
             <motion.div {...revealItem(reduceMotion)}>
               <div className="mono">{content.ourStory.eyebrow}</div>
@@ -378,9 +405,9 @@ export function TheWeddingRollRecap({
               <figcaption className="image-label">{content.ourStory.mediaLabel}</figcaption>
             </motion.figure>
           </div>
-        </RevealSection>
+        </RevealSection> : null}
 
-        <RevealSection id="chapters" className="wrap chapters" sectionKey="chapters">
+        {sectionIsEnabled('chapters', true) ? <RevealSection id="chapters" className="wrap chapters" sectionKey="chapters" sectionOrder={sectionPosition('chapters')}>
           <div className="section-head">
             <motion.div {...revealItem(reduceMotion)}>
               <div className="mono">{content.chaptersIntro.eyebrow}</div>
@@ -434,9 +461,9 @@ export function TheWeddingRollRecap({
               )
             })}
           </div>
-        </RevealSection>
+        </RevealSection> : null}
 
-        <RevealSection id="moments" className="wrap moments" sectionKey="moments">
+        {sectionIsEnabled('moments', true) ? <RevealSection id="moments" className="wrap moments" sectionKey="moments" sectionOrder={sectionPosition('moments')}>
           <div className="section-head">
             <motion.div {...revealItem(reduceMotion)}>
               <div className="mono">{content.momentsIntro.eyebrow}</div>
@@ -495,6 +522,24 @@ export function TheWeddingRollRecap({
                       <span>{moment.momentLabel}</span>
                     </div>
                     <p>{moment.description}</p>
+                    {moment.gallery?.some((photo) => photo?.src) ? (
+                      <button
+                        type="button"
+                        className="chapter-gallery-open"
+                        onClick={(event) => {
+                          setLightboxTrigger(event.currentTarget)
+                          setLightbox({
+                            kind: 'people',
+                            index: 0,
+                            title: moment.title,
+                            eyebrow: moment.momentLabel,
+                            photos: moment.gallery?.filter((photo) => photo?.src).slice(0, 24),
+                          })
+                        }}
+                      >
+                        Xem album khoảnh khắc <span aria-hidden="true">↗</span>
+                      </button>
+                    ) : null}
                   </article>
                 </div>
               </motion.div>
@@ -511,9 +556,9 @@ export function TheWeddingRollRecap({
               </button>
             </div>
           )}
-        </RevealSection>
+        </RevealSection> : null}
 
-        <RevealSection id="album" className="wrap delivery" sectionKey="photoDelivery">
+        {sectionIsEnabled('photoDelivery', true) ? <RevealSection id="album" className="wrap delivery" sectionKey="photoDelivery" sectionOrder={sectionPosition('photoDelivery')}>
           <motion.div
             className="delivery-panel"
             data-marker={content.photoDelivery.marker}
@@ -557,13 +602,14 @@ export function TheWeddingRollRecap({
               ) : null}
             </div>
           </motion.div>
-        </RevealSection>
+        </RevealSection> : null}
 
-        {content.optional.peopleBehindTheDay.enabled && peopleGroups.length > 0 ? (
+        {optionalSectionEnabled('peopleBehindTheDay') && peopleGroups.length > 0 ? (
         <RevealSection
           id="people-behind-the-day"
           className="wrap people-behind-section"
           sectionKey="peopleBehindTheDay"
+          sectionOrder={sectionPosition('peopleBehindTheDay')}
         >
           <div className="section-head">
             <motion.div {...revealItem(reduceMotion)}>
@@ -670,8 +716,8 @@ export function TheWeddingRollRecap({
         </RevealSection>
         ) : null}
 
-        {content.optional.soundtrack.enabled ? (
-          <RevealSection className="wrap soundtrack-feature" sectionKey="soundtrack">
+        {optionalSectionEnabled('soundtrack') ? (
+          <RevealSection className="wrap soundtrack-feature" sectionKey="soundtrack" sectionOrder={sectionPosition('soundtrack')}>
             <div className="mono">{content.optional.soundtrack.eyebrow}</div>
             <h2>{content.optional.soundtrack.title}</h2>
             <p>{content.optional.soundtrack.intro}</p>
@@ -681,8 +727,8 @@ export function TheWeddingRollRecap({
           </RevealSection>
         ) : null}
 
-        {content.optional.guestbook.enabled && (
-          <RevealSection className="wrap guestbook" sectionKey="guestbook">
+        {optionalSectionEnabled('guestbook') && (
+          <RevealSection className="wrap guestbook" sectionKey="guestbook" sectionOrder={sectionPosition('guestbook')}>
             <div className="section-head">
               <motion.div {...revealItem(reduceMotion)}>
                 <div className="mono">{content.optional.guestbook.eyebrow}</div>
@@ -701,7 +747,10 @@ export function TheWeddingRollRecap({
                 aria-label="Lời chúc đã chọn"
                 tabIndex={0}
               >
-                <div className="wish-marquee-track">
+                <div
+                  className="wish-marquee-track"
+                  style={{ '--wish-marquee-duration': wishMarqueeDuration } as CSSProperties}
+                >
                   {[0, 1].map((copy) => (
                     <div
                       className="wish-marquee-group"
@@ -726,8 +775,8 @@ export function TheWeddingRollRecap({
           </RevealSection>
         )}
 
-        {content.optional.memoryCapsule.enabled && (
-          <RevealSection className="wrap capsule" sectionKey="memoryCapsule">
+        {optionalSectionEnabled('memoryCapsule') && (
+          <RevealSection className="wrap capsule" sectionKey="memoryCapsule" sectionOrder={sectionPosition('memoryCapsule')}>
             <motion.div className="mono" {...revealItem(reduceMotion)}>
               {content.optional.memoryCapsule.eyebrow}
             </motion.div>
@@ -737,10 +786,19 @@ export function TheWeddingRollRecap({
             <motion.p {...revealItem(reduceMotion, 0.16)}>
               {content.optional.memoryCapsule.message}
             </motion.p>
+            {content.optional.memoryCapsule.media?.src ? (
+              <motion.figure className="capsule-photo" {...revealItem(reduceMotion, 0.22)}>
+                <img
+                  src={content.optional.memoryCapsule.media.src}
+                  alt={content.optional.memoryCapsule.media.alt}
+                  loading="lazy"
+                />
+              </motion.figure>
+            ) : null}
           </RevealSection>
         )}
 
-        <RevealSection className="closing" sectionKey="thankYou">
+        {sectionIsEnabled('thankYou', true) ? <RevealSection className="closing" sectionKey="thankYou" sectionOrder={sectionPosition('thankYou')}>
           <div className="wrap closing-inner">
             <motion.div className="mono" {...revealItem(reduceMotion)}>
               {content.thankYou.eyebrow}
@@ -763,7 +821,7 @@ export function TheWeddingRollRecap({
               <span>{content.thankYou.footerNote}</span>
             </motion.footer>
           </div>
-        </RevealSection>
+        </RevealSection> : null}
       </main>
       {lightbox && activeLightboxPhoto ? (
         <div

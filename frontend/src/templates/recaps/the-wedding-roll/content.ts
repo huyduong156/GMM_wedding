@@ -24,6 +24,7 @@ export type TheWeddingRollMoment = {
   momentLabel: string
   description: string
   cover: TheWeddingRollMedia
+  gallery?: TheWeddingRollMedia[]
 }
 
 export type TheWeddingRollPeopleGroup = {
@@ -116,6 +117,7 @@ export type TheWeddingRollRecapContent = {
       eyebrow: string
       title: string
       message: string
+      media?: TheWeddingRollMedia
     }
   }
 }

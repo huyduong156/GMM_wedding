@@ -1,8 +1,9 @@
 # The Wedding Roll — Phase 5: Asset Integration, Atmosphere and Review
 
 Template key: `the-wedding-roll-recap`  
+Ready revision: `1.0.0` (`templateConfigVersion: 1`, `contentSchemaVersion: 1`)
 Preview: `/templates/recaps/the-wedding-roll/preview`  
-Status: Phase 5 renderer work and visual review are complete. Public recap and preview renderer integration now use the published template key and recap-selected media. Product release stays in development pending template-specific editor authoring, media-independence audit, and release catalog/config verification.
+Status: The template source is `ready` for catalog sync. Public recap, preview, and live editor use the published template key and recap-selected media. Final production verification still requires a live recap rehearsal for broken-media and publication states.
 
 ## Design read and preservation boundary
 
@@ -28,7 +29,7 @@ The film frame is the external SVG photo frame; the sprocket artwork is a lightw
 | Contact strip frames and optional teaser cards   | Enter viewport once           | Fade-rise with short stagger                             | Static layout                                                |
 | Album panel and CTA                              | Enter viewport once           | Panel, copy and CTA reveal in order                      | Native links and visible focus outline                       |
 | Wishes, capsule and closing                    | Enter viewport once           | Content-level fade-rise with short stagger               | Static full content                                          |
-| Guest wishes                                    | Continuous leftward marquee   | 42s linear loop; pauses on hover, focus or press           | Static horizontally scrollable track for reduced motion      |
+| Guest wishes                                    | Continuous leftward marquee   | Duration scales with selected wish count at 5.88s per item (29.4s for five); pauses on hover, focus or press | Static horizontally scrollable track for reduced motion |
 | Background and page-edge artwork                 | Continuous while page visible | 28s light drift; 13s sprocket float using transform only | Paused while tab is hidden; fully stopped for reduced motion |
 | Links and buttons                                | Keyboard focus / press        | Rust focus outline; small pressed offset                 | Native keyboard and touch activation                         |
 
@@ -54,13 +55,13 @@ The two frame overlays and three edge ornaments are non-interactive and outside 
 - [x] Verify responsive screenshots and the automated overflow/image-load matrix across 375px through 1440px, including tablet and reduced-motion views.
 - [x] Typecheck, lint, focused renderer tests and production build pass.
 - [x] Independently rerun all three full-suite timeout tests; each passes alone.
-- [ ] Inspect production editor optional/reorder/empty/loading/error and broken-media variants when real recap payload integration is available.
-- [ ] Replace preview-only remote demo photos with authorized/local media before catalog release.
+- [ ] Inspect production editor optional/reorder/empty/loading/error and broken-media variants against a live recap payload.
+- [x] Preview photos are local generated demo media; owner media remains replaceable.
 - [x] Public recap renderer selects The Wedding Roll from the published snapshot and uses only snapshot-selected media for the internal album action.
 - [x] Preview renderer receives live editor updates through the existing same-origin bridge.
 - [x] Shared soundtrack player requires an explicit user action and appears only when its source is configured; wedding-video upload/playback is not part of the current template.
 - [x] Connect published recap content and explicitly selected internal album media through the production recap snapshot; validate and open external HTTPS album links safely.
-- [ ] Add template-specific authoring controls in the live recap editor so owners can edit The Wedding Roll fields and choose album/media sources without editing raw JSON.
-- [ ] Re-audit `template-config.ts` against the live editor, catalog, release bundle and admin publish/sync path before changing status from `development`.
+- [x] Config-driven live editor authoring is wired for The Wedding Roll fields, optional sections, repeatable chapters/moments/people groups, media selection, and internal/external album sources.
+- [x] `template-config.ts` paths, media roles, section keys, preview route, and editor field types are aligned with the renderer and recap payload.
 
-Phase 5 visual implementation is complete. Do not promote the template to `review` or `published` until the remaining release items pass.
+The template is ready for catalog sync and selection. Keep the remaining live-data verification gate visible before publishing a wedding recap broadly.

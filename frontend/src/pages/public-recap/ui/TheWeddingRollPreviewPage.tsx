@@ -3,11 +3,17 @@ import { TheWeddingRollRecap } from '../../../templates/recaps/the-wedding-roll/
 import type { TheWeddingRollRecapContent } from '../../../templates/recaps/the-wedding-roll/content'
 import { theWeddingRollRecapFixture } from '../../../templates/recaps/the-wedding-roll/fixture'
 import { normalizePeopleGroups } from '../../../templates/recaps/the-wedding-roll/people-groups'
-import { liveEditorEvents, isLiveEditorUpdate } from '../../../shared/lib/live-template-editor'
+import {
+  isLiveEditorScroll,
+  isLiveEditorUpdate,
+  liveEditorEvents,
+} from '../../../shared/lib/live-template-editor'
+import { smoothScrollTo } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
 
 type PreviewState = {
   data?: TheWeddingRollRecapContent
   wishes?: Array<{ id?: string; authorName: string; content: string }>
+  sectionConfig?: { enabled: string[]; order: string[] }
 }
 const PREVIEW_ALBUM_URL = 'https://drive.google.com'
 
@@ -59,7 +65,7 @@ function mergePreviewContent(value: Partial<TheWeddingRollRecapContent>): TheWed
     typeof storedDelivery?.externalAlbumUrl === 'string'
       ? storedDelivery.externalAlbumUrl
       : ''
-  delivery.albums = []
+  delivery.albums = Array.isArray(storedDelivery?.albums) ? storedDelivery.albums : []
   delete delivery.media
   delete delivery.albumUrl
   return merged
@@ -76,36 +82,43 @@ export function TheWeddingRollPreviewPage() {
   const [wishes, setWishes] = useState(() =>
     draft ? readPreviewState(templateKey)?.wishes : undefined,
   )
+  const [sectionConfig, setSectionConfig] = useState(() =>
+    draft ? readPreviewState(templateKey)?.sectionConfig : undefined,
+  )
   useEffect(() => {
     if (!draft) return
     const send = (type: string) =>
       window.parent.postMessage({ type, version: 1 }, window.location.origin)
     send(liveEditorEvents.ready)
     const receive = (event: MessageEvent) => {
-      if (
-        event.origin !== window.location.origin ||
-        event.source !== window.parent ||
-        !isLiveEditorUpdate<PreviewState>(event.data)
-      )
-        return
-      const next = event.data.payload.data
-      if (next) {
-        const merged = mergePreviewContent(next)
-        const nextWishes = event.data.payload.wishes
-        setData(merged)
-        setWishes(nextWishes)
-        sessionStorage.setItem(
-          'gmm-recap-preview:' + templateKey,
-          JSON.stringify({ data: merged, wishes: nextWishes }),
+      if (event.origin !== window.location.origin || event.source !== window.parent) return
+      if (isLiveEditorUpdate<PreviewState>(event.data)) {
+        const next = event.data.payload.data
+        if (next) {
+          const merged = mergePreviewContent(next)
+          const nextWishes = event.data.payload.wishes
+          const nextSectionConfig = event.data.payload.sectionConfig
+          setData(merged)
+          setWishes(nextWishes)
+          setSectionConfig(nextSectionConfig)
+          sessionStorage.setItem(
+            'gmm-recap-preview:' + templateKey,
+            JSON.stringify({ data: merged, wishes: nextWishes, sectionConfig: nextSectionConfig }),
+          )
+        }
+        send(liveEditorEvents.hydrated)
+      } else if (isLiveEditorScroll<string>(event.data)) {
+        const target = Array.from(document.querySelectorAll<HTMLElement>('[data-editor-section]')).find(
+          (section) => section.dataset.editorSection === event.data.payload.sectionKey,
         )
+        if (target) smoothScrollTo(target, { block: 'start' })
       }
-      send(liveEditorEvents.hydrated)
     }
     window.addEventListener('message', receive)
     return () => window.removeEventListener('message', receive)
   }, [draft, templateKey])
   const previewContent = data ?? theWeddingRollRecapFixture
-  const contentWithAlbumExample = previewContent.photoDelivery.externalAlbumUrl.trim()
+  const contentWithAlbumExample = draft || previewContent.photoDelivery.externalAlbumUrl.trim()
     ? previewContent
     : {
         ...previewContent,
@@ -114,7 +127,13 @@ export function TheWeddingRollPreviewPage() {
           externalAlbumUrl: PREVIEW_ALBUM_URL,
         },
       }
-  return <TheWeddingRollRecap content={contentWithAlbumExample} wishes={wishes} />
+  return (
+    <TheWeddingRollRecap
+      content={contentWithAlbumExample}
+      wishes={wishes}
+      sectionConfig={sectionConfig}
+    />
+  )
 }
 
 function readPreviewState(templateKey: string): PreviewState | null {
