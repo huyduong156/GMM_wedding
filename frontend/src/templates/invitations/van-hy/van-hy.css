@@ -2434,7 +2434,6 @@ body:has(.hh-opening) {
   overflow: auto;
   margin: 16px auto 0;
   scrollbar-width: thin;
-  scrollbar-color: rgb(197 150 69 / 0.55) transparent;
 }
 .hh-wish-list.is-marquee {
   overflow: hidden;

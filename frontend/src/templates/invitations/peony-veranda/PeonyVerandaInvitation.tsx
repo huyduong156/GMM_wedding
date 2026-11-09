@@ -12,6 +12,7 @@ import '../../../shared/styles/interaction-effects.css'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 
@@ -241,6 +242,7 @@ export function PeonyVerandaInvitation({
     (new Date(Number(weddingYear), Number(weddingMonth) - 1, 1).getDay() + 6) % 7
 
   useSmoothTemplateScroll(opened)
+  useGuestInvitationAutoScroll(opened && Boolean(interactions))
   useEffect(() => {
     if (opened) window.setTimeout(() => motionScope.current?.focus({ preventScroll: true }), 0)
   }, [motionScope, opened])

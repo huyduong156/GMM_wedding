@@ -1,5 +1,8 @@
 # ourday - Persistent Project Context
 
+- Mobile Studio offers an install prompt in browser mode and hides it in standalone mode. Deferring it stores a seven-day reminder timestamp locally; it waits for other dialogs/guides to close and yields to any that open. Chromium uses `beforeinstallprompt` when available, while iOS/unsupported browsers show manual Add to Home Screen steps.
+- Guest-facing invitation renderers auto-scroll slowly after opening, regardless of the music autoplay setting; previews/editors are excluded. Pointer/touch, wheel, or keyboard scroll stops it, and an explicit music play action restarts it when needed. Reduced-motion users keep native scrolling.
+
 - Admin template thumbnails are converted server-side to WebP without resizing their uploaded images. Wedding media uses lossy WebP at quality 90 with a 2400px maximum dimension to balance visual clarity and R2 storage; input and stored files are limited to 10 MB.
 - Invitation social previews use the wedding owner's profile avatar; crawler metadata references a backend-generated JPEG derivative because wedding media is stored as WebP.
 
@@ -152,7 +155,7 @@
 - Danh mục phong cách template là một taxonomy dùng chung cho invitation, wedding website và Wedding Recap (Planned), do platform admin quản lý; một template có thể có nhiều style và assignment thuộc `Template`, không thuộc từng `TemplateVersion`.
 
 - Wedding Website template `Forever` uses `/templates/websites/forever/preview`; current authoring and release notes live in `docs/frontend/wedding-websites/README.md`. Its renderer, editor config, per-element motion, section-mapped decor, paper-dust field, and responsive 3D gallery are implemented. Runtime decor and effects are listed in `frontend/src/templates/websites/forever/ASSET_MANIFEST.md`, with provenance in the adjacent `ASSET_SOURCES.md`. Preserve `forever.css` as the visual system. Public RSVP/guestbook common endpoints support website publications; visual screenshot/contrast review remains the release gate.
-- Forever editor maps Venue inputs to the rendered image, heading, note, address, and optional map URL. Gallery image upload/order is managed in the Gallery section (4–10 images); the Couple section button opens that same album.
+- Forever editor maps Venue inputs to the rendered image, heading, note, address, and optional map URL. The Hero section exposes its displayed time. Gallery image upload/order is managed independently in the Gallery section (4–10 images). The Couple section has a separate optional story album (up to 25 images); its button is hidden when empty and opens only that album.
 - Forever temporarily omits the `weddingParty` section from editor configuration until its public UI is complete. Dress code fields map to `dressCode.heading`, `dressCode.message`, and editable `dressCode.colors[]` color swatches.
 - Forever section toggles scroll the live preview to newly enabled sections; Dress code uses the standard `data-editor-section` wrapper. RSVP, guestbook, and gift editor fields map to rendered content; RSVP/guestbook action labels are fixed template copy, not editor fields.
 - Forever FAQ repeatable fields use `faq.items[]` (the fixture supplies three editable examples); normalize legacy top-level FAQ arrays to that object shape when loading editor content.

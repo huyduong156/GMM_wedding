@@ -21,6 +21,7 @@ import {
   useTransform,
 } from 'motion/react'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import {
   formatCountdownUnit,
   usePreviewWeddingDate,
@@ -252,6 +253,7 @@ export function VerdantPromiseInvitation({
   const wishLocked = wishSubmitted || Boolean(interactions?.wishes.submitted)
 
   useSmoothTemplateScroll(opened)
+  useGuestInvitationAutoScroll(opened && Boolean(interactions))
 
   useEffect(() => {
     if (!opened || galleryPaused || reduceMotion) return

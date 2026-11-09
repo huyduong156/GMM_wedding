@@ -50,6 +50,8 @@ Wedding Recap có contract riêng về semantic content, layout options, optiona
 
 ## Boundary
 
+Mobile Studio uses a dismissible PWA install prompt when opened in a browser rather than the installed standalone app. It waits while another dialog or product guide is open and yields if one opens. “Để sau”, Escape, or clicking the backdrop snoozes the prompt for seven days in local storage. Chromium browsers that dispatch `beforeinstallprompt` can open the native install confirmation from the prompt button; iOS Safari and browsers without that event receive device-specific manual Add to Home Screen steps because web pages cannot silently create a home-screen shortcut.
+
 - Phân trang danh sách khách hiển thị số trang hiện tại/tổng số trang và số thiệp trên trang/tổng thiệp; nút trang trước/sau bị vô hiệu hóa ở biên tương ứng.
 - Tiêu đề mỗi card phía khách mời hiển thị số thiệp (bản ghi) và tổng số người đi (`totalPartySize` từ API, áp dụng cho toàn bộ kết quả theo bộ lọc, không chỉ trang hiện tại).
 

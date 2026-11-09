@@ -20,6 +20,7 @@ import {
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { sunlitSilkFixture, sunlitSilkSectionConfig } from './fixture'
@@ -393,6 +394,7 @@ export function SunlitSilkRenderer({
   const coverRef = useRef<HTMLElement>(null)
 
   useSmoothTemplateScroll(openingComplete)
+  useGuestInvitationAutoScroll(openingComplete && Boolean(interactions))
   useEffect(() => {
     const sync = () => setPageHidden(document.visibilityState === 'hidden')
     sync()
