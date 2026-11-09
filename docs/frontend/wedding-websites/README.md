@@ -42,6 +42,6 @@ Ba preview website hiện dùng cùng section metadata contract; countdown của
 
 ## Forever
 
-`Forever` is available at `/templates/websites/forever/preview`. It is a Vietnamese-first editorial wedding website with editable event copy, couple details, gallery, RSVP, guestbook, and renderer-owned decor. Its runtime assets and effects are listed in the [asset manifest](../../../frontend/src/templates/websites/forever/ASSET_MANIFEST.md), with provenance in the [asset source record](../../../frontend/src/templates/websites/forever/ASSET_SOURCES.md).
+`Forever` is available at `/templates/websites/forever/preview`. It is a Vietnamese-first editorial wedding website with editable event copy, couple details, gallery, RSVP, guestbook, and renderer-owned decor. The Couple section has an independent optional album (up to 25 images); its story button is hidden when the album is empty, while the Gallery section continues to use its own image collection. The Hero editor exposes its displayed time, and the source is versioned at `1.0.1` for the compatible template update. Its runtime assets and effects are listed in the [asset manifest](../../../frontend/src/templates/websites/forever/ASSET_MANIFEST.md), with provenance in the [asset source record](../../../frontend/src/templates/websites/forever/ASSET_SOURCES.md).
 
 The shared public RSVP and guestbook endpoints support both website and invitation publications. Before release, review screenshots and contrast at 375, 390, 768, and 1280px, including reduced motion.

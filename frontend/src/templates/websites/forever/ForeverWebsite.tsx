@@ -16,6 +16,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const storyImageDialogRef = useRef<HTMLDialogElement>(null)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryIndex, setGalleryIndex] = useState(0)
+  const [activeAlbum, setActiveAlbum] = useState<'gallery' | 'couple'>('gallery')
   const [storyPreviewImage, setStoryPreviewImage] = useState<{ src: string; alt: string } | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpAttendance, setRsvpAttendance] = useState<RsvpAttendance | ''>('')
@@ -24,6 +25,8 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const [wishMessage, setWishMessage] = useState('')
   const [wishFormError, setWishFormError] = useState('')
   const galleryImages = data.gallery.images.slice(0, 10)
+  const coupleAlbumImages = Array.isArray(data.couple.albumImages) ? data.couple.albumImages.slice(0, 25).filter((image) => typeof image?.src === 'string' && image.src.length > 0) : []
+  const lightboxImages = activeAlbum === 'couple' ? coupleAlbumImages : galleryImages
   const displayDate = formatForeverDate(data.hero.date)
   const weddingDateParts = toForeverDateInputValue(data.hero.date).match(/^(\d{4})-(\d{2})-(\d{2})$/)
   const storyHeading = typeof data.storyHeading === 'string' ? data.storyHeading : foreverFixture.storyHeading
@@ -326,7 +329,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   useEffect(() => {
     if (!galleryOpen) return
     const handleGalleryKeys = (event: KeyboardEvent) => {
-      const count = galleryImages.length
+      const count = lightboxImages.length
       if (!count) return
       if (event.key === 'ArrowRight') {
         event.preventDefault()
@@ -338,31 +341,31 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
     }
     window.addEventListener('keydown', handleGalleryKeys)
     return () => window.removeEventListener('keydown', handleGalleryKeys)
-  }, [galleryImages.length, galleryOpen])
+  }, [activeAlbum, lightboxImages.length, galleryOpen])
   const musicControl = musicEnabled && (musicSrc || editorMode)
     ? <MusicPlayer src={musicSrc} title={musicTitle} autoplay={musicAutoplay} active={musicEnabled} editorMode={editorMode} sectionKey="music" />
     : null
-  const currentGalleryIndex = Math.min(galleryIndex, Math.max(0, galleryImages.length - 1))
-  const currentGalleryImage = galleryImages[currentGalleryIndex]
+  const currentGalleryIndex = Math.min(galleryIndex, Math.max(0, lightboxImages.length - 1))
+  const currentGalleryImage = lightboxImages[currentGalleryIndex]
   const moveGallery = (direction: number) => {
-    const count = galleryImages.length
+    const count = lightboxImages.length
     if (count) setGalleryIndex((index) => (index + direction + count) % count)
   }
   const gallerySequence = (duplicate = false) => <div className="ff-photo-sequence" aria-hidden={duplicate || undefined}>
     {marqueeImages.map((image, index) => {
       const photoIndex = index % galleryImages.length
       return <figure key={(duplicate ? 'loop-' : 'photo-') + index + '-' + image.src}>
-      <button type="button" tabIndex={duplicate ? -1 : undefined} aria-label={duplicate ? undefined : 'Mở ảnh ' + (photoIndex + 1) + ': ' + image.alt} onClick={duplicate ? undefined : () => { setGalleryIndex(photoIndex); setGalleryOpen(true) }}>
+      <button type="button" tabIndex={duplicate ? -1 : undefined} aria-label={duplicate ? undefined : 'Mở ảnh ' + (photoIndex + 1) + ': ' + image.alt} onClick={duplicate ? undefined : () => { setActiveAlbum('gallery'); setGalleryIndex(photoIndex); setGalleryOpen(true) }}>
         <img src={image.src} alt={duplicate ? '' : image.alt} loading="lazy" />
       </button>
       <figcaption>FRAME {String(photoIndex + 1).padStart(2, '0')}</figcaption>
     </figure>
     })}
   </div>
-  const galleryLightbox = <dialog ref={galleryDialogRef} className="ff-gallery-lightbox" aria-label="Album ảnh của chúng mình" onClose={() => setGalleryOpen(false)} onCancel={() => setGalleryOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) setGalleryOpen(false) }}>
+  const galleryLightbox = <dialog ref={galleryDialogRef} className="ff-gallery-lightbox" aria-label={activeAlbum === 'couple' ? 'Album câu chuyện của chúng mình' : 'Album ảnh của chúng mình'} onClose={() => setGalleryOpen(false)} onCancel={() => setGalleryOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) setGalleryOpen(false) }}>
     <div className="ff-lightbox-inner">
-      <div className="ff-lightbox-top"><span>{String(currentGalleryIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}</span><button type="button" className="ff-lightbox-close" aria-label="Đóng album ảnh" onClick={() => setGalleryOpen(false)}>×</button></div>
-      {currentGalleryImage ? <><div className="ff-lightbox-stage"><button type="button" className="ff-lightbox-arrow" aria-label="Ảnh trước" disabled={galleryImages.length < 2} onClick={() => moveGallery(-1)}>←</button><figure className="ff-lightbox-photo"><img src={currentGalleryImage.src} alt={currentGalleryImage.alt} /><figcaption>{currentGalleryImage.alt}</figcaption></figure><button type="button" className="ff-lightbox-arrow" aria-label="Ảnh tiếp theo" disabled={galleryImages.length < 2} onClick={() => moveGallery(1)}>→</button></div><div className="ff-lightbox-thumbnails">{galleryImages.map((image, index) => <button key={image.src} type="button" aria-label={`Mở ảnh ${index + 1}`} aria-current={index === currentGalleryIndex} onClick={() => setGalleryIndex(index)}><img src={image.src} alt="" /></button>)}</div></> : <p className="ff-lightbox-empty">Album chưa có ảnh.</p>}
+      <div className="ff-lightbox-top"><span>{String(currentGalleryIndex + 1).padStart(2, '0')} / {String(lightboxImages.length).padStart(2, '0')}</span><button type="button" className="ff-lightbox-close" aria-label="Đóng album ảnh" onClick={() => setGalleryOpen(false)}>×</button></div>
+      {currentGalleryImage ? <><div className="ff-lightbox-stage"><button type="button" className="ff-lightbox-arrow" aria-label="Ảnh trước" disabled={lightboxImages.length < 2} onClick={() => moveGallery(-1)}>←</button><figure className="ff-lightbox-photo"><img src={currentGalleryImage.src} alt={currentGalleryImage.alt} /><figcaption>{currentGalleryImage.alt}</figcaption></figure><button type="button" className="ff-lightbox-arrow" aria-label="Ảnh tiếp theo" disabled={lightboxImages.length < 2} onClick={() => moveGallery(1)}>→</button></div><div className="ff-lightbox-thumbnails">{lightboxImages.map((image, index) => <button key={image.src} type="button" aria-label={`Mở ảnh ${index + 1}`} aria-current={index === currentGalleryIndex} onClick={() => setGalleryIndex(index)}><img src={image.src} alt="" /></button>)}</div></> : <p className="ff-lightbox-empty">Album chưa có ảnh.</p>}
     </div>
   </dialog>
   const storyImageLightbox = <dialog ref={storyImageDialogRef} className="ff-gallery-lightbox ff-story-lightbox" aria-label="Ảnh cột mốc" onClose={() => setStoryPreviewImage(null)} onCancel={() => setStoryPreviewImage(null)} onClick={(event) => { if (event.target === event.currentTarget) setStoryPreviewImage(null) }}>
@@ -390,13 +393,13 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
           <h2>{eventData.introHeading.split('|')[0]}{eventData.introHeading.includes('|') ? <><br /><em>{eventData.introHeading.split('|').slice(1).join('|').replaceAll('{location}', data.hero.location)}</em></> : null}</h2>
           <p>{eventData.introMessage}</p>
           <div className="ff-event-meta">
-            <div><span>{eventData.summary.arrivalLabel}</span><p>{eventData.summary.hours}</p></div>
-            <div><span>{eventData.summary.venueLabel}</span><p>{eventData.summary.venue}</p></div>
+            <div><span>GIỜ ĐÓN KHÁCH</span><p>{eventData.summary.hours}</p></div>
+            <div><span>ĐỊA ĐIỂM</span><p>{eventData.summary.venue}</p></div>
           </div>
         </div>
       </div>
       <div className="ff-event-agenda">
-        <div className="ff-event-agenda-heading"><span>{eventData.agendaHeading}</span><span>{eventData.agendaSubheading}</span></div>
+        <div className="ff-event-agenda-heading"><span>{eventData.agendaHeading}</span><span>THE CELEBRATION</span></div>
         <div className={`ff-event-grid${eventData.items.length > 1 ? ' ff-event-grid--marquee' : ''}`} style={{ '--ff-event-marquee-duration': `${Math.max(eventData.items.length * 10, 24)}s` } as React.CSSProperties}>
           <div className="ff-event-track">
             {[...eventData.items, ...(eventData.items.length > 1 ? eventData.items : [])].map((event, index) => {
@@ -406,7 +409,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
                 <h3>{event.title}</h3>
                 <p className="ff-event-time">{event.time} · {event.date}</p>
                 <p>{event.venue}<br />{event.address}</p>
-                {event.mapUrl ? <a href={event.mapUrl} tabIndex={duplicate ? -1 : undefined} target="_blank" rel="noreferrer">{eventData.mapLinkLabel}</a> : null}
+                {event.mapUrl ? <a href={event.mapUrl} tabIndex={duplicate ? -1 : undefined} target="_blank" rel="noreferrer">Mở bản đồ ↗</a> : null}
               </article>
             })}
           </div>
@@ -424,7 +427,7 @@ export function ForeverWebsite({ data = foreverFixture, sectionConfig = foreverS
   const mapped: Partial<Record<ForeverSectionKey, React.ReactNode>> = {
     hero,
     announcement: <section className="ff-announcement" id="announcement"><span className="ff-kicker" data-kicker-typewriter>A NOTE TO OUR FAVORITE PEOPLE</span><p>{data.announcement.message}</p><span className="ff-signature">Thân mời, {data.hero.brideName} &amp; {data.hero.groomName}</span></section>,
-    couple: <section className="ff-intro" id="couple"><div className="ff-intro-photo"><img src={data.couple.image} alt={`Ảnh cưới của ${data.hero.brideName} và ${data.hero.groomName}`} /></div><div className="ff-intro-copy"><span className="ff-kicker">TWO PEOPLE, ONE HOME</span><h2>Chúng mình là<br /><em>{data.hero.brideName} & {data.hero.groomName}.</em></h2><p>{data.couple.bio}</p><button className="ff-text-link ff-open-album" type="button" onClick={() => { setGalleryIndex(0); setGalleryOpen(true) }}>Xem câu chuyện của chúng mình <span>↗</span></button></div></section>,
+    couple: <section className="ff-intro" id="couple"><div className="ff-intro-photo"><img src={data.couple.image} alt={`Ảnh cưới của ${data.hero.brideName} và ${data.hero.groomName}`} /></div><div className="ff-intro-copy"><span className="ff-kicker">TWO PEOPLE, ONE HOME</span><h2>Chúng mình là<br /><em>{data.hero.brideName} & {data.hero.groomName}.</em></h2><p>{data.couple.bio}</p>{coupleAlbumImages.length > 0 ? <button className="ff-text-link ff-open-album" type="button" onClick={() => { setActiveAlbum('couple'); setGalleryIndex(0); setGalleryOpen(true) }}>Xem câu chuyện của chúng mình <span>↗</span></button> : null}</div></section>,
     story: storyItems.length ? <section className="ff-story" id="story"><div className="ff-section-heading"><span className="ff-kicker">NHỮNG MỐC ĐÁNG NHỚ</span><h2>{storyHeading.split('\n')[0]}<br /><em>{storyHeading.split('\n')[1] ?? ''}</em></h2></div><div className="ff-story-list">{storyItems.map((item, index) => <article className="ff-story-item" key={item.date || item.year || index}><span>{formatForeverDate(item.date || item.year || '').replaceAll(' — ', '.')}</span><div><h3>{item.title}</h3><p>{item.body}</p>{item.image ? <button className="ff-text-link ff-story-photo-link" type="button" onClick={() => setStoryPreviewImage({ src: item.image!, alt: item.title })}>Xem ảnh <span aria-hidden="true">↗</span></button> : null}</div><span className="ff-story-mark" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span></article>)}</div></section> : null,
     events,
     activities,

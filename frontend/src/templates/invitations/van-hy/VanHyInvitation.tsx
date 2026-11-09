@@ -12,6 +12,7 @@ import { motion, useAnimate, useInView, useReducedMotion } from 'motion/react'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 import './van-hy.css'
@@ -328,6 +329,7 @@ export function VanHyInvitation({
     }
   }
   useSmoothTemplateScroll(opened && contentReady)
+  useGuestInvitationAutoScroll(opened && contentReady && Boolean(interactions))
   const openCard = () => {
     if (!opened && !opening) {
       setOpening(true)
@@ -945,17 +947,17 @@ export function VanHyInvitation({
                   const wishes = interactions.wishes.items
                   const useMarquee = wishes.length >= 5
                   const duration = Math.max(16.8, wishes.length * 4.9)
-                  const renderWish = (item: (typeof wishes)[number], index: number, duplicate = false) =>
+                  const renderWish = (item: (typeof wishes)[number], duplicate = false) =>
                     duplicate ? (
                       <article className="hh-wish-card" key={`${item.id}-duplicate`}>
                         <p>{item.content}</p>
                         <small>{item.authorName}</small>
                       </article>
                     ) : (
-                      <MotionListItem className="hh-wish-card" index={index} key={item.id}>
+                      <article className="hh-wish-card" key={item.id}>
                         <p>{item.content}</p>
                         <small>{item.authorName}</small>
-                      </MotionListItem>
+                      </article>
                     )
 
                   return (
@@ -967,11 +969,11 @@ export function VanHyInvitation({
                     >
                       <div className="hh-wish-track">
                         <div className="hh-wish-group">
-                          {wishes.map((item, index) => renderWish(item, index))}
+                          {wishes.map((item) => renderWish(item))}
                         </div>
                         {useMarquee && (
                           <div className="hh-wish-group" aria-hidden="true">
-                            {wishes.map((item, index) => renderWish(item, index, true))}
+                            {wishes.map((item) => renderWish(item, true))}
                           </div>
                         )}
                       </div>
