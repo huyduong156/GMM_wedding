@@ -4,7 +4,7 @@ const photos = '/assets/images/wedding-couples-examples/couple-001'
 export const foreverFixture: ForeverData = {
   hero: { brideName: 'Linh', groomName: 'Huy', eyebrow: 'THE WEDDING OF', headline: 'We found our way', date: '2027-01-10', time: 'Sunday · 10:30 AM', location: 'Đà Lạt, Việt Nam', image: `${photos}/couple-pose-01-standing-portrait.webp`, imageAlt: 'Linh và Huy trong bộ ảnh cưới' },
   announcement: { message: 'Điều đẹp nhất trong ngày này là được có bạn ở đó. Hãy cùng chúng mình bắt đầu một chương mới — thật gần gũi, thật vui, và thật nhiều kỷ niệm.' },
-  couple: { image: `${photos}/couple-pose-09-forehead-touch.webp`, bio: 'Tụi mình quen nhau từ những chuyện nhỏ xíu: một lần hỏi thăm, vài buổi cà phê rồi thành người đầu tiên muốn kể mọi chuyện. Giờ thì mời bạn đến ăn cưới, chứng kiến tụi mình nắm tay về chung một nhà nha.' },
+  couple: { image: `${photos}/couple-pose-09-forehead-touch.webp`, bio: 'Tụi mình quen nhau từ những chuyện nhỏ xíu: một lần hỏi thăm, vài buổi cà phê rồi thành người đầu tiên muốn kể mọi chuyện. Giờ thì mời bạn đến ăn cưới, chứng kiến tụi mình nắm tay về chung một nhà nha.', albumImages: [] },
   storyHeading: 'Từ lần gặp\nđến ngày cưới.',
   story: [
     { date: '2019-06-08', title: 'Lần đầu gặp nhau', body: 'Bạn chung giới thiệu trong một buổi cà phê. Sau hôm đó, chúng mình bắt đầu nhắn tin và hẹn gặp thêm.' },

@@ -3,7 +3,7 @@ export type ForeverSectionConfig = { enabled: ForeverSectionKey[]; order: Foreve
 export type ForeverData = {
   hero: { brideName: string; groomName: string; eyebrow: string; headline: string; date: string; time: string; location: string; image: string; imageAlt: string }
   announcement: { message: string }
-  couple: { image: string; bio: string }
+  couple: { image: string; bio: string; albumImages?: Array<{ src: string; alt: string; mediaAssetId?: string; role?: string }> }
   storyHeading: string
   story: Array<{ date: string; title: string; body: string; image?: string; year?: string }>
   events: {

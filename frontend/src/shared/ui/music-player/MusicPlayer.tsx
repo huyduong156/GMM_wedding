@@ -198,7 +198,8 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     if (audio.paused) {
       userPausedRef.current = false
       if (elapsedRef.current >= MAX_PLAYBACK_MS) elapsedRef.current = 0
-      await playAudio()
+      const started = await playAudio()
+      if (started) window.dispatchEvent(new Event('ourday:invitation-user-play'))
     } else {
       userPausedRef.current = true
       resumeRef.current = false

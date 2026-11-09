@@ -4,6 +4,7 @@ import { aureliaCourtArtwork, aureliaCourtFixture, aureliaCourtSectionConfig } f
 import type { AureliaCourtData, AureliaCourtSectionConfig } from './AureliaCourtTypes'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { formatCountdownUnit, usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { PageLoading } from '../../../shared/ui/PageLoading'
@@ -26,6 +27,7 @@ export function AureliaCourtRenderer({ data: inputData = aureliaCourtFixture, se
   const [openingComplete, setOpeningComplete] = useState(false)
   const [assetsReady, setAssetsReady] = useState(false)
   useSmoothTemplateScroll(opened && openingComplete)
+  useGuestInvitationAutoScroll(opened && openingComplete && Boolean(interactions))
 
   const [ambientActive, setAmbientActive] = useState(true)
   const active = new Set(sectionConfig.enabled)
