@@ -10,6 +10,7 @@ export type MusicPlayerProps = {
   src?: string
   title?: string
   autoplay?: boolean
+  autoplayDelayMs?: number
   active?: boolean
   editorMode?: boolean
   variant?: MusicPlayerVariant
@@ -25,6 +26,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     src,
     title = 'Nhạc nền',
     autoplay = false,
+    autoplayDelayMs = 0,
     active = true,
     editorMode = false,
     variant = 'rotating-fab',
@@ -153,8 +155,13 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
 
   useEffect(() => {
     if (!active || editorMode || !autoplay || !src) return
-    void playAudio()
-  }, [active, autoplay, editorMode, playAudio, src])
+    if (autoplayDelayMs <= 0) {
+      void playAudio()
+      return
+    }
+    const timer = window.setTimeout(() => void playAudio(), autoplayDelayMs)
+    return () => window.clearTimeout(timer)
+  }, [active, autoplay, autoplayDelayMs, editorMode, playAudio, src])
 
   useEffect(() => {
     if (!active) {

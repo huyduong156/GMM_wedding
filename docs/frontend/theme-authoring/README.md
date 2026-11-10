@@ -226,6 +226,8 @@ Motion phải dùng transform/opacity khi có thể, có duration/easing nhất 
 
 ## 4.1. Section clarity, ngôn ngữ và scroll experience
 
+Các danh sách nội dung lặp có thể tăng không giới hạn theo dữ liệu người dùng (ví dụ lời chúc, guestbook hoặc testimonial) phải có chiều cao giới hạn để không kéo dài trang. Khi vượt ngưỡng phù hợp với thiết kế, có thể dùng marquee liên tục hoặc vùng cuộn có giới hạn; giữ tiêu đề ngoài vùng chuyển động. Marquee phải pause khi hover/focus, nội dung bản sao phải `aria-hidden`, và reduced motion phải dừng animation, ẩn bản sao, đồng thời giữ native scroll để đọc toàn bộ nội dung. Không gắn entrance reveal riêng cho từng item đang chạy trong marquee.
+
 Mỗi section phải tự giải thích được mục đích của chính nó. Khi viewer vừa scroll tới section, họ phải nhận ra section đang nói về story, chapter, moment, album, lời cảm ơn hoặc nội dung tương ứng; không được chỉ nhìn thấy một ảnh đẹp nhưng không biết nội dung là gì.
 
 - Mỗi section phải có content anchor rõ ràng: heading/title, eyebrow/label, caption, metadata hoặc CTA phù hợp. Text phải hỗ trợ hiểu nội dung, không dùng typography/decor để che mất semantic purpose.

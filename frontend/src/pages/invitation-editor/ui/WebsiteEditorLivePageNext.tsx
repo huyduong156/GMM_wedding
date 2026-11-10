@@ -282,8 +282,16 @@ export function WebsiteEditorLivePageNext() {
           if (!value || typeof value !== 'object') return value
           const milestone = value as Data
           const legacyYear = typeof milestone.year === 'string' ? milestone.year : ''
+          const storyImages = Array.isArray(milestone.images)
+            ? milestone.images
+            : typeof milestone.image === 'string' && milestone.image
+              ? [{ src: milestone.image, alt: String(milestone.title ?? 'Ảnh cột mốc'), role: 'story' }]
+              : []
+          const milestoneContent = { ...milestone }
+          delete milestoneContent.image
           return {
-            ...milestone,
+            ...milestoneContent,
+            images: storyImages,
             date:
               typeof milestone.date === 'string' && milestone.date
                 ? milestone.date

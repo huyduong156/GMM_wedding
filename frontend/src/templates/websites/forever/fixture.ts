@@ -39,7 +39,7 @@ export const foreverFixture: ForeverData = {
   },
   guestbook: { heading: 'Một lời chúc cho ngày vui.' },
   footer: { message: 'Thương mến,', signature: 'Linh & Huy', backgroundImage: `${photos}/couple-pose-02-garden-walk.webp` },
-  music: { backgroundMusicUrl: '', backgroundMusicName: '', backgroundMusicAutoplay: false },
+  music: { backgroundMusicUrl: '', backgroundMusicName: '', backgroundMusicAutoplay: true },
 }
 
 export const foreverSections: ForeverSectionConfig = {
