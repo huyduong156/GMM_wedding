@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOptionalAuth } from '../../../features/auth/model/auth-context'
-import { weddingApi, type PublishedWeddingSnapshot } from '../../../shared/api/weddings'
+import { WeddingApiError, weddingApi, type PublishedWeddingSnapshot } from '../../../shared/api/weddings'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { StatusPage } from '../../status/ui/StatusPage'
 import { EditorialVowsWebsite } from '../../../templates/websites/editorial-vows/EditorialVowsWebsite'
@@ -47,7 +47,11 @@ export function PublicWebsitePageNext({ weddingSlug }: { weddingSlug: string }) 
         const result = await weddingApi.publicWebsite(weddingSlug)
         if (active) setSnapshot(result.snapshot)
         return
-      } catch {
+      } catch (cause) {
+        if (!(cause instanceof WeddingApiError) || cause.status !== 404) {
+          if (active) setError(cause instanceof Error ? cause.message : 'KhÃ´ng thá»ƒ táº£i website cÆ°á»›i.')
+          return
+        }
         const signedIn = checkUserSession ? await checkUserSession() : false
         if (!signedIn) {
           if (active) setNotFound(true)

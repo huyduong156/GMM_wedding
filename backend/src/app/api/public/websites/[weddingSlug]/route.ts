@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { getWeddingService } from '@/modules/weddings'
 import { weddingErrorResponse } from '@/modules/weddings/interface/wedding-http'
+import { withApiHeaders } from '@/modules/identity/interface/auth-http'
 import { getRequestId, jsonResponse } from '@/shared/http/api-response'
 
 type Context = { params: Promise<{ weddingSlug: string }> }
@@ -15,13 +16,19 @@ export async function GET(request: NextRequest, context: Context) {
     )
     const etag = `"${snapshot.id}-${snapshot.version}"`
     if (request.headers.get('if-none-match') === etag)
-      return new Response(null, {
-        status: 304,
-        headers: { etag, 'cache-control': 'public, max-age=60, stale-while-revalidate=300' },
-      })
-    return jsonResponse(
-      { snapshot },
-      { headers: { etag, 'cache-control': 'public, max-age=60, stale-while-revalidate=300' } },
+      return withApiHeaders(
+        new Response(null, {
+          status: 304,
+          headers: { etag, 'cache-control': 'public, max-age=60, stale-while-revalidate=300' },
+        }),
+        requestId,
+      )
+    return withApiHeaders(
+      jsonResponse(
+        { snapshot },
+        { headers: { etag, 'cache-control': 'public, max-age=60, stale-while-revalidate=300' } },
+      ),
+      requestId,
     )
   } catch (error) {
     return weddingErrorResponse(error, requestId)
