@@ -877,6 +877,45 @@
     font: 20px 'Playfair Display GMM', Georgia, serif;
 }
 
+.ff-public-wishes-list {
+    overflow: visible;
+    scrollbar-width: thin;
+}
+
+.ff-public-wishes-list.is-marquee {
+    max-height: 600px;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+}
+
+.ff-public-wishes-track {
+    display: grid;
+}
+
+.ff-public-wishes-group {
+    display: grid;
+    padding-bottom: 10px;
+}
+
+.ff-public-wishes-list.is-marquee .ff-public-wishes-track {
+    animation: ff-public-wishes-marquee var(--ff-public-wishes-duration, 35s) linear infinite;
+}
+
+.ff-public-wishes-list.is-marquee:hover .ff-public-wishes-track,
+.ff-public-wishes-list.is-marquee:focus-within .ff-public-wishes-track {
+    animation-play-state: paused;
+}
+
+.ff-public-wishes-list:focus-visible {
+    outline: 2px solid #9a8877;
+    outline-offset: 4px;
+}
+
+@keyframes ff-public-wishes-marquee {
+    to { transform: translateY(-50%); }
+}
+
 .ff-public-wishes article {
     padding: 12px 0;
     border-bottom: 1px solid rgb(79 78 70 / 18%);
@@ -891,6 +930,22 @@
 .ff-public-wishes article small {
     color: #77776f;
     font-size: 11px;
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .ff-public-wishes-list.is-marquee {
+        overflow-y: auto;
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    .ff-public-wishes-list.is-marquee .ff-public-wishes-track {
+        animation: none;
+    }
+
+    .ff-public-wishes-list.is-marquee .ff-public-wishes-group[aria-hidden="true"] {
+        display: none;
+    }
 }
 
 .ff-footer {
@@ -1127,12 +1182,21 @@
 }
 
 @media(prefers-reduced-motion:reduce) {
+    .ff-page .ff-photo-marquee {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch
+    }
+
     .ff-photo-track {
         animation: none;
         transform: none;
         will-change: auto
     }
 
+    .ff-photo-sequence[aria-hidden="true"] {
+        display: none
+    }
 }
 
 /* Event cards stay side by side on desktop and become a one-card mobile marquee. */
@@ -1166,7 +1230,7 @@
     .ff-page .ff-event-grid--marquee .ff-event-track {
         display: flex;
         width: max-content;
-        animation: ff-event-marquee var(--ff-event-marquee-duration, 24s) linear infinite;
+        animation: ff-event-marquee var(--ff-event-marquee-mobile-duration, 20s) linear infinite;
     }
 
     .ff-page .ff-event-track article {
@@ -1177,8 +1241,9 @@
     }
 
     .ff-page .ff-event-grid--marquee .ff-event-track article {
-        flex: 0 0 84vw;
-        width: 84vw;
+        flex: 0 0 min(250px, 84vw);
+        width: min(250px, 84vw);
+        max-width: 250px;
     }
 
     .ff-page .ff-event-grid--marquee .ff-event-track > article[aria-hidden="true"] {
@@ -1766,7 +1831,7 @@
 }
 
 .ff-motion-ready [data-editor-section="hero"][data-motion-visible="true"] .ff-hero-image {
-    animation: ff-hero-image-in 1400ms cubic-bezier(.22, 1, .36, 1) both
+    animation: ff-hero-image-in 1600ms ease-in-out both
 }
 
 @keyframes ff-hero-image-in {
@@ -2081,10 +2146,11 @@
 .ff-page dialog.ff-gallery-lightbox {
     position: fixed;
     inset: 0;
-    width: 100vw;
+    width: auto;
     height: 100vh;
     height: 100dvh;
     max-width: none;
+    max-inline-size: none;
     max-height: none;
     margin: 0;
     padding: clamp(16px, 3vw, 40px);
@@ -2101,6 +2167,7 @@
 
 .ff-page .ff-lightbox-inner {
     width: min(100%, 1280px);
+    min-width: 0;
     height: 100%;
     margin: auto;
     display: grid;
@@ -2134,18 +2201,35 @@
 }
 
 .ff-page .ff-lightbox-stage {
-    display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) 48px;
-    gap: clamp(10px, 3vw, 32px);
+    position: relative;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    min-width: 0;
     min-height: 0
 }
 
 .ff-page .ff-lightbox-arrow {
-    width: 44px;
-    height: 44px;
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    width: 53px;
+    height: 53px;
     border-radius: 50%;
-    font-size: 19px
+    border-color: rgba(245, 244, 239, .68);
+    background: rgba(20, 21, 19, .72);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, .3);
+    font-size: 22px
+}
+
+.ff-page .ff-lightbox-arrow:first-child {
+    left: 8px;
+    transform: translateY(-50%)
+}
+
+.ff-page .ff-lightbox-arrow:last-child {
+    right: 8px;
+    transform: translateY(-50%)
 }
 
 .ff-page .ff-lightbox-arrow:disabled {
@@ -2155,16 +2239,20 @@
 
 .ff-page figure.ff-lightbox-photo {
     height: 100%;
+    width: 100%;
+    min-width: 0;
     min-height: 0;
     margin: 0;
     display: grid;
     grid-template-rows: minmax(0, 1fr) auto;
     justify-items: center;
+    align-items: center;
     gap: 12px
 }
 
 .ff-page .ff-lightbox-photo img {
-    width: auto;
+    display: block;
+    width: 100%;
     height: auto;
     max-width: 100%;
     max-height: 100%;
@@ -2224,14 +2312,17 @@
         gap: 12px
     }
 
-    .ff-page .ff-lightbox-stage {
-        grid-template-columns: 36px minmax(0, 1fr) 36px;
-        gap: 6px
+    .ff-page .ff-lightbox-arrow {
+        width: 41px;
+        height: 41px
     }
 
-    .ff-page .ff-lightbox-arrow {
-        width: 34px;
-        height: 34px
+    .ff-page .ff-lightbox-arrow:first-child {
+        left: 4px
+    }
+
+    .ff-page .ff-lightbox-arrow:last-child {
+        right: 4px
     }
 
     .ff-page .ff-lightbox-thumbnails button {
@@ -2269,7 +2360,7 @@
     background: linear-gradient(to bottom, transparent, #c8c5bb 8%, #c8c5bb 92%, transparent);
     transform: scaleY(0);
     transform-origin: top;
-    transition: transform 1.1s cubic-bezier(.22, 1, .36, 1)
+    transition: transform 1.3s ease-in-out
 }
 
 .ff-page .ff-story-list:after {
@@ -2312,9 +2403,12 @@
     display: inline-flex;
     align-items: center;
     gap: 12px;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
     min-height: 42px;
     margin-top: 14px;
-    padding: 0 18px;
+    padding: 0 30px;
     border: 1px solid rgba(154, 136, 119, .42);
     border-radius: 999px;
     background: rgba(255, 255, 255, .5);
@@ -2322,12 +2416,17 @@
     font: 600 10px/1 'Be Vietnam Pro', Arial, sans-serif;
     letter-spacing: .1em;
     text-transform: uppercase;
+    text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
     cursor: pointer;
     transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease
 }
 
 .ff-page button.ff-story-photo-link span {
     display: grid;
+    flex: none;
     width: 22px;
     height: 22px;
     place-items: center;
@@ -2449,5 +2548,5 @@
 }
 
 .ff-page dialog.ff-story-lightbox .ff-lightbox-inner {
-    grid-template-rows: auto minmax(0, 1fr)
+    grid-template-rows: auto minmax(0, 1fr) auto
 }

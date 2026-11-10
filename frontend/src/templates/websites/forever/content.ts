@@ -1,11 +1,12 @@
 export type ForeverSectionKey = 'hero' | 'announcement' | 'couple' | 'story' | 'events' | 'activities' | 'countdown' | 'venues' | 'gallery' | 'dressCode' | 'faq' | 'rsvp' | 'gift' | 'guestbook' | 'footer' | 'weddingParty' | 'music'
 export type ForeverSectionConfig = { enabled: ForeverSectionKey[]; order: ForeverSectionKey[] }
+export type ForeverStoryImage = { src: string; alt: string; mediaAssetId?: string; role?: string }
 export type ForeverData = {
   hero: { brideName: string; groomName: string; eyebrow: string; headline: string; date: string; time: string; location: string; image: string; imageAlt: string }
   announcement: { message: string }
   couple: { image: string; bio: string; albumImages?: Array<{ src: string; alt: string; mediaAssetId?: string; role?: string }> }
   storyHeading: string
-  story: Array<{ date: string; title: string; body: string; image?: string; year?: string }>
+  story: Array<{ date: string; title: string; body: string; image?: string; images?: ForeverStoryImage[]; year?: string }>
   events: {
     dateEyebrow: string
     introEyebrow: string

@@ -52,16 +52,7 @@
   width: 30px;
   height: 30px;
   place-items: center;
-  border: 1px solid rgb(255 255 255 / 0.55);
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    #f5d5c9 0 18%,
-    #a94f63 19% 30%,
-    #fffaf3 31% 35%,
-    #a94f63 36% 58%,
-    #526b59 59%
-  );
 }
 .music-player.is-playing .music-player-disc {
   animation: music-player-spin 6s linear infinite;
