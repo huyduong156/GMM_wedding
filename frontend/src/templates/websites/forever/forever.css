@@ -2260,10 +2260,15 @@
 }
 
 .ff-page .ff-lightbox-photo figcaption {
+    width: min(100%, 80ch);
+    min-width: 0;
+    overflow: hidden;
     font-size: 10px;
     letter-spacing: .08em;
     color: #c6c4bc;
-    text-align: center
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap
 }
 
 .ff-page .ff-lightbox-thumbnails {
