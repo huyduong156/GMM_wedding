@@ -44,6 +44,9 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
     couple: 'Minh Anh & Gia Bảo',
     date: '18.10.2026',
     issueLabel: 'MỘT NGÀY ĐÁNG NHỚ · SỐ 01',
+    title: 'Ngày mình\nchọn nhau\ntrọn đời.',
+    body:
+      'Một ngày có thể trôi qua thật nhanh. Nhưng lời hẹn ước, những cái ôm và nụ cười của mọi người sẽ còn ở lại thật lâu.',
     titleLines: ['Ngày mình', 'chọn nhau', 'trọn đời.'],
     emphasisLine: 1,
     tagline:
@@ -78,21 +81,21 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
   chapters: [
     {
       id: 'before-the-ceremony',
-      dateLabel: '01 / 09:12',
+      dateLabel: '2026-10-18T09:12',
       title: 'Trước giờ G',
       description: 'Chúng mình hồi hộp thấy rõ, nhưng có gia đình bên cạnh nên cũng yên tâm hơn nhiều.',
       gallery: [chapterPhotos[0]],
     },
     {
       id: 'the-vow',
-      dateLabel: '02 / 15:30',
+      dateLabel: '2026-10-18T15:30',
       title: 'Đến giờ làm lễ',
       description: 'Chúng mình trao nhau lời đồng ý trước gia đình và bạn bè. Vừa run, vừa vui không tả được.',
       gallery: [chapterPhotos[1]],
     },
     {
       id: 'the-evening',
-      dateLabel: '03 / 18:45',
+      dateLabel: '2026-10-18T18:45',
       title: 'Vào tiệc thôi',
       description: 'Được gặp mọi người, nghe lời chúc và cùng cười vui — đây là phần chúng mình mong nhất.',
       gallery: [chapterPhotos[2]],
@@ -186,6 +189,8 @@ export const theWeddingRollRecapFixture: TheWeddingRollRecapContent = {
       title: 'Bài hát của ngày vui',
       intro:
         'Chỉ cần nghe lại giai điệu này, chúng mình như được trở về ngày vui có mọi người ở bên.',
+      trackName: '',
+      autoplay: true,
     },
     behindTheScenes: {
       enabled: true,

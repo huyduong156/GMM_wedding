@@ -4,7 +4,7 @@ import './music-player.css'
 
 const MAX_PLAYBACK_MS = 10 * 60 * 1000
 
-export type MusicPlayerVariant = 'rotating-fab'
+export type MusicPlayerVariant = 'rotating-fab' | 'inline-record'
 
 export type MusicPlayerProps = {
   src?: string
@@ -12,6 +12,7 @@ export type MusicPlayerProps = {
   autoplay?: boolean
   active?: boolean
   editorMode?: boolean
+  disabled?: boolean
   variant?: MusicPlayerVariant
   sectionKey?: string | null
 }
@@ -27,6 +28,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     autoplay = false,
     active = true,
     editorMode = false,
+    disabled = false,
     variant = 'rotating-fab',
     sectionKey = 'music',
   }: MusicPlayerProps,
@@ -34,7 +36,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
 ) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
-  const available = Boolean(src)
+  const available = Boolean(src) && !disabled
   const elapsedRef = useRef(0)
   const startedRef = useRef<number | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -164,6 +166,13 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
   }, [active, pauseAudio])
 
   useEffect(() => {
+    if (disabled) {
+      resumeRef.current = false
+      pauseAudio()
+    }
+  }, [disabled, pauseAudio])
+
+  useEffect(() => {
     const hide = () => {
       if (!pageHiddenRef.current) {
         resumeRef.current =
@@ -217,7 +226,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
       data-music-player
       {...(sectionKey ? { 'data-editor-section': sectionKey } : {})}
     >
-      {src ? (
+      {src && !disabled ? (
         <audio
           ref={audioRef}
           src={src}

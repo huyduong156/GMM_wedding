@@ -19,7 +19,12 @@ The template preview route renders `TheWeddingRollRecap.tsx` using typed recap c
 - The page content is fluid with a `1200px` desktop maximum and a `32px` mobile gutter.
 - The HTML document has a continuous paper canvas, clips page-level horizontal overflow, and keeps native vertical scrolling.
 - The React renderer fills the preview route and keeps native document scrolling.
+- The recap editor preview scales both desktop and mobile frames to the available `.editor-iframe-canvas` width and height, preserving each device aspect ratio without clipping.
+- The story editor fields write directly to the renderer keys declared in `template-config.ts` (`ourStory.quote` and `ourStory.body`).
+- The chapters editor fields write directly to the renderer keys declared in `template-config.ts` (`chaptersIntro.*` and `chapters`); the shared editor does not translate template-specific aliases.
+- Every top-level editable field in `template-config.ts` declares its renderer `contentKey`; repeatable item fields remain relative to their parent collection.
 - The template preview uses `https://drive.google.com` as a temporary destination for the full-album button when no URL is configured; this example URL is applied only in the preview page and is not part of the template fixture or a new recap's editor defaults.
+- The opening renderer honors the editor's generic `hero.title` and `hero.content`/`hero.body` fields when present, with `titleLines` and `tagline` retained as backward-compatible defaults.
 - The concept has responsive rules for desktop, tablet, and narrow mobile; reduced motion disables smooth scrolling and reveals content statically.
 - The mobile album action is fixed inside the safe-area gutter and links directly to photo delivery.
 - The React fixture uses the local couple-002 example set; the independent HTML concept retains its original remote reference photos. Couple photos remain replaceable by owner media before catalog release. Phase 5 uses local Be Vietnam Pro and Playfair Display font files.

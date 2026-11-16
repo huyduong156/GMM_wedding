@@ -80,7 +80,6 @@ describe('The Wedding Roll template conversion', () => {
           enabled: false,
         },
         soundtrack: { ...theWeddingRollRecapFixture.optional.soundtrack, enabled: false },
-        behindTheScenes: { ...theWeddingRollRecapFixture.optional.behindTheScenes, enabled: false },
         guestbook: { ...theWeddingRollRecapFixture.optional.guestbook, enabled: false },
         memoryCapsule: { ...theWeddingRollRecapFixture.optional.memoryCapsule, enabled: false },
       },

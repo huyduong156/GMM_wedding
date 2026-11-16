@@ -53,6 +53,35 @@ function getThankYouTitleLines(title: string) {
   return [title.slice(0, splitAt).trim(), title.slice(splitAt)]
 }
 
+function formatWeddingDate(value: string) {
+  const isoDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoDate) return `${isoDate[3]}.${isoDate[2]}.${isoDate[1]}`
+  const localizedDate = value.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/)
+  if (localizedDate) {
+    return `${localizedDate[1].padStart(2, '0')}.${localizedDate[2].padStart(2, '0')}.${localizedDate[3]}`
+  }
+  return value
+}
+
+function getLastNameInitial(value: string) {
+  const lastName = value.trim().split(/\s+/).filter(Boolean).at(-1) ?? ''
+  return Array.from(lastName)[0]?.toLocaleUpperCase('vi-VN') ?? ''
+}
+
+function formatChapterDateTime(value: string) {
+  const dateTime = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+  if (dateTime) {
+    return {
+      dateTimeValue: `${dateTime[1]}-${dateTime[2]}-${dateTime[3]}T${dateTime[4]}:${dateTime[5]}`,
+      label: `${dateTime[3]}.${dateTime[2]}.${dateTime[1].slice(-2)}\n${dateTime[4]}:${dateTime[5]}`,
+    }
+  }
+  const legacyLabel = value.match(/^\s*(\d{1,2})\s*\/\s*(\d{1,2}:\d{2})\s*$/)
+  return legacyLabel
+    ? { dateTimeValue: undefined, label: `${legacyLabel[1]}\n${legacyLabel[2]}` }
+    : { dateTimeValue: undefined, label: value }
+}
+
 type AlbumItem = { src: string; alt: string; caption?: string | null }
 type RecapWish = { id?: string; authorName: string; content: string }
 type RecapSectionConfig = { enabled: string[]; order: string[] }
@@ -105,11 +134,13 @@ export function TheWeddingRollRecap({
   albumItems = [],
   wishes,
   sectionConfig,
+  editorPreview = false,
 }: {
   content?: TheWeddingRollRecapContent
   albumItems?: AlbumItem[]
   wishes?: RecapWish[]
   sectionConfig?: RecapSectionConfig
+  editorPreview?: boolean
 }) {
   const defaultSectionOrder = [
     'hero',
@@ -118,7 +149,6 @@ export function TheWeddingRollRecap({
     'moments',
     'photoDelivery',
     'peopleBehindTheDay',
-    'behindTheScenes',
     'soundtrack',
     'guestbook',
     'memoryCapsule',
@@ -152,9 +182,7 @@ export function TheWeddingRollRecap({
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const lightboxCloseRef = useRef<HTMLButtonElement>(null)
   const [lightboxTrigger, setLightboxTrigger] = useState<HTMLButtonElement | null>(null)
-  const showBehindTheScenes = optionalSectionEnabled('behindTheScenes')
   const peopleGroups = (content.optional.peopleBehindTheDay.groups ?? [])
-    .filter((group) => group.id !== 'behind-the-scenes' || showBehindTheScenes)
     .slice(0, 10)
     .map((group) => ({ ...group, photos: group.photos.slice(0, 10) }))
   const peopleRailRef = useRef<HTMLDivElement>(null)
@@ -274,7 +302,12 @@ export function TheWeddingRollRecap({
     isLightboxOpen,
     lightboxTrigger,
   ])
-  const coupleNames = content.hero.couple.split(/\s*&\s*/)
+  const legacyCoupleNames = content.hero.couple.split(/\s*&\s*/)
+  const brideName = content.hero.brideName ?? legacyCoupleNames[0] ?? ''
+  const groomName = content.hero.groomName ?? legacyCoupleNames.slice(1).join(' & ')
+  const coupleNames = [brideName, groomName]
+  const coupleInitials = `${getLastNameInitial(brideName)} & ${getLastNameInitial(groomName)}`
+  const weddingDate = formatWeddingDate(content.hero.date)
 
   return (
     <div
@@ -301,15 +334,6 @@ export function TheWeddingRollRecap({
         />
       </div>
 
-      {optionalSectionEnabled('soundtrack') && content.optional.soundtrack.audioSrc ? (
-        <MusicPlayer
-          src={content.optional.soundtrack.audioSrc}
-          title={content.optional.soundtrack.title}
-          autoplay={false}
-          active
-          sectionKey={null}
-        />
-      ) : null}
       <header className="wrap topbar">
         <a className="brand" href="#top">
           THE <b>WEDDING</b> ROLL
@@ -330,14 +354,18 @@ export function TheWeddingRollRecap({
               {content.hero.issueLabel}
             </motion.div>
             <motion.h1 {...revealItem(reduceMotion, 0.08)}>
-              {content.hero.titleLines.map((line, index) => (
-                <span key={`${line}-${index}`}>
-                  {index > 0 && <br />}
-                  {index === Number(content.hero.emphasisLine) ? <em>{line}</em> : line}
-                </span>
-              ))}
+              {(content.hero.title ?? content.hero.titleLines.join('\n'))
+                .split('\n')
+                .map((line, index) => (
+                  <span key={`${line}-${index}`}>
+                    {index > 0 && <br />}
+                    {index === Number(content.hero.emphasisLine) ? <em>{line}</em> : line}
+                  </span>
+                ))}
             </motion.h1>
-            <motion.p {...revealItem(reduceMotion, 0.16)}>{content.hero.tagline}</motion.p>
+            <motion.p {...revealItem(reduceMotion, 0.16)}>
+              {content.hero.content ?? content.hero.body ?? content.hero.tagline}
+            </motion.p>
             <motion.div className="actions" {...revealItem(reduceMotion, 0.24)}>
               <a
                 className="button"
@@ -363,7 +391,7 @@ export function TheWeddingRollRecap({
                   <span className="hero-caption-amp">&</span>
                   <span>{coupleNames.slice(1).join(' & ')}</span>
                 </strong>
-                <span>{content.hero.date}</span>
+                <span>{weddingDate}</span>
               </div>
             </div>
             <div className="frame-id">MỘT NGÀY ĐÁNG NHỚ</div>
@@ -421,13 +449,16 @@ export function TheWeddingRollRecap({
             {content.chapters.map((chapter, index) => {
               const chapterPhotos = getChapterPhotos(chapter)
               const coverPhoto = chapterPhotos[0]
+              const chapterDateTime = formatChapterDateTime(chapter.dateLabel)
               return (
                 <motion.article
                   className="chapter"
                   key={chapter.id}
                   {...revealItem(reduceMotion, index * 0.07)}
                 >
-                  <div className="chapter-num">{chapter.dateLabel}</div>
+                  <time className="chapter-num" dateTime={chapterDateTime.dateTimeValue}>
+                    {chapterDateTime.label}
+                  </time>
                   <div className="chapter-copy">
                     <h3>{chapter.title}</h3>
                     <p>{chapter.description}</p>
@@ -522,10 +553,11 @@ export function TheWeddingRollRecap({
                       <span>{moment.momentLabel}</span>
                     </div>
                     <p>{moment.description}</p>
-                    {moment.gallery?.some((photo) => photo?.src) ? (
+                    {moment.gallery?.filter((photo) => photo?.src).length ? (
                       <button
                         type="button"
                         className="chapter-gallery-open"
+                        aria-label={`Mở album ${moment.title}, ${moment.gallery.filter((photo) => photo?.src).length} ảnh`}
                         onClick={(event) => {
                           setLightboxTrigger(event.currentTarget)
                           setLightbox({
@@ -537,7 +569,11 @@ export function TheWeddingRollRecap({
                           })
                         }}
                       >
-                        Xem album khoảnh khắc <span aria-hidden="true">↗</span>
+                        <span>Xem album khoảnh khắc</span>
+                        <span className="chapter-gallery-open-count">
+                          {moment.gallery.filter((photo) => photo?.src).length} ảnh
+                        </span>
+                        <span aria-hidden="true">↗</span>
                       </button>
                     ) : null}
                   </article>
@@ -583,21 +619,29 @@ export function TheWeddingRollRecap({
                     setLightbox({ kind: 'featured', index: 0 })
                   }}
                   {...revealItem(reduceMotion, 0.12)}
+                  aria-label={`Xem và tải ${featuredPhotos.length} ảnh nổi bật`}
                 >
-                  Xem ảnh nổi bật
-                  <span>↗</span>
+                  <span className="delivery-action-copy">
+                    <small>ẢNH NỔI BẬT · {featuredPhotos.length} ẢNH</small>
+                    <strong>Xem & tải ảnh</strong>
+                  </span>
+                  <span className="delivery-action-icon" aria-hidden="true">↓</span>
                 </motion.button>
               ) : null}
               {externalAlbumHref ? (
                 <motion.a
-                  className="button button--all-photos"
+                  className={`button button--all-photos ${featuredPhotos.length ? 'is-secondary' : 'is-primary'}`}
                   href={externalAlbumHref}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Mở album đầy đủ trong tab mới"
                   {...revealItem(reduceMotion, featuredPhotos.length ? 0.2 : 0.12)}
                 >
-                  Xem toàn bộ ảnh ngày hôm ấy
-                  <span>↗</span>
+                  <span className="delivery-action-copy">
+                    <small>ALBUM ĐẦY ĐỦ</small>
+                    <strong>Mở album bên ngoài</strong>
+                  </span>
+                  <span className="delivery-action-icon" aria-hidden="true">↗</span>
                 </motion.a>
               ) : null}
             </div>
@@ -613,7 +657,7 @@ export function TheWeddingRollRecap({
         >
           <div className="section-head">
             <motion.div {...revealItem(reduceMotion)}>
-              <div className="mono">NHỮNG NGƯỜI GÓP SỨC</div>
+              <div className="mono">BEHIND THE SCENES</div>
               <h2>{content.optional.peopleBehindTheDay.title}</h2>
             </motion.div>
             <p>{content.optional.peopleBehindTheDay.intro}</p>
@@ -623,7 +667,7 @@ export function TheWeddingRollRecap({
               ref={peopleRailRef}
               className="people-carousel-rail"
               role="region"
-              aria-label="Những người góp sức cho ngày cưới"
+              aria-label="Behind the Scenes photo carousel"
               tabIndex={0}
             >
               {peopleGroups.map((group, index) => {
@@ -631,7 +675,6 @@ export function TheWeddingRollRecap({
                 return (
                   <motion.article
                     className="people-card"
-                    data-editor-section={group.id === 'behind-the-scenes' ? 'behindTheScenes' : undefined}
                     key={group.id}
                     {...revealItem(reduceMotion, index * 0.05)}
                   >
@@ -647,7 +690,7 @@ export function TheWeddingRollRecap({
                               kind: 'people',
                               index: 0,
                               title: group.title,
-                              eyebrow: 'NHỮNG NGƯỜI GÓP SỨC',
+                              eyebrow: 'BEHIND THE SCENES',
                               photos: group.photos.slice(0, 10),
                             })
                           }}
@@ -678,7 +721,7 @@ export function TheWeddingRollRecap({
                               kind: 'people',
                               index: 0,
                               title: group.title,
-                              eyebrow: 'NHỮNG NGƯỜI GÓP SỨC',
+                              eyebrow: 'BEHIND THE SCENES',
                               photos: group.photos.slice(0, 10),
                             })
                           }}
@@ -718,12 +761,26 @@ export function TheWeddingRollRecap({
 
         {optionalSectionEnabled('soundtrack') ? (
           <RevealSection className="wrap soundtrack-feature" sectionKey="soundtrack" sectionOrder={sectionPosition('soundtrack')}>
-            <div className="mono">{content.optional.soundtrack.eyebrow}</div>
-            <h2>{content.optional.soundtrack.title}</h2>
-            <p>{content.optional.soundtrack.intro}</p>
-            {content.optional.soundtrack.audioSrc ? (
-              <p className="soundtrack-player-note">Chạm nút nhạc ở góc màn hình để phát giai điệu này.</p>
-            ) : null}
+            <div className="soundtrack-feature-layout">
+              <div className="soundtrack-copy">
+                <div className="mono">{content.optional.soundtrack.eyebrow}</div>
+                <h2>{content.optional.soundtrack.title}</h2>
+                <p>{content.optional.soundtrack.intro}</p>
+              </div>
+              <div className="soundtrack-record">
+                <MusicPlayer
+                  src={content.optional.soundtrack.audioSrc}
+                  title={content.optional.soundtrack.trackName || content.optional.soundtrack.title}
+                  autoplay={content.optional.soundtrack.autoplay ?? true}
+                  active
+                  editorMode={editorPreview}
+                  disabled={editorPreview}
+                  variant="inline-record"
+                  sectionKey={null}
+                />
+                <span>{content.optional.soundtrack.trackName || 'Chọn một giai điệu để phát'}</span>
+              </div>
+            </div>
           </RevealSection>
         ) : null}
 
@@ -813,12 +870,12 @@ export function TheWeddingRollRecap({
             </motion.h2>
             <motion.p {...revealItem(reduceMotion, 0.16)}>{content.thankYou.body}</motion.p>
             <motion.div className="signature" {...revealItem(reduceMotion, 0.22)}>
-              {content.thankYou.signature}
+              {coupleInitials}
             </motion.div>
             <motion.footer className="footer" {...revealItem(reduceMotion, 0.28)}>
-              <span>{content.thankYou.date}</span>
-              <span>MỘT NGÀY ĐÁNG NHỚ</span>
-              <span>{content.thankYou.footerNote}</span>
+              <span className="footer-couple">{`${brideName} & ${groomName} · ${weddingDate}`}</span>
+              <span className="footer-label">MỘT NGÀY ĐÁNG NHỚ</span>
+              <span className="footer-note">{content.thankYou.footerNote}</span>
             </motion.footer>
           </div>
         </RevealSection> : null}

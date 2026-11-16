@@ -132,6 +132,7 @@ export function TheWeddingRollPreviewPage() {
       content={contentWithAlbumExample}
       wishes={wishes}
       sectionConfig={sectionConfig}
+      editorPreview={draft}
     />
   )
 }

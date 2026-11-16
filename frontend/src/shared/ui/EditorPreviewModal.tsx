@@ -17,6 +17,7 @@ type Props = {
   onDeviceChange: (device: EditorPreviewDevice) => void
   onLoad: () => void
   embedded?: boolean
+  viewportDimensions?: Partial<Record<EditorPreviewDevice, { width: number; height: number }>>
 }
 
 const viewports = {
@@ -37,12 +38,13 @@ export function EditorPreviewModal({
   onDeviceChange,
   onLoad,
   embedded = false,
+  viewportDimensions,
 }: Props) {
   const draggable = useDraggablePreviewPosition()
   const viewportRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   const [switching, setSwitching] = useState(false)
-  const dimensions = viewports[device]
+  const dimensions = viewportDimensions?.[device] ?? viewports[device]
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -102,7 +104,7 @@ export function EditorPreviewModal({
           <i />
           <i />
           <i />
-          <span>{device === 'desktop' ? 'Desktop · 1200 × 800' : 'Mobile · 550 × 950'}</span>
+          <span>{`${device === 'desktop' ? 'Desktop' : 'Mobile'} · ${dimensions.width} × ${dimensions.height}`}</span>
         </div>
         <div
           ref={viewportRef}

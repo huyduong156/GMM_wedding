@@ -37,8 +37,14 @@ export type TheWeddingRollPeopleGroup = {
 export type TheWeddingRollRecapContent = {
   hero: {
     couple: string
+    brideName?: string
+    groomName?: string
     date: string
     issueLabel: string
+    /** Compatibility fields used by the recap editor's generic title/content inputs. */
+    title?: string
+    body?: string
+    content?: string
     titleLines: [string, string, string]
     emphasisLine: number
     tagline: string
@@ -104,6 +110,8 @@ export type TheWeddingRollRecapContent = {
       title: string
       intro: string
       audioSrc?: string
+      trackName?: string
+      autoplay?: boolean
     }
     behindTheScenes: {
       enabled: boolean

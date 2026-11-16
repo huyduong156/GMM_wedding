@@ -26,6 +26,7 @@
 - Approved theme techniques dùng chung gồm motion/scroll/image/3D-depth/UI interaction/visual effects/typography, GSAP/ScrollTrigger/Lottie/Rive/Web Animations API và Web Platform APIs; CSS/DOM 3D được ưu tiên trước, Three.js/WebGL chưa bắt buộc và mọi kỹ thuật phải có fallback, purpose và budget.
 - Public theme authoring bắt buộc route qua đúng domain agent: `.agents/agents/invitation-theme-agent`, `.agents/agents/wedding-website-theme-agent` hoặc `.agents/agents/wedding-recap-theme-agent`; cả ba phải đọc `docs/frontend/theme-authoring/README.md` trước section docs riêng. Không bắt đầu renderer/config/asset work nếu agent chưa tạo pre-code brief và acceptance map.
 - TemplateConfig contract dùng chung cho invitation, wedding website và Wedding Recap: metadata/settings (status, type, versions, palettes, preview, capabilities, theme, sections) giữ cùng shape; chỉ productType, content/section schema và renderer khác nhau.
+- Recap editor lấy API config làm nguồn chính và tự động ghép schema/label còn thiếu từ recap `template-config.ts` qua resolver dùng chung; form không có nhánh riêng theo template key.
 - Wedding website template config supports optional `quickEdit` fields for shared editor toolbar values; Forever maps couple names/date there, while section forms keep only section-specific fields. Its date picker stores ISO date and renderer formats the display date.
 - Shared date picker keeps month navigation and provides a visible year dropdown spanning 100 years back through 30 years ahead (expanding to include an already-selected out-of-range year).
 - Forever event cards are stored at `events.items`; editor item mutations must preserve `events.summary`, and renderers tolerate the earlier array-at-`events` shape.
@@ -160,3 +161,18 @@
 - Forever gift section exposes a gentle editable heading/thank-you and one optional uploaded transfer QR (`gift.qrImage`); never seed a fake payment QR and hide the image when no QR is configured.
 - Forever runtime artwork uses the approved WebP/SVG assets under `frontend/public/assets/images/templates/forever/decor/`; asset inventory and provenance live with the renderer in `frontend/src/templates/websites/forever/ASSET_MANIFEST.md` and `ASSET_SOURCES.md`.
 - Forever now supports an optional footer background image with a demo photo in preview and a dark-color fallback. Optional single-image fields can be cleared in the editor; renderers must preserve the empty value instead of reseeding fixture media.
+- Recap editor stays generic: resolve the selected template's declared section/field schema and render only those inputs, using each declared `contentKey`. Keep owner-editable copy focused on a few meaningful text fields; decorative labels and art-direction details remain renderer-owned. Before first release, edit the unreleased version; after release, create a new version for schema changes. Do not add template-specific branches to the shared editor.
+- Wedding Roll quick edit exposes bride name, groom name, and wedding date; the cover section itself edits only its headline and short introduction. The renderer reuses the wedding date in the cover and closing footer.
+- Wedding Roll closing monogram derives one initial from the last word of each partner's name instead of showing fixture initials.
+- Wedding Roll chapter markers use native date-time inputs and renderer-formatted compact labels; chapter and moment collection controls declare Vietnamese add-button labels in template config.
+- Wedding Roll photo delivery prioritizes a rust “Xem & tải ảnh” CTA with a featured photo count; external full-album link is secondary when both sources are available and primary when alone.
+- Wedding Roll's “Behind the Scenes” editor section exposes the section intro and each group's caption; backstage photos are an ordinary editable group, with no separate toggle.
+- Wedding Roll guestbook uses all approved wishes from the API and links to wish management; its soundtrack uses the shared invitation music catalog selector.
+- The recap editor presents the approved-wish status and management link in a bordered status card.
+- Wedding Roll soundtrack renders an inline vinyl play/pause control beside copy on desktop and below it on mobile; autoplay is enabled by default with an editor toggle, while live editor preview disables playback to prevent overlapping the catalog audition. Shared catalog lists cap at 220px and scroll internally.
+- Recap section saves preserve API-only legacy section keys from the selected remote template version while the generic editor omits unsupported legacy rows.
+- Wedding Roll closing footer uses a compact mobile stack: couple/date metadata, restrained rust label, and a sentence-case serif note.
+- Wedding Roll moment headings and card copy retain small vertical/inline padding so Vietnamese diacritics do not clip at text edges.
+- Recap save validation reports the first schema-driven field issue, opens its section/repeatable item, scrolls it into view and marks that field for correction.
+- Recap repeatable items render as collapsible cards; opening one item at a time keeps long editor forms manageable, and adding an item expands the new card.
+- Recap editor preview uses logical iframe viewports 1024×683 desktop and 450×800 mobile while fitting the existing modal/frame bounds.
