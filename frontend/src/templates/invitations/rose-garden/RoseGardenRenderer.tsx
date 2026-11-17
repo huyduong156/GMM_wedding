@@ -14,6 +14,7 @@ import {
 } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { ClassicCardCover } from '../../shared/component/opening/ClassicCardCover'
@@ -373,6 +374,7 @@ export function RoseGardenRenderer({
   const [openingState, setOpeningState] = useState<'closed' | 'opening' | 'opened'>('closed')
   const opened = openingState === 'opened'
   useSmoothTemplateScroll(opened)
+  useGuestInvitationAutoScroll(opened && Boolean(interactions))
   const [rsvpChoice, setRsvpChoice] = useState<'attending' | 'declined' | null>(null)
   const [rsvpName, setRsvpName] = useState('')
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false)

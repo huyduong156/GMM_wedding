@@ -3,6 +3,7 @@ import { useAnimate, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, CaretLeft, CaretRight, HandTap, MapPin, Sparkle } from '@phosphor-icons/react'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import { FallingStars } from '../../../shared/ui/falling-stars/FallingStars'
 import { MusicPlayer, type MusicPlayerHandle } from '../../../shared/ui/music-player'
@@ -46,6 +47,7 @@ export function AstralVowInvitation({ data, sectionConfig, editorMode = false, g
   const musicPlayerRef = useRef<MusicPlayerHandle>(null)
   const [opened, setOpened] = useState(false); const [openingComplete, setOpeningComplete] = useState(false); const [pageHidden, setPageHidden] = useState(false); const [choice, setChoice] = useState<'ATTENDING' | 'DECLINED' | null>(null); const [rsvpName, setRsvpName] = useState(''); const [rsvpError, setRsvpError] = useState(''); const [rsvpDone, setRsvpDone] = useState(false); const [wishName, setWishName] = useState(''); const [wish, setWish] = useState(''); const [wishError, setWishError] = useState(''); const [wishDone, setWishDone] = useState(false); const [galleryIndex, setGalleryIndex] = useState(0); const [giftOpen, setGiftOpen] = useState(false)
   useSmoothTemplateScroll(opened && openingComplete)
+  useGuestInvitationAutoScroll(opened && openingComplete && Boolean(interactions))
 
   useEffect(() => { if (opened) window.setTimeout(() => document.querySelector<HTMLElement>('[data-editor-section="cover"]')?.focus(), 650) }, [opened])
   useEffect(() => {

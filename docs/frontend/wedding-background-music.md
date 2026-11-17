@@ -24,7 +24,7 @@ Tài liệu này mô tả ba bề mặt frontend dùng chung catalog nhạc nề
 ## Khách mời: phát nhạc an toàn
 
 - Renderer chỉ tạo audio control khi snapshot có track hợp lệ và section nhạc đang bật.
-- Browser có thể chặn autoplay có âm thanh. `autoplayRequested` chỉ là yêu cầu thử phát sau tương tác mở thiệp; luôn có nút phát/tạm dừng với accessible name và không hiển thị lỗi kỹ thuật cho khách.
+- Browser có thể chặn autoplay có âm thanh. Thiệp online thử phát sau thao tác mở thiệp; wedding website không có opening gate nên đợi một giây sau khi trang public render rồi mới thử phát khi owner đã bật autoplay. Luôn có nút phát/tạm dừng với accessible name và không hiển thị lỗi kỹ thuật cho khách.
 - Audio lặp lại khi phát, preload tối đa metadata trước tương tác và không chặn first render/LCP. Tắt nhạc không làm mất vị trí đọc thiệp.
 - `MusicPlayer` dùng chung tạm dừng ngay khi `visibilitychange` báo hidden hoặc `pagehide` (chuyển tab, khóa màn hình/đưa browser xuống nền khi trình duyệt phát sự kiện). Khi visible/`pageshow`, chỉ thử tiếp tục nếu trước đó đang phát và khách chưa tự tắt; autoplay bị chặn giữ nút phát thủ công.
 - Mỗi phiên component/track giới hạn 10 phút phát cộng dồn; thời gian pause/buffering không tính. Hết giới hạn phải bấm phát để bắt đầu ngân sách mới. Ref lưu thời gian và mốc `performance.now()`, chỉ một timeout cho phần còn lại; không interval, không state theo giây, không render lại template. Đổi track reset ngân sách; unmount dừng audio và dọn listener/timeout.

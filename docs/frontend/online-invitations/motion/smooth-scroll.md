@@ -20,6 +20,14 @@ Smooth scroll trong public template là smooth/inertia scrolling bằng Lenis: w
 
 Smooth scroll có thể dùng cùng section reveal, bounded parallax và ambient background, nhưng chỉ nên có một runtime scroll chính trong mỗi template. Parallax phải giới hạn khoảng dịch chuyển nhỏ và dùng `transform`; không tạo thêm `requestAnimationFrame` loop riêng cho từng section.
 
+## Guest-facing invitation auto-scroll
+
+- `useGuestInvitationAutoScroll` slowly advances a real guest-facing invitation after its opening completes. Renderers enable it only when the public interaction controller is present, so template previews and editor previews never auto-scroll.
+- Initial auto-scroll is independent of the music autoplay setting. The music player emits a user-play event only after a guest explicitly starts playback; this restarts scrolling if it had stopped.
+- Pointer/touch input, wheel scrolling, and keyboard scroll commands stop the current run so the guest can read at their own pace. Opening the invitation is not treated as an interruption because the hook starts only after opening completes.
+- Stop the loop at the end of the document, pause while the tab is hidden, and respect `prefers-reduced-motion` by leaving native scrolling in control.
+- Keep a single frame loop per renderer; do not smooth-scroll each animation frame or attach an auto-scroll loop to previews/editor surfaces.
+
 ## Fallback và acceptance
 
 - Nếu Lenis import lỗi, native scroll vẫn hoạt động bình thường.

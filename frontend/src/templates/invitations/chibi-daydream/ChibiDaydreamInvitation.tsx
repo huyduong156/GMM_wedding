@@ -19,6 +19,7 @@ import {
 import './chibi-daydream.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 
 const asset = (name: string) => `/assets/images/templates/chibi-daydream/${name}`
 const gallery = [
@@ -79,6 +80,7 @@ export function ChibiDaydreamInvitation({
   const [opening, setOpening] = useState(false)
   const [opened, setOpened] = useState(editorMode)
   useSmoothTemplateScroll(opened)
+  useGuestInvitationAutoScroll(opened && Boolean(interactions))
   const [slide, setSlide] = useState(0)
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null)
   const [rsvpSent, setRsvpSent] = useState(false)

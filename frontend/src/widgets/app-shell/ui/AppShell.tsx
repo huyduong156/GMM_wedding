@@ -36,6 +36,7 @@ import { MobileQuickMenu } from './MobileQuickMenu'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { GuideHelpButton } from '../../../features/user-guide/ui/GuideHelpButton'
 import { ProductGuide } from '../../../features/user-guide/ui/ProductGuide'
+import { PwaInstallPrompt } from './PwaInstallPrompt'
 
 function WeddingCountdownStatus({ date, compact = false }: { date?: string; compact?: boolean }) {
   const countdown = useWeddingCountdown(date ?? '', 60_000)
@@ -602,6 +603,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </section>
         </div>
       ) : null}
+      <PwaInstallPrompt
+        enabled={!collaboratorNoticeOpen && !switcherOpen && !pendingWedding}
+      />
     </div>
   )
 }

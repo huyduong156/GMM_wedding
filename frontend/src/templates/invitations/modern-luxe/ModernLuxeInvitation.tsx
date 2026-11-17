@@ -26,6 +26,7 @@ import {
 } from '../../../shared/lib/date/useWeddingCountdown'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import './modern-luxe.css'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 
@@ -352,6 +353,7 @@ export function ModernLuxeInvitation({
   const focusFrameRef = useRef<number | undefined>(undefined)
   const reduceMotion = useReducedMotion()
   useSmoothTemplateScroll(opened)
+  useGuestInvitationAutoScroll(opened && Boolean(interactions))
   const connectedGuestName = interactions?.guestName?.trim() ?? ''
   const hasGuestName = Boolean(connectedGuestName)
   const rsvpLocked = rsvpSubmitted || Boolean(interactions?.rsvp.submitted)

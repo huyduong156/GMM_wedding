@@ -11,6 +11,7 @@ export type MusicPlayerProps = {
   src?: string
   title?: string
   autoplay?: boolean
+  autoplayDelayMs?: number
   active?: boolean
   editorMode?: boolean
   disabled?: boolean
@@ -29,6 +30,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     src,
     title = 'Nhạc nền',
     autoplay = false,
+    autoplayDelayMs = 0,
     active = true,
     editorMode = false,
     disabled = false,
@@ -160,27 +162,40 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
 
   useEffect(() => {
     if (!active || editorMode || !autoplay || !src) return
-
+    let autoplayAttempted = false
+    let timer: number | undefined
     const removeGestureListeners = () => {
       document.removeEventListener('pointerdown', retryFromGesture, true)
       document.removeEventListener('keydown', retryFromGesture, true)
     }
     const retryFromGesture = (event: Event) => {
+      if (!autoplayAttempted) return
       removeGestureListeners()
       const target = event.target
       if (target instanceof Element && target.closest('[data-music-player]')) return
       void playAudio()
+    }
+    const attemptAutoplay = () => {
+      autoplayAttempted = true
+      void playAudio().then((started) => {
+        if (started) removeGestureListeners()
+      })
     }
 
     if (retryAutoplayOnInteraction) {
       document.addEventListener('pointerdown', retryFromGesture, true)
       document.addEventListener('keydown', retryFromGesture, true)
     }
-    void playAudio().then((started) => {
-      if (started) removeGestureListeners()
-    })
-    return removeGestureListeners
-  }, [active, autoplay, editorMode, playAudio, retryAutoplayOnInteraction, src])
+    if (autoplayDelayMs <= 0) {
+      attemptAutoplay()
+    } else {
+      timer = window.setTimeout(attemptAutoplay, autoplayDelayMs)
+    }
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer)
+      removeGestureListeners()
+    }
+  }, [active, autoplay, autoplayDelayMs, editorMode, playAudio, retryAutoplayOnInteraction, src])
 
   useEffect(() => {
     if (!active) {
@@ -231,7 +246,8 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     if (audio.paused) {
       userPausedRef.current = false
       if (elapsedRef.current >= MAX_PLAYBACK_MS) elapsedRef.current = 0
-      await playAudio()
+      const started = await playAudio()
+      if (started) window.dispatchEvent(new Event('ourday:invitation-user-play'))
     } else {
       userPausedRef.current = true
       resumeRef.current = false

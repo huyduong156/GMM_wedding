@@ -966,11 +966,12 @@
 }
 .rsl-people-rail::-webkit-scrollbar,
 .rsl-behind-rail::-webkit-scrollbar {
-  height: 5px;
+  height: 4px;
 }
 .rsl-people-rail::-webkit-scrollbar-thumb,
 .rsl-behind-rail::-webkit-scrollbar-thumb {
-  background: var(--red);
+  border-radius: 999px;
+  background: var(--scrollbar-thumb);
 }
 .rsl-gallery-button {
   display: inline-flex;

@@ -12,6 +12,7 @@ import { motion, useAnimate, useInView, useReducedMotion } from 'motion/react'
 import { MusicPlayer } from '../../../shared/ui/music-player'
 import type { PublicInteractions } from '../../../shared/lib/navigation/public-interaction-types'
 import { useSmoothTemplateScroll } from '../../../shared/lib/navigation/useSmoothInvitationScroll'
+import { useGuestInvitationAutoScroll } from '../../../shared/lib/navigation/useGuestInvitationAutoScroll'
 import { usePreviewWeddingDate, useWeddingCountdown } from '../../../shared/lib/date/useWeddingCountdown'
 import '../../../shared/styles/template-motion.css'
 import './van-hy.css'
@@ -328,6 +329,7 @@ export function VanHyInvitation({
     }
   }
   useSmoothTemplateScroll(opened && contentReady)
+  useGuestInvitationAutoScroll(opened && contentReady && Boolean(interactions))
   const openCard = () => {
     if (!opened && !opening) {
       setOpening(true)
@@ -941,16 +943,43 @@ export function VanHyInvitation({
                     Cảm ơn bạn đã gửi lời chúc.
                   </span>
                 )}
-                {interactions?.wishes.items.length ? (
-                  <div className="hh-wish-list" aria-live="polite">
-                    {interactions.wishes.items.map((item, index) => (
-                      <MotionListItem index={index} key={item.id}>
+                {interactions?.wishes.items.length ? (() => {
+                  const wishes = interactions.wishes.items
+                  const useMarquee = wishes.length >= 5
+                  const duration = Math.max(16.8, wishes.length * 4.9)
+                  const renderWish = (item: (typeof wishes)[number], duplicate = false) =>
+                    duplicate ? (
+                      <article className="hh-wish-card" key={`${item.id}-duplicate`}>
                         <p>{item.content}</p>
                         <small>{item.authorName}</small>
-                      </MotionListItem>
-                    ))}
-                  </div>
-                ) : null}
+                      </article>
+                    ) : (
+                      <article className="hh-wish-card" key={item.id}>
+                        <p>{item.content}</p>
+                        <small>{item.authorName}</small>
+                      </article>
+                    )
+
+                  return (
+                    <div
+                      className={`hh-wish-list${useMarquee ? ' is-marquee' : ''}`}
+                      aria-label="Lời chúc đã nhận"
+                      tabIndex={0}
+                      style={{ '--hh-wish-marquee-duration': `${duration}s` } as CSSProperties}
+                    >
+                      <div className="hh-wish-track">
+                        <div className="hh-wish-group">
+                          {wishes.map((item) => renderWish(item))}
+                        </div>
+                        {useMarquee && (
+                          <div className="hh-wish-group" aria-hidden="true">
+                            {wishes.map((item) => renderWish(item, true))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })() : null}
               </MotionSection>
             )}
             {showSection('gift', sectionConfig) && (

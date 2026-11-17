@@ -14,12 +14,14 @@ const foreverSectionFields: Record<string, Record<string, TemplateFieldConfig>> 
   hero: {
     eyebrow: { type: 'string', contentKey: 'hero.eyebrow', label: 'Dòng giới thiệu', maxLength: 100 },
     headline: { type: 'string', contentKey: 'hero.headline', label: 'Tiêu đề chính', maxLength: 180 },
+    time: { type: 'string', contentKey: 'hero.time', label: 'Giờ hiển thị trên trang mở đầu', maxLength: 80 },
     location: { type: 'string', contentKey: 'hero.location', label: 'Địa điểm', maxLength: 120 },
     image: { type: 'image', contentKey: 'hero.image', label: 'Ảnh mở đầu', mediaRole: 'hero' },
   },
   couple: {
     image: { type: 'image', contentKey: 'couple.image', label: 'Ảnh cặp đôi', mediaRole: 'couple', mediaValue: 'url' },
     bio: { type: 'text', contentKey: 'couple.bio', label: 'Giới thiệu cặp đôi', maxLength: 600 },
+    albumImages: { type: 'images', contentKey: 'couple.albumImages', label: 'Ảnh album câu chuyện của chúng mình', mediaRole: 'couple-album', minItems: 0, maxItems: 25 },
   },
   story: {
     heading: { type: 'text', contentKey: 'storyHeading', label: 'Tiêu đề câu chuyện', maxLength: 120 },
@@ -32,7 +34,7 @@ const foreverSectionFields: Record<string, Record<string, TemplateFieldConfig>> 
         date: { type: 'date', label: 'Mốc thời gian', required: true },
         title: { type: 'string', label: 'Tiêu đề', required: true, maxLength: 100 },
         body: { type: 'text', label: 'Nội dung', maxLength: 600 },
-        image: { type: 'image', label: 'Ảnh cột mốc', mediaRole: 'story', mediaValue: 'url' },
+        images: { type: 'images', label: 'Ảnh cột mốc', mediaRole: 'story', minItems: 0, maxItems: 10 },
       },
     },
   },
@@ -41,13 +43,9 @@ const foreverSectionFields: Record<string, Record<string, TemplateFieldConfig>> 
     introEyebrow: { type: 'string', contentKey: 'events.introEyebrow', label: 'Dòng giới thiệu sự kiện', maxLength: 80 },
     introHeading: { type: 'text', contentKey: 'events.introHeading', label: 'Tiêu đề lời hẹn (dùng | để xuống dòng, {location} lấy từ địa điểm ở phần mở đầu)', maxLength: 180 },
     introMessage: { type: 'text', contentKey: 'events.introMessage', label: 'Lời nhắn dưới tiêu đề', maxLength: 600 },
-    'summary.arrivalLabel': { type: 'string', contentKey: 'events.summary.arrivalLabel', label: 'Nhãn khung giờ đón khách', maxLength: 60 },
     'summary.hours': { type: 'string', contentKey: 'events.summary.hours', label: 'Khung giờ đón khách hiển thị', maxLength: 100 },
-    'summary.venueLabel': { type: 'string', contentKey: 'events.summary.venueLabel', label: 'Nhãn địa điểm', maxLength: 60 },
     'summary.venue': { type: 'string', contentKey: 'events.summary.venue', label: 'Địa điểm hiển thị', maxLength: 120 },
     agendaHeading: { type: 'string', contentKey: 'events.agendaHeading', label: 'Tiêu đề lịch trình', maxLength: 100 },
-    agendaSubheading: { type: 'string', contentKey: 'events.agendaSubheading', label: 'Dòng phụ lịch trình', maxLength: 100 },
-    mapLinkLabel: { type: 'string', contentKey: 'events.mapLinkLabel', label: 'Nhãn liên kết bản đồ', maxLength: 60 },
     items: {
       type: 'items',
       contentKey: 'events.items',
@@ -150,13 +148,13 @@ const foreverSectionFields: Record<string, Record<string, TemplateFieldConfig>> 
   },
   music: {
     backgroundMusicUrl: { type: 'audio', contentKey: 'music.backgroundMusicUrl', audioNameKey: 'music.backgroundMusicName', label: 'Bản nhạc nền' },
-    backgroundMusicAutoplay: { type: 'boolean', contentKey: 'music.backgroundMusicAutoplay', label: 'Tự phát nhạc nền' },
+    backgroundMusicAutoplay: { type: 'boolean', contentKey: 'music.backgroundMusicAutoplay', label: 'Tự phát nhạc nền', default: true },
   },
 }
 
 export const foreverTemplateConfig = {
   templateKey: 'forever', displayName: 'Forever', productType: 'WEDDING_WEBSITE',
-  templateVersion: '1.0.1', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1,
+  templateVersion: '1.0.2', templateConfigVersion: 1, contentSchemaVersion: 1, rendererApiVersion: 1,
   status: 'ready', type: 'website', previewPath: '/templates/websites/forever/preview',
   quickEdit: [
     { contentKey: 'hero.brideName', label: 'Tên cô dâu' },
