@@ -64,6 +64,7 @@ Makefile nằm tại `backend/Makefile` và chỉ gọi npm/Docker command chu�
 | `make db-migrate` | Development migration | Có thể đổi DB/schema artifacts | Local development |
 | `make db-migrate-deploy` | Apply reviewed migration | Đổi DB | Release job |
 | `make db-seed` | Chạy seed local idempotent | Có | Tạo dữ liệu demo local sau migration |
+| `make reset-templates` | Xóa template registry, publication snapshots và recap drafts; gỡ lựa chọn template của invitation/website | Có, xóa dữ liệu recap draft local | Làm sạch catalog template để kiểm tra lifecycle |
 
 ## Reseed fixture test local
 

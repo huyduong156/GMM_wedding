@@ -247,12 +247,6 @@ Baseline authoring artifact hiện hành:
 - [Red Spider Lily Phase 5](./red-spider-lily-phase-5.md)
 
 - [`Red Spider Lily Recap — Phase 1`](./red-spider-lily-phase-1.md): theme brief, product meaning, viewer journey, section/content matrix, fixture plan, editor field plan, acceptance checklist, non-goals và anti-pattern cho `red-spider-lily-recap`.
-- [`The Wedding Roll — Phase 1`](./the-wedding-roll-phase-1.md): product meaning, mobile-first film-journal direction, 12-section content matrix, photo-delivery priority, fixture/editor plan, acceptance checklist, non-goals và anti-pattern cho `the-wedding-roll-recap`.
-- [`The Wedding Roll — Phase 2`](./the-wedding-roll-phase-2.md): per-section media matrix, upload/editability and crop rules, album-source behavior, media-independence audit plan, and config mapping.
-- [`The Wedding Roll — Phase 2.5`](./the-wedding-roll-phase-2.5.md): two approved light SVG photo-frame alternatives with prompt/provenance preview, integrated in Phase 5.
-- [`The Wedding Roll — Phase 3`](./the-wedding-roll-phase-3.md): composition map, mobile/desktop layout rules, renderer/fixture mapping and acceptance tests.
-- [`The Wedding Roll — Phase 4`](./the-wedding-roll-phase-4.md): concept-to-React interaction/motion parity map and the remaining Phase 4 scope.
-- [`The Wedding Roll — Phase 5`](./the-wedding-roll-phase-5.md): approved asset integration, per-content reveals, ambient-motion behavior, review matrix and validation/release status.
 
 ## 9. Authoring checklist
 

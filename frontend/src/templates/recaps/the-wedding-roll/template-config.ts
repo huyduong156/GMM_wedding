@@ -1,4 +1,24 @@
 import { theWeddingRollMediaContract } from './media-contract'
+import { theWeddingRollRecapFixture } from './fixture'
+
+const defaultContent = theWeddingRollRecapFixture
+const defaultChapters = defaultContent.chapters.map(({ id, title, description, gallery }) => ({
+  id,
+  dateLabel: '',
+  title,
+  description,
+  gallery,
+}))
+const defaultMoments = defaultContent.moments.map(({ id, title, description, cover, gallery }) => ({
+  id,
+  title,
+  description,
+  cover,
+  gallery,
+}))
+const defaultPeopleGroups = defaultContent.optional.peopleBehindTheDay.groups.map(
+  ({ id, title, caption, photos }) => ({ id, title, caption, photos }),
+)
 
 const requiredSections = [
   'hero',
@@ -89,14 +109,22 @@ const sectionFields = {
       type: 'text',
       label: 'Tiêu đề chính',
       contentKey: 'hero.title',
-      required: true,
+      default: defaultContent.hero.title,
       maxLength: 140,
     },
     body: {
       type: 'text',
       label: 'Lời giới thiệu',
       contentKey: 'hero.body',
+      default: defaultContent.hero.body,
       maxLength: 280,
+    },
+    cover: {
+      type: 'image',
+      label: 'Ảnh bìa',
+      contentKey: 'hero.cover',
+      mediaRole: 'cover-photo',
+      default: defaultContent.hero.cover,
     },
   },
   ourStory: {
@@ -104,14 +132,14 @@ const sectionFields = {
       type: 'text',
       label: 'Câu dẫn nổi bật',
       contentKey: 'ourStory.quote',
-      required: true,
+      default: defaultContent.ourStory.quote,
       maxLength: 240,
     },
     body: {
       type: 'text',
       label: 'Lời dẫn câu chuyện',
       contentKey: 'ourStory.body',
-      required: true,
+      default: defaultContent.ourStory.body,
       maxLength: 600,
     },
     media: {
@@ -119,27 +147,30 @@ const sectionFields = {
       label: 'Ảnh hỗ trợ',
       contentKey: 'ourStory.media',
       mediaRole: 'story-photo',
+      default: defaultContent.ourStory.media,
     },
   },
   chapters: {
     heading: {
       type: 'string',
       label: 'Tiêu đề section',
-      required: true,
       maxLength: 120,
       contentKey: 'chaptersIntro.title',
+      default: defaultContent.chaptersIntro.title,
     },
     intro: {
       type: 'text',
       label: 'Lời giới thiệu các chương',
       maxLength: 400,
       contentKey: 'chaptersIntro.description',
+      default: defaultContent.chaptersIntro.description,
     },
     items: {
       type: 'items',
       label: 'chương',
       addLabel: 'Thêm chương',
       contentKey: 'chapters',
+      default: defaultChapters,
       minItems: 1,
       maxItems: 12,
       itemFields: {
@@ -149,7 +180,7 @@ const sectionFields = {
           required: true,
           fallbackDateContentKey: 'hero.date',
         },
-        title: { type: 'string', label: 'Tiêu đề', required: true, maxLength: 100 },
+        title: { type: 'string', label: 'Tiêu đề', maxLength: 100 },
         description: { type: 'text', label: 'Mô tả ngắn', maxLength: 280 },
         gallery: {
           type: 'images',
@@ -166,25 +197,27 @@ const sectionFields = {
     heading: {
       type: 'string',
       label: 'Tiêu đề khoảnh khắc',
-      required: true,
       maxLength: 120,
       contentKey: 'momentsIntro.title',
+      default: defaultContent.momentsIntro.title,
     },
     intro: {
       type: 'text',
       label: 'Lời giới thiệu khoảnh khắc',
       maxLength: 400,
       contentKey: 'momentsIntro.description',
+      default: defaultContent.momentsIntro.description,
     },
     items: {
       type: 'items',
       contentKey: 'moments',
+      default: defaultMoments,
       label: 'khoảnh khắc',
       addLabel: 'Thêm khoảnh khắc',
       minItems: 1,
       maxItems: 12,
       itemFields: {
-        title: { type: 'string', label: 'Tên nhóm khoảnh khắc', required: true, maxLength: 100 },
+        title: { type: 'string', label: 'Tên nhóm khoảnh khắc', maxLength: 100 },
         description: { type: 'text', label: 'Mô tả khoảnh khắc', maxLength: 280 },
         cover: { type: 'image', label: 'Ảnh bìa', mediaRole: 'themed-moment-cover' },
         gallery: {
@@ -202,20 +235,21 @@ const sectionFields = {
       type: 'string',
       label: 'Tiêu đề trả ảnh',
       contentKey: 'photoDelivery.title',
-      required: true,
+      default: defaultContent.photoDelivery.title,
       maxLength: 120,
     },
     body: {
       type: 'text',
       label: 'Mô tả album',
       contentKey: 'photoDelivery.body',
-      required: true,
+      default: defaultContent.photoDelivery.body,
       maxLength: 500,
     },
     featuredPhotos: {
       type: 'images',
       label: 'Ảnh nổi bật (tối đa 50)',
       contentKey: 'photoDelivery.featuredPhotos',
+      default: defaultContent.photoDelivery.featuredPhotos,
       maxItems: 50,
       mediaRole: 'featured-photo',
       emptyMessage:
@@ -235,14 +269,14 @@ const sectionFields = {
       type: 'string',
       label: 'Lời cảm ơn',
       contentKey: 'thankYou.title',
-      required: true,
+      default: defaultContent.thankYou.title,
       maxLength: 180,
     },
     body: {
       type: 'text',
       label: 'Nội dung cảm ơn',
       contentKey: 'thankYou.body',
-      required: true,
+      default: defaultContent.thankYou.body,
       maxLength: 500,
     },
   },
@@ -257,22 +291,24 @@ const sectionFields = {
       type: 'string',
       label: 'Tiêu đề section',
       contentKey: 'optional.peopleBehindTheDay.title',
-      required: true,
+      default: defaultContent.optional.peopleBehindTheDay.title,
       maxLength: 120,
     },
     intro: {
       type: 'text',
       label: 'Lời giới thiệu',
       contentKey: 'optional.peopleBehindTheDay.intro',
+      default: defaultContent.optional.peopleBehindTheDay.intro,
       maxLength: 500,
     },
     groups: {
       type: 'items',
       contentKey: 'optional.peopleBehindTheDay.groups',
+      default: defaultPeopleGroups,
       label: 'Nhóm người góp sức',
       maxItems: 10,
       itemFields: {
-        title: { type: 'string', label: 'Tên nhóm', required: true, maxLength: 80 },
+        title: { type: 'string', label: 'Tên nhóm', maxLength: 80 },
         caption: { type: 'text', label: 'Lời nhắn cho nhóm', maxLength: 240 },
         photos: {
           type: 'images',
@@ -290,8 +326,15 @@ const sectionFields = {
       type: 'string',
       label: 'Tiêu đề nhạc',
       contentKey: 'optional.soundtrack.title',
-      required: true,
+      default: defaultContent.optional.soundtrack.title,
       maxLength: 100,
+    },
+    intro: {
+      type: 'text',
+      label: 'Lời giới thiệu',
+      contentKey: 'optional.soundtrack.intro',
+      default: defaultContent.optional.soundtrack.intro,
+      maxLength: 400,
     },
     audioSrc: {
       type: 'audio',
@@ -311,7 +354,7 @@ const sectionFields = {
       type: 'text',
       label: 'Lời nhắn tương lai',
       contentKey: 'optional.memoryCapsule.message',
-      required: true,
+      default: defaultContent.optional.memoryCapsule.message,
       maxLength: 600,
     },
     media: {
@@ -372,7 +415,7 @@ export const theWeddingRollRecapTemplateConfig = {
     identity: [
       'continuous-ivory-paper',
       'rust-film-index',
-      'approved-35mm-film-and-viewfinder-frames',
+      'css-paper-photo-frame',
       'floating-film-sprocket-marks',
       'slow-ivory-light-drift',
       'editorial-serif-and-mono-labels',
@@ -441,12 +484,6 @@ export const theWeddingRollRecapTemplateConfig = {
     })),
   ],
   authoring: {
-    phase: 5,
-    phase1Artifact: 'docs/frontend/wedding-recaps/the-wedding-roll-phase-1.md',
-    phase2Artifact: 'docs/frontend/wedding-recaps/the-wedding-roll-phase-2.md',
-    phase3Artifact: 'docs/frontend/wedding-recaps/the-wedding-roll-phase-3.md',
-    phase4Artifact: 'docs/frontend/wedding-recaps/the-wedding-roll-phase-4.md',
-    phase5Artifact: 'docs/frontend/wedding-recaps/the-wedding-roll-phase-5.md',
     requiredSections,
     optionalSections,
     primaryLanguage: 'vi',

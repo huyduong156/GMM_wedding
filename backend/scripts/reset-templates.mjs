@@ -15,6 +15,11 @@ async function main() {
   const result = await prisma.$transaction(async (tx) => {
     const publishedWeddingSnapshots = await tx.publishedWeddingSnapshot.deleteMany()
     const publishedRecapSnapshots = await tx.publishedRecapSnapshot.deleteMany()
+    // Recap drafts cannot be read or updated without their template version,
+    // and retaining their revision makes the next template selection conflict.
+    const recaps = await tx.weddingContent.deleteMany({
+      where: { surface: 'RECAP' },
+    })
     const contents = await tx.weddingContent.updateMany({
       where: { templateVersionId: { not: null } },
       data: { templateVersionId: null, status: 'DRAFT', publishedAt: null },
@@ -26,6 +31,7 @@ async function main() {
       templates: templates.count,
       versions: versions.count,
       contents: contents.count,
+      recaps: recaps.count,
       publishedWeddingSnapshots: publishedWeddingSnapshots.count,
       publishedRecapSnapshots: publishedRecapSnapshots.count,
     }

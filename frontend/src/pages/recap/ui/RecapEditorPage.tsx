@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   ArrowDown,
   ArrowLeft,
@@ -38,7 +38,11 @@ import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
 import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
-import { resolveRecapTemplateConfig } from '../../../templates/recap-config-resolver'
+import {
+  getRecapSectionOrder,
+  orderMatchesDeclaration,
+  resolveRecapTemplateConfig,
+} from '../../../templates/recap-config-resolver'
 import './recap.css'
 import './recap-accordion.css'
 import './recap-repeatable.css'
@@ -91,10 +95,10 @@ function mediaValueForRole(role: string) {
 }
 
 function buildEditorSections(
-  config: { sections?: readonly unknown[] } | null | undefined,
+  config: Record<string, unknown> | null | undefined,
 ): EditorSection[] {
   const sections = Array.isArray(config?.sections) ? config.sections : []
-  return sections.map((entry) => {
+  const editorSections: EditorSection[] = sections.map((entry) => {
     const section =
       typeof entry === 'string'
         ? { sectionKey: entry }
@@ -178,6 +182,9 @@ function buildEditorSections(
         : undefined,
     }
   })
+  const order = getRecapSectionOrder(config ?? {})
+  const rank = new Map(order.map((key, index) => [key, index]))
+  return editorSections.sort((left, right) => (rank.get(left.key) ?? 0) - (rank.get(right.key) ?? 0))
 }
 
 const normalizeSectionConfig = (
@@ -292,6 +299,44 @@ const seedQuickEditFallbacks = (
     return value ? setPath(current, field.contentKey, value) : current
   }, content)
 }
+const seedTemplateFieldDefaults = (
+  content: Record<string, unknown>,
+  config: Record<string, unknown>,
+) => {
+  const sections = Array.isArray(config.sections) ? config.sections : []
+  return sections.reduce((current, entry) => {
+    if (!entry || typeof entry !== 'object') return current
+    const section = entry as Record<string, unknown>
+    const sectionKey =
+      typeof section.sectionKey === 'string'
+        ? section.sectionKey
+        : typeof section.key === 'string'
+          ? section.key
+          : ''
+    const fields =
+      section.fields && typeof section.fields === 'object'
+        ? (section.fields as Record<string, unknown>)
+        : {}
+    return Object.entries(fields).reduce((next, [key, entryField]) => {
+      if (!entryField || typeof entryField !== 'object') return next
+      const field = entryField as Record<string, unknown>
+      if (field.default === undefined) return next
+      const path =
+        typeof field.contentKey === 'string' && field.contentKey
+          ? field.contentKey
+          : sectionKey
+            ? `${sectionKey}.${key}`
+            : key
+      return getPath(next, path) === undefined
+        ? setPath(next, path, clone(field.default))
+        : next
+    }, current)
+  }, content)
+}
+const seedEditorContent = (
+  content: Record<string, unknown>,
+  config: Record<string, unknown>,
+) => seedQuickEditFallbacks(seedTemplateFieldDefaults(content, config), config)
 type TemplateValidationIssue = {
   sectionKey: string
   path: string
@@ -413,7 +458,10 @@ function ConfigDrivenItemList({
 }) {
   const media = useContext(RecapMediaContext)
   const itemFields = section.itemFields ?? {}
-  const items = (getPath(content, path) as Array<Record<string, unknown>> | undefined) ?? []
+  const items = useMemo(
+    () => (getPath(content, path) as Array<Record<string, unknown>> | undefined) ?? [],
+    [content, path],
+  )
   const itemLabel = section.itemLabel ?? 'mục'
   const [expandedItemId, setExpandedItemId] = useState<string | null | undefined>(undefined)
   useEffect(() => {
@@ -838,15 +886,18 @@ export function RecapEditorPage() {
         setPublished(true)
         setShareUrl(window.location.origin + '/' + encodeURIComponent(recapSlug) + '/recaps')
       }
-      setContent(seedQuickEditFallbacks(result.content, resolvedConfig))
+      setContent(seedEditorContent(result.content, resolvedConfig))
+      const storedOrder = result.sectionConfig?.order
+      const legacyDefaultOrder = orderMatchesDeclaration(storedOrder, resolvedConfig) &&
+        getRecapSectionOrder(resolvedConfig).some((key, index) => key !== storedOrder[index])
       const normalized = normalizeSectionConfig(
-        result.sectionConfig,
+        legacyDefaultOrder ? { ...result.sectionConfig, order: [] } : result.sectionConfig,
         buildEditorSections(resolvedConfig),
       )
       setOrder(normalized.order)
       setEnabled(normalized.enabled)
       setActive(normalized.order[0] ?? 'hero')
-      setSaved(true)
+      setSaved(!legacyDefaultOrder)
     } catch (cause) {
       setApprovedWishes([])
       setError(cause instanceof Error ? cause.message : 'Không thể tải nội dung recap.')
@@ -1020,7 +1071,7 @@ export function RecapEditorPage() {
         ogTitle: recap.ogTitle,
         ogDescription: recap.ogDescription,
         ogImageUrl: recap.ogImageUrl,
-        content: content as unknown as Record<string, unknown>,
+        content: seedEditorContent(content, templateConfig),
         themeConfig: recap.themeConfig,
         sectionConfig: addApiOnlySectionKeys(
           { enabled, order },
@@ -1038,7 +1089,7 @@ export function RecapEditorPage() {
         revision: recap.revision,
       })
       setRecap(result.recap)
-      setContent(seedQuickEditFallbacks(result.recap.content, templateConfig))
+      setContent(seedEditorContent(result.recap.content, templateConfig))
       const dashboard = await weddingApi.dashboard(wedding.id)
       const nextPublished = dashboard.dashboard.publication.recap.published
       setPublished(nextPublished)

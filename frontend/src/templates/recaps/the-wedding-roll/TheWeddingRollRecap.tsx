@@ -775,6 +775,8 @@ export function TheWeddingRollRecap({
                   active
                   editorMode={editorPreview}
                   disabled={editorPreview}
+                  showFloatingControl={!editorPreview}
+                  retryAutoplayOnInteraction={!editorPreview}
                   variant="inline-record"
                   sectionKey={null}
                 />

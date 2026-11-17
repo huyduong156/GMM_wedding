@@ -17213,6 +17213,10 @@ input[type='file'] {
 .editor-audio-library {
   display: grid;
   gap: 10px;
+  padding: 12px;
+  border: 1px solid #e8ddd3;
+  border-radius: 12px;
+  background: #fffdfa;
 }
 .editor-audio-library-heading {
   display: grid;
