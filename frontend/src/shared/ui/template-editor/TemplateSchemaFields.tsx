@@ -37,6 +37,26 @@ const getPath = (data: Record<string, unknown>, path: string) =>
 const fieldValue = (field: TemplateFieldConfig) =>
   field.default ??
   (field.type === 'items' || field.type === 'images' || field.type === 'colors' ? [] : field.type === 'boolean' ? false : '')
+const dateInputValue = (value: unknown) => {
+  const raw = String(value ?? '')
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+  const localized = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/)
+  return localized
+    ? `${localized[3]}-${localized[2].padStart(2, '0')}-${localized[1].padStart(2, '0')}`
+    : ''
+}
+const dateTimeInputValue = (
+  value: unknown,
+  fallbackDateContentKey: string | undefined,
+  data: Record<string, unknown>,
+) => {
+  const raw = String(value ?? '')
+  const dateTime = raw.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/)
+  if (dateTime) return dateTime[1]
+  const time = raw.match(/(\d{1,2}:\d{2})\s*$/)?.[1]
+  const fallbackDate = fallbackDateContentKey ? dateInputValue(getPath(data, fallbackDateContentKey)) : ''
+  return time && fallbackDate ? `${fallbackDate}T${time.padStart(5, '0')}` : ''
+}
 
 export function TemplateSchemaFields({
   fields,
@@ -99,6 +119,26 @@ function TemplateField({
 }) {
   const path = field.contentKey ?? fieldKey
   const value = getPath(data, path)
+  if (field.type === 'info')
+    return <p className="editor-field-help">{field.label}</p>
+  if (field.type === 'collection') {
+    const items = Array.isArray(value) ? value.map((item) => String(item ?? '')) : []
+    return (
+      <fieldset className="editor-fieldset">
+        <legend>{field.label ?? fieldKey}</legend>
+        {items.map((item, index) => (
+          <label className="editor-field" key={`${path}.${index}`}>
+            <span>{field.label ?? fieldKey} {index + 1}</span>
+            <input
+              maxLength={field.maxLength}
+              value={item}
+              onChange={(event) => update(path, items.map((current, itemIndex) => itemIndex === index ? event.target.value : current))}
+            />
+          </label>
+        ))}
+      </fieldset>
+    )
+  }
   if (field.type === 'items')
     return (
       <TemplateItems
@@ -175,6 +215,7 @@ function TemplateField({
         maxItems={field.maxItems}
         minItems={field.minItems}
         canClear={!field.required}
+        error={errors[path]}
         openMediaManager={openMediaManager}
         enabled={mediaEnabled}
         onRemove={(index) =>
@@ -185,7 +226,8 @@ function TemplateField({
         }
       />
     )
-  if (field.type === 'boolean')
+  if (field.type === 'boolean') {
+    const checked = typeof value === 'boolean' ? value : Boolean(field.default)
     return (
       <label className="editor-setting-row">
         <span>
@@ -194,21 +236,24 @@ function TemplateField({
         <button
           type="button"
           role="switch"
-          aria-checked={Boolean(value)}
-          className={'editor-switch ' + (value ? 'is-on' : '')}
-          onClick={() => update(path, !value)}
+          aria-checked={checked}
+          className={'editor-switch ' + (checked ? 'is-on' : '')}
+          onClick={() => update(path, !checked)}
         >
           <span />
         </button>
       </label>
     )
+  }
   if (field.type === 'select')
     return (
       <label className="editor-field">
         <span>{field.label ?? fieldKey}</span>
         <NativeSelectField
           value={String(value ?? fieldValue(field))}
-          onChange={(event) => update(path, event.target.value)}
+          onChange={(event) =>
+            update(path, typeof value === 'number' ? Number(event.target.value) : event.target.value)
+          }
         >
           {(field.options ?? []).map((option) => (
             <option key={option.key} value={option.key}>
@@ -221,7 +266,7 @@ function TemplateField({
   const input =
     field.type === 'date' ? (
       <NativeDateField
-        value={String(value ?? '')}
+        value={dateInputValue(value)}
         onChange={(event) => update(path, event.target.value)}
         aria-label={field.label ?? fieldKey}
       />
@@ -233,13 +278,20 @@ function TemplateField({
       />
     ) : (
       <input
-        type={field.type === 'url' ? 'url' : 'text'}
-        value={String(value ?? '')}
+        type={field.type === 'url' ? 'url' : field.type === 'datetime-local' ? 'datetime-local' : 'text'}
+        value={
+          field.type === 'datetime-local'
+            ? dateTimeInputValue(value, field.fallbackDateContentKey, data)
+            : String(value ?? '')
+        }
         onChange={(event) => update(path, event.target.value)}
       />
     )
   return (
-    <label className={'editor-field ' + (errors[path] ? 'has-error' : '')}>
+    <label
+      className={'editor-field ' + (errors[path] ? 'has-error' : '')}
+      data-editor-field-path={path}
+    >
       <span>{field.label ?? fieldKey}</span>
       {input}
       {errors[path] ? <small className="editor-field-error">{errors[path]}</small> : null}
@@ -479,6 +531,7 @@ function TemplateMediaField({
   maxItems,
   minItems,
   canClear,
+  error,
   openMediaManager,
   enabled,
   onRemove,
@@ -492,6 +545,7 @@ function TemplateMediaField({
   maxItems?: number
   minItems?: number
   canClear?: boolean
+  error?: string
   openMediaManager?: TemplateMediaPicker
   enabled: boolean
   onRemove?: (index: number) => void
@@ -517,7 +571,7 @@ function TemplateMediaField({
       ].filter(Boolean)
   if (!multiple)
     return (
-      <div className="editor-media-field">
+      <div className={`editor-media-field${error ? ' has-error' : ''}`} data-editor-field-path={path}>
         <div className="editor-image-single-controls">
           <button
             type="button"
@@ -534,11 +588,12 @@ function TemplateMediaField({
               Xóa ảnh
             </button>
           ) : null}
+          {error ? <small className="editor-field-error">{error}</small> : null}
         </div>
       </div>
     )
   return (
-    <div className="editor-media-field">
+    <div className={`editor-media-field${error ? ' has-error' : ''}`} data-editor-field-path={path}>
       <button
         type="button"
         className="editor-upload"
@@ -554,6 +609,7 @@ function TemplateMediaField({
           Album cần từ {minItems ?? 0} đến {maxItems ?? 'không giới hạn'} ảnh. Hiện có {urls.length} ảnh.
         </p>
       ) : null}
+      {error ? <small className="editor-field-error">{error}</small> : null}
       {urls.length ? (
         <div className="editor-image-grid">
           {urls.map((url, index) => (

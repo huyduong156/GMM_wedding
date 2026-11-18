@@ -20,6 +20,7 @@ import { publicTemplateRoutes, studioRoutes } from '../../../shared/config/route
 import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { NativeSelectField } from '../../../shared/ui/form-controls/NativeSelectField'
 import { TemplateThumbnail } from '../../../shared/ui/TemplateThumbnail'
+import { getRecapSectionOrder } from '../../../templates/recap-config-resolver'
 import './recap.css'
 
 type RecapTheme = {
@@ -46,11 +47,6 @@ const localMeta: Record<string, { name: string; style: string; palette: string }
     style: 'Botanical editorial',
     palette: 'Vermilion paper · Ink ivory',
   },
-}
-
-function sectionKey(section: TemplateSectionConfig) {
-  if (typeof section === 'string') return section
-  return section.sectionKey
 }
 
 function toTheme(template: WeddingTemplate): RecapTheme | null {
@@ -80,7 +76,7 @@ function toTheme(template: WeddingTemplate): RecapTheme | null {
 }
 
 function defaultSectionConfig(theme: RecapTheme) {
-  const order = theme.sections.map(sectionKey).filter(Boolean)
+  const order = getRecapSectionOrder(theme.config)
   return { enabled: order, order }
 }
 
@@ -190,31 +186,37 @@ export function RecapThemesPage() {
     if (!wedding) return
     setSaving(theme.versionId)
     try {
+      let currentRecap: RecapDraft | null = null
+      try {
+        currentRecap = (await weddingApi.recap(wedding.id)).recap
+      } catch (cause) {
+        if (!(cause instanceof WeddingApiError && cause.status === 404)) throw cause
+      }
       const saved = await weddingApi.saveRecap(wedding.id, {
         templateVersionId: theme.versionId,
-        title: recap?.title ?? `Wedding Recap của ${wedding.name}`,
-        thankYouMessage: recap?.thankYouMessage ?? null,
-        ogTitle: recap?.ogTitle ?? null,
-        ogDescription: recap?.ogDescription ?? null,
-        ogImageUrl: recap?.ogImageUrl ?? null,
-        content: recap?.content ?? {},
-        themeConfig: recap?.themeConfig ?? {},
+        title: currentRecap?.title ?? `Wedding Recap của ${wedding.name}`,
+        thankYouMessage: currentRecap?.thankYouMessage ?? null,
+        ogTitle: currentRecap?.ogTitle ?? null,
+        ogDescription: currentRecap?.ogDescription ?? null,
+        ogImageUrl: currentRecap?.ogImageUrl ?? null,
+        content: currentRecap?.content ?? {},
+        themeConfig: currentRecap?.themeConfig ?? {},
         sectionConfig:
-          recap?.templateVersion.key === theme.key
-            ? recap.sectionConfig
+          currentRecap?.templateVersion.key === theme.key
+            ? currentRecap.sectionConfig
             : defaultSectionConfig(theme),
         mediaItems:
-          recap?.mediaItems.map((item) => ({
+          currentRecap?.mediaItems.map((item) => ({
             mediaAssetId: item.mediaAssetId,
             caption: item.caption,
             sortOrder: item.sortOrder,
           })) ?? [],
         wishSelections:
-          recap?.wishSelections.map((item) => ({
+          currentRecap?.wishSelections.map((item) => ({
             wishId: item.wishId,
             sortOrder: item.sortOrder,
           })) ?? [],
-        revision: recap?.revision ?? 1,
+        revision: currentRecap?.revision ?? 1,
       })
       setRecap(saved.recap)
       await toast(`Đã chọn giao diện ${theme.name}.`)

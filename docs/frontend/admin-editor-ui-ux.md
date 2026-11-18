@@ -189,6 +189,7 @@ Owner URL không chứa wedding ID vì wedding hiện hành được chọn tron
 
 - Chỉ một primary CTA/screen. Destructive action tách khỏi normal action.
 - Validate form on blur; lỗi gần field, error summary/focus first invalid khi có nhiều lỗi.
+- Khi validation phát hiện lỗi trong section/card đang thu gọn, tự mở section và item chứa lỗi đầu tiên, cuộn tới field và tô viền đỏ; chỉ đánh dấu lỗi đầu tiên để user xử lý tuần tự.
 - Button async disabled + progress; thao tác thành công có feedback 3-5 giây, toast dùng `aria-live="polite"`.
 - Delete/irreversible có confirm; bulk/delete có undo nếu backend còn giữ soft-delete.
 - Mọi notice và xác nhận thao tác trong frontend, gồm xóa, thành công, lỗi và thông tin, phải dùng SweetAlert2 (`Swal.fire`); không dùng `window.alert`, `window.confirm` hoặc dialog mặc định của trình duyệt.

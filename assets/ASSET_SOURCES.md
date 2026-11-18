@@ -25,6 +25,15 @@
 - Treatment: locally hosted assets, decorative empty alt text, self-contained composition without required edge/corner cropping and reduced-motion static fallback.
 - Demo media in `frontend/public/assets/images/templates/red-spider-lily/demo/*.jpg`: local preview-only user-media stand-ins from Unsplash, recorded in `docs/frontend/wedding-recaps/red-spider-lily-phase-4.md`; all remain replaceable by owner media and are not theme identity.
 
+## The Wedding Roll Recap template
+
+- `frontend/public/assets/images/templates/the-wedding-roll/drafts/the-wedding-roll-film-frame.png` and `the-wedding-roll-camera-viewfinder-frame.png`: original dark transparent photo-frame drafts generated for GMM Wedding with the built-in OpenAI image generation tool on 2026-11-04.
+- `frontend/public/assets/images/templates/the-wedding-roll/film-frame.svg` and `camera-viewfinder-frame.svg`: project-authored lighter alternatives, drawn in pale ivory, champagne and soft rust to match the template canvas. Their photo apertures are transparent by construction. Lighter raster experiments and original dark PNG drafts are retained under the template folder's `drafts/` subfolder for provenance only.
+- `frontend/public/assets/images/templates/the-wedding-roll/film-sprocket-mark.svg`: original project-authored vector ornament created in Phase 5 from the template's film-roll visual metaphor; no external source or image-generation model used.
+- Prompt direction for the original PNG drafts: portrait 4:5 film-negative/perforation frame and a visually distinct vintage camera viewfinder frame, in espresso ink, warm ivory and restrained rust/brass. Both were intended to have blank transparent apertures for user-uploaded photos.
+- Usage: optional renderer-owned frames for selected replaceable hero/chapter/moment or behind-the-scenes photos; do not stack both frames on the same photo and do not treat either frame as user media.
+- Treatment: generated 1122 × 1402 PNG drafts live under `drafts/`; approved 400 × 500 SVG alternatives have transparent outer padding and center. The two approved frame SVGs are integrated as CSS overlays; drafts remain archival only. No people, sample photo, text, numbers, logo or watermark.
+
 ## Winter Wedding Recap template
 
 - `frontend/public/assets/images/templates/winter-wedding-recap/winter-opening.png`, `ring-ceremony.png`, `champagne-finale.png`: generated specifically for GMM Wedding with the built-in OpenAI image generation tool on 2026-08-14.

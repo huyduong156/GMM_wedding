@@ -44,9 +44,9 @@ Layout có thể là multi-column cards, asymmetric grid, editorial feature card
 
 ### `photoDelivery` — Photo Delivery / Trả ảnh
 
-Đây là điểm khác biệt chức năng của recap: mời khách quay lại tìm và xem ảnh của họ. Section có thể hiển thị lời dẫn ngắn, CTA xem/tải ảnh, danh sách album/category và gallery nội bộ hoặc link album bên ngoài.
+Đây là điểm khác biệt chức năng của recap: mời khách quay lại tìm và xem ảnh của họ. Section có thể hiển thị lời dẫn ngắn, bộ ảnh nổi bật do owner chọn, và/hoặc link tới album đầy đủ bên ngoài. Đây là hai nguồn độc lập, có thể hiện đồng thời hai CTA tương ứng.
 
-Nguồn album cần hỗ trợ hai mode trong content contract:
+Nguồn album đầy đủ có thể là một trong hai mode trong content contract:
 
 ```text
 INTERNAL_ALBUM
@@ -69,14 +69,12 @@ Section cần tạo cảm giác lắng lại như trang cuối của album. Layo
 
 Mọi recap theme phải có layout hợp lệ cho các section sau, dù mặc định có thể tắt:
 
-| Key | Nội dung chính | Ghi chú |
-|---|---|---|
-| `guestbook` | Lời chúc đã duyệt được owner chọn | Không hiển thị tự động lời chúc chưa moderation |
-| `peopleBehindTheDay` | Gia đình, bạn bè, phù dâu/phù rể hoặc nhóm người quan trọng | Tập trung vào con người |
-| `weddingFilm` | Video highlight hoặc external video link | Có poster, lazy-load và fallback tĩnh |
-| `soundtrack` | Audio nội bộ hoặc external music link | Không autoplay; có thể triển khai như capability/global player |
-| `behindTheScenes` | Chuẩn bị, setup, makeup và khoảnh khắc hậu trường | Khác `peopleBehindTheDay`: tập trung vào quá trình |
-| `memoryCapsule` | Lời nhắn cho tương lai hoặc “chapter tiếp theo” | Nên ngắn, thường đặt gần phần kết |
+| Key                  | Nội dung chính                                              | Ghi chú                                                        |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| `guestbook`          | Lời chúc đã duyệt được owner chọn                           | Không hiển thị tự động lời chúc chưa moderation                |
+| `peopleBehindTheDay` | Ảnh và lời tự bạch dành cho gia đình, hậu trường, bạn bè và ekip | Tối đa 10 nhóm; mỗi nhóm cần từ 1 đến 10 ảnh, trình bày bằng carousel |
+| `soundtrack`         | Audio nội bộ hoặc external music link                       | Owner có thể bật/tắt autoplay; template thử phát khi trang mở, tùy chính sách trình duyệt |
+| `memoryCapsule`      | Lời nhắn cho tương lai hoặc “chapter tiếp theo”             | Nên ngắn, thường đặt gần phần kết                              |
 
 Optional section phải có trạng thái bật/tắt, empty state, mobile fallback và reduced-motion fallback. Không ép owner nhập dữ liệu chỉ để template giữ bố cục.
 
@@ -152,11 +150,39 @@ Mỗi recap template phải có file `template-config.ts` nằm cùng thư mục
 
 Editor không được hard-code danh sách section hoặc field riêng cho từng page nếu thông tin đó đã thuộc template config. Các behavior UI dùng chung như accordion, reorder, save state và validation có thể nằm trong editor framework; còn section nào tồn tại, field nào được nhập và layout nào được chọn phải đến từ `template-config.ts`.
 
+Editor dùng schema section/field trong `template-config.ts` của template đã chọn; resolver chung tìm config theo `templateKey`, không chứa nhánh riêng cho từng template. API cung cấp config/version đang được áp dụng; config đi kèm frontend cung cấp khai báo form khi release bundle cũ chỉ có section key. Các field khai báo trong config quyết định input nào xuất hiện, còn `contentKey` quyết định nơi đọc/ghi dữ liệu. Chỉ khai báo nội dung owner thực sự cần chỉnh; nhãn trang trí, CTA và chi tiết art direction nên thuộc renderer để editor gọn, dễ hiểu.
+
+Quick edit dùng cho dữ liệu nhận diện chung như tên cô dâu, tên chú rể và ngày cưới. Những giá trị này đặt ngoài section copy, để các vị trí trong recap cùng đọc một nguồn; section bìa chỉ giữ headline và lời giới thiệu chính.
+
+Huy hiệu monogram ở phần kết tự lấy chữ cái đầu của từ cuối trong mỗi tên cô dâu/chú rể; không lưu initials tĩnh trong nội dung template.
+
+Các collection lặp như chương, khoảnh khắc và nhóm ảnh hiển thị từng item dưới dạng accordion. Mỗi item giữ nguyên field, media picker và thao tác xóa; thêm item mới sẽ mở card vừa tạo, còn các card khác thu gọn để danh sách dễ quản lý.
+
+Recap editor dùng logical viewport 1024×683 cho desktop và 450×800 cho mobile để nội dung preview dễ đọc hơn. Các kích thước này chỉ đổi viewport bên trong iframe; modal và khung hiển thị vẫn được fit trong màn hình.
+
+Trong Wedding Roll, ảnh nổi bật có CTA chính “Xem & tải ảnh” kèm số lượng ảnh; album ngoài là hành động phụ khi cả hai nguồn cùng có. Nút album ngoài trở thành CTA chính nếu không có ảnh nổi bật.
+
+Section “Behind the Scenes” cho phép sửa lời giới thiệu chung và lời nhắn riêng của từng nhóm. Ảnh hậu trường có thể được thêm như một nhóm bình thường tại đây; không có section hoặc toggle hậu trường riêng.
+
+Lời chúc Wedding Roll lấy danh sách đã duyệt từ API, tự đưa toàn bộ lời chúc vào recap khi lưu và chỉ hiện trạng thái cùng nút mở trang quản lý trong editor. Nhạc nền dùng chung kho nhạc và selector của invitation; công tắc autoplay mặc định bật, public page thử phát khi tải trang theo chính sách trình duyệt. Iframe editor tắt player để không phát trùng khi nghe thử bài hát trong selector.
+
+Thông báo lời chúc đã duyệt nằm trong card có icon trạng thái, số lượng, mô tả và nút quản lý riêng.
+
+Trong section Giai điệu, nút đĩa vinyl phát/tạm dừng track đã chọn; nút nằm bên phải phần copy trên desktop và xếp dưới copy trên mobile. Live editor preview vô hiệu hóa player để không phát chồng với chức năng nghe thử track trong editor. Danh sách track dùng chung giới hạn chiều cao 220px và cuộn bên trong.
+
+Footer lời cảm ơn của Wedding Roll giữ tên/ngày cưới gọn ở mobile, dùng nhãn ngày kỷ niệm làm điểm nhấn và hiển thị footer note theo kiểu câu thay vì ép viết hoa toàn bộ.
+
+Tiêu đề và copy trong card “Những khoảnh khắc” có khoảng đệm chữ riêng để dấu tiếng Việt không chạm mép hoặc bị cắt.
+
+Khi lưu recap, editor mở section và card repeatable đầu tiên có lỗi, cuộn tới field đó và đánh dấu field; chỉ hiện lỗi đầu tiên để user xử lý tuần tự.
+
+Chapter date/time fields use the browser's native `datetime-local` input; renderers format the stored value for their compact timeline layout.
+
 Ví dụ rút gọn:
 
 ```ts
 export const recapTemplateConfig = {
-  productType: 'WEDDING_RECAP',
+  productType: "WEDDING_RECAP",
   capabilities: {
     seo: true,
     share: true,
@@ -165,30 +191,30 @@ export const recapTemplateConfig = {
   },
   sections: [
     {
-      sectionKey: 'hero',
+      sectionKey: "hero",
       required: true,
       canToggle: false,
       canReorder: false,
-      layouts: ['cinematic-cover', 'editorial-split'],
+      layouts: ["cinematic-cover", "editorial-split"],
     },
     {
-      sectionKey: 'moments',
+      sectionKey: "moments",
       required: true,
       canToggle: false,
       canReorder: true,
       repeatable: true,
-      layouts: ['editorial-grid', 'asymmetric-cards', 'horizontal-slider'],
-      itemFields: ['title', 'description', 'coverMedia', 'albumSource'],
+      layouts: ["editorial-grid", "asymmetric-cards", "horizontal-slider"],
+      itemFields: ["title", "description", "coverMedia", "albumSource"],
     },
     {
-      sectionKey: 'guestbook',
+      sectionKey: "guestbook",
       required: false,
       canToggle: true,
       canReorder: true,
-      layouts: ['quote-wall', 'polaroid-notes'],
+      layouts: ["quote-wall", "polaroid-notes"],
     },
   ],
-} as const
+} as const;
 ```
 
 Tên field/schema thực tế phải tuân theo shared `TemplateConfig` contract và content schema version của repository; ví dụ trên chỉ minh họa quan hệ giữa config, editor và renderer.

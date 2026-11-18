@@ -38,16 +38,20 @@ export type TemplateFieldConfig = {
     | 'string'
     | 'text'
     | 'date'
+    | 'datetime-local'
     | 'time'
     | 'url'
     | 'boolean'
     | 'select'
     | 'items'
+    | 'collection'
     | 'image'
     | 'images'
     | 'colors'
     | 'audio'
+    | 'info'
   label?: string
+  addLabel?: string
   required?: boolean
   maxLength?: number
   maxItems?: number
@@ -58,6 +62,7 @@ export type TemplateFieldConfig = {
   options?: readonly { key: string; label: string }[]
   itemFields?: Record<string, TemplateFieldConfig>
   contentKey?: string
+  fallbackDateContentKey?: string
   mediaRole?: string
   mediaValue?: 'url' | 'object'
   audioNameKey?: string
@@ -774,9 +779,7 @@ export const guestApi = {
       total: number
       totalPartySize: number
       categorizedTotal: number
-    }>(
-      `/weddings/${weddingId}/guests?${query}`,
-    )
+    }>(`/weddings/${weddingId}/guests?${query}`)
   },
   picker: (weddingId: string, query?: string, signal?: AbortSignal) =>
     request<{ items: GuestPickerItem[] }>(

@@ -1,0 +1,1909 @@
+@font-face {
+  font-family: 'The Wedding Roll Sans';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'The Wedding Roll Sans';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-Medium.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'The Wedding Roll Sans';
+  src: url('/assets/fonts/be-vietnam-pro/BeVietnamPro-SemiBold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'The Wedding Roll Serif';
+  src: url('/assets/fonts/playfair-display/PlayfairDisplay-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+.the-wedding-roll {
+  --paper: #f1e9dc;
+  --ink: #28251f;
+  --muted: #716b60;
+  --rust: #bd5735;
+  --line: rgba(54, 46, 36, 0.18);
+  --serif: 'The Wedding Roll Serif', Georgia, serif;
+  --sans: 'The Wedding Roll Sans', sans-serif;
+  --mono: 'Courier New', monospace;
+  --page: 1200px;
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(255, 255, 255, 0.5), transparent 35%),
+    radial-gradient(ellipse at 85% 60%, rgba(186, 142, 91, 0.08), transparent 42%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) * {
+  box-sizing: border-box;
+}
+:root:has(.the-wedding-roll) {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+.the-wedding-roll::before {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  inset: -18vh -12vw;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 16% 28%, rgba(255, 255, 255, 0.28), transparent 32%),
+    radial-gradient(ellipse at 83% 67%, rgba(189, 87, 53, 0.045), transparent 33%);
+  transform: translate3d(0, 0, 0);
+  animation: roll-light-drift 28s ease-in-out infinite alternate;
+}
+.the-wedding-roll[data-motion-paused='true']::before {
+  animation-play-state: paused;
+}
+.the-wedding-roll > header,
+.the-wedding-roll > main {
+  position: relative;
+  z-index: 1;
+}
+.the-wedding-roll .ambient-artwork {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.the-wedding-roll .ambient-mark {
+  position: absolute;
+  width: clamp(38px, 5vw, 66px);
+  height: auto;
+  opacity: 0.2;
+  object-fit: contain;
+  animation: roll-mark-float 13s ease-in-out infinite alternate;
+}
+.the-wedding-roll .ambient-mark--one {
+  top: 18vh;
+  left: max(12px, calc((100vw - var(--page)) / 2 - 86px));
+}
+.the-wedding-roll .ambient-mark--two {
+  top: 54vh;
+  right: max(10px, calc((100vw - var(--page)) / 2 - 90px));
+  width: clamp(30px, 3.8vw, 48px);
+  animation-delay: -4s;
+}
+.the-wedding-roll .ambient-mark--three {
+  bottom: 14vh;
+  left: max(18px, calc((100vw - var(--page)) / 2 - 76px));
+  width: clamp(26px, 3vw, 40px);
+  animation-delay: -8s;
+}
+.the-wedding-roll[data-motion-paused='true'] .ambient-mark {
+  animation-play-state: paused;
+}
+.the-wedding-roll[data-motion-paused='true'] .wish-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes roll-light-drift {
+  from {
+    transform: translate3d(-1.2%, -0.5%, 0);
+  }
+  to {
+    transform: translate3d(1.2%, 0.8%, 0);
+  }
+}
+@keyframes roll-mark-float {
+  from {
+    transform: translate3d(0, -5px, 0) rotate(-6deg);
+  }
+  to {
+    transform: translate3d(4px, 7px, 0) rotate(7deg);
+  }
+}
+:where(.the-wedding-roll) a {
+  color: inherit;
+  text-decoration: none;
+}
+:where(.the-wedding-roll) img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:where(.the-wedding-roll) .wrap {
+  width: min(var(--page), calc(100% - 84px));
+  margin: auto;
+}
+:where(.the-wedding-roll) .mono {
+  font: 10px var(--mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:where(.the-wedding-roll) .topbar {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .brand {
+  font: 11px var(--mono);
+  letter-spacing: 0.12em;
+}
+:where(.the-wedding-roll) .brand b {
+  color: var(--rust);
+  font-weight: 500;
+}
+:where(.the-wedding-roll) .top-cta {
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--rust);
+  padding-bottom: 6px;
+}
+:where(.the-wedding-roll) .hero {
+  min-height: 760px;
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  align-items: center;
+  gap: 55px;
+  padding: 75px 0 95px;
+  position: relative;
+}
+:where(.the-wedding-roll) .issue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+:where(.the-wedding-roll) .issue:before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--rust);
+}
+:where(.the-wedding-roll) h1 {
+  font: 500 clamp(64px, 8vw, 112px)/0.94 var(--serif);
+  letter-spacing: -0.065em;
+  margin: 0 0 25px;
+}
+:where(.the-wedding-roll) h1 em {
+  font-weight: 500;
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .hero-copy > p {
+  max-width: 350px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #625d53;
+  margin: 0 0 28px;
+}
+:where(.the-wedding-roll) .actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+:where(.the-wedding-roll) .button {
+  display: inline-flex;
+  gap: 22px;
+  align-items: center;
+  background: var(--ink);
+  color: #f8f1e7;
+  padding: 15px 18px;
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: 0.25s;
+  border: 0;
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .button:hover {
+  background: var(--rust);
+  transform: translateY(-2px);
+}
+:where(.the-wedding-roll) a:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 5px;
+}
+:where(.the-wedding-roll) button:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+:where(.the-wedding-roll) .button:active,
+:where(.the-wedding-roll) .mobile-album-cta:active {
+  transform: translateY(-1px) scale(0.985);
+}
+:where(.the-wedding-roll) .underlink {
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+:where(.the-wedding-roll) .hero-art {
+  height: 570px;
+  position: relative;
+  background: #faf5ec;
+  padding: 19px;
+  box-shadow: 0 22px 48px #4839251c;
+  transform: rotate(1.3deg);
+}
+:where(.the-wedding-roll) .hero-photo {
+  position: absolute;
+  inset: 19px;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .hero-photo img {
+  filter: saturate(0.72);
+}
+:where(.the-wedding-roll) .frame-note {
+  position: absolute;
+  left: 22px;
+  bottom: 19px;
+  color: white;
+  text-shadow: 0 1px 8px #333;
+  font: 9px var(--mono);
+  letter-spacing: 0.12em;
+}
+:where(.the-wedding-roll) .frame-id {
+  position: absolute;
+  right: 8px;
+  top: auto;
+  bottom: 18px;
+  writing-mode: vertical-rl;
+  font: 8px var(--mono);
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+:where(.the-wedding-roll) .stamp {
+  position: absolute;
+  right: -27px;
+  top: 58px;
+  width: 104px;
+  height: 104px;
+  border: 1px solid var(--rust);
+  outline: 1px solid #bd573566;
+  outline-offset: 5px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px;
+  background: rgba(241, 233, 220, 0.96);
+  color: var(--rust);
+  font: 8px/1.2 var(--mono);
+  letter-spacing: 0.09em;
+  text-align: center;
+  transform: rotate(9deg);
+  isolation: isolate;
+  overflow: visible;
+  box-shadow: 0 4px 12px #48392512;
+}
+:where(.the-wedding-roll) .stamp b {
+  font: 32px/0.95 var(--serif);
+  font-weight: 500;
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .stamp-label {
+  font: 7px/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+:where(.the-wedding-roll) .hero-caption {
+  position: absolute;
+  left: 19px;
+  right: 19px;
+  bottom: 61px;
+  color: white;
+  text-shadow: 0 1px 8px #222;
+}
+:where(.the-wedding-roll) .hero-caption strong,
+:where(.the-wedding-roll) .hero-caption span {
+  display: block;
+}
+:where(.the-wedding-roll) .hero-caption strong {
+  font: 600 clamp(42px, 6.8vw, 67px) / 0.9 var(--serif);
+  letter-spacing: -0.035em;
+}
+:where(.the-wedding-roll) .hero-caption strong > span {
+  display: block;
+  font: inherit;
+  letter-spacing: inherit;
+}
+:where(.the-wedding-roll) .hero-caption .hero-caption-amp {
+  margin: 2px 0;
+  font-size: 0.62em;
+  line-height: 0.8;
+}
+:where(.the-wedding-roll) .hero-caption span {
+  margin-top: 7px;
+  font: 500 clamp(12px, 1.6vw, 15px) / 1.2 var(--mono);
+  letter-spacing: 0.1em;
+}
+:where(.the-wedding-roll) .ticker {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  border-block: 1px solid var(--line);
+  font: 9px var(--mono);
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--rust);
+  white-space: nowrap;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .ticker-track {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: max-content;
+  animation: ticker-marquee 34s linear infinite;
+}
+:where(.the-wedding-roll) .ticker-group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 30px;
+  padding-right: 30px;
+}
+:where(.the-wedding-roll) .ticker-group > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 30px;
+}
+@keyframes ticker-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+:where(.the-wedding-roll) .ticker-group > span i {
+  font-style: normal;
+  color: var(--ink);
+}
+:where(.the-wedding-roll) section {
+  position: relative;
+}
+:where(.the-wedding-roll) .story {
+  padding: 130px 0 145px;
+}
+:where(.the-wedding-roll) .story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 90px;
+  align-items: center;
+}
+:where(.the-wedding-roll) .story-quote {
+  font: italic clamp(30px, 4vw, 48px)/1.25 var(--serif);
+  max-width: 480px;
+  margin: 16px 0 26px;
+}
+:where(.the-wedding-roll) .story-copy {
+  font-size: 11px;
+  line-height: 2;
+  color: #686256;
+  max-width: 425px;
+}
+:where(.the-wedding-roll) .story-image {
+  width: 82%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  margin-left: auto;
+  position: relative;
+  isolation: isolate;
+}
+:where(.the-wedding-roll) .story-image:before {
+  content: '';
+  position: absolute;
+  inset: 16px -16px -16px 16px;
+  border: 1px solid var(--rust);
+  opacity: 0.55;
+}
+:where(.the-wedding-roll) .story-image img {
+  position: relative;
+  z-index: 1;
+  object-position: center 18%;
+  border-radius: 18px;
+  filter: saturate(0.7);
+}
+:where(.the-wedding-roll) .image-label {
+  position: absolute;
+  z-index: 2;
+  left: -45px;
+  bottom: 25px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font: 8px var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+:where(.the-wedding-roll) .chapters {
+  padding: 100px 0 125px;
+  border-top: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 42px;
+}
+:where(.the-wedding-roll) .section-head h2 {
+  font: 500 clamp(40px, 5vw, 64px)/1.04 var(--serif);
+  letter-spacing: -0.04em;
+  margin: 12px 0 0;
+}
+:where(.the-wedding-roll) .moments .section-head h2.fx-spotlight {
+  --spotlight-dim: color-mix(in srgb, var(--ink) 66%, transparent);
+  color: transparent;
+  background: radial-gradient(
+      3.5ch 100% at 50% 50%,
+      var(--ink) 22%,
+      color-mix(in srgb, var(--rust) 48%, var(--ink)) 44%,
+      var(--spotlight-dim) 75%
+    )
+    100% 0 / 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: moments-spotlight 3.4s ease-in-out infinite alternate;
+}
+:where(.the-wedding-roll) .moments .section-head h2 {
+  padding: 0.08em 0.06em 0.12em;
+  line-height: 1.12;
+}
+:where(.the-wedding-roll) .section-head > p {
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0;
+}
+:where(.the-wedding-roll) .chapter-list {
+  border-top: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .chapter {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr) 400px;
+  gap: 22px;
+  align-items: center;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .chapter-num {
+  display: block;
+  white-space: pre-line;
+  font: 13px var(--mono);
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .chapter-copy {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+:where(.the-wedding-roll) .chapter h3 {
+  font: 500 32.5px var(--serif);
+  margin: 0;
+}
+:where(.the-wedding-roll) .chapter p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0;
+}
+:where(.the-wedding-roll) .chapter-thumb {
+  position: relative;
+  isolation: isolate;
+  height: 224px;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .chapter-gallery-trigger {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  border: 0;
+  background: rgba(40, 37, 31, 0.86);
+  color: #fffaf1;
+  font: 8px var(--mono);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .chapter-gallery-trigger-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+:where(.the-wedding-roll) .chapter-gallery-hand {
+  flex: 0 0 auto;
+  transform-origin: 48% 78%;
+  animation: chapter-gallery-tap 1.7s ease-in-out infinite;
+}
+@keyframes chapter-gallery-tap {
+  0%,
+  64%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  72% {
+    transform: translateY(2px) scale(0.9);
+  }
+  80% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes moments-spotlight {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+:where(.the-wedding-roll) .chapter-gallery-trigger:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+:where(.the-wedding-roll) .chapter-gallery-trigger:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+:where(.the-wedding-roll) .chapter-lightbox button:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(24, 22, 19, 0.88);
+  backdrop-filter: blur(8px);
+}
+:where(.the-wedding-roll) .chapter-lightbox {
+  width: min(980px, 100%);
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 24px 80px #0008;
+}
+:where(.the-wedding-roll) .chapter-lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-eyebrow {
+  color: var(--rust);
+  font: 9px var(--mono);
+  letter-spacing: 0.1em;
+}
+:where(.the-wedding-roll) .chapter-lightbox-header h2 {
+  margin: 4px 0 0;
+  font: 500 clamp(22px, 4vw, 34px)/1.1 var(--serif);
+}
+:where(.the-wedding-roll) .chapter-lightbox-close {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  background: #fffaf1;
+  color: var(--ink);
+  font: 25px/1 var(--sans);
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .chapter-lightbox-step {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  background: #fffaf1;
+  color: var(--ink);
+  font: 25px/1 var(--sans);
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .chapter-lightbox-viewer {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-image {
+  width: auto;
+  max-width: calc(100% - 116px);
+  height: min(62dvh, 680px);
+  object-fit: contain;
+  border-radius: 2px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+:where(.the-wedding-roll) .chapter-lightbox-footer > span {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font: 9px var(--mono);
+}
+:where(.the-wedding-roll) .chapter-lightbox-thumbnails {
+  min-width: 0;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 3px;
+}
+:where(.the-wedding-roll) .chapter-lightbox-thumbnails button {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+  padding: 2px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .chapter-lightbox-thumbnails button.is-active {
+  border-color: var(--rust);
+}
+:where(.the-wedding-roll) .chapter-lightbox-thumbnails img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:where(.the-wedding-roll) .chapter-thumb img,
+:where(.the-wedding-roll) .moment-photo img {
+  filter: saturate(0.68);
+}
+:where(.the-wedding-roll) .moments {
+  padding: 95px 0 130px;
+}
+:where(.the-wedding-roll) .moment-carousel {
+  position: relative;
+  min-height: 535px;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+  touch-action: pan-y;
+}
+:where(.the-wedding-roll) .moment-card-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+:where(.the-wedding-roll) .moment-card-reveal.is-active {
+  z-index: 99;
+}
+:where(.the-wedding-roll) .moment-card-shell {
+  width: min(360px, 62%);
+  height: fit-content;
+  opacity: var(--moment-opacity);
+  pointer-events: var(--moment-pointer-events);
+  transition: opacity 220ms ease;
+  transform-style: preserve-3d;
+}
+:where(.the-wedding-roll) .moment-card {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #eee8dd;
+  box-shadow: 0 18px 40px rgba(40, 37, 31, 0.16);
+  transform: var(--moment-transform);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.the-wedding-roll) .moment-photo {
+  position: relative;
+  isolation: isolate;
+  height: 370px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .moment-photo img {
+  transition: transform 0.7s;
+}
+:where(.the-wedding-roll) .moment-card:hover img {
+  transform: scale(1.04);
+}
+:where(.the-wedding-roll) .moment-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0 2px;
+}
+:where(.the-wedding-roll) .moment-meta h3 {
+  min-width: 0;
+  padding: 3px 2px 5px;
+  font: 500 22px/1.2 var(--serif);
+  margin: 0;
+}
+:where(.the-wedding-roll) .moment-meta span {
+  flex: 0 0 auto;
+  padding: 3px 2px;
+  font: 8px var(--mono);
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .moment-card > p {
+  margin: 7px 2px 2px;
+  padding: 1px 2px 4px;
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+:where(.the-wedding-roll) .chapter-gallery-open {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  color: var(--paper);
+  background: var(--ink);
+  font: 9px var(--mono);
+  letter-spacing: 0.07em;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+:where(.the-wedding-roll) .chapter-gallery-open > span:first-child {
+  margin-right: auto;
+}
+:where(.the-wedding-roll) .chapter-gallery-open-count {
+  color: #ead5b8;
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+:where(.the-wedding-roll) .chapter-gallery-open:hover {
+  border-color: var(--rust);
+  color: #fffaf1;
+  background: var(--rust);
+}
+:where(.the-wedding-roll) .chapter-gallery-open:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+:where(.the-wedding-roll) .chapter-gallery-open:active {
+  transform: translateY(1px);
+}
+:where(.the-wedding-roll) .moment-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 8px 0 16px;
+  color: var(--muted);
+  font: 9px var(--mono);
+}
+:where(.the-wedding-roll) .moment-carousel-controls button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font: 28px/1 var(--serif);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+:where(.the-wedding-roll) .moment-carousel-controls button:hover {
+  border-color: var(--rust);
+  background: var(--rust);
+  color: #fffaf1;
+}
+:where(.the-wedding-roll) .moment-carousel-controls button:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 3px;
+}
+:where(.the-wedding-roll) .delivery {
+  padding: 110px 0 130px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .delivery-panel {
+  background: #33352f;
+  color: #f4ecdf;
+  padding: 68px 8%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+}
+:where(.the-wedding-roll) .delivery-actions {
+  display: grid;
+  width: min(340px, 100%);
+  min-width: min(280px, 100%);
+  gap: 10px;
+}
+:where(.the-wedding-roll) .delivery-panel:after {
+  content: attr(data-marker);
+  position: absolute;
+  right: 18px;
+  top: 13px;
+  font: 8px var(--mono);
+  letter-spacing: 0.18em;
+  color: #ffffff60;
+}
+:where(.the-wedding-roll) .delivery h2 {
+  font: 500 clamp(38px, 5vw, 62px)/1.05 var(--serif);
+  margin: 10px 0 14px;
+}
+:where(.the-wedding-roll) .delivery p {
+  font-size: 10px;
+  line-height: 1.9;
+  color: #c8c2b5;
+  max-width: 450px;
+}
+:where(.the-wedding-roll) .delivery .mono {
+  color: #d48a69;
+}
+:where(.the-wedding-roll) .delivery .button {
+  min-height: 76px;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 17px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: normal;
+  text-align: left;
+  box-shadow: 0 12px 26px rgba(20, 18, 14, 0.18);
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+:where(.the-wedding-roll) .delivery .button--featured {
+  min-height: 84px;
+  background: var(--rust);
+  color: #fffaf1;
+  box-shadow: 0 14px 30px rgba(189, 87, 53, 0.32);
+}
+:where(.the-wedding-roll) .delivery .button--all-photos.is-primary {
+  background: var(--rust);
+  color: #fffaf1;
+  box-shadow: 0 14px 30px rgba(189, 87, 53, 0.32);
+}
+:where(.the-wedding-roll) .delivery .button--all-photos.is-secondary {
+  border-color: rgba(244, 236, 223, 0.44);
+  background: transparent;
+  color: #f4ecdf;
+  box-shadow: none;
+}
+:where(.the-wedding-roll) .delivery .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 17px 32px rgba(20, 18, 14, 0.23);
+}
+:where(.the-wedding-roll) .delivery .button--featured:hover,
+:where(.the-wedding-roll) .delivery .button--all-photos.is-primary:hover {
+  background: #cc6040;
+  box-shadow: 0 17px 32px rgba(189, 87, 53, 0.38);
+}
+:where(.the-wedding-roll) .delivery .button--all-photos.is-secondary:hover {
+  border-color: #e5ba96;
+  background: rgba(255, 250, 241, 0.08);
+  color: #fffaf1;
+}
+:where(.the-wedding-roll) .delivery .button:focus-visible {
+  outline: 2px solid #f4ecdf;
+  outline-offset: 4px;
+}
+:where(.the-wedding-roll) .delivery-action-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+:where(.the-wedding-roll) .delivery-action-copy small {
+  font: 8px var(--mono);
+  letter-spacing: 0.12em;
+  opacity: 0.78;
+}
+:where(.the-wedding-roll) .delivery-action-copy strong {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+:where(.the-wedding-roll) .delivery-action-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 15px;
+  opacity: 0.9;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.the-wedding-roll) .delivery .button {
+    transition: none;
+  }
+}
+:where(.the-wedding-roll) .chapter-lightbox-download {
+  flex: 0 0 auto;
+  color: var(--rust);
+  font: 9px var(--mono);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+:where(.the-wedding-roll) .people-behind-section {
+  padding: 92px 0 104px;
+}
+:where(.the-wedding-roll) .people-carousel {
+  margin-top: 30px;
+}
+:where(.the-wedding-roll) .people-carousel-rail {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  padding: 2px 1px 10px;
+}
+:where(.the-wedding-roll) .people-carousel-rail::-webkit-scrollbar {
+  display: none;
+}
+:where(.the-wedding-roll) .people-card {
+  position: relative;
+  flex: 0 0 calc((100% - 32px) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+  border-top: 1px solid var(--line);
+  border-radius: 5px;
+  background: #f3ede3;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .people-card-photo {
+  position: relative;
+  height: clamp(190px, 24vw, 300px);
+  overflow: hidden;
+  background: #ded3c3;
+}
+:where(.the-wedding-roll) .people-photo-open {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+:where(.the-wedding-roll) .people-photo-open img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.the-wedding-roll) .people-photo-open:hover img {
+  transform: scale(1.035);
+}
+:where(.the-wedding-roll) .people-photo-empty {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background:
+    radial-gradient(ellipse at 50% 75%, #f8f3e9 0, transparent 53%),
+    repeating-linear-gradient(135deg, transparent 0 15px, #ffffff28 15px 16px),
+    #dfd5c6;
+  color: var(--ink);
+}
+:where(.the-wedding-roll) .people-photo-empty span {
+  font: 500 clamp(24px, 3vw, 38px)/1 var(--serif);
+}
+:where(.the-wedding-roll) .people-photo-empty small {
+  color: var(--muted);
+  font: 8px var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+:where(.the-wedding-roll) .people-photo-count {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 7px 9px;
+  background: #292922d9;
+  color: #fffaf1;
+  font: 8px var(--mono);
+  letter-spacing: 0.08em;
+}
+:where(.the-wedding-roll) .people-card-copy {
+  padding: 18px 18px 20px;
+}
+:where(.the-wedding-roll) .people-card-copy .mono {
+  color: var(--rust);
+  font-size: 8px;
+}
+:where(.the-wedding-roll) .people-card-copy h3 {
+  margin: 9px 0 7px;
+  font: 500 clamp(23px, 2.2vw, 30px)/1.05 var(--serif);
+}
+:where(.the-wedding-roll) .people-card-copy p {
+  min-height: 3.8em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.75;
+}
+:where(.the-wedding-roll) .people-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 15px;
+  padding: 8px 0 5px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: 8px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .people-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 13px;
+}
+:where(.the-wedding-roll) .people-carousel-controls button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font: 22px/1 var(--sans);
+  cursor: pointer;
+}
+:where(.the-wedding-roll) .people-carousel-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+:where(.the-wedding-roll) .people-carousel-controls span {
+  min-width: 48px;
+  color: var(--muted);
+  text-align: center;
+  font: 8px var(--mono);
+}
+:where(.the-wedding-roll) .soundtrack-feature {
+  padding: 0 0 80px;
+}
+:where(.the-wedding-roll) .soundtrack-feature-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(24px, 7vw, 88px);
+}
+:where(.the-wedding-roll) .soundtrack-copy {
+  min-width: 0;
+  max-width: 640px;
+}
+:where(.the-wedding-roll) .soundtrack-record {
+  position: relative;
+  display: grid;
+  width: 194px;
+  min-width: 0;
+  justify-self: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 22px 18px 15px;
+  border: 1px solid #d9c9b5;
+  background: linear-gradient(145deg, #f8f1e6, #eee2d0);
+  box-shadow: 0 14px 34px rgb(61 43 31 / 0.12), inset 0 0 0 4px rgb(255 252 245 / 0.62);
+}
+:where(.the-wedding-roll) .soundtrack-record::before {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgb(164 129 98 / 0.22);
+  content: '';
+  pointer-events: none;
+}
+:where(.the-wedding-roll) .soundtrack-record > span {
+  width: 100%;
+  overflow: hidden;
+  padding-top: 9px;
+  border-top: 1px solid rgb(164 129 98 / 0.3);
+  color: var(--muted);
+  font: 8px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.the-wedding-roll) .soundtrack-feature .mono {
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .soundtrack-feature h2 {
+  margin: 9px 0;
+  font: 500 30px/1.1 var(--serif);
+}
+:where(.the-wedding-roll) .soundtrack-feature p {
+  max-width: 550px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+:where(.the-wedding-roll) .guestbook {
+  padding: 85px 0 125px;
+  border-top: 1px solid var(--line);
+}
+:where(.the-wedding-roll) .wish-marquee {
+  overflow: hidden;
+  margin-top: 22px;
+  outline: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+}
+:where(.the-wedding-roll) .wish-marquee:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 5px;
+}
+:where(.the-wedding-roll) .wish-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: wish-marquee-loop var(--wish-marquee-duration, 29.4s) linear infinite;
+}
+:where(.the-wedding-roll) .wish-marquee-group {
+  display: flex;
+  flex: 0 0 auto;
+  width: max-content;
+  gap: 12px;
+  padding-right: 12px;
+}
+:where(.the-wedding-roll) .wish-marquee:hover .wish-marquee-track,
+:where(.the-wedding-roll) .wish-marquee:focus-within .wish-marquee-track,
+:where(.the-wedding-roll) .wish-marquee:active .wish-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes wish-marquee-loop {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+:where(.the-wedding-roll) .wish {
+  display: flex;
+  flex: 0 0 clamp(160px, 22vw, 280px);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 15px 15px 14px;
+  background: #ffffff30;
+  border: 1px solid #362e241c;
+  min-height: 142px;
+  border-radius: 5px;
+}
+:where(.the-wedding-roll) .wish blockquote {
+  font: italic 16px/1.42 var(--serif);
+  margin: 0 0 15px;
+}
+:where(.the-wedding-roll) .wish cite {
+  font: 8px/1.5 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-style: normal;
+  text-transform: uppercase;
+}
+:where(.the-wedding-roll) .capsule {
+  margin: 0 auto 115px;
+  max-width: 740px;
+  text-align: center;
+  padding: 52px 45px 60px;
+  border: 1px solid #bd573570;
+}
+:where(.the-wedding-roll) .capsule h2 {
+  font: italic 38px var(--serif);
+  margin: 12px 0;
+}
+:where(.the-wedding-roll) .capsule p {
+  font: italic 16px/1.8 var(--serif);
+  color: #665f53;
+  max-width: 510px;
+  margin: 15px auto 0;
+}
+:where(.the-wedding-roll) .capsule-photo {
+  width: min(100%, 320px);
+  margin: 26px auto 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+}
+:where(.the-wedding-roll) .capsule-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:where(.the-wedding-roll) .closing {
+  padding: 100px 0 35px;
+  background: transparent;
+  color: var(--ink);
+  text-align: center;
+  position: relative;
+}
+:where(.the-wedding-roll) .closing:before {
+  display: none;
+}
+:where(.the-wedding-roll) .closing-inner {
+  position: relative;
+}
+:where(.the-wedding-roll) .closing .mono {
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .closing h2 {
+  font: 500 clamp(46px, 7vw, 82px)/1 var(--serif);
+  margin: 20px 0;
+}
+:where(.the-wedding-roll) .closing > div > p {
+  font: italic 17px var(--serif);
+  color: var(--muted);
+}
+:where(.the-wedding-roll) .signature {
+  margin: 34px auto 0;
+  width: 98px;
+  height: 98px;
+  border: 1px solid #bd573570;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: italic 18px var(--serif);
+  color: var(--rust);
+}
+:where(.the-wedding-roll) .footer {
+  padding: 28px 0 25px;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  margin-top: 78px;
+  font: 8px var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+@media (max-width: 850px) {
+  :where(.the-wedding-roll) .wrap {
+    width: calc(100% - 44px);
+  }
+  :where(.the-wedding-roll) .hero {
+    grid-template-columns: 1fr;
+    gap: 35px;
+    padding: 60px 0 85px;
+    min-height: 0;
+  }
+  :where(.the-wedding-roll) .hero-copy {
+    padding: 0;
+  }
+  :where(.the-wedding-roll) .hero-art {
+    height: min(112vw, 560px);
+    width: 92%;
+    margin: auto;
+  }
+  :where(.the-wedding-roll) .story {
+    padding: 90px 0;
+  }
+  :where(.the-wedding-roll) .story-grid {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+  :where(.the-wedding-roll) .story-image {
+    width: 82%;
+    height: auto;
+  }
+  :where(.the-wedding-roll) .chapter {
+    grid-template-columns: 55px minmax(0, 1fr) 290px;
+    gap: 13px;
+  }
+  :where(.the-wedding-roll) .chapter-thumb {
+    grid-column: 3;
+    height: 184px;
+  }
+  :where(.the-wedding-roll) .moment-carousel {
+    min-height: 480px;
+  }
+  :where(.the-wedding-roll) .moment-card-shell {
+    width: min(340px, 68%);
+  }
+  :where(.the-wedding-roll) .moment-photo {
+    height: 310px;
+  }
+  :where(.the-wedding-roll) .delivery-panel {
+    padding: 52px 7%;
+  }
+  :where(.the-wedding-roll) .stamp {
+    width: 84px;
+    height: 84px;
+    right: -17px;
+    top: 42px;
+    gap: 2px;
+    padding: 8px;
+    outline-offset: 4px;
+  }
+  :where(.the-wedding-roll) .stamp-label {
+    font-size: 6px;
+    letter-spacing: 0.06em;
+  }
+  :where(.the-wedding-roll) .stamp b {
+    font-size: 27px;
+  }
+  :where(.the-wedding-roll) .stamp:before {
+    top: 8px;
+  }
+  :where(.the-wedding-roll) .stamp:after {
+    bottom: 8px;
+  }
+}
+@media (max-width: 560px) {
+  :where(.the-wedding-roll) .topbar {
+    height: 62px;
+  }
+  :where(.the-wedding-roll) .top-cta {
+    font-size: 8px;
+  }
+  :where(.the-wedding-roll) .hero-photo {
+    inset: 13px;
+  }
+  :where(.the-wedding-roll) .frame-note {
+    left: 17px;
+    bottom: 14px;
+    font-size: 7px;
+  }
+  :where(.the-wedding-roll) .stamp {
+    width: 74px;
+    height: 74px;
+    right: -13px;
+    top: 30px;
+    gap: 1px;
+    padding: 7px;
+    outline-offset: 3px;
+  }
+  :where(.the-wedding-roll) .stamp-label {
+    font-size: 5.5px;
+    letter-spacing: 0.04em;
+  }
+  :where(.the-wedding-roll) .stamp b {
+    font-size: 24px;
+  }
+  :where(.the-wedding-roll) .stamp:before {
+    top: 7px;
+    font-size: 6px;
+  }
+  :where(.the-wedding-roll) .stamp:after {
+    bottom: 7px;
+    font-size: 6px;
+  }
+  :where(.the-wedding-roll) .hero-caption {
+    left: 13px;
+    right: 13px;
+    bottom: 48px;
+  }
+  :where(.the-wedding-roll) .hero-caption strong {
+    font-size: clamp(37px, 12.4vw, 54px);
+  }
+  :where(.the-wedding-roll) .hero-caption span {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+  :where(.the-wedding-roll) .ticker {
+    width: 100%;
+  }
+  :where(.the-wedding-roll) .ticker-group {
+    gap: 18px;
+    padding-right: 18px;
+  }
+  :where(.the-wedding-roll) .ticker-group > span {
+    gap: 18px;
+  }
+  :where(.the-wedding-roll) .image-label {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: fit-content;
+    max-width: calc(100% - 20px);
+    padding: 7px 9px;
+    background: rgba(241, 233, 220, 0.94);
+    color: var(--ink);
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 7px;
+  }
+  :where(.the-wedding-roll) .chapter h3 {
+    font-size: 19px;
+  }
+  :where(.the-wedding-roll) .chapter-num {
+    font-size: 9px;
+  }
+  :where(.the-wedding-roll) .delivery .button {
+    width: 100%;
+    min-height: 60px;
+    padding: 19px 17px;
+    white-space: normal;
+    text-align: left;
+  }
+  :where(.the-wedding-roll) .delivery .button--featured {
+    min-height: 80px;
+  }
+  :where(.the-wedding-roll) .delivery-actions {
+    min-width: 0;
+    margin-top: 18px;
+  }
+  :where(.the-wedding-roll) .people-behind-section {
+    padding: 58px 0 70px;
+  }
+  :where(.the-wedding-roll) .people-carousel {
+    margin-top: 20px;
+    margin-right: -19px;
+  }
+  :where(.the-wedding-roll) .people-card {
+    flex-basis: 84%;
+  }
+  :where(.the-wedding-roll) .people-card-photo {
+    height: 66vw;
+    max-height: 310px;
+  }
+  :where(.the-wedding-roll) .people-card-copy {
+    padding: 16px 15px 18px;
+  }
+  :where(.the-wedding-roll) .people-card-copy h3 {
+    font-size: 27px;
+  }
+  :where(.the-wedding-roll) .people-card-copy p {
+    min-height: 0;
+    font-size: 10px;
+  }
+  :where(.the-wedding-roll) .people-carousel-controls {
+    justify-content: center;
+    margin-right: 19px;
+  }
+  :where(.the-wedding-roll) .soundtrack-feature {
+    padding-bottom: 52px;
+  }
+  :where(.the-wedding-roll) .soundtrack-feature-layout {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 18px;
+    text-align: center;
+  }
+  :where(.the-wedding-roll) .soundtrack-copy {
+    width: 100%;
+  }
+  :where(.the-wedding-roll) .soundtrack-copy p {
+    margin-right: auto;
+    margin-left: auto;
+  }
+  :where(.the-wedding-roll) .soundtrack-record {
+    margin-top: 2px;
+    width: 182px;
+    padding: 18px 15px 13px;
+    gap: 11px;
+  }
+  :where(.the-wedding-roll) .soundtrack-feature h2 {
+    font-size: 27px;
+  }
+  :where(.the-wedding-roll) .footer-couple {
+    grid-area: couple;
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  :where(.the-wedding-roll) .footer-label {
+    grid-area: label;
+    color: var(--rust);
+    font-size: 9px;
+    line-height: 1.5;
+    letter-spacing: 0.11em;
+    white-space: nowrap;
+    text-align: left;
+  }
+  :where(.the-wedding-roll) .footer-note {
+    grid-area: note;
+    max-width: none;
+    font: italic 9px/1.5 var(--serif);
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    text-align: right;
+  }
+}
+:where(.the-wedding-roll) .stamp:before,
+:where(.the-wedding-roll) .stamp:after {
+  content: '· · · · · · · ·';
+  position: absolute;
+  left: 0;
+  right: 0;
+  color: #bd573580;
+  font: 7px var(--mono);
+  letter-spacing: 0.13em;
+}
+:where(.the-wedding-roll) .stamp:before {
+  top: 10px;
+}
+:where(.the-wedding-roll) .stamp:after {
+  bottom: 10px;
+}
+:where(.the-wedding-roll) .stamp-wave {
+  position: absolute;
+  z-index: 0;
+  inset: -1px;
+  border: 1px solid rgba(189, 87, 53, 0.48);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: stamp-ripple 3.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+:where(.the-wedding-roll) .stamp-wave--delayed {
+  animation-delay: 1.6s;
+}
+:where(.the-wedding-roll) .stamp > .stamp-label,
+:where(.the-wedding-roll) .stamp > b {
+  position: relative;
+  z-index: 1;
+}
+@keyframes stamp-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.42;
+  }
+  100% {
+    transform: scale(1.58);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:has(.the-wedding-roll) {
+    scroll-behavior: auto;
+  }
+  .the-wedding-roll {
+    scroll-behavior: auto;
+  }
+  :where(.the-wedding-roll) *,
+  :where(.the-wedding-roll) *:before,
+  :where(.the-wedding-roll) *:after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  :where(.the-wedding-roll) .ticker-track {
+    animation: none !important;
+  }
+  :where(.the-wedding-roll) .wish-marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  :where(.the-wedding-roll) .wish-marquee-track {
+    animation: none;
+  }
+  :where(.the-wedding-roll) .chapter-gallery-hand {
+    animation: none !important;
+  }
+  :where(.the-wedding-roll) .moment-card,
+  :where(.the-wedding-roll) .moment-card-shell {
+    transition: none;
+  }
+  :where(.the-wedding-roll) .moments .section-head h2.fx-spotlight {
+    color: var(--ink);
+    background: none;
+    animation: none;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+@media (max-width: 850px) {
+  .the-wedding-roll .ambient-mark--two {
+    right: 5px;
+  }
+  .the-wedding-roll .ambient-mark--one,
+  .the-wedding-roll .ambient-mark--three {
+    left: 5px;
+  }
+}
+@media (max-width: 560px) {
+  .the-wedding-roll .ambient-mark {
+    opacity: 0.13;
+  }
+  .the-wedding-roll .ambient-mark--one {
+    top: 15vh;
+  }
+  .the-wedding-roll .ambient-mark--two {
+    top: 62vh;
+  }
+  .the-wedding-roll .ambient-mark--three {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  :where(.the-wedding-roll) .wrap {
+    width: calc(100% - 32px);
+  }
+  :where(.the-wedding-roll) .button {
+    min-height: 46px;
+    padding: 15px 16px;
+  }
+  :where(.the-wedding-roll) .chapter-lightbox-backdrop {
+    padding: 10px;
+  }
+  :where(.the-wedding-roll) .chapter-lightbox {
+    max-height: calc(100dvh - 20px);
+    gap: 10px;
+    padding: 12px;
+  }
+  :where(.the-wedding-roll) .chapter-lightbox-viewer {
+    gap: 6px;
+  }
+  :where(.the-wedding-roll) .chapter-lightbox-image {
+    max-width: calc(100% - 88px);
+    height: min(60dvh, 560px);
+  }
+  :where(.the-wedding-roll) .chapter-lightbox-step {
+    width: 38px;
+    height: 44px;
+  }
+  :where(.the-wedding-roll) .chapter-lightbox-thumbnails button {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+  :where(.the-wedding-roll) .people-carousel-rail {
+    gap: 12px;
+    padding-right: 19px;
+    scroll-padding-left: 1px;
+    scroll-behavior: auto;
+  }
+}
+:where(.the-wedding-roll) .mobile-album-cta {
+  display: none;
+}
+@media (max-width: 560px) {
+  .the-wedding-roll {
+    padding-bottom: 72px;
+  }
+  :where(.the-wedding-roll) .hero {
+    padding: 34px 0 62px;
+  }
+  :where(.the-wedding-roll) .hero h1 {
+    font-size: 60px;
+    margin-bottom: 16px;
+  }
+  :where(.the-wedding-roll) .hero-copy > p {
+    font-size: 11px;
+    line-height: 1.65;
+    margin-bottom: 18px;
+  }
+  :where(.the-wedding-roll) .hero-art {
+    height: 90vw;
+    width: 94%;
+    padding: 13px;
+    max-height: 340px;
+  }
+  :where(.the-wedding-roll) .story {
+    padding: 52px 0;
+  }
+  :where(.the-wedding-roll) .story-quote {
+    font-size: 28px;
+    margin: 10px 0 16px;
+  }
+  :where(.the-wedding-roll) .story-copy {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+  :where(.the-wedding-roll) .story-image {
+    width: 84%;
+    height: auto;
+  }
+  :where(.the-wedding-roll) .chapters {
+    padding: 48px 0;
+  }
+  :where(.the-wedding-roll) .section-head {
+    display: block;
+    margin-bottom: 24px;
+  }
+  :where(.the-wedding-roll) .section-head h2 {
+    font-size: 38px;
+  }
+  :where(.the-wedding-roll) .section-head > p {
+    margin-top: 14px;
+    font-size: 9px;
+  }
+  :where(.the-wedding-roll) .chapter {
+    grid-template-columns: 34px minmax(0, 1fr) 144px;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  :where(.the-wedding-roll) .chapter p {
+    font-size: 8px;
+    line-height: 1.65;
+  }
+  :where(.the-wedding-roll) .chapter-thumb {
+    height: 116px;
+  }
+  :where(.the-wedding-roll) .moments {
+    padding: 45px 0 60px;
+  }
+  :where(.the-wedding-roll) .moment-carousel {
+    min-height: 365px;
+  }
+  :where(.the-wedding-roll) .moment-card-shell {
+    width: min(250px, 76%);
+  }
+  :where(.the-wedding-roll) .moment-card {
+    padding: 9px;
+  }
+  :where(.the-wedding-roll) .moment-photo {
+    height: 210px;
+  }
+  :where(.the-wedding-roll) .delivery {
+    padding: 48px 0;
+  }
+  :where(.the-wedding-roll) .delivery-panel {
+    display: block;
+    padding: 30px 20px 24px;
+  }
+  :where(.the-wedding-roll) .delivery h2 {
+    font-size: 34px;
+    margin: 8px 0 10px;
+  }
+  :where(.the-wedding-roll) .delivery p {
+    font-size: 9px;
+    line-height: 1.65;
+  }
+  :where(.the-wedding-roll) .guestbook {
+    padding: 44px 0 56px;
+  }
+  :where(.the-wedding-roll) .guestbook .section-head {
+    margin-bottom: 18px;
+  }
+  :where(.the-wedding-roll) .wish-marquee-group {
+    gap: 9px;
+    padding-right: 9px;
+  }
+  :where(.the-wedding-roll) .wish {
+    flex-basis: 82vw;
+    min-height: 122px;
+    padding: 12px 13px;
+  }
+  :where(.the-wedding-roll) .wish blockquote {
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.42;
+    margin: 0 0 9px;
+  }
+  :where(.the-wedding-roll) .wish cite {
+    font-size: 7px;
+  }
+  :where(.the-wedding-roll) .capsule {
+    margin: 0 auto 80px;
+    padding: 30px 20px 34px;
+    margin-bottom: 58px;
+  }
+  :where(.the-wedding-roll) .capsule h2 {
+    font-size: 27px;
+    margin: 8px 0;
+  }
+  :where(.the-wedding-roll) .capsule p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  :where(.the-wedding-roll) .closing {
+    padding: 74px 0 25px;
+    padding-top: 52px;
+  }
+  :where(.the-wedding-roll) .closing h2 {
+    font-size: 43px;
+  }
+  :where(.the-wedding-roll) .footer {
+    margin-top: 38px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "label note" "couple couple";
+    align-items: center;
+    justify-items: stretch;
+    column-gap: 8px;
+    row-gap: 9px;
+    padding: 22px 4px 20px;
+    text-align: left;
+  }
+  :where(.the-wedding-roll) .mobile-album-cta {
+    position: fixed;
+    z-index: 20;
+    display: flex;
+    left: max(12px, env(safe-area-inset-left));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    height: 44px;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    background: var(--rust);
+    color: #fffaf1;
+    box-shadow: 0 5px 20px #28251f35;
+    font: 10px var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  :where(.the-wedding-roll) .mobile-album-cta > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
