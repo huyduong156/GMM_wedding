@@ -1,10 +1,11 @@
 import { MusicNote, Pause, Play } from '@phosphor-icons/react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import './music-player.css'
 
 const MAX_PLAYBACK_MS = 10 * 60 * 1000
 
-export type MusicPlayerVariant = 'rotating-fab'
+export type MusicPlayerVariant = 'rotating-fab' | 'inline-record'
 
 export type MusicPlayerProps = {
   src?: string
@@ -13,6 +14,9 @@ export type MusicPlayerProps = {
   autoplayDelayMs?: number
   active?: boolean
   editorMode?: boolean
+  disabled?: boolean
+  showFloatingControl?: boolean
+  retryAutoplayOnInteraction?: boolean
   variant?: MusicPlayerVariant
   sectionKey?: string | null
 }
@@ -29,6 +33,9 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     autoplayDelayMs = 0,
     active = true,
     editorMode = false,
+    disabled = false,
+    showFloatingControl = false,
+    retryAutoplayOnInteraction = false,
     variant = 'rotating-fab',
     sectionKey = 'music',
   }: MusicPlayerProps,
@@ -36,7 +43,7 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
 ) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
-  const available = Boolean(src)
+  const available = Boolean(src) && !disabled
   const elapsedRef = useRef(0)
   const startedRef = useRef<number | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -155,13 +162,40 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
 
   useEffect(() => {
     if (!active || editorMode || !autoplay || !src) return
-    if (autoplayDelayMs <= 0) {
-      void playAudio()
-      return
+    let autoplayAttempted = false
+    let timer: number | undefined
+    const removeGestureListeners = () => {
+      document.removeEventListener('pointerdown', retryFromGesture, true)
+      document.removeEventListener('keydown', retryFromGesture, true)
     }
-    const timer = window.setTimeout(() => void playAudio(), autoplayDelayMs)
-    return () => window.clearTimeout(timer)
-  }, [active, autoplay, autoplayDelayMs, editorMode, playAudio, src])
+    const retryFromGesture = (event: Event) => {
+      if (!autoplayAttempted) return
+      removeGestureListeners()
+      const target = event.target
+      if (target instanceof Element && target.closest('[data-music-player]')) return
+      void playAudio()
+    }
+    const attemptAutoplay = () => {
+      autoplayAttempted = true
+      void playAudio().then((started) => {
+        if (started) removeGestureListeners()
+      })
+    }
+
+    if (retryAutoplayOnInteraction) {
+      document.addEventListener('pointerdown', retryFromGesture, true)
+      document.addEventListener('keydown', retryFromGesture, true)
+    }
+    if (autoplayDelayMs <= 0) {
+      attemptAutoplay()
+    } else {
+      timer = window.setTimeout(attemptAutoplay, autoplayDelayMs)
+    }
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer)
+      removeGestureListeners()
+    }
+  }, [active, autoplay, autoplayDelayMs, editorMode, playAudio, retryAutoplayOnInteraction, src])
 
   useEffect(() => {
     if (!active) {
@@ -169,6 +203,13 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
       pauseAudio()
     }
   }, [active, pauseAudio])
+
+  useEffect(() => {
+    if (disabled) {
+      resumeRef.current = false
+      pauseAudio()
+    }
+  }, [disabled, pauseAudio])
 
   useEffect(() => {
     const hide = () => {
@@ -214,6 +255,42 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
     }
   }
 
+  const floatingControl =
+    showFloatingControl && available && typeof document !== 'undefined'
+      ? createPortal(
+          <div
+            className={
+              'music-player music-player--rotating-fab' +
+              (playing ? ' is-playing' : '') +
+              (!available ? ' is-unavailable' : '')
+            }
+            data-music-player
+          >
+            <button
+              type="button"
+              onClick={() => void toggle()}
+              disabled={!available}
+              aria-label={playing ? 'Tạm dừng nhạc nền' : 'Phát nhạc nền'}
+              aria-pressed={playing}
+              title={available ? title : 'Chưa có nhạc nền'}
+            >
+              <span className="music-player-disc" aria-hidden="true">
+                <MusicNote size={20} weight="bold" />
+              </span>
+              <span className="music-player-state" aria-hidden="true">
+                {available ? (
+                  playing ? <Pause size={12} weight="fill" /> : <Play size={12} weight="fill" />
+                ) : (
+                  <MusicNote size={12} />
+                )}
+              </span>
+            </button>
+          </div>,
+          document.body,
+          'recap-soundtrack-floating-control',
+        )
+      : null
+
   return (
     <div
       className={
@@ -225,12 +302,13 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
       data-music-player
       {...(sectionKey ? { 'data-editor-section': sectionKey } : {})}
     >
-      {src ? (
+      {src && !disabled ? (
         <audio
           ref={audioRef}
           src={src}
+          autoPlay={autoplay && active && !editorMode && !disabled}
           loop
-          preload="metadata"
+          preload={autoplay && active && !editorMode && !disabled ? 'auto' : 'metadata'}
           onPlay={() => {
             if (document.hidden || pageHiddenRef.current || userPausedRef.current) pauseAudio()
             else setPlaying(true)
@@ -275,6 +353,16 @@ export const MusicPlayer = forwardRef<MusicPlayerHandle, MusicPlayerProps>(funct
           )}
         </span>
       </button>
+      {variant === 'inline-record' && playing ? (
+        <span className="music-player-notes" aria-hidden="true">
+          {['♪', '♫', '♬', '♩'].map((note, index) => (
+            <span className="music-player-note" key={`${note}-${index}`}>
+              {note}
+            </span>
+          ))}
+        </span>
+      ) : null}
+      {floatingControl}
     </div>
   )
 })

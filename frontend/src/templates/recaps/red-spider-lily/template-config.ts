@@ -102,6 +102,120 @@ const photoDeliveryFields = {
   body: { type: 'text', label: 'Noi dung', required: true, maxLength: 800 },
   ctaLabel: { type: 'string', label: 'Nhan nut album', required: true, maxLength: 80 },
   albumUrl: { type: 'url', label: 'URL album anh' },
+  albums: {
+    type: 'items',
+    label: 'Nguon album',
+    contentKey: 'photoDelivery.albums',
+    maxItems: 2,
+    itemFields: {
+      type: {
+        type: 'select',
+        label: 'Loai nguon',
+        required: true,
+        default: 'INTERNAL_ALBUM',
+        options: [
+          { key: 'INTERNAL_ALBUM', label: 'Album noi bo' },
+          { key: 'EXTERNAL_ALBUM_LINK', label: 'Lien ket ngoai' },
+        ],
+      },
+      albumId: { type: 'string', label: 'Ma album', maxLength: 120 },
+      href: { type: 'url', label: 'URL album ngoai', maxLength: 2048 },
+      label: { type: 'string', label: 'Nhan nut', maxLength: 80 },
+    },
+  },
+  media: {
+    type: 'images',
+    label: 'Anh noi bat',
+    contentKey: 'photoDelivery.media',
+    maxItems: 50,
+    mediaRole: 'featured-photo',
+  },
+} as const
+const sectionFields = {
+  photoDelivery: photoDeliveryFields,
+  hero: {
+    couple: { type: 'string', label: 'Tên cặp đôi', contentKey: 'hero.couple', required: true, maxLength: 80 },
+    date: { type: 'date', label: 'Ngày cưới', contentKey: 'hero.date', required: true },
+    place: { type: 'string', label: 'Địa điểm', contentKey: 'hero.place', maxLength: 120 },
+    tagline: { type: 'text', label: 'Lời mở đầu', contentKey: 'hero.tagline', maxLength: 240 },
+    media: { type: 'image', label: 'Ảnh bìa', contentKey: 'hero.media', mediaRole: 'hero' },
+  },
+  ourStory: {
+    eyebrow: { type: 'string', label: 'Nhãn mở đầu', contentKey: 'ourStory.eyebrow', maxLength: 80 },
+    title: { type: 'text', label: 'Tiêu đề lời dẫn', contentKey: 'ourStory.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Nội dung lời dẫn', contentKey: 'ourStory.body', required: true, maxLength: 800 },
+    quote: { type: 'text', label: 'Trích dẫn', contentKey: 'ourStory.quote', maxLength: 300 },
+    media: { type: 'images', label: 'Ảnh câu chuyện', contentKey: 'ourStory.media', mediaRole: 'story' },
+  },
+  chapters: {
+    items: { type: 'items', label: 'Các chương', contentKey: 'chapters', itemFields: {
+      dateLabel: { type: 'date', label: 'Ngày / mốc thời gian', required: true, maxLength: 40 },
+      title: { type: 'string', label: 'Tiêu đề chương', required: true, maxLength: 180 },
+      description: { type: 'text', label: 'Mô tả', required: true, maxLength: 360 },
+      cover: { type: 'image', label: 'Ảnh bìa', mediaRole: 'chapter' },
+      gallery: { type: 'images', label: 'Album ảnh', mediaRole: 'gallery', maxItems: 12 },
+    } },
+  },
+  moments: {
+    items: { type: 'items', label: 'Khoảnh khắc', contentKey: 'moments', itemFields: {
+      title: { type: 'string', label: 'Tên nhóm khoảnh khắc', required: true, maxLength: 180 },
+      momentLabel: { type: 'string', label: 'Nhãn nhỏ', maxLength: 80 },
+      description: { type: 'text', label: 'Mô tả', required: true, maxLength: 360 },
+      cover: { type: 'image', label: 'Ảnh bìa', mediaRole: 'moment' },
+      gallery: { type: 'images', label: 'Album ảnh', mediaRole: 'gallery', maxItems: 12 },
+    } },
+  },
+  thankYou: {
+    title: { type: 'text', label: 'Lời cảm ơn', contentKey: 'thankYou.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Nội dung', contentKey: 'thankYou.body', required: true, maxLength: 800 },
+    signature: { type: 'string', label: 'Chữ ký', contentKey: 'thankYou.signature', maxLength: 100 },
+    date: { type: 'date', label: 'Ngày kết', contentKey: 'thankYou.date' },
+    media: { type: 'image', label: 'Ảnh kết', contentKey: 'thankYou.media', mediaRole: 'finale' },
+  },
+  guestbook: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.guestbook.title', required: true, maxLength: 180 },
+    intro: { type: 'text', label: 'Lời dẫn lời chúc', contentKey: 'optional.guestbook.intro', maxLength: 500 },
+  },
+  peopleBehindTheDay: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.peopleBehindTheDay.title', required: true, maxLength: 120 },
+    body: { type: 'text', label: 'Mô tả', contentKey: 'optional.peopleBehindTheDay.body', maxLength: 500 },
+    items: { type: 'items', label: 'Người góp sức', contentKey: 'optional.peopleBehindTheDay.people', itemFields: {
+      name: { type: 'string', label: 'Tên người / nhóm', required: true, maxLength: 100 },
+      role: { type: 'text', label: 'Vai trò / ghi chú', required: true, maxLength: 160 },
+      media: { type: 'image', label: 'Ảnh', mediaRole: 'person' },
+      gallery: { type: 'images', label: 'Album ảnh', mediaRole: 'gallery', maxItems: 12 },
+    } },
+  },
+  behindTheScenes: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.behindTheScenes.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Mô tả', contentKey: 'optional.behindTheScenes.body', maxLength: 500 },
+    items: { type: 'items', label: 'Hậu trường', contentKey: 'optional.behindTheScenes.items', itemFields: {
+      title: { type: 'string', label: 'Tiêu đề khoảnh khắc', required: true, maxLength: 180 },
+      caption: { type: 'text', label: 'Ghi chú', required: true, maxLength: 360 },
+      media: { type: 'image', label: 'Ảnh', mediaRole: 'behind-the-scenes' },
+      gallery: { type: 'images', label: 'Album ảnh', mediaRole: 'gallery', maxItems: 12 },
+    } },
+  },
+  weddingFilm: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.weddingFilm.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Mô tả', contentKey: 'optional.weddingFilm.body', maxLength: 800 },
+    duration: { type: 'string', label: 'Thời lượng video', contentKey: 'optional.weddingFilm.duration', maxLength: 20 },
+    poster: { type: 'image', label: 'Ảnh poster', contentKey: 'optional.weddingFilm.poster', mediaRole: 'video-poster' },
+  },
+  soundtrack: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.soundtrack.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Mô tả', contentKey: 'optional.soundtrack.body', maxLength: 800 },
+    track: { type: 'string', label: 'Tên track', contentKey: 'optional.soundtrack.track', maxLength: 120 },
+    artist: { type: 'string', label: 'Nghệ sĩ', contentKey: 'optional.soundtrack.artist', maxLength: 120 },
+    duration: { type: 'string', label: 'Thời lượng', contentKey: 'optional.soundtrack.duration', maxLength: 20 },
+    cover: { type: 'image', label: 'Ảnh bìa', contentKey: 'optional.soundtrack.cover', mediaRole: 'soundtrack' },
+  },
+  memoryCapsule: {
+    title: { type: 'text', label: 'Tiêu đề', contentKey: 'optional.memoryCapsule.title', required: true, maxLength: 180 },
+    body: { type: 'text', label: 'Lời nhắn', contentKey: 'optional.memoryCapsule.body', maxLength: 800 },
+    date: { type: 'date', label: 'Mốc thời gian', contentKey: 'optional.memoryCapsule.date' },
+    media: { type: 'image', label: 'Ảnh', contentKey: 'optional.memoryCapsule.media', mediaRole: 'capsule' },
+  },
 } as const
 
 export const redSpiderLilyRecapTemplateConfig = {
@@ -222,7 +336,7 @@ export const redSpiderLilyRecapTemplateConfig = {
       layouts: sectionLayoutOptions[sectionKey],
       defaultLayout: sectionLayoutOptions[sectionKey][0],
       mediaRoles: sectionMediaRoles[sectionKey],
-      ...(sectionKey === 'photoDelivery' ? { fields: photoDeliveryFields } : {}),
+      fields: sectionFields[sectionKey],
       ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? {
         repeatable: false,
       }),
@@ -237,6 +351,8 @@ export const redSpiderLilyRecapTemplateConfig = {
       layouts: sectionLayoutOptions[sectionKey],
       defaultLayout: sectionLayoutOptions[sectionKey][0],
       mediaRoles: sectionMediaRoles[sectionKey],
+      fields: sectionFields[sectionKey],
+      ...(sectionKey === 'guestbook' ? { approvedWishes: true } : {}),
       ...(repeatableSectionRules[sectionKey as keyof typeof repeatableSectionRules] ?? {
         repeatable: false,
       }),

@@ -10432,6 +10432,12 @@ kbd {
   font-size: 9px;
   line-height: 1.4;
 }
+.editor-media-field.has-error .editor-upload,
+.editor-media-field.has-error .editor-image-picker {
+  border-color: #b53a32;
+  background: #fffafa;
+  box-shadow: 0 0 0 3px rgb(181 58 50 / 0.1);
+}
 
 .editor-live-status {
   display: inline-flex;
@@ -10748,10 +10754,6 @@ kbd {
   .templates-success-check {
     animation: none;
   }
-}
-.editor-iframe-canvas {
-  padding: 22px;
-  background: #dcd8d3;
 }
 .editor-iframe-shell {
   position: relative;
@@ -17259,6 +17261,10 @@ input[type='file'] {
 .editor-audio-library {
   display: grid;
   gap: 10px;
+  padding: 12px;
+  border: 1px solid #e8ddd3;
+  border-radius: 12px;
+  background: #fffdfa;
 }
 .editor-audio-library-heading {
   display: grid;
@@ -17343,7 +17349,7 @@ input[type='file'] {
   display: none;
 }
 .editor-audio-library-list {
-  max-height: 260px;
+  max-height: 220px;
   overflow-y: auto;
   display: grid;
   gap: 7px;
