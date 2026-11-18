@@ -793,7 +793,7 @@ export function TheWeddingRollRecap({
                 <div className="mono">{content.optional.guestbook.eyebrow}</div>
                 <h2>
                   <TextWithBreaks>
-                    {content.optional.guestbook.title.replace(' mà ', ' mà\nvẫn ')}
+                    {content.optional.guestbook.title.replace(' mà vẫn ', ' mà\nvẫn ')}
                   </TextWithBreaks>
                 </h2>
               </motion.div>

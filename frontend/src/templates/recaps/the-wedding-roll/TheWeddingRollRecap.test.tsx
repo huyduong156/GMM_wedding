@@ -22,13 +22,13 @@ describe('The Wedding Roll template conversion', () => {
       ...theWeddingRollRecapTemplateConfig.authoring.optionalSections,
       'thankYou',
     ])
-    expect(sectionKeys).toHaveLength(11)
+    expect(sectionKeys).toHaveLength(10)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       /Ngày mình\s*chọn nhau\s*trọn đời\./,
     )
-    expect(screen.getByText('Những tấm còn lại')).toBeInTheDocument()
-    expect(screen.getByText('People behind the day')).toBeInTheDocument()
-    expect(screen.getByText('Đọc lại mà')).toBeInTheDocument()
+    expect(screen.getByText('Xem và tải ảnh ngày cưới')).toBeInTheDocument()
+    expect(screen.getByText('Gia đình')).toBeInTheDocument()
+    expect(document.querySelector('.guestbook h2')).toHaveTextContent(/Đọc lại mà.?vẫn thấy vui\./)
     expect(document.querySelector('.closing h2')).toHaveTextContent(
       'Cảm ơn vì đã cùng chúng mình tạo nên ngày hôm ấy.',
     )
@@ -39,12 +39,12 @@ describe('The Wedding Roll template conversion', () => {
 
     expect(screen.getByAltText('Cặp đôi trong ngày cưới dưới nắng chiều')).toHaveAttribute(
       'src',
-      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1500&q=85',
+      '/assets/images/wedding-couples-examples/couple-002/couple-pose-03-walking.webp',
     )
     expect(document.querySelectorAll('.chapter-thumb img')).toHaveLength(3)
     expect(document.querySelectorAll('.moment-card')).toHaveLength(3)
     expect(document.querySelector('.film-strip')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /^Xem ảnh nổi bật/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^Xem và tải .* ảnh nổi bật/ }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Ảnh nổi bật' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Tải ảnh đang xem' })).toHaveAttribute('download')
@@ -109,11 +109,11 @@ describe('The Wedding Roll template conversion', () => {
     }
     render(<TheWeddingRollRecap content={content} />)
 
-    expect(screen.getByRole('link', { name: /^Xem toàn bộ ảnh ngày hôm ấy/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Mở album đầy đủ trong tab mới' })).toHaveAttribute(
       'href',
       'https://photos.example/albums/123',
     )
-    expect(screen.getByRole('link', { name: /^Xem toàn bộ ảnh ngày hôm ấy/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Mở album đầy đủ trong tab mới' })).toHaveAttribute(
       'rel',
       'noopener noreferrer',
     )
@@ -132,7 +132,7 @@ describe('The Wedding Roll template conversion', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /^Xem ảnh nổi bật/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^Xem và tải .* ảnh nổi bật/ }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Selected wedding photo' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Tải ảnh đang xem' })).toHaveAttribute(

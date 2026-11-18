@@ -186,7 +186,12 @@ export function RecapThemesPage() {
     if (!wedding) return
     setSaving(theme.versionId)
     try {
-      const currentRecap = (await weddingApi.recap(wedding.id)).recap
+      let currentRecap: RecapDraft | null = null
+      try {
+        currentRecap = (await weddingApi.recap(wedding.id)).recap
+      } catch (cause) {
+        if (!(cause instanceof WeddingApiError && cause.status === 404)) throw cause
+      }
       const saved = await weddingApi.saveRecap(wedding.id, {
         templateVersionId: theme.versionId,
         title: currentRecap?.title ?? `Wedding Recap của ${wedding.name}`,
