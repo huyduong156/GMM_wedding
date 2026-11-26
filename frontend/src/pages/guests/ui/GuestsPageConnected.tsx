@@ -29,6 +29,7 @@ import {
 } from '../../../shared/api/weddings'
 import { useOptionalWeddingWorkspace } from '../../../entities/wedding/model/wedding-context'
 import { GuestsPage } from './GuestsPage'
+import { createShareVersionToken, withShareVersion } from '../../../shared/lib/page-metadata'
 
 type FormState = {
   name: string
@@ -153,10 +154,19 @@ function GuestShareDialog({
           return
         }
         if (!guest.slug) throw new Error('Khách mời chưa có guest-slug để tạo link riêng.')
-        await weddingApi.publicInvitationGuest(weddingSlug, guest.slug)
+        const [publishedInvitation] = await Promise.all([
+          weddingApi.publicInvitation(weddingSlug),
+          weddingApi.publicInvitationGuest(weddingSlug, guest.slug),
+        ])
         if (active) {
           setUrl(
-            `${window.location.origin}/${encodeURIComponent(weddingSlug)}/invitation/${encodeURIComponent(guest.slug)}`,
+            withShareVersion(
+              `${window.location.origin}/${encodeURIComponent(weddingSlug)}/invitation/${encodeURIComponent(guest.slug)}`,
+              createShareVersionToken(
+                publishedInvitation.snapshot.version,
+                publishedInvitation.snapshot.ownerAvatarUrl,
+              ),
+            ),
           )
           setState('ready')
         }

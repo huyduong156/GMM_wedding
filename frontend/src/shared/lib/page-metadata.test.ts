@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { publicSurfaceMetadata } from './page-metadata'
+import { createShareVersionToken, publicSurfaceMetadata } from './page-metadata'
 
 describe('publicSurfaceMetadata', () => {
   it('uses couple names, the owner avatar, and the online invitation label', () => {
@@ -16,6 +16,26 @@ describe('publicSurfaceMetadata', () => {
       title: 'Minh & An | Thiệp cưới online',
       image: '/api/public/invitations/minh-an/og-image',
     })
+  })
+
+  it('versions generated invitation images when the avatar changes', () => {
+    const firstAvatar = 'https://cdn.example.com/avatar-one.jpg'
+    const nextAvatar = 'https://cdn.example.com/avatar-two.jpg'
+    const first = publicSurfaceMetadata(
+      { ownerAvatarUrl: firstAvatar, snapshotVersion: 4, content: { brideName: 'Minh', groomName: 'An' } },
+      'invitation',
+      '/minh-an/invitation',
+    )
+    const next = publicSurfaceMetadata(
+      { ownerAvatarUrl: nextAvatar, snapshotVersion: 4, content: { brideName: 'Minh', groomName: 'An' } },
+      'invitation',
+      '/minh-an/invitation',
+    )
+
+    expect(first.image).toBe(`/api/public/invitations/minh-an/og-image?v=${createShareVersionToken(4, firstAvatar)}`)
+    expect(next.image).toBe(`/api/public/invitations/minh-an/og-image?v=${createShareVersionToken(4, nextAvatar)}`)
+    expect(next.image).not.toBe(first.image)
+    expect(next.url).not.toBe(first.url)
   })
 
   it('uses couple names and the first suitable uploaded image', () => {
@@ -74,6 +94,33 @@ describe('publicSurfaceMetadata', () => {
     ).toMatchObject({
       title: 'Ngày vui của An và Bình',
       image: 'https://cdn.example.com/share.jpg',
+    })
+  })
+
+  it('reads the website SEO contract and its selected share image', () => {
+    expect(
+      publicSurfaceMetadata(
+        {
+          snapshotVersion: 7,
+          ownerAvatarUrl: 'https://cdn.example.com/avatar.jpg',
+          content: {
+            seo: {
+              title: 'Ngày cưới của Mai Anh và Hải Đăng',
+              description: 'Cùng chung vui với chúng mình.',
+              ogImage: { src: 'https://cdn.example.com/wedding-cover.jpg' },
+            },
+            hero: { brideName: 'Mai Anh', groomName: 'Hải Đăng' },
+          },
+        },
+        'website',
+        '/mai-hai/website',
+      ),
+    ).toMatchObject({
+      title: 'Ngày cưới của Mai Anh và Hải Đăng',
+      description: 'Cùng chung vui với chúng mình.',
+      image: 'https://cdn.example.com/wedding-cover.jpg',
+      url: expect.stringMatching(/^\/mai-hai\/website\?v=7-/),
+      canonicalUrl: '/mai-hai/website',
     })
   })
 })
