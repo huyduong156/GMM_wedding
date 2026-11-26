@@ -28,6 +28,7 @@ import { AppLink } from '../../../shared/lib/navigation/AppLink'
 import { EditorPreviewModal } from '../../../shared/ui/EditorPreviewModal'
 import { PageLoading } from '../../../shared/ui/PageLoading'
 import { SharePublicationModal } from '../../../shared/ui/SharePublicationModal'
+import { createShareVersionToken, withShareVersion } from '../../../shared/lib/page-metadata'
 import { MobileEditorAdviceModal } from '../../../shared/ui/MobileEditorAdviceModal'
 import { TemplateSchemaFields } from '../../../shared/ui/template-editor/TemplateSchemaFields'
 import { NativeDateField } from '../../../shared/ui/form-controls/NativeDateField'
@@ -176,6 +177,7 @@ export function WebsiteEditorLivePageNext() {
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [missing, setMissing] = useState(false)
@@ -482,6 +484,22 @@ export function WebsiteEditorLivePageNext() {
   const openMine = () => {
     if (websiteUrl) window.open(websiteUrl, '_blank', 'noopener,noreferrer')
   }
+  const openShare = async () => {
+    let versionedUrl = websiteUrl
+    if (slug) {
+      try {
+        const result = await weddingApi.publicWebsite(slug)
+        versionedUrl = withShareVersion(
+          websiteUrl,
+          createShareVersionToken(result.snapshot.version, result.snapshot.ownerAvatarUrl),
+        )
+      } catch {
+        // Keep the existing share flow available while a draft is not public.
+      }
+    }
+    setShareUrl(versionedUrl)
+    setShareOpen(true)
+  }
   const request = (action: 'website' | 'publish') => {
     if (dirty && signature(data, order, enabled, theme) !== baseline.current) setPending(action)
     else if (action === 'website') openMine()
@@ -710,7 +728,7 @@ export function WebsiteEditorLivePageNext() {
               className="button button-secondary"
               type="button"
               disabled={!websiteUrl || saving || publishing}
-              onClick={() => setShareOpen(true)}
+              onClick={() => void openShare()}
             >
               <ShareNetwork /> Chia sẻ
             </button>
@@ -817,9 +835,9 @@ export function WebsiteEditorLivePageNext() {
         </main>
       </div>
       <MobileEditorAdviceModal open={mobileAdviceOpen} onClose={() => setMobileAdviceOpen(false)} />
-      {shareOpen && websiteUrl ? (
+      {shareOpen && shareUrl ? (
         <SharePublicationModal
-          url={websiteUrl}
+          url={shareUrl}
           surface="Website cưới"
           onClose={() => setShareOpen(false)}
         />

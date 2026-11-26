@@ -119,6 +119,7 @@ export function PublicRecapPage({ slug }: { slug: string }) {
   const [sectionConfig, setSectionConfig] = useState<SectionConfig>()
   const [weddingName, setWeddingName] = useState<string>()
   const [ownerAvatarUrl, setOwnerAvatarUrl] = useState<string | null>()
+  const [snapshotVersion, setSnapshotVersion] = useState<number>()
   const [error, setError] = useState('')
   const [notFound, setNotFound] = useState(false)
   const metadataContent = content ?? weddingRollContent
@@ -130,12 +131,13 @@ export function PublicRecapPage({ slug }: { slug: string }) {
               content: metadataContent as unknown as Record<string, unknown>,
               weddingName,
               ownerAvatarUrl,
+              snapshotVersion,
             },
             'recap',
             `/${encodeURIComponent(slug)}/recaps`,
           )
         : undefined,
-    [metadataContent, ownerAvatarUrl, slug, weddingName],
+    [metadataContent, ownerAvatarUrl, slug, snapshotVersion, weddingName],
   )
   usePageMetadata(metadata)
 
@@ -179,6 +181,7 @@ export function PublicRecapPage({ slug }: { slug: string }) {
           payload = result.snapshot.payload as DraftPayload
           setWeddingName(result.snapshot.weddingName)
           setOwnerAvatarUrl(result.snapshot.ownerAvatarUrl ?? null)
+          setSnapshotVersion(result.snapshot.version)
         }
 
         if (!active) return

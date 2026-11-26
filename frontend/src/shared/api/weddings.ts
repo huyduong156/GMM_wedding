@@ -272,6 +272,7 @@ export type Guest = {
 
 export type PublishedRecapSnapshot = {
   slug: string
+  version: number
   payload: Record<string, unknown>
   weddingName?: string
   ownerAvatarUrl?: string | null
@@ -677,7 +678,7 @@ export const weddingApi = {
   recap: (weddingId: string) =>
     request<{ recap: RecapDraft | null }>(`/weddings/${weddingId}/recap`),
   publishRecap: (weddingId: string, input: { revision: number }) =>
-    request<{ snapshot: { slug: string; payload: Record<string, unknown> } }>(
+    request<{ snapshot: { slug: string; version: number; payload: Record<string, unknown> } }>(
       `/weddings/${weddingId}/publish`,
       { method: 'POST', body: JSON.stringify({ surface: 'RECAP', ...input }) },
     ),

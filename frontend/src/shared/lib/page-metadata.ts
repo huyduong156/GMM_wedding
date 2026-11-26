@@ -24,6 +24,26 @@ function nestedValue(source: unknown, path: readonly string[]): unknown {
 function nonEmptyString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined
 }
+export function withShareVersion(url: string, version: number | string | null | undefined): string {
+  if (version === undefined || version === null || String(version).trim() === '') return url
+  const absolute = /^https?:\/\//i.test(url)
+  const parsed = new URL(url, typeof window === 'undefined' ? 'https://ourday.asia' : window.location.origin)
+  parsed.searchParams.set('v', String(version))
+  return absolute ? parsed.toString() : `${parsed.pathname}${parsed.search}${parsed.hash}`
+}
+
+export function createShareVersionToken(
+  version: number | string | null | undefined,
+  imageUrl: string | null | undefined,
+): string | undefined {
+  if (version === undefined || version === null || String(version).trim() === '') return undefined
+  let hash = 0x811c9dc5
+  const source = imageUrl ?? ''
+  for (let index = 0; index < source.length; index += 1) {
+    hash = Math.imul(hash ^ source.charCodeAt(index), 0x01000193)
+  }
+  return `${version}-${(hash >>> 0).toString(36)}`
+}
 
 function mediaSource(value: unknown): string | undefined {
   const direct = nonEmptyString(value)
@@ -64,28 +84,39 @@ export function publicSurfaceMetadata(
     ['couple', 'groomName'],
     ['hero', 'groomName'],
   ])
-  const explicitTitle = firstNestedString(payload, [['ogTitle']])
-  const explicitDescription = firstNestedString(payload, [['ogDescription']])
+  const explicitTitle = firstNestedString(payload, [['ogTitle']]) ?? firstNestedString(content, [['seo', 'title']])
+  const explicitDescription =
+    firstNestedString(payload, [['ogDescription']]) ?? firstNestedString(content, [['seo', 'description']])
   const coupleName =
     [brideName, groomName].filter(Boolean).join(' & ') ||
     firstNestedString(content, [['hero', 'couple'], ['couple']])
   const ownerAvatar = firstNestedMedia(payload, [['ownerAvatarUrl'], ['avatarUrl']])
+  const snapshotVersion = createShareVersionToken(
+    typeof payload.snapshotVersion === 'number' && Number.isFinite(payload.snapshotVersion)
+      ? payload.snapshotVersion
+      : nonEmptyString(payload.snapshotVersion),
+    ownerAvatar,
+  )
   const weddingSlug = canonicalPath.split('/')[1]
   const image =
     (surface === 'invitation' && ownerAvatar && weddingSlug
-      ? `/api/public/invitations/${weddingSlug}/og-image`
-      : ownerAvatar) ??
+      ? `/api/public/invitations/${weddingSlug}/og-image${snapshotVersion ? `?v=${encodeURIComponent(snapshotVersion)}` : ''}`
+      : undefined) ??
     firstNestedMedia(payload, [['ogImageUrl']]) ??
+    firstNestedMedia(content, [['seo', 'ogImageUrl'], ['seo', 'ogImage']]) ??
     firstNestedMedia(content, [
       ['ogImageUrl'],
       ['heroMedia'],
+      ['hero', 'heroMedia'],
+      ['hero', 'media'],
       ['openingMediaFront'],
       ['coverBackgroundMedia'],
       ['hero', 'image'],
       ['hero', 'media'],
       ['cover', 'heroMedia'],
       ['cover', 'image'],
-    ])
+    ]) ??
+    ownerAvatar
 
   const label =
     surface === 'invitation' ? 'Thiệp cưới online' : surface === 'website' ? 'Website cưới' : 'Wedding Recap'
@@ -105,7 +136,13 @@ export function publicSurfaceMetadata(
           ? 'Website cưới của chúng tôi.'
           : 'Thiệp mời cưới online.')
 
-  return { title, description, image, canonicalUrl: canonicalPath, url: canonicalPath }
+  return {
+    title,
+    description,
+    image,
+    canonicalUrl: canonicalPath,
+    url: snapshotVersion ? withShareVersion(canonicalPath, snapshotVersion) : canonicalPath,
+  }
 }
 
 function absoluteUrl(value: string) {
