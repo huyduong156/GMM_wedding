@@ -38,6 +38,7 @@ import { useMediaLibrary } from '../../../features/media/model/useMediaLibrary'
 import { MediaManagerModal } from '../../../features/media/ui/MediaManagerModal'
 import { notifications } from '../../../shared/ui/notifications/notifications'
 import { useNavigation } from '../../../shared/lib/navigation/navigation-context'
+import { createShareVersionToken, withShareVersion } from '../../../shared/lib/page-metadata'
 import {
   getRecapSectionOrder,
   orderMatchesDeclaration,
@@ -884,7 +885,19 @@ export function RecapEditorPage() {
       setPublicWeddingSlug(recapSlug)
       if (result.status === 'PUBLISHED' && recapSlug) {
         setPublished(true)
-        setShareUrl(window.location.origin + '/' + encodeURIComponent(recapSlug) + '/recaps')
+        const baseUrl = window.location.origin + '/' + encodeURIComponent(recapSlug) + '/recaps'
+        try {
+          const publishedSnapshot = await weddingApi.publicRecap(recapSlug)
+          setShareUrl(withShareVersion(
+            baseUrl,
+            createShareVersionToken(
+              publishedSnapshot.snapshot.version,
+              publishedSnapshot.snapshot.ownerAvatarUrl,
+            ),
+          ))
+        } catch {
+          setShareUrl(baseUrl)
+        }
       }
       setContent(seedEditorContent(result.content, resolvedConfig))
       const storedOrder = result.sectionConfig?.order
@@ -1115,9 +1128,15 @@ export function RecapEditorPage() {
               setPublished(true)
               if (publishedSlug) {
                 setPublicWeddingSlug(publishedSlug)
-                setShareUrl(
-                  window.location.origin + '/' + encodeURIComponent(publishedSlug) + '/recaps',
-                )
+                const baseUrl = window.location.origin + '/' + encodeURIComponent(publishedSlug) + '/recaps'
+                const publishedSnapshot = await weddingApi.publicRecap(publishedSlug)
+                setShareUrl(withShareVersion(
+                  baseUrl,
+                  createShareVersionToken(
+                    publishedSnapshot.snapshot.version,
+                    publishedSnapshot.snapshot.ownerAvatarUrl,
+                  ),
+                ))
                 setShareOpen(true)
               }
               await notifications.success('Đã mở lại recap')
@@ -1215,8 +1234,15 @@ export function RecapEditorPage() {
       const publishedSlug = result.snapshot.slug || resolvedSlug
       setPublicWeddingSlug(publishedSlug)
       const publicUrl = window.location.origin + '/' + encodeURIComponent(publishedSlug) + '/recaps'
+      const publishedSnapshot = await weddingApi.publicRecap(publishedSlug)
       setPublished(true)
-      setShareUrl(publicUrl)
+      setShareUrl(withShareVersion(
+        publicUrl,
+        createShareVersionToken(
+          publishedSnapshot.snapshot.version,
+          publishedSnapshot.snapshot.ownerAvatarUrl,
+        ),
+      ))
       setShareOpen(true)
       setCopied(false)
       notifications.fire({

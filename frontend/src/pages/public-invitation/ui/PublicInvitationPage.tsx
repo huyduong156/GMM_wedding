@@ -62,7 +62,7 @@ export function PublicInvitationPage({ weddingSlug, guestSlug }: Props) {
       : canonicalPath
     return {
       ...publicSurfaceMetadata(
-        { ...snapshot.payload, weddingName: snapshot.weddingName, ownerAvatarUrl: snapshot.ownerAvatarUrl },
+        { ...snapshot.payload, weddingName: snapshot.weddingName, ownerAvatarUrl: snapshot.ownerAvatarUrl, snapshotVersion: snapshot.version },
         'invitation',
         canonicalPath,
       ),
